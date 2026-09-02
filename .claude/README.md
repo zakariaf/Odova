@@ -46,4 +46,28 @@ rule as this project's own non-negotiable, which is a good sign the two fit.
 | `ci-pipeline-and-gates` | `.github/workflows/ci.yml` and the `tools/` gates. |
 | `release-and-store-shipping` | Includes the App Review rule that a first release must submit the app version and its first in-app purchase together. |
 
-Licence: MIT, per the upstream repository.
+## `calm-*` — written here, not vendored
+
+Six further skills implement **Calm**, the design system chosen for this app
+(`design/calm/`). They are ours, not upstream, and they encode Calm's *content*
+where `design-system-structure` owns token *structure*:
+
+| Skill | Owns |
+|---|---|
+| `calm-design-system` | The front door: what Calm is, what it rejects, and a routing table to the other five. |
+| `calm-tokens` | Every token as Dart — five `ThemeExtension`s, hand-authored light and dark `ColorScheme`, the no-raw-values gate. |
+| `calm-typography-and-rtl` | The nine-step scale, the 13px floor, no monospace, Vazirmatn, six locales, numerals and calendars. |
+| `calm-components` | The widget library, every variant and every state. |
+| `calm-due-state-and-status` | The five due states, redundant encoding, and how "we do not know" is rendered so it never reads as "you are fine". |
+| `calm-layout-and-motion` | Spacing rhythm, one-primary-thing-per-screen, the 52px touch floor, all-clear as the good state, motion and reduced motion. |
+
+Every value in them comes from `design/calm/odova.css`; all 26 example files
+compile against a real Flutter project with zero analyzer errors, and all eight
+gate scripts have been seen to fail on a planted violation.
+
+**They found two WCAG failures in Calm itself** — see
+`design/calm/ACCESSIBILITY-FINDING.md`. Unfixed, because the remedy is a design
+decision.
+
+Licence: MIT for the vendored `Flutter-Skills`; the `calm-*` skills are Apache 2.0
+with the rest of this repo.

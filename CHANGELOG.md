@@ -20,7 +20,11 @@ All notable changes to Odova are recorded here. The format follows
 - `design/` — three complete candidate design systems, each covering all 27
   screens, with 336 reference screenshots in light/dark and LTR/RTL.
 - `.claude/skills/` — 40 Flutter engineering skills vendored from
-  zakariaf/Flutter-Skills at a pinned commit.
+  zakariaf/Flutter-Skills at a pinned commit, plus six `calm-*` skills written
+  here that implement the Calm design system in Flutter.
+- `design/calm/ACCESSIBILITY-FINDING.md` — two WCAG contrast failures found in
+  Calm's light theme while writing those skills. Not yet fixed; the remedy is a
+  design decision.
 
 ### Not yet
 - The Flutter app. CI's Flutter lane arms itself the moment `pubspec.yaml`
