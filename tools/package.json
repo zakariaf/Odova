@@ -1,0 +1,14 @@
+{
+  "name": "odova-design-tools",
+  "private": true,
+  "type": "module",
+  "description": "Design-mockup tooling: assemble the screens page and photograph every screen in both themes and both directions. Not part of the app.",
+  "scripts": {
+    "build": "node build_screens.mjs",
+    "shoot": "node shoot_design.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^23.11.1",
+    "sharp": "^0.35.4"
+  }
+}

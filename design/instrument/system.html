@@ -1,0 +1,1687 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instrument — the Odova design system</title>
+<link rel="stylesheet" href="odova.css">
+</head>
+<body>
+
+<!-- ===================== ICON SPRITE — 24px grid, 1.5px stroke ============ -->
+<svg width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- directional -->
+    <symbol id="i-chevron-end" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5"/></symbol>
+    <symbol id="i-chevron-back" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5"/></symbol>
+    <symbol id="i-arrow-end" viewBox="0 0 24 24"><path d="M4 12h15M13.5 6.5 19 12l-5.5 5.5"/></symbol>
+    <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M9 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6.5-7z"/><path d="M12.5 9.5 17 14M17 9.5 12.5 14"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M4 9h10a5 5 0 0 1 0 10H8"/><path d="M7.5 5.5 4 9l3.5 3.5"/></symbol>
+    <!-- neutral -->
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9.5 12 15.5 18 9.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v6M12 7.6v.2"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 21.5 20H2.5z"/><path d="M12 9.5v5M12 17.3v.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.2l3.4 2"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></symbol>
+    <symbol id="i-fuel" viewBox="0 0 24 24"><path d="M4 20.5V5.5A2 2 0 0 1 6 3.5h5a2 2 0 0 1 2 2v15"/><path d="M2.5 20.5h12M6.5 8.5h4"/><path d="M13 9.5h3.5a2 2 0 0 1 2 2v5.2a1.6 1.6 0 0 0 3.2 0V9L18.5 5.6"/></symbol>
+    <symbol id="i-oil" viewBox="0 0 24 24"><path d="M12 3.2s6.2 6.6 6.2 10.5A6.2 6.2 0 0 1 5.8 13.7C5.8 9.8 12 3.2 12 3.2z"/><path d="M9.2 14.2a2.9 2.9 0 0 0 2.9 2.9"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M15.2 3.6a5 5 0 0 0-6 6.4L4 15.2a2.4 2.4 0 0 0 3.4 3.4l5.2-5.2a5 5 0 0 0 6.4-6l-3.1 3.1-2.8-.6-.6-2.8z"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M3.5 18.5a8.5 8.5 0 1 1 17 0"/><path d="M12 18.5 16.2 12"/><path d="M3.5 18.5h2M18.5 18.5h2M12 7.5v1.6M6.6 9.6l1.2 1.1M17.4 9.6l-1.2 1.1"/></symbol>
+    <symbol id="i-car" viewBox="0 0 24 24"><path d="M3 16.5v3h3.2v-2h11.6v2H21v-3"/><path d="M3 16.5 4.7 10.6A2.2 2.2 0 0 1 6.8 9h10.4a2.2 2.2 0 0 1 2.1 1.6L21 16.5z"/><path d="M6.4 13.2h11.2"/></symbol>
+    <symbol id="i-van" viewBox="0 0 24 24"><path d="M2.5 17V7.5a1 1 0 0 1 1-1h9.5V17"/><path d="M13 9.5h3.6l4.9 4.2V17"/><path d="M2.5 17h2.2M9.2 17h5.6M19.3 17h2.2"/><circle cx="7" cy="17.6" r="2.1"/><circle cx="17.2" cy="17.6" r="2.1"/></symbol>
+    <symbol id="i-bike" viewBox="0 0 24 24"><circle cx="5.5" cy="16.5" r="3.6"/><circle cx="18.5" cy="16.5" r="3.6"/><path d="M5.5 16.5 9.6 8.5h4.2l2.4 4.6 2.3 3.4M8 8.5h4M14.5 8.5h3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M9.4 18.5a2.7 2.7 0 0 0 5.2 0"/><path d="M6 9.6a6 6 0 0 1 12 0v3.6l1.8 3.1H4.2L6 13.2z"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.4"/><path d="M19.4 12h2M17.23 6.77 18.65 5.35M12 4.6V2.6M6.77 6.77 5.35 5.35M4.6 12H2.6M6.77 17.23 5.35 18.65M12 19.4v2M17.23 17.23 18.65 18.65"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6.5h16M9.5 6.5V4.2h5v2.3"/><path d="M6.3 6.5 7.4 20h9.2l1.1-13.5"/><path d="M10.2 10v6.4M13.8 10v6.4"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20.2 4.9 16 16.5 4.4a1.9 1.9 0 0 1 2.7 0l1.4 1.4a1.9 1.9 0 0 1 0 2.7L9 20.1z"/><path d="M15 6l3.9 3.9"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M8 6.8 12 2.9l4 3.9"/><path d="M5 12.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7.5"/></symbol>
+    <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15.5V3.2"/><path d="M8 11.6 12 15.6l4-4"/><path d="M4.5 19.5h15"/></symbol>
+    <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 3.2v12.3"/><path d="M8 7.1 12 3.1l4 4"/><path d="M4.5 19.5h15"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7.2 8.4V19L10.2 21v-7.6z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.6"/><path d="M15.6 15.6 20.5 20.5"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11 12 3.6 20.5 11"/><path d="M5.6 9.3V19a1 1 0 0 0 1 1h10.8a1 1 0 0 0 1-1V9.3"/><path d="M9.6 20v-5.6h4.8V20"/></symbol>
+    <symbol id="i-coins" viewBox="0 0 24 24"><ellipse cx="12" cy="6.6" rx="7.5" ry="3.1"/><path d="M4.5 6.6v4.8c0 1.7 3.4 3.1 7.5 3.1s7.5-1.4 7.5-3.1V6.6"/><path d="M4.5 11.4v5c0 1.7 3.4 3.1 7.5 3.1s7.5-1.4 7.5-3.1v-5"/></symbol>
+    <symbol id="i-road" viewBox="0 0 24 24"><path d="M8.5 3 5 21M15.5 3 19 21"/><path d="M12 3.5v3M12 10.5v3M12 17.5v3"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.4 3.6 5.3 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.3-3.6-8.5S9.6 5.9 12 3.5z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.2 19 6v5.8c0 4.4-2.9 7.4-7 9.1-4.1-1.7-7-4.7-7-9.1V6z"/><path d="M9 12l2.3 2.3L15.4 10"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.2" cy="12" r="1.4" class="icon--filled"/><circle cx="12" cy="12" r="1.4" class="icon--filled"/><circle cx="18.8" cy="12" r="1.4" class="icon--filled"/></symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24"><path d="M6 9h12M6 15h12"/></symbol>
+    <symbol id="i-trend-up" viewBox="0 0 24 24"><path d="M3.5 16.5 9 11l4 4 7.5-7.5"/><path d="M15.5 7.5h5v5"/></symbol>
+    <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="M3.5 7.5 9 13l4-4 7.5 7.5"/><path d="M15.5 16.5h5v-5"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2.5" y="7.5" width="16" height="9" rx="2"/><path d="M21 11v2"/><rect x="4.5" y="9.5" width="11" height="5" class="icon--filled"/></symbol>
+    <symbol id="i-signal" viewBox="0 0 24 24"><path d="M3 17v-2.5M8.3 17v-5.5M13.7 17V8M19 17V4.5" stroke-width="2.4"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 9.2a14 14 0 0 1 19 0M6 12.8a9 9 0 0 1 12 0M9.6 16.4a4 4 0 0 1 4.8 0M12 19.6v.1"/></symbol>
+  </defs>
+</svg>
+
+<main class="spec">
+
+<!-- =========================== 1 · TITLE BLOCK ========================== -->
+<header class="spec__masthead">
+  <div class="t-tick">Odova · design system 1 of 3 · version 1.0 · 2 September 2026</div>
+  <h1 class="spec__wordmark">Instrument</h1>
+  <p class="spec__lede">
+    <strong>The car's own screen.</strong> Odova borrows its language from the instrument
+    binnacle and the head unit: an unlit field with light drawn on it, tick marks, a gauge
+    arc, a needle that can run past its stop, condensed numerals sized to be read at
+    arm's length in a moving car. Elevation is luminance, never shadow. Colour is signal,
+    never decoration — it appears only where the car itself would light a lamp.
+  </p>
+  <p class="spec__lede">
+    <strong>For the driver who does not enjoy this.</strong> A commuter, a family, a plumber
+    with two vans. They open the app two to six times a month, often at a pump in the rain,
+    one-handed. They read one number and leave. So the number is enormous, the label is
+    small, and the app answers before it asks.
+  </p>
+  <p class="spec__lede">
+    <strong>It rejects:</strong> paper metaphors and stationery cues · serifs of any kind ·
+    warm cream and manila · soft rounded cards · drop shadows and floating layers ·
+    illustrations, mascots and celebration confetti · colour used to make a screen look
+    designed. Nothing here is cosy. A dashboard is not cosy.
+  </p>
+  <div class="spec-note">
+    <span class="badge badge--neutral">Dark is the design</span>
+    <span class="badge badge--neutral">Light is the daylight cluster</span>
+    <span class="badge badge--neutral">390 × 844</span>
+    <span class="badge badge--neutral">RTL first-class</span>
+  </div>
+</header>
+
+<!-- =========================== 2 · COLOUR ============================== -->
+<section class="spec-section">
+  <div class="spec-section__num">02</div>
+  <h2 class="spec-h">Colour</h2>
+  <p class="spec-note">
+    Two complete palettes, not one inverted. The night cluster is a deep cool charcoal
+    field with luminous ink; the day cluster is a light neutral field — never white paper —
+    with the same instrument logic and darkened signal lamps that hold 4.5:1 on their own
+    surface. Every colour below is a token; screens never write a hex.
+  </p>
+
+  <div class="spec-duo">
+
+    <!-- DARK -->
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>Night cluster — <code>:root[data-theme="dark"]</code></span><span>default</span></div>
+
+      <h3 class="spec-h3">Surface ramp — luminance is elevation</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-sunken"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-sunken</span><span class="spec-swatch__hex">#05070A</span></span><span class="spec-swatch__role">Wells: inputs, number-pad display</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-0"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-0</span><span class="spec-swatch__hex">#0A0D11</span></span><span class="spec-swatch__role">The unlit field. Screen background</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-1"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-1</span><span class="spec-swatch__hex">#11161A</span></span><span class="spec-swatch__role">Cards, lists, tab bar</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-2"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-2</span><span class="spec-swatch__hex">#181E23</span></span><span class="spec-swatch__role">Pressed, panel heads, keys</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-3"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-3</span><span class="spec-swatch__hex">#212930</span></span><span class="spec-swatch__role">Dialogs, snackbar — the top layer</span></div>
+
+      <h3 class="spec-h3">Ink ramp</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ink-hi"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--ink-hi</span><span class="spec-swatch__hex">#EEF4F7</span></span><span class="spec-swatch__role">Readouts, titles, values</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ink-mid"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--ink-mid</span><span class="spec-swatch__hex">#A7B4BF</span></span><span class="spec-swatch__role">Body, estimated values (4.5:1)</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ink-lo"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--ink-lo</span><span class="spec-swatch__hex">#72808C</span></span><span class="spec-swatch__role">Tick labels, units, captions</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ink-dim"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--ink-dim</span><span class="spec-swatch__hex">#4B5761</span></span><span class="spec-swatch__role">Disabled, chevrons, the em dash</span></div>
+
+      <h3 class="spec-h3">Edges — the 1px lit line that makes a surface rise</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-edge"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--edge</span><span class="spec-swatch__hex">rgba(255,255,255,.07)</span></span><span class="spec-swatch__role">Hairline separators</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-edge-lit"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--edge-lit</span><span class="spec-swatch__hex">rgba(255,255,255,.14)</span></span><span class="spec-swatch__role">Top border of every raised surface</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-edge-strong"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--edge-strong</span><span class="spec-swatch__hex">rgba(255,255,255,.24)</span></span><span class="spec-swatch__role">Outlined buttons, field wells</span></div>
+
+      <h3 class="spec-h3">Accent — the lit needle</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-accent"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--accent</span><span class="spec-swatch__hex">#37D2E6</span></span><span class="spec-swatch__role">Active tab, focus, primary key</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-accent-soft"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--accent-soft</span><span class="spec-swatch__hex">#12343B</span></span><span class="spec-swatch__role">Selected chip / row wash</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-accent-ink"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--accent-ink</span><span class="spec-swatch__hex">#04161A</span></span><span class="spec-swatch__role">Text on the accent</span></div>
+
+      <h3 class="spec-h3">Signal — the only colour in the system</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-overdue"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-overdue</span><span class="spec-swatch__hex">#FF4A3B</span></span><span class="spec-swatch__role">Overdue. Redline zones</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-due"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-due</span><span class="spec-swatch__hex">#FF9A24</span></span><span class="spec-swatch__role">Due now</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-due-soon"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-due-soon</span><span class="spec-swatch__hex">#FFC24A</span></span><span class="spec-swatch__role">Due soon</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ok"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-ok</span><span class="spec-swatch__hex">#3BE0A6</span></span><span class="spec-swatch__role">Nothing due, healthy</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-unknown"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-unknown</span><span class="spec-swatch__hex">#8A97A3</span></span><span class="spec-swatch__role">History unknown — never red</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-needs"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-needs</span><span class="spec-swatch__hex">#7FA3BE</span></span><span class="spec-swatch__role">Needs an odometer reading</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-business"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-business</span><span class="spec-swatch__hex">#9B8CFF</span></span><span class="spec-swatch__role">Business split, trips</span></div>
+
+      <h3 class="spec-h3">Signal grounds — a lamp behind glass</h3>
+      <div class="spec-grid spec-grid--3">
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-overdue-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-overdue-bg</span><span class="spec-swatch__hex">#2A100C</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-due-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-due-bg</span><span class="spec-swatch__hex">#2A1A06</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-due-soon-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-due-soon-bg</span><span class="spec-swatch__hex">#2A2208</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-ok-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-ok-bg</span><span class="spec-swatch__hex">#06241C</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-unknown-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-unknown-bg</span><span class="spec-swatch__hex">#1A1F24</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-needs-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-needs-bg</span><span class="spec-swatch__hex">#101E28</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-business-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-business-bg</span><span class="spec-swatch__hex">#17142E</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-plot-track"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--plot-track</span><span class="spec-swatch__hex">rgba(255,255,255,.10)</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-plot-tick"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--plot-tick</span><span class="spec-swatch__hex">rgba(255,255,255,.24)</span></span></div>
+      </div>
+    </div>
+
+    <!-- LIGHT -->
+    <div class="theme-light spec-panel">
+      <div class="spec-panel__title"><span>Day cluster — <code>:root</code></span><span>adaptation</span></div>
+
+      <h3 class="spec-h3">Surface ramp — luminance is elevation</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-sunken"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-sunken</span><span class="spec-swatch__hex">#CBD3D9</span></span><span class="spec-swatch__role">Wells: inputs, number-pad display</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-0"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-0</span><span class="spec-swatch__hex">#DFE5E9</span></span><span class="spec-swatch__role">The lit field. Screen background</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-1"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-1</span><span class="spec-swatch__hex">#ECF0F3</span></span><span class="spec-swatch__role">Cards, lists, tab bar</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-2"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-2</span><span class="spec-swatch__hex">#F6F8F9</span></span><span class="spec-swatch__role">Pressed, panel heads, keys</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-surface-3"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--surface-3</span><span class="spec-swatch__hex">#FFFFFF</span></span><span class="spec-swatch__role">Dialogs, snackbar — the top layer</span></div>
+
+      <h3 class="spec-h3">Ink ramp</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ink-hi"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--ink-hi</span><span class="spec-swatch__hex">#0B1116</span></span><span class="spec-swatch__role">Readouts, titles, values</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ink-mid"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--ink-mid</span><span class="spec-swatch__hex">#3B4952</span></span><span class="spec-swatch__role">Body, estimated values (4.5:1)</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ink-lo"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--ink-lo</span><span class="spec-swatch__hex">#66737C</span></span><span class="spec-swatch__role">Tick labels, units, captions</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ink-dim"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--ink-dim</span><span class="spec-swatch__hex">#94A1A9</span></span><span class="spec-swatch__role">Disabled, chevrons, the em dash</span></div>
+
+      <h3 class="spec-h3">Edges — the lit line inverts to white</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-edge"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--edge</span><span class="spec-swatch__hex">rgba(11,22,30,.13)</span></span><span class="spec-swatch__role">Hairline separators</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-edge-lit"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--edge-lit</span><span class="spec-swatch__hex">rgba(255,255,255,.95)</span></span><span class="spec-swatch__role">Top border of every raised surface</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-edge-strong"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--edge-strong</span><span class="spec-swatch__hex">rgba(11,22,30,.30)</span></span><span class="spec-swatch__role">Outlined buttons, field wells</span></div>
+
+      <h3 class="spec-h3">Accent — the lit needle</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-accent"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--accent</span><span class="spec-swatch__hex">#06788A</span></span><span class="spec-swatch__role">Active tab, focus, primary key</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-accent-soft"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--accent-soft</span><span class="spec-swatch__hex">#C7E6EB</span></span><span class="spec-swatch__role">Selected chip / row wash</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-accent-ink"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--accent-ink</span><span class="spec-swatch__hex">#FFFFFF</span></span><span class="spec-swatch__role">Text on the accent</span></div>
+
+      <h3 class="spec-h3">Signal — the only colour in the system</h3>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-overdue"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-overdue</span><span class="spec-swatch__hex">#C42718</span></span><span class="spec-swatch__role">Overdue. Redline zones</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-due"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-due</span><span class="spec-swatch__hex">#B45900</span></span><span class="spec-swatch__role">Due now</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-due-soon"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-due-soon</span><span class="spec-swatch__hex">#8A6300</span></span><span class="spec-swatch__role">Due soon</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-ok"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-ok</span><span class="spec-swatch__hex">#00785A</span></span><span class="spec-swatch__role">Nothing due, healthy</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-unknown"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-unknown</span><span class="spec-swatch__hex">#5C6970</span></span><span class="spec-swatch__role">History unknown — never red</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-needs"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-needs</span><span class="spec-swatch__hex">#35617D</span></span><span class="spec-swatch__role">Needs an odometer reading</span></div>
+      <div class="spec-swatch"><span class="spec-swatch__chip sw-business"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-business</span><span class="spec-swatch__hex">#4936C4</span></span><span class="spec-swatch__role">Business split, trips</span></div>
+
+      <h3 class="spec-h3">Signal grounds — a lamp behind glass</h3>
+      <div class="spec-grid spec-grid--3">
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-overdue-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-overdue-bg</span><span class="spec-swatch__hex">#F6D9D5</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-due-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-due-bg</span><span class="spec-swatch__hex">#F7E2CB</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-due-soon-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-due-soon-bg</span><span class="spec-swatch__hex">#F2E7C4</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-ok-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-ok-bg</span><span class="spec-swatch__hex">#CDE9E0</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-unknown-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-unknown-bg</span><span class="spec-swatch__hex">#DCE2E5</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-needs-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-needs-bg</span><span class="spec-swatch__hex">#D5E3EC</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-business-bg"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--sig-business-bg</span><span class="spec-swatch__hex">#DEDAF7</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-plot-track"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--plot-track</span><span class="spec-swatch__hex">rgba(11,22,30,.12)</span></span></div>
+        <div class="spec-swatch"><span class="spec-swatch__chip sw-plot-tick"></span><span class="spec-swatch__meta"><span class="spec-swatch__name">--plot-tick</span><span class="spec-swatch__hex">rgba(11,22,30,.32)</span></span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================== 3 · TYPOGRAPHY ========================== -->
+<section class="spec-section">
+  <div class="spec-section__num">03</div>
+  <h2 class="spec-h">Typography</h2>
+  <p class="spec-note">
+    Two families and one job each. <code>--font-num</code> / <code>--font-display</code> is a
+    condensed grotesk — <b>Avenir Next Condensed</b>, falling back to Helvetica Neue and
+    Futura — used for every readout, every title and every number. <code>--font-ui</code>
+    is <b>Helvetica Neue</b> for running text and labels. Figures are tabular everywhere:
+    a number must not shift width as it counts. Units are never the same size as their
+    number — they are set at <code>--fs-tick</code>, uppercase, tracked, and raised beside it.
+    Under <code>[lang="fa"]</code>, <b>Vazirmatn</b> takes over all three roles, uppercase
+    and tracking are switched off, and line-height opens to 1.62.
+  </p>
+
+  <div class="spec-panel">
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-readout-xl / 76px</b>lh .86 · w500 · −.02em<br>Home speedo, number-pad</div>
+      <div class="spec-type-row__sample"><span class="t-readout-xl">187,412<span class="t-unit">km</span></span></div>
+    </div>
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-readout-lg / 48px</b>lh .90 · w500<br>Gauge centre, costs total</div>
+      <div class="spec-type-row__sample"><span class="t-readout-lg">6.4<span class="t-unit">L/100km</span></span></div>
+    </div>
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-readout / 32px</b>lh .94 · w500<br>Tile values, odometer strip</div>
+      <div class="spec-type-row__sample"><span class="t-readout">€2,184<span class="t-unit">this year</span></span></div>
+    </div>
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-title / 22px</b>lh 1.14 · w600 · condensed<br>App-bar title, dialog title</div>
+      <div class="spec-type-row__sample"><span class="t-title">VW Golf VII</span></div>
+    </div>
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-heading / 17px</b>lh 1.24 · w600<br>Card titles, vehicle names</div>
+      <div class="spec-type-row__sample"><span class="t-heading">Oil and filter</span></div>
+    </div>
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-body / 15px</b>lh 1.40 · w400<br>Row titles, running text</div>
+      <div class="spec-type-row__sample"><span class="t-body">Last fill-up 2 September · 42.8 L · €74.20</span></div>
+    </div>
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-label / 13px</b>lh 1.34 · w500<br>Secondary lines, hints</div>
+      <div class="spec-type-row__sample"><span class="t-label">Was due at 186,512 km · 12 August</span></div>
+    </div>
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-caption / 11px</b>lh 1.30 · w400<br>Field hints, errors, notes</div>
+      <div class="spec-type-row__sample"><span class="t-caption">Odova needs a reading to say when.</span></div>
+    </div>
+    <div class="spec-type-row">
+      <div class="spec-type-row__meta"><b>--fs-tick / 10px</b>lh 1.20 · w600 · +.14em · caps<br>The stencilled instrument label</div>
+      <div class="spec-type-row__sample"><span class="t-tick">Service interval · km since oil change</span></div>
+    </div>
+  </div>
+
+  <h3 class="spec-h3">The same scale in Vazirmatn — LTR page, RTL block</h3>
+  <div class="spec-duo">
+    <div class="spec-panel">
+      <div class="spec-panel__title"><span>Latin · LTR</span><span>dir="ltr"</span></div>
+      <div class="stack">
+        <span class="t-title">Inspection (TÜV) · 14 March</span>
+        <span class="t-body">Overdue by 900 km. Was due at 186,512 km.</span>
+        <span class="t-label ink-lo">Timing belt — never recorded</span>
+        <span class="t-readout">187,412<span class="t-unit">km</span></span>
+      </div>
+    </div>
+    <div class="spec-panel" lang="fa" dir="rtl">
+      <div class="spec-panel__title"><span>Vazirmatn · RTL</span><span>dir="rtl"</span></div>
+      <div class="stack">
+        <span class="t-title">معاینه فنی · ۲۴ اسفند</span>
+        <span class="t-body">۹۰۰ کیلومتر گذشته است. موعد آن ۱۸۶٬۵۱۲ کیلومتر بود.</span>
+        <span class="t-label ink-lo">تسمه تایم — هرگز ثبت نشده است</span>
+        <span class="t-readout">۱۸۷٬۴۱۲<span class="t-unit">کیلومتر</span></span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="spec-h3">Numeral specimen — both digit sets, tabular, same column width</h3>
+  <div class="spec-duo">
+    <div class="spec-panel">
+      <div class="spec-panel__title"><span>Latin digits · <code>--font-num</code></span><span>tnum</span></div>
+      <div class="t-readout">0123456789</div>
+      <div class="stack">
+        <div class="kv"><span class="kv__k">Odometer</span><span class="kv__v">187,412 km</span></div>
+        <div class="kv"><span class="kv__k">Last fill-up</span><span class="kv__v">42.8 L · €74.20</span></div>
+        <div class="kv"><span class="kv__k">Unit price</span><span class="kv__v">€1.734 / L</span></div>
+        <div class="kv"><span class="kv__k">Consumption</span><span class="kv__v">6.4 L/100 km</span></div>
+        <div class="kv"><span class="kv__k">Cost per km</span><span class="kv__v">€0.29</span></div>
+      </div>
+    </div>
+    <div class="spec-panel" lang="fa" dir="rtl">
+      <div class="spec-panel__title"><span>ارقام فارسی · Vazirmatn</span><span>extarab</span></div>
+      <div class="t-readout">۰۱۲۳۴۵۶۷۸۹</div>
+      <div class="stack">
+        <div class="kv"><span class="kv__k">کیلومترشمار</span><span class="kv__v">۱۸۷٬۴۱۲ کیلومتر</span></div>
+        <div class="kv"><span class="kv__k">آخرین سوخت‌گیری</span><span class="kv__v">۴۲٫۸ لیتر · ۳٬۷۱۰٬۰۰۰ تومان</span></div>
+        <div class="kv"><span class="kv__k">قیمت واحد</span><span class="kv__v">۸۶٬۷۰۰ تومان / لیتر</span></div>
+        <div class="kv"><span class="kv__k">مصرف</span><span class="kv__v">۶٫۴ لیتر در ۱۰۰ کیلومتر</span></div>
+        <div class="kv"><span class="kv__k">تاریخ</span><span class="kv__v">۱۱ شهریور ۱۴۰۵</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== 4 · SPACING & RADIUS ==================== -->
+<section class="spec-section">
+  <div class="spec-section__num">04</div>
+  <h2 class="spec-h">Spacing and radius</h2>
+  <p class="spec-note">
+    A 4px base. Screen gutter is <code>--gutter</code> 16px on every screen without exception;
+    a row's vertical padding is <code>--sp-2</code>, a card's inner padding <code>--sp-4</code>,
+    the gap between stacked cards <code>--sp-3</code>. Radius stays between 2 and 8px — this is
+    machined metal and glass, not a pillow. Only the switch track, the sheet grip and a count
+    badge are pill-shaped, because those are physical objects.
+  </p>
+  <div class="spec-duo">
+    <div class="spec-panel">
+      <div class="spec-panel__title"><span>Spacing scale</span><span>drawn to size</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-0</span><span class="spec-bar spec-bar--0"></span><span class="t-caption">2px · hairline nudge, inside-badge padding</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-1</span><span class="spec-bar spec-bar--1"></span><span class="t-caption">4px · icon-to-label, stacked text lines</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-2</span><span class="spec-bar spec-bar--2"></span><span class="t-caption">8px · button gap, row vertical padding</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-3</span><span class="spec-bar spec-bar--3"></span><span class="t-caption">12px · gap between cards, row content gap</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-4</span><span class="spec-bar spec-bar--4"></span><span class="t-caption">16px · card padding, screen gutter</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-5</span><span class="spec-bar spec-bar--5"></span><span class="t-caption">20px · dialog padding, number-pad display</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-6</span><span class="spec-bar spec-bar--6"></span><span class="t-caption">24px · section break inside a screen</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-7</span><span class="spec-bar spec-bar--7"></span><span class="t-caption">32px · empty-state inset</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-8</span><span class="spec-bar spec-bar--8"></span><span class="t-caption">40px · first-run vertical rhythm</span></div>
+      <div class="spec-measure"><span class="spec-measure__name">--sp-9</span><span class="spec-bar spec-bar--9"></span><span class="t-caption">56px · specimen section break</span></div>
+      <h3 class="spec-h3">Fixed metrics</h3>
+      <table class="spec-table">
+        <tr><td class="spec-td-name">--device-w / -h</td><td class="spec-td-spec">390 × 844</td><td>The artboard. Never scrolls.</td></tr>
+        <tr><td class="spec-td-name">--statusbar-h</td><td class="spec-td-spec">44px</td><td>OS status bar</td></tr>
+        <tr><td class="spec-td-name">--appbar-h</td><td class="spec-td-spec">52px</td><td>App bar</td></tr>
+        <tr><td class="spec-td-name">--tabbar-h</td><td class="spec-td-spec">64px</td><td>Tab bar + 20px home bar</td></tr>
+        <tr><td class="spec-td-name">--gutter</td><td class="spec-td-spec">16px</td><td>Screen inline padding</td></tr>
+        <tr><td class="spec-td-name">--hair</td><td class="spec-td-spec">1px</td><td>Every separator and edge</td></tr>
+      </table>
+    </div>
+    <div class="spec-panel">
+      <div class="spec-panel__title"><span>Radius scale</span><span>4–8px, and nothing else</span></div>
+      <div class="cluster">
+        <div class="spec-radius-box spec-radius-box--xs">2</div>
+        <div class="spec-radius-box spec-radius-box--sm">4</div>
+        <div class="spec-radius-box spec-radius-box--md">6</div>
+        <div class="spec-radius-box spec-radius-box--lg">8</div>
+        <div class="spec-radius-box spec-radius-box--pill">pill</div>
+      </div>
+      <table class="spec-table">
+        <tr><th>Token</th><th>Value</th><th>Used by</th></tr>
+        <tr><td class="spec-td-name">--r-xs</td><td class="spec-td-spec">2px</td><td>Badges, meter track, split-bar</td></tr>
+        <tr><td class="spec-td-name">--r-sm</td><td class="spec-td-spec">4px</td><td>Buttons, chips, fields, number-pad keys</td></tr>
+        <tr><td class="spec-td-name">--r-md</td><td class="spec-td-spec">6px</td><td>Cards, panels, due cards, charts</td></tr>
+        <tr><td class="spec-td-name">--r-lg</td><td class="spec-td-spec">8px</td><td>Dialog, sheet top corners, device frame</td></tr>
+        <tr><td class="spec-td-name">--r-pill</td><td class="spec-td-spec">999px</td><td>Switch, sheet grip, count badge, home bar</td></tr>
+      </table>
+      <h3 class="spec-h3">The tick rule — the system's signature divider</h3>
+      <p class="t-caption">A hairline with tick marks cut into it. Use <code>.tickrule</code> to break a
+      screen into instrument zones; <code>.tickrule--major</code> for the coarser scale.</p>
+      <div class="tickrule"></div>
+      <div class="tickrule tickrule--major"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== 5 · ELEVATION =========================== -->
+<section class="spec-section">
+  <div class="spec-section__num">05</div>
+  <h2 class="spec-h">Elevation</h2>
+  <p class="spec-note">
+    <strong>There are no drop shadows in this system.</strong> A surface rises by getting
+    lighter and by catching a 1px lit line along its top edge — the way a moulded plastic
+    fascia catches the cabin light. The only <code>box-shadow</code> declarations in
+    <code>odova.css</code> are the focus ring and the accent/state <em>glow</em>, which is
+    light spilling out of a lit element, not a shadow falling under it. Screens must not add
+    shadows; the screenshot tool photographs <code>.device</code> and anything bleeding past
+    its edge is cropped.
+  </p>
+  <div class="spec-duo">
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>Night</span><span>lit edge is white at 14%</span></div>
+      <div class="spec-grid spec-grid--2">
+        <div class="spec-elev elev-0 lit">.elev-0 · field</div>
+        <div class="spec-elev elev-1 lit">.elev-1 · card</div>
+        <div class="spec-elev elev-2 lit">.elev-2 · pressed</div>
+        <div class="spec-elev elev-3 lit">.elev-3 · dialog</div>
+        <div class="spec-elev elev-1 lit glow--sm">.glow--sm</div>
+        <div class="spec-elev elev-1 lit glow">.glow (md)</div>
+        <div class="spec-elev elev-2 lit glow--lg">.glow--lg</div>
+        <div class="spec-elev card--sunken">--surface-sunken · well</div>
+      </div>
+    </div>
+    <div class="theme-light spec-panel">
+      <div class="spec-panel__title"><span>Day</span><span>lit edge is white at 95%</span></div>
+      <div class="spec-grid spec-grid--2">
+        <div class="spec-elev elev-0 lit">.elev-0 · field</div>
+        <div class="spec-elev elev-1 lit">.elev-1 · card</div>
+        <div class="spec-elev elev-2 lit">.elev-2 · pressed</div>
+        <div class="spec-elev elev-3 lit">.elev-3 · dialog</div>
+        <div class="spec-elev elev-1 lit glow--sm">.glow--sm</div>
+        <div class="spec-elev elev-1 lit glow">.glow (md)</div>
+        <div class="spec-elev elev-2 lit glow--lg">.glow--lg</div>
+        <div class="spec-elev card--sunken">--surface-sunken · well</div>
+      </div>
+    </div>
+  </div>
+  <table class="spec-table">
+    <tr><th>Level</th><th>Surface</th><th>Edge</th><th>Where it appears</th></tr>
+    <tr><td class="spec-td-name">0 — field</td><td class="spec-td-spec">--surface-0</td><td class="spec-td-spec">--edge</td><td>Screen background, app bar, section headers</td></tr>
+    <tr><td class="spec-td-name">1 — card</td><td class="spec-td-spec">--surface-1</td><td class="spec-td-spec">--edge + --edge-lit top</td><td>Cards, lists, tab bar, odometer strip, sheets</td></tr>
+    <tr><td class="spec-td-name">2 — active</td><td class="spec-td-spec">--surface-2</td><td class="spec-td-spec">--edge + --edge-lit top</td><td>Pressed rows, panel heads, number-pad keys, segmented thumb</td></tr>
+    <tr><td class="spec-td-name">3 — top</td><td class="spec-td-spec">--surface-3</td><td class="spec-td-spec">--edge-strong</td><td>Dialog, snackbar — the only things above a scrim</td></tr>
+    <tr><td class="spec-td-name">well</td><td class="spec-td-spec">--surface-sunken</td><td class="spec-td-spec">--edge, dark bottom</td><td>Input controls, segmented track, number-pad display</td></tr>
+    <tr><td class="spec-td-name">glow</td><td class="spec-td-spec">--glow-sm/md/lg</td><td class="spec-td-spec">accent or --state</td><td>The one element that currently has the user's attention</td></tr>
+  </table>
+</section>
+
+<!-- =========================== 6 · ICONOGRAPHY ========================= -->
+<section class="spec-section">
+  <div class="spec-section__num">06</div>
+  <h2 class="spec-h">Iconography</h2>
+  <p class="spec-note">
+    Drawn on a <b>24 × 24 grid</b>, <b>1.5px stroke</b>, round caps and joins, no fill except
+    where an icon is deliberately solid (<code>.icon--filled</code>). Optical sizes are 16 / 20 /
+    24 / 28 via <code>.icon--16</code> … <code>.icon--28</code>; the default is 20. Icons take
+    <code>currentColor</code> and never carry their own colour. Every icon in the app is inline
+    SVG written by hand — no icon font, no emoji.
+  </p>
+  <p class="spec-note">
+    <strong>Mirroring.</strong> Only icons that encode reading order or forward progress carry
+    <code>.icon--directional</code>, and only those flip under <code>[dir="rtl"]</code>
+    (via <code>transform: scaleX(-1)</code>). Everything that depicts a physical object or a
+    rotating instrument keeps one canonical asset: dials do not run backwards in Tehran.
+    Cells outlined in accent below are the mirroring set.
+  </p>
+
+  <h3 class="spec-h3">Mirrors in RTL — <code>.icon--directional</code></h3>
+  <div class="spec-grid spec-grid--6">
+    <div class="spec-icon-cell is-mirrored"><svg class="icon icon--24 icon--directional"><use href="#i-chevron-end"/></svg><span class="spec-icon-cell__name">chevron-end</span></div>
+    <div class="spec-icon-cell is-mirrored"><svg class="icon icon--24 icon--directional"><use href="#i-chevron-back"/></svg><span class="spec-icon-cell__name">chevron-back</span></div>
+    <div class="spec-icon-cell is-mirrored"><svg class="icon icon--24 icon--directional"><use href="#i-arrow-end"/></svg><span class="spec-icon-cell__name">arrow-end</span></div>
+    <div class="spec-icon-cell is-mirrored"><svg class="icon icon--24 icon--directional"><use href="#i-backspace"/></svg><span class="spec-icon-cell__name">backspace</span></div>
+    <div class="spec-icon-cell is-mirrored"><svg class="icon icon--24 icon--directional"><use href="#i-undo"/></svg><span class="spec-icon-cell__name">undo</span></div>
+    <div class="spec-icon-cell is-mirrored" dir="rtl"><svg class="icon icon--24 icon--directional"><use href="#i-chevron-end"/></svg><span class="spec-icon-cell__name">↑ same, dir=rtl</span></div>
+  </div>
+
+  <h3 class="spec-h3">Never mirrors — one canonical asset</h3>
+  <div class="spec-grid spec-grid--6">
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-gauge"/></svg><span class="spec-icon-cell__name">gauge</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-fuel"/></svg><span class="spec-icon-cell__name">fuel</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-oil"/></svg><span class="spec-icon-cell__name">oil</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-wrench"/></svg><span class="spec-icon-cell__name">wrench</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-car"/></svg><span class="spec-icon-cell__name">car</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-van"/></svg><span class="spec-icon-cell__name">van</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-bike"/></svg><span class="spec-icon-cell__name">bike</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-clock"/></svg><span class="spec-icon-cell__name">clock</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-calendar"/></svg><span class="spec-icon-cell__name">calendar</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-bell"/></svg><span class="spec-icon-cell__name">bell</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="spec-icon-cell__name">gear</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-trash"/></svg><span class="spec-icon-cell__name">trash</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-pencil"/></svg><span class="spec-icon-cell__name">pencil</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-share"/></svg><span class="spec-icon-cell__name">share</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-export"/></svg><span class="spec-icon-cell__name">export</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-import"/></svg><span class="spec-icon-cell__name">import</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-filter"/></svg><span class="spec-icon-cell__name">filter</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-search"/></svg><span class="spec-icon-cell__name">search</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="spec-icon-cell__name">list</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="spec-icon-cell__name">home</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="spec-icon-cell__name">coins</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-road"/></svg><span class="spec-icon-cell__name">road</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-globe"/></svg><span class="spec-icon-cell__name">globe</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-shield"/></svg><span class="spec-icon-cell__name">shield</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-info"/></svg><span class="spec-icon-cell__name">info</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-alert"/></svg><span class="spec-icon-cell__name">alert</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-check"/></svg><span class="spec-icon-cell__name">check</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-plus"/></svg><span class="spec-icon-cell__name">plus</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-close"/></svg><span class="spec-icon-cell__name">close</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-more"/></svg><span class="spec-icon-cell__name">more</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-grip"/></svg><span class="spec-icon-cell__name">grip</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-chevron-down"/></svg><span class="spec-icon-cell__name">chevron-down</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-trend-up"/></svg><span class="spec-icon-cell__name">trend-up</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-trend-down"/></svg><span class="spec-icon-cell__name">trend-down</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-signal"/></svg><span class="spec-icon-cell__name">signal</span></div>
+    <div class="spec-icon-cell"><svg class="icon icon--24"><use href="#i-battery"/></svg><span class="spec-icon-cell__name">battery</span></div>
+  </div>
+
+  <h3 class="spec-h3">Optical sizes</h3>
+  <div class="cluster">
+    <span class="cluster"><svg class="icon icon--16"><use href="#i-wrench"/></svg><span class="t-caption">.icon--16 · inside chips and badges</span></span>
+    <span class="cluster"><svg class="icon icon--20"><use href="#i-wrench"/></svg><span class="t-caption">.icon--20 · default, list rows</span></span>
+    <span class="cluster"><svg class="icon icon--24"><use href="#i-wrench"/></svg><span class="t-caption">.icon--24 · tab bar, app bar</span></span>
+    <span class="cluster"><svg class="icon icon--28"><use href="#i-wrench"/></svg><span class="t-caption">.icon--28 · empty states</span></span>
+  </div>
+</section>
+
+<!-- =========================== 7 · COMPONENTS ========================== -->
+<section class="spec-section">
+  <div class="spec-section__num">07</div>
+  <h2 class="spec-h">Components</h2>
+  <p class="spec-note">
+    Everything below is real markup against real Odova data: a 2016 VW Golf VII on
+    <b>187,412 km</b>, oil <b>overdue by 900 km</b>, inspection due <b>14 March</b>, timing belt
+    never recorded. Shown in the night cluster, with the full day-cluster pass at 7.14.
+  </p>
+
+  <!-- 7.1 due card -->
+  <h3 class="spec-h3">7.1 · The due-state card — five states, three signals each</h3>
+  <p class="spec-note">
+    Status travels on <b>shape, colour and wording</b> — never colour alone. The dot shape is
+    normative. Each modifier sets one custom property, <code>--state</code>, and the sidebar,
+    dot, status line, meter fill and action button all read it.
+  </p>
+  <div class="theme-dark spec-panel">
+    <div class="stack">
+
+      <div class="due-card due-card--overdue due-card--primary">
+        <div class="due-card__head">
+          <span class="status-dot status-dot--filled"></span>
+          <span class="due-card__title">Oil and filter</span>
+          <span class="badge badge--overdue">Overdue</span>
+        </div>
+        <span class="due-card__status">Overdue by 900 km</span>
+        <span class="due-card__anchor">Was due at 186,512 km · 12 August</span>
+        <div class="meter">
+          <div class="meter__track">
+            <div class="meter__fill" style="--fill:100%"></div>
+            <div class="meter__redline"></div>
+            <div class="meter__ticks"></div>
+          </div>
+          <div class="meter__scale"><span>186,512 km</span><span>106% of interval</span></div>
+        </div>
+        <div class="due-card__actions">
+          <button class="btn btn--signal btn--sm">Log it</button>
+          <button class="btn btn--ghost btn--sm">Snooze</button>
+          <button class="due-card__more" aria-label="More"><svg class="icon"><use href="#i-more"/></svg></button>
+        </div>
+      </div>
+
+      <div class="due-card due-card--due-soon due-card--secondary">
+        <span class="status-dot status-dot--small"></span>
+        <span class="due-card__title">Inspection (TÜV)</span>
+        <span class="due-card__status">in about 6 weeks</span>
+        <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+      </div>
+
+      <div class="due-card due-card--due-soon due-card--secondary">
+        <span class="status-dot status-dot--small"></span>
+        <span class="due-card__title">Brake pads — check</span>
+        <span class="due-card__status">in about 1,800 km</span>
+        <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+      </div>
+
+      <div class="due-card due-card--ok">
+        <div class="due-card__head">
+          <span class="status-dot status-dot--check"><svg class="icon icon--16"><use href="#i-check"/></svg></span>
+          <span class="due-card__title">Air filter</span>
+          <span class="badge badge--ok">OK</span>
+        </div>
+        <span class="due-card__status">in 8,600 km</span>
+        <span class="due-card__anchor">Last done at 178,800 km · 4 June 2026</span>
+      </div>
+
+      <div class="due-card due-card--needs-odometer">
+        <div class="due-card__head">
+          <span class="status-dot status-dot--hollow"></span>
+          <span class="due-card__title">Coolant</span>
+          <span class="badge badge--needs">Needs reading</span>
+        </div>
+        <span class="due-card__status">Needs an odometer reading</span>
+        <span class="due-card__anchor">Last entered 12 July</span>
+        <div class="due-card__actions">
+          <button class="btn btn--signal btn--sm">Update odometer</button>
+        </div>
+      </div>
+
+      <div class="due-card due-card--unknown">
+        <div class="due-card__head">
+          <span class="status-dot status-dot--none"></span>
+          <span class="due-card__title">When were these last done?</span>
+        </div>
+        <span class="due-card__names">Timing belt · Spark plugs · Gearbox oil</span>
+        <span class="due-card__anchor">Telling me turns them into reminders.</span>
+        <div class="due-card__actions">
+          <button class="btn btn--secondary btn--sm">+ 3 more</button>
+          <span class="spacer"></span>
+          <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <table class="spec-table">
+    <tr><th>Class</th><th>Dot</th><th>Colour token</th><th>Wording pattern</th></tr>
+    <tr><td class="spec-td-name">.due-card--overdue</td><td>filled ● <code>.status-dot--filled</code></td><td class="spec-td-spec">--sig-overdue</td><td>“Overdue by 900 km” — always positive, never “in −900 km”</td></tr>
+    <tr><td class="spec-td-name">.due-card--due</td><td>ring ◉ <code>.status-dot--ring</code></td><td class="spec-td-spec">--sig-due</td><td>“Due now”</td></tr>
+    <tr><td class="spec-td-name">.due-card--due-soon</td><td>small ● <code>.status-dot--small</code></td><td class="spec-td-spec">--sig-due-soon</td><td>“in about 6 weeks” / “in about 1,800 km”</td></tr>
+    <tr><td class="spec-td-name">.due-card--ok</td><td>check ✓ <code>.status-dot--check</code></td><td class="spec-td-spec">--sig-ok</td><td>“in 8,600 km” — only on reminders.list, never on Home</td></tr>
+    <tr><td class="spec-td-name">.due-card--needs-odometer</td><td>hollow ◌ <code>.status-dot--hollow</code></td><td class="spec-td-spec">--sig-needs</td><td>“Needs an odometer reading”; action is <b>Update odometer</b></td></tr>
+    <tr><td class="spec-td-name">.due-card--unknown</td><td>grey <code>.status-dot--none</code></td><td class="spec-td-spec">--sig-unknown</td><td>“When were these last done?” — collapses several items, always last</td></tr>
+  </table>
+
+  <!-- 7.2 instruments -->
+  <h3 class="spec-h3">7.2 · Instruments — plotted, not drawn</h3>
+  <p class="spec-note">
+    The gauge, the meter and the sparkline are inline SVG whose geometry comes from the
+    numbers. The gauge below is the oil interval: 15,000 km interval, 15,900 km elapsed —
+    <b>106%</b>, so the needle sits past its stop, inside the redline. Nothing here is decoration.
+  </p>
+  <div class="spec-duo">
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>.gauge — service interval</span><span>oil and filter</span></div>
+      <div class="due-card due-card--overdue">
+        <div class="gauge">
+          <svg class="gauge__svg" viewBox="0 0 200 118" role="img" aria-label="Oil interval 106 percent used, overdue">
+            <!-- ticks, 0 to 100% in tenths -->
+            <g>
+              <line class="gauge__tick gauge__tick--major" x1="34" y1="100" x2="28" y2="100"/>
+              <line class="gauge__tick" x1="37.2" y1="79.6" x2="31.5" y2="77.8"/>
+              <line class="gauge__tick" x1="46.6" y1="61.2" x2="41.8" y2="57.7"/>
+              <line class="gauge__tick" x1="61.2" y1="46.6" x2="57.7" y2="41.8"/>
+              <line class="gauge__tick" x1="79.6" y1="37.2" x2="77.8" y2="31.5"/>
+              <line class="gauge__tick gauge__tick--major" x1="100" y1="34" x2="100" y2="28"/>
+              <line class="gauge__tick" x1="120.4" y1="37.2" x2="122.2" y2="31.5"/>
+              <line class="gauge__tick" x1="138.8" y1="46.6" x2="142.3" y2="41.8"/>
+              <line class="gauge__tick" x1="153.4" y1="61.2" x2="158.2" y2="57.7"/>
+              <line class="gauge__tick" x1="162.8" y1="79.6" x2="168.5" y2="77.8"/>
+              <line class="gauge__tick gauge__tick--major" x1="166" y1="100" x2="172" y2="100"/>
+            </g>
+            <path class="gauge__arc-bg" d="M24,100 A76,76 0 0 1 176,100"/>
+            <path class="gauge__arc-fill" d="M24,100 A76,76 0 0 1 176,100"/>
+            <path class="gauge__arc-redline" d="M170.7,72 A76,76 0 0 1 176,100"/>
+            <line class="gauge__needle" x1="100" y1="100" x2="160.9" y2="111.6"/>
+            <circle class="gauge__cap" cx="100" cy="100" r="5"/>
+          </svg>
+          <div class="gauge__center">
+            <span class="gauge__value">106<span class="gauge__unit">%</span></span>
+            <span class="gauge__caption">of the 15,000 km interval</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>.meter — interval bar with redline</span><span>three densities</span></div>
+      <div class="stack">
+        <div class="due-card due-card--overdue">
+          <span class="t-tick">Oil and filter · 15,900 of 15,000 km</span>
+          <div class="meter">
+            <div class="meter__track">
+              <div class="meter__fill" style="--fill:100%"></div>
+              <div class="meter__redline"></div>
+              <div class="meter__ticks"></div>
+            </div>
+            <div class="meter__scale"><span>0</span><span>redline from 13,500</span><span>15,000</span></div>
+          </div>
+        </div>
+        <div class="due-card due-card--due-soon">
+          <span class="t-tick">Brake pads · 18,200 of 20,000 km · 91%</span>
+          <div class="meter meter--thin">
+            <div class="meter__track">
+              <div class="meter__fill" style="--fill:91%"></div>
+              <div class="meter__redline"></div>
+              <div class="meter__ticks"></div>
+            </div>
+          </div>
+        </div>
+        <div class="due-card due-card--ok">
+          <span class="t-tick">Air filter · 6,400 of 15,000 km · 43%</span>
+          <div class="meter meter--thick">
+            <div class="meter__track">
+              <div class="meter__fill" style="--fill:43%"></div>
+              <div class="meter__redline"></div>
+              <div class="meter__ticks"></div>
+            </div>
+          </div>
+        </div>
+        <p class="t-caption">Fill width is set per instance on <code>.meter__fill</code>. The track fills
+        from the start edge, so it mirrors in RTL with no extra rule.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.3 chart -->
+  <h3 class="spec-h3">7.3 · Chart container and sparkline</h3>
+  <div class="spec-duo">
+    <div class="theme-dark spec-panel">
+      <div class="chart">
+        <div class="chart__head">
+          <span class="chart__title">Consumption · last 8 fills</span>
+          <span class="badge badge--neutral">avg 6.7</span>
+        </div>
+        <svg class="chart__svg" viewBox="0 0 300 130" role="img" aria-label="Consumption over the last eight fill-ups, 6.3 to 7.1 litres per 100 km">
+          <g class="chart__grid">
+            <line x1="10" y1="10" x2="290" y2="10"/>
+            <line x1="10" y1="35.7" x2="290" y2="35.7"/>
+            <line x1="10" y1="61.4" x2="290" y2="61.4"/>
+            <line x1="10" y1="87.1" x2="290" y2="87.1"/>
+          </g>
+          <line class="chart__axis" x1="10" y1="100" x2="290" y2="100"/>
+          <g class="chart__tick">
+            <line x1="10" y1="100" x2="10" y2="104"/>
+            <line x1="50" y1="100" x2="50" y2="104"/>
+            <line x1="90" y1="100" x2="90" y2="104"/>
+            <line x1="130" y1="100" x2="130" y2="104"/>
+            <line x1="170" y1="100" x2="170" y2="104"/>
+            <line x1="210" y1="100" x2="210" y2="104"/>
+            <line x1="250" y1="100" x2="250" y2="104"/>
+            <line x1="290" y1="100" x2="290" y2="104"/>
+          </g>
+          <line class="chart__avg" x1="10" y1="55" x2="290" y2="55"/>
+          <polygon class="chart__area" points="10,42.1 50,29.3 90,61.4 130,48.6 170,80.7 210,35.7 250,67.9 290,74.3 290,100 10,100"/>
+          <polyline class="chart__line" points="10,42.1 50,29.3 90,61.4 130,48.6 170,80.7 210,35.7 250,67.9 290,74.3"/>
+          <circle class="chart__point" cx="10" cy="42.1" r="2.5"/>
+          <circle class="chart__point chart__point--hi" cx="50" cy="29.3" r="3"/>
+          <circle class="chart__point" cx="90" cy="61.4" r="2.5"/>
+          <circle class="chart__point" cx="130" cy="48.6" r="2.5"/>
+          <circle class="chart__point chart__point--lo" cx="170" cy="80.7" r="3"/>
+          <circle class="chart__point" cx="210" cy="35.7" r="2.5"/>
+          <circle class="chart__point" cx="250" cy="67.9" r="2.5"/>
+          <circle class="chart__point" cx="290" cy="74.3" r="3"/>
+          <text class="chart__axis-label" x="10" y="116">Apr</text>
+          <text class="chart__axis-label" x="130" y="116">Jun</text>
+          <text class="chart__axis-label" x="250" y="116">Aug</text>
+          <text class="chart__axis-label" x="288" y="51" text-anchor="end">6.7 avg</text>
+        </svg>
+        <div class="chart__legend">
+          <span class="chart__legend-item"><span class="chart__swatch sw-overdue"></span>Worst 7.1</span>
+          <span class="chart__legend-item"><span class="chart__swatch sw-ok"></span>Best 6.3</span>
+          <span class="chart__legend-item"><span class="chart__swatch"></span>This tank 6.4</span>
+        </div>
+        <p class="chart__note">34 fills · a broken segment is discarded, never averaged.</p>
+      </div>
+    </div>
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>.spark in a row · .splitbar</span><span>inline traces</span></div>
+      <div class="list list--inset">
+        <div class="row">
+          <div class="row__main"><span class="row__title">Consumption</span><span class="row__sub">6.4 L/100 km · improving</span></div>
+          <svg class="spark" viewBox="0 0 72 24"><polyline class="spark__line" points="0,8 10,4 20,15 31,11 41,20 51,6 61,17 71,19"/><circle class="spark__dot" cx="71" cy="19" r="2"/></svg>
+        </div>
+        <div class="row">
+          <div class="row__main"><span class="row__title">Price per litre</span><span class="row__sub">€1.734 · up 4c since June</span></div>
+          <svg class="spark" viewBox="0 0 72 24"><polyline class="spark__line" points="0,18 10,17 20,14 31,15 41,10 51,11 61,7 71,5"/><circle class="spark__dot" cx="71" cy="5" r="2"/></svg>
+        </div>
+      </div>
+      <h3 class="spec-h3">Cost split · €2,184 this year</h3>
+      <div class="splitbar">
+        <span class="splitbar__seg splitbar__seg--fuel" style="--pct:59%"></span>
+        <span class="splitbar__seg splitbar__seg--service" style="--pct:29.3%"></span>
+        <span class="splitbar__seg splitbar__seg--insurance" style="--pct:9.1%"></span>
+        <span class="splitbar__seg splitbar__seg--tax" style="--pct:2.6%"></span>
+      </div>
+      <div class="chart__legend">
+        <span class="chart__legend-item"><span class="chart__swatch sw-accent"></span>Fuel €1,290</span>
+        <span class="chart__legend-item"><span class="chart__swatch sw-due-soon"></span>Service €640</span>
+        <span class="chart__legend-item"><span class="chart__swatch sw-business"></span>Insurance €198</span>
+        <span class="chart__legend-item"><span class="chart__swatch sw-ink-lo"></span>Tax €56</span>
+      </div>
+      <h3 class="spec-h3">Readout strip</h3>
+      <div class="readout-strip">
+        <div class="readout-strip__cell"><span class="readout__value">6.4</span><span class="readout__label">L/100 km</span></div>
+        <div class="readout-strip__cell"><span class="readout__value">0.29</span><span class="readout__label">€ per km</span></div>
+        <div class="readout-strip__cell"><span class="readout__value">182</span><span class="readout__label">€ per month</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.4 buttons -->
+  <h3 class="spec-h3">7.4 · Buttons — every variant, every state</h3>
+  <div class="theme-dark spec-panel">
+    <table class="spec-table">
+      <tr><th>Variant</th><th>Rest</th><th>Pressed</th><th>Focus</th><th>Disabled</th></tr>
+      <tr>
+        <td class="spec-td-name">.btn--primary</td>
+        <td><button class="btn btn--primary">Save</button></td>
+        <td><button class="btn btn--primary is-pressed">Save</button></td>
+        <td><button class="btn btn--primary is-focus">Save</button></td>
+        <td><button class="btn btn--primary is-disabled">Save</button></td>
+      </tr>
+      <tr>
+        <td class="spec-td-name">.btn--secondary</td>
+        <td><button class="btn btn--secondary">Log it</button></td>
+        <td><button class="btn btn--secondary is-pressed">Log it</button></td>
+        <td><button class="btn btn--secondary is-focus">Log it</button></td>
+        <td><button class="btn btn--secondary is-disabled">Log it</button></td>
+      </tr>
+      <tr>
+        <td class="spec-td-name">.btn (neutral)</td>
+        <td><button class="btn">Snooze</button></td>
+        <td><button class="btn is-pressed">Snooze</button></td>
+        <td><button class="btn is-focus">Snooze</button></td>
+        <td><button class="btn is-disabled">Snooze</button></td>
+      </tr>
+      <tr>
+        <td class="spec-td-name">.btn--ghost</td>
+        <td><button class="btn btn--ghost">Skip</button></td>
+        <td><button class="btn btn--ghost is-pressed">Skip</button></td>
+        <td><button class="btn btn--ghost is-focus">Skip</button></td>
+        <td><button class="btn btn--ghost is-disabled">Skip</button></td>
+      </tr>
+      <tr>
+        <td class="spec-td-name">.btn--danger</td>
+        <td><button class="btn btn--danger">Delete all data</button></td>
+        <td><button class="btn btn--danger is-pressed">Delete all data</button></td>
+        <td><button class="btn btn--danger is-focus">Delete all data</button></td>
+        <td><button class="btn btn--danger is-disabled">Delete all data</button></td>
+      </tr>
+      <tr>
+        <td class="spec-td-name">.btn--signal</td>
+        <td><span class="due-card due-card--overdue"><button class="btn btn--signal btn--sm">Log it</button></span></td>
+        <td><span class="due-card due-card--due-soon"><button class="btn btn--signal btn--sm">Log it</button></span></td>
+        <td><span class="due-card due-card--needs-odometer"><button class="btn btn--signal btn--sm">Update odometer</button></span></td>
+        <td><span class="due-card due-card--ok"><button class="btn btn--signal btn--sm">Done</button></span></td>
+      </tr>
+    </table>
+    <h3 class="spec-h3">Sizes and shapes</h3>
+    <div class="cluster">
+      <button class="btn btn--primary btn--sm">Small</button>
+      <button class="btn btn--primary">Default 40px</button>
+      <button class="btn btn--primary btn--lg">Large 50px</button>
+      <button class="btn btn--secondary btn--icon" aria-label="Edit"><svg class="icon"><use href="#i-pencil"/></svg></button>
+      <button class="btn btn--secondary"><svg class="icon icon--16"><use href="#i-share"/></svg>Share report</button>
+    </div>
+    <div class="stack">
+      <button class="btn btn--primary btn--lg btn--block">Continue</button>
+      <button class="btn btn--secondary btn--block">I already have an Odova backup</button>
+    </div>
+  </div>
+
+  <!-- 7.5 fields -->
+  <h3 class="spec-h3">7.5 · Inputs — label, hint, error, suffix</h3>
+  <div class="spec-duo">
+    <div class="theme-dark spec-panel">
+      <div class="stack">
+        <div class="field">
+          <label class="field__label">Odometer</label>
+          <div class="field__control">
+            <input class="input input--numeric" value="187,412">
+            <span class="field__suffix">km</span>
+          </div>
+          <span class="field__hint">The reading on the dash right now.</span>
+        </div>
+        <div class="field is-focus">
+          <label class="field__label">Quantity — focused</label>
+          <div class="field__control">
+            <input class="input input--numeric" value="42.8">
+            <span class="field__suffix">L</span>
+          </div>
+          <span class="field__hint">Any two of total, quantity and unit price.</span>
+        </div>
+        <div class="field field--error">
+          <label class="field__label">Odometer</label>
+          <div class="field__control">
+            <input class="input input--numeric" value="186,000">
+            <span class="field__suffix">km</span>
+          </div>
+          <span class="field__error"><svg class="icon icon--16"><use href="#i-alert"/></svg>Lower than the last reading, 187,412 km on 2 September.</span>
+        </div>
+        <div class="field field--disabled">
+          <label class="field__label">Currency — set in Units</label>
+          <div class="field__control">
+            <span class="field__prefix"><svg class="icon icon--16"><use href="#i-coins"/></svg></span>
+            <input class="input" value="EUR — Euro">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="theme-dark spec-panel">
+      <div class="stack">
+        <div class="field-row">
+          <div class="field">
+            <label class="field__label">Total</label>
+            <div class="field__control"><span class="field__prefix">€</span><input class="input input--numeric" value="74.20"></div>
+          </div>
+          <div class="field">
+            <label class="field__label">Per litre</label>
+            <div class="field__control"><span class="field__prefix">€</span><input class="input input--numeric" value="1.734"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field__label">Vendor</label>
+          <div class="field__control"><input class="input" placeholder="Aral, Ottobrunner Straße"></div>
+        </div>
+        <div class="field">
+          <label class="field__label">Note</label>
+          <div class="field__control"><textarea class="textarea">Full tank, pump 4. Warning light was on since Tuesday.</textarea></div>
+        </div>
+        <div class="field">
+          <label class="field__label">Date</label>
+          <div class="field__control">
+            <span class="field__prefix"><svg class="icon icon--16"><use href="#i-calendar"/></svg></span>
+            <input class="input" value="2 September 2026">
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.6 segmented, chips, switch, badges -->
+  <h3 class="spec-h3">7.6 · Segmented control, chips, switches, badges</h3>
+  <div class="spec-duo">
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>Segmented — the log modal's four segments</span><span>order reverses in RTL</span></div>
+      <div class="segmented segmented--lg">
+        <button class="segmented__item is-active"><svg class="icon icon--16"><use href="#i-fuel"/></svg>Fill-up</button>
+        <button class="segmented__item"><svg class="icon icon--16"><use href="#i-wrench"/></svg>Service</button>
+        <button class="segmented__item"><svg class="icon icon--16"><use href="#i-coins"/></svg>Expense</button>
+        <button class="segmented__item"><svg class="icon icon--16"><use href="#i-gauge"/></svg>Odo</button>
+      </div>
+      <div class="segmented">
+        <button class="segmented__item is-active">km</button>
+        <button class="segmented__item">mi</button>
+        <button class="segmented__item is-disabled">nmi</button>
+      </div>
+
+      <h3 class="spec-h3">Chips — history filters</h3>
+      <div class="chip-row">
+        <button class="chip is-active">All <span class="chip__count">412</span></button>
+        <button class="chip">Fill-ups <span class="chip__count">34</span></button>
+        <button class="chip">Service <span class="chip__count">11</span></button>
+        <button class="chip">Expenses <span class="chip__count">26</span></button>
+        <button class="chip chip--business">Business</button>
+        <button class="chip is-disabled">Trips <span class="chip__count">0</span></button>
+      </div>
+      <div class="chip-row">
+        <span class="chip chip--signal due-card--overdue">Overdue 1</span>
+        <span class="chip chip--signal due-card--due-soon">Due soon 2</span>
+        <span class="chip chip--signal due-card--ok">OK 9</span>
+        <span class="chip chip--signal due-card--unknown">Unknown 3</span>
+      </div>
+
+      <h3 class="spec-h3">Badges</h3>
+      <div class="chip-row">
+        <span class="badge badge--overdue">Overdue</span>
+        <span class="badge badge--due">Due now</span>
+        <span class="badge badge--due-soon">Due soon</span>
+        <span class="badge badge--ok">OK</span>
+        <span class="badge badge--unknown">Unknown</span>
+        <span class="badge badge--needs">Needs reading</span>
+        <span class="badge badge--business">Business</span>
+        <span class="badge badge--neutral">34 fills</span>
+        <span class="badge badge--count">1</span>
+        <span class="status-dot status-dot--filled"></span>
+        <span class="status-dot status-dot--ring"></span>
+        <span class="status-dot status-dot--small"></span>
+        <span class="status-dot status-dot--hollow"></span>
+        <span class="status-dot status-dot--none"></span>
+      </div>
+    </div>
+
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>Switches — in rows, as they always appear</span><span>on / off / disabled / focus</span></div>
+      <div class="list list--inset">
+        <div class="row">
+          <div class="row__main"><span class="row__title">Oil and filter</span><span class="row__sub">Every 15,000 km or 12 months</span></div>
+          <span class="switch is-on"><span class="switch__thumb"></span></span>
+        </div>
+        <div class="row">
+          <div class="row__main"><span class="row__title">Timing belt</span><span class="row__sub">Never recorded</span></div>
+          <span class="switch"><span class="switch__thumb"></span></span>
+        </div>
+        <div class="row">
+          <div class="row__main"><span class="row__title">Quiet hours</span><span class="row__sub">22:00 – 07:00</span></div>
+          <span class="switch is-on is-focus"><span class="switch__thumb"></span></span>
+        </div>
+        <div class="row is-disabled">
+          <div class="row__main"><span class="row__title">Push reminders</span><span class="row__sub">Not available — Odova has no server</span></div>
+          <span class="switch is-disabled"><span class="switch__thumb"></span></span>
+        </div>
+      </div>
+
+      <h3 class="spec-h3">Number pad — <code>log.odometer</code></h3>
+      <div class="numpad__display">
+        <span class="numpad__display-value">187,412</span><span class="numpad__display-caret"></span>
+        <span class="numpad__display-unit">km</span>
+      </div>
+      <div class="numpad">
+        <button class="numpad__key">1</button><button class="numpad__key">2</button><button class="numpad__key">3</button>
+        <button class="numpad__key">4</button><button class="numpad__key">5</button><button class="numpad__key is-pressed">6</button>
+        <button class="numpad__key">7</button><button class="numpad__key">8</button><button class="numpad__key">9</button>
+        <button class="numpad__key numpad__key--action is-disabled">.</button>
+        <button class="numpad__key">0</button>
+        <button class="numpad__key numpad__key--action" aria-label="Backspace"><svg class="icon icon--24 icon--directional"><use href="#i-backspace"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.7 rows, cards, panels -->
+  <h3 class="spec-h3">7.7 · List rows, cards, panels, timeline, vehicle rows</h3>
+  <div class="spec-duo">
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>.list / .row</span><span>settings root</span></div>
+      <div class="row-group__title">Your data <span class="row-group__count">412 entries</span></div>
+      <div class="list">
+        <button class="row row--tappable">
+          <span class="row__icon"><svg class="icon"><use href="#i-shield"/></svg></span>
+          <span class="row__main"><span class="row__title">Backup</span><span class="row__sub">Last exported 4 June 2026 · 412 entries</span></span>
+          <span class="row__end"><svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg></span>
+        </button>
+        <button class="row row--tappable is-pressed">
+          <span class="row__icon"><svg class="icon"><use href="#i-car"/></svg></span>
+          <span class="row__main"><span class="row__title">Vehicles</span></span>
+          <span class="row__end"><span class="row__value">3</span><svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg></span>
+        </button>
+        <button class="row row--tappable">
+          <span class="row__icon"><svg class="icon"><use href="#i-globe"/></svg></span>
+          <span class="row__main"><span class="row__title">Language</span></span>
+          <span class="row__end"><span class="row__value">English</span><svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg></span>
+        </button>
+        <button class="row row--tappable is-selected">
+          <span class="row__icon"><svg class="icon"><use href="#i-check"/></svg></span>
+          <span class="row__main"><span class="row__title">Units &amp; formats</span><span class="row__sub">km · litres · L/100 km · EUR · Gregorian</span></span>
+        </button>
+        <button class="row row--tappable row--danger">
+          <span class="row__icon"><svg class="icon"><use href="#i-trash"/></svg></span>
+          <span class="row__main"><span class="row__title">Delete all data</span><span class="row__sub">A safety copy is written first.</span></span>
+        </button>
+        <button class="row row--tappable is-disabled">
+          <span class="row__icon"><svg class="icon"><use href="#i-import"/></svg></span>
+          <span class="row__main"><span class="row__title">Merge a backup</span><span class="row__sub">Not in v1 — import replaces everything.</span></span>
+        </button>
+      </div>
+
+      <h3 class="spec-h3">.tl-item — history timeline</h3>
+      <div class="tl-group">
+        <div class="tl-group__label"><span>September 2026</span><span>€74.20</span></div>
+        <button class="tl-item">
+          <span class="tl-item__mark"><svg class="icon icon--16"><use href="#i-fuel"/></svg></span>
+          <span class="tl-item__main"><span class="tl-item__title">Fill-up · 42.8 L</span><span class="tl-item__meta">2 Sept · 187,412 km · 6.4 L/100 km</span></span>
+          <span class="tl-item__amount">€74.20</span>
+        </button>
+        <button class="tl-item">
+          <span class="tl-item__mark"><svg class="icon icon--16"><use href="#i-gauge"/></svg></span>
+          <span class="tl-item__main"><span class="tl-item__title">Odometer reading</span><span class="tl-item__meta">2 Sept · 187,412 km</span></span>
+          <span class="tl-item__amount dash">—</span>
+        </button>
+        <div class="tl-group__label"><span>August 2026</span><span>€312.40</span></div>
+        <button class="tl-item">
+          <span class="tl-item__mark"><svg class="icon icon--16"><use href="#i-wrench"/></svg></span>
+          <span class="tl-item__main"><span class="tl-item__title">Service · brake fluid</span><span class="tl-item__meta">12 Aug · 184,900 km · Werkstatt Huber</span></span>
+          <span class="tl-item__amount">€128.00</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="theme-dark spec-panel">
+      <div class="spec-panel__title"><span>.card / .panel / .kv</span><span>report and costs</span></div>
+      <div class="card">
+        <div class="card__head"><span class="card__title">Last fill-up</span><span class="t-caption">2 September</span></div>
+        <div class="cluster"><span class="t-readout">42.8<span class="t-unit">L</span></span><span class="spacer"></span><span class="t-readout">6.4<span class="t-unit">L/100km</span></span></div>
+        <div class="card__foot"><span class="t-caption">€74.20 at €1.734/L · 187,412 km · Aral, Ottobrunn</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head"><span class="panel__title">Cost of ownership · 2026</span><span class="badge badge--neutral">€0.29 / km</span></div>
+        <div class="panel__body">
+          <div class="kv"><span class="kv__k">Fuel · 34 fills</span><span class="kv__v">€1,290</span></div>
+          <div class="kv"><span class="kv__k">Service · 4 records</span><span class="kv__v">€640</span></div>
+          <div class="kv"><span class="kv__k">Insurance · annual, amortised</span><span class="kv__v">€198</span></div>
+          <div class="kv"><span class="kv__k">Tax</span><span class="kv__v">€56</span></div>
+          <hr class="divider">
+          <div class="kv"><span class="kv__k t-heading ink-hi">Total</span><span class="kv__v t-heading ink-hi">€2,184</span></div>
+        </div>
+      </div>
+
+      <h3 class="spec-h3">.vehicle-row — the garage and the switcher</h3>
+      <div class="list list--inset">
+        <button class="vehicle-row is-active">
+          <span class="vehicle-row__glyph"><svg class="icon icon--24"><use href="#i-car"/></svg></span>
+          <span class="vehicle-row__main"><span class="vehicle-row__name">Golf</span><span class="vehicle-row__meta">VW Golf VII · 2016 · diesel · 187,412 km</span></span>
+          <span class="vehicle-row__end"><span class="plate">M-AB 1234</span><span class="badge badge--count">1</span></span>
+        </button>
+        <button class="vehicle-row">
+          <span class="vehicle-row__glyph"><svg class="icon icon--24"><use href="#i-van"/></svg></span>
+          <span class="vehicle-row__main"><span class="vehicle-row__name">Transit</span><span class="vehicle-row__meta">Van · 96,400 km · business</span></span>
+          <span class="vehicle-row__end"><span class="badge badge--business">Business</span><svg class="icon vehicle-row__handle"><use href="#i-grip"/></svg></span>
+        </button>
+        <button class="vehicle-row">
+          <span class="vehicle-row__glyph"><svg class="icon icon--24"><use href="#i-bike"/></svg></span>
+          <span class="vehicle-row__main"><span class="vehicle-row__name">CB500X</span><span class="vehicle-row__meta">Motorbike · 23,905 km</span></span>
+          <span class="vehicle-row__end"><svg class="icon vehicle-row__handle"><use href="#i-grip"/></svg></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.8 bars -->
+  <h3 class="spec-h3">7.8 · App bar, tab bar, strips, snackbar, odometer strip</h3>
+  <div class="theme-dark spec-panel">
+    <div class="stack">
+      <div class="spec-frame">
+        <div class="statusbar">
+          <span class="statusbar__time">9:41</span>
+          <span class="statusbar__icons">
+            <svg class="icon icon--16"><use href="#i-signal"/></svg>
+            <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+            <svg class="icon icon--20"><use href="#i-battery"/></svg>
+          </span>
+        </div>
+        <div class="appbar">
+          <div class="appbar__titleblock">
+            <span class="appbar__title">Golf</span>
+          </div>
+          <svg class="icon appbar__chev"><use href="#i-chevron-down"/></svg>
+          <div class="appbar__actions">
+            <button class="appbar__btn"><svg class="icon"><use href="#i-search"/></svg></button>
+          </div>
+        </div>
+        <div class="strip strip--warn">
+          <span class="strip__icon"><svg class="icon icon--16"><use href="#i-info"/></svg></span>
+          <span class="strip__text">Odometer last updated 68 days ago. Your figures are estimates until you update it.</span>
+          <button class="strip__close"><svg class="icon icon--16"><use href="#i-close"/></svg></button>
+        </div>
+        <button class="odo-strip">
+          <span class="cluster">
+            <span class="odo-strip__value est">~187,400<span class="t-unit">km</span></span>
+          </span>
+          <span class="odo-strip__meta">last entered<br>12 September</span>
+          <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+        </button>
+        <div class="spacer"></div>
+      </div>
+
+      <div class="spec-frame spec-frame--tall">
+        <div class="appbar appbar--modal">
+          <button class="appbar__text-btn appbar__text-btn--quiet">Cancel</button>
+          <span class="appbar__title">Fill-up</span>
+          <button class="appbar__text-btn">Save</button>
+        </div>
+        <div class="appbar appbar--modal">
+          <button class="appbar__btn"><svg class="icon icon--directional"><use href="#i-chevron-back"/></svg></button>
+          <span class="appbar__title">Reminders</span>
+          <button class="appbar__text-btn is-disabled">Save</button>
+        </div>
+        <div class="spacer"></div>
+        <div class="stack">
+          <div class="snackbar">
+            <svg class="icon icon--16"><use href="#i-check"/></svg>
+            <span>Fill-up saved · 42.8 L</span>
+            <button class="snackbar__action">Undo</button>
+          </div>
+          <div class="strip strip--alert">
+            <span class="strip__icon"><svg class="icon icon--16"><use href="#i-alert"/></svg></span>
+            <span class="strip__text">Transit · 1 item overdue</span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+          <div class="strip strip--ok">
+            <span class="strip__icon"><svg class="icon icon--16"><use href="#i-check"/></svg></span>
+            <span class="strip__text">Marked oil and filter done from a notification.</span>
+          </div>
+        </div>
+        <div class="tabbar">
+          <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label">Home</span></button>
+          <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label">History</span></button>
+          <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+          <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label">Costs</span></button>
+          <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label">Settings</span></button>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.9 overlays -->
+  <h3 class="spec-h3">7.9 · Sheet, dialog and the blocking cover</h3>
+  <div class="spec-duo">
+    <div class="theme-dark spec-panel">
+      <div class="spec-frame">
+        <div class="screen screen__dim">
+          <div class="appbar"><span class="appbar__title">Golf</span></div>
+          <div class="list">
+            <div class="row"><span class="row__main"><span class="row__title">Oil and filter</span></span></div>
+            <div class="row"><span class="row__main"><span class="row__title">Inspection (TÜV)</span></span></div>
+          </div>
+        </div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="sheet__grip"></div>
+          <div class="sheet__head"><span class="sheet__title">Switch vehicle</span><button class="appbar__text-btn appbar__text-btn--quiet">Done</button></div>
+          <div class="sheet__body">
+            <button class="vehicle-row is-active">
+              <span class="vehicle-row__glyph"><svg class="icon icon--24"><use href="#i-car"/></svg></span>
+              <span class="vehicle-row__main"><span class="vehicle-row__name">Golf</span><span class="vehicle-row__meta">187,412 km · 1 overdue</span></span>
+              <span class="vehicle-row__end"><svg class="icon"><use href="#i-check"/></svg></span>
+            </button>
+            <button class="vehicle-row">
+              <span class="vehicle-row__glyph"><svg class="icon icon--24"><use href="#i-van"/></svg></span>
+              <span class="vehicle-row__main"><span class="vehicle-row__name">Transit</span><span class="vehicle-row__meta">96,400 km · 1 overdue</span></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="theme-dark spec-panel">
+      <div class="spec-frame">
+        <div class="screen screen__dim">
+          <div class="appbar"><span class="appbar__title">Vehicles</span></div>
+          <div class="list">
+            <div class="row"><span class="row__main"><span class="row__title">Golf</span></span></div>
+          </div>
+        </div>
+        <div class="scrim"></div>
+        <div class="dialog dialog--danger">
+          <h3 class="dialog__title">Delete Golf and its 412 entries?</h3>
+          <p class="dialog__text">This removes eight years of fill-ups, services and readings for this
+          vehicle. A safety copy is written first, and Undo is available for a few seconds.</p>
+          <div class="dialog__actions">
+            <button class="btn btn--secondary">Keep</button>
+            <button class="btn btn--danger">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="spec-frame">
+        <div class="scrim"></div>
+        <div class="dialog">
+          <h3 class="dialog__title">Discard changes?</h3>
+          <p class="dialog__text">You have entered 42.8 L and a reading of 187,412 km.</p>
+          <div class="dialog__actions">
+            <button class="btn btn--secondary">Keep editing</button>
+            <button class="btn btn--primary">Discard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.10 empty -->
+  <h3 class="spec-h3">7.10 · Empty states</h3>
+  <div class="spec-duo">
+    <div class="theme-dark spec-panel">
+      <div class="spec-frame">
+        <div class="empty">
+          <span class="empty__icon"><svg class="icon icon--28"><use href="#i-fuel"/></svg></span>
+          <span class="empty__title">No fill-ups yet</span>
+          <span class="empty__text">Your first consumption figure arrives at your next full fill-up.
+          Odova will not guess before then.</span>
+          <button class="btn btn--primary empty__action">Log a fill-up</button>
+        </div>
+      </div>
+    </div>
+    <div class="theme-dark spec-panel">
+      <div class="spec-frame">
+        <div class="empty">
+          <span class="empty__icon"><svg class="icon icon--28"><use href="#i-road"/></svg></span>
+          <span class="empty__title">No trips</span>
+          <span class="empty__text">Trips attribute cost. They are never the source of truth for
+          distance — the odometer is.</span>
+          <button class="btn btn--secondary empty__action">Add a trip</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.11 estimate vocabulary -->
+  <h3 class="spec-h3">7.11 · The estimate vocabulary — never guess in a way that looks like fact</h3>
+  <div class="theme-dark spec-panel">
+    <table class="spec-table">
+      <tr><th>Case</th><th>Rendering</th><th>Class</th></tr>
+      <tr><td>Entered reading</td><td><span class="num ink-hi">187,412 km</span></td><td class="spec-td-name">default ink</td></tr>
+      <tr><td>Projected, still projecting</td><td><span class="num est">~187,400 km</span></td><td class="spec-td-name">.est</td></tr>
+      <tr><td>Expired estimate</td><td><span class="num ink-hi">187,412 km</span> <span class="t-caption">· last entered 12 Jul 2025</span></td><td class="spec-td-name">no tilde, no projection</td></tr>
+      <tr><td>Date from the time axis</td><td><span class="num ink-hi">14 March</span></td><td class="spec-td-name">exact, plain</td></tr>
+      <tr><td>Date from distance, measured</td><td><span class="est">around 22 October</span></td><td class="spec-td-name">.est</td></tr>
+      <tr><td>Date from distance, assumed</td><td><span class="est">around mid-October · ~1,800 km</span></td><td class="spec-td-name">.est</td></tr>
+      <tr><td>Confidence = default</td><td><span class="ink-mid">Odova needs a reading to say when</span></td><td class="spec-td-name">.due-card--needs-odometer</td></tr>
+      <tr><td>Not computable</td><td><span class="dash">—</span></td><td class="spec-td-name">.dash</td></tr>
+    </table>
+  </div>
+
+  <!-- 7.12 RTL -->
+  <h3 class="spec-h3">7.12 · The same components in Persian, RTL</h3>
+  <p class="spec-note">
+    Nothing below is a separate stylesheet or a mirrored class. The direction flips, the
+    logical properties do the work, the chevrons carry <code>.icon--directional</code>, and the
+    gauge needle keeps sweeping clockwise.
+  </p>
+  <div class="theme-dark spec-panel" lang="fa" dir="rtl">
+    <div class="stack">
+      <div class="appbar">
+        <div class="appbar__titleblock"><span class="appbar__title">گلف</span></div>
+        <svg class="icon appbar__chev"><use href="#i-chevron-down"/></svg>
+        <div class="appbar__actions"><button class="appbar__btn"><svg class="icon"><use href="#i-search"/></svg></button></div>
+      </div>
+      <button class="odo-strip">
+        <span class="odo-strip__value">۱۸۷٬۴۱۲<span class="t-unit">کیلومتر</span></span>
+        <span class="odo-strip__meta">ثبت‌شده در ۱۱ شهریور</span>
+        <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+      </button>
+      <div class="due-card due-card--overdue due-card--primary">
+        <div class="due-card__head">
+          <span class="status-dot status-dot--filled"></span>
+          <span class="due-card__title">روغن و فیلتر</span>
+          <span class="badge badge--overdue">گذشته</span>
+        </div>
+        <span class="due-card__status">۹۰۰ کیلومتر گذشته</span>
+        <span class="due-card__anchor">موعد آن ۱۸۶٬۵۱۲ کیلومتر بود · ۲۱ مرداد</span>
+        <div class="meter">
+          <div class="meter__track">
+            <div class="meter__fill" style="--fill:100%"></div>
+            <div class="meter__redline"></div>
+            <div class="meter__ticks"></div>
+          </div>
+          <div class="meter__scale"><span>۰</span><span>۱۰۶٪ از بازه</span></div>
+        </div>
+        <div class="due-card__actions">
+          <button class="btn btn--signal btn--sm">ثبت کن</button>
+          <button class="btn btn--ghost btn--sm">تعویق</button>
+        </div>
+      </div>
+      <div class="due-card due-card--due-soon due-card--secondary">
+        <span class="status-dot status-dot--small"></span>
+        <span class="due-card__title">معاینه فنی</span>
+        <span class="due-card__status">حدود ۶ هفته دیگر</span>
+        <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+      </div>
+      <div class="due-card due-card--unknown due-card--secondary">
+        <span class="status-dot status-dot--none"></span>
+        <span class="due-card__title">تسمه تایم</span>
+        <span class="due-card__status">نامشخص</span>
+        <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+      </div>
+      <div class="segmented segmented--lg">
+        <button class="segmented__item is-active">سوخت</button>
+        <button class="segmented__item">سرویس</button>
+        <button class="segmented__item">هزینه</button>
+        <button class="segmented__item">کیلومتر</button>
+      </div>
+      <div class="field">
+        <label class="field__label">کیلومترشمار</label>
+        <div class="field__control"><input class="input input--numeric" value="۱۸۷٬۴۱۲"><span class="field__suffix">کیلومتر</span></div>
+        <span class="field__hint">عددی که همین الان روی داشبورد است.</span>
+      </div>
+      <div class="list list--inset">
+        <button class="row row--tappable">
+          <span class="row__icon"><svg class="icon"><use href="#i-shield"/></svg></span>
+          <span class="row__main"><span class="row__title">پشتیبان‌گیری</span><span class="row__sub">آخرین خروجی ۱۴ خرداد ۱۴۰۵ · ۴۱۲ رکورد</span></span>
+          <span class="row__end"><svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg></span>
+        </button>
+        <button class="row row--tappable">
+          <span class="row__icon"><svg class="icon"><use href="#i-globe"/></svg></span>
+          <span class="row__main"><span class="row__title">زبان</span></span>
+          <span class="row__end"><span class="row__value">فارسی</span><svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg></span>
+        </button>
+      </div>
+      <div class="tabbar">
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label">خانه</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label">تاریخچه</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label">هزینه‌ها</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label">تنظیمات</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7.13 the whole home screen, both themes -->
+  <h3 class="spec-h3">7.13 · The device frame — Home, at 390 × 844, in both clusters</h3>
+  <p class="spec-note">
+    The system assembled. The same markup, the same tokens; only <code>data-theme</code> differs.
+    The speedo-style odometer is the point of Home: it answers before it asks.
+  </p>
+  <div class="spec-duo">
+    <section class="artboard" data-screen="home" data-title="Home — night">
+      <div class="artboard__label">home · data-theme="dark"</div>
+      <div class="device theme-dark">
+        <div class="screen">
+          <div class="statusbar">
+            <span class="statusbar__time">9:41</span>
+            <span class="statusbar__icons"><svg class="icon icon--16"><use href="#i-signal"/></svg><svg class="icon icon--16"><use href="#i-wifi"/></svg><svg class="icon icon--20"><use href="#i-battery"/></svg></span>
+          </div>
+          <div class="appbar">
+            <div class="appbar__titleblock"><span class="appbar__title">Golf</span><span class="appbar__sub">VW Golf VII · M-AB 1234</span></div>
+            <svg class="icon appbar__chev"><use href="#i-chevron-down"/></svg>
+          </div>
+          <div class="screen__body">
+            <button class="odo-strip">
+              <span class="odo-strip__value">187,412<span class="t-unit">km</span></span>
+              <span class="odo-strip__meta">entered<br>2 September</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </button>
+            <div class="tickrule"></div>
+            <div class="screen__body--pad stack">
+              <div class="due-card due-card--overdue due-card--primary">
+                <div class="due-card__head">
+                  <span class="status-dot status-dot--filled"></span>
+                  <span class="due-card__title">Oil and filter</span>
+                </div>
+                <span class="due-card__status">Overdue by 900 km</span>
+                <span class="due-card__anchor">Was due at 186,512 km · 12 August</span>
+                <div class="meter">
+                  <div class="meter__track">
+                    <div class="meter__fill" style="--fill:100%"></div>
+                    <div class="meter__redline"></div>
+                    <div class="meter__ticks"></div>
+                  </div>
+                </div>
+                <div class="due-card__actions">
+                  <button class="btn btn--signal btn--sm">Log it</button>
+                  <button class="due-card__more"><svg class="icon"><use href="#i-more"/></svg></button>
+                </div>
+              </div>
+              <div class="due-card due-card--due-soon due-card--secondary">
+                <span class="status-dot status-dot--small"></span>
+                <span class="due-card__title">Inspection (TÜV)</span>
+                <span class="due-card__status">in about 6 weeks</span>
+                <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+              </div>
+              <div class="due-card due-card--due-soon due-card--secondary">
+                <span class="status-dot status-dot--small"></span>
+                <span class="due-card__title">Brake pads</span>
+                <span class="due-card__status">in about 1,800 km</span>
+                <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+              </div>
+            </div>
+            <button class="row row--tappable">
+              <span class="row__main"><span class="row__title">See all reminders</span></span>
+              <span class="row__end"><span class="row__value">14</span><svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg></span>
+            </button>
+            <div class="readout-strip">
+              <div class="readout-strip__cell"><span class="readout__value">6.4</span><span class="readout__label">L/100 km</span></div>
+              <div class="readout-strip__cell"><span class="readout__value">0.29</span><span class="readout__label">€ per km</span></div>
+              <div class="readout-strip__cell"><span class="readout__value">182</span><span class="readout__label">€ per month</span></div>
+            </div>
+            <button class="row row--tappable">
+              <span class="row__icon"><svg class="icon"><use href="#i-fuel"/></svg></span>
+              <span class="row__main"><span class="row__title">Last fill-up</span><span class="row__sub">2 Sept · 42.8 L · €74.20</span></span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </button>
+            <div class="strip strip--alert">
+              <span class="strip__icon"><svg class="icon icon--16"><use href="#i-alert"/></svg></span>
+              <span class="strip__text">Transit · 1 overdue</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="tabbar">
+            <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label">Home</span></button>
+            <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label">History</span></button>
+            <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+            <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label">Costs</span></button>
+            <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label">Settings</span></button>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="artboard" data-screen="home" data-title="Home — day">
+      <div class="artboard__label">home · :root (light)</div>
+      <div class="device theme-light">
+        <div class="screen">
+          <div class="statusbar">
+            <span class="statusbar__time">9:41</span>
+            <span class="statusbar__icons"><svg class="icon icon--16"><use href="#i-signal"/></svg><svg class="icon icon--16"><use href="#i-wifi"/></svg><svg class="icon icon--20"><use href="#i-battery"/></svg></span>
+          </div>
+          <div class="appbar">
+            <div class="appbar__titleblock"><span class="appbar__title">Golf</span><span class="appbar__sub">VW Golf VII · M-AB 1234</span></div>
+            <svg class="icon appbar__chev"><use href="#i-chevron-down"/></svg>
+          </div>
+          <div class="screen__body">
+            <button class="odo-strip">
+              <span class="odo-strip__value">187,412<span class="t-unit">km</span></span>
+              <span class="odo-strip__meta">entered<br>2 September</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </button>
+            <div class="tickrule"></div>
+            <div class="screen__body--pad stack">
+              <div class="due-card due-card--overdue due-card--primary">
+                <div class="due-card__head">
+                  <span class="status-dot status-dot--filled"></span>
+                  <span class="due-card__title">Oil and filter</span>
+                </div>
+                <span class="due-card__status">Overdue by 900 km</span>
+                <span class="due-card__anchor">Was due at 186,512 km · 12 August</span>
+                <div class="meter">
+                  <div class="meter__track">
+                    <div class="meter__fill" style="--fill:100%"></div>
+                    <div class="meter__redline"></div>
+                    <div class="meter__ticks"></div>
+                  </div>
+                </div>
+                <div class="due-card__actions">
+                  <button class="btn btn--signal btn--sm">Log it</button>
+                  <button class="due-card__more"><svg class="icon"><use href="#i-more"/></svg></button>
+                </div>
+              </div>
+              <div class="due-card due-card--due-soon due-card--secondary">
+                <span class="status-dot status-dot--small"></span>
+                <span class="due-card__title">Inspection (TÜV)</span>
+                <span class="due-card__status">in about 6 weeks</span>
+                <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+              </div>
+              <div class="due-card due-card--due-soon due-card--secondary">
+                <span class="status-dot status-dot--small"></span>
+                <span class="due-card__title">Brake pads</span>
+                <span class="due-card__status">in about 1,800 km</span>
+                <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+              </div>
+            </div>
+            <button class="row row--tappable">
+              <span class="row__main"><span class="row__title">See all reminders</span></span>
+              <span class="row__end"><span class="row__value">14</span><svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg></span>
+            </button>
+            <div class="readout-strip">
+              <div class="readout-strip__cell"><span class="readout__value">6.4</span><span class="readout__label">L/100 km</span></div>
+              <div class="readout-strip__cell"><span class="readout__value">0.29</span><span class="readout__label">€ per km</span></div>
+              <div class="readout-strip__cell"><span class="readout__value">182</span><span class="readout__label">€ per month</span></div>
+            </div>
+            <button class="row row--tappable">
+              <span class="row__icon"><svg class="icon"><use href="#i-fuel"/></svg></span>
+              <span class="row__main"><span class="row__title">Last fill-up</span><span class="row__sub">2 Sept · 42.8 L · €74.20</span></span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </button>
+            <div class="strip strip--alert">
+              <span class="strip__icon"><svg class="icon icon--16"><use href="#i-alert"/></svg></span>
+              <span class="strip__text">Transit · 1 overdue</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="tabbar">
+            <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label">Home</span></button>
+            <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label">History</span></button>
+            <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+            <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label">Costs</span></button>
+            <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label">Settings</span></button>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 7.14 light pass -->
+  <h3 class="spec-h3">7.14 · The day cluster — the same components, no inversion</h3>
+  <div class="theme-light spec-panel">
+    <div class="spec-grid spec-grid--2">
+      <div class="stack">
+        <div class="due-card due-card--overdue due-card--primary">
+          <div class="due-card__head"><span class="status-dot status-dot--filled"></span><span class="due-card__title">Oil and filter</span><span class="badge badge--overdue">Overdue</span></div>
+          <span class="due-card__status">Overdue by 900 km</span>
+          <span class="due-card__anchor">Was due at 186,512 km · 12 August</span>
+          <div class="meter"><div class="meter__track"><div class="meter__fill" style="--fill:100%"></div><div class="meter__redline"></div><div class="meter__ticks"></div></div></div>
+          <div class="due-card__actions"><button class="btn btn--signal btn--sm">Log it</button><button class="btn btn--ghost btn--sm">Snooze</button></div>
+        </div>
+        <div class="due-card due-card--needs-odometer due-card--secondary">
+          <span class="status-dot status-dot--hollow"></span>
+          <span class="due-card__title">Coolant</span>
+          <span class="due-card__status">Needs a reading</span>
+        </div>
+        <div class="due-card due-card--ok due-card--secondary">
+          <span class="status-dot status-dot--check"><svg class="icon icon--16"><use href="#i-check"/></svg></span>
+          <span class="due-card__title">Air filter</span>
+          <span class="due-card__status">in 8,600 km</span>
+        </div>
+        <div class="cluster">
+          <button class="btn btn--primary">Save</button>
+          <button class="btn btn--secondary">Cancel</button>
+          <button class="btn btn--danger">Delete</button>
+          <button class="btn is-disabled">Save</button>
+        </div>
+        <div class="segmented segmented--lg">
+          <button class="segmented__item is-active">Fill-up</button>
+          <button class="segmented__item">Service</button>
+          <button class="segmented__item">Expense</button>
+          <button class="segmented__item">Odo</button>
+        </div>
+        <div class="chip-row">
+          <span class="chip is-active">All <span class="chip__count">412</span></span>
+          <span class="chip">Fill-ups <span class="chip__count">34</span></span>
+          <span class="chip chip--business">Business</span>
+          <span class="badge badge--overdue">Overdue</span>
+          <span class="badge badge--due-soon">Due soon</span>
+          <span class="badge badge--ok">OK</span>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="chart">
+          <div class="chart__head"><span class="chart__title">Consumption · last 8 fills</span><span class="badge badge--neutral">avg 6.7</span></div>
+          <svg class="chart__svg" viewBox="0 0 300 130" role="img" aria-label="Consumption over the last eight fill-ups">
+            <g class="chart__grid"><line x1="10" y1="10" x2="290" y2="10"/><line x1="10" y1="35.7" x2="290" y2="35.7"/><line x1="10" y1="61.4" x2="290" y2="61.4"/><line x1="10" y1="87.1" x2="290" y2="87.1"/></g>
+            <line class="chart__axis" x1="10" y1="100" x2="290" y2="100"/>
+            <line class="chart__avg" x1="10" y1="55" x2="290" y2="55"/>
+            <polygon class="chart__area" points="10,42.1 50,29.3 90,61.4 130,48.6 170,80.7 210,35.7 250,67.9 290,74.3 290,100 10,100"/>
+            <polyline class="chart__line" points="10,42.1 50,29.3 90,61.4 130,48.6 170,80.7 210,35.7 250,67.9 290,74.3"/>
+            <circle class="chart__point chart__point--hi" cx="50" cy="29.3" r="3"/>
+            <circle class="chart__point chart__point--lo" cx="170" cy="80.7" r="3"/>
+            <circle class="chart__point" cx="290" cy="74.3" r="3"/>
+            <text class="chart__axis-label" x="10" y="116">Apr</text>
+            <text class="chart__axis-label" x="130" y="116">Jun</text>
+            <text class="chart__axis-label" x="250" y="116">Aug</text>
+          </svg>
+          <p class="chart__note">34 fills · best 6.3 · worst 7.1</p>
+        </div>
+        <div class="field">
+          <label class="field__label">Odometer</label>
+          <div class="field__control"><input class="input input--numeric" value="187,412"><span class="field__suffix">km</span></div>
+        </div>
+        <div class="field field--error">
+          <label class="field__label">Odometer</label>
+          <div class="field__control"><input class="input input--numeric" value="186,000"><span class="field__suffix">km</span></div>
+          <span class="field__error"><svg class="icon icon--16"><use href="#i-alert"/></svg>Lower than the last reading, 187,412 km.</span>
+        </div>
+        <div class="list list--inset">
+          <div class="row"><span class="row__icon"><svg class="icon"><use href="#i-shield"/></svg></span><span class="row__main"><span class="row__title">Backup</span><span class="row__sub">4 June 2026 · 412 entries</span></span><span class="switch is-on"><span class="switch__thumb"></span></span></div>
+          <div class="row"><span class="row__icon"><svg class="icon"><use href="#i-bell"/></svg></span><span class="row__main"><span class="row__title">Notifications</span></span><span class="switch"><span class="switch__thumb"></span></span></div>
+        </div>
+        <div class="snackbar"><svg class="icon icon--16"><use href="#i-check"/></svg><span>Fill-up saved · 42.8 L</span><button class="snackbar__action">Undo</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== 8 · MOTION ============================== -->
+<section class="spec-section">
+  <div class="spec-section__num">08</div>
+  <h2 class="spec-h">Motion</h2>
+  <p class="spec-note">
+    Instruments settle; they do not bounce. Everything except a needle uses
+    <code>--ease-standard</code>. <code>--ease-needle</code> exists for one purpose: a gauge
+    value or a large readout changing, where a slight overshoot reads as a physical pointer
+    landing. Never use it on layout. All motion collapses to 1ms under
+    <code>prefers-reduced-motion</code>, which is already handled in <code>odova.css</code>.
+  </p>
+  <div class="spec-duo">
+    <div class="spec-panel">
+      <div class="spec-panel__title"><span>Durations</span><span>token · ms · for</span></div>
+      <table class="spec-table">
+        <tr><th>Token</th><th>ms</th><th>What it drives</th></tr>
+        <tr><td class="spec-td-name">--dur-instant</td><td class="spec-td-spec">90</td><td>Key press feedback, number-pad key, chip toggle</td></tr>
+        <tr><td class="spec-td-name">--dur-fast</td><td class="spec-td-spec">140</td><td>Hover, button background, segmented thumb, icon mirror</td></tr>
+        <tr><td class="spec-td-name">--dur-base</td><td class="spec-td-spec">200</td><td>Switch throw, focus ring, glow rising, strip dismiss</td></tr>
+        <tr><td class="spec-td-name">--dur-slow</td><td class="spec-td-spec">320</td><td>Page push, meter fill animating to its value, gauge sweep</td></tr>
+        <tr><td class="spec-td-name">--dur-sheet</td><td class="spec-td-spec">380</td><td>Bottom sheet and full modal entering; scrim fades with it</td></tr>
+      </table>
+    </div>
+    <div class="spec-panel">
+      <div class="spec-panel__title"><span>Easings</span><span>token · curve · for</span></div>
+      <table class="spec-table">
+        <tr><th>Token</th><th>Curve</th><th>What it is for</th></tr>
+        <tr><td class="spec-td-name">--ease-standard</td><td class="spec-td-spec">(.2, 0, 0, 1)</td><td>The default. Everything that is not listed below.</td></tr>
+        <tr><td class="spec-td-name">--ease-out</td><td class="spec-td-spec">(.05, .7, .1, 1)</td><td>Things entering: sheets, dialogs, snackbars</td></tr>
+        <tr><td class="spec-td-name">--ease-in</td><td class="spec-td-spec">(.3, 0, .8, .15)</td><td>Things leaving: dismissals, the scrim fading out</td></tr>
+        <tr><td class="spec-td-name">--ease-needle</td><td class="spec-td-spec">(.34, 1.25, .64, 1)</td><td>A gauge needle or a large readout landing on a new value. Overshoot ≤ 4%. Never on layout.</td></tr>
+      </table>
+      <h3 class="spec-h3">Rules of motion</h3>
+      <p class="spec-note">
+        Direction of travel is logical: a push enters from the inline-end edge and mirrors in
+        RTL for free. The glow rises with <code>--dur-base</code> and never pulses — a blinking
+        warning lamp is for a real fault, not for a UI affordance. Nothing loops.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== 9 · THE RULES =========================== -->
+<section class="spec-section">
+  <div class="spec-section__num">09</div>
+  <h2 class="spec-h">The rules</h2>
+  <div class="spec-rules">
+    <p class="spec-rule"><span><strong>Answer before you ask.</strong> Every screen opens with the number it exists to show, at readout size, with the unit small beside it. Labels are 10px tick captions. If a screen's biggest element is a control, the screen is wrong.</span></p>
+    <p class="spec-rule"><span><strong>Colour is signal, never decoration.</strong> The chrome is neutral. A colour appears only when it carries state: <code>--sig-overdue</code>, <code>--sig-due</code>, <code>--sig-due-soon</code>, <code>--sig-ok</code>, <code>--sig-unknown</code>, <code>--sig-needs</code>, <code>--sig-business</code>, plus <code>--accent</code> for the one element that has the user's attention. Never colour a heading, an icon or a card to make a screen look designed.</span></p>
+    <p class="spec-rule"><span><strong>Three signals, never one.</strong> Status travels on dot shape, colour and wording together. Set the state with one modifier on <code>.due-card</code>; it publishes <code>--state</code> and the sidebar, dot, status line, meter fill, chip and button all read it. Strip the colour out and the screen must still be readable.</span></p>
+    <p class="spec-rule"><span><strong>Elevation is luminance.</strong> Step the surface (<code>--surface-0</code> → <code>--surface-3</code>) and add the 1px <code>--edge-lit</code> top border. Never add a <code>box-shadow</code> — the only ones in the system are the focus ring and the accent glow, and nothing may bleed outside <code>.device</code>.</span></p>
+    <p class="spec-rule"><span><strong>Plot instruments from the data.</strong> A gauge arc, a meter, a sparkline and a chart must be generated from the actual figures — 15,900 of 15,000 km is a needle past its stop, not a decorative flourish. If you do not have the number, do not draw the instrument.</span></p>
+    <p class="spec-rule"><span><strong>Never guess in a way that looks like fact.</strong> An estimated odometer is prefixed <code>~</code> and set in <code>.est</code>; a projected date is fuzzy (“around mid-October”); an item whose history is unknown is <code>.due-card--unknown</code>, never overdue; a value that cannot be computed is <code>.dash</code> — an em dash. The tilde and the word “about” are the entire vocabulary. The distinction must survive colour and weight being stripped, and <code>.est</code> still holds 4.5:1.</span></p>
+    <p class="spec-rule"><span><strong>No layout code says left or right.</strong> Use <code>inset-inline-*</code>, <code>margin-inline-*</code>, <code>padding-inline-*</code>, <code>border-inline-*</code>, <code>text-align: start/end</code>, and flex/grid, which mirror for free. Only icons that encode reading order — chevrons, arrows, backspace, undo — carry <code>.icon--directional</code>. Dials, pumps, wrenches, clocks and vehicle silhouettes keep one canonical asset and never mirror.</span></p>
+    <p class="spec-rule"><span><strong>Bilingual by construction.</strong> Every text node that differs between locales carries <code>data-en</code> and <code>data-fa</code>, including numbers and dates: <code>data-en="187,412 km" data-fa="۱۸۷٬۴۱۲ کیلومتر"</code>. Under <code>[lang="fa"]</code> Vazirmatn leads for text and numerals alike — never mix a Latin face with an Arabic one at different optical sizes.</span></p>
+  </div>
+</section>
+
+<footer class="spec-section">
+  <div class="tickrule tickrule--major"></div>
+  <p class="t-caption">Instrument · Odova design system · <code>design/instrument/odova.css</code> ·
+  no external stylesheet, no CDN, no script, no network request of any kind.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,2001 @@
+@charset "utf-8";
+/* ============================================================================
+   ODOVA — GARAGE SLIP
+   A design system shaped like the paper the trade already runs on: the workshop
+   docket, the stamped service booklet, the carbon-copy invoice, the logbook
+   ruled in columns.
+
+   Ink on paper. Type does the work. Rules, not shadows. Dense and columnar.
+   One accent, used like a rubber stamp.
+
+   Rules for anyone extending this file:
+     · No `left` / `right` properties. Logical properties only. The single
+       exception is the `.icon--directional` mirroring transform, which uses no
+       physical property at all.
+     · Radius never exceeds 2px. There are no soft shadows and no gradients
+       used as fills.
+     · Colour is not a state. Weight, rule thickness and small caps are.
+       Red is a rubber stamp and is spent only on `overdue`.
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------------
+   1. FONTS — bundled, never fetched
+   ------------------------------------------------------------------------ */
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../_fonts/Vazirmatn.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* ---------------------------------------------------------------------------
+   2. TOKENS — LIGHT (the paper)
+   ------------------------------------------------------------------------ */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  background: var(--paper);
+  color: var(--ink);
+
+  /* --- Surfaces: a warm, slightly foxed off-white ------------------------ */
+  --paper:            #F3EEE1;  /* the page itself                          */
+  --paper-raised:     #FBF8F0;  /* a docket laid on the page: cards, sheets */
+  --paper-sunk:       #E7E0CD;  /* ruled bands, table zebra, key caps       */
+  --paper-deep:       #DCD3BC;  /* the darkest paper tone: filled headers   */
+  --paper-stamp:      #FFFDF7;  /* the whitest stock: dialogs, number pad   */
+
+  /* --- Ink ramp ---------------------------------------------------------- */
+  --ink:              #1B1710;  /* body ink, near-black and warm            */
+  --ink-strong:       #000000;  /* the pen pressed hard: totals, rules      */
+  --ink-2:            #4C4234;  /* secondary ink, anchor lines              */
+  --ink-3:            #786B57;  /* faded ink: meta, units, captions         */
+  --ink-4:            #A2947C;  /* pencil: placeholders, disabled           */
+  --ink-invert:       #FBF8F0;  /* type sitting on an inked block           */
+
+  /* --- Rules ------------------------------------------------------------- */
+  --rule:             #C7BBA0;  /* the printed hairline of a ruled page     */
+  --rule-soft:        #DDD4BE;  /* the faintest rule: inside dense tables   */
+  --rule-strong:      #6E6249;  /* a drawn rule: section and total rules    */
+  --rule-ink:         #1B1710;  /* the boxed border of a docket             */
+
+  /* --- The one accent: a rubber stamp ------------------------------------ */
+  --stamp:            #B72A1B;  /* saturated red, overdue only              */
+  --stamp-ink:        #8E1F13;  /* the same red pressed harder              */
+  --stamp-wash:       #F4E2DC;  /* the faintest bleed under a stamp         */
+
+  /* --- Semantic states --------------------------------------------------- */
+  --state-overdue:        #B72A1B;  /* red. the only red in the system      */
+  --state-overdue-bg:     #F4E2DC;
+  --state-due:            #8A5A12;  /* ochre ink: due now                   */
+  --state-due-bg:         #EFE5CC;
+  --state-due-soon:       #2F4A5C;  /* ledger blue-black: due soon          */
+  --state-due-soon-bg:    #E3E5E2;
+  --state-ok:             #4C5C36;  /* green ink of a signed-off line       */
+  --state-ok-bg:          #E6E7D6;
+  --state-unknown:        #786B57;  /* faded ink: never recorded            */
+  --state-unknown-bg:     #EAE3D1;
+  --state-needs-odometer: #6A5B44;  /* pencil: the app is missing a fact    */
+  --state-needs-odometer-bg: #E9E1CE;
+  --state-business:       #4A3B6B;  /* purple accounts stamp                */
+  --state-business-bg:    #E5E1EC;
+
+  /* --- Interaction ------------------------------------------------------- */
+  --focus:            #1B1710;
+  --press-wash:       rgba(27, 23, 16, 0.08);
+  --scrim:            rgba(30, 25, 14, 0.55);
+  --hatch:            rgba(120, 107, 87, 0.20); /* disabled hatching        */
+
+  /* --- Typeface stacks --------------------------------------------------- */
+  --font-serif: 'Iowan Old Style', 'Charter', 'Palatino', 'Palatino Linotype',
+                'Book Antiqua', Georgia, 'Times New Roman', serif;
+  --font-ui:    var(--font-serif);
+  --font-mono:  Menlo, 'Courier New', 'Andale Mono', monospace;
+  --font-fa:    'Vazirmatn', 'Geeza Pro', sans-serif;
+
+  /* --- Type scale (size / line-height / weight) -------------------------- */
+  --fs-micro:     10px;  --lh-micro:     13px;
+  --fs-caption:   11px;  --lh-caption:   15px;
+  --fs-small:     12px;  --lh-small:     16px;
+  --fs-body:      14px;  --lh-body:      19px;
+  --fs-body-lg:   15px;  --lh-body-lg:   21px;
+  --fs-title:     17px;  --lh-title:     22px;
+  --fs-head:      20px;  --lh-head:      25px;
+  --fs-display:   26px;  --lh-display:   29px;
+  --fs-figure:    34px;  --lh-figure:    34px;
+  --fs-figure-xl: 44px;  --lh-figure-xl: 44px;
+
+  --fw-reg:  400;
+  --fw-med:  600;
+  --fw-bold: 700;
+
+  --tracking-caps: 0.09em;   /* small-caps labels                            */
+  --tracking-tight: -0.01em; /* display serif                                */
+
+  /* --- Spacing scale (dense, 2px-derived) -------------------------------- */
+  --sp-0:  0px;
+  --sp-1:  2px;
+  --sp-2:  4px;
+  --sp-3:  6px;
+  --sp-4:  8px;
+  --sp-5:  12px;
+  --sp-6:  16px;
+  --sp-7:  20px;
+  --sp-8:  24px;
+  --sp-9:  32px;
+  --sp-10: 40px;
+  --sp-screen: 16px;   /* the page margin of every screen                    */
+
+  /* --- Radius (a printed box has none) ----------------------------------- */
+  --r-0: 0px;
+  --r-1: 1px;
+  --r-2: 2px;   /* the largest radius in the system, full stop              */
+
+  /* --- Rule weights ------------------------------------------------------ */
+  --rw-hair:   1px;
+  --rw-med:    2px;
+  --rw-thick:  3px;
+  --rw-double: 3px;  /* rendered with border-style: double = two 1px lines   */
+
+  /* --- Elevation: rules and hard offsets. Never a blur. ------------------ */
+  --sx-1:  2px;   /* hard-offset x, mirrored under [dir=rtl]                */
+  --sx-2:  3px;
+  --sx-3:  4px;
+  --elev-0: none;
+  --elev-1: 0 0 0 1px var(--rule);                    /* boxed             */
+  --elev-2: var(--sx-1) 2px 0 0 var(--rule);          /* carbon copy       */
+  --elev-3: var(--sx-2) 3px 0 0 var(--rule-strong);   /* docket on desk    */
+  --elev-4: var(--sx-3) 4px 0 0 var(--ink);           /* dialog, top sheet */
+
+  /* --- Fixed chrome heights ---------------------------------------------- */
+  --h-appbar: 56px;
+  --h-tabbar: 60px;
+  --h-row:    48px;
+  --h-control: 44px;
+
+  /* --- Motion ------------------------------------------------------------ */
+  --dur-1: 90ms;    /* press feedback, a key going down                     */
+  --dur-2: 160ms;   /* state change, chips, switches                        */
+  --dur-3: 240ms;   /* sheets and dialogs entering                          */
+  --dur-4: 320ms;   /* page push                                            */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+  --ease-in:       cubic-bezier(0.4, 0, 1, 1);
+  --ease-stamp:    cubic-bezier(0.3, 1.4, 0.5, 1);  /* the press of a stamp */
+}
+
+/* ---------------------------------------------------------------------------
+   3. TOKENS — DARK (the ledger under a work lamp)
+   Not an inversion. A deep ink-blue stock with warm cream type, the way a
+   bound ledger looks lit from one side at night.
+   ------------------------------------------------------------------------ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  background: var(--paper);
+  color: var(--ink);
+
+  --paper:            #131A24;
+  --paper-raised:     #1A2330;
+  --paper-sunk:       #0D131B;
+  --paper-deep:       #232E3D;
+  --paper-stamp:      #1E2836;
+
+  --ink:              #F0E5CC;
+  --ink-strong:       #FFF8E7;
+  --ink-2:            #CDBE9E;
+  --ink-3:            #9A8D74;
+  --ink-4:            #6E6857;
+  --ink-invert:       #131A24;
+
+  --rule:             #35424F;
+  --rule-soft:        #263140;
+  --rule-strong:      #63738A;
+  --rule-ink:         #F0E5CC;
+
+  --stamp:            #E4604D;
+  --stamp-ink:        #F07B67;
+  --stamp-wash:       #3A2220;
+
+  --state-overdue:        #E4604D;
+  --state-overdue-bg:     #3A2220;
+  --state-due:            #DDA556;
+  --state-due-bg:         #33291A;
+  --state-due-soon:       #8FB6CE;
+  --state-due-soon-bg:    #1E2B36;
+  --state-ok:             #A3B47F;
+  --state-ok-bg:          #212A1E;
+  --state-unknown:        #9A8D74;
+  --state-unknown-bg:     #1F2733;
+  --state-needs-odometer: #B0A084;
+  --state-needs-odometer-bg: #222B36;
+  --state-business:       #AE9DDD;
+  --state-business-bg:    #262439;
+
+  --focus:            #F0E5CC;
+  --press-wash:       rgba(240, 229, 204, 0.10);
+  --scrim:            rgba(6, 10, 16, 0.68);
+  --hatch:            rgba(154, 141, 116, 0.24);
+
+  --elev-1: 0 0 0 1px var(--rule);
+  --elev-2: var(--sx-1) 2px 0 0 var(--rule);
+  --elev-3: var(--sx-2) 3px 0 0 var(--rule-strong);
+  --elev-4: var(--sx-3) 4px 0 0 var(--rule-strong);
+}
+
+/* Hard offsets are physical, so mirror them with the document direction. */
+[dir="rtl"] { --sx-1: -2px; --sx-2: -3px; --sx-3: -4px; }
+
+/* ---------------------------------------------------------------------------
+   4. BASE
+   ------------------------------------------------------------------------ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  font-variant-ligatures: common-ligatures;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-reg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6, p, figure, ul, ol, dl { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+svg { display: block; }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+::selection { background: var(--ink); color: var(--ink-invert); }
+
+/* Persian and the rest of the Arabic-script locales: one face for everything.
+   Mixing a Latin serif with an Arabic face at different optical sizes is the
+   single most common RTL layout bug, so we do not do it. */
+:root[lang="fa"], :root[lang="ar"], :root[lang="ckb"],
+[lang="fa"], [lang="ar"], [lang="ckb"] {
+  --font-serif: var(--font-fa);
+  --font-ui:    var(--font-fa);
+  --font-mono:  var(--font-fa);
+  --tracking-caps: 0;
+  --tracking-tight: 0;
+  --lh-caption: 17px; --lh-small: 18px; --lh-body: 22px; --lh-body-lg: 24px;
+  --lh-title: 25px;   --lh-head: 28px;  --lh-display: 33px;
+}
+
+/* Arabic script has no small caps. The label reads by weight instead. */
+[lang="fa"] .smallcaps, [lang="ar"] .smallcaps, [lang="ckb"] .smallcaps,
+[lang="fa"] .eyebrow,   [lang="ar"] .eyebrow,   [lang="ckb"] .eyebrow,
+[lang="fa"] .stamp,     [lang="ar"] .stamp,     [lang="ckb"] .stamp,
+[lang="fa"] .list__header, [lang="ar"] .list__header, [lang="ckb"] .list__header,
+[lang="fa"] .field__label, [lang="ar"] .field__label, [lang="ckb"] .field__label,
+[lang="fa"] .tile__label,  [lang="ar"] .tile__label,  [lang="ckb"] .tile__label,
+[lang="fa"] .btn,          [lang="ar"] .btn,          [lang="ckb"] .btn {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: var(--fw-bold);
+}
+
+/* ---------------------------------------------------------------------------
+   5. THE DEVICE FRAME
+   ------------------------------------------------------------------------ */
+
+.artboard {
+  display: inline-block;
+  padding: 0;
+  background: transparent;
+  box-shadow: var(--sx-2) 3px 0 0 var(--rule-strong);
+}
+.artboard__caption {
+  display: block;
+  margin-block: var(--sp-2) var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.device {
+  position: relative;
+  inline-size: 390px;
+  block-size: 844px;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--rw-hair) solid var(--rule-ink);
+  isolation: isolate;
+}
+
+/* A screen inside the device: fixed chrome, one flexible body. */
+.screen { display: flex; flex-direction: column; block-size: 100%; }
+.screen__body { flex: 1 1 auto; overflow: hidden; }
+.screen__body--pad { padding-inline: var(--sp-screen); }
+.screen--modal { background: var(--paper-raised); }
+
+/* ---------------------------------------------------------------------------
+   6. TYPOGRAPHY PRIMITIVES
+   ------------------------------------------------------------------------ */
+
+.t-micro    { font-size: var(--fs-micro);    line-height: var(--lh-micro); }
+.t-caption  { font-size: var(--fs-caption);  line-height: var(--lh-caption); }
+.t-small    { font-size: var(--fs-small);    line-height: var(--lh-small); }
+.t-body     { font-size: var(--fs-body);     line-height: var(--lh-body); }
+.t-body-lg  { font-size: var(--fs-body-lg);  line-height: var(--lh-body-lg); }
+.t-title    { font-size: var(--fs-title);    line-height: var(--lh-title);
+              font-weight: var(--fw-med); letter-spacing: var(--tracking-tight); }
+.t-head     { font-size: var(--fs-head);     line-height: var(--lh-head);
+              font-weight: var(--fw-bold); letter-spacing: var(--tracking-tight); }
+.t-display  { font-size: var(--fs-display);  line-height: var(--lh-display);
+              font-weight: var(--fw-bold); letter-spacing: var(--tracking-tight); }
+.t-figure   { font-family: var(--font-mono); font-size: var(--fs-figure);
+              line-height: var(--lh-figure); font-weight: var(--fw-med);
+              font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.t-figure-xl{ font-family: var(--font-mono); font-size: var(--fs-figure-xl);
+              line-height: var(--lh-figure-xl); font-weight: var(--fw-med);
+              font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+
+.smallcaps, .eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--fs-micro);
+  line-height: var(--lh-micro);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.eyebrow { color: var(--ink-3); display: block; margin-block-end: var(--sp-2); }
+
+/* Every figure that sits in a column. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}
+.num--end { text-align: end; display: inline-block; }
+.unit { font-family: var(--font-mono); font-size: 0.82em; color: var(--ink-3); }
+
+.muted   { color: var(--ink-3); }
+.faint   { color: var(--ink-4); }
+.strong  { font-weight: var(--fw-bold); color: var(--ink-strong); }
+.serif   { font-family: var(--font-serif); }
+.mono    { font-family: var(--font-mono); }
+
+/* An estimate is marked as an estimate. The tilde is part of the string. */
+.est { color: var(--ink-3); font-style: italic; }
+.est .num { font-style: normal; }
+
+/* Codes whose character order matters: plate, VIN. Always LTR. */
+.code {
+  font-family: var(--font-mono);
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
+   7. RULES, LEADERS, HATCHING — how this system draws structure
+   ------------------------------------------------------------------------ */
+
+.hr          { border: 0; border-block-start: var(--rw-hair) solid var(--rule); }
+.hr--soft    { border-block-start-color: var(--rule-soft); }
+.hr--strong  { border-block-start-width: var(--rw-med); border-block-start-color: var(--rule-strong); }
+.hr--ink     { border-block-start-width: var(--rw-med); border-block-start-color: var(--ink); }
+.hr--double  { border-block-start: var(--rw-double) double var(--ink); }
+.hr--dashed  { border-block-start: var(--rw-hair) dashed var(--rule); }
+.hr--stamp   { border-block-start-width: var(--rw-thick); border-block-start-color: var(--stamp); }
+
+/* The perforated tear-off edge of a docket. */
+.perf {
+  block-size: 6px;
+  background-image: radial-gradient(circle at 3px 3px, var(--paper) 2.5px, transparent 2.6px);
+  background-size: 8px 6px;
+  background-color: var(--rule);
+  background-repeat: repeat-x;
+}
+
+/* A dotted leader running from a label to its figure, as on a bill. */
+.leader { display: flex; align-items: baseline; gap: var(--sp-2); inline-size: 100%; }
+.leader__label { flex: 0 0 auto; }
+.leader__fill {
+  flex: 1 1 auto;
+  min-inline-size: var(--sp-6);
+  block-size: 0;
+  align-self: end;
+  margin-block-end: 4px;
+  border-block-end: 1px dotted var(--rule);
+}
+.leader__value { flex: 0 0 auto; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Hatching stands for "not available" — a struck-through box on a form. */
+.hatch {
+  background-image: repeating-linear-gradient(
+    45deg, var(--hatch) 0 1px, transparent 1px 6px);
+}
+
+/* ---------------------------------------------------------------------------
+   8. APP BAR
+   ------------------------------------------------------------------------ */
+
+.appbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  block-size: var(--h-appbar);
+  padding-inline: var(--sp-screen);
+  background: var(--paper);
+  border-block-end: var(--rw-med) solid var(--ink);
+}
+.appbar__lead, .appbar__trail {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: var(--sp-4);
+}
+.appbar__titles { flex: 1 1 auto; min-inline-size: 0; }
+.appbar__title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-tight);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.appbar__sub {
+  font-size: var(--fs-micro); line-height: var(--lh-micro);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-3);
+}
+.appbar__vehicle { display: flex; align-items: center; gap: var(--sp-3); }
+.appbar__back, .appbar__action {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--sp-2);
+  min-inline-size: 28px; block-size: 28px;
+  padding: 0; margin: 0;
+  background: none; border: 0; border-radius: var(--r-1);
+  color: var(--ink); cursor: pointer;
+}
+.appbar__action--text {
+  padding-inline: var(--sp-3);
+  font-size: var(--fs-small); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+}
+.appbar__action:disabled, .appbar__action.is-disabled { color: var(--ink-4); cursor: default; }
+.appbar__action:active, .appbar__action.is-pressed { background: var(--press-wash); }
+
+/* The modal variant: a docket header, filled, with a form number. */
+.appbar--modal { background: var(--paper-deep); border-block-end-color: var(--ink); }
+.appbar--flush { border-block-end: 0; }
+.appbar--tall { block-size: 76px; align-items: flex-end; padding-block-end: var(--sp-4); }
+
+/* The little serial number printed on every docket. */
+.docket-no {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro); line-height: var(--lh-micro);
+  letter-spacing: 0.08em; color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------------------
+   9. TAB BAR
+   ------------------------------------------------------------------------ */
+
+.tabbar {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto 1fr 1fr;
+  align-items: stretch;
+  block-size: var(--h-tabbar);
+  background: var(--paper-sunk);
+  border-block-start: var(--rw-med) solid var(--ink);
+}
+.tabbar__item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px;
+  padding: 0; background: none; border: 0;
+  color: var(--ink-3); cursor: pointer;
+  border-block-start: var(--rw-thick) solid transparent;
+  margin-block-start: -3px;
+}
+.tabbar__label {
+  font-size: var(--fs-micro); line-height: var(--lh-micro);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  font-weight: var(--fw-med);
+}
+.tabbar__item.is-active { color: var(--ink); border-block-start-color: var(--ink); }
+.tabbar__item.is-active .tabbar__label { font-weight: var(--fw-bold); }
+.tabbar__item:active, .tabbar__item.is-pressed { background: var(--press-wash); }
+
+/* The docked log button: an inked square, not a floating circle. */
+.tabbar__log {
+  align-self: center;
+  inline-size: 46px; block-size: 46px;
+  margin-inline: var(--sp-3);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--ink);
+  color: var(--ink-invert);
+  border: 0; border-radius: var(--r-1);
+  box-shadow: var(--sx-1) 2px 0 0 var(--rule-strong);
+  cursor: pointer;
+}
+.tabbar__log:active, .tabbar__log.is-pressed {
+  box-shadow: none; transform: translate(1px, 1px);
+}
+
+/* ---------------------------------------------------------------------------
+   10. LISTS AND ROWS — the ruled logbook
+   ------------------------------------------------------------------------ */
+
+.list { display: block; }
+.list--boxed { border: var(--rw-hair) solid var(--rule); background: var(--paper-raised); }
+
+.list__header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-screen) var(--sp-2);
+  font-size: var(--fs-micro); line-height: var(--lh-micro);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--paper);
+  border-block-end: var(--rw-hair) solid var(--ink);
+}
+.list__header--sunk { background: var(--paper-sunk); }
+.list__footer {
+  padding: var(--sp-3) var(--sp-screen);
+  border-block-start: var(--rw-double) double var(--ink);
+  font-size: var(--fs-small);
+}
+
+.row {
+  display: flex; align-items: center; gap: var(--sp-5);
+  inline-size: 100%;
+  min-block-size: var(--h-row);
+  padding: var(--sp-4) var(--sp-screen);
+  background: transparent;
+  border: 0;
+  border-block-end: var(--rw-hair) solid var(--rule);
+  text-align: start;
+  color: inherit;
+  font: inherit;
+}
+.row:last-child { border-block-end: 0; }
+.row--tappable { cursor: pointer; }
+.row--tappable:active, .row.is-pressed { background: var(--press-wash); }
+.row--zebra:nth-child(even) { background: var(--paper-sunk); }
+.row--tall { min-block-size: 60px; }
+.row--compact { min-block-size: 36px; padding-block: var(--sp-3); }
+.row--flush { padding-inline: 0; }
+.row--strong { border-block-end-width: var(--rw-med); border-block-end-color: var(--ink); }
+.row--total { border-block-start: var(--rw-double) double var(--ink); border-block-end: 0; }
+.row.is-disabled { color: var(--ink-4); cursor: default; }
+.row.is-selected { background: var(--paper-sunk); }
+
+.row__main { flex: 1 1 auto; min-inline-size: 0; }
+.row__label {
+  font-size: var(--fs-body-lg); line-height: var(--lh-body-lg);
+  font-weight: var(--fw-med);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.row__sub {
+  font-size: var(--fs-caption); line-height: var(--lh-caption);
+  color: var(--ink-3);
+}
+.row__value {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-body); font-variant-numeric: tabular-nums;
+  text-align: end;
+  color: var(--ink-2);
+}
+.row__value--strong { color: var(--ink); font-weight: var(--fw-med); }
+.row__lead { flex: 0 0 auto; display: flex; align-items: center; color: var(--ink-2); }
+.row__trail { flex: 0 0 auto; display: flex; align-items: center; gap: var(--sp-4); }
+.row__chevron { flex: 0 0 auto; color: var(--ink-4); }
+
+/* A key/value block used inside cards and reports. */
+.kv { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-5); }
+.kv__k { font-size: var(--fs-small); color: var(--ink-3); }
+.kv__v { font-family: var(--font-mono); font-size: var(--fs-small); font-variant-numeric: tabular-nums; text-align: end; }
+
+/* ---------------------------------------------------------------------------
+   11. THE LEDGER — a real ruled table with a unit column
+   ------------------------------------------------------------------------ */
+
+.ledger { inline-size: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+.ledger th {
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-micro); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-3); text-align: start;
+  border-block-end: var(--rw-hair) solid var(--ink);
+  white-space: nowrap;
+}
+.ledger th.ledger__num, .ledger td.ledger__num { text-align: end; }
+.ledger td {
+  padding: var(--sp-3);
+  border-block-end: var(--rw-hair) solid var(--rule-soft);
+  vertical-align: baseline;
+}
+.ledger__num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ledger__unit {
+  inline-size: 1%;
+  font-family: var(--font-mono); font-size: var(--fs-micro);
+  color: var(--ink-3); text-align: start; white-space: nowrap;
+  padding-inline-start: var(--sp-1);
+}
+.ledger tr.ledger__total td {
+  border-block-start: var(--rw-double) double var(--ink);
+  border-block-end: 0;
+  padding-block-start: var(--sp-3);
+  font-weight: var(--fw-bold);
+  color: var(--ink-strong);
+}
+.ledger tbody tr:last-child td { border-block-end: 0; }
+
+/* ---------------------------------------------------------------------------
+   12. CARDS — boxes with borders. Never a rounded, shadowed panel.
+   ------------------------------------------------------------------------ */
+
+.card {
+  background: var(--paper-raised);
+  border: var(--rw-hair) solid var(--rule);
+  border-radius: var(--r-1);
+  padding: var(--sp-5);
+}
+.card--ink    { border-color: var(--ink); border-width: var(--rw-hair); }
+.card--carbon { box-shadow: var(--elev-2); }
+.card--docket { box-shadow: var(--elev-3); border-color: var(--ink); }
+.card--flat   { background: transparent; border-color: var(--rule-soft); }
+.card--sunk   { background: var(--paper-sunk); }
+.card--flush  { padding: 0; }
+
+.card__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--sp-4);
+  margin-block-end: var(--sp-4);
+  padding-block-end: var(--sp-3);
+  border-block-end: var(--rw-hair) solid var(--rule);
+}
+.card__title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-body-lg); font-weight: var(--fw-bold);
+}
+.card__body { font-size: var(--fs-body); }
+.card__foot {
+  margin-block-start: var(--sp-4);
+  padding-block-start: var(--sp-3);
+  border-block-start: var(--rw-hair) solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
+}
+
+/* A boxed aside: the printed note at the foot of a form. */
+.note {
+  padding: var(--sp-4);
+  border: var(--rw-hair) dashed var(--rule-strong);
+  background: transparent;
+  font-size: var(--fs-caption); line-height: var(--lh-caption);
+  color: var(--ink-2);
+}
+
+/* The conditional strip on Home. */
+.strip {
+  display: flex; align-items: flex-start; gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-screen);
+  background: var(--paper-sunk);
+  border-block-end: var(--rw-hair) solid var(--ink);
+  font-size: var(--fs-caption); line-height: var(--lh-caption);
+}
+.strip__body { flex: 1 1 auto; }
+.strip__close {
+  flex: 0 0 auto; background: none; border: 0; padding: 0;
+  color: var(--ink-3); cursor: pointer;
+}
+.strip--stamp { background: var(--stamp-wash); border-block-end-color: var(--stamp); }
+
+/* ---------------------------------------------------------------------------
+   13. THE DUE-STATE CARD — five states, told by rule weight and shape
+   Colour is the last signal, not the first: the mark shape and the border
+   style carry the state with the colour stripped out.
+   ------------------------------------------------------------------------ */
+
+.duecard {
+  --duecolor: var(--ink);
+  --duebg: var(--paper-raised);
+  display: block; inline-size: 100%;
+  text-align: start; font: inherit; color: inherit;
+  background: var(--duebg);
+  border: var(--rw-hair) solid var(--rule);
+  border-inline-start: var(--rw-thick) solid var(--duecolor);
+  border-radius: var(--r-1);
+  padding: var(--sp-5);
+  cursor: pointer;
+}
+.duecard__top { display: flex; align-items: flex-start; gap: var(--sp-4); }
+.duecard__marks { flex: 0 0 auto; padding-block-start: 3px; }
+.duecard__main { flex: 1 1 auto; min-inline-size: 0; }
+.duecard__title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-title); line-height: var(--lh-title);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-tight);
+}
+.duecard__status {
+  margin-block-start: var(--sp-1);
+  font-size: var(--fs-body-lg); line-height: var(--lh-body-lg);
+  font-weight: var(--fw-med);
+  color: var(--duecolor);
+}
+.duecard__anchor {
+  margin-block-start: var(--sp-1);
+  font-size: var(--fs-caption); line-height: var(--lh-caption);
+  color: var(--ink-3);
+}
+.duecard__snooze {
+  margin-block-start: var(--sp-1);
+  font-size: var(--fs-caption); color: var(--ink-3); font-style: italic;
+}
+.duecard__actions {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
+  margin-block-start: var(--sp-5);
+}
+.duecard__trail { flex: 0 0 auto; display: flex; align-items: center; gap: var(--sp-4); color: var(--ink-4); }
+
+/* Secondary density: one line, figure at the end. */
+.duecard--secondary { padding: var(--sp-4) var(--sp-5); border-inline-start-width: var(--rw-med); }
+.duecard--secondary .duecard__title { font-size: var(--fs-body-lg); line-height: var(--lh-body-lg); font-weight: var(--fw-med); }
+.duecard--secondary .duecard__status { margin: 0; font-size: var(--fs-small); text-align: end; }
+.duecard--secondary .duecard__top { align-items: center; }
+.duecard--secondary .duecard__row { display: flex; align-items: center; gap: var(--sp-4); }
+.duecard--secondary .duecard__row .duecard__main { flex: 1 1 auto; }
+
+.duecard--primary { padding: var(--sp-6) var(--sp-5); }
+
+/* --- the five states ---------------------------------------------------- */
+
+.duecard--overdue {
+  --duecolor: var(--state-overdue);
+  --duebg: var(--state-overdue-bg);
+  border-color: var(--state-overdue);
+  border-width: var(--rw-hair);
+  border-inline-start-width: var(--rw-thick);
+}
+.duecard--due {
+  --duecolor: var(--state-due);
+  --duebg: var(--state-due-bg);
+  border-color: var(--rule-strong);
+  border-inline-start-width: var(--rw-thick);
+}
+.duecard--due-soon {
+  --duecolor: var(--state-due-soon);
+  --duebg: var(--paper-raised);
+  border-color: var(--rule);
+  border-inline-start-width: var(--rw-med);
+}
+.duecard--ok {
+  --duecolor: var(--state-ok);
+  --duebg: var(--paper-raised);
+  border-color: var(--rule-soft);
+  border-inline-start-width: var(--rw-hair);
+}
+.duecard--unknown {
+  --duecolor: var(--state-unknown);
+  --duebg: transparent;
+  border: var(--rw-hair) dashed var(--rule-strong);
+  border-inline-start: var(--rw-med) dashed var(--state-unknown);
+}
+.duecard--needs-odometer {
+  --duecolor: var(--state-needs-odometer);
+  --duebg: var(--paper-sunk);
+  border: var(--rw-hair) dotted var(--rule-strong);
+  border-inline-start: var(--rw-thick) dotted var(--state-needs-odometer);
+}
+
+/* --- status marks. Shape is normative; squares, because this is paper. --- */
+.mark {
+  display: inline-block;
+  inline-size: 12px; block-size: 12px;
+  background: currentColor;
+  color: var(--duecolor);
+  vertical-align: middle;
+}
+.mark--filled { background: currentColor; }
+.mark--ring   { background: transparent; box-shadow: inset 0 0 0 3px currentColor; }
+.mark--small  { inline-size: 8px; block-size: 8px; margin: 2px; }
+.mark--hollow { background: transparent; border: 1px dashed currentColor; }
+.mark--dash   { inline-size: 12px; block-size: 2px; margin-block: 5px; }
+.mark--ok     { background: transparent; box-shadow: inset 0 0 0 1px currentColor; }
+
+/* The progress line under the primary card: 2px, no radius, no gradient. */
+.progress {
+  block-size: 3px;
+  margin-block-start: var(--sp-5);
+  background: var(--paper-deep);
+  border: 0;
+}
+.progress__fill { display: block; block-size: 100%; background: var(--ink); }
+.progress--over .progress__fill { background: var(--stamp); }
+.progress--hatched .progress__fill {
+  background-image: repeating-linear-gradient(45deg,
+    var(--paper-raised) 0 1px, transparent 1px 5px);
+}
+
+/* ---------------------------------------------------------------------------
+   14. THE STAMP — the only place saturated colour is spent
+   ------------------------------------------------------------------------ */
+
+.stamp {
+  display: inline-block;
+  padding: 2px var(--sp-3) 1px;
+  border: var(--rw-med) solid var(--stamp);
+  border-radius: var(--r-1);
+  color: var(--stamp);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: var(--fs-micro); line-height: 13px;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  transform: rotate(-3.5deg);
+  transform-origin: center;
+  white-space: nowrap;
+}
+.stamp--straight  { transform: none; }
+.stamp--business  { border-color: var(--state-business); color: var(--state-business); transform: rotate(2.5deg); }
+.stamp--ok        { border-color: var(--state-ok); color: var(--state-ok); transform: rotate(-1.5deg); }
+.stamp--unknown   { border-color: var(--state-unknown); color: var(--state-unknown); border-style: dashed; transform: rotate(-2deg); }
+.stamp--lg        { font-size: var(--fs-caption); line-height: 16px; padding-inline: var(--sp-4); border-width: var(--rw-thick); }
+.stamp--filled    { background: var(--stamp); color: var(--paper-stamp); }
+
+/* ---------------------------------------------------------------------------
+   15. BADGES
+   ------------------------------------------------------------------------ */
+
+.badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-inline-size: 18px; block-size: 18px;
+  padding-inline: 4px;
+  border: var(--rw-hair) solid var(--ink);
+  border-radius: var(--r-1);
+  background: var(--paper-raised);
+  font-family: var(--font-mono); font-size: var(--fs-micro);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.badge--count   { background: var(--ink); color: var(--ink-invert); border-color: var(--ink); }
+.badge--overdue { background: var(--stamp); color: var(--paper-stamp); border-color: var(--stamp); }
+.badge--dot     { inline-size: 7px; block-size: 7px; min-inline-size: 0; padding: 0; border: 0; background: var(--stamp); }
+.badge--quiet   { border-color: var(--rule); color: var(--ink-3); }
+
+/* ---------------------------------------------------------------------------
+   16. BUTTONS
+   ------------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--sp-3);
+  min-block-size: var(--h-control);
+  padding: var(--sp-3) var(--sp-6);
+  background: var(--paper-raised);
+  color: var(--ink);
+  border: var(--rw-hair) solid var(--ink);
+  border-radius: var(--r-1);
+  font-family: var(--font-ui);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-standard),
+              box-shadow var(--dur-1) var(--ease-standard),
+              transform var(--dur-1) var(--ease-standard);
+  box-shadow: var(--sx-1) 2px 0 0 var(--rule-strong);
+}
+.btn:hover { background: var(--paper-stamp); }
+.btn:active, .btn.is-pressed {
+  box-shadow: none;
+  transform: translate(1px, 1px);
+  background: var(--paper-sunk);
+}
+[dir="rtl"] .btn:active, [dir="rtl"] .btn.is-pressed { transform: translate(-1px, 1px); }
+.btn:focus-visible, .btn.is-focused {
+  outline: var(--rw-med) solid var(--focus);
+  outline-offset: 2px;
+}
+.btn:disabled, .btn.is-disabled {
+  color: var(--ink-4);
+  border-color: var(--rule);
+  background: var(--paper);
+  box-shadow: none;
+  cursor: default;
+  transform: none;
+}
+
+/* Primary: an inked block. This is the Save on a docket. */
+.btn--primary {
+  background: var(--ink);
+  color: var(--ink-invert);
+  border-color: var(--ink);
+}
+.btn--primary:hover { background: var(--ink-strong); }
+.btn--primary:active, .btn--primary.is-pressed { background: var(--ink); }
+.btn--primary:disabled, .btn--primary.is-disabled {
+  background: var(--paper-sunk); color: var(--ink-4); border-color: var(--rule);
+}
+
+/* Secondary: the same box, unfilled. */
+.btn--secondary { background: var(--paper-raised); color: var(--ink); border-color: var(--ink); }
+
+/* Quiet: a ruled link, no box. */
+.btn--quiet {
+  background: none; border: 0; box-shadow: none;
+  min-block-size: 32px; padding-inline: 0;
+  color: var(--ink-2);
+  text-transform: none; letter-spacing: 0;
+  font-size: var(--fs-small); font-weight: var(--fw-med);
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
+}
+.btn--quiet:hover { background: none; color: var(--ink); }
+.btn--quiet:active, .btn--quiet.is-pressed { background: none; transform: none; color: var(--ink); }
+
+/* Danger: the red is the stamp red, used as an outline first. */
+.btn--danger { color: var(--stamp); border-color: var(--stamp); background: var(--paper-raised); }
+.btn--danger:hover { background: var(--stamp-wash); }
+.btn--danger-solid { background: var(--stamp); color: var(--paper-stamp); border-color: var(--stamp); }
+
+.btn--sm { min-block-size: 30px; padding: var(--sp-2) var(--sp-4); font-size: var(--fs-micro); }
+.btn--lg { min-block-size: 50px; font-size: var(--fs-body); }
+.btn--block { display: flex; inline-size: 100%; }
+.btn--icon { padding: var(--sp-3); min-inline-size: var(--h-control); }
+
+.btn-row { display: flex; gap: var(--sp-4); }
+.btn-row--end { justify-content: flex-end; }
+.btn-row > .btn--grow { flex: 1 1 0; }
+
+/* The bar of actions pinned to the foot of a modal. */
+.actionbar {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-screen);
+  background: var(--paper);
+  border-block-start: var(--rw-med) solid var(--ink);
+}
+.actionbar > .btn { flex: 1 1 0; }
+.actionbar__note { flex: 1 1 auto; font-size: var(--fs-caption); color: var(--ink-3); }
+
+/* ---------------------------------------------------------------------------
+   17. INPUTS
+   ------------------------------------------------------------------------ */
+
+.field { display: block; margin-block-end: var(--sp-5); }
+.field__label {
+  display: block;
+  margin-block-end: var(--sp-2);
+  font-size: var(--fs-micro); line-height: var(--lh-micro);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-2);
+}
+.field__label .field__req { color: var(--stamp); }
+.field__hint {
+  margin-block-start: var(--sp-2);
+  font-size: var(--fs-caption); line-height: var(--lh-caption);
+  color: var(--ink-3);
+}
+.field__error {
+  display: flex; align-items: flex-start; gap: var(--sp-2);
+  margin-block-start: var(--sp-2);
+  font-size: var(--fs-caption); line-height: var(--lh-caption);
+  font-weight: var(--fw-med);
+  color: var(--stamp);
+}
+
+.input {
+  display: block; inline-size: 100%;
+  min-block-size: var(--h-control);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--paper-stamp);
+  color: var(--ink);
+  border: var(--rw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body-lg);
+  text-align: start;
+  transition: border-color var(--dur-1) var(--ease-standard);
+}
+.input::placeholder { color: var(--ink-4); }
+.input:hover { border-color: var(--ink-2); }
+.input:focus, .input.is-focused {
+  outline: none;
+  border-color: var(--ink);
+  border-width: var(--rw-med);
+  padding: 7px 7px;
+}
+.input--mono, .input--numeric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  letter-spacing: -0.01em;
+}
+.input--figure { font-family: var(--font-mono); font-size: var(--fs-head); text-align: end; }
+.textarea { min-block-size: 76px; resize: none; font-size: var(--fs-body); }
+
+.field.is-error .input { border-color: var(--stamp); border-width: var(--rw-med); padding: 7px 7px; }
+.field.is-disabled .input,
+.input:disabled {
+  background: var(--paper-sunk);
+  color: var(--ink-4);
+  border-color: var(--rule);
+  border-style: dashed;
+  cursor: default;
+}
+
+/* An input with a unit printed in its own column, as on a form. */
+.inputgroup {
+  display: flex; align-items: stretch;
+  border: var(--rw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  background: var(--paper-stamp);
+  overflow: hidden;
+}
+.inputgroup .input {
+  border: 0; background: transparent; flex: 1 1 auto; min-inline-size: 0;
+}
+.inputgroup .input:focus { border: 0; padding: var(--sp-3) var(--sp-4); }
+.inputgroup:focus-within { border-color: var(--ink); border-width: var(--rw-med); }
+.inputgroup__unit {
+  flex: 0 0 auto;
+  display: flex; align-items: center;
+  padding-inline: var(--sp-4);
+  background: var(--paper-sunk);
+  border-inline-start: var(--rw-hair) solid var(--rule);
+  font-family: var(--font-mono); font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+.inputgroup__prefix {
+  flex: 0 0 auto;
+  display: flex; align-items: center;
+  padding-inline: var(--sp-4);
+  background: var(--paper-sunk);
+  border-inline-end: var(--rw-hair) solid var(--rule);
+  font-family: var(--font-mono); font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+.inputgroup.is-error { border-color: var(--stamp); border-width: var(--rw-med); }
+
+/* A field laid out as a ruled row: label at the start, value at the end. */
+.field--row {
+  display: flex; align-items: center; gap: var(--sp-5);
+  margin: 0; padding-block: var(--sp-3);
+  border-block-end: var(--rw-hair) solid var(--rule);
+}
+.field--row .field__label { flex: 1 1 auto; margin: 0; }
+.field--row .input { inline-size: 130px; flex: 0 0 auto; }
+
+.select {
+  appearance: none;
+  padding-inline-end: var(--sp-8);
+  background-image: none;
+  cursor: pointer;
+}
+.selectwrap { position: relative; }
+.selectwrap__chevron {
+  position: absolute;
+  inset-inline-end: var(--sp-4);
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------------------
+   18. SEGMENTED CONTROL — four boxes ruled apart, not a pill
+   ------------------------------------------------------------------------ */
+
+.segmented {
+  display: flex;
+  inline-size: 100%;
+  border: var(--rw-hair) solid var(--ink);
+  border-radius: var(--r-1);
+  background: var(--paper-raised);
+  overflow: hidden;
+}
+.segmented__item {
+  flex: 1 1 0;
+  min-block-size: 38px;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: transparent;
+  border: 0;
+  border-inline-end: var(--rw-hair) solid var(--rule);
+  color: var(--ink-3);
+  font-family: var(--font-ui);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-med);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard);
+}
+.segmented__item:last-child { border-inline-end: 0; }
+.segmented__item.is-active {
+  background: var(--ink);
+  color: var(--ink-invert);
+  font-weight: var(--fw-bold);
+}
+.segmented__item:active, .segmented__item.is-pressed { background: var(--press-wash); }
+.segmented__item.is-active:active { background: var(--ink-strong); }
+.segmented__item:disabled, .segmented__item.is-disabled { color: var(--ink-4); cursor: default; }
+.segmented__item:focus-visible { outline: var(--rw-med) solid var(--focus); outline-offset: -4px; }
+.segmented--sm .segmented__item { min-block-size: 30px; }
+
+/* ---------------------------------------------------------------------------
+   19. CHIPS — filter tags, boxed
+   ------------------------------------------------------------------------ */
+
+.chipbar {
+  display: flex; gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-screen);
+  overflow: hidden;
+  border-block-end: var(--rw-hair) solid var(--rule);
+}
+.chip {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  min-block-size: 26px;
+  padding: 0 var(--sp-4);
+  background: var(--paper-raised);
+  border: var(--rw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  color: var(--ink-2);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-med);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard);
+}
+.chip.is-active {
+  background: var(--ink); color: var(--ink-invert);
+  border-color: var(--ink); font-weight: var(--fw-bold);
+}
+.chip:active, .chip.is-pressed { background: var(--paper-sunk); }
+.chip.is-active:active { background: var(--ink-strong); }
+.chip:disabled, .chip.is-disabled { color: var(--ink-4); border-color: var(--rule); cursor: default; }
+.chip:focus-visible { outline: var(--rw-med) solid var(--focus); outline-offset: 2px; }
+.chip__count {
+  font-family: var(--font-mono); font-size: var(--fs-micro);
+  opacity: 0.75;
+}
+.chip--stamp { border-color: var(--stamp); color: var(--stamp); }
+.chip--business { border-color: var(--state-business); color: var(--state-business); }
+
+/* ---------------------------------------------------------------------------
+   20. SWITCH — a squared toggle, ruled
+   ------------------------------------------------------------------------ */
+
+.switch {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center;
+  inline-size: 44px; block-size: 26px;
+  padding: 2px;
+  background: var(--paper-sunk);
+  border: var(--rw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard),
+              border-color var(--dur-2) var(--ease-standard);
+}
+.switch__knob {
+  inline-size: 18px; block-size: 18px;
+  background: var(--paper-stamp);
+  border: var(--rw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  transition: margin var(--dur-2) var(--ease-standard),
+              background var(--dur-2) var(--ease-standard);
+  margin-inline-start: 0;
+}
+.switch.is-on { background: var(--ink); border-color: var(--ink); }
+.switch.is-on .switch__knob {
+  margin-inline-start: 18px;
+  background: var(--paper-stamp);
+  border-color: var(--ink);
+}
+.switch:focus-visible { outline: var(--rw-med) solid var(--focus); outline-offset: 2px; }
+.switch.is-disabled { background: var(--paper); border-style: dashed; cursor: default; opacity: 0.55; }
+
+/* A radio/check tick used by the language and units lists. */
+.check {
+  inline-size: 18px; block-size: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink);
+}
+.check--empty { color: transparent; }
+
+/* Stepper: a pair of boxed keys. Order mirrors; the glyphs do not. */
+.stepper { display: inline-flex; align-items: stretch; border: var(--rw-hair) solid var(--rule-strong); }
+.stepper__btn {
+  inline-size: 34px; min-block-size: 34px;
+  background: var(--paper-raised); border: 0; color: var(--ink);
+  font-family: var(--font-mono); font-size: var(--fs-body-lg); cursor: pointer;
+}
+.stepper__btn:active { background: var(--paper-sunk); }
+.stepper__value {
+  min-inline-size: 56px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-inline: var(--rw-hair) solid var(--rule-strong);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   21. OVERLAYS — scrim, bottom sheet, dialog
+   ------------------------------------------------------------------------ */
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  z-index: 10;
+}
+.overlay-host { position: relative; block-size: 100%; }
+
+.sheet {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 20;
+  background: var(--paper-raised);
+  border-block-start: var(--rw-med) solid var(--ink);
+  border-radius: var(--r-2) var(--r-2) 0 0;
+  padding-block-end: var(--sp-6);
+  max-block-size: 78%;
+  overflow: hidden;
+}
+.sheet__grip {
+  inline-size: 44px; block-size: 3px;
+  margin: var(--sp-4) auto var(--sp-3);
+  background: var(--rule-strong);
+}
+.sheet__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-2) var(--sp-screen) var(--sp-4);
+  border-block-end: var(--rw-hair) solid var(--ink);
+}
+.sheet__title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-body-lg); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+}
+.sheet__body { padding-block: var(--sp-2); }
+.sheet__foot { padding: var(--sp-5) var(--sp-screen) 0; }
+
+.dialog {
+  position: absolute;
+  inset-inline: var(--sp-8);
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background: var(--paper-stamp);
+  border: var(--rw-med) solid var(--ink);
+  border-radius: var(--r-1);
+  box-shadow: var(--elev-4);
+  padding: var(--sp-6);
+}
+.dialog__eyebrow {
+  font-size: var(--fs-micro); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-3);
+  padding-block-end: var(--sp-3);
+  margin-block-end: var(--sp-4);
+  border-block-end: var(--rw-hair) solid var(--rule);
+}
+.dialog__title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-head); line-height: var(--lh-head);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-tight);
+}
+.dialog__body {
+  margin-block-start: var(--sp-3);
+  font-size: var(--fs-body); line-height: var(--lh-body);
+  color: var(--ink-2);
+}
+.dialog__actions {
+  display: flex; gap: var(--sp-4);
+  margin-block-start: var(--sp-6);
+  padding-block-start: var(--sp-5);
+  border-block-start: var(--rw-double) double var(--ink);
+}
+.dialog__actions > .btn { flex: 1 1 0; }
+.dialog--danger { border-color: var(--stamp); }
+
+/* The snackbar with Undo — confirmation is never a dialog. */
+.snackbar {
+  position: absolute;
+  inset-inline: var(--sp-5);
+  inset-block-end: calc(var(--h-tabbar) + var(--sp-5));
+  z-index: 15;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--ink);
+  color: var(--ink-invert);
+  border-radius: var(--r-1);
+  font-size: var(--fs-small);
+}
+.snackbar__action {
+  flex: 0 0 auto;
+  background: none; border: 0; padding: 0;
+  color: var(--ink-invert);
+  font-size: var(--fs-micro); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  text-decoration: underline; text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   22. NUMBER PAD — the fastest possible odometer entry
+   ------------------------------------------------------------------------ */
+
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--rw-hair);
+  background: var(--rule);
+  border-block-start: var(--rw-med) solid var(--ink);
+}
+.numpad__key {
+  min-block-size: 58px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper-stamp);
+  border: 0;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-head);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-standard);
+}
+.numpad__key:active, .numpad__key.is-pressed { background: var(--paper-deep); }
+.numpad__key:focus-visible { outline: var(--rw-med) solid var(--focus); outline-offset: -4px; }
+.numpad__key--action { background: var(--paper-sunk); font-size: var(--fs-body-lg); }
+.numpad__key--ink { background: var(--ink); color: var(--ink-invert); }
+.numpad__key--wide { grid-column: span 2; }
+.numpad__key:disabled { color: var(--ink-4); cursor: default; }
+
+.numpad__display {
+  display: flex; align-items: baseline; justify-content: flex-end; gap: var(--sp-3);
+  padding: var(--sp-6) var(--sp-screen);
+  background: var(--paper-stamp);
+  border-block-end: var(--rw-hair) solid var(--rule);
+}
+.numpad__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-figure-xl); line-height: var(--lh-figure-xl);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+.numpad__unit { font-family: var(--font-mono); font-size: var(--fs-body-lg); color: var(--ink-3); }
+.numpad__caret {
+  display: inline-block; inline-size: 2px; block-size: 34px;
+  background: var(--ink);
+  animation: odova-caret 1s steps(1, end) infinite;
+}
+@keyframes odova-caret { 50% { opacity: 0; } }
+
+/* ---------------------------------------------------------------------------
+   23. TILES — the at-a-glance row on Home
+   ------------------------------------------------------------------------ */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-block: var(--rw-hair) solid var(--rule);
+}
+.tiles--2 { grid-template-columns: repeat(2, 1fr); }
+.tile {
+  padding: var(--sp-5) var(--sp-4);
+  text-align: center;
+  border-inline-end: var(--rw-hair) solid var(--rule);
+}
+.tile:last-child { border-inline-end: 0; }
+.tile__figure {
+  font-family: var(--font-mono);
+  font-size: var(--fs-figure); line-height: var(--lh-figure);
+  font-weight: var(--fw-med);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.tile__figure--sm { font-size: var(--fs-display); line-height: var(--lh-display); }
+.tile__unit { font-size: var(--fs-caption); color: var(--ink-3); }
+.tile__label {
+  margin-block-start: var(--sp-2);
+  font-size: var(--fs-micro); line-height: var(--lh-micro);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* The odometer strip: the most valuable thing a user can give the app. */
+.odostrip {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--sp-4);
+  inline-size: 100%;
+  padding: var(--sp-5) var(--sp-screen);
+  background: var(--paper-sunk);
+  border: 0;
+  border-block-end: var(--rw-hair) solid var(--ink);
+  text-align: start;
+  cursor: pointer;
+}
+.odostrip__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-head); line-height: var(--lh-head);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.odostrip__meta {
+  display: flex; align-items: baseline; gap: var(--sp-3);
+  font-size: var(--fs-caption); color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------------------
+   24. EMPTY STATE
+   ------------------------------------------------------------------------ */
+
+.empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-4);
+  padding: var(--sp-9) var(--sp-8);
+  text-align: center;
+}
+.empty__mark {
+  inline-size: 56px; block-size: 56px;
+  display: flex; align-items: center; justify-content: center;
+  border: var(--rw-hair) dashed var(--rule-strong);
+  color: var(--ink-4);
+}
+.empty__title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-body-lg); font-weight: var(--fw-bold);
+}
+.empty__body {
+  font-size: var(--fs-caption); line-height: var(--lh-caption);
+  color: var(--ink-3);
+  max-inline-size: 30ch;
+}
+
+/* ---------------------------------------------------------------------------
+   25. CHART — ruled plot area, hairline grid, no fills but hatching
+   Geometry goes inside <g class="chart-geom">; labels stay outside it so the
+   RTL mirror does not reverse the type.
+   ------------------------------------------------------------------------ */
+
+.chart {
+  border: var(--rw-hair) solid var(--rule);
+  background: var(--paper-raised);
+}
+.chart__head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5) var(--sp-3);
+  border-block-end: var(--rw-hair) solid var(--ink);
+}
+.chart__title {
+  font-size: var(--fs-micro); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-2);
+}
+.chart__plot { padding: var(--sp-5) var(--sp-4) var(--sp-3); }
+.chart__plot svg { inline-size: 100%; block-size: auto; overflow: visible; }
+.chart__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-5);
+  border-block-start: var(--rw-hair) solid var(--rule);
+  font-size: var(--fs-micro); color: var(--ink-3);
+}
+.chart__legend { display: flex; gap: var(--sp-5); }
+.chart__key { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.chart__swatch { inline-size: 10px; block-size: 10px; background: currentColor; }
+.chart__swatch--hatch {
+  background-image: repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 4px);
+}
+.chart__caption { padding: 0 var(--sp-5) var(--sp-4); font-size: var(--fs-caption); color: var(--ink-3); }
+
+/* SVG element classes */
+.chart-grid   { stroke: var(--rule-soft); stroke-width: 1; fill: none; }
+.chart-axis   { stroke: var(--ink); stroke-width: 1; fill: none; }
+.chart-line   { stroke: var(--ink); stroke-width: 1.5; fill: none;
+                stroke-linejoin: round; stroke-linecap: round; }
+.chart-line--avg { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; }
+.chart-line--stamp { stroke: var(--stamp); stroke-width: 1.5; }
+.chart-bar    { fill: var(--ink-2); }
+.chart-bar--stamp { fill: var(--stamp); }
+.chart-bar--quiet { fill: var(--rule); }
+.chart-dot    { fill: var(--paper-raised); stroke: var(--ink); stroke-width: 1.5; }
+.chart-dot--solid { fill: var(--ink); stroke: none; }
+.chart-dot--stamp { fill: var(--stamp); stroke: none; }
+.chart-label  { fill: var(--ink-3); font-family: var(--font-mono); font-size: 9px; }
+.chart-label--value { fill: var(--ink); font-size: 10px; }
+.chart-band   { fill: var(--paper-sunk); }
+
+/* Time runs right-to-left in RTL: mirror the geometry, never the type. */
+[dir="rtl"] .chart-geom { transform: scaleX(-1); transform-origin: center; }
+
+/* Sparkline used inline in rows */
+.spark { inline-size: 64px; block-size: 18px; }
+.spark path { stroke: var(--ink-2); stroke-width: 1.25; fill: none; }
+
+/* ---------------------------------------------------------------------------
+   26. ICONS — 20px grid, 1.5px stroke, square cap, square join
+   ------------------------------------------------------------------------ */
+
+.icon {
+  inline-size: 20px; block-size: 20px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+.icon--sm { inline-size: 16px; block-size: 16px; stroke-width: 1.5; }
+.icon--lg { inline-size: 24px; block-size: 24px; stroke-width: 1.5; }
+.icon--xl { inline-size: 32px; block-size: 32px; stroke-width: 1.25; }
+.icon--filled { fill: currentColor; stroke: none; }
+
+/* The ONLY direction-aware rule in this stylesheet. Icons that encode reading
+   order or forward progress mirror; a wrench, a clock or a car never does. */
+[dir="rtl"] .icon--directional { transform: scaleX(-1); }
+
+/* ---------------------------------------------------------------------------
+   27. LAYOUT UTILITIES
+   ------------------------------------------------------------------------ */
+
+.stack > * + * { margin-block-start: var(--sp-5); }
+.stack--tight > * + * { margin-block-start: var(--sp-3); }
+.stack--loose > * + * { margin-block-start: var(--sp-7); }
+
+.pad     { padding: var(--sp-screen); }
+.pad-x   { padding-inline: var(--sp-screen); }
+.pad-y   { padding-block: var(--sp-5); }
+.pad-t   { padding-block-start: var(--sp-5); }
+.pad-b   { padding-block-end: var(--sp-5); }
+
+.inline  { display: flex; align-items: center; gap: var(--sp-3); }
+.inline--between { justify-content: space-between; }
+.inline--end { justify-content: flex-end; }
+.inline--baseline { align-items: baseline; }
+.inline--wrap { flex-wrap: wrap; }
+.grow    { flex: 1 1 auto; min-inline-size: 0; }
+
+.text-start { text-align: start; }
+.text-end   { text-align: end; }
+.text-center{ text-align: center; }
+
+.hidden { display: none !important; }
+
+.section-title {
+  padding: var(--sp-6) var(--sp-screen) var(--sp-2);
+  font-size: var(--fs-micro); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* The month rule in History: a heading with its total on the same rule. */
+.groupheader {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-screen) var(--sp-2);
+  border-block-end: var(--rw-med) solid var(--ink);
+  background: var(--paper);
+}
+.groupheader__title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-body); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+}
+.groupheader__total {
+  font-family: var(--font-mono); font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums; color: var(--ink-2);
+}
+
+/* A timeline entry: date column, body, amount column. Columnar by design. */
+.entry {
+  display: flex; align-items: flex-start; gap: var(--sp-4);
+  inline-size: 100%;
+  padding: var(--sp-4) var(--sp-screen);
+  border-block-end: var(--rw-hair) solid var(--rule);
+  background: none; text-align: start; font: inherit; color: inherit;
+  cursor: pointer;
+}
+.entry:active { background: var(--press-wash); }
+.entry__date {
+  flex: 0 0 44px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro); line-height: 17px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.entry__mark { flex: 0 0 auto; margin-block-start: 3px; color: var(--ink-3); }
+.entry__main { flex: 1 1 auto; min-inline-size: 0; }
+.entry__title { font-size: var(--fs-body); font-weight: var(--fw-med); }
+.entry__meta { font-size: var(--fs-caption); color: var(--ink-3); }
+.entry__amount {
+  flex: 0 0 auto;
+  font-family: var(--font-mono); font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+/* A vehicle plate, printed as a plate. */
+.plate {
+  display: inline-flex; align-items: center;
+  padding: 1px var(--sp-3);
+  border: var(--rw-hair) solid var(--ink-2);
+  border-radius: var(--r-2);
+  font-family: var(--font-mono); font-size: var(--fs-caption);
+  letter-spacing: 0.06em;
+  direction: ltr; unicode-bidi: isolate;
+}
+
+/* The garage row's vehicle mark: a boxed silhouette, never a photo. */
+.vehiclemark {
+  inline-size: 40px; block-size: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border: var(--rw-hair) solid var(--rule-strong);
+  background: var(--paper-sunk);
+  color: var(--ink-2);
+}
+.vehiclemark--active { border-color: var(--ink); border-width: var(--rw-med); color: var(--ink); }
+
+/* Reduced motion: this system barely moves, but honour it anyway. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   28. APPENDIX — specimen-sheet layout
+   Used only by system.html. Screens never need these classes, but they live
+   here because the contract keeps every rule in one stylesheet.
+   ------------------------------------------------------------------------ */
+
+.spec {
+  max-inline-size: 1180px;
+  margin-inline: auto;
+  padding: var(--sp-9) var(--sp-8) var(--sp-10);
+}
+.spec__masthead {
+  padding-block-end: var(--sp-6);
+  margin-block-end: var(--sp-9);
+  border-block-end: var(--rw-double) double var(--ink);
+}
+.spec__wordmark {
+  font-family: var(--font-serif);
+  font-size: 46px; line-height: 48px;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+}
+.spec__standfirst {
+  margin-block-start: var(--sp-4);
+  max-inline-size: 62ch;
+  font-size: var(--fs-body-lg); line-height: 23px;
+  color: var(--ink-2);
+}
+.spec__meta {
+  display: flex; flex-wrap: wrap; gap: var(--sp-6);
+  margin-block-start: var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.spec__section { margin-block-start: var(--sp-10); scroll-margin-block-start: var(--sp-6); }
+.spec__h {
+  display: flex; align-items: baseline; gap: var(--sp-5);
+  padding-block-end: var(--sp-3);
+  margin-block-end: var(--sp-6);
+  border-block-end: var(--rw-med) solid var(--ink);
+}
+.spec__no {
+  font-family: var(--font-mono); font-size: var(--fs-body);
+  color: var(--ink-3);
+}
+.spec__h h2 {
+  font-family: var(--font-serif);
+  font-size: var(--fs-head); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+}
+.spec__lede {
+  max-inline-size: 72ch;
+  margin-block-end: var(--sp-6);
+  font-size: var(--fs-body); line-height: 20px;
+  color: var(--ink-2);
+}
+.spec__sub {
+  margin-block: var(--sp-7) var(--sp-4);
+  font-size: var(--fs-micro); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-3);
+  border-block-end: var(--rw-hair) solid var(--rule);
+  padding-block-end: var(--sp-2);
+}
+
+.spec-table { inline-size: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+.spec-table th {
+  padding: var(--sp-2) var(--sp-3);
+  text-align: start; vertical-align: bottom;
+  font-size: var(--fs-micro); font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--ink-3);
+  border-block-end: var(--rw-hair) solid var(--ink);
+}
+.spec-table td {
+  padding: var(--sp-3);
+  border-block-end: var(--rw-hair) solid var(--rule-soft);
+  vertical-align: middle;
+}
+.spec-table td.mono, .spec-table td .mono { font-family: var(--font-mono); font-size: var(--fs-caption); }
+.spec-table tbody tr:hover { background: var(--paper-raised); }
+
+.sw {
+  display: block;
+  inline-size: 46px; block-size: 26px;
+  border: var(--rw-hair) solid var(--rule-strong);
+}
+.sw--tall { block-size: 40px; }
+.sw--ink { border-color: var(--rule); }
+.spec-swatchcell { inline-size: 1%; padding-inline: var(--sp-3) !important; }
+
+.spec-panel {
+  padding: var(--sp-6);
+  border: var(--rw-hair) solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+}
+.spec-panel__tag {
+  display: inline-block;
+  margin-block-end: var(--sp-5);
+  font-family: var(--font-mono); font-size: var(--fs-micro);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.spec-cols { display: grid; gap: var(--sp-6); grid-template-columns: 1fr 1fr; align-items: start; }
+.spec-cols--3 { grid-template-columns: repeat(3, 1fr); }
+.spec-cols--4 { grid-template-columns: repeat(4, 1fr); }
+.spec-cols--auto { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+
+.spec-item { }
+.spec-item__label {
+  margin-block-end: var(--sp-3);
+  font-family: var(--font-mono); font-size: var(--fs-micro);
+  letter-spacing: 0.06em; color: var(--ink-3);
+}
+.spec-item__label b { color: var(--ink); font-weight: var(--fw-bold); }
+
+/* A component shown at real screen width, on paper. */
+.spec-stage {
+  inline-size: 358px;
+  max-inline-size: 100%;
+  padding: var(--sp-5) 0;
+  background: var(--paper);
+  border: var(--rw-hair) solid var(--rule);
+}
+.spec-stage--flush { padding: 0; }
+.spec-stage--pad { padding: var(--sp-5) var(--sp-screen); }
+
+/* Spacing and radius drawn to size. */
+.spec-bar {
+  display: block;
+  block-size: 16px;
+  background: var(--ink);
+}
+.spec-radius {
+  inline-size: 56px; block-size: 40px;
+  background: var(--paper-sunk);
+  border: var(--rw-med) solid var(--ink);
+}
+.spec-rule-demo { inline-size: 100%; }
+
+.spec-elev {
+  inline-size: 100%; block-size: 62px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper-raised);
+  border: var(--rw-hair) solid var(--rule);
+  font-family: var(--font-mono); font-size: var(--fs-micro);
+  color: var(--ink-3);
+}
+
+.spec-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: var(--rw-hair); background: var(--rule-soft); border: var(--rw-hair) solid var(--rule); }
+.spec-icon {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-3);
+  padding: var(--sp-5) var(--sp-2);
+  background: var(--paper-raised);
+  text-align: center;
+}
+.spec-icon__name { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); }
+.spec-icon--mirrors { background: var(--paper-sunk); }
+
+.spec-rules { counter-reset: specrule; }
+.spec-rules li {
+  display: flex; gap: var(--sp-5);
+  padding-block: var(--sp-4);
+  border-block-end: var(--rw-hair) solid var(--rule);
+  max-inline-size: 88ch;
+}
+.spec-rules li::before {
+  counter-increment: specrule;
+  content: counter(specrule, decimal-leading-zero);
+  flex: 0 0 auto;
+  font-family: var(--font-mono); font-size: var(--fs-small);
+  color: var(--stamp); font-weight: var(--fw-bold);
+}
+.spec-rules b { font-weight: var(--fw-bold); }
+
+.spec-specimen {
+  padding: var(--sp-5);
+  border: var(--rw-hair) solid var(--rule);
+  background: var(--paper-raised);
+}
+.spec-specimen p { max-inline-size: 46ch; }
+
+.spec-toc {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5);
+  padding: var(--sp-4) 0;
+  border-block-end: var(--rw-hair) solid var(--rule);
+  margin-block-end: var(--sp-8);
+  font-family: var(--font-mono); font-size: var(--fs-micro);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.spec-toc a { color: var(--ink-2); text-decoration: none; }
+.spec-toc a:hover { color: var(--ink); text-decoration: underline; }
+
+.spec-sprite { display: none; }
+
+
+/* ===== appended by screen pass g1 ===== */
+/* ---------------------------------------------------------------------------
+   GARAGE SLIP — additions required by group 1. Tokens only, no new vocabulary.
+   Append verbatim to design/garage-slip/odova.css.
+   ------------------------------------------------------------------------ */
+
+/* A value printed into a form field that is not an editable control: the same
+   ruled box, with the text set on the control's optical centre line. Used
+   wherever a mockup must show a typed value bilingually (an <input value> can
+   carry no data-en / data-fa, because setLocale writes textContent). */
+.input--static {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.input--static.input--numeric,
+.input--static.input--mono,
+.input--static.input--figure { justify-content: flex-end; }
+
+/* A ruled field row whose value carries a unit as well as a figure —
+   "۱۷۱٬۵۱۲ کیلومتر" does not fit the default 130px value column. */
+.field--row--wide .input { inline-size: 168px; }
+
+/* A row's label and its sub are separate lines of the logbook. Without this
+   they are inline spans inside a blockified .row__main and run together, and
+   the ellipsis already declared on .row__label never takes effect. */
+.row__label, .row__sub { display: block; }
+
+/* The one-line density of the due card is exactly that: one line. A long
+   catalogue name is clipped before it is allowed to push the status onto a
+   second line, because the status is the answer the row exists to give. */
+.duecard--secondary .duecard__title {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.duecard--secondary .duecard__status { white-space: nowrap; }
+
+
+/* ===== appended by screen pass g2 ===== */
+/* ---------------------------------------------------------------------------
+   29. ADDENDUM — additions required by screens.html
+   ------------------------------------------------------------------------ */
+
+/* Two-line list rows and timeline entries. `.row__label` already declares
+   nowrap + ellipsis, which only takes effect on a block box, and `.row__sub` /
+   `.entry__meta` are specified as the second line, not a run-on. Without this
+   the label and its sub render on one line. (The fragment also carries an
+   inline `display:block` on each of these so it renders correctly even if this
+   block is not appended.) */
+.row__label, .row__sub, .entry__title, .entry__meta { display: block; }
+
+/* The money column of the timeline: a fixed measure so amounts stack. */
+.entry__amount { min-inline-size: 66px; }
+
+/* A field value rendered as a filled input face on a static mockup — the
+   `.input` box carries text rather than a real <input>, so it has to centre
+   its own line box the way a control does, and end-align its figures. */
+.input--static { display: flex; align-items: center; }
+.input--static.input--numeric,
+.input--static.input--figure { justify-content: flex-end; }
+
+/* Vehicle colour on `vehicle.edit`: ten printed chips, the chosen one boxed
+   in ink. Ten fit one row at 24 px with the --sp-2 gutter. */
+.swatchbar { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.swatch {
+  inline-size: 24px; block-size: 24px;
+  padding: 0;
+  background: var(--paper-sunk);
+  border: var(--rw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  cursor: pointer;
+}
+.swatch.is-selected {
+  border-color: var(--ink);
+  border-width: var(--rw-med);
+  box-shadow: inset 0 0 0 2px var(--paper-raised);
+}
+
+
+/* ===== appended by screen pass g3 ===== */
+/* ---------------------------------------------------------------------------
+   APPENDIX — additions required by group 3 (costs, costs.fuel, settings.*)
+   Append to odova.css. Tokens only; no physical properties.
+   ------------------------------------------------------------------------ */
+
+/* A list row's label and its sub are two lines of a stacked block, never one
+   run of prose. Without this, `.row__label`'s nowrap/ellipsis never applies
+   (it is inline) and the subtitle runs on after the label. */
+.row__label, .row__sub { display: block; }
+
+/* A chart label that belongs to the geometry — a value axis tick, a month
+   tick, a callout over one column. It sits INSIDE <g class="chart-geom"> so
+   it travels to the other edge when the plot mirrors in RTL, and the
+   counter-flip below keeps its glyphs the right way round. Write it as
+   <g class="chart-pin" transform="translate(x,y)"><text class="chart-label"
+   text-anchor="middle">…</text></g> — the anchor must be the text's own
+   centre for the counter-flip to land it in the same place. */
+.chart-pin > text { text-anchor: middle; }
+[dir="rtl"] .chart-geom .chart-pin > text {
+  transform: scaleX(-1);
+  transform-origin: 0 0;
+}
+
+/* The best tank in a consumption chart: the one green in the system, used
+   only where `--stamp` already marks the worst. */
+.chart-bar--ok { fill: var(--state-ok); }
+
+/* A ledger squeezed into a sheet: the import preview's now/after table. */
+.ledger--compact td { padding-block: var(--sp-2); }
+.ledger--compact th { padding-block: var(--sp-1) var(--sp-2); }
+
+/* A figure that goes DOWN in the import preview. Losing 24 fill-ups must not
+   read like every other row, including on the total line. */
+.num--down,
+.ledger tr.ledger__total td.num--down { color: var(--stamp); font-weight: var(--fw-bold); }
+
+/* Amber: the app is not in trouble, but it wants attention — a backup that is
+   90 days old. Ochre ink, never the stamp red. */
+.t-attention { color: var(--state-due); }
+.badge--attention { background: var(--state-due); border-color: var(--state-due); }
+
+/* The one card that carries an irreversible action. */
+.card--stamp {
+  border-color: var(--stamp);
+  border-width: var(--rw-med);
+  background: var(--stamp-wash);
+}
+
+/* A filename is a string the user has to recognise on their own phone, so it
+   keeps its own case where `.code` would upper-case it. */
+.code--file { text-transform: none; }

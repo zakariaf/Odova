@@ -72,3 +72,7 @@ GoogleService-Info.plist
 # one must never be committed as a "test fixture". Synthetic fixtures belong in
 # test/fixtures/ and are named *.fixture.json.
 odova-backup-*.json
+
+# Design tooling deps (tools/package.json). Not part of the app.
+tools/node_modules/
+tools/package-lock.json
