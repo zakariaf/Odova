@@ -6,14 +6,25 @@ updates:
     schedule: {interval: weekly}
     commit-message: {prefix: "ci"}
 
-  # Armed once pubspec.yaml exists. Grouped, because Odova's dependency policy
-  # is caret-ranges-with-a-committed-lock: the lock is the pin, and reviewing
-  # twelve separate bumps a week is how a lock stops being read.
-  - package-ecosystem: pub
-    directory: "/"
-    schedule: {interval: weekly}
-    open-pull-requests-limit: 5
-    commit-message: {prefix: "deps"}
-    groups:
-      dev-dependencies:
-        dependency-type: development
+  # ---------------------------------------------------------------------------
+  # UNCOMMENT IN THE SAME COMMIT THAT CREATES pubspec.yaml.
+  #
+  # Dependabot aborts the whole job with "/pubspec.yaml not found" when the file
+  # is absent, so leaving this armed means a red Dependabot run every week that
+  # nobody can act on — and a weekly red run is how people learn to ignore the
+  # Actions tab.
+  #
+  # Grouped, because Odova's dependency policy is caret-ranges-with-a-committed
+  # -lock: the lock is the pin, and reviewing twelve separate bumps a week is
+  # how a lock stops being read. Note that a bump still has to pass
+  # `audit-deps` — no dependency may open a network path, whatever Dependabot
+  # thinks of its version.
+  #
+  # - package-ecosystem: pub
+  #   directory: "/"
+  #   schedule: {interval: weekly}
+  #   open-pull-requests-limit: 5
+  #   commit-message: {prefix: "deps"}
+  #   groups:
+  #     dev-dependencies:
+  #       dependency-type: development

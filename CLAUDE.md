@@ -30,9 +30,11 @@ yet — there is no `pubspec.yaml`, no `lib/`. CI runs the repo gates today and
 arms its Flutter lane automatically once `pubspec.yaml` appears.
 
 `analysis_options.yaml` and `l10n.yaml` are written and inert; they become live
-in the commit that creates the app. That commit must add `very_good_analysis` as
-a dev_dependency, or the pinned `include:` resolves to nothing and analysis runs
-with zero rules while reporting green.
+in the commit that creates the app. **Three things must happen in that same
+commit:** add `very_good_analysis` as a dev_dependency (or the pinned `include:`
+resolves to nothing and analysis runs with zero rules while reporting green),
+uncomment the `pub` block in `.github/dependabot.yml`, and commit `pubspec.lock`
+— CI runs `pub get --enforce-lockfile` and the lock is the pin.
 
 Reference implementation: Flutter, pinned to `.flutter-version` (3.44.6).
 The spec itself is platform-agnostic; keep it that way.
