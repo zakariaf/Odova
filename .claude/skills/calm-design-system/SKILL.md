@@ -6,7 +6,8 @@ description: >-
   and no monospace anywhere. Owns the layering lib/theme/calm/ (values) -> lib/ui/calm/ (the only
   layer that styles) -> lib/features/** (composition only), the rule that feature code never reads
   a raw value, and a routing table sending each task to calm-tokens, calm-typography-and-rtl,
-  calm-components, calm-due-state-and-status or calm-layout-and-motion. Defers token structure to
+  calm-components, calm-due-state-and-status, calm-layout-and-motion or calm-visual-parity. Defers
+  token structure to
   design-system-structure. Use at the start of any Odova UI work, when building a new screen, when
   deciding which layer code belongs in, when unsure which Calm skill governs a task, when
   reviewing a screen against the design, or when tempted by a Material default, a hairline rule, a
@@ -31,6 +32,7 @@ Run `scripts/check_calm_layering.sh` and `scripts/check_calm_rejects.sh` before 
 | Build or change anything under `lib/ui/calm/` — `CalmButton`, `CalmCard`, `CalmListRow`, `CalmField`, `CalmSheet`, `CalmNumberPad`, … and their states | `calm-components` |
 | Render a due status, a status dot, a badge, an estimate, `unknown`, or `needsOdometer` | `calm-due-state-and-status` |
 | Lay out a screen, choose spacing, honour the 52px floor, build the empty/all-clear state, pick a duration or curve, handle reduced motion | `calm-layout-and-motion` |
+| Check a built screen against the design reference, capture parity shots, or read a parity failure | `calm-visual-parity` |
 | Structure tokens as tiers, decide `ThemeExtension` vs static class, asserting `of()`, the no-raw-values gate | `design-system-structure` (general library — Calm does not restate it) |
 | Read a11y flags, target sizes, never-colour-alone floor, `textScaler` | `accessibility-as-code` (general library) |
 
@@ -148,6 +150,7 @@ Calm is not a mood board; each of its visual decisions is a `SPEC.md` rule made 
 - See `calm-components` for every widget in `lib/ui/calm/` and every state it must render.
 - See `calm-due-state-and-status` for `DueState`, `CalmStatusStyle`, redundant encoding, and how "we do not know" is drawn.
 - See `calm-layout-and-motion` for the spacing rhythm, the 52px floor, screen scaffolding, the all-clear state, and the duration/curve/reduced-motion contract.
+- See `calm-visual-parity` for checking a built screen against `design/reference/calm/` — the reference is the authority, and a Flutter golden cannot prove the screen was ever right.
 - See `design-system-structure` for token *structure* — two tiers, `ThemeExtension` mechanics, why not `fromSeed`, the raw-values gate. Calm supplies the content; that skill supplies the shape.
 - See `accessibility-as-code` for reading a11y flags from `MediaQuery`, the never-colour-alone floor, and never clamping `textScaler`.
 - See `i18n-rtl-l10n` for ICU messages, directional geometry and RTL goldens.

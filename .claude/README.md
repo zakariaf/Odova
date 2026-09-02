@@ -60,6 +60,7 @@ where `design-system-structure` owns token *structure*:
 | `calm-components` | The widget library, every variant and every state. |
 | `calm-due-state-and-status` | The five due states, redundant encoding, and how "we do not know" is rendered so it never reads as "you are fine". |
 | `calm-layout-and-motion` | Spacing rhythm, one-primary-thing-per-screen, the 52px touch floor, all-clear as the good state, motion and reduced motion. |
+| `calm-visual-parity` | Gates the built screen against `design/reference/calm/`. A golden proves the app did not change; this proves it matches what was designed. |
 
 Every value in them comes from `design/calm/odova.css`; all 26 example files
 compile against a real Flutter project with zero analyzer errors, and all eight

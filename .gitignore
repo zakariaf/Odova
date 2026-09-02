@@ -76,3 +76,6 @@ odova-backup-*.json
 # Design tooling deps (tools/package.json). Not part of the app.
 tools/node_modules/
 tools/package-lock.json
+
+# Parity comparison sheets — regenerated on every run, never committed.
+design/reference/_parity/
