@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: The specification
+    url: https://github.com/zakariaf/Odova/blob/main/SPEC.md
+    about: What Odova does and why is decided here first. Read §15 before proposing a feature.
+  - name: Decisions still open
+    url: https://github.com/zakariaf/Odova/blob/main/SPEC.md#18-decisions-still-open
+    about: Genuinely unsettled questions. Native Kurdish Sorani, Persian and Arabic readers especially welcome.

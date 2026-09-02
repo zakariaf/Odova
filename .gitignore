@@ -1,0 +1,74 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IDE
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# Flutter / Dart / Pub
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication and obfuscation
+app.*.symbols
+app.*.map.json
+
+# Android Studio build artefacts
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Golden diff artefacts. Written on a red run, never committed.
+**/failures/
+
+# Python scratch (tools/)
+__pycache__/
+*.egg-info/
+.venv/
+
+# NOTE: pubspec.lock is deliberately NOT ignored. This is an application, and a
+# committed lock is what makes a stranger's clone resolve the versions that were
+# actually tested.
+
+# ---------------------------------------------------------------------------
+# Signing material NEVER lives in this repo. CI injects it from secrets at build
+# time. `tools/check_release_hygiene.sh` checks the working tree AND the whole of
+# `git log --all` — a credential committed and later deleted is invisible to a
+# working-tree check and permanently present in every clone.
+key.properties
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+service-account*.json
+AuthKey_*.p8
+google-services.json
+GoogleService-Info.plist
+
+# ---------------------------------------------------------------------------
+# User backup files. Odova exports the user's own data as plain JSON; a real
+# one must never be committed as a "test fixture". Synthetic fixtures belong in
+# test/fixtures/ and are named *.fixture.json.
+odova-backup-*.json

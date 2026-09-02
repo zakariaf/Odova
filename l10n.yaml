@@ -1,0 +1,25 @@
+# gen-l10n configuration. See SPEC.md §5 for the locale contract.
+#
+# ARMED BY pubspec.yaml — inert until the Flutter app exists.
+#
+# `output-dir` inside `lib/` is what makes `lookupAppLocalizations(locale)` a
+# real, importable function, which is the only sanctioned way to reach a string
+# outside a widget: `AppLocalizations.of` above the `Localizations` scope throws.
+#
+# `nullable-getter: false` is load-bearing. It makes `AppLocalizations.of`
+# return non-null, so a missing or mistyped key is a COMPILE error rather than a
+# silently empty widget on a screen nobody re-tested. With six locales and three
+# of them in a script most reviewers cannot read, that is the difference between
+# a build failure and a shipped blank label.
+#
+# There is deliberately no `synthetic-package: false`: Flutter 3.44 has REMOVED
+# the option and warns that it "no longer has any effect". Setting it would be a
+# line that reads like it is doing something.
+arb-dir: lib/l10n/arb
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n/gen
+nullable-getter: false
+# en first so a missing key falls back to a language the maintainer can read.
+preferred-supported-locales: [en]

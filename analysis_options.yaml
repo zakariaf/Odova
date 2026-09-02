@@ -1,0 +1,36 @@
+# The lint safety net.
+#
+# ARMED BY pubspec.yaml. Until the Flutter app exists this file is inert; add
+# `very_good_analysis` as a dev_dependency in the same commit that creates the
+# app, or the `include:` below resolves to nothing.
+#
+# The include filename must EXIST in the resolved very_good_analysis package. If
+# it does not, analysis runs with zero added rules and the build is green while
+# checking nothing — bump this filename in the same commit as any
+# very_good_analysis bump, and confirm the file is really there.
+include: package:very_good_analysis/analysis_options.10.3.0.yaml
+
+analyzer:
+  # The one place the generated-code globs are written down. Anything that
+  # reads them (a coverage floor, a structure check) parses this file rather
+  # than retyping them: excludes and coverage filters that drift apart lie the
+  # coverage number upward.
+  exclude:
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+    - '**/*.drift.dart'
+    - lib/l10n/gen/**
+
+  # Only silence-producing bug classes are promoted — never style preferences.
+  # Every rule here is one very_good_analysis already enables, because `errors:`
+  # re-ranks an existing diagnostic and cannot turn an off rule on.
+  errors:
+    unawaited_futures: error
+    discarded_futures: error
+    empty_catches: error
+    use_build_context_synchronously: error
+    cancel_subscriptions: error
+    close_sinks: error # VGA ships this at `ignore`; re-promoted
+    avoid_dynamic_calls: error
+    exhaustive_cases: error
+    avoid_print: error

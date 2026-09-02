@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Actions are pinned by major tag; Dependabot is what tells us a major moved.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: {interval: weekly}
+    commit-message: {prefix: "ci"}
+
+  # Armed once pubspec.yaml exists. Grouped, because Odova's dependency policy
+  # is caret-ranges-with-a-committed-lock: the lock is the pin, and reviewing
+  # twelve separate bumps a week is how a lock stops being read.
+  - package-ecosystem: pub
+    directory: "/"
+    schedule: {interval: weekly}
+    open-pull-requests-limit: 5
+    commit-message: {prefix: "deps"}
+    groups:
+      dev-dependencies:
+        dependency-type: development

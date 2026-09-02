@@ -1,0 +1,32 @@
+name: Feature or change
+description: Propose something Odova should do
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read **§15. Explicitly out of v1** in `SPEC.md` first. Cloud sync,
+        accounts, OBD/Bluetooth, receipt OCR, fuel-price lookup and anything
+        needing a network call are settled decisions, not open questions.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem, from a driver's point of view
+      description: What are they trying to do, and what stops them today?
+    validations: {required: true}
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would build
+    validations: {required: true}
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Does it survive the non-negotiables?
+      options:
+        - label: Needs no network call, no account and no server
+          required: true
+        - label: Works in all six locales, including right-to-left
+          required: true
+        - label: Survives export → wipe → import with nothing lost
+          required: true

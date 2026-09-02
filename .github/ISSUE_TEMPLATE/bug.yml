@@ -1,0 +1,42 @@
+name: Bug
+description: Something behaves differently from SPEC.md
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Odova is offline and stores nothing off your phone, so there are no
+        server logs to check. What you write here is all anyone will have.
+        **Never attach a real backup file** — it is your whole history in
+        plain text. Trim it to the few records that reproduce the problem.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations: {required: true}
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add a vehicle with 96,000 km
+        2. Log a fill-up at 96,400 km, partial
+        3. Home shows …
+    validations: {required: true}
+  - type: input
+    id: spec
+    attributes:
+      label: Which SPEC.md section covers this?
+      placeholder: "§4.2 Notification tap routing"
+  - type: dropdown
+    id: locale
+    attributes:
+      label: Language the app was in
+      options: [English, Deutsch, Français, فارسی, العربية, کوردیی ناوەندی, other]
+    validations: {required: true}
+  - type: input
+    id: version
+    attributes:
+      label: App version and device
+      placeholder: "1.0.0+1, Pixel 6a, Android 14"
+    validations: {required: true}
