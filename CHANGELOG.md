@@ -16,7 +16,11 @@ All notable changes to Odova are recorded here. The format follows
   contribution and security policy.
 - `tools/` — repo gates (release hygiene, spec-example validation) with
   self-tests that prove each gate can fail, plus the app-name availability
-  checker used to choose the name.
+  checker used to choose the name, and the design mockup pipeline.
+- `design/` — three complete candidate design systems, each covering all 27
+  screens, with 336 reference screenshots in light/dark and LTR/RTL.
+- `.claude/skills/` — 40 Flutter engineering skills vendored from
+  zakariaf/Flutter-Skills at a pinned commit.
 
 ### Not yet
 - The Flutter app. CI's Flutter lane arms itself the moment `pubspec.yaml`

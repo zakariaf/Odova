@@ -66,7 +66,9 @@ Flutter lane automatically the moment `pubspec.yaml` exists.
 |---|---|
 | [`SPEC.md`](SPEC.md) | The full specification — data model, due engine, six-locale contract, backup format, every screen and every navigation edge. 18 sections. |
 | [`IDEA.md`](IDEA.md) | The idea in plain words, plus the naming research: how the name was chosen and what was checked against both app stores. |
-| `tools/` | Repo gates and the app-name availability checker. |
+| [`design/`](design/README.md) | Three candidate design systems, each covering all 27 screens, with 336 reference screenshots in light/dark and LTR/RTL. |
+| [`.claude/`](.claude/README.md) | 40 vendored Flutter engineering skills, and where they came from. |
+| `tools/` | Repo gates, the design mockup pipeline, and the app-name availability checker. |
 
 Start with **§1 Who it is for** and **§2 Non-negotiables**. If you are about to
 propose a feature, read **§15 Explicitly out of v1** first.

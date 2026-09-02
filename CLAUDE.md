@@ -66,9 +66,28 @@ The spec itself is platform-agnostic; keep it that way.
    `unknown`, never `overdue`. The app would rather show a dash than a plausible
    lie. This is the rule most easily broken by accident.
 
+## Skills
+
+`.claude/skills/` holds 40 vendored Flutter engineering skills from
+[zakariaf/Flutter-Skills](https://github.com/zakariaf/Flutter-Skills). Provenance
+and the pinned commit are in `.claude/README.md`.
+
+**Open `flutter-conventions-index` first** — it carries the cross-cutting house
+rules and routes each task to the skill that owns it. Then open the specific one
+before working in its area: `i18n-rtl-l10n` for anything user-visible,
+`data-export-and-restore` for the backup file, `local-notifications-scheduler` for
+reminders, `value-objects-money-and-units` for anything with a unit or a price,
+`persistence-drift` for schema and migrations, `dependency-hygiene` before adding
+any package.
+
+They are general Flutter defaults; `SPEC.md` is this product's decisions. **Where
+the two disagree, the spec wins** — and if a skill makes you think the spec is
+wrong, change the spec deliberately rather than quietly following the skill.
+
 ## How to work
 
 - Read `SPEC.md` for the area first. Cite the section in the PR.
+- Open the governing skill from `.claude/skills/` before writing in its area.
 - Domain logic is **pure Dart with no Flutter import** — the due engine, the
   fuel maths, unit conversion, the projection. It must test in milliseconds
   without a widget harness. If you find yourself needing a `BuildContext` in
