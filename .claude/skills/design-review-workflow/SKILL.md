@@ -1,7 +1,13 @@
 ---
 name: design-review-workflow
-description: Enforces one structured end-of-build design/QA pass — never per-task — on the release build: a screenshot sweep matrix (every screen × light/dark × LTR+RTL × largest text scale × reduce-motion) plus an on-device pass on real cheap target hardware, findings graded BLOCKER/FIX/NOTE with every accessibility-floor violation a mandatory BLOCKER, exactly one scoped fix round, and a dated sign-off artifact that gates release. Use when a feature's build tasks are done and it needs its design review, tagging or preparing a release, verifying a build on a physical device, running a pre-ship visual/QA sweep, or asking what design and QA cannot be tested automatically.
----
+description: >-
+  Enforces one structured end-of-build design/QA pass — never per-task — on the release build: a
+  screenshot sweep matrix (every screen × light/dark × LTR+RTL × largest text scale × reduce-
+  motion) plus an on-device pass on real cheap target hardware, findings graded BLOCKER/FIX/NOTE
+  with every accessibility-floor violation a mandatory BLOCKER, exactly one scoped fix round, and
+  a dated sign-off artifact that gates release. Use when a feature's build tasks are done and it
+  needs its design review, tagging or preparing a release, verifying a build on a physical device,
+  running a pre-ship visual/QA sweep, or asking what design and QA cannot be tested automatically.---
 
 # Design review workflow
 

@@ -1,7 +1,19 @@
 ---
 name: calm-components
-description: Enforces Odova's Calm widget library — CalmButton/CalmCard/CalmListRow/CalmRowGroup/CalmChip/CalmBadge/CalmStatusDot/CalmSwitch/CalmSegmented/CalmField/CalmStepper/CalmSheet/CalmDialog/CalmScaffold/CalmAppBar/CalmTabBar/CalmNumberPad/CalmDueCard/CalmEmptyState/CalmAllClear/CalmTile/CalmSnackbar living in lib/ui/calm/, every value read through CalmColors/CalmType/CalmSpace/CalmShapes/CalmMotion.of(context); presses are a 90ms scale-and-tint with NoSplash.splashFactory and an explicit AnimatedScale rather than a Material ripple, cards are radius-2xl warm layered shadow and NEVER a border, list rows only exist inside a CalmRowGroup with internal divider hairlines and one outer radius, buttons are 42/52/60pt pills that are never disabled without an explanation beneath them, the field ring is the only border in the system, and the 52pt touch floor is a hit area even where the painted control is smaller. Use when building or reviewing any Odova screen widget, adding a variant or a state (rest/pressed/disabled/focus/error) to a Calm component, reaching for ElevatedButton/FilledButton/TextButton/IconButton/ListTile/Card/Chip/Switch/SegmentedButton/AppBar/NavigationBar/BottomNavigationBar/AlertDialog/SnackBar/showModalBottomSheet, writing a Container with a BoxDecoration in lib/ui/, wiring InkWell or splashColor, building the odometer number pad, styling a text field or its error, or asking what a Calm widget looks like when pressed, focused, disabled or in error.
----
+description: >-
+  Enforces Odova's Calm widget library in lib/ui/calm/ — CalmButton, CalmCard, CalmListRow,
+  CalmRowGroup, CalmChip, CalmBadge, CalmStatusDot, CalmSwitch, CalmSegmented, CalmField,
+  CalmSheet, CalmDialog, CalmScaffold, CalmAppBar, CalmTabBar, CalmNumberPad, CalmDueCard,
+  CalmAllClear, CalmTile — with every value read through
+  CalmColors/CalmType/CalmSpace/CalmShapes/CalmMotion.of(context). Presses are a 90ms scale-and-
+  tint with NoSplash, never a Material ripple; cards are radius-2xl warm layered shadow and NEVER
+  a border; rows exist only inside a CalmRowGroup; the field ring is the system's only border;
+  52pt is a hit-area floor even where the painted control is smaller. Use when building or
+  reviewing an Odova screen widget, adding a variant or state (rest/pressed/disabled/focus/error),
+  reaching for ElevatedButton/FilledButton/TextButton/IconButton/ListTile/Card/Chip/Switch/Segment
+  edButton/AppBar/NavigationBar/AlertDialog/SnackBar/showModalBottomSheet, writing a Container
+  with a BoxDecoration in lib/ui/, wiring InkWell or splashColor, or asking what a Calm widget
+  looks like pressed, focused, disabled or in error.---
 
 # calm-components
 

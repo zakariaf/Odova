@@ -1,7 +1,16 @@
 ---
 name: calm-due-state-and-status
-description: Enforces Odova's six-member `DueState { overdue, due, dueSoon, ok, unknown, needsOdometer }` and Calm's rendering of it — one resolution point (`CalmStatusStyle` in lib/theme/calm/calm_status.dart) that maps a state to its four-colour set (base/ink/tint/edge) so no widget ever switches on a state to pick a colour, three non-colour signals per state (a normative dot silhouette, a distinct label, a distinct copy pattern) because Calm's six state hues are separated by at most 1.51:1 in grayscale and colour is provably not a discriminator, `unknown` (never recorded) held strictly apart from `needsOdometer` (the reading is stale) with neither allowed to borrow the overdue or the ok palette, and the uncertainty vocabulary SPEC §1 requires — `Odova needs a reading to say when` as one ICU message, a fuzzy projected date ("around mid-October"), a visible `~` on every estimated odometer, and no figure at all at `confidence = default`. Use when adding or reading `DueState`, writing `CalmStatusDot` / `CalmDueCard` / `CalmBadge` / the reminders list or the Home due stack, choosing a colour for a status, wording an overdue / due / due-soon / unknown / needs-odometer line, rendering a projected due date or an estimated odometer, deciding whether an item is "unknown" or "overdue", reviewing a status widget for grayscale or colour-blind legibility, or adding a state to the due engine.
----
+description: >-
+  Enforces how Odova renders certainty — DueState { overdue, due, dueSoon, ok, unknown,
+  needsOdometer } resolved once through CalmStatusStyle.of(context, state), never by a widget
+  switching on a state to pick its own colour. Each state carries a CalmRamp (base/ink/tint/edge)
+  plus a distinct dot shape, label and copy pattern, so colour is never the sole signal and the
+  set stays legible in grayscale. The two we-do-not-know states are separate and neither may wear
+  overdue's terracotta or ok's sage: SPEC §1 forbids guessing in a way that looks like fact, so a
+  projected date renders fuzzily ('around mid-October'), an estimated odometer carries a visible
+  ~, and an item with no history reads 'Odova needs a reading to say when'. Use when rendering or
+  reviewing a due item, a status dot, badge or chip, adding a state, writing overdue/due-soon
+  copy, choosing a colour for uncertainty, or reading a state colour slot directly in a widget.---
 
 # calm-due-state-and-status
 

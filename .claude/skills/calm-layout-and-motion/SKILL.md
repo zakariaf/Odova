@@ -1,7 +1,16 @@
 ---
 name: calm-layout-and-motion
-description: Enforces Calm's layout rhythm and motion budget in Odova — the ten-step 4px spacing scale read from CalmSpace with the 22px screen gutter, ONE primary element per screen sized far above everything else (Home's 148pt due card against 72pt secondaries), a 52px touch floor that raises accessibility-as-code's 44 and Material's 48 because the app is used one-handed at a pump in the rain, CalmScaffold as the only screen skeleton (56pt app bar, scrolling body, 62pt tab bar, start/end insets only, SafeArea not a hardcoded home-bar inset), all-clear designed as the best screen in the set rather than an empty box with a shrug, and the five duration + four curve tokens on CalmMotion with ease-settle reserved for a thing arriving and reduced motion collapsing to ZERO (themeAnimationStyle AnimationStyle.noAnimation, no pumpAndSettle in a test that asserts a collapsed animation). Use when building or reviewing an Odova screen, laying out Home's due stack or the fold budget, choosing a padding/gap/EdgeInsetsDirectional value, sizing a button/row/chip/icon-button tap target, writing an empty or "nothing due" state, adding an AnimatedContainer/AnimatedSize/AnimatedSwitcher/PageRoute/bottom-sheet transition, picking a Duration or Curve, wiring reduce-motion, or reaching for a raw px number in a widget.
----
+description: >-
+  Enforces Calm's spatial and motion discipline: the ten-step CalmSpace scale plus a 22pt screen
+  gutter, ONE primary element per screen sized far above everything else (two primaries means the
+  screen has failed), a 52pt touch floor above Material's 48, CalmScaffold as the screen skeleton,
+  and the all-clear state designed as the good state — a reassuring mark, the good news in plain
+  words, the date it was last confirmed and exactly one quiet next action, never an empty-state
+  shrug. Motion is five durations and four curves from CalmMotion
+  (easeStandard/easeOut/easeIn/easeSettle); easeSettle's overshoot is for a thing arriving, never
+  leaving; reduced motion means zero, not faster. Use when laying out or reviewing an Odova
+  screen, choosing spacing or a gap, sizing a tap target, building an empty/nothing-due state,
+  animating anything, or writing pumpAndSettle in a test.---
 
 # calm-layout-and-motion
 

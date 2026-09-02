@@ -22,6 +22,15 @@ assert 1 "red when a keystore is planted" bash tools/check_release_hygiene.sh
 rm -f ./upload-keystore.jks
 assert 0 "green again once removed" bash tools/check_release_hygiene.sh
 
+echo "== check_skill_frontmatter =="
+assert 0 "green on the real skills tree" python3 tools/check_skill_frontmatter.py
+cp .claude/skills/flutter-architecture/SKILL.md .SKILL.md.bak
+# The exact upstream bug: a ": " inside a PLAIN scalar silently kills the metadata.
+perl -0pi -e 's/^description: /description: Enforces this: and that. /m' .claude/skills/flutter-architecture/SKILL.md
+assert 1 "red on an unparseable description" python3 tools/check_skill_frontmatter.py
+mv .SKILL.md.bak .claude/skills/flutter-architecture/SKILL.md
+assert 0 "green again once restored" python3 tools/check_skill_frontmatter.py
+
 echo "== check_spec_examples =="
 assert 0 "green on the real SPEC.md" python3 tools/check_spec_examples.py
 cp SPEC.md .SPEC.md.bak

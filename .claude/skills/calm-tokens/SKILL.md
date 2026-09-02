@@ -1,7 +1,16 @@
 ---
 name: calm-tokens
-description: Ports Odova's Calm design system into Dart as two token tiers — a CalmPalette of 98 primitives named by measured OKLCH lightness, and five ThemeExtensions (CalmColors, CalmType, CalmSpace, CalmShapes, CalmMotion) covering all 124 of its custom properties — with hand-authored light and dark ColorSchemes instead of ColorScheme.fromSeed (Calm's ochre paper ramp does not survive a seed's hue), an of(context) that asserts by name, a lerp that carries every field, status colour reachable only through the four-rung CalmRamp, and a gate keeping every hex, radius, duration, blur and fontSize inside lib/theme/calm/. Use when adding or renaming a Calm token, writing or editing anything under lib/theme/calm/, wiring buildCalmTheme or MaterialApp's theme/darkTheme, mapping a Calm slot onto an M3 ColorScheme role, reaching for fromSeed/dynamic_color/google_fonts, porting a --color-*/--space-*/--radius-*/--elev-*/--dur-*/--ease-* custom property out of design/calm/odova.css, converting a CSS box-shadow or em letter-spacing to Flutter, checking a Calm contrast pair against AA, or reviewing any widget that renders a colour, radius, shadow, duration or font size.
----
+description: >-
+  Owns Odova's Calm token set as Dart: two tiers (primitives named by measured value, semantic
+  slots named by role) exposed as five ThemeExtensions — CalmColors, CalmType, CalmSpace,
+  CalmShapes, CalmMotion — each with an asserting of(context) and an honest lerp, plus hand-
+  authored light and dark ColorScheme instances rather than ColorScheme.fromSeed, whose seed
+  algorithm does not preserve Calm's warm ramp. Semantic states are CalmRamp values
+  (base/ink/tint/edge). Every hex, radius, duration and fontSize is confined to lib/theme/calm/**
+  behind a no-raw-values gate; a legitimate new need is a new token slot, never an ignore comment.
+  Use when creating or editing ThemeData/ThemeExtension/ColorScheme, adding or renaming a token,
+  reaching for fromSeed or a raw Color/Duration/BorderRadius/fontSize in feature code, checking a
+  contrast pair, or asking what Calm's value for a colour, size, radius or curve actually is.---
 
 # calm-tokens
 

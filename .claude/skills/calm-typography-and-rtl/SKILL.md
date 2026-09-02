@@ -1,21 +1,16 @@
 ---
 name: calm-typography-and-rtl
 description: >-
-  Owns Calm's type and script contract for Odova: the nine-step scale (display 46/1.04 →
-  caption 13/1.45) as one CalmType ThemeExtension where --fs-x and --lh-x collapse into a
-  single TextStyle, a hard 13px floor with no exceptions, weights 400/500/600 only, no
-  italics, no all-caps, no monospace anywhere (aligned figures come from
-  FontFeature.tabularFigures, never a font change), bundled variable Vazirmatn with its
-  LicenseRegistry OFL entry used for the WHOLE UI in fa/ar/ckb including Latin runs, the
-  Arabic-script metric compensation (taller line boxes, letterSpacing 0), and the six-locale
-  contract as it lands on type — extarab digits for fa/ckb, arab for ar, Latin for the
-  Maghreb, Jalali display for fa and ckb-IR, all resolved from device REGION not language.
-  Use when adding or editing a TextStyle, CalmType, a fontSize/height/letterSpacing/fontFamily,
-  a font asset or pubspec fonts: block, when a number, odometer, price, date or unit is
-  rendered, when text is truncating or wrapping wrong in German, when Persian or Sorani text
-  clips its descenders or renders tofu, when picking a type role for a new component, when
-  wiring numerals/calendar settings, or when reviewing any screen in fa, ar or ckb.
----
+  Enforces Calm's type and script rules: a nine-step scale with a hard 13px floor, humanist sans
+  only and NO monospace anywhere (aligned figures come from FontFeature.tabularFigures, never a
+  font change), Vazirmatn bundled as an asset with LicenseRegistry, and under [lang=fa] Vazirmatn
+  leading for Latin runs inside Persian too. Six locales ship, three right-to-left: en, de, fr,
+  fa, ar, ckb. Numerals and calendars resolve from device REGION not language — Extended Arabic-
+  Indic for fa/ckb, Arabic-Indic for ar, Latin for ar-MA, Jalali for fa. Six glyphs mirror and no
+  others. German runs ~30% longer and Calm's large type makes it worse, so named components
+  reserve two lines. Defers gen-l10n mechanics to i18n-rtl-l10n. Use when adding a user-visible
+  string, choosing a text style, formatting a number, date or currency, bundling a font, or
+  checking an RTL layout.---
 
 # calm-typography-and-rtl
 

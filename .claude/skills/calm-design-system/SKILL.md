@@ -1,7 +1,16 @@
 ---
 name: calm-design-system
-description: The front door to Calm, Odova's design system — a warm earthy palette (clay, sand, sage, terracotta on a #F8F2E9 off-white, dusk #1D1815 in dark, never blue-black), few large rounded surfaces at 16–36px radius, one primary thing per screen, state carried by tone rather than alarm, a 52px touch floor and a 13px type floor, no monospace anywhere, and elevation instead of hairlines; owns the lib/theme/calm → lib/ui/calm → feature-code layering, the rule that feature code never reads a raw value, the product rules Calm exists to serve (never guess in a way that looks like fact, the two-notifications-per-seven-days budget, "nothing is due" as the good state), and the routing table to calm-tokens, calm-typography-and-rtl, calm-components, calm-due-state-and-status and calm-layout-and-motion. Use when starting a new Odova screen or feature, wiring buildCalmTheme or lib/ui/calm, asking "which Calm skill covers this", picking a colour/radius/duration/type size for Odova, porting a mockup from design/calm/screens.html or system.html, reviewing a widget for Calm compliance, reaching for a Material default (ElevatedButton, Card, ListTile, Scaffold, AppBar, TextField, Switch, Divider), reaching for Colors.red / a monospace face / a 1px border / ColorScheme.fromSeed, or deciding what the empty, all-clear, unknown or needs-odometer state should look like.
----
+description: >-
+  The front door to Odova's Calm design system: warm earthy palette, few large rounded surfaces,
+  one primary thing per screen, state by tone not alarm, a 52pt touch floor, nothing below 13px
+  and no monospace anywhere. Owns the layering lib/theme/calm/ (values) -> lib/ui/calm/ (the only
+  layer that styles) -> lib/features/** (composition only), the rule that feature code never reads
+  a raw value, and a routing table sending each task to calm-tokens, calm-typography-and-rtl,
+  calm-components, calm-due-state-and-status or calm-layout-and-motion. Defers token structure to
+  design-system-structure. Use at the start of any Odova UI work, when building a new screen, when
+  deciding which layer code belongs in, when unsure which Calm skill governs a task, when
+  reviewing a screen against the design, or when tempted by a Material default, a hairline rule, a
+  dense table, a siren red or a dark chrome that Calm rejects.---
 
 # calm-design-system
 

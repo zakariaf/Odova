@@ -1,7 +1,16 @@
 ---
 name: async-safety
-description: Enforces no-silent-failure async discipline in Flutter/Dart — the arrow-callback Future-drop hole no lint catches (`onTap: () => vm.save(x)`), void-returning event handlers, a mounted/ref.mounted guard after EVERY await before touching BuildContext, capturing Navigator/ScaffoldMessenger before the gap, honest `unawaited()` that always ends in catchError, no empty/bare catches, `rethrow` over `throw e`, and disposing every StreamSubscription/StreamController/Timer/sink. Use when writing or reviewing async/await, wiring onTap/onPressed/onSubmitted or any VoidCallback, touching BuildContext after an await, writing initState/dispose/addPostFrameCallback, adding a Timer or Future.delayed, writing a try/catch, or seeing use_build_context_synchronously, cancel_subscriptions, close_sinks, unawaited_futures, or discarded_futures.
----
+description: >-
+  Enforces no-silent-failure async discipline in Flutter/Dart — the arrow-callback Future-drop
+  hole no lint catches (`onTap: () => vm.save(x)`), void-returning event handlers, a
+  mounted/ref.mounted guard after EVERY await before touching BuildContext, capturing
+  Navigator/ScaffoldMessenger before the gap, honest `unawaited()` that always ends in catchError,
+  no empty/bare catches, `rethrow` over `throw e`, and disposing every
+  StreamSubscription/StreamController/Timer/sink. Use when writing or reviewing async/await,
+  wiring onTap/onPressed/onSubmitted or any VoidCallback, touching BuildContext after an await,
+  writing initState/dispose/addPostFrameCallback, adding a Timer or Future.delayed, writing a
+  try/catch, or seeing use_build_context_synchronously, cancel_subscriptions, close_sinks,
+  unawaited_futures, or discarded_futures.---
 
 # Async safety: no failure may be silent
 
