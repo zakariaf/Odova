@@ -182,6 +182,36 @@ Two efficiency findings were noted and left: 11 `RegExp`s recompiled per file in
 Both are milliseconds today. The ARB one scales with the string set and is worth
 doing when EPIC-04 next touches that file.
 
+## `/code-review` — what it found
+
+Ten findings, all applied. Two were defects the epic's own tests could not have
+caught, and both are worth carrying forward:
+
+- **`CFBundleLocalizations` was missing from `ios/Runner/Info.plist`**, so iOS
+  would have offered only English. `test/l10n/supported_locales_test.dart`
+  passes an explicit `locale:` to `OdovaApp` and therefore never exercises
+  device resolution at all — a shape every later locale test should be read
+  against. The gate is in `test/policy/platform_test.dart` and compares the
+  plist array to `odovaSupportedLocales`, so a seventh locale fails there too.
+  **Any epic adding a locale edits three places: the ARB directory,
+  `odovaSupportedLocales`, and the plist.**
+- **The lifecycle flush fired twice per backgrounding** — `inactive` and
+  `paused` both wrote, and Flutter delivers `resumed → inactive → hidden →
+  paused` for one trip to the home screen. It is now latched to once per
+  episode, re-armed by `resumed`. **EPIC-05 should know the flush is
+  at-most-once and fires on the EARLIEST state of the episode**, not on
+  `paused`, because the app can be killed from `inactive` and there is no rule
+  that `paused` arrives.
+
+The other eight were gate defects: the self-test could leave the tree broken on
+a Ctrl-C (now trapped), `check_dependabot.sh` checked the whole file rather than
+the pub entry, the exact-pin gate could not see a pin nested under a `hosted:`
+block, `--deps` with no value died as an unbound variable, an unknown flag to
+`check_lint_include.sh` ran the default path silently, the lcov filter corrupted
+a file with no trailing newline, the Android launcher label was `odova`, and
+this progress file named two identifiers `/simplify` had already renamed or
+deleted.
+
 ## Deferred
 
 - No theme, no database, no domain type, no route beyond the placeholder. All
