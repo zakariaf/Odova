@@ -63,10 +63,15 @@ Set<String> allCalmRgbaBases() => {
 };
 
 /// The value of a single custom property in [block], verbatim.
+///
+/// Not anchored to the start of a line: odova.css puts the type scale two
+/// declarations to a line (`--fs-display: 46px;   --lh-display: 1.04;`), so a
+/// line-anchored parser silently finds no line height for any of the nine
+/// roles. The lookbehind is what keeps `--radius-sm` from matching inside a
+/// longer name.
 String? tokenValue(String block, String name) => RegExp(
-  '^\\s*${RegExp.escape(name)}:\\s*(.+?);',
-  multiLine: true,
-).firstMatch(block)?.group(1);
+  '(?<![-\\w])${RegExp.escape(name)}:\\s*([^;]+);',
+).firstMatch(block)?.group(1)?.trim();
 
 /// One layer of a CSS `box-shadow`: `<dy>px <blur>px <spread>px rgba(...)`.
 typedef CssShadowLayer = ({
