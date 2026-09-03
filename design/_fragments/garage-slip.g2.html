@@ -1,0 +1,1282 @@
+<!-- =========================================================================
+     ODOVA — GARAGE SLIP · group 2
+     log.fillup · log.service · log.expense · log.odometer · history ·
+     report.service · trips.list · trips.edit · vehicle.edit
+     ====================================================================== -->
+
+
+<!-- ==========================================================  7 · log.fillup -->
+<section class="artboard" data-screen="log.fillup" data-title="Log — Fill-up">
+  <div class="device">
+    <div class="screen screen--modal">
+
+      <div class="appbar appbar--modal">
+        <div class="appbar__lead">
+          <button class="appbar__back" type="button" aria-label="Cancel">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg>
+          </button>
+        </div>
+        <div class="appbar__titles text-center">
+          <span class="appbar__title" data-en="Fill-up" data-fa="سوخت‌گیری">Fill-up</span>
+          <div class="docket-no" data-en="SLIP 2026-0412" data-fa="برگهٔ ۱۴۰۵-۰۴۱۲">SLIP 2026-0412</div>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action appbar__action--text" type="button" data-en="Save" data-fa="ذخیره">Save</button>
+        </div>
+      </div>
+
+      <div class="pad-x" style="padding-block:var(--sp-5);border-block-end:var(--rw-hair) solid var(--rule)">
+        <div class="segmented">
+          <button class="segmented__item is-active" type="button" data-en="Fill-up" data-fa="سوخت‌گیری">Fill-up</button>
+          <button class="segmented__item" type="button" data-en="Service" data-fa="سرویس">Service</button>
+          <button class="segmented__item" type="button" data-en="Expense" data-fa="هزینه">Expense</button>
+          <button class="segmented__item" type="button" data-en="Odometer" data-fa="کیلومتر">Odometer</button>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--pad" style="padding-block-start:var(--sp-6);display:flex;flex-direction:column">
+
+        <!-- Odometer -->
+        <div class="field">
+          <label class="field__label"><span data-en="Odometer" data-fa="کیلومترشمار">Odometer</span> <span class="field__req">*</span></label>
+          <div class="inputgroup" style="border-color:var(--ink);border-width:var(--rw-med)">
+            <span class="input input--static input--numeric" data-en="187,412" data-fa="۱۸۷٬۴۱۲">187,412</span>
+            <span class="inputgroup__unit" style="gap:4px">
+              <span data-en="km" data-fa="کیلومتر">km</span>
+              <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg>
+            </span>
+          </div>
+          <div class="field__hint inline inline--between" style="gap:var(--sp-4)">
+            <span data-en="Last entered 186,975 km on 19 August" data-fa="آخرین ثبت ۱۸۶٬۹۷۵ کیلومتر در ۲۸ مرداد">Last entered 186,975 km on 19 August</span>
+            <span class="num strong" style="white-space:nowrap" data-en="+437 km" data-fa="⁦+۴۳۷⁩ کیلومتر">+437 km</span>
+          </div>
+        </div>
+
+        <!-- Full / part -->
+        <div class="field">
+          <label class="field__label"><span data-en="How much of the tank" data-fa="چقدر از باک">How much of the tank</span></label>
+          <div class="segmented">
+            <button class="segmented__item is-active" type="button" data-en="Filled it up" data-fa="باک را پر کردم">Filled it up</button>
+            <button class="segmented__item" type="button" data-en="Part fill" data-fa="پر کردن جزئی">Part fill</button>
+          </div>
+        </div>
+
+        <!-- The price trio -->
+        <div class="field" style="margin-block-end:var(--sp-4)">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-4)">
+            <div>
+              <label class="field__label"><span data-en="Fuel" data-fa="مقدار">Fuel</span> <span class="field__req">*</span></label>
+              <div class="inputgroup">
+                <span class="input input--static input--numeric" data-en="42.8" data-fa="۴۲٫۸">42.8</span>
+                <span class="inputgroup__unit" data-en="L" data-fa="لیتر">L</span>
+              </div>
+            </div>
+            <div>
+              <label class="field__label"><span data-en="Price / L" data-fa="قیمت هر لیتر">Price / L</span></label>
+              <div class="inputgroup">
+                <span class="input input--static input--numeric faint" data-en="1.734" data-fa="۱٬۷۳۴">1.734</span>
+                <span class="inputgroup__unit" data-en="€" data-fa="ت">€</span>
+              </div>
+            </div>
+            <div>
+              <label class="field__label"><span data-en="Total" data-fa="مبلغ کل">Total</span></label>
+              <div class="inputgroup">
+                <span class="input input--static input--numeric" data-en="74.20" data-fa="۷۴٬۲۰۰">74.20</span>
+                <span class="inputgroup__unit" data-en="€" data-fa="ت">€</span>
+              </div>
+            </div>
+          </div>
+          <div class="field__hint inline" style="gap:var(--sp-3)">
+            <span class="badge badge--quiet mono">ƒ</span>
+            <span data-en="Price per litre calculated from the other two." data-fa="قیمت هر لیتر از دو مقدار دیگر حساب شد.">Price per litre calculated from the other two.</span>
+          </div>
+        </div>
+
+        <!-- Date -->
+        <button class="row row--tappable row--flush" type="button">
+          <span class="row__main"><span class="row__label" style="display:block" data-en="Date" data-fa="تاریخ">Date</span></span>
+          <span class="row__trail">
+            <span class="row__value row__value--strong" data-en="Wed 2 Sep 2026" data-fa="چهارشنبه ۱۱ شهریور ۱۴۰۵">Wed 2 Sep 2026</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <!-- More -->
+        <button class="row row--tappable row--flush" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="More" data-fa="بیشتر">More</span>
+            <span class="row__sub" style="display:block" data-en="Station · grade · trip · notes" data-fa="پمپ بنزین · نوع سوخت · سفر · یادداشت">Station · grade · trip · notes</span>
+          </span>
+          <span class="row__trail">
+            <svg class="icon icon--sm" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg>
+          </span>
+        </button>
+
+        <div class="grow"></div>
+
+        <div class="perf" style="margin-inline:calc(var(--sp-screen) * -1)"></div>
+
+        <div class="note" style="margin-block:var(--sp-6)">
+          <b data-en="A full tank closes a segment." data-fa="باک پر یک بازه را می‌بندد.">A full tank closes a segment.</b>
+          <span data-en="669 km since your last full tank on 12 July — this one works out at 6.4 L/100 km." data-fa="‏۶۶۹ کیلومتر از آخرین باک پر در ۲۱ تیر — مصرف این باک ۶٫۴ لیتر در ۱۰۰ کیلومتر می‌شود.">669 km since your last full tank on 12 July — this one works out at 6.4 L/100 km.</span>
+        </div>
+
+      </div>
+
+      <div class="actionbar">
+        <button class="btn btn--primary btn--block" type="button" data-en="Save fill-up" data-fa="ذخیرهٔ سوخت‌گیری">Save fill-up</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- =========================================================  8 · log.service -->
+<section class="artboard" data-screen="log.service" data-title="Log — Service">
+  <div class="device">
+    <div class="screen screen--modal">
+
+      <div class="appbar appbar--modal">
+        <div class="appbar__lead">
+          <button class="appbar__back" type="button" aria-label="Cancel">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg>
+          </button>
+        </div>
+        <div class="appbar__titles text-center">
+          <span class="appbar__title" data-en="Service" data-fa="سرویس">Service</span>
+          <div class="docket-no" data-en="SLIP 2026-0413" data-fa="برگهٔ ۱۴۰۵-۰۴۱۳">SLIP 2026-0413</div>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action appbar__action--text" type="button" data-en="Save" data-fa="ذخیره">Save</button>
+        </div>
+      </div>
+
+      <div class="pad-x" style="padding-block:var(--sp-5);border-block-end:var(--rw-hair) solid var(--rule)">
+        <div class="segmented">
+          <button class="segmented__item" type="button" data-en="Fill-up" data-fa="سوخت‌گیری">Fill-up</button>
+          <button class="segmented__item is-active" type="button" data-en="Service" data-fa="سرویس">Service</button>
+          <button class="segmented__item" type="button" data-en="Expense" data-fa="هزینه">Expense</button>
+          <button class="segmented__item" type="button" data-en="Odometer" data-fa="کیلومتر">Odometer</button>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--pad" style="padding-block-start:var(--sp-5);display:flex;flex-direction:column">
+
+        <button class="row row--tappable row--flush" type="button" style="padding-block-start:0">
+          <span class="row__main"><span class="row__label" style="display:block" data-en="Date" data-fa="تاریخ">Date</span></span>
+          <span class="row__trail">
+            <span class="row__value row__value--strong" data-en="Wed 2 Sep 2026" data-fa="چهارشنبه ۱۱ شهریور ۱۴۰۵">Wed 2 Sep 2026</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <div class="field" style="margin-block-start:var(--sp-5)">
+          <label class="field__label"><span data-en="Odometer" data-fa="کیلومترشمار">Odometer</span> <span class="field__req">*</span></label>
+          <div class="inputgroup">
+            <span class="input input--static input--numeric" data-en="187,412" data-fa="۱۸۷٬۴۱۲">187,412</span>
+            <span class="inputgroup__unit" style="gap:4px">
+              <span data-en="km" data-fa="کیلومتر">km</span>
+              <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg>
+            </span>
+          </div>
+          <div class="field__hint" data-en="From your reading on 2 September. Correct it if you've driven since." data-fa="از ثبت شما در ۱۱ شهریور. اگر بعد از آن رانده‌اید اصلاحش کنید.">From your reading on 2 September. Correct it if you've driven since.</div>
+        </div>
+
+        <div class="field">
+          <label class="field__label"><span data-en="What was done" data-fa="چه کاری انجام شد">What was done</span></label>
+          <div class="inline inline--wrap" style="gap:var(--sp-3)">
+            <button class="chip is-active" type="button">
+              <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10.5 8 15 16.5 5"/></svg>
+              <span data-en="Oil and filter" data-fa="روغن و فیلتر">Oil and filter</span>
+            </button>
+            <button class="chip is-active" type="button">
+              <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10.5 8 15 16.5 5"/></svg>
+              <span data-en="Air filter" data-fa="فیلتر هوا">Air filter</span>
+            </button>
+            <button class="chip" type="button" data-en="Brake fluid" data-fa="روغن ترمز">Brake fluid</button>
+            <button class="chip" type="button" data-en="Inspection (TÜV)" data-fa="معاینه فنی">Inspection (TÜV)</button>
+            <button class="chip" type="button" data-en="Brake pads" data-fa="لنت ترمز">Brake pads</button>
+            <button class="chip" type="button" data-en="+ Other" data-fa="+ مورد دیگر">+ Other</button>
+          </div>
+          <div class="field__hint" data-en="Ticking an item resets its reminder." data-fa="تیک زدن هر مورد، یادآور آن را از نو تنظیم می‌کند.">Ticking an item resets its reminder.</div>
+        </div>
+
+        <div class="field" style="margin-block-end:var(--sp-3)">
+          <label class="field__label"><span data-en="Cost" data-fa="هزینه">Cost</span> <span class="field__req">*</span></label>
+          <div class="inputgroup">
+            <span class="inputgroup__prefix" data-en="Total" data-fa="مبلغ کل">Total</span>
+            <span class="input input--static input--numeric" data-en="186.00" data-fa="۱۸۶٬۰۰۰">186.00</span>
+            <span class="inputgroup__unit" data-en="€" data-fa="تومان">€</span>
+          </div>
+        </div>
+
+        <button class="row row--tappable row--flush row--compact" type="button">
+          <span class="row__main"><span class="row__sub strong" style="display:block" data-en="Split the cost by item" data-fa="تفکیک هزینه بر اساس مورد">Split the cost by item</span></span>
+          <span class="row__trail"><svg class="icon icon--sm" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg></span>
+        </button>
+
+        <button class="row row--tappable row--flush" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="More" data-fa="بیشتر">More</span>
+            <span class="row__sub" style="display:block" data-en="Workshop · invoice no. · notes" data-fa="تعمیرگاه · شمارهٔ فاکتور · یادداشت">Workshop · invoice no. · notes</span>
+          </span>
+          <span class="row__trail"><svg class="icon icon--sm" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg></span>
+        </button>
+
+        <div class="grow"></div>
+
+        <div class="perf" style="margin-inline:calc(var(--sp-screen) * -1)"></div>
+
+        <div class="note" style="margin-block:var(--sp-5)">
+          <b data-en="Saving resets two reminders." data-fa="ذخیره دو یادآور را از نو تنظیم می‌کند.">Saving resets two reminders.</b><br>
+          <span data-en="Oil and filter — next due at 197,412 km or September 2027, whichever comes first." data-fa="روغن و فیلتر — سررسید بعدی ۱۹۷٬۴۱۲ کیلومتر یا شهریور ۱۴۰۶، هرکدام زودتر رسید.">Oil and filter — next due at 197,412 km or September 2027, whichever comes first.</span>
+        </div>
+
+      </div>
+
+      <div class="actionbar">
+        <button class="btn btn--primary btn--block" type="button" data-en="Save service" data-fa="ذخیرهٔ سرویس">Save service</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- =========================================================  9 · log.expense -->
+<section class="artboard" data-screen="log.expense" data-title="Log — Expense">
+  <div class="device">
+    <div class="screen screen--modal">
+
+      <div class="appbar appbar--modal">
+        <div class="appbar__lead">
+          <button class="appbar__back" type="button" aria-label="Cancel">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg>
+          </button>
+        </div>
+        <div class="appbar__titles text-center">
+          <span class="appbar__title" data-en="Expense" data-fa="هزینه">Expense</span>
+          <div class="docket-no" data-en="SLIP 2026-0414" data-fa="برگهٔ ۱۴۰۵-۰۴۱۴">SLIP 2026-0414</div>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action appbar__action--text" type="button" data-en="Save" data-fa="ذخیره">Save</button>
+        </div>
+      </div>
+
+      <div class="pad-x" style="padding-block:var(--sp-5);border-block-end:var(--rw-hair) solid var(--rule)">
+        <div class="segmented">
+          <button class="segmented__item" type="button" data-en="Fill-up" data-fa="سوخت‌گیری">Fill-up</button>
+          <button class="segmented__item" type="button" data-en="Service" data-fa="سرویس">Service</button>
+          <button class="segmented__item is-active" type="button" data-en="Expense" data-fa="هزینه">Expense</button>
+          <button class="segmented__item" type="button" data-en="Odometer" data-fa="کیلومتر">Odometer</button>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--pad" style="padding-block-start:var(--sp-5);display:flex;flex-direction:column">
+
+        <div class="field" style="margin-block-end:var(--sp-6)">
+          <label class="field__label"><span data-en="Category" data-fa="دسته">Category</span> <span class="field__req">*</span></label>
+          <div class="inline inline--wrap" style="gap:var(--sp-3)">
+            <button class="chip is-active" type="button" data-en="Insurance" data-fa="بیمه">Insurance</button>
+            <button class="chip" type="button" data-en="Road tax" data-fa="عوارض سالانه">Road tax</button>
+            <button class="chip" type="button" data-en="Parking" data-fa="پارکینگ">Parking</button>
+            <button class="chip" type="button" data-en="Toll" data-fa="عوارضی">Toll</button>
+            <button class="chip" type="button" data-en="Fine" data-fa="جریمه">Fine</button>
+            <button class="chip" type="button" data-en="Wash" data-fa="کارواش">Wash</button>
+            <button class="chip" type="button" data-en="Tyre storage" data-fa="نگهداری لاستیک">Tyre storage</button>
+            <button class="chip" type="button" data-en="Accessory" data-fa="لوازم جانبی">Accessory</button>
+            <button class="chip" type="button" data-en="Finance" data-fa="اقساط">Finance</button>
+            <button class="chip" type="button" data-en="Other" data-fa="سایر">Other</button>
+          </div>
+        </div>
+
+        <div class="field" style="margin-block-end:var(--sp-3)">
+          <label class="field__label"><span data-en="Amount" data-fa="مبلغ">Amount</span> <span class="field__req">*</span></label>
+          <div class="inputgroup">
+            <span class="input input--static input--figure" data-en="198.00" data-fa="۱۹۸٬۰۰۰">198.00</span>
+            <span class="inputgroup__unit" style="gap:4px">
+              <span data-en="EUR" data-fa="تومان">EUR</span>
+              <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="row row--flush row--compact">
+          <span class="row__main"><span class="row__label t-body" style="display:block" data-en="This is a refund" data-fa="این یک بازپرداخت است">This is a refund</span></span>
+          <span class="row__trail"><span class="switch"><span class="switch__knob"></span></span></span>
+        </div>
+
+        <button class="row row--tappable row--flush" type="button">
+          <span class="row__main"><span class="row__label" style="display:block" data-en="Date paid" data-fa="تاریخ پرداخت">Date paid</span></span>
+          <span class="row__trail">
+            <span class="row__value row__value--strong" data-en="Wed 2 Sep 2026" data-fa="چهارشنبه ۱۱ شهریور ۱۴۰۵">Wed 2 Sep 2026</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <div class="row row--flush row--strong">
+          <span class="row__main"><span class="row__label" style="display:block" data-en="Covers a period" data-fa="یک بازه را پوشش می‌دهد">Covers a period</span></span>
+          <span class="row__trail"><span class="switch is-on"><span class="switch__knob"></span></span></span>
+        </div>
+
+        <div class="card card--sunk card--flush" style="border-block-start:0">
+          <button class="row row--tappable row--compact" type="button">
+            <span class="row__main"><span class="row__sub" style="display:block" data-en="From" data-fa="از">From</span></span>
+            <span class="row__trail">
+              <span class="row__value row__value--strong" data-en="1 Sep 2026" data-fa="۱۰ شهریور ۱۴۰۵">1 Sep 2026</span>
+              <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+            </span>
+          </button>
+          <button class="row row--tappable row--compact" type="button">
+            <span class="row__main"><span class="row__sub" style="display:block" data-en="To" data-fa="تا">To</span></span>
+            <span class="row__trail">
+              <span class="row__value row__value--strong" data-en="31 Aug 2027" data-fa="۹ شهریور ۱۴۰۶">31 Aug 2027</span>
+              <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+            </span>
+          </button>
+          <div class="pad-x t-caption muted" style="padding-block:var(--sp-3) var(--sp-4)">
+            <span data-en="Spread across 12 months in your monthly costs — 16.50 € a month." data-fa="در هزینهٔ ماهانه روی ۱۲ ماه پخش می‌شود — ماهی ۱۶٬۵۰۰ تومان.">Spread across 12 months in your monthly costs — 16.50 € a month.</span>
+          </div>
+        </div>
+
+        <button class="row row--tappable row--flush" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="More" data-fa="بیشتر">More</span>
+            <span class="row__sub" style="display:block" data-en="Paid to · odometer · trip · notes" data-fa="پرداخت به · کیلومترشمار · سفر · یادداشت">Paid to · odometer · trip · notes</span>
+          </span>
+          <span class="row__trail"><svg class="icon icon--sm" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg></span>
+        </button>
+
+        <div class="grow"></div>
+
+        <div class="note" style="margin-block:var(--sp-5)">
+          <span data-en="A date in the future is allowed here — a premium is often paid before the cover starts. Odova keeps one row per payment; it never invents twelve." data-fa="تاریخ آینده در این فرم مجاز است — حق بیمه اغلب پیش از شروع پوشش پرداخت می‌شود. اودووا برای هر پرداخت یک ردیف نگه می‌دارد، نه دوازده ردیف ساختگی.">A date in the future is allowed here — a premium is often paid before the cover starts. Odova keeps one row per payment; it never invents twelve.</span>
+        </div>
+
+      </div>
+
+      <div class="actionbar">
+        <button class="btn btn--primary btn--block" type="button" data-en="Save expense" data-fa="ذخیرهٔ هزینه">Save expense</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ========================================================  10 · log.odometer -->
+<section class="artboard" data-screen="log.odometer" data-title="Log — Odometer">
+  <div class="device">
+    <div class="screen screen--modal">
+
+      <div class="appbar appbar--modal">
+        <div class="appbar__lead">
+          <button class="appbar__back" type="button" aria-label="Cancel">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg>
+          </button>
+        </div>
+        <div class="appbar__titles text-center">
+          <span class="appbar__title" data-en="Odometer" data-fa="کیلومترشمار">Odometer</span>
+          <div class="docket-no" data-en="SLIP 2026-0415" data-fa="برگهٔ ۱۴۰۵-۰۴۱۵">SLIP 2026-0415</div>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action appbar__action--text" type="button" data-en="Save" data-fa="ذخیره">Save</button>
+        </div>
+      </div>
+
+      <div class="pad-x" style="padding-block:var(--sp-5);border-block-end:var(--rw-hair) solid var(--rule)">
+        <div class="segmented">
+          <button class="segmented__item" type="button" data-en="Fill-up" data-fa="سوخت‌گیری">Fill-up</button>
+          <button class="segmented__item" type="button" data-en="Service" data-fa="سرویس">Service</button>
+          <button class="segmented__item" type="button" data-en="Expense" data-fa="هزینه">Expense</button>
+          <button class="segmented__item is-active" type="button" data-en="Odometer" data-fa="کیلومتر">Odometer</button>
+        </div>
+      </div>
+
+      <div class="screen__body" style="display:flex;flex-direction:column">
+
+        <div class="numpad__display">
+          <span class="numpad__value num" data-en="187,412" data-fa="۱۸۷٬۴۱۲">187,412</span><span class="numpad__caret"></span><span class="numpad__unit" data-en="km" data-fa="کیلومتر">km</span>
+        </div>
+
+        <div class="pad-x t-caption muted" style="padding-block:var(--sp-4)">
+          <span data-en="Type what the dash says. Odova never prefills this from an estimate." data-fa="همان عددی را بزنید که روی داشبورد است. اودووا هرگز این را از روی تخمین پر نمی‌کند.">Type what the dash says. Odova never prefills this from an estimate.</span>
+        </div>
+
+        <div class="pad-x">
+          <div class="card card--carbon">
+            <div class="stack stack--tight">
+              <div class="kv">
+                <span class="kv__k" data-en="Last entered" data-fa="آخرین ثبت">Last entered</span>
+                <span class="kv__v" data-en="186,975 km · 19 Aug" data-fa="۱۸۶٬۹۷۵ کیلومتر · ۲۸ مرداد">186,975 km · 19 Aug</span>
+              </div>
+              <div class="kv">
+                <span class="kv__k" data-en="This reading" data-fa="این ثبت">This reading</span>
+                <span class="kv__v" data-en="187,412 km · today" data-fa="۱۸۷٬۴۱۲ کیلومتر · امروز">187,412 km · today</span>
+              </div>
+              <hr class="hr hr--double">
+              <div class="kv">
+                <span class="kv__k strong" data-en="Difference" data-fa="اختلاف">Difference</span>
+                <span class="kv__v strong" data-en="+437 km in 14 days" data-fa="⁦+۴۳۷⁩ کیلومتر در ۱۴ روز">+437 km in 14 days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pad-x" style="padding-block:var(--sp-6)">
+          <div class="note">
+            <span data-en="Saving clears the stale-odometer notice on Home and recalculates 2 reminders." data-fa="با ذخیره، هشدار قدیمی بودن کیلومترشمار در خانه برداشته و ۲ یادآور دوباره حساب می‌شود.">Saving clears the stale-odometer notice on Home and recalculates 2 reminders.</span>
+          </div>
+        </div>
+
+        <div class="grow"></div>
+
+        <button class="row row--tappable row--strong" type="button" style="border-block-start:var(--rw-hair) solid var(--rule)">
+          <span class="row__main"><span class="row__label" style="display:block" data-en="Date" data-fa="تاریخ">Date</span></span>
+          <span class="row__trail">
+            <span class="row__value row__value--strong" data-en="Wed 2 Sep 2026" data-fa="چهارشنبه ۱۱ شهریور ۱۴۰۵">Wed 2 Sep 2026</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <div class="numpad">
+          <button class="numpad__key" type="button" data-en="1" data-fa="۱">1</button>
+          <button class="numpad__key" type="button" data-en="2" data-fa="۲">2</button>
+          <button class="numpad__key" type="button" data-en="3" data-fa="۳">3</button>
+          <button class="numpad__key" type="button" data-en="4" data-fa="۴">4</button>
+          <button class="numpad__key" type="button" data-en="5" data-fa="۵">5</button>
+          <button class="numpad__key" type="button" data-en="6" data-fa="۶">6</button>
+          <button class="numpad__key" type="button" data-en="7" data-fa="۷">7</button>
+          <button class="numpad__key" type="button" data-en="8" data-fa="۸">8</button>
+          <button class="numpad__key" type="button" data-en="9" data-fa="۹">9</button>
+          <button class="numpad__key numpad__key--action" type="button" data-en="000" data-fa="۰۰۰">000</button>
+          <button class="numpad__key" type="button" data-en="0" data-fa="۰">0</button>
+          <button class="numpad__key numpad__key--action" type="button" aria-label="Delete">
+            <svg class="icon icon--lg icon--directional" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4.6h10.4v10.8H7L2.6 10zM10.4 7.6l4 4.8M14.4 7.6l-4 4.8"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+      <div class="actionbar">
+        <button class="btn btn--primary btn--block" type="button" data-en="Save reading" data-fa="ذخیرهٔ کیلومتر">Save reading</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================  11 · history -->
+<section class="artboard" data-screen="history" data-title="History">
+  <div class="device">
+    <div class="screen">
+
+      <div class="appbar">
+        <div class="appbar__titles">
+          <span class="appbar__title" data-en="History" data-fa="تاریخچه">History</span>
+          <div class="appbar__sub" data-en="Golf · 412 entries" data-fa="گلف · ۴۱۲ رکورد">Golf · 412 entries</div>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action" type="button" aria-label="Filter">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.6 4h14.8l-5.8 6.9v5.4l-3.2 1.7v-7.1z"/></svg>
+          </button>
+          <button class="appbar__action appbar__action--text" type="button" data-en="Report" data-fa="گزارش">Report</button>
+        </div>
+      </div>
+
+      <div class="chipbar">
+        <button class="chip is-active" type="button"><span data-en="All" data-fa="همه">All</span> <span class="chip__count" data-en="412" data-fa="۴۱۲">412</span></button>
+        <button class="chip" type="button"><span data-en="Fuel" data-fa="سوخت">Fuel</span> <span class="chip__count" data-en="34" data-fa="۳۴">34</span></button>
+        <button class="chip" type="button"><span data-en="Service" data-fa="سرویس">Service</span> <span class="chip__count" data-en="11" data-fa="۱۱">11</span></button>
+        <button class="chip" type="button"><span data-en="Expense" data-fa="هزینه">Expense</span> <span class="chip__count" data-en="26" data-fa="۲۶">26</span></button>
+        <button class="chip" type="button">
+          <span data-en="2026" data-fa="۱۴۰۵">2026</span>
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg>
+        </button>
+      </div>
+
+      <div class="screen__body">
+
+        <div class="groupheader">
+          <span class="groupheader__title" data-en="September 2026" data-fa="شهریور ۱۴۰۵">September 2026</span>
+          <span class="groupheader__total" data-en="3 entries · 272.20 €" data-fa="۳ رکورد · ۲۷۲٬۲۰۰ تومان">3 entries · 272.20 €</span>
+        </div>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="02" data-fa="۱۱">02</span><br><span data-en="SEP" data-fa="شهریور">SEP</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17.5V4a1.5 1.5 0 0 1 1.5-1.5h5A1.5 1.5 0 0 1 11 4v13.5M1.8 17.5h10.4M5 5.2h4v3.4H5z"/><path d="M11.6 8.4h2.9v5.2a1.45 1.45 0 0 0 2.9 0V7l-1.9-1.9"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Fill-up · 42.8 L" data-fa="سوخت‌گیری · ۴۲٫۸ لیتر">Fill-up · 42.8 L</span>
+            <span class="entry__meta" style="display:block" data-en="187,412 km · Aral Landsberger" data-fa="۱۸۷٬۴۱۲ کیلومتر · پمپ آرال">187,412 km · Aral Landsberger</span>
+            <span class="entry__meta strong" style="display:block" data-en="6.4 L/100 km · 1.734 €/L" data-fa="۶٫۴ لیتر در ۱۰۰ کیلومتر · ۱٬۷۳۴ تومان">6.4 L/100 km · 1.734 €/L</span>
+          </span>
+          <span class="entry__amount" data-en="74.20 €" data-fa="۷۴٬۲۰۰">74.20 €</span>
+        </button>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="02" data-fa="۱۱">02</span><br><span data-en="SEP" data-fa="شهریور">SEP</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.2 6.8h15.6v6.4H2.2zM6.1 6.8v6.4M10 6.8v6.4M13.9 6.8v6.4"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Odometer reading" data-fa="ثبت کیلومترشمار">Odometer reading</span>
+            <span class="entry__meta" style="display:block" data-en="187,412 km · entered by hand" data-fa="۱۸۷٬۴۱۲ کیلومتر · ثبت دستی">187,412 km · entered by hand</span>
+          </span>
+          <span class="entry__amount muted" data-en="—" data-fa="—">—</span>
+        </button>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="01" data-fa="۱۰">01</span><br><span data-en="SEP" data-fa="شهریور">SEP</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.6 8.6h10.8v8.8H4.6zM7.2 8.6V6.2a2.8 2.8 0 0 1 5.6 0v2.4M10 12v2.4"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Insurance · Allianz" data-fa="بیمه · ایران">Insurance · Allianz</span>
+            <span class="entry__meta" style="display:block" data-en="1 Sep 2026 – 31 Aug 2027" data-fa="۱۰ شهریور ۱۴۰۵ – ۹ شهریور ۱۴۰۶">1 Sep 2026 – 31 Aug 2027</span>
+          </span>
+          <span class="entry__amount" data-en="198.00 €" data-fa="۱۹۸٬۰۰۰">198.00 €</span>
+        </button>
+
+        <div class="groupheader">
+          <span class="groupheader__title" data-en="August 2026" data-fa="مرداد ۱۴۰۵">August 2026</span>
+          <span class="groupheader__total" data-en="3 entries · 88.70 €" data-fa="۳ رکورد · ۸۸٬۷۰۰ تومان">3 entries · 88.70 €</span>
+        </div>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="18" data-fa="۲۷">18</span><br><span data-en="AUG" data-fa="مرداد">AUG</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M6.4 2.8 3.8 17.2M13.6 2.8l2.6 14.4M10 3.4v2.6M10 8.7v2.6M10 14v2.6"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block">
+              <span data-en="München → Salzburg" data-fa="مونیخ – سالتسبورگ">München → Salzburg</span>
+              <span class="stamp stamp--business" data-en="Biz" data-fa="کاری">Biz</span>
+            </span>
+            <span class="entry__meta" style="display:block" data-en="18–19 Aug · 145 km · 2 expenses" data-fa="۲۷–۲۸ مرداد · ۱۴۵ کیلومتر · ۲ هزینه">18–19 Aug · 145 km · 2 expenses</span>
+          </span>
+          <span class="entry__amount muted" data-en="—" data-fa="—">—</span>
+        </button>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="19" data-fa="۲۸">19</span><br><span data-en="AUG" data-fa="مرداد">AUG</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><path d="M10 5.2V10l3.2 2"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Parking · Salzburg Altstadt" data-fa="پارکینگ · سالتسبورگ">Parking · Salzburg Altstadt</span>
+            <span class="entry__meta" style="display:block" data-en="On trip München → Salzburg" data-fa="در سفر مونیخ – سالتسبورگ">On trip München → Salzburg</span>
+          </span>
+          <span class="entry__amount" data-en="45.00 €" data-fa="۴۵٬۰۰۰">45.00 €</span>
+        </button>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="18" data-fa="۲۷">18</span><br><span data-en="AUG" data-fa="مرداد">AUG</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.4 2.6h7.6l4 3.6v11.2H4.4zM12 2.6v3.6h4M7 10.4h6M7 13.4h6"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Toll · Tauern Autobahn" data-fa="عوارضی · بزرگراه تاورن">Toll · Tauern Autobahn</span>
+            <span class="entry__meta" style="display:block" data-en="On trip München → Salzburg" data-fa="در سفر مونیخ – سالتسبورگ">On trip München → Salzburg</span>
+          </span>
+          <span class="entry__amount" data-en="43.70 €" data-fa="۴۳٬۷۰۰">43.70 €</span>
+        </button>
+
+        <div class="groupheader">
+          <span class="groupheader__title" data-en="July 2026" data-fa="تیر ۱۴۰۵">July 2026</span>
+          <span class="groupheader__total" data-en="2 entries · 163.00 €" data-fa="۲ رکورد · ۱۶۳٬۰۰۰ تومان">2 entries · 163.00 €</span>
+        </div>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="12" data-fa="۲۱">12</span><br><span data-en="JUL" data-fa="تیر">JUL</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17.5V4a1.5 1.5 0 0 1 1.5-1.5h5A1.5 1.5 0 0 1 11 4v13.5M1.8 17.5h10.4M5 5.2h4v3.4H5z"/><path d="M11.6 8.4h2.9v5.2a1.45 1.45 0 0 0 2.9 0V7l-1.9-1.9"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Fill-up · 41.5 L" data-fa="سوخت‌گیری · ۴۱٫۵ لیتر">Fill-up · 41.5 L</span>
+            <span class="entry__meta" style="display:block" data-en="186,743 km · Aral Landsberger" data-fa="۱۸۶٬۷۴۳ کیلومتر · پمپ آرال">186,743 km · Aral Landsberger</span>
+            <span class="entry__meta strong" style="display:block" data-en="6.7 L/100 km · 1.699 €/L" data-fa="۶٫۷ لیتر در ۱۰۰ کیلومتر · ۱٬۶۹۹ تومان">6.7 L/100 km · 1.699 €/L</span>
+          </span>
+          <span class="entry__amount" data-en="70.50 €" data-fa="۷۰٬۵۰۰">70.50 €</span>
+        </button>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="08" data-fa="۱۷">08</span><br><span data-en="JUL" data-fa="تیر">JUL</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M13.4 2.6a4.4 4.4 0 0 0-5.7 5.5L2.6 13.2 6.8 17.4l5.1-5.1a4.4 4.4 0 0 0 5.5-5.7l-2.6 2.6-2.7-.7-.7-2.7z"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Brake fluid · Autohaus Meyer" data-fa="روغن ترمز · تعمیرگاه مایر">Brake fluid · Autohaus Meyer</span>
+            <span class="entry__meta" style="display:block" data-en="186,400 km · resets 1 reminder" data-fa="۱۸۶٬۴۰۰ کیلومتر · ۱ یادآور از نو">186,400 km · resets 1 reminder</span>
+          </span>
+          <span class="entry__amount" data-en="92.50 €" data-fa="۹۲٬۵۰۰">92.50 €</span>
+        </button>
+
+        <div class="groupheader">
+          <span class="groupheader__title" data-en="June 2026" data-fa="خرداد ۱۴۰۵">June 2026</span>
+          <span class="groupheader__total" data-en="5 entries · 318.40 €" data-fa="۵ رکورد · ۳۱۸٬۴۰۰ تومان">5 entries · 318.40 €</span>
+        </div>
+
+        <button class="entry" type="button">
+          <span class="entry__date"><span data-en="18" data-fa="۲۸">18</span><br><span data-en="JUN" data-fa="خرداد">JUN</span></span>
+          <span class="entry__mark">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17.5V4a1.5 1.5 0 0 1 1.5-1.5h5A1.5 1.5 0 0 1 11 4v13.5M1.8 17.5h10.4M5 5.2h4v3.4H5z"/><path d="M11.6 8.4h2.9v5.2a1.45 1.45 0 0 0 2.9 0V7l-1.9-1.9"/></svg>
+          </span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Fill-up · 44.1 L" data-fa="سوخت‌گیری · ۴۴٫۱ لیتر">Fill-up · 44.1 L</span>
+            <span class="entry__meta" style="display:block" data-en="186,120 km · Shell A96" data-fa="۱۸۶٬۱۲۰ کیلومتر · پمپ شل">186,120 km · Shell A96</span>
+          </span>
+          <span class="entry__amount" data-en="74.90 €" data-fa="۷۴٬۹۰۰">74.90 €</span>
+        </button>
+
+      </div>
+
+      <nav class="tabbar">
+        <button class="tabbar__item" type="button">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.6 15.4a7.4 7.4 0 1 1 14.8 0"/><path d="M10 14.2 13.6 8"/><circle cx="10" cy="15.2" r="1.2"/><path d="M4.4 12.4h1.4M14.2 12.4h1.4M10 6.4v1.4"/></svg>
+          <span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span>
+        </button>
+        <button class="tabbar__item is-active" type="button">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.4 2.6h7.6l4 3.6v11.2H4.4zM12 2.6v3.6h4M7 10.4h6M7 13.4h6"/></svg>
+          <span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span>
+        </button>
+        <button class="tabbar__log" type="button" aria-label="Log">
+          <svg class="icon icon--lg" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v13M3.5 10h13"/></svg>
+        </button>
+        <button class="tabbar__item" type="button">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.6 17.2h14.8M5.8 17.2V9.6M10 17.2V4.4M14.2 17.2v-5.2"/></svg>
+          <span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span>
+        </button>
+        <button class="tabbar__item" type="button">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.8"/><circle cx="10" cy="10" r="6.6"/><path d="M10 1.6v1.8M10 16.6v1.8M1.6 10h1.8M16.6 10h1.8M4.1 4.1l1.3 1.3M14.6 14.6l1.3 1.3M15.9 4.1l-1.3 1.3M5.4 14.6l-1.3 1.3"/></svg>
+          <span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span>
+        </button>
+      </nav>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================================================  12 · report.service -->
+<section class="artboard" data-screen="report.service" data-title="Service report">
+  <div class="device">
+    <div class="screen">
+
+      <div class="appbar">
+        <div class="appbar__lead">
+          <button class="appbar__back" type="button" aria-label="Back">
+            <svg class="icon icon--directional" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg>
+          </button>
+        </div>
+        <div class="appbar__titles">
+          <span class="appbar__title" data-en="Service report" data-fa="گزارش سرویس">Service report</span>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action" type="button" aria-label="More">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.4 10h.1M10 10h.1M15.6 10h.1" stroke-width="2.6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="screen__body">
+
+        <div class="pad-x" style="padding-block:var(--sp-5)">
+          <div class="card card--docket">
+            <div class="inline inline--between" style="align-items:flex-start;gap:var(--sp-4)">
+              <div class="grow">
+                <div class="eyebrow" data-en="Vehicle" data-fa="خودرو">Vehicle</div>
+                <div class="t-title serif" data-en="VW Golf VII 1.6 TDI" data-fa="فولکس‌واگن گلف ۷ · ۱٫۶">VW Golf VII 1.6 TDI</div>
+                <div class="t-caption muted" data-en="2016 · diesel · grey" data-fa="۲۰۱۶ · دیزل · خاکستری">2016 · diesel · grey</div>
+              </div>
+              <span class="stamp stamp--unknown" data-en="Owner's record" data-fa="سند مالک">Owner's record</span>
+            </div>
+            <div class="stack stack--tight" style="margin-block-start:var(--sp-5)">
+              <div class="kv">
+                <span class="kv__k" data-en="Owned" data-fa="دورهٔ مالکیت">Owned</span>
+                <span class="kv__v" data-en="Mar 2018 – today · 8 yr 6 mo" data-fa="اسفند ۱۳۹۶ تا امروز · ۸ سال و ۶ ماه">Mar 2018 – today · 8 yr 6 mo</span>
+              </div>
+              <div class="kv">
+                <span class="kv__k" data-en="Odometer" data-fa="کیلومترشمار">Odometer</span>
+                <span class="kv__v" data-en="62,400 → 187,412 km" data-fa="از ۶۲٬۴۰۰ تا ۱۸۷٬۴۱۲ کیلومتر">62,400 → 187,412 km</span>
+              </div>
+              <div class="kv">
+                <span class="kv__k" data-en="Driven under this owner" data-fa="پیموده‌شده نزد این مالک">Driven under this owner</span>
+                <span class="kv__v" data-en="125,012 km" data-fa="۱۲۵٬۰۱۲ کیلومتر">125,012 km</span>
+              </div>
+              <hr class="hr hr--double">
+              <div class="kv">
+                <span class="kv__k strong" data-en="34 services" data-fa="۳۴ سرویس">34 services</span>
+                <span class="kv__v strong" data-en="6,842 € spent" data-fa="۶٬۸۴۲٬۰۰۰ تومان">6,842 € spent</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="list__header list__header--sunk">
+          <span data-en="Include in the document" data-fa="آنچه در سند می‌آید">Include in the document</span>
+          <span class="mono" data-en="A4 · PDF" data-fa="A4 · PDF">A4 · PDF</span>
+        </div>
+
+        <div class="row row--compact">
+          <span class="row__main"><span class="row__label t-body" style="display:block" data-en="Plate and VIN" data-fa="پلاک و شمارهٔ شاسی">Plate and VIN</span></span>
+          <span class="row__trail"><span class="switch"><span class="switch__knob"></span></span></span>
+        </div>
+        <div class="row row--compact">
+          <span class="row__main"><span class="row__label t-body" style="display:block" data-en="Costs" data-fa="هزینه‌ها">Costs</span></span>
+          <span class="row__trail"><span class="switch is-on"><span class="switch__knob"></span></span></span>
+        </div>
+        <div class="row row--compact">
+          <span class="row__main"><span class="row__label t-body" style="display:block" data-en="Fuel consumption summary" data-fa="خلاصهٔ مصرف سوخت">Fuel consumption summary</span></span>
+          <span class="row__trail"><span class="switch is-on"><span class="switch__knob"></span></span></span>
+        </div>
+        <div class="row row--strong">
+          <span class="row__main">
+            <span class="row__label t-body" style="display:block" data-en="My private notes" data-fa="یادداشت‌های خصوصی من">My private notes</span>
+            <span class="row__sub" style="display:block" data-en="Your notes may say things you don't want a buyer to read." data-fa="یادداشت‌های شما ممکن است چیزهایی داشته باشد که خریدار نباید بخواند.">Your notes may say things you don't want a buyer to read.</span>
+          </span>
+          <span class="row__trail"><span class="switch"><span class="switch__knob"></span></span></span>
+        </div>
+
+        <div class="groupheader">
+          <span class="groupheader__title" data-en="Preview · 2026" data-fa="پیش‌نمایش · ۱۴۰۵">Preview · 2026</span>
+          <span class="groupheader__total" data-en="1,240 €" data-fa="۱٬۲۴۰٬۰۰۰ تومان">1,240 €</span>
+        </div>
+
+        <div class="entry">
+          <span class="entry__date"><span data-en="08" data-fa="۱۷">08</span><br><span data-en="JUL" data-fa="تیر">JUL</span></span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Brake fluid" data-fa="روغن ترمز">Brake fluid</span>
+            <span class="entry__meta" style="display:block" data-en="186,400 km · Autohaus Meyer · inv. 2026-1188" data-fa="۱۸۶٬۴۰۰ کیلومتر · تعمیرگاه مایر · فاکتور ۲۰۲۶-۱۱۸۸">186,400 km · Autohaus Meyer · inv. 2026-1188</span>
+          </span>
+          <span class="entry__amount" data-en="92.50 €" data-fa="۹۲٬۵۰۰">92.50 €</span>
+        </div>
+
+        <div class="entry">
+          <span class="entry__date"><span data-en="04" data-fa="۱۴">04</span><br><span data-en="MAR" data-fa="فروردین">MAR</span></span>
+          <span class="entry__main">
+            <span class="entry__title" style="display:block" data-en="Oil and filter, cabin filter" data-fa="روغن و فیلتر، فیلتر کابین">Oil and filter, cabin filter</span>
+            <span class="entry__meta" style="display:block" data-en="171,512 km · Werkstatt Krüger · inv. A-4471" data-fa="۱۷۱٬۵۱۲ کیلومتر · تعمیرگاه کروگر · فاکتور A-4471">171,512 km · Werkstatt Krüger · inv. A-4471</span>
+          </span>
+          <span class="entry__amount" data-en="184.50 €" data-fa="۱۸۴٬۵۰۰">184.50 €</span>
+        </div>
+
+        <div class="pad-x" style="padding-block:var(--sp-4);border-block-start:var(--rw-hair) solid var(--ink)">
+          <div class="eyebrow" data-en="Fuel consumption" data-fa="مصرف سوخت">Fuel consumption</div>
+          <div class="t-caption" data-en="Average 6.7 L/100 km over 34 tanks and 22,600 km." data-fa="میانگین ۶٫۷ لیتر در ۱۰۰ کیلومتر، در ۳۴ باک و ۲۲٬۶۰۰ کیلومتر.">Average 6.7 L/100 km over 34 tanks and 22,600 km.</div>
+        </div>
+
+        <div class="pad-x" style="padding-block:var(--sp-4) var(--sp-5)">
+          <div class="note">
+            <span data-en="Generated by Odova on 2 September 2026 from records kept by the owner. Not verified by a third party." data-fa="ساخته‌شده با اودووا در ۱۱ شهریور ۱۴۰۵ (2026-09-02) از سوابق نگه‌داشتهٔ مالک. تأیید شخص ثالث ندارد.">Generated by Odova on 2 September 2026 from records kept by the owner. Not verified by a third party.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="actionbar">
+        <button class="btn btn--primary" type="button" style="flex:1 1 auto">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13.4V2.6M6 6.6 10 2.6l4 4M3.4 11.8v5.6h13.2v-5.6"/></svg>
+          <span data-en="Share PDF" data-fa="اشتراک PDF">Share PDF</span>
+        </button>
+        <button class="btn btn--icon" type="button" aria-label="Copy as text" style="flex:0 0 auto">
+          <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.4 2.6h7.6l4 3.6v11.2H4.4zM12 2.6v3.6h4M7 10.4h6M7 13.4h6"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- =========================================================  15 · trips.list -->
+<section class="artboard" data-screen="trips.list" data-title="Trips">
+  <div class="device">
+    <div class="screen">
+
+      <div class="appbar">
+        <div class="appbar__lead">
+          <button class="appbar__back" type="button" aria-label="Back">
+            <svg class="icon icon--directional" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg>
+          </button>
+        </div>
+        <div class="appbar__titles">
+          <span class="appbar__title" data-en="Trips" data-fa="سفرها">Trips</span>
+          <div class="appbar__sub" data-en="Golf · 2026" data-fa="گلف · ۱۴۰۵">Golf · 2026</div>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action" type="button" aria-label="Add trip">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v13M3.5 10h13"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="screen__body">
+
+        <div class="tiles">
+          <div class="tile">
+            <div class="tile__figure tile__figure--sm num" data-en="3,120" data-fa="۳٬۱۲۰">3,120</div>
+            <div class="tile__label" data-en="km logged" data-fa="کیلومتر ثبت‌شده">km logged</div>
+          </div>
+          <div class="tile">
+            <div class="tile__figure tile__figure--sm num" data-en="62%" data-fa="٪۶۲">62%</div>
+            <div class="tile__label" data-en="business" data-fa="کاری">business</div>
+          </div>
+          <div class="tile">
+            <div class="tile__figure tile__figure--sm num" data-en="486" data-fa="۴۸۶">486</div>
+            <div class="tile__label" data-en="€ attributed" data-fa="هزار تومان">€ attributed</div>
+          </div>
+        </div>
+
+        <div class="pad-x t-caption muted" style="padding-block:var(--sp-3)">
+          <span data-en="14 trips across logged journeys — not your vehicle's total distance." data-fa="۱۴ سفر ثبت‌شده — این کل مسافت خودرو نیست.">14 trips across logged journeys — not your vehicle's total distance.</span>
+        </div>
+
+        <div class="list__header">
+          <span data-en="Trip" data-fa="سفر">Trip</span>
+          <span data-en="Distance · cost" data-fa="مسافت · هزینه">Distance · cost</span>
+        </div>
+
+        <button class="row row--tappable row--tall is-selected" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Werkstatt Krüger" data-fa="تعمیرگاه کروگر">Werkstatt Krüger</span>
+            <span class="row__sub" style="display:block" data-en="Started Wed 2 Sep · business · 41 km so far" data-fa="آغاز چهارشنبه ۱۱ شهریور · کاری · تا اینجا ۴۱ کیلومتر">Started Wed 2 Sep · business · 41 km so far</span>
+          </span>
+          <span class="row__trail">
+            <span class="stamp stamp--business" data-en="Open" data-fa="باز">Open</span>
+            <span class="btn btn--sm" data-en="Finish" data-fa="پایان">Finish</span>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="München → Salzburg" data-fa="مونیخ – سالتسبورگ">München → Salzburg</span>
+            <span class="row__sub" style="display:block" data-en="18–19 Aug 2026 · business · 2 expenses" data-fa="۲۷–۲۸ مرداد ۱۴۰۵ · کاری · ۲ هزینه">18–19 Aug 2026 · business · 2 expenses</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="145 km" data-fa="۱۴۵ کیلومتر">145 km</span>
+              <span class="row__sub num" style="display:block" data-en="88.70 €" data-fa="۸۸٬۷۰۰ تومان">88.70 €</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Flughafen München" data-fa="فرودگاه مونیخ">Flughafen München</span>
+            <span class="row__sub" style="display:block" data-en="12 Aug 2026 · business" data-fa="۲۱ مرداد ۱۴۰۵ · کاری">12 Aug 2026 · business</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="78 km" data-fa="۷۸ کیلومتر">78 km</span>
+              <span class="row__sub num" style="display:block" data-en="31.50 €" data-fa="۳۱٬۵۰۰ تومان">31.50 €</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Chiemsee weekend" data-fa="آخر هفتهٔ کیم‌زه">Chiemsee weekend</span>
+            <span class="row__sub" style="display:block" data-en="7–9 Aug 2026 · personal" data-fa="۱۶–۱۸ مرداد ۱۴۰۵ · شخصی">7–9 Aug 2026 · personal</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="212 km" data-fa="۲۱۲ کیلومتر">212 km</span>
+              <span class="row__sub num" style="display:block" data-en="62.40 €" data-fa="۶۲٬۴۰۰ تومان">62.40 €</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Nürnberg client" data-fa="مشتری نورنبرگ">Nürnberg client</span>
+            <span class="row__sub" style="display:block" data-en="4 Aug 2026 · business" data-fa="۱۳ مرداد ۱۴۰۵ · کاری">4 Aug 2026 · business</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="340 km" data-fa="۳۴۰ کیلومتر">340 km</span>
+              <span class="row__sub num" style="display:block" data-en="96.20 €" data-fa="۹۶٬۲۰۰ تومان">96.20 €</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Commute, week 31" data-fa="رفت‌وآمد، هفتهٔ ۳۱">Commute, week 31</span>
+            <span class="row__sub" style="display:block" data-en="27–31 Jul 2026 · commute" data-fa="۵–۹ مرداد ۱۴۰۵ · رفت‌وآمد">27–31 Jul 2026 · commute</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="186 km" data-fa="۱۸۶ کیلومتر">186 km</span>
+              <span class="row__sub muted" style="display:block" data-en="no cost" data-fa="بدون هزینه">no cost</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Innsbruck delivery" data-fa="تحویل اینسبروک">Innsbruck delivery</span>
+            <span class="row__sub" style="display:block" data-en="18 Jul 2026 · business" data-fa="۲۷ تیر ۱۴۰۵ · کاری">18 Jul 2026 · business</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="268 km" data-fa="۲۶۸ کیلومتر">268 km</span>
+              <span class="row__sub num" style="display:block" data-en="74.30 €" data-fa="۷۴٬۳۰۰ تومان">74.30 €</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Kunde Augsburg" data-fa="مشتری آگسبورگ">Kunde Augsburg</span>
+            <span class="row__sub" style="display:block" data-en="9 Jul 2026 · business" data-fa="۱۸ تیر ۱۴۰۵ · کاری">9 Jul 2026 · business</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="152 km" data-fa="۱۵۲ کیلومتر">152 km</span>
+              <span class="row__sub num" style="display:block" data-en="41.60 €" data-fa="۴۱٬۶۰۰ تومان">41.60 €</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Tegernsee" data-fa="تگرن‌زه">Tegernsee</span>
+            <span class="row__sub" style="display:block" data-en="4 Jul 2026 · personal" data-fa="۱۳ تیر ۱۴۰۵ · شخصی">4 Jul 2026 · personal</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="96 km" data-fa="۹۶ کیلومتر">96 km</span>
+              <span class="row__sub num" style="display:block" data-en="24.80 €" data-fa="۲۴٬۸۰۰ تومان">24.80 €</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--tall" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Rosenheim depot" data-fa="انبار روزنهایم">Rosenheim depot</span>
+            <span class="row__sub" style="display:block" data-en="28 Jun 2026 · business" data-fa="۷ تیر ۱۴۰۵ · کاری">28 Jun 2026 · business</span>
+          </span>
+          <span class="row__trail">
+            <span class="text-end">
+              <span class="row__value row__value--strong" style="display:block" data-en="118 km" data-fa="۱۱۸ کیلومتر">118 km</span>
+              <span class="row__sub num" style="display:block" data-en="33.90 €" data-fa="۳۳٬۹۰۰ تومان">33.90 €</span>
+            </span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+      </div>
+
+      <nav class="tabbar">
+        <button class="tabbar__item" type="button">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.6 15.4a7.4 7.4 0 1 1 14.8 0"/><path d="M10 14.2 13.6 8"/><circle cx="10" cy="15.2" r="1.2"/><path d="M4.4 12.4h1.4M14.2 12.4h1.4M10 6.4v1.4"/></svg>
+          <span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span>
+        </button>
+        <button class="tabbar__item" type="button">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.4 2.6h7.6l4 3.6v11.2H4.4zM12 2.6v3.6h4M7 10.4h6M7 13.4h6"/></svg>
+          <span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span>
+        </button>
+        <button class="tabbar__log" type="button" aria-label="Log">
+          <svg class="icon icon--lg" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v13M3.5 10h13"/></svg>
+        </button>
+        <button class="tabbar__item is-active" type="button">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.6 17.2h14.8M5.8 17.2V9.6M10 17.2V4.4M14.2 17.2v-5.2"/></svg>
+          <span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span>
+        </button>
+        <button class="tabbar__item" type="button">
+          <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.8"/><circle cx="10" cy="10" r="6.6"/><path d="M10 1.6v1.8M10 16.6v1.8M1.6 10h1.8M16.6 10h1.8M4.1 4.1l1.3 1.3M14.6 14.6l1.3 1.3M15.9 4.1l-1.3 1.3M5.4 14.6l-1.3 1.3"/></svg>
+          <span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span>
+        </button>
+      </nav>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- =========================================================  16 · trips.edit -->
+<section class="artboard" data-screen="trips.edit" data-title="Edit trip">
+  <div class="device">
+    <div class="screen screen--modal">
+
+      <div class="appbar appbar--modal">
+        <div class="appbar__lead">
+          <button class="appbar__back" type="button" aria-label="Cancel">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg>
+          </button>
+        </div>
+        <div class="appbar__titles text-center">
+          <span class="appbar__title" data-en="Edit trip" data-fa="ویرایش سفر">Edit trip</span>
+          <div class="docket-no" data-en="TRIP 2026-0038" data-fa="سفر ۱۴۰۵-۰۰۳۸">TRIP 2026-0038</div>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action appbar__action--text" type="button" data-en="Save" data-fa="ذخیره">Save</button>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--pad" style="padding-block-start:var(--sp-5);display:flex;flex-direction:column">
+
+        <div class="field">
+          <label class="field__label"><span data-en="Purpose" data-fa="هدف سفر">Purpose</span></label>
+          <div class="segmented">
+            <button class="segmented__item is-active" type="button" data-en="Business" data-fa="کاری">Business</button>
+            <button class="segmented__item" type="button" data-en="Commute" data-fa="رفت‌وآمد">Commute</button>
+            <button class="segmented__item" type="button" data-en="Personal" data-fa="شخصی">Personal</button>
+            <button class="segmented__item" type="button" data-en="Other" data-fa="سایر">Other</button>
+          </div>
+        </div>
+
+        <div class="field" style="margin-block-end:var(--sp-4)">
+          <label class="field__label"><span data-en="Title" data-fa="عنوان">Title</span></label>
+          <span class="input input--static" data-en="München → Salzburg" data-fa="مونیخ – سالتسبورگ">München → Salzburg</span>
+        </div>
+
+        <button class="row row--tappable row--flush row--compact" type="button">
+          <span class="row__main"><span class="row__label t-body" style="display:block" data-en="Starts" data-fa="شروع">Starts</span></span>
+          <span class="row__trail">
+            <span class="row__value row__value--strong" data-en="Tue 18 Aug 2026" data-fa="سه‌شنبه ۲۷ مرداد ۱۴۰۵">Tue 18 Aug 2026</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+        <button class="row row--tappable row--flush row--compact" type="button">
+          <span class="row__main"><span class="row__label t-body" style="display:block" data-en="Ends" data-fa="پایان">Ends</span></span>
+          <span class="row__trail">
+            <span class="row__value row__value--strong" data-en="Wed 19 Aug 2026" data-fa="چهارشنبه ۲۸ مرداد ۱۴۰۵">Wed 19 Aug 2026</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+        <div class="row row--flush row--compact">
+          <span class="row__lead"><svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.4 3.4h13.2v13.2H3.4z"/></svg></span>
+          <span class="row__main"><span class="row__sub" style="display:block" data-en="Still going" data-fa="هنوز ادامه دارد">Still going</span></span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4);margin-block-start:var(--sp-5)">
+          <div>
+            <label class="field__label"><span data-en="Start odometer" data-fa="کیلومتر شروع">Start odometer</span></label>
+            <div class="inputgroup">
+              <span class="input input--static input--numeric" data-en="186,830" data-fa="۱۸۶٬۸۳۰">186,830</span>
+              <span class="inputgroup__unit" data-en="km" data-fa="کم">km</span>
+            </div>
+          </div>
+          <div>
+            <label class="field__label"><span data-en="End odometer" data-fa="کیلومتر پایان">End odometer</span></label>
+            <div class="inputgroup">
+              <span class="input input--static input--numeric" data-en="186,975" data-fa="۱۸۶٬۹۷۵">186,975</span>
+              <span class="inputgroup__unit" data-en="km" data-fa="کم">km</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row row--flush row--compact row--strong" style="margin-block-start:var(--sp-4)">
+          <span class="row__main"><span class="row__label t-body" style="display:block" data-en="Distance" data-fa="مسافت">Distance</span></span>
+          <span class="row__trail">
+            <span class="badge badge--quiet mono">ƒ</span>
+            <span class="row__value row__value--strong" data-en="145 km" data-fa="۱۴۵ کیلومتر">145 km</span>
+          </span>
+        </div>
+
+        <div class="list__header" style="padding-inline:0">
+          <span data-en="Expenses on this trip" data-fa="هزینه‌های این سفر">Expenses on this trip</span>
+          <span data-en="2" data-fa="۲">2</span>
+        </div>
+
+        <button class="row row--tappable row--flush row--compact" type="button">
+          <span class="row__lead">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.4 2.6h7.6l4 3.6v11.2H4.4zM12 2.6v3.6h4M7 10.4h6M7 13.4h6"/></svg>
+          </span>
+          <span class="row__main">
+            <span class="row__label t-body" style="display:block" data-en="Toll · Tauern Autobahn" data-fa="عوارضی · بزرگراه تاورن">Toll · Tauern Autobahn</span>
+            <span class="row__sub" style="display:block" data-en="18 Aug" data-fa="۲۷ مرداد">18 Aug</span>
+          </span>
+          <span class="row__value" data-en="43.70 €" data-fa="۴۳٬۷۰۰">43.70 €</span>
+        </button>
+        <button class="row row--tappable row--flush row--compact" type="button">
+          <span class="row__lead">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><path d="M10 5.2V10l3.2 2"/></svg>
+          </span>
+          <span class="row__main">
+            <span class="row__label t-body" style="display:block" data-en="Parking · Salzburg Altstadt" data-fa="پارکینگ · سالتسبورگ">Parking · Salzburg Altstadt</span>
+            <span class="row__sub" style="display:block" data-en="19 Aug" data-fa="۲۸ مرداد">19 Aug</span>
+          </span>
+          <span class="row__value" data-en="45.00 €" data-fa="۴۵٬۰۰۰">45.00 €</span>
+        </button>
+        <button class="row row--tappable row--flush row--compact" type="button">
+          <span class="row__lead">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v13M3.5 10h13"/></svg>
+          </span>
+          <span class="row__main"><span class="row__sub strong" style="display:block" data-en="Add expense" data-fa="افزودن هزینه">Add expense</span></span>
+        </button>
+        <div class="row row--flush row--compact row--total">
+          <span class="row__main"><span class="row__label t-body strong" style="display:block" data-en="Total" data-fa="مجموع">Total</span></span>
+          <span class="row__value row__value--strong" data-en="88.70 €" data-fa="۸۸٬۷۰۰ تومان">88.70 €</span>
+        </div>
+
+        <button class="row row--tappable row--flush" type="button">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="More" data-fa="بیشتر">More</span>
+            <span class="row__sub" style="display:block" data-en="Notes" data-fa="یادداشت">Notes</span>
+          </span>
+          <span class="row__trail"><svg class="icon icon--sm" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg></span>
+        </button>
+
+        <div class="grow"></div>
+
+        <div class="perf" style="margin-inline:calc(var(--sp-screen) * -1)"></div>
+
+        <div class="note" style="margin-block:var(--sp-5)">
+          <span data-en="Trip distance never adds to the vehicle's total — the odometer is the only cumulative record. Delete this trip and its 2 entries stay in your history." data-fa="مسافت سفر هرگز به کل مسافت خودرو اضافه نمی‌شود — تنها سند تجمعی، کیلومترشمار است. اگر این سفر را حذف کنید، ۲ رکورد آن در تاریخچه می‌مانند.">Trip distance never adds to the vehicle's total — the odometer is the only cumulative record. Delete this trip and its 2 entries stay in your history.</span>
+        </div>
+
+      </div>
+
+      <div class="actionbar">
+        <button class="btn btn--primary btn--block" type="button" data-en="Save trip" data-fa="ذخیرهٔ سفر">Save trip</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- =======================================================  19 · vehicle.edit -->
+<section class="artboard" data-screen="vehicle.edit" data-title="Vehicle">
+  <div class="device">
+    <div class="screen screen--modal">
+
+      <div class="appbar appbar--modal">
+        <div class="appbar__lead">
+          <button class="appbar__back" type="button" aria-label="Cancel">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg>
+          </button>
+        </div>
+        <div class="appbar__titles text-center">
+          <span class="appbar__title" data-en="Golf" data-fa="گلف">Golf</span>
+          <div class="docket-no" data-en="VEHICLE 01 OF 03" data-fa="خودرو ۱ از ۳">VEHICLE 01 OF 03</div>
+        </div>
+        <div class="appbar__trail">
+          <button class="appbar__action appbar__action--text" type="button" data-en="Save" data-fa="ذخیره">Save</button>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--pad" style="padding-block-start:var(--sp-5)">
+
+        <div class="inline" style="gap:var(--sp-5);align-items:flex-start">
+          <span class="vehiclemark vehiclemark--active" style="inline-size:56px;block-size:44px">
+            <svg class="icon icon--lg" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.2 13.2 5 8h10l1.8 5.2M2 13.2h16v3H2z"/><path d="M4.6 16.2v1.3M15.4 16.2v1.3"/></svg>
+          </span>
+          <div class="grow">
+            <div class="eyebrow" data-en="Colour" data-fa="رنگ">Colour</div>
+            <div class="swatchbar">
+              <span class="swatch" style="background:#FFFFFF" aria-label="White"></span>
+              <span class="swatch" style="background:#C6C9CC" aria-label="Silver"></span>
+              <span class="swatch is-selected" style="background:#5A5F63" aria-label="Grey"></span>
+              <span class="swatch" style="background:#15171A" aria-label="Black"></span>
+              <span class="swatch" style="background:#A32118" aria-label="Red"></span>
+              <span class="swatch" style="background:#22406B" aria-label="Blue"></span>
+              <span class="swatch" style="background:#2F5A3C" aria-label="Green"></span>
+              <span class="swatch" style="background:#D2A521" aria-label="Yellow"></span>
+              <span class="swatch" style="background:#6B4A2C" aria-label="Brown"></span>
+              <span class="swatch hatch" aria-label="Other"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-block:var(--sp-4) var(--sp-3)">
+          <label class="field__label"><span data-en="Type" data-fa="نوع">Type</span></label>
+          <div class="segmented segmented--sm">
+            <button class="segmented__item is-active" type="button" data-en="Car" data-fa="سواری">Car</button>
+            <button class="segmented__item" type="button" data-en="Van" data-fa="ون">Van</button>
+            <button class="segmented__item" type="button" data-en="Motorbike" data-fa="موتور">Motorbike</button>
+            <button class="segmented__item" type="button" data-en="Other" data-fa="سایر">Other</button>
+          </div>
+        </div>
+
+        <div class="field--row">
+          <label class="field__label"><span data-en="Name" data-fa="نام">Name</span> <span class="field__req">*</span></label>
+          <span class="input input--static" data-en="Golf" data-fa="گلف">Golf</span>
+        </div>
+        <div class="field--row">
+          <label class="field__label"><span data-en="Fuel" data-fa="سوخت">Fuel</span></label>
+          <span class="input input--static" style="justify-content:space-between">
+            <span data-en="Diesel" data-fa="دیزل">Diesel</span>
+            <svg class="icon icon--sm" style="color:var(--ink-3)" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 7.5 10 13l5.5-5.5"/></svg>
+          </span>
+        </div>
+        <div class="field--row">
+          <label class="field__label"><span data-en="Make" data-fa="سازنده">Make</span></label>
+          <span class="input input--static" data-en="Volkswagen" data-fa="فولکس‌واگن">Volkswagen</span>
+        </div>
+        <div class="field--row">
+          <label class="field__label"><span data-en="Model" data-fa="مدل">Model</span></label>
+          <span class="input input--static" data-en="Golf VII 1.6 TDI" data-fa="گلف ۷ · ۱٫۶">Golf VII 1.6 TDI</span>
+        </div>
+        <div class="field--row">
+          <label class="field__label"><span data-en="Year" data-fa="سال ساخت">Year</span></label>
+          <span class="input input--static input--numeric" data-en="2016" data-fa="۲۰۱۶">2016</span>
+        </div>
+        <div class="field--row">
+          <label class="field__label"><span data-en="Plate" data-fa="پلاک">Plate</span></label>
+          <span class="input input--static code" data-en="M-AB 1234" data-fa="M-AB 1234">M-AB 1234</span>
+        </div>
+        <div class="field--row" style="border-block-end:0">
+          <label class="field__label"><span data-en="VIN" data-fa="شمارهٔ شاسی">VIN</span></label>
+          <span class="input input--static code t-small" style="inline-size:196px;flex:0 0 auto">WVWZZZ1KZGW087341</span>
+        </div>
+
+        <div class="row row--flush row--strong" style="border-block-start:var(--rw-med) solid var(--ink)">
+          <span class="row__main">
+            <span class="row__label" style="display:block" data-en="Odometer" data-fa="کیلومترشمار">Odometer</span>
+            <span class="row__sub" style="display:block" data-en="Entered today · read-only here" data-fa="ثبت امروز · اینجا فقط خواندنی">Entered today · read-only here</span>
+          </span>
+          <span class="row__trail">
+            <span class="row__value row__value--strong" data-en="187,412 km" data-fa="۱۸۷٬۴۱۲ کیلومتر">187,412 km</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </div>
+
+        <button class="row row--tappable row--flush" type="button">
+          <span class="row__main"><span class="row__label" style="display:block" data-en="Purchase and sale" data-fa="خرید و فروش">Purchase and sale</span></span>
+          <span class="row__trail">
+            <span class="row__value" data-en="Mar 2018 · 62,400 km" data-fa="اسفند ۱۳۹۶ · ۶۲٬۴۰۰">Mar 2018 · 62,400 km</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+        <button class="row row--tappable row--flush" type="button">
+          <span class="row__main"><span class="row__label" style="display:block" data-en="This vehicle's units & currency" data-fa="واحدها و ارز این خودرو">This vehicle's units &amp; currency</span></span>
+          <span class="row__trail">
+            <span class="row__value" data-en="Automatic" data-fa="خودکار">Automatic</span>
+            <svg class="icon icon--sm icon--directional" style="color:var(--ink-4)" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>
+          </span>
+        </button>
+
+        <button class="row row--tappable row--flush" type="button" style="border-block-start:var(--rw-hair) solid var(--ink)">
+          <span class="row__lead">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.8 3.2h14.4v13.6H2.8zM6.2 10.2l2.6 2.6 5-5.4"/></svg>
+          </span>
+          <span class="row__main"><span class="row__label" style="display:block" data-en="Mark as sold" data-fa="علامت‌گذاری به‌عنوان فروخته‌شده">Mark as sold</span></span>
+        </button>
+        <button class="row row--tappable row--flush" type="button" style="color:var(--stamp)">
+          <span class="row__lead" style="color:var(--stamp)">
+            <svg class="icon icon--sm" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.4 5.2h13.2M7.6 5.2V3h4.8v2.2M5 5.2l.8 12h8.4l.8-12M8.4 8.2v6M11.6 8.2v6"/></svg>
+          </span>
+          <span class="row__main"><span class="row__label" style="display:block" data-en="Delete vehicle" data-fa="حذف خودرو">Delete vehicle</span></span>
+          <span class="row__trail"><span class="badge badge--quiet" data-en="412" data-fa="۴۱۲">412</span></span>
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</section>

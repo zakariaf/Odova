@@ -17,7 +17,7 @@ description: >-
 # calm-visual-parity
 
 `design/reference/calm/` holds a picture of every screen this app is supposed to have: 27
-screens in light and dark, LTR and RTL, 108 images. They were produced from the design
+screens in light and dark, LTR and RTL, 112 images. They were produced from the design
 system, not from the app, which makes them the only artefact in the repo that can answer
 *"is the built screen right?"* rather than *"is the built screen the same as last week?"*
 
@@ -32,7 +32,7 @@ Read the reference for the task at hand:
 - `references/what-parity-can-prove.md` — why Chrome and Skia never agree pixel for pixel,
   which differences are physics and which are bugs, and the three things that *are*
   decidable.
-- `references/the-reference-set.md` — the naming scheme, what each of the 27 screens is, the
+- `references/the-reference-set.md` — the naming scheme, what each of the 28 screens is, the
   palette-quantisation caveat, and how to regenerate the set after a deliberate change.
 - `references/capturing-the-app.md` — shooting the built screen at 390x844 @2x so it is
   comparable, in a widget test and on a device.

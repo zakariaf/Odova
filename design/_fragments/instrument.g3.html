@@ -1,0 +1,1119 @@
+<!-- =====================================================================
+     INSTRUMENT · group 3 — costs, costs.fuel, settings and its six children
+     Artboard fragments only. Requires odova.css (plus the appended block
+     returned with this file) and the #i-* icon sprite from system.html.
+     ===================================================================== -->
+
+<!-- ============================================================ 13 · COSTS -->
+<section class="artboard" data-screen="costs" data-title="Costs">
+  <div class="device">
+    <div class="screen">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="appbar__titleblock">
+          <span class="appbar__title" data-en="Costs" data-fa="هزینه‌ها">Costs</span>
+          <span class="appbar__sub" data-en="Golf · diesel" data-fa="گلف · دیزل">Golf · diesel</span>
+        </div>
+        <div class="appbar__actions">
+          <button class="appbar__btn"><svg class="icon"><use href="#i-export"/></svg></button>
+          <button class="appbar__btn"><svg class="icon"><use href="#i-more"/></svg></button>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <!-- range chips -->
+        <div class="block block--tight">
+          <div class="chip-row chip-row--scroll">
+            <button class="chip" data-en="3 months" data-fa="۳ ماه">3 months</button>
+            <button class="chip is-active" data-en="12 months" data-fa="۱۲ ماه">12 months</button>
+            <button class="chip" data-en="This year" data-fa="امسال">This year</button>
+            <button class="chip" data-en="All" data-fa="همه">All</button>
+          </div>
+        </div>
+
+        <!-- the headline pair: what people quote, and what makes two cars comparable -->
+        <div class="block block--tight">
+          <div class="cluster gap-xl">
+            <div class="readout readout--lg">
+              <span class="readout__value" data-en="182" data-fa="۹٫۱">182</span>
+              <span class="readout__label" data-en="€ per month" data-fa="میلیون تومان در ماه">€ per month</span>
+            </div>
+            <div class="readout readout--lg">
+              <span class="readout__value" data-en="0.29" data-fa="۱۴٫۵">0.29</span>
+              <span class="readout__label" data-en="€ per km" data-fa="هزار تومان هر کیلومتر">€ per km</span>
+            </div>
+          </div>
+          <p class="t-label ink-mid runs"><span data-en="Sep 2025 – Aug 2026" data-fa="شهریور ۱۴۰۴ – مرداد ۱۴۰۵">Sep 2025 – Aug 2026</span><span data-en="€2,184 total" data-fa="مجموع ۱۰۹٫۲ میلیون">€2,184 total</span></p>
+          <p class="t-caption" data-en="€64 this month so far. Yearly costs are spread over the months they cover." data-fa="۳٫۲ میلیون این ماه تا اینجا. هزینه‌های سالانه روی ماه‌های تحت پوشش پخش می‌شود.">€64 this month so far. Yearly costs are spread over the months they cover.</p>
+        </div>
+
+        <div class="tickrule"></div>
+
+        <!-- month by month, stacked by category -->
+        <div class="block block--tight gap-xs">
+          <div class="cluster cluster--between">
+            <span class="chart__title" data-en="Month by month" data-fa="ماه به ماه">Month by month</span>
+            <span class="t-tick" data-en="peak Mar €402" data-fa="اوج اسفند ۲۰٫۱ میلیون">peak Mar €402</span>
+          </div>
+          <svg class="chart__svg plot--mirror" viewBox="0 0 320 100" role="img"
+               aria-label="Monthly cost, September 2025 to August 2026, stacked by category. Highest month March 2026 at 402 euro.">
+            <line class="chart__axis" x1="8" y1="84" x2="312" y2="84"/>
+            <line class="chart__grid" x1="8" y1="45" x2="312" y2="45"/>
+            <g class="chart__bar">
+              <rect x="13"  y="58.4" width="16" height="25.6"/>
+              <rect x="38"  y="61.1" width="16" height="22.9"/>
+              <rect x="63"  y="56.1" width="16" height="27.9"/>
+              <rect x="89"  y="79.9" width="16" height="4.1"/>
+              <rect x="114" y="66.3" width="16" height="17.7"/>
+              <rect x="139" y="68.3" width="16" height="15.7"/>
+              <rect x="165" y="62.3" width="16" height="21.7"/>
+              <rect x="190" y="57.2" width="16" height="26.8"/>
+              <rect x="215" y="64.6" width="16" height="19.4"/>
+              <rect x="241" y="59.0" width="16" height="25.0"/>
+              <rect x="266" y="50.8" width="16" height="33.2"/>
+              <rect x="291" y="73.7" width="16" height="10.3"/>
+            </g>
+            <g class="chart__bar--service">
+              <rect x="38"  y="51.4" width="16" height="9.7"/>
+              <rect x="89"  y="60.5" width="16" height="19.4"/>
+              <rect x="139" y="54.7" width="16" height="13.6"/>
+              <rect x="165" y="6.0"  width="16" height="56.3"/>
+              <rect x="291" y="48.5" width="16" height="25.2"/>
+            </g>
+            <g class="chart__bar--insurance">
+              <rect x="114" y="27.9" width="16" height="38.4"/>
+            </g>
+            <g class="chart__bar--insurance">
+              <rect x="215" y="53.7" width="16" height="10.9"/>
+            </g>
+            <g class="chart__axis-label" text-anchor="middle">
+              <text x="21"  y="96" data-en="S" data-fa="شه">S</text>
+              <text x="46"  y="96" data-en="O" data-fa="مه">O</text>
+              <text x="71"  y="96" data-en="N" data-fa="آب">N</text>
+              <text x="97"  y="96" data-en="D" data-fa="آذ">D</text>
+              <text x="122" y="96" data-en="J" data-fa="دی">J</text>
+              <text x="147" y="96" data-en="F" data-fa="به">F</text>
+              <text x="173" y="96" data-en="M" data-fa="اس">M</text>
+              <text x="198" y="96" data-en="A" data-fa="فر">A</text>
+              <text x="223" y="96" data-en="M" data-fa="ار">M</text>
+              <text x="249" y="96" data-en="J" data-fa="خر">J</text>
+              <text x="274" y="96" data-en="J" data-fa="تی">J</text>
+              <text x="299" y="96" data-en="A" data-fa="مر">A</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="section__title" data-en="Where it goes · 12 months" data-fa="پول کجا می‌رود · میلیون تومان">Where it goes · 12 months</div>
+
+        <div class="list">
+          <div class="row row--tappable state-fuel">
+            <span class="row__main">
+              <span class="row__title" data-en="Fuel" data-fa="سوخت">Fuel</span>
+              <span class="meter meter--thin"><span class="meter__track"><span class="meter__fill" style="--fill:59%"></span></span></span>
+            </span>
+            <span class="row__end">
+              <span class="row__value" data-en="€1,290" data-fa="۶۴٫۵">€1,290</span>
+              <span class="t-tick" data-en="59%" data-fa="٪۵۹">59%</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable state-service">
+            <span class="row__main">
+              <span class="row__title" data-en="Service &amp; repairs" data-fa="سرویس و تعمیر">Service &amp; repairs</span>
+              <span class="meter meter--thin"><span class="meter__track"><span class="meter__fill" style="--fill:29%"></span></span></span>
+            </span>
+            <span class="row__end">
+              <span class="row__value" data-en="€640" data-fa="۳۲٫۰">€640</span>
+              <span class="t-tick" data-en="29%" data-fa="٪۲۹">29%</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable state-insurance">
+            <span class="row__main">
+              <span class="row__title" data-en="Insurance &amp; tax" data-fa="بیمه و عوارض">Insurance &amp; tax</span>
+              <span class="meter meter--thin"><span class="meter__track"><span class="meter__fill" style="--fill:12%"></span></span></span>
+            </span>
+            <span class="row__end">
+              <span class="row__value" data-en="€254" data-fa="۱۲٫۷">€254</span>
+              <span class="t-tick" data-en="12%" data-fa="٪۱۲">12%</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="list list--inset push-top-sm">
+          <div class="row row--tall row--tappable">
+            <span class="row__icon"><svg class="icon icon--24"><use href="#i-fuel"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Fuel &amp; consumption" data-fa="سوخت و مصرف">Fuel &amp; consumption</span>
+              <span class="row__sub runs"><span data-en="6.7 L/100 km average" data-fa="میانگین ۶٫۷ لیتر/۱۰۰ کیلومتر">6.7 L/100 km average</span><span data-en="€1.734/L last paid" data-fa="آخرین ۸۶٬۷۰۰ تومان">€1.734/L last paid</span></span>
+            </span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+          <div class="row row--tall row--tappable">
+            <span class="row__icon"><svg class="icon icon--24"><use href="#i-road"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Trips" data-fa="سفرها">Trips</span>
+              <span class="row__sub runs"><span data-en="14 trips" data-fa="۱۴ سفر">14 trips</span><span data-en="3,120 km" data-fa="۳٬۱۲۰ کیلومتر">3,120 km</span><span data-en="62% business" data-fa="۶۲٪ کاری">62% business</span></span>
+            </span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span></button>
+      </div>
+      <div class="homebar"></div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================================================= 14 · COSTS.FUEL -->
+<section class="artboard" data-screen="costs.fuel" data-title="Fuel &amp; consumption">
+  <div class="device">
+    <div class="screen">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="appbar__lead">
+          <button class="appbar__btn"><svg class="icon icon--directional"><use href="#i-chevron-back"/></svg></button>
+        </div>
+        <div class="appbar__titleblock">
+          <span class="appbar__title" data-en="Fuel &amp; consumption" data-fa="سوخت و مصرف">Fuel &amp; consumption</span>
+        </div>
+        <div class="appbar__actions">
+          <button class="appbar__btn"><svg class="icon"><use href="#i-filter"/></svg></button>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <!-- the one number people quote about their own car -->
+        <div class="block block--tight gap-xs">
+          <div class="readout readout--xl">
+            <span class="readout__value"><span data-en="6.7" data-fa="۶٫۷">6.7</span><span class="t-unit" data-en="L/100 km" data-fa="لیتر/۱۰۰ کیلومتر">L/100 km</span></span>
+          </div>
+          <span class="readout__label runs"><span data-en="Average over 34 tanks" data-fa="میانگین ۳۴ باک">Average over 34 tanks</span><span data-en="12 months" data-fa="۱۲ ماه">12 months</span></span>
+          <p class="t-label ink-mid runs"><span data-en="Last tank 6.4" data-fa="آخرین باک ۶٫۴">Last tank 6.4</span><span data-en="Best 5.9" data-fa="بهترین ۵٫۹">Best 5.9</span><span data-en="Worst 8.1" data-fa="بدترین ۸٫۱">Worst 8.1</span></p>
+        </div>
+
+        <div class="strip strip--warn">
+          <span class="strip__icon"><svg class="icon icon--16"><use href="#i-trend-up"/></svg></span>
+          <span class="strip__text">
+            <b data-en="Using more fuel lately" data-fa="این اواخر بیشتر سوخت می‌خورد">Using more fuel lately</b><br>
+            <span class="ink-lo runs"><span data-en="Last 3 tanks 6.9" data-fa="۳ باک آخر ۶٫۹">Last 3 tanks 6.9</span><span data-en="the 6 before 6.6" data-fa="۶ باک پیش از آن ۶٫۶">the 6 before 6.6</span></span>
+          </span>
+        </div>
+
+        <!-- THE CHART · consumption per tank, the last twelve fills -->
+        <div class="chart inset inset--y">
+          <div class="chart__head">
+            <span class="chart__title" data-en="Per tank · last 12 fills" data-fa="هر باک · ۱۲ باک آخر">Per tank · last 12 fills</span>
+            <span class="badge badge--neutral" data-en="L/100 km" data-fa="لیتر/۱۰۰ کیلومتر">L/100 km</span>
+          </div>
+
+          <svg class="chart__svg plot--mirror" viewBox="0 0 320 132" role="img"
+               aria-label="Consumption for the last twelve tanks, 5.9 to 8.1 litres per 100 kilometres, average 6.7. Best 5.9 on 14 June, worst 8.1 on 3 August.">
+            <g class="chart__grid">
+              <line x1="26" y1="21.7" x2="312" y2="21.7"/>
+              <line x1="26" y1="49.1" x2="312" y2="49.1"/>
+              <line x1="26" y1="76.6" x2="312" y2="76.6"/>
+            </g>
+            <g class="chart__axis-label" text-anchor="end">
+              <text x="20" y="25.2"  data-en="8" data-fa="۸">8</text>
+              <text x="20" y="52.6"  data-en="7" data-fa="۷">7</text>
+              <text x="20" y="80.0"  data-en="6" data-fa="۶">6</text>
+              <text x="20" y="107.5" data-en="5" data-fa="۵">5</text>
+            </g>
+            <line class="chart__axis" x1="26" y1="104" x2="312" y2="104"/>
+            <line class="chart__axis" x1="26" y1="8"   x2="26"  y2="104"/>
+
+            <!-- twelve closed tanks, oldest first -->
+            <g class="chart__bar">
+              <rect x="30"  y="51.9" width="16" height="52.1"/>
+              <rect x="54"  y="62.9" width="16" height="41.1"/>
+              <rect x="78"  y="54.6" width="16" height="49.4"/>
+              <rect x="101" y="73.8" width="16" height="30.2"/>
+              <rect x="125" y="49.1" width="16" height="54.9"/>
+              <rect x="149" y="60.1" width="16" height="43.9"/>
+              <rect x="197" y="51.9" width="16" height="52.1"/>
+              <rect x="221" y="49.1" width="16" height="54.9"/>
+              <rect x="268" y="68.3" width="16" height="35.7"/>
+              <rect x="292" y="65.6" width="16" height="38.4"/>
+            </g>
+            <rect class="chart__bar--lo" x="173" y="79.3" width="16" height="24.7"/>
+            <rect class="chart__bar--hi" x="244" y="19.0" width="16" height="85.0"/>
+
+            <g class="chart__axis-label" text-anchor="middle">
+              <text x="181" y="75" data-en="5.9" data-fa="۵٫۹">5.9</text>
+              <text x="252" y="15" data-en="8.1" data-fa="۸٫۱">8.1</text>
+            </g>
+
+            <line class="chart__avg" x1="26" y1="57.2" x2="312" y2="57.2"/>
+
+            <g class="chart__tick">
+              <line x1="38"  y1="104" x2="38"  y2="108"/>
+              <line x1="157" y1="104" x2="157" y2="108"/>
+              <line x1="300" y1="104" x2="300" y2="108"/>
+            </g>
+            <g class="chart__axis-label" text-anchor="middle">
+              <text x="38"  y="122" data-en="Mar" data-fa="اسفند">Mar</text>
+              <text x="157" y="122" data-en="Jun" data-fa="خرداد">Jun</text>
+              <text x="300" y="122" data-en="Sep" data-fa="شهریور">Sep</text>
+            </g>
+          </svg>
+
+          <div class="chart__legend">
+            <span class="chart__legend-item"><span class="chart__swatch sw-ok"></span><span data-en="Best 5.9" data-fa="بهترین ۵٫۹">Best 5.9</span></span>
+            <span class="chart__legend-item"><span class="chart__swatch sw-overdue"></span><span data-en="Worst 8.1" data-fa="بدترین ۸٫۱">Worst 8.1</span></span>
+            <span class="chart__legend-item"><span class="chart__swatch sw-ink-lo"></span><span data-en="Avg 6.7" data-fa="میانگین ۶٫۷">Avg 6.7</span></span>
+          </div>
+          <p class="chart__note runs"><span data-en="Best 14 Jun" data-fa="بهترین ۲۴ خرداد">Best 14 Jun</span><span data-en="Worst 3 Aug" data-fa="بدترین ۱۲ مرداد">Worst 3 Aug</span><span data-en="2 broken tanks discarded" data-fa="۲ باک ناقص کنار گذاشته شد">2 broken tanks discarded</span></p>
+        </div>
+
+        <div class="readout-strip">
+          <div class="readout-strip__cell">
+            <span class="readout readout--sm"><span class="readout__value" data-en="1.734" data-fa="۸۶٬۷۰۰">1.734</span></span>
+            <span class="readout__label" data-en="€/L last paid" data-fa="تومان/لیتر آخرین">€/L last paid</span>
+          </div>
+          <div class="readout-strip__cell">
+            <span class="readout readout--sm"><span class="readout__value" data-en="0.109" data-fa="۵٬۴۵۰">0.109</span></span>
+            <span class="readout__label" data-en="€ per km" data-fa="تومان هر کیلومتر">€ per km</span>
+          </div>
+          <div class="readout-strip__cell">
+            <span class="readout readout--sm"><span class="readout__value" data-en="118" data-fa="۵٫۹">118</span></span>
+            <span class="readout__label" data-en="€ per month" data-fa="میلیون تومان در ماه">€ per month</span>
+          </div>
+        </div>
+
+        <div class="row-group__title">
+          <span data-en="Recent fill-ups" data-fa="سوخت‌گیری‌های اخیر">Recent fill-ups</span>
+          <span class="spacer"></span>
+          <span class="link" data-en="See all" data-fa="همه">See all</span>
+        </div>
+
+        <div class="list">
+          <div class="row row--tappable">
+            <span class="row__main">
+              <span class="row__title" data-en="2 September" data-fa="۱۱ شهریور">2 September</span>
+              <span class="row__sub runs"><span data-en="42.8 L" data-fa="۴۲٫۸ لیتر">42.8 L</span><span data-en="€74.20" data-fa="۳٫۷۱ میلیون">€74.20</span><span data-en="€1.734/L" data-fa="۸۶٬۷۰۰ تومان/لیتر">€1.734/L</span></span>
+            </span>
+            <span class="row__end"><span class="row__value" data-en="6.4" data-fa="۶٫۴">6.4</span></span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__main">
+              <span class="row__title" data-en="18 August" data-fa="۲۷ مرداد">18 August</span>
+              <span class="row__sub runs"><span data-en="39.6 L" data-fa="۳۹٫۶ لیتر">39.6 L</span><span data-en="€67.15" data-fa="۳٫۳۶ میلیون">€67.15</span><span data-en="€1.696/L" data-fa="۸۴٬۸۰۰ تومان/لیتر">€1.696/L</span></span>
+            </span>
+            <span class="row__end"><span class="row__value" data-en="6.3" data-fa="۶٫۳">6.3</span></span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span></button>
+      </div>
+      <div class="homebar"></div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ========================================================= 17 · SETTINGS -->
+<section class="artboard" data-screen="settings" data-title="Settings">
+  <div class="device">
+    <div class="screen">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="appbar__titleblock">
+          <span class="appbar__title" data-en="Settings" data-fa="تنظیمات">Settings</span>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <!-- backup is the first row, on purpose -->
+        <div class="section__title" data-en="Your data" data-fa="داده‌های شما">Your data</div>
+        <div class="list">
+          <div class="row row--tall row--tappable">
+            <span class="row__icon"><svg class="icon icon--24"><use href="#i-shield"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Backup &amp; restore" data-fa="پشتیبان‌گیری و بازیابی">Backup &amp; restore</span>
+              <span class="row__sub cluster gap-xs">
+                <span class="status-dot status-dot--small"></span>
+                <span class="runs"><span data-en="Last backup 4 June 2026" data-fa="آخرین پشتیبان ۱۴ خرداد ۱۴۰۵">Last backup 4 June 2026</span><span data-en="3 months ago" data-fa="۳ ماه پیش">3 months ago</span></span>
+              </span>
+            </span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+          <div class="row row--tall row--tappable">
+            <span class="row__icon"><svg class="icon icon--24"><use href="#i-car"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Vehicles" data-fa="خودروها">Vehicles</span>
+              <span class="row__sub runs"><span data-en="Golf" data-fa="گلف">Golf</span><span data-en="Transit" data-fa="ترانزیت">Transit</span><span data-en="CB500X" data-fa="سی‌بی۵۰۰ایکس">CB500X</span></span>
+            </span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+        </div>
+
+        <div class="section__title" data-en="Preferences" data-fa="ترجیحات">Preferences</div>
+        <div class="list">
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-globe"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Language" data-fa="زبان">Language</span></span>
+            <span class="row__end">
+              <span class="row__value" data-en="English" data-fa="فارسی">English</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-gauge"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Units &amp; formats" data-fa="یکاها و قالب‌ها">Units &amp; formats</span></span>
+            <span class="row__end">
+              <span class="row__value runs"><span data-en="km" data-fa="کیلومتر">km</span><span data-en="L" data-fa="لیتر">L</span><span data-en="€" data-fa="تومان">€</span></span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-bell"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Notifications" data-fa="اعلان‌ها">Notifications</span></span>
+            <span class="row__end">
+              <span class="row__value runs"><span data-en="On" data-fa="روشن">On</span><span data-en="09:00" data-fa="۰۹:۰۰">09:00</span></span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="section__title" data-en="Appearance" data-fa="ظاهر">Appearance</div>
+        <div class="block block--tight">
+          <div class="segmented">
+            <button class="segmented__item" data-en="System" data-fa="سیستم">System</button>
+            <button class="segmented__item" data-en="Light" data-fa="روشن">Light</button>
+            <button class="segmented__item is-active" data-en="Dark" data-fa="تیره">Dark</button>
+          </div>
+        </div>
+
+        <div class="list push-top">
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-info"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="About Odova" data-fa="دربارهٔ اودووا">About Odova</span></span>
+            <span class="row__end">
+              <span class="row__value" dir="ltr">1.4.0</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+        <div class="block block--center block--foot">
+          <p class="t-caption" data-en="No account. Nothing leaves this phone." data-fa="نه حسابی. هیچ‌چیز از این گوشی بیرون نمی‌رود.">No account. Nothing leaves this phone.</p>
+        </div>
+
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span></button>
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span></button>
+      </div>
+      <div class="homebar"></div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================ 20 · SETTINGS.LANGUAGE -->
+<section class="artboard" data-screen="settings.language" data-title="Language">
+  <div class="device">
+    <div class="screen">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="appbar__lead">
+          <button class="appbar__btn"><svg class="icon icon--directional"><use href="#i-chevron-back"/></svg></button>
+        </div>
+        <div class="appbar__titleblock">
+          <span class="appbar__title" data-en="Language" data-fa="زبان">Language</span>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <div class="list">
+          <div class="row row--tall row--tappable is-selected">
+            <span class="row__main">
+              <span class="row__title" data-en="System (English)" data-fa="سیستم (فارسی)">System (English)</span>
+              <span class="row__sub" data-en="Follows your phone" data-fa="از زبان گوشی پیروی می‌کند">Follows your phone</span>
+            </span>
+            <span class="row__end"><svg class="icon"><use href="#i-check"/></svg></span>
+          </div>
+          <div class="row row--tappable"><span class="row__main"><span class="row__title" lang="en">English</span></span></div>
+          <div class="row row--tappable"><span class="row__main"><span class="row__title" lang="de">Deutsch</span></span></div>
+          <div class="row row--tappable"><span class="row__main"><span class="row__title" lang="fr">Français</span></span></div>
+          <div class="row row--tappable"><span class="row__main"><span class="row__title iso" lang="fa">فارسی</span></span></div>
+          <div class="row row--tappable"><span class="row__main"><span class="row__title iso" lang="ar">العربية</span></span></div>
+          <div class="row row--tappable"><span class="row__main"><span class="row__title iso" lang="ckb">کوردیی ناوەندی</span></span></div>
+        </div>
+
+        <div class="tickrule push-top"></div>
+
+        <div class="block">
+          <p class="t-label ink-mid" data-en="Odova is translated into these six. Each name is written in its own script and never translated — you scan for the shape of your own writing, not for its name in someone else's." data-fa="اودووا به همین شش زبان ترجمه شده است. نام هر زبان به خط خودش نوشته می‌شود و هرگز ترجمه نمی‌شود — چشم دنبال شکل خط خودش می‌گردد، نه نامش به زبان دیگری.">Odova is translated into these six. Each name is written in its own script and never translated — you scan for the shape of your own writing, not for its name in someone else's.</p>
+          <p class="t-caption" data-en="Numbers, dates and units are set separately under Units &amp; formats." data-fa="اعداد، تاریخ‌ها و یکاها جداگانه در «یکاها و قالب‌ها» تنظیم می‌شوند.">Numbers, dates and units are set separately under Units &amp; formats.</p>
+        </div>
+
+        <div class="spacer"></div>
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span></button>
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span></button>
+      </div>
+      <div class="homebar"></div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- =================================================== 21 · SETTINGS.UNITS -->
+<section class="artboard" data-screen="settings.units" data-title="Units &amp; formats">
+  <div class="device">
+    <div class="screen">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="appbar__lead">
+          <button class="appbar__btn"><svg class="icon icon--directional"><use href="#i-chevron-back"/></svg></button>
+        </div>
+        <div class="appbar__titleblock">
+          <span class="appbar__title" data-en="Units &amp; formats" data-fa="یکاها و قالب‌ها">Units &amp; formats</span>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <!-- the preview is the whole design -->
+        <div class="panel inset push-top-sm">
+          <div class="panel__head">
+            <span class="panel__title" data-en="Preview" data-fa="پیش‌نمایش">Preview</span>
+            <span class="t-tick" data-en="updates as you choose" data-fa="با هر انتخاب به‌روز می‌شود">updates as you choose</span>
+          </div>
+          <div class="panel__body gap-xs">
+            <span class="t-title runs"><span data-en="2 Sep 2026" data-fa="۱۱ شهریور ۱۴۰۵">2 Sep 2026</span><span data-en="187,412 km" data-fa="۱۸۷٬۴۱۲ کیلومتر">187,412 km</span></span>
+            <span class="t-label ink-mid runs"><span data-en="42.8 L" data-fa="۴۲٫۸ لیتر">42.8 L</span><span data-en="€74.20" data-fa="۳٬۷۱۰٬۰۰۰ تومان">€74.20</span><span data-en="6.4 L/100 km" data-fa="۶٫۴ لیتر/۱۰۰ کیلومتر">6.4 L/100 km</span></span>
+          </div>
+        </div>
+
+        <div class="section__title" data-en="Measurement" data-fa="اندازه‌گیری">Measurement</div>
+        <div class="list">
+          <div class="row row--tappable">
+            <span class="row__main"><span class="row__title" data-en="Distance" data-fa="مسافت">Distance</span></span>
+            <span class="row__end">
+              <span class="row__value" data-en="Kilometres (km)" data-fa="کیلومتر">Kilometres (km)</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__main"><span class="row__title" data-en="Volume" data-fa="حجم">Volume</span></span>
+            <span class="row__end">
+              <span class="row__value" data-en="Litres (L)" data-fa="لیتر">Litres (L)</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__main">
+              <span class="row__title" data-en="Consumption" data-fa="مصرف">Consumption</span>
+              <span class="row__sub" data-en="Suggested for kilometres and litres" data-fa="پیشنهاد برای کیلومتر و لیتر">Suggested for kilometres and litres</span>
+            </span>
+            <span class="row__end">
+              <span class="row__value" data-en="L/100 km" data-fa="لیتر/۱۰۰ کیلومتر">L/100 km</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__main"><span class="row__title" data-en="Currency" data-fa="واحد پول">Currency</span></span>
+            <span class="row__end">
+              <span class="row__value" data-en="Euro (EUR)" data-fa="تومان (IRT)">Euro (EUR)</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="section__title" data-en="Dates and numbers" data-fa="تاریخ و اعداد">Dates and numbers</div>
+        <div class="list">
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-calendar"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Calendar" data-fa="تقویم">Calendar</span>
+              <span class="row__sub" data-en="Gregorian or Jalali — nothing else in v1" data-fa="میلادی یا جلالی">Gregorian or Jalali — nothing else in v1</span>
+            </span>
+            <span class="row__end">
+              <span class="row__value" data-en="Gregorian" data-fa="جلالی">Gregorian</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-list"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Numerals" data-fa="ارقام">Numerals</span>
+              <span class="row__sub"><span class="num ltr" data-en="0 1 2 3 4 5 6 7 8 9" data-fa="۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹">0 1 2 3 4 5 6 7 8 9</span></span>
+            </span>
+            <span class="row__end">
+              <span class="row__value" data-en="Automatic" data-fa="خودکار">Automatic</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-clock"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="First day of week" data-fa="آغاز هفته">First day of week</span></span>
+            <span class="row__end">
+              <span class="row__value" data-en="Monday" data-fa="شنبه">Monday</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+        <div class="block block--foot">
+          <p class="t-caption" data-en="These change how Odova shows your records. Nothing you have already entered is altered." data-fa="فقط شیوهٔ نمایش عوض می‌شود؛ داده‌های ثبت‌شده دست‌نخورده می‌مانند.">These change how Odova shows your records. Nothing you have already entered is altered.</p>
+        </div>
+
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span></button>
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span></button>
+      </div>
+      <div class="homebar"></div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- =========================================== 22 · SETTINGS.NOTIFICATIONS -->
+<section class="artboard" data-screen="settings.notifications" data-title="Notifications">
+  <div class="device">
+    <div class="screen">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="appbar__lead">
+          <button class="appbar__btn"><svg class="icon icon--directional"><use href="#i-chevron-back"/></svg></button>
+        </div>
+        <div class="appbar__titleblock">
+          <span class="appbar__title" data-en="Notifications" data-fa="اعلان‌ها">Notifications</span>
+          <span class="appbar__sub" data-en="Allowed by the phone" data-fa="گوشی اجازه داده است">Allowed by the phone</span>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <div class="section__title" data-en="What Odova sends" data-fa="اودووا چه می‌فرستد">What Odova sends</div>
+        <div class="list">
+          <div class="row">
+            <span class="row__icon"><svg class="icon"><use href="#i-wrench"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Service reminders" data-fa="یادآور سرویس">Service reminders</span></span>
+            <span class="row__end"><span class="switch is-on"><span class="switch__thumb"></span></span></span>
+          </div>
+          <div class="row">
+            <span class="row__icon"><svg class="icon"><use href="#i-gauge"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Odometer check-ins" data-fa="یادآور ثبت کیلومتر">Odometer check-ins</span></span>
+            <span class="row__end"><span class="switch is-on"><span class="switch__thumb"></span></span></span>
+          </div>
+          <div class="row">
+            <span class="row__icon"><svg class="icon"><use href="#i-shield"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Backup reminders" data-fa="یادآور پشتیبان‌گیری">Backup reminders</span></span>
+            <span class="row__end"><span class="switch is-on"><span class="switch__thumb"></span></span></span>
+          </div>
+        </div>
+
+        <div class="section__title" data-en="When" data-fa="زمان">When</div>
+        <div class="list">
+          <div class="row row--tappable">
+            <span class="row__main"><span class="row__title" data-en="Time of day" data-fa="ساعت ارسال">Time of day</span></span>
+            <span class="row__end">
+              <span class="row__value" dir="ltr" data-en="09:00" data-fa="۰۹:۰۰">09:00</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__main"><span class="row__title" data-en="Quiet hours" data-fa="ساعات سکوت">Quiet hours</span></span>
+            <span class="row__end">
+              <span class="row__value" dir="ltr" data-en="21:00–08:00" data-fa="۲۱:۰۰–۰۸:۰۰">21:00–08:00</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row">
+            <span class="row__main">
+              <span class="row__title" data-en="Weekdays only" data-fa="فقط روزهای کاری">Weekdays only</span>
+              <span class="row__sub" data-en="Would skip Saturday and Sunday" data-fa="پنجشنبه و جمعه را رد می‌کند">Would skip Saturday and Sunday</span>
+            </span>
+            <span class="row__end"><span class="switch"><span class="switch__thumb"></span></span></span>
+          </div>
+        </div>
+
+        <div class="section__title" data-en="How far ahead" data-fa="چقدر زودتر">How far ahead</div>
+        <div class="list">
+          <div class="row row--tappable">
+            <span class="row__main">
+              <span class="row__title" data-en="By distance" data-fa="بر پایهٔ مسافت">By distance</span>
+              <span class="row__sub" data-en="Automatic: about 10% before it is due" data-fa="خودکار: حدود ۱۰٪ پیش از سررسید">Automatic: about 10% before it is due</span>
+            </span>
+            <span class="row__end">
+              <span class="row__value" data-en="Automatic" data-fa="خودکار">Automatic</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__main"><span class="row__title" data-en="By time" data-fa="بر پایهٔ زمان">By time</span></span>
+            <span class="row__end">
+              <span class="row__value" data-en="14 days" data-fa="۱۴ روز">14 days</span>
+              <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="list push-top">
+          <div class="row row--tall row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-calendar"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Add reminders to my calendar" data-fa="افزودن یادآورها به تقویم من">Add reminders to my calendar</span>
+              <span class="row__sub" data-en="A snapshot, not a live calendar" data-fa="یک عکس لحظه‌ای، نه تقویم زنده">A snapshot, not a live calendar</span>
+            </span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+        <div class="block block--foot">
+          <p class="t-caption" data-en="Odova sends at most two notifications a week, and never more than one a day." data-fa="اودووا هفته‌ای حداکثر دو اعلان می‌فرستد و هرگز بیش از یکی در روز.">Odova sends at most two notifications a week, and never more than one a day.</p>
+        </div>
+
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span></button>
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span></button>
+      </div>
+      <div class="homebar"></div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================== 23 · SETTINGS.BACKUP -->
+<section class="artboard" data-screen="settings.backup" data-title="Backup &amp; restore">
+  <div class="device">
+    <div class="screen">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="appbar__lead">
+          <button class="appbar__btn"><svg class="icon icon--directional"><use href="#i-chevron-back"/></svg></button>
+        </div>
+        <div class="appbar__titleblock">
+          <span class="appbar__title" data-en="Backup &amp; restore" data-fa="پشتیبان‌گیری و بازیابی">Backup &amp; restore</span>
+          <span class="appbar__sub" data-en="4.2 MB on this phone" data-fa="۴٫۲ مگابایت روی این گوشی">4.2 MB on this phone</span>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <div class="card card--raised inset inset--y">
+          <div class="card__head">
+            <span class="card__title" data-en="Last backup" data-fa="آخرین پشتیبان">Last backup</span>
+            <span class="badge badge--due-soon">
+              <svg class="icon icon--16"><use href="#i-alert"/></svg>
+              <span data-en="3 months ago" data-fa="۳ ماه پیش">3 months ago</span>
+            </span>
+          </div>
+          <span class="t-readout" data-en="4 June 2026" data-fa="۱۴ خرداد ۱۴۰۵">4 June 2026</span>
+          <p class="t-label ink-mid" data-en="412 entries in it. 47 added since." data-fa="۴۱۲ رکورد در آن. از آن زمان ۴۷ تا افزوده‌اید.">412 entries in it. 47 added since.</p>
+          <button class="btn btn--primary btn--block btn--lg push-top-sm">
+            <svg class="icon"><use href="#i-export"/></svg>
+            <span data-en="Back up now" data-fa="همین حالا پشتیبان بگیر">Back up now</span>
+          </button>
+        </div>
+
+        <div class="strip strip--warn">
+          <span class="strip__icon"><svg class="icon icon--16"><use href="#i-info"/></svg></span>
+          <span class="strip__text" data-en="Your backup file has no password. Anyone who opens it can read everything in it." data-fa="فایل پشتیبان رمز ندارد. هر کسی آن را باز کند همه‌چیز داخلش را می‌خواند.">Your backup file has no password. Anyone who opens it can read everything in it.</span>
+        </div>
+
+        <div class="section__title" data-en="Also export" data-fa="خروجی‌های دیگر">Also export</div>
+        <div class="list">
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-fuel"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Fill-ups (CSV)" data-fa="سوخت‌گیری‌ها (CSV)">Fill-ups (CSV)</span></span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-coins"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="All costs (CSV)" data-fa="همهٔ هزینه‌ها (CSV)">All costs (CSV)</span></span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-wrench"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Service history (PDF)" data-fa="تاریخچهٔ سرویس (PDF)">Service history (PDF)</span></span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+        </div>
+
+        <div class="section__title" data-en="Restore" data-fa="بازیابی">Restore</div>
+        <div class="list">
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-import"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Restore from a backup" data-fa="بازیابی از فایل پشتیبان">Restore from a backup</span></span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon icon--directional"><use href="#i-undo"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Undo last import" data-fa="واگرد آخرین بازیابی">Undo last import</span>
+              <span class="row__sub" data-en="Until 3 October — then it is gone" data-fa="تا ۱۱ مهر — پس از آن از بین می‌رود">Until 3 October — then it is gone</span>
+            </span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="list">
+          <div class="row row--tappable row--danger">
+            <span class="row__icon"><svg class="icon icon--24"><use href="#i-trash"/></svg></span>
+            <span class="row__main">
+              <span class="row__title" data-en="Delete all data" data-fa="حذف همهٔ داده‌ها">Delete all data</span>
+              <span class="row__sub runs"><span data-en="3 vehicles" data-fa="۳ خودرو">3 vehicles</span><span data-en="412 entries" data-fa="۴۱۲ رکورد">412 entries</span><span data-en="typed to confirm" data-fa="با تایپ تأیید می‌شود">typed to confirm</span></span>
+            </span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span></button>
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span></button>
+      </div>
+      <div class="homebar"></div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================== 24 · SETTINGS.IMPORT -->
+<section class="artboard" data-screen="settings.import" data-title="Restore — blocking">
+  <div class="device">
+
+    <!-- the screen it came from, still underneath -->
+    <div class="screen screen__dim">
+      <div class="statusbar">
+        <span class="statusbar__time">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+      <div class="appbar">
+        <div class="appbar__lead"><button class="appbar__btn"><svg class="icon icon--directional"><use href="#i-chevron-back"/></svg></button></div>
+        <div class="appbar__titleblock"><span class="appbar__title" data-en="Backup &amp; restore" data-fa="پشتیبان‌گیری و بازیابی">Backup &amp; restore</span></div>
+      </div>
+      <div class="list">
+        <div class="row"><span class="row__main"><span class="row__title" data-en="Restore from a backup" data-fa="بازیابی از فایل پشتیبان">Restore from a backup</span></span></div>
+        <div class="row"><span class="row__main"><span class="row__title" data-en="Undo last import" data-fa="واگرد آخرین بازیابی">Undo last import</span></span></div>
+      </div>
+    </div>
+
+    <div class="scrim"></div>
+
+    <div class="modal-cover">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar appbar--modal">
+        <button class="appbar__btn"><svg class="icon"><use href="#i-close"/></svg></button>
+        <span class="appbar__title" data-en="Restore" data-fa="بازیابی">Restore</span>
+        <span class="appbar__btn"></span>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <div class="block block--tight gap-xs">
+          <span class="filename">odova-backup-2026-04-11-0930.json</span>
+          <span class="t-caption runs"><span data-en="Made on 11 April 2026 at 09:30" data-fa="ساخته‌شده در ۲۲ فروردین ۱۴۰۵ ساعت ۰۹:۳۰">Made on 11 April 2026 at 09:30</span><span data-en="1.9 MB" data-fa="۱٫۹ مگابایت">1.9 MB</span></span>
+        </div>
+
+        <div class="section__title" data-en="What is in this file" data-fa="داخل این فایل چیست">What is in this file</div>
+        <div class="delta">
+          <div class="delta__row delta__row--pair">
+            <span class="delta__label" data-en="Golf" data-fa="گلف">Golf</span>
+            <span class="delta__num delta__num--after" data-en="214 entries" data-fa="۲۱۴ رکورد">214 entries</span>
+          </div>
+          <div class="delta__row delta__row--pair">
+            <span class="delta__label" data-en="Transit" data-fa="ترانزیت">Transit</span>
+            <span class="delta__num delta__num--after" data-en="388 entries" data-fa="۳۸۸ رکورد">388 entries</span>
+          </div>
+          <div class="delta__row delta__row--pair">
+            <span class="delta__label" data-en="Recovered records" data-fa="رکوردهای بازیافته">Recovered records</span>
+            <span class="delta__num delta__num--after" data-en="3 entries" data-fa="۳ رکورد">3 entries</span>
+          </div>
+          <div class="delta__row delta__row--full">
+            <span class="delta__label ink-lo" data-en="Entries from March 2018 to April 2026" data-fa="رکوردها از اسفند ۱۳۹۶ تا فروردین ۱۴۰۵">Entries from March 2018 to April 2026</span>
+          </div>
+        </div>
+
+        <div class="delta push-top">
+          <div class="delta__row delta__row--head">
+            <span class="delta__cap" data-en="On this phone" data-fa="روی این گوشی">On this phone</span>
+            <span class="delta__cap delta__cap--end" data-en="Now" data-fa="اکنون">Now</span>
+            <span class="delta__arrow"><svg class="icon icon--16 icon--directional"><use href="#i-arrow-end"/></svg></span>
+            <span class="delta__cap delta__cap--end" data-en="After" data-fa="پس از">After</span>
+          </div>
+          <div class="delta__row">
+            <span class="delta__label" data-en="Vehicles" data-fa="خودروها">Vehicles</span>
+            <span class="delta__num" data-en="1" data-fa="۱">1</span>
+            <span class="delta__arrow"><svg class="icon icon--16 icon--directional"><use href="#i-arrow-end"/></svg></span>
+            <span class="delta__num delta__num--after" data-en="3" data-fa="۳">3</span>
+          </div>
+          <div class="delta__row">
+            <span class="delta__label" data-en="Fill-ups" data-fa="سوخت‌گیری‌ها">Fill-ups</span>
+            <span class="delta__num" data-en="412" data-fa="۴۱۲">412</span>
+            <span class="delta__arrow"><svg class="icon icon--16 icon--directional"><use href="#i-arrow-end"/></svg></span>
+            <span class="delta__num delta__num--down" data-en="388" data-fa="۳۸۸">388</span>
+          </div>
+          <div class="delta__row">
+            <span class="delta__label" data-en="Services" data-fa="سرویس‌ها">Services</span>
+            <span class="delta__num" data-en="37" data-fa="۳۷">37</span>
+            <span class="delta__arrow"><svg class="icon icon--16 icon--directional"><use href="#i-arrow-end"/></svg></span>
+            <span class="delta__num delta__num--after" data-en="41" data-fa="۴۱">41</span>
+          </div>
+          <div class="delta__row">
+            <span class="delta__label" data-en="Expenses" data-fa="هزینه‌ها">Expenses</span>
+            <span class="delta__num" data-en="58" data-fa="۵۸">58</span>
+            <span class="delta__arrow"><svg class="icon icon--16 icon--directional"><use href="#i-arrow-end"/></svg></span>
+            <span class="delta__num delta__num--after" data-en="96" data-fa="۹۶">96</span>
+          </div>
+          <div class="delta__row">
+            <span class="delta__label" data-en="Trips" data-fa="سفرها">Trips</span>
+            <span class="delta__num" data-en="9" data-fa="۹">9</span>
+            <span class="delta__arrow"><svg class="icon icon--16 icon--directional"><use href="#i-arrow-end"/></svg></span>
+            <span class="delta__num delta__num--after" data-en="14" data-fa="۱۴">14</span>
+          </div>
+          <div class="delta__row">
+            <span class="delta__label" data-en="Reminders" data-fa="یادآورها">Reminders</span>
+            <span class="delta__num" data-en="18" data-fa="۱۸">18</span>
+            <span class="delta__arrow"><svg class="icon icon--16 icon--directional"><use href="#i-arrow-end"/></svg></span>
+            <span class="delta__num delta__num--after" data-en="22" data-fa="۲۲">22</span>
+          </div>
+        </div>
+
+        <div class="strip strip--warn push-top">
+          <span class="strip__icon"><svg class="icon icon--16"><use href="#i-alert"/></svg></span>
+          <span class="strip__text" data-en="3 entries cannot be read and will be left out." data-fa="۳ رکورد خوانده نمی‌شود و کنار گذاشته می‌شود.">3 entries cannot be read and will be left out.</span>
+          <span class="link" data-en="See which" data-fa="کدام‌ها">See which</span>
+        </div>
+
+        <div class="spacer"></div>
+
+        <!-- the irreversible sentence, at the weight it has earned -->
+        <div class="block block--rule block--head">
+          <p class="t-title t-danger" data-en="Everything now in Odova will be replaced by this file." data-fa="هر چه اکنون در اودووا هست با این فایل جایگزین می‌شود.">Everything now in Odova will be replaced by this file.</p>
+          <p class="t-label ink-mid" data-en="A copy of what you have now is saved first. You can undo this for 30 days." data-fa="ابتدا یک نسخه از داده‌های فعلی شما ذخیره می‌شود. تا ۳۰ روز می‌توانید این کار را واگرد کنید.">A copy of what you have now is saved first. You can undo this for 30 days.</p>
+        </div>
+
+        <div class="block block--foot">
+          <button class="btn btn--danger-solid btn--block btn--lg" data-en="Replace my data" data-fa="داده‌هایم را جایگزین کن">Replace my data</button>
+          <button class="btn btn--secondary btn--block" data-en="Cancel" data-fa="انصراف">Cancel</button>
+        </div>
+
+      </div>
+
+      <div class="homebar"></div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- =================================================== 25 · SETTINGS.ABOUT -->
+<section class="artboard" data-screen="settings.about" data-title="About">
+  <div class="device">
+    <div class="screen">
+
+      <div class="statusbar">
+        <span class="statusbar__time" data-en="9:41" data-fa="۹:۴۱">9:41</span>
+        <span class="statusbar__icons">
+          <svg class="icon icon--16"><use href="#i-signal"/></svg>
+          <svg class="icon icon--16"><use href="#i-wifi"/></svg>
+          <svg class="icon icon--20"><use href="#i-battery"/></svg>
+        </span>
+      </div>
+
+      <div class="appbar">
+        <div class="appbar__lead">
+          <button class="appbar__btn"><svg class="icon icon--directional"><use href="#i-chevron-back"/></svg></button>
+        </div>
+        <div class="appbar__titleblock">
+          <span class="appbar__title" data-en="About" data-fa="درباره">About</span>
+        </div>
+      </div>
+
+      <div class="screen__body screen__body--flush">
+
+        <div class="block block--center block--head gap-xs">
+          <span class="wordmark">Odova</span>
+          <span class="t-label ink-mid" dir="ltr">Version 1.4.0 (312)</span>
+          <span class="t-caption" dir="ltr">Backup format 1</span>
+        </div>
+
+        <div class="tickrule tickrule--major"></div>
+
+        <!-- the promise -->
+        <div class="promise block block--head">
+          <div class="promise__line">
+            <span class="promise__mark"><svg class="icon icon--20"><use href="#i-check"/></svg></span>
+            <span class="promise__text" data-en="No account. No sign-up." data-fa="نه حسابی، نه ثبت‌نامی.">No account. No sign-up.</span>
+          </div>
+          <div class="promise__line">
+            <span class="promise__mark"><svg class="icon icon--20"><use href="#i-check"/></svg></span>
+            <span class="promise__text" data-en="No server. Nothing is uploaded." data-fa="نه سروری. هیچ‌چیز آپلود نمی‌شود.">No server. Nothing is uploaded.</span>
+          </div>
+          <div class="promise__line">
+            <span class="promise__mark"><svg class="icon icon--20"><use href="#i-check"/></svg></span>
+            <span class="promise__text" data-en="No tracking, no analytics, no ads." data-fa="نه ردیابی، نه تحلیل، نه تبلیغات.">No tracking, no analytics, no ads.</span>
+          </div>
+        </div>
+
+        <div class="block gap-md">
+          <p class="t-body ink-mid" data-en="Odova has no way to reach the internet and never asks for it. Everything you enter stays on this phone until you export it yourself." data-fa="اودووا هیچ راهی به اینترنت ندارد و هرگز آن را نمی‌خواهد. هر چه وارد می‌کنید تا وقتی خودتان خروجی نگیرید روی همین گوشی می‌ماند.">Odova has no way to reach the internet and never asks for it. Everything you enter stays on this phone until you export it yourself.</p>
+          <p class="t-body ink-lo" data-en="If you lose the phone without a backup, the records are gone — that is the trade for keeping them private." data-fa="اگر گوشی را بدون پشتیبان از دست بدهید، رکوردها رفته‌اند — این بهای خصوصی ماندن آن‌هاست.">If you lose the phone without a backup, the records are gone — that is the trade for keeping them private.</p>
+        </div>
+
+        <div class="list push-top">
+          <div class="row row--tappable">
+            <span class="row__icon"><svg class="icon"><use href="#i-list"/></svg></span>
+            <span class="row__main"><span class="row__title" data-en="Open source licences" data-fa="مجوزهای متن‌باز">Open source licences</span></span>
+            <svg class="icon row__chevron icon--directional"><use href="#i-chevron-end"/></svg>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+        <div class="tickrule"></div>
+        <div class="block block--center block--foot">
+          <p class="t-caption" data-en="Made for people who keep their cars." data-fa="ساخته شده برای کسانی که خودرویشان را نگه می‌دارند.">Made for people who keep their cars.</p>
+        </div>
+
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-home"/></svg><span class="tabbar__label" data-en="Home" data-fa="خانه">Home</span></button>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-list"/></svg><span class="tabbar__label" data-en="History" data-fa="تاریخچه">History</span></button>
+        <div class="tabbar__fab"><span class="tabbar__fab-key"><svg class="icon icon--24"><use href="#i-plus"/></svg></span></div>
+        <button class="tabbar__item"><svg class="icon icon--24"><use href="#i-coins"/></svg><span class="tabbar__label" data-en="Costs" data-fa="هزینه‌ها">Costs</span></button>
+        <button class="tabbar__item is-active"><svg class="icon icon--24"><use href="#i-gear"/></svg><span class="tabbar__label" data-en="Settings" data-fa="تنظیمات">Settings</span></button>
+      </div>
+      <div class="homebar"></div>
+
+    </div>
+  </div>
+</section>

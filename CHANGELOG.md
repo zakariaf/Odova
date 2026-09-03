@@ -17,8 +17,11 @@ All notable changes to Odova are recorded here. The format follows
 - `tools/` — repo gates (release hygiene, spec-example validation) with
   self-tests that prove each gate can fail, plus the app-name availability
   checker used to choose the name, and the design mockup pipeline.
-- `design/` — three complete candidate design systems, each covering all 27
-  screens, with 336 reference screenshots in light/dark and LTR/RTL.
+- `design/` — three complete candidate design systems, each covering all 28
+  screens, with 340 reference screenshots in light/dark and LTR/RTL.
+- `epics/` — 19 executable build epics derived from `SPEC.md`: 182 TDD tasks, the
+  skills each epic loads, and a visual-parity gate on every task that builds a
+  screen.
 - `.claude/skills/` — 40 Flutter engineering skills vendored from
   zakariaf/Flutter-Skills at a pinned commit, plus seven `calm-*` skills written
   here that implement the Calm design system in Flutter and gate the built app

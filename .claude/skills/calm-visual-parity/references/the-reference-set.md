@@ -8,12 +8,12 @@ design/reference/calm-contact-<theme>-<locale>.png          all 27 on one sheet
 design/reference/_parity/<screen>-<theme>-<direction>.png   written by the comparison tool
 ```
 
-`<theme>` is `light|dark`, `<direction>` is `ltr|rtl`. 27 screens × 4 = 108 images per system.
+`<theme>` is `light|dark`, `<direction>` is `ltr|rtl`. 28 screens × 4 = 112 images per system.
 
 The `_parity/` directory is build output — it is regenerated on every comparison and is not
 committed.
 
-## The 27 screens
+## The 28 screens
 
 `firstrun.language`, `firstrun.vehicle`, `home`, `vehicle.switcher`, `reminders.list`,
 `reminders.edit`, `log.fillup`, `log.service`, `log.expense`, `log.odometer`, `history`,

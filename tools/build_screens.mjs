@@ -10,8 +10,10 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
-const FRAG = process.env.FRAG_DIR;
-if (!FRAG) { console.error('set FRAG_DIR'); process.exit(1); }
+// The artboard fragments are vendored at design/_fragments/ so this is reproducible.
+// They were once only in a scratch directory, which made a rebuild silently destroy any
+// artboard added since — exactly how `dialog.snooze` nearly got lost.
+const FRAG = process.env.FRAG_DIR || join(ROOT, 'design', '_fragments');
 
 const ORDER = ['g1', 'g2', 'g3'];
 

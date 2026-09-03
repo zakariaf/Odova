@@ -3,7 +3,7 @@
 Three candidate design systems for Odova, each covering the **whole app**, so the
 choice can be made by looking at a finished product rather than at a mood board.
 
-Same 27 screens, same demo data, same DOM contract in all three. Only the design
+Same 28 screens, same demo data, same DOM contract in all three. Only the design
 language differs.
 
 | | [Garage Slip](garage-slip/system.html) | [Instrument](instrument/system.html) | [Calm](calm/system.html) |
@@ -23,8 +23,9 @@ language differs.
 ```
 design/<system>/odova.css      the design system: tokens, primitives, components
 design/<system>/system.html    the specimen sheet — every token, every component, every state
-design/<system>/screens.html   the whole app, 27 screens, one page, with theme and language toggles
-design/reference/              336 PNGs (see below)
+design/<system>/screens.html   the whole app, 28 screens, one page, with theme and language toggles
+design/_fragments/            the artboard sources screens.html is assembled from
+design/reference/              340 PNGs (see below)
 design/_fonts/Vazirmatn.woff2  bundled, because half the locales are right-to-left
 ```
 
@@ -34,7 +35,7 @@ English/فارسی, so you can compare all four states without regenerating anyt
 ## The reference images
 
 ```
-design/reference/<system>/<screen>-<theme>-<dir>.png      27 × 2 × 2 = 108 per system
+design/reference/<system>/<screen>-<theme>-<dir>.png      28 × 2 × 2 = 112 per system
 design/reference/<system>-contact-<theme>-<locale>.png    all 27 on one sheet
 ```
 
@@ -53,7 +54,7 @@ this app.
 ```bash
 cd tools && npm install          # puppeteer-core + sharp, once
 cd ..
-FRAG_DIR=… node tools/build_screens.mjs   # assemble screens.html from fragments
+node tools/build_screens.mjs              # assemble screens.html from design/_fragments/
 node tools/shoot_design.mjs               # all systems, or pass slugs
 node tools/optimise_png.mjs               # palette-quantise: ~58 MB → ~19 MB
 ```
