@@ -23,19 +23,35 @@ void main() {
       isNot(contains('persian')),
     );
 
-    // The filter is on the LEGITIMATE owner, not on the suspect. The first
-    // version skipped any file that did not mention `CalmNumerals`, which
-    // reads the rule backwards: the place a dead wire value comes back is a
-    // settings map, a migration or an import validator working in raw
-    // strings, and none of those need name the enum. EPIC-05 is full of
-    // exactly that code.
+    // The word is alive as a CALENDAR value and dead as a numeral one, so
+    // neither a blanket grep nor a whole-file allowlist is the rule. The first
+    // version skipped any file not mentioning `CalmNumerals`, which reads it
+    // backwards — a dead wire value comes back in a settings map, a migration
+    // or an import validator working in raw strings, and none of those name
+    // the enum. The second allowed it only where `CalmCalendar` appears, and
+    // then the settings TABLE arrived, whose `calendar` CHECK legitimately
+    // lists it. A fixed window around each occurrence does not work either:
+    // in that table the `calendar` and `numerals` columns are adjacent, so any
+    // window wide enough to see one sees both.
+    //
+    // So: read backwards from each occurrence to the NEAREST of the two words.
+    // `CHECK (calendar IN ('gregorian', 'persian'))` answers calendar; a
+    // `{'numerals': 'persian'}` map answers numerals; `CalmCalendar.persian`
+    // answers calendar. It is the enclosing subject, whatever the syntax.
+    final subject = RegExp('calendar|numeral', caseSensitive: false);
+
     final offenders = <String>[];
     for (final file in dartFilesUnder('lib')) {
       final source = sourceWithoutLineComments(file);
-      if (!RegExp('''['"]persian['"]''').hasMatch(source)) continue;
-      // `CalmCalendar` is the one thing in the app allowed to spell it.
-      if (!source.contains('CalmCalendar')) offenders.add(file.path);
+      for (final match in RegExp("""['"]persian['"]""").allMatches(source)) {
+        final before = source.substring(0, match.start);
+        final nearest = subject.allMatches(before).lastOrNull;
+        final aboutCalendars =
+            nearest != null && nearest.group(0)!.toLowerCase() == 'calendar';
+        if (!aboutCalendars) offenders.add('${file.path}:${match.start}');
+      }
     }
+
     expect(
       offenders,
       isEmpty,
