@@ -98,10 +98,17 @@ needs to know.
    defines into the build**, or the export writes empty strings. The reasoning
    is in the `ALLOW` block of `tools/audit_deps.py`.
 
-3. **`ckb` borrows Arabic framework strings.** Month names, `reorderItemToStart`
-   and the Cupertino strings are Arabic under a Sorani UI. That is better than
-   English and wrong all the same. **EPIC-04 owns fixing it**, and it is one of
-   the places `SPEC.md` §18's Sorani questions bite.
+3. **`ckb` borrows Arabic framework strings, and EPIC-04 will change that to
+   Persian.** EPIC-01 task 1.4 says to supply `ckb` from the `ar` Material
+   delegate, so that is what shipped; EPIC-04 task 4.2 says to borrow `fa`
+   instead, and `fa` is the better neighbour — `SPEC.md` §5 ships `extarab`
+   digits for `ckb` precisely *"because Sorani letterforms follow Persian
+   conventions"*. The switch is one constant, `ckbFrameworkFallback` in
+   `lib/l10n/ckb_localizations.dart`. Until then, month names,
+   `reorderItemToStart` and the Cupertino strings are Arabic under a Sorani UI:
+   better than English and wrong all the same. EPIC-04 also adds the SDK-probe
+   test that makes this vendoring a deliberate deletion the day Flutter ships
+   `ckb`, rather than dead code nobody dares remove.
 
 4. **The crash sink writes to the platform log.** A durable on-disk sink needs
    an application-support directory, which **EPIC-05** owns. The seam is
