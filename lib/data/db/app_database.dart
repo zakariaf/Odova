@@ -8,6 +8,7 @@
 // (SPEC.md §2).
 import 'package:drift/drift.dart';
 import 'package:odova/data/db/connection.dart';
+import 'package:odova/data/db/schema_version.dart';
 import 'package:odova/data/db/tables/expenses.dart';
 import 'package:odova/data/db/tables/fill_ups.dart';
 import 'package:odova/data/db/tables/odometer_corrections.dart';
@@ -17,6 +18,7 @@ import 'package:odova/data/db/tables/service_records.dart';
 import 'package:odova/data/db/tables/settings.dart';
 import 'package:odova/data/db/tables/trips.dart';
 import 'package:odova/data/db/tables/vehicles.dart';
+import 'package:odova/data/schema_versions.dart';
 
 part 'app_database.g.dart';
 
@@ -85,8 +87,14 @@ class AppDatabase extends _$AppDatabase {
   /// test, or a specific file in a migration.
   AppDatabase.forTesting(super.e);
 
+  /// The schema this build of the app expects.
+  ///
+  /// [kLatestSchemaVersion], which is checked against the highest committed
+  /// snapshot in `drift_schemas/odova/`. The two drifting apart means no
+  /// migration runs on a user's device — the app opens a database it does not
+  /// understand and reads columns that are not there.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => kLatestSchemaVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -96,11 +104,41 @@ class AppDatabase extends _$AppDatabase {
         await customStatement(statement);
       }
     },
+
+    // The order here is the whole contract, and it is the shape `run-migration`
+    // specifies.
+    //
+    // Foreign keys go OFF before the transaction, not inside it: SQLite
+    // silently ignores `PRAGMA foreign_keys` while a transaction is open, so a
+    // migration that turns them off in the wrong place runs with them ON, and
+    // a step that rebuilds a table drops every child row that referenced it.
+    //
+    // They are checked again afterwards with `foreign_key_check`, which
+    // REPORTS orphans rather than refusing writes. Without that a migration
+    // that silently orphaned rows would commit and look successful — and the
+    // rows would be gone from every query while still occupying the file.
+    onUpgrade: (m, from, to) async {
+      await customStatement('PRAGMA foreign_keys = OFF;');
+      await m.database.transaction(() async {
+        await stepByStep()(m, from, to);
+      });
+
+      final orphans = await customSelect('PRAGMA foreign_key_check;').get();
+      if (orphans.isNotEmpty) {
+        throw StateError(
+          'the migration left ${orphans.length} orphaned row(s): '
+          '${orphans.map((r) => r.data).take(5).toList()}',
+        );
+      }
+    },
+
     beforeOpen: (details) async {
-      // Re-asserted here as well as in `setup`. `setup` covers the app's own
-      // connection; this covers every executor anybody hands to
-      // `AppDatabase.forTesting`, including the in-memory ones the data tests
-      // use — where a cascade that is not enforced makes a passing test a lie.
+      // Re-asserted unconditionally, here as well as in `setup`. `setup`
+      // covers the app's own connection; this covers every executor anybody
+      // hands to `AppDatabase.forTesting`, including the in-memory ones the
+      // data tests use — where a cascade that is not enforced makes a passing
+      // test a lie. And after `onUpgrade` turned them off, this is what turns
+      // them back on.
       await customStatement('PRAGMA foreign_keys = ON;');
     },
   );

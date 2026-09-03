@@ -1,0 +1,21 @@
+# Drift's generator configuration, and the migration ladder's registration.
+#
+# `databases:` under the builder options is what `drift_dev make-migrations`
+# reads. Without it the command exits with "No databases found in the build.yaml
+# file" and the whole schema-snapshot and step-by-step machinery is
+# unavailable — which is a thing you would discover on the day you need to
+# migrate eight years of somebody's service history, not before. It is added at
+# v1, when the ladder is empty and it costs nothing.
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # The database the schema snapshots track.
+          databases:
+            odova: lib/data/db/app_database.dart
+          # Where the era-correct generated classes and the snapshots live.
+          # Both are committed: a broken future generator must not stop the app
+          # building, and a schema diff is worth reviewing.
+          test_dir: test/drift/
+          schema_dir: drift_schemas/

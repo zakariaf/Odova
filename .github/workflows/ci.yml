@@ -77,6 +77,15 @@ jobs:
           python3 -m pip install --quiet pyyaml
           python3 tools/check_skill_frontmatter.py
 
+      # Contract: the schema version the app claims, the committed snapshots,
+      # the generated ladder and the era-correct classes all agree. Bumping the
+      # constant without a snapshot makes stepByStep throw on a user's device;
+      # adding a snapshot without bumping it means the migration never runs.
+      # Both ship silently and surface as data loss on an update. In the repo
+      # job because it needs no toolchain and every push should see it.
+      - name: the schema version and its snapshots agree
+        run: bash tools/check_schema_freshness.sh
+
       # Contract: the pub ecosystem block in .github/dependabot.yml is live
       # and grouped. It shipped commented out because Dependabot aborts on a
       # missing pubspec.yaml; pubspec.yaml exists now, and this is what stops

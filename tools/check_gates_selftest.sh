@@ -527,4 +527,30 @@ restore_all
 rmdir lib/features 2>/dev/null || true
 assert 0 "check_drift_confinement is green again" bash "$DRIFT"
 
+echo "== check_schema_freshness =="
+FRESH=tools/check_schema_freshness.sh
+assert 0 "check_schema_freshness is green on the real tree" bash "$FRESH"
+
+# The version bumped with no snapshot behind it. This is the shape the mistake
+# actually takes: somebody adds a column, bumps the number, and ships — and
+# `stepByStep` throws "Unknown migration from 1" on the device of every user who
+# had the old version.
+plant lib/data/db/schema_version.dart
+perl -0pi -e 's/kLatestSchemaVersion = 1/kLatestSchemaVersion = 2/' \
+  lib/data/db/schema_version.dart
+assert 1 "check_schema_freshness is red on a bump with no snapshot" \
+  bash "$FRESH"
+restore_all
+
+# The other direction, which is just as silent: a snapshot exported and the
+# constant left alone, so the migration never runs and the app reads columns
+# that are not there.
+write_scratch drift_schemas/odova/drift_schema_v2.json <<'JSON'
+{"_meta": {"description": "selftest plant"}, "options": {}, "entities": []}
+JSON
+assert 1 "check_schema_freshness is red on a snapshot with no bump" \
+  bash "$FRESH"
+restore_all
+assert 0 "check_schema_freshness is green again" bash "$FRESH"
+
 exit "$rc"
