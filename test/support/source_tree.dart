@@ -1,5 +1,14 @@
 /// Walking this repo's own source, for the policy tests.
 ///
+/// **Flutter-free, and it has to stay that way.** `test/core` is run twice: by
+/// `flutter test` with everything else, and by `dart test test/core` on the
+/// plain VM, which is the gate that proves the domain layer needs no Flutter.
+/// A helper here that imports `flutter_test` breaks the second run with
+/// `Dart library 'dart:ui' is not available on this platform` — which is
+/// exactly what happened when this file was first shared with a `test/core`
+/// gate. So it throws rather than calling `fail`, and it returns rather than
+/// calling `expect`.
+///
 /// Every grep-style gate needs the same three things: the list of hand-written
 /// Dart files, a way to skip generated code that does not retype which paths
 /// are generated, and a guard that fails when the walk found nothing. The third
@@ -8,8 +17,6 @@
 library;
 
 import 'dart:io';
-
-import 'package:flutter_test/flutter_test.dart';
 
 import 'analysis_options_source.dart';
 
@@ -30,7 +37,7 @@ const knownEmptyLibDirectories = {
 /// [path] is not in [knownEmptyLibDirectories].
 List<File> dartFilesUnder(String path) {
   final directory = Directory(path);
-  expect(directory.existsSync(), isTrue, reason: '$path does not exist');
+  if (!directory.existsSync()) throw StateError('$path does not exist');
 
   final excluded = excludedDirectories();
   final files = directory
@@ -45,7 +52,7 @@ List<File> dartFilesUnder(String path) {
       .toList();
 
   if (files.isEmpty && !knownEmptyLibDirectories.contains(path)) {
-    fail(
+    throw StateError(
       '$path holds no Dart file, so the gate that walked it asserted nothing. '
       'If that is expected, add it to knownEmptyLibDirectories with the epic '
       'that fills it.',
@@ -72,7 +79,10 @@ Iterable<String> importUrisIn(String source) => RegExp(
   multiLine: true,
 ).allMatches(source).map((m) => m.group(1)!);
 
-/// Fails if any file under [path] contains one of [banned]'s patterns.
+/// Every file under [path] that contains one of [banned]'s patterns.
+///
+/// Returns rather than asserting, so this library stays Flutter-free — see the
+/// note at the top. Callers `expect(…, isEmpty)`.
 ///
 /// Keys are regular expressions; values say why the identifier is refused, and
 /// end up in the failure message where somebody can act on them.
@@ -83,10 +93,9 @@ Iterable<String> importUrisIn(String source) => RegExp(
 /// the file, and a gate that punishes writing it down teaches people not to.
 /// `check_raw_values.sh` strips comments for exactly this reason. Only whole
 /// lines go, so a trailing comment and every string literal still count.
-void expectNoBannedPatterns(
+List<String> bannedPatternOffenders(
   Map<String, String> banned, {
   String path = 'lib',
-  String? reason,
 }) {
   final offenders = <String>[];
   for (final file in dartFilesUnder(path)) {
@@ -97,5 +106,5 @@ void expectNoBannedPatterns(
       }
     }
   }
-  expect(offenders, isEmpty, reason: reason);
+  return offenders;
 }

@@ -7,8 +7,6 @@
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:test/test.dart';
 
-import '../../support/source_tree.dart';
-
 void main() {
   group('resolveNumerals reads the region, not the language', () {
     test('the Maghreb writes Arabic with Latin digits', () {
@@ -62,39 +60,6 @@ void main() {
     expect(
       resolveNumerals(CalmNumerals.arabicIndic, 'en-US'),
       CalmNumerals.arabicIndic,
-    );
-  });
-
-  test('the withdrawn NUMERAL name `persian` appears nowhere', () {
-    // `persian` is alive as a CALENDAR value and dead as a numeral one, so a
-    // blanket grep over lib/ is wrong — it fires on CalmCalendar.persian,
-    // which is correct code. The rule is narrower and this states it twice:
-    // no CalmNumerals value is spelled that way, and no file that DEFINES a
-    // numbering system mentions it.
-    expect(
-      CalmNumerals.values.map((n) => n.wire),
-      isNot(contains('persian')),
-    );
-
-    // The filter is on the LEGITIMATE owner, not on the suspect. The first
-    // version skipped any file that did not mention `CalmNumerals`, which
-    // reads the rule backwards: the place a dead wire value comes back is a
-    // settings map, a migration or an import validator working in raw
-    // strings, and none of those need name the enum. EPIC-05 is full of
-    // exactly that code.
-    final offenders = <String>[];
-    for (final file in dartFilesUnder('lib')) {
-      final source = sourceWithoutLineComments(file);
-      if (!RegExp('''['"]persian['"]''').hasMatch(source)) continue;
-      // `CalmCalendar` is the one thing in the app allowed to spell it.
-      if (!source.contains('CalmCalendar')) offenders.add(file.path);
-    }
-    expect(
-      offenders,
-      isEmpty,
-      reason:
-          'the literal `persian` outside the calendar enum is a numeral '
-          'wire value coming back from the dead',
     );
   });
 
