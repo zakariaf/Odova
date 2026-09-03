@@ -22,6 +22,12 @@ CalmTabBar _tabBar({int index = 0}) => CalmTabBar(
   onAdd: () {},
   addLabel: 'Add an entry',
   labels: _labels,
+  icons: const [
+    Icons.home_outlined,
+    Icons.history,
+    Icons.pie_chart_outline,
+    Icons.settings_outlined,
+  ],
 );
 
 void main() {
@@ -247,7 +253,9 @@ void main() {
     expect(active.fontWeight, FontWeight.w600);
 
     final resting = tester.widget<Text>(find.text('Home')).style!;
-    expect(resting.color, calmColorsLight.ink2);
+    // ink3, which is what `.tabbar__item` declares — and a known contrast
+    // failure at 13px, excepted with the rest of the ink3 finding.
+    expect(resting.color, calmColorsLight.ink3);
     expect(resting.fontWeight, FontWeight.w500);
   });
 

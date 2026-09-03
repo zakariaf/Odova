@@ -449,6 +449,7 @@ class CalmTabBar extends StatelessWidget {
     required this.addLabel,
     required this.labels,
     super.key,
+    this.icons,
   });
 
   /// The selected tab, 0..3.
@@ -466,13 +467,23 @@ class CalmTabBar extends StatelessWidget {
   /// Home, History, Costs, Settings — already localised.
   final List<String> labels;
 
+  /// One 24pt glyph per label, drawn above it.
+  ///
+  /// Optional so the declared signature still compiles, but `.tabbar__icon` is
+  /// 24px in odova.css and the reference screenshots show four of them: a bar
+  /// built without these will not pass its parity check.
+  final List<IconData>? icons;
+
   @override
   Widget build(BuildContext context) {
     assert(
       labels.length == 4,
       'CalmTabBar has four labelled slots plus the +.',
     );
-    final space = CalmSpace.of(context);
+    assert(
+      icons == null || icons!.length == 4,
+      'One icon per label, or none at all.',
+    );
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     // The widget is 18pt TALLER than the bar it paints, and that is not a
@@ -482,55 +493,55 @@ class CalmTabBar extends StatelessWidget {
     // bar would have 44pt of hit area — under the 52 floor, on the app's most
     // pressed control. The extra band is transparent and sits on `bg`, which
     // is the colour of the page behind it, so it is invisible.
-    return SizedBox(
-      height: space.tabbarH + bottomInset + kCalmTabFabLift,
-      child: Stack(
-        children: [
-          const PositionedDirectional(
+    return Stack(
+      children: [
+        const PositionedDirectional(
+          top: kCalmTabFabLift,
+          start: 0,
+          end: 0,
+          bottom: 0,
+          child: CalmTabBarSurface(),
+        ),
+        // The only NON-positioned child, so it is what sizes the Stack. The
+        // bar therefore grows with the text scale rather than clipping its
+        // labels at 150% — SPEC.md §17 allows zero glyph clipping at 200%.
+        Padding(
+          padding: EdgeInsetsDirectional.only(
             top: kCalmTabFabLift,
-            start: 0,
-            end: 0,
-            bottom: 0,
-            child: CalmTabBarSurface(),
-          ),
-          PositionedDirectional(
-            top: kCalmTabFabLift,
-            start: 0,
-            end: 0,
             bottom: bottomInset,
-            // `grid-template-columns: repeat(5, 1fr)`. The middle slot is
-            // empty: the + lives in its own band above, so its whole 62 is
-            // hittable.
-            child: Row(
-              children: [
-                for (var i = 0; i < 5; i++)
-                  Expanded(
-                    child: CalmTabSlot(
-                      child: i == 2
-                          ? const SizedBox.shrink()
-                          : _CalmTabItem(
-                              label: labels[i < 2 ? i : i - 1],
-                              active: (i < 2 ? i : i - 1) == index,
-                              onTap: () => onChanged(i < 2 ? i : i - 1),
-                            ),
-                    ),
+          ),
+          // `grid-template-columns: repeat(5, 1fr)`. The middle slot is empty:
+          // the + lives in its own band above, so its whole 62 is hittable.
+          child: Row(
+            children: [
+              for (var i = 0; i < 5; i++)
+                Expanded(
+                  child: CalmTabSlot(
+                    child: i == 2
+                        ? const SizedBox.shrink()
+                        : _CalmTabItem(
+                            label: labels[i < 2 ? i : i - 1],
+                            icon: icons?[i < 2 ? i : i - 1],
+                            active: (i < 2 ? i : i - 1) == index,
+                            onTap: () => onChanged(i < 2 ? i : i - 1),
+                          ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
-          PositionedDirectional(
-            top: 0,
-            start: 0,
-            end: 0,
-            height: kCalmTabFabSize,
-            // Centred in the bar, not in a slot: dead centre in both
-            // directions with no second code path.
-            child: Center(
-              child: CalmTabFab(onTap: onAdd, semanticLabel: addLabel),
-            ),
+        ),
+        PositionedDirectional(
+          top: 0,
+          start: 0,
+          end: 0,
+          height: kCalmTabFabSize,
+          // Centred in the bar, not in a slot: dead centre in both directions
+          // with no second code path.
+          child: Center(
+            child: CalmTabFab(onTap: onAdd, semanticLabel: addLabel),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -567,7 +578,16 @@ class CalmTabSlot extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Center(child: child);
+  Widget build(BuildContext context) {
+    final space = CalmSpace.of(context);
+    return ConstrainedBox(
+      // 62 at 1x, and taller when the label needs it.
+      constraints: BoxConstraints(minHeight: space.tabbarH),
+      // heightFactor, or the Center expands to whatever loose height the Row
+      // hands it — which is the whole screen, and the bar with it.
+      child: Center(heightFactor: 1, child: child),
+    );
+  }
 }
 
 /// The central +.
@@ -613,11 +633,13 @@ class CalmTabFab extends StatelessWidget {
 class _CalmTabItem extends StatelessWidget {
   const _CalmTabItem({
     required this.label,
+    required this.icon,
     required this.active,
     required this.onTap,
   });
 
   final String label;
+  final IconData? icon;
   final bool active;
   final VoidCallback onTap;
 
@@ -626,6 +648,12 @@ class _CalmTabItem extends StatelessWidget {
     final colors = CalmColors.of(context);
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
+    // `.tabbar__item { color: var(--color-ink-3) }` — the design's value, and
+    // a known WCAG 1.4.3 failure at 13px on `bg` (3.67:1 light). It is the
+    // same ink3 finding deferred to EPIC-17, and the pair is already declared
+    // and excepted in calm_contrast_test.dart. Quietly substituting ink2 here
+    // would make the app disagree with its own reference screenshots.
+    final tint = active ? colors.brand : colors.ink3;
 
     return Semantics(
       selected: active,
@@ -633,18 +661,31 @@ class _CalmTabItem extends StatelessWidget {
         onTap: onTap,
         borderRadius: 0,
         pressScale: 1,
-        child: SizedBox(
-          height: space.touchMin, // 52 inside a 62 bar
+        child: ConstrainedBox(
+          // 52 inside a 62 bar, and a MINIMUM: at 200% the icon and the label
+          // together need more than 52, and a fixed height would clip them.
+          constraints: BoxConstraints(minHeight: space.touchMin),
+          // heightFactor here too: a Center under a bounded height expands to
+          // fill it, and the bar takes the whole screen.
           child: Center(
-            // `.tabbar__item` declares no transition, so neither does this.
-            child: Text(
-              label,
-              maxLines: 1,
-              // Weight AND colour, never colour alone.
-              style: type.caption.copyWith(
-                color: active ? colors.brand : colors.ink2,
-                fontWeight: active ? type.semi : type.medium,
-              ),
+            heightFactor: 1,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 24, color: tint), // .tabbar__icon
+                  const SizedBox(height: 3), // .tabbar__item { gap: 3px }
+                ],
+                Text(
+                  label,
+                  maxLines: 1,
+                  // Weight AND colour, never colour alone.
+                  style: type.caption.copyWith(
+                    color: tint,
+                    fontWeight: active ? type.semi : type.medium,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

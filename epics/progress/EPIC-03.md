@@ -36,3 +36,9 @@
   to it. The real floor is measured by `getSize` per widget, and task 3.11's
   matrix does it at five text scales — that is where the floor is actually
   enforced.
+- 3.7 chrome — `CalmScaffold`, `CalmAppBar` (4 shapes), `CalmTabBar`; 14 tests.
+  **Real defect found:** the +'s 18pt overhang was not hit-testable (44pt of a
+  52pt floor). The bar now owns the band it overhangs into. The example's `elev2`
+  on the tab bar contradicts `.tabbar`'s `box-shadow: 0 -1px 0 divider`; the CSS
+  wins. `Container(alignment:)` made the app bar 600pt tall in a `Center`.
+  Modal title was 5.1pt off centre until the Row's `mainAxisAlignment`.
