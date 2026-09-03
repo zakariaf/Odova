@@ -51,6 +51,11 @@ dev_dependencies:
   # Drift's code generator and the schema-snapshot tooling. Dev-only: the
   # generated .g.dart is committed, so no generator ships.
   build_runner: ^2.10.1
+  # SHA-256 for the migration test's content hash. DEV-ONLY: it never ships,
+  # and it is not a security boundary — it is how the zero-record-loss oracle
+  # notices a migration that copied the right NUMBER of rows with the wrong
+  # values in them, which counts alone cannot see.
+  crypto: ^3.0.7
   drift_dev: ^2.28.3
   flutter_test:
     sdk: flutter

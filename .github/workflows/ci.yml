@@ -311,6 +311,15 @@ jobs:
       - name: the numeric normaliser has been seen to fail
         run: bash tools/check_numeric_input_selftest.sh
 
+      # Contract: SPEC.md §17's data-safety gate — a migration loses no record.
+      # 12,000 records, with row counts AND a content hash either side. Counts
+      # alone would not notice a migration that copied the right NUMBER of rows
+      # with the wrong values in them, which is what a mis-mapped column does
+      # and is the failure that survives review, because everything still looks
+      # populated. Its own step so the failure has its own name in the log.
+      - name: a migration loses no record
+        run: flutter test test/migration/
+
       # Contract: lib/core/ really does run with no widget binding. The
       # structure test proves it imports no Flutter; this proves the tests
       # EXECUTE without one, which is what makes EPIC-06's fuel maths and

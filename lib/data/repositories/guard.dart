@@ -24,8 +24,15 @@ import 'package:sqlite3/common.dart' show SqliteException;
 /// rule 6 says a bug crashes in debug rather than becoming a failure value the
 /// UI shows as "something went wrong".
 Future<Result<T, PersistFailure>> guardPersist<T>(
-  Future<Result<T, PersistFailure>> Function() body,
-) async {
+  Future<Result<T, PersistFailure>> Function() body, {
+  PersistFailure? refuseWith,
+}) async {
+  // The read-only refusal, checked BEFORE the body runs. SPEC.md §6.3.3: after
+  // a failed migration the app comes up read-only, and a write that reached
+  // the database and was then rolled back is a write that touched a file the
+  // app has already decided it does not understand.
+  if (refuseWith != null) return Err(refuseWith);
+
   try {
     return await body();
   } on SqliteException catch (error) {
