@@ -1,0 +1,10 @@
+{
+  "_comment": "Synthetic. A `dart pub deps --json` document in which the banned package arrives as a DIRECT dependency — the easy case, and the one a human reading pubspec.yaml would also catch.",
+  "root": "odova",
+  "packages": [
+    {"name": "odova", "version": "0.1.0", "kind": "root", "source": "root", "dependencies": ["flutter", "http"]},
+    {"name": "flutter", "version": "0.0.0", "kind": "direct", "source": "sdk", "dependencies": []},
+    {"name": "http", "version": "1.5.0", "kind": "direct", "source": "hosted", "dependencies": ["http_parser"]},
+    {"name": "http_parser", "version": "4.1.2", "kind": "transitive", "source": "hosted", "dependencies": []}
+  ]
+}
