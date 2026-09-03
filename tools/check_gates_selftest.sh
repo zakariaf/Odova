@@ -40,4 +40,15 @@ assert 1 "red when record_counts disagrees with the arrays" python3 tools/check_
 mv .SPEC.md.bak SPEC.md
 assert 0 "green again once restored" python3 tools/check_spec_examples.py
 
+echo "== check_lint_include =="
+assert 0 "green on the real analysis_options.yaml" bash tools/check_lint_include.sh
+cp analysis_options.yaml .analysis_options.yaml.bak
+# The exact failure analysis_options.yaml's own header warns about: the package
+# resolves, the FILE inside it does not, and analysis then runs zero added rules
+# while the build stays green.
+perl -0pi -e 's|analysis_options\.10\.3\.0\.yaml|analysis_options.99.9.9.yaml|' analysis_options.yaml
+assert 1 "red when the include names a file the resolved package does not ship" bash tools/check_lint_include.sh
+mv .analysis_options.yaml.bak analysis_options.yaml
+assert 0 "green again once restored" bash tools/check_lint_include.sh
+
 exit "$rc"

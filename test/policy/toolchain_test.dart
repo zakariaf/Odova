@@ -11,12 +11,17 @@ void main() {
   group('toolchain', () {
     test('pubspec environment sdk is a range, not a pin', () {
       final pubspec = File('pubspec.yaml').readAsStringSync();
-      final match = RegExp(r'^\s*sdk:\s*(.+)$', multiLine: true)
-          .firstMatch(pubspec);
+      final match = RegExp(
+        r'^\s*sdk:\s*(.+)$',
+        multiLine: true,
+      ).firstMatch(pubspec);
 
       expect(match, isNotNull, reason: 'pubspec.yaml has no environment.sdk');
 
-      final constraint = match!.group(1)!.trim().replaceAll(RegExp('''['"]'''), '');
+      final constraint = match!
+          .group(1)!
+          .trim()
+          .replaceAll(RegExp('''['"]'''), '');
       expect(
         constraint,
         startsWith('^3.'),
@@ -44,7 +49,11 @@ void main() {
         multiLine: true,
       ).stringMatch(pubspec);
 
-      expect(environment, isNotNull, reason: 'pubspec.yaml has no environment:');
+      expect(
+        environment,
+        isNotNull,
+        reason: 'pubspec.yaml has no environment:',
+      );
       expect(
         RegExp(r'^\s+flutter:', multiLine: true).hasMatch(environment!),
         isFalse,

@@ -30,10 +30,14 @@ void main() {
     });
 
     test('ios PRODUCT_BUNDLE_IDENTIFIER is io.applander.odova', () {
-      final pbxproj =
-          File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+      final pbxproj = File(
+        'ios/Runner.xcodeproj/project.pbxproj',
+      ).readAsStringSync();
 
-      expect(pbxproj, contains('PRODUCT_BUNDLE_IDENTIFIER = io.applander.odova'));
+      expect(
+        pbxproj,
+        contains('PRODUCT_BUNDLE_IDENTIFIER = io.applander.odova'),
+      );
       expect(
         pbxproj,
         isNot(contains('com.example')),
@@ -50,8 +54,9 @@ void main() {
         contains('minSdk = 26'),
       );
 
-      final pbxproj =
-          File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+      final pbxproj = File(
+        'ios/Runner.xcodeproj/project.pbxproj',
+      ).readAsStringSync();
       expect(pbxproj, contains('IPHONEOS_DEPLOYMENT_TARGET = 15.0'));
       expect(
         pbxproj,
