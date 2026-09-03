@@ -24,6 +24,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # The Flutter-free test tier. lib/core/ imports no Flutter by construction
+  # (test/policy/structure_test.dart), so its tests run under `dart test` with
+  # no widget binding — which is what makes the due engine and the fuel maths
+  # testable in milliseconds, and what turns a stray `Widget` in lib/core/ into
+  # a compile error rather than a review comment. Dev-only: it never ships.
+  test: ^1.31.0
   # The ruleset analysis_options.yaml includes. Caret range; pubspec.lock is
   # the pin (dependency-hygiene rule 1).
   very_good_analysis: ^10.3.0
@@ -31,3 +37,23 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+  # SPEC.md §5 Fonts. Vazirmatn renders the ENTIRE UI under fa/ar/ckb, Latin
+  # runs included, so `VW Golf TDI 2.0` inside a Persian sentence is one line in
+  # one font rather than two fonts fighting over a baseline. en/de/fr use the
+  # platform font, which is a decision and not a compromise.
+  #
+  # One VARIABLE file, wght 100-900, taken from the upstream release
+  # (github.com/rastikerdar/vazirmatn v33.003, SIL OFL 1.1). Smaller than three
+  # statics, and Calm only uses 400/500/600 — but the axis has to stay live or
+  # the platform's bold-text accessibility flag stops working.
+  #
+  # An asset, never a fetch: `google_fonts` is refused by tools/audit_deps.sh
+  # and by test/policy/no_google_fonts_test.dart.
+  assets:
+    - assets/fonts/OFL.txt
+
+  fonts:
+    - family: Vazirmatn
+      fonts:
+        - asset: assets/fonts/Vazirmatn[wght].ttf

@@ -182,6 +182,45 @@ Two efficiency findings were noted and left: 11 `RegExp`s recompiled per file in
 Both are milliseconds today. The ARB one scales with the string set and is worth
 doing when EPIC-04 next touches that file.
 
+## Pre-audited for EPIC-05
+
+`drift ^2.28.0`, `sqlite3_flutter_libs ^0.5.0` and `path_provider ^2.1.0` were
+resolved in a scratch project and walked with `tools/audit_deps.py` before
+EPIC-05 needs them: **88 resolved, 46 shipping, nothing banned**. The only
+build/test-only hits are the same `web_socket`/`web_socket_channel` pair the
+test frameworks already drag in. EPIC-05 task 5.1 does not have to discover
+that its three new dependencies are acceptable — they are.
+
+## The dependency EPIC-16 will have to argue for
+
+`flutter_local_notifications` — the only way to satisfy SPEC.md §4 — pulls
+**`http` into the shipping set**, transitively:
+
+```
+http <- timezone <- flutter_local_notifications
+```
+
+`tools/audit_deps.sh` refuses it, correctly. Before widening anything, here is
+what the tree actually shows:
+
+- `timezone` declares `http: ^1.6.0` as a regular dependency, and its **only**
+  `package:http` import is `lib/browser.dart` — the web entry point, which
+  fetches the IANA database over HTTP in a browser.
+- On iOS and Android, `flutter_local_notifications` uses
+  `timezone/data/latest.dart` and `timezone/timezone.dart`. `browser.dart` is
+  never imported, so the client is unreachable in a mobile build.
+- The app declares no `INTERNET` permission in any Android manifest, so on
+  Android the socket cannot be opened even if something reached it.
+
+That is a real, defensible `ALLOW` entry — and it is the first one. `/simplify`
+deleted the empty `ALLOW` set in EPIC-01 with the note *"add one back when there
+is a real exception, with the reason attached"*; this is that exception, and the
+reason above is what has to travel with it. **Do not widen the `BANNED` pattern**
+— `http` must stay refused for everything else.
+
+Also pre-audited, clean: `go_router`, `file_picker`, `share_plus` (65 resolved,
+52 shipping, nothing banned).
+
 ## `/code-review` — what it found
 
 Ten findings, all applied. Two were defects the epic's own tests could not have

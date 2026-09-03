@@ -3,6 +3,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:odova/app/error_handlers.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/theme/calm/font_licences.dart';
 
 /// Builds the real infrastructure once and returns it as provider overrides.
 ///
@@ -18,6 +19,11 @@ import 'package:odova/app/providers.dart';
 ///
 /// This function does not install a zone. See [installErrorHandlers].
 Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
+  // SIL OFL 1.1 obliges the licence to travel with the font. Registering is
+  // lazy — the stream is only pulled if somebody opens the licences page — so
+  // this costs nothing on the cold-launch path SPEC.md §17 budgets at 2.0s.
+  registerFontLicences();
+
   return [
     crashSinkProvider.overrideWithValue(crashSink),
     clockProvider.overrideWithValue(const Clock()),

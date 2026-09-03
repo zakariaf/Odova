@@ -19,10 +19,8 @@ import 'analysis_options_source.dart';
 /// so "this gate currently checks nothing" is a decision written down rather
 /// than an accident. Each entry names the epic that fills it.
 const knownEmptyLibDirectories = {
-  'lib/core', // EPIC-06 — units, money and the fuel engine
   'lib/data', // EPIC-05 — persistence, schema and migrations
   'lib/features', // EPIC-09 — first run and the garage
-  'lib/theme', // EPIC-02 — Calm tokens and theme
   'lib/ui', // EPIC-03 — the Calm component library
 };
 
@@ -67,6 +65,13 @@ Iterable<String> importUrisIn(String source) => RegExp(
 ///
 /// Keys are regular expressions; values say why the identifier is refused, and
 /// end up in the failure message where somebody can act on them.
+///
+/// **Whole comment lines are stripped first.** A doc comment that names
+/// `ColorScheme.fromSeed` in order to explain why Calm cannot use it must not
+/// trip the gate that forbids it — the reasoning is the most valuable thing in
+/// the file, and a gate that punishes writing it down teaches people not to.
+/// `check_raw_values.sh` strips comments for exactly this reason. Only whole
+/// lines go, so a trailing comment and every string literal still count.
 void expectNoBannedPatterns(
   Map<String, String> banned, {
   String path = 'lib',
@@ -74,7 +79,11 @@ void expectNoBannedPatterns(
 }) {
   final offenders = <String>[];
   for (final file in dartFilesUnder(path)) {
-    final source = file.readAsStringSync();
+    final source = file
+        .readAsStringSync()
+        .split('\n')
+        .where((line) => !line.trimLeft().startsWith('//'))
+        .join('\n');
     for (final MapEntry(key: pattern, value: why) in banned.entries) {
       if (RegExp(pattern).hasMatch(source)) {
         offenders.add('${file.path}: $why');

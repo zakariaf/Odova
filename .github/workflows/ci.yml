@@ -171,6 +171,36 @@ jobs:
       - name: the lint include resolves
         run: bash tools/check_lint_include.sh
 
+      # Contract: every aesthetic value in the app lives in one directory.
+      # A hex, a Duration, a radius or a fontSize outside lib/theme/calm/ is a
+      # component that has hardcoded one brightness — and it looks perfectly
+      # correct until somebody opens the app at night.
+      - name: no raw aesthetic values outside the token layer
+        run: bash .claude/skills/calm-tokens/scripts/check_raw_values.sh lib
+
+      # Contract: a new theme slot transitions and patches, or it is not a
+      # slot. The compiler cannot see a field dropped from lerp — copyWith's
+      # signature is ours and lerp just takes the value — so the slot silently
+      # becomes a hard cut forever.
+      - name: every Calm theme field survives copyWith and lerp
+        run: >-
+          bash .claude/skills/calm-tokens/scripts/check_extension_fields.sh
+          lib/theme/calm
+
+      # Contract: 13px is the floor, because the app is read one-handed at a
+      # fuel pump in the rain. Also: no monospace anywhere, no font family
+      # outside the theme layer, and no digit baked into a translated string.
+      - name: the type floor holds
+        run: >-
+          bash .claude/skills/calm-typography-and-rtl/scripts/check_type_floor.sh
+          lib lib/l10n/arb
+
+      # Contract: tokens sit below components sit below features, and the
+      # arrow never inverts. Wrapping Material is lib/ui/calm/'s job and only
+      # there.
+      - name: the Calm layering holds
+        run: bash .claude/skills/calm-design-system/scripts/check_calm_layering.sh lib
+
       # Contract: whitespace is not a review topic.
       - run: dart format --output=none --set-exit-if-changed .
 
@@ -193,6 +223,15 @@ jobs:
       # rasterisation differs, and a gate that goes red for the host instead of
       # the code is a gate that gets switched off.
       - run: flutter test --coverage --test-randomize-ordering-seed random --exclude-tags golden --reporter expanded
+
+      # Contract: lib/core/ really does run with no widget binding. The
+      # structure test proves it imports no Flutter; this proves the tests
+      # EXECUTE without one, which is what makes EPIC-06's fuel maths and
+      # EPIC-07's due engine testable in milliseconds at every threshold. A
+      # pubspec comment claiming a `dart test` tier that nothing runs is a
+      # claim, not a tier.
+      - name: the pure core runs without Flutter
+        run: dart test test/core
 
       # Contract: the published coverage report covers only code somebody
       # wrote. Generated code is large and fully exercised by its callers, so

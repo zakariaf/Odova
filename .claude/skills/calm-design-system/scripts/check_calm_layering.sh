@@ -11,6 +11,13 @@ TARGET="${1:-lib}"
 if [ ! -d "$TARGET" ]; then echo "note: '$TARGET' not found; nothing to scan."; exit 0; fi
 
 GEN_RE='\.g\.dart$|\.freezed\.dart$|\.gr\.dart$'
+
+# Comments are stripped BEFORE the scan, exactly as check_raw_values.sh does.
+# A doc comment that names `Scaffold(` in order to explain why the file uses a
+# Material instead is the most valuable line in that file, and a gate that
+# punishes writing it down teaches people not to. The strip does not drop the
+# line, so a banned call elsewhere on it still fails.
+STRIP='s|//.*$||'
 # Material widgets that have a Calm* replacement in lib/ui/calm/.
 MATERIAL='(^|[^A-Za-z0-9_])(ElevatedButton|FilledButton|OutlinedButton|TextButton|IconButton|Card|ListTile|Scaffold|AppBar|SliverAppBar|TextField|TextFormField|Switch|SwitchListTile|Divider|SnackBar|BottomNavigationBar|NavigationBar|Chip|ActionChip|FilterChip|Stepper|AlertDialog|SimpleDialog|BottomSheet|SegmentedButton)\(|showModalBottomSheet\(|showDialog\('
 PALETTE='import[^;]*theme/calm/(calm_palette|calm_primitives)\.dart'
@@ -22,18 +29,20 @@ report() { echo "== $1 =="; printf '%s\n' "$2"; fail=1; }
 while IFS= read -r -d '' f; do
   printf '%s\n' "$f" | grep -qE "$GEN_RE" && continue
 
+  clean="$(sed -E "$STRIP" "$f")"
+
   case "$f" in
     */theme/calm/*)
-      hits="$(grep -nE "$UPWARD" "$f" || true)"
+      hits="$(printf '%s\n' "$clean" | grep -nE "$UPWARD" || true)"
       [ -n "$hits" ] && report "$f (theme importing ui — arrow points one way)" "$hits"
       ;;
     */ui/calm/*)
       : # the wrapper layer: Material and the palette are both legal here
       ;;
     *)
-      hits="$(grep -nE "$MATERIAL" "$f" || true)"
+      hits="$(printf '%s\n' "$clean" | grep -nE "$MATERIAL" || true)"
       [ -n "$hits" ] && report "$f (raw Material — use the Calm* widget)" "$hits"
-      hits="$(grep -nE "$PALETTE" "$f" || true)"
+      hits="$(printf '%s\n' "$clean" | grep -nE "$PALETTE" || true)"
       [ -n "$hits" ] && report "$f (imports Calm primitives — read a semantic slot)" "$hits"
       ;;
   esac

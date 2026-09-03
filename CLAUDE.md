@@ -373,7 +373,7 @@ right-to-left and the mirror is where layout bugs live.
 
 ## 9. Open questions you may hit
 
-`SPEC.md` §18 lists 25 genuinely unsettled questions. Several need a native speaker rather
+`SPEC.md` §18 lists 26 genuinely unsettled questions. Several need a native speaker rather
 than an engineering decision — the Kurdish Sorani numeral set, whether `ckb-IR` defaults to
 the Jalali calendar, and how a toman-labelled amount reads to an Iranian user. **Sorani
 translation quality is the single largest risk to the RTL launch.**
@@ -382,6 +382,16 @@ There is also a live accessibility finding in `design/calm/ACCESSIBILITY-FINDING
 Calm's light-theme text colours fail WCAG 1.4.3 (`--color-ink-3` at 3.02–3.99:1 across 47
 rules, `--color-ink-4` at 2.39–2.60:1 as the placeholder colour). It is unresolved because the
 remedy is a design decision, and EPIC-17 must close it rather than carry it further.
+
+EPIC-02 turned that finding into `test/theme/calm/calm_contrast_test.dart`, which measures
+every declared pair in both themes and holds the failures as **dated exceptions that assert
+they still fail** — so the day the values change, the test goes red and forces the exception's
+removal. Writing it found two things the document does not say: `--color-ink-3` also fails in
+**dark** on `surface-2` (4.39:1) and `surface-3` (3.84:1), and `--color-focus` is 2.82:1 on
+`surface-3`, below SC 1.4.11's 3:1 for a focus indicator. EPIC-17 has to take all three
+together. The decision is `SPEC.md` §18 question 25, and it gets more expensive with every
+screen epic: today it is two hex values and one re-shoot of the reference set; after EPIC-15 it
+is that plus a parity re-check of all 28 built screens.
 
 When you hit one of these, say so and decide deliberately. Do not pick quietly.
 
