@@ -69,15 +69,55 @@ restore_all
 assert 0 "green again once restored" python3 tools/check_spec_examples.py
 
 echo "== check_lint_include =="
-assert 0 "green on the real analysis_options.yaml" bash tools/check_lint_include.sh
-plant analysis_options.yaml
+# Hermetic, like the audit_deps graph arms and for the same reason: this runs in
+# the `repo` CI job, which has no Flutter toolchain and therefore no
+# .dart_tool/package_config.json at all. The gate refuses to guess in that state
+# — correctly — so the arms build a throwaway resolved package instead of
+# pointing at the real one. The real run is the `app` job's own step, after
+# `flutter pub get`.
+lint_fixture="$(mktemp -d)"
+mkdir -p "$lint_fixture/vga/lib" "$lint_fixture/.dart_tool"
+: >"$lint_fixture/vga/lib/analysis_options.10.3.0.yaml"
+cat >"$lint_fixture/.dart_tool/package_config.json" <<JSON
+{"configVersion": 2, "packages": [
+  {"name": "very_good_analysis", "rootUri": "file://$lint_fixture/vga", "packageUri": "lib/"}
+]}
+JSON
+printf 'include: package:very_good_analysis/analysis_options.10.3.0.yaml\n' \
+  >"$lint_fixture/analysis_options.yaml"
+
+assert 0 "green when the include names a file the package really ships" \
+  bash tools/check_lint_include.sh \
+    --options "$lint_fixture/analysis_options.yaml" \
+    --config "$lint_fixture/.dart_tool/package_config.json"
+
 # The exact failure analysis_options.yaml's own header warns about: the package
 # resolves, the FILE inside it does not, and analysis then runs zero added rules
 # while the build stays green.
-perl -0pi -e 's|analysis_options\.10\.3\.0\.yaml|analysis_options.99.9.9.yaml|' analysis_options.yaml
-assert 1 "red when the include names a file the resolved package does not ship" bash tools/check_lint_include.sh
-restore_all
-assert 0 "green again once restored" bash tools/check_lint_include.sh
+printf 'include: package:very_good_analysis/analysis_options.99.9.9.yaml\n' \
+  >"$lint_fixture/analysis_options.yaml"
+assert 1 "red when the include names a file the resolved package does not ship" \
+  bash tools/check_lint_include.sh \
+    --options "$lint_fixture/analysis_options.yaml" \
+    --config "$lint_fixture/.dart_tool/package_config.json"
+
+# The package is not a dependency at all.
+printf 'include: package:not_a_dependency/analysis_options.yaml\n' \
+  >"$lint_fixture/analysis_options.yaml"
+assert 1 "red when the include names a package that is not resolved" \
+  bash tools/check_lint_include.sh \
+    --options "$lint_fixture/analysis_options.yaml" \
+    --config "$lint_fixture/.dart_tool/package_config.json"
+
+# No package_config at all. This is the state the repo CI job is in, and the
+# gate must FAIL rather than skip: an unresolved include is indistinguishable
+# from a working one at analyze time, so "I could not check" is not "ok".
+assert 1 "red when there is no package_config to resolve through" \
+  bash tools/check_lint_include.sh \
+    --options "$lint_fixture/analysis_options.yaml" \
+    --config "$lint_fixture/.dart_tool/does-not-exist.json"
+
+rm -rf "$lint_fixture"
 
 echo "== audit_deps =="
 assert 0 "green on the repo as it stands" bash tools/audit_deps.sh

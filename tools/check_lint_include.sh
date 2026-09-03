@@ -11,28 +11,46 @@
 #
 # Resolution goes through .dart_tool/package_config.json rather than guessing at
 # PUB_CACHE, so a relocated cache cannot turn this gate into a skip.
-#   usage: check_lint_include.sh [--print-path]
+#   usage: check_lint_include.sh [--print-path] [--options FILE] [--config FILE]
 #
 # --print-path writes the resolved file's path to stdout and nothing else, so
 # test/policy/lint_test.dart can read the ruleset it resolves without carrying a
 # second copy of this resolution — package_config.json's rootUri is sometimes
 # relative to .dart_tool/, sometimes a percent-encoded file: URI, and finding
 # that out twice in two languages is how the two copies drift.
+#
+# --options and --config point at a different analysis_options.yaml and a
+# different package_config.json. They exist so tools/check_gates_selftest.sh can
+# exercise both arms of this gate WITHOUT a Flutter toolchain: the self-test
+# runs in the `repo` CI job, which has no .dart_tool/ at all, and this script
+# refuses to guess in that state. The real run — over the real resolved tree —
+# is the `app` job's own step, after `flutter pub get`.
 set -uo pipefail
+
+# Captured before the cd below, so a relative --options / --config resolves
+# against the CALLER's directory rather than silently against the repo root.
+caller_pwd="$PWD"
 cd "$(dirname "$0")/.."
 
 quiet=0
-case "${1:-}" in
-  "") ;;
-  --print-path) quiet=1 ;;
-  # A typo'd flag must not silently run the default path and report ok.
-  *) echo "check_lint_include: unknown argument $1" >&2; exit 2 ;;
-esac
+options=""
+config=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --print-path) quiet=1; shift ;;
+    --options) options="${2:?--options needs a path}"; shift 2 ;;
+    --config) config="${2:?--config needs a path}"; shift 2 ;;
+    # A typo'd flag must not silently run the default path and report ok.
+    *) echo "check_lint_include: unknown argument $1" >&2; exit 2 ;;
+  esac
+done
+# A path the CALLER gave is relative to the caller; the defaults are relative to
+# the repo root, which is where this script already stands.
+[ -n "$options" ] && case "$options" in /*) ;; *) options="$caller_pwd/$options" ;; esac
+[ -n "$config" ] && case "$config" in /*) ;; *) config="$caller_pwd/$config" ;; esac
+options="${options:-analysis_options.yaml}"
+config="${config:-.dart_tool/package_config.json}"
 say() { [ "$quiet" = 1 ] || printf '%s\n' "$*"; }
-
-options=analysis_options.yaml
-config=.dart_tool/package_config.json
-
 [ -f "$options" ] || { echo "FAIL  $options is missing" >&2; exit 1; }
 
 include=$(sed -nE 's|^include:[[:space:]]*package:([A-Za-z0-9_]+)/(.+)$|\1 \2|p' "$options")
