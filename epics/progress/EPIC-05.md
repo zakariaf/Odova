@@ -168,6 +168,51 @@ The two flags on the third command are load-bearing: without them only shape
 tests are possible, and a shape test reads zero rows — so it cannot tell a step
 that copied everything from one that copied nothing.
 
+## For EPIC-06: the canonical-integer fields to replace
+
+The epic asks for these by name, so the value-object swap knows what it is
+replacing. Every one is an `int` with the unit in the field name, and that name
+is currently the ONLY thing preventing a metre being added to a mile.
+
+**Distance — metres.** `Vehicle.purchaseOdometerM`, `Vehicle.expectedAnnualM`,
+`Vehicle.noticeDistanceM`, `ServiceItem.intervalDistanceM`,
+`ServiceItem.targetOdometerM`, `ServiceItem.baselineOdometerM`,
+`ServiceItem.noticeDistanceM`, `ServiceItem.snoozeUntilOdometerM`,
+`ServiceRecord.odometerM`, `FillUp.odometerM`, `Expense.odometerM`,
+`Trip.startOdometerM`, `Trip.endOdometerM`, `Trip.manualDistanceM`,
+`OdometerReading.odometerM`, `OdometerCorrection.previousM`,
+`OdometerCorrection.newM`, `AppSettings.noticeDistanceM`, and
+`OdometerCorrection.offsetM` (derived).
+
+**Volume — millilitres.** `Vehicle.tankCapacityMl`, `FillUp.quantityMl`.
+
+**Mass — grams.** `FillUp.quantityG`.
+
+**Energy — watt-hours.** `FillUp.energyWh`.
+
+**Money — minor units, always beside an ISO 4217 code.**
+`Vehicle.purchasePriceMinor` + `purchasePriceCurrency`,
+`Vehicle.soldPriceMinor` + `soldPriceCurrency`,
+`ServiceLine.amountMinor` + `currency`,
+`FillUp.totalCostMinor` + `currency`,
+`Expense.amountMinor` + `currency`, and `ServiceRecord.totalMinor` (derived,
+summed from the lines, and there is no column for it).
+
+**Not a unit, do not wrap.** `createdAtUtcMs` / `updatedAtUtcMs` /
+`deletedAtUtcMs` / `lastBackupAtUtcMs` / `lastBackupReminderAtUtcMs` are
+INSTANTS in UTC epoch milliseconds. `notificationTimeMinutes`,
+`quietHoursFromMinutes` and `quietHoursToMinutes` are LOCAL times of day in
+minutes after midnight and are deliberately not instants — 09:00 stays 09:00
+across a zone change, and storing them as instants would move them.
+`ServiceItem.intervalMonths`, `noticeDays`, `snoozeCount`, `sortOrder`,
+`firstDayOfWeek`, `schemaVersion` and `Vehicle.year` are counts, not
+measurements.
+
+`Expense.amountMinor` is the one money field that may be NEGATIVE — a refund, a
+warranty reimbursement, an insurance payout — and it is the only money column in
+the schema without a `>= 0` check. Whatever `Money` becomes has to represent
+that, and there is a test whose whole job is to say so.
+
 ## Deferred
 
 - **`test/migration/freshness_test.dart`'s every-pair loop runs zero pairs.**
