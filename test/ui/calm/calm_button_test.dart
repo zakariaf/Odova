@@ -298,7 +298,10 @@ void main() {
     final text = tester.widget<Text>(
       find.text('Sicherung & Wiederherstellung'),
     );
-    expect(text.maxLines, 2);
+    // Two lines are RESERVED, not imposed. A maxLines of 2 that is reached is
+    // a clip, and the overflow matrix measures every specimen at 300% on a
+    // 320pt screen — where a German label needs three.
+    expect(text.maxLines, isNull);
     expect(text.overflow, isNot(TextOverflow.ellipsis));
     expect(tester.takeException(), isNull);
 

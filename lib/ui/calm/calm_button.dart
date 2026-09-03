@@ -336,10 +336,10 @@ class _CalmButtonBody extends StatelessWidget {
                         label,
                         textAlign: TextAlign.center,
                         style: textStyle,
-                        // Two lines, reserved for every size. German runs ~30%
-                        // longer than English; ellipsis on a button hides the
-                        // verb.
-                        maxLines: 2,
+                        // No maxLines. Two lines are RESERVED for every size —
+                        // German runs ~30% longer than English — but not
+                        // imposed: a cap that is reached is a clip, and an
+                        // ellipsis on a button hides the verb.
                       ),
                     ),
                   ),

@@ -249,10 +249,16 @@ class _SecondaryBody extends StatelessWidget {
           ),
         ),
         SizedBox(width: space.s3),
-        Text(
-          view.statusLine,
-          textAlign: TextAlign.end,
-          style: type.caption.copyWith(color: style.ink),
+        // Flexible, not a bare Text: at 200% text scale the title and the
+        // status line together are wider than a phone, and an unconstrained
+        // Text in a Row overflows rather than wrapping. The card's own
+        // minHeight lets it grow instead.
+        Flexible(
+          child: Text(
+            view.statusLine,
+            textAlign: TextAlign.end,
+            style: type.caption.copyWith(color: style.ink),
+          ),
         ),
         CalmDirectionalIcon(
           Icons.chevron_right,

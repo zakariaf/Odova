@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
+import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 
 import '../../support/calm_ramps.dart';
@@ -345,6 +346,79 @@ void main() {
       expect(declared, contains('$ramp.ink on $ramp.tint'));
       expect(declared, contains('$ramp.base on surface'));
     }
+  });
+
+  group('APCA', () {
+    // Run ALONGSIDE WCAG 2.x, not instead of it. WCAG is a ratio of
+    // luminances and treats a pair identically to its inverse; APCA is
+    // polarity-aware, and a warm low-contrast palette that clears 4.5:1 in
+    // light can be meaningfully worse in dark. Calm is exactly that palette.
+    test('the implementation lands on the published anchors', () {
+      // Guard the guard. An APCA function with a wrong exponent still returns
+      // plausible numbers, and every assertion below would then be measuring
+      // nothing. Black on white is 106.0 Lc and white on black is -107.9 in
+      // the reference implementation.
+      expect(
+        apcaLc(const Color(0xFF000000), const Color(0xFFFFFFFF)),
+        closeTo(106.0, 0.1),
+      );
+      expect(
+        apcaLc(const Color(0xFFFFFFFF), const Color(0xFF000000)),
+        closeTo(-107.9, 0.1),
+      );
+    });
+
+    test('every status pair clears its Lc floor in both themes', () {
+      final failures = <String>[];
+
+      for (final MapEntry(key: theme, value: colours) in themes.entries) {
+        for (final state in DueState.values) {
+          final style = CalmStatusStyle.resolve(colours, state);
+          final ink = apcaLc(style.ink, style.tint).abs();
+          final base = apcaLc(style.base, colours.surface).abs();
+          if (ink < bodyTextLc) {
+            failures.add('$theme ${state.name} ink on tint: $ink Lc');
+          }
+          if (base < largeTextAndGraphicLc) {
+            failures.add('$theme ${state.name} base on surface: $base Lc');
+          }
+        }
+      }
+
+      expect(failures, isEmpty);
+    });
+
+    test('ink3 in DARK is an APCA failure that WCAG 2.x passes', () {
+      // The reason both are run. `--color-ink-3` on `--color-surface` measures
+      // 4.6:1 in dark — a WCAG pass — and 39.1 Lc, which is below even the
+      // 45 non-text floor, let alone the 60 for body text. Light measures
+      // 66.4 Lc and passes.
+      //
+      // This is the SAME ink3 finding deferred to EPIC-17, with a second piece
+      // of evidence: fixing it is not only a light-theme change. Pinned at the
+      // measured value so the day the palette moves, this goes red.
+      expect(
+        apcaLc(calmColorsDark.ink3, calmColorsDark.surface).abs(),
+        closeTo(39.1, 0.1),
+      );
+      expect(
+        apcaLc(calmColorsLight.ink3, calmColorsLight.surface).abs(),
+        greaterThanOrEqualTo(bodyTextLc),
+      );
+      // And the primary ink slots do clear it, in both themes.
+      for (final MapEntry(key: theme, value: colours) in themes.entries) {
+        for (final (name, ink) in [
+          ('ink', colours.ink),
+          ('ink2', colours.ink2),
+        ]) {
+          expect(
+            apcaLc(ink, colours.surface).abs(),
+            greaterThanOrEqualTo(bodyTextLc),
+            reason: '$theme $name',
+          );
+        }
+      }
+    });
   });
 
   test('ink4 is reachable only from its declared call sites', () {

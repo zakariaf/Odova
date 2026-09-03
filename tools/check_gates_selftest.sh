@@ -429,4 +429,33 @@ assert 1 "check_status_encoding is red on a widget switching on DueState" \
 restore_all
 assert 0 "check_status_encoding is green again once removed" bash "$STATUS" lib
 
+echo "== check_golden_lane =="
+GOLDEN=tools/check_golden_lane.sh
+assert 0 "check_golden_lane is green on the real workflow" bash "$GOLDEN"
+
+# Arm 1: the lane is gone. A `--exclude-tags golden` with nothing running them
+# leaves 88 committed PNGs that nothing ever compares.
+write_scratch .selftest_no_lane.yml <<'YML'
+jobs:
+  app:
+    steps:
+      - run: flutter test --exclude-tags golden
+YML
+assert 1 "check_golden_lane is red with no golden lane" \
+  bash "$GOLDEN" .selftest_no_lane.yml
+
+# Arm 2: the lane rebaselines itself, which makes it incapable of failing.
+# Written with the flag split, so this file does not contain it either.
+UPD='--update''-goldens'
+write_scratch .selftest_self_bless.yml <<YML
+jobs:
+  app:
+    steps:
+      - run: flutter test --tags golden $UPD
+YML
+assert 1 "check_golden_lane is red when CI rebaselines its own goldens" \
+  bash "$GOLDEN" .selftest_self_bless.yml
+restore_all
+assert 0 "check_golden_lane is green again" bash "$GOLDEN"
+
 exit "$rc"

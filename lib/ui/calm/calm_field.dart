@@ -11,6 +11,8 @@
 //
 // Validators, FormState, focus traversal and keyboard types belong to
 // `forms-and-input`; this is the skin.
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show TextInputFormatter;
 import 'package:odova/theme/calm/calm_colors.dart';
@@ -406,8 +408,14 @@ class _CalmComputedBadge extends StatelessWidget {
     // `minHeight:` literal below 52 is what check_touch_targets.sh exists to
     // find. It cannot tell a decorative badge from a control, and it should
     // not have to.
-    final padBlock =
-        (kCalmComputedBadgeSize - glyph.fontSize! * glyph.height!) / 2;
+    // Clamped at zero. CalmType.arabicScript raises the leading so Persian
+    // ascenders are not clipped, which makes the caption line box TALLER than
+    // the 19pt badge — and a negative EdgeInsets asserts on the first fa
+    // frame. The badge simply grows there, which is the right answer.
+    final padBlock = math.max<double>(
+      0,
+      (kCalmComputedBadgeSize - glyph.fontSize! * glyph.height!) / 2,
+    );
 
     return DecoratedBox(
       decoration: ShapeDecoration(

@@ -61,3 +61,9 @@
   the backspace glyph given the real direction), and `Expanded(flex: 2)` made
   the confirm key 4pt narrow. Added an optional `digits` parameter — EPIC-04's
   seam for `۰۱۲۳`.
+- 3.10 answer surfaces — `CalmDueCard`/`CalmDueView`/`CalmProgressBar`,
+  `CalmAllClear`, `CalmEmptyState`; 17 tests. Reference example used
+  `FilledButton` (banned), `LinearProgressIndicator` (cannot animate width over
+  `motion.slow`), a self-mirroring `Icon` and `BorderRadius.circular(radiusPill)`
+  in a ClipRRect. First progress bar drew zero-width: `Align(widthFactor:)`
+  scales the CHILD, not the track — `FractionallySizedBox` does what was meant.

@@ -217,6 +217,11 @@ jobs:
           bash .claude/skills/calm-layout-and-motion/scripts/check_touch_targets.sh
           lib test
 
+      # Contract: the committed specimen PNGs are compared, and CI never
+      # rebaselines them. A pipeline that blesses its own goldens cannot fail.
+      - name: the golden lane is armed and never self-rebaselining
+        run: bash tools/check_golden_lane.sh
+
       # Contract: one resolution point for DueState. SPEC.md §1 — never guess
       # in a way that looks like fact — is enforceable only if a single file
       # decides what "we do not know" looks like.
@@ -247,6 +252,15 @@ jobs:
       # rasterisation differs, and a gate that goes red for the host instead of
       # the code is a gate that gets switched off.
       - run: flutter test --coverage --test-randomize-ordering-seed random --exclude-tags golden --reporter expanded
+
+      # Contract: the 88 committed specimen PNGs are actually compared against.
+      # Their own lane, because a golden failure is a different conversation
+      # from a logic failure — it is either an intended visual change that has
+      # to be blessed, or a rendering difference nobody meant. Never with the
+      # rebaseline flag: a pipeline that rebaselines its own goldens cannot
+      # fail.
+      - name: the specimen goldens match
+        run: flutter test --tags golden --reporter expanded
 
       # Contract: lib/core/ really does run with no widget binding. The
       # structure test proves it imports no Flutter; this proves the tests

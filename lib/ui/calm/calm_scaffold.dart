@@ -424,7 +424,9 @@ class CalmAppBarAction extends StatelessWidget {
             widthFactor: 1,
             child: Text(
               label,
-              maxLines: 1,
+              textAlign: TextAlign.center,
+              // No maxLines: "Abbrechen" at 200% is wider than a third of a
+              // 320pt modal head.
               style: type.bodyLg.copyWith(
                 color: onTap == null
                     ? colors.ink4
@@ -678,7 +680,11 @@ class _CalmTabItem extends StatelessWidget {
                 ],
                 Text(
                   label,
-                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  // No maxLines. "Settings" at 150% does not fit a fifth of a
+                  // 320pt screen on one line, and SPEC.md §17 allows zero
+                  // glyph clipping at 200%. Calm cuts words, not type — the
+                  // bar grows.
                   // Weight AND colour, never colour alone.
                   style: type.caption.copyWith(
                     color: tint,

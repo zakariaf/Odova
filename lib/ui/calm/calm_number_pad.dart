@@ -280,7 +280,10 @@ class CalmNumberPadDisplay extends StatelessWidget {
           children: [
             Text(
               value,
-              maxLines: 1,
+              textAlign: TextAlign.center,
+              // No maxLines: a six-digit reading at --fs-display and 200% text
+              // scale is wider than a 320pt screen. Two lines of odometer is
+              // ugly; half an odometer is wrong.
               style: type.display.copyWith(
                 color: colors.ink,
                 fontWeight: type.semi,
@@ -421,7 +424,7 @@ class _CalmNumberPadKeyBody extends StatelessWidget {
               textDirection: iconDirection ?? Directionality.of(context),
               child: CalmDirectionalIcon(icon!, size: 24, color: foreground),
             )
-          : Text(label!, style: textStyle, maxLines: 1),
+          : Text(label!, style: textStyle, textAlign: TextAlign.center),
     );
   }
 }
