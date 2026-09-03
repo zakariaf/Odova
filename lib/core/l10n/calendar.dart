@@ -30,6 +30,16 @@ enum CalmCalendar {
 /// speaker in Iran reads Jalali because Iran runs on it, and one in Iraq reads
 /// Gregorian because Iraq does. The language does not decide this; the country
 /// does.
+///
+/// **SPEC.md §18 question 9 — open, and this is the placeholder answer.**
+/// `ckb-IR` defaults to [CalmCalendar.persian]. The alternative is that Sorani
+/// speakers in Iran expect Gregorian *in a Kurdish-language app* even though
+/// the country runs on Jalali — a question about identity rather than about
+/// calendars, and one only a native reader can settle.
+///
+/// If it is wrong, a Sorani reader in Iran opens the app on a calendar they
+/// did not expect. It costs them one settings row and costs us one line here
+/// plus one test.
 CalmCalendar resolveCalendar(CalmCalendar? setting, String formatsTag) {
   if (setting != null) return setting;
 

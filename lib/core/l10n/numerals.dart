@@ -55,6 +55,17 @@ const _blockStart = <CalmNumerals, int>{
 /// It reads the REGION, not the language: `ar-MA` gets Latin digits and
 /// `ar-EG` does not. Switching on the language subtag is the documented
 /// mistake, and it is the one that ships Arabic-Indic digits to Morocco.
+///
+/// **SPEC.md §18 question 8 — open, and this is the placeholder answer.**
+/// `ckb` resolves to [CalmNumerals.extendedArabicIndic] (`۰۱۲۳`), matching
+/// Persian. The alternative is [CalmNumerals.arabicIndic] (`٠١٢٣`), which is
+/// CLDR's own default for `ckb` and is common in Iraqi Kurdistan print. This
+/// is a native reader's call, not an engineering one — §18 says each open
+/// question "can be closed with one sentence from the right person".
+///
+/// If it is wrong, a Sorani reader in Iraq sees Persian digit shapes where
+/// they expect Arabic ones. It costs them one settings row to fix and costs us
+/// one line here plus one test.
 CalmNumerals resolveNumerals(CalmNumerals setting, String formatsTag) {
   if (setting != CalmNumerals.auto) return setting;
 

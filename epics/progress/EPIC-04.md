@@ -209,3 +209,45 @@
   longest-of-six passes the golden suite at 100% and 200%", "tab labels respect
   their 12-character maxChars" — cannot run here: EPIC-04 builds no screen.
   The fixtures and the generator are ready for them.
+
+- 4.11 the two open questions — 4 tests, both defaults named by SPEC §18 number
+  in the code that implements them. `SPEC.md` is **unedited**: §18 says each
+  question "can be closed with one sentence from the right person", and closing
+  one is its own PR with that sentence in it.
+
+### `SPEC.md` §18 questions 8 and 9 — answered provisionally, awaiting a native Sorani reader
+
+**§18.8 — Kurdish Sorani numerals: extarab `۰۱۲۳` or arab `٠١٢٣`?**
+
+Shipped: **extarab**, matching Persian. Sorani shares Persian's letterforms, and
+the app already borrows Persian for the framework chrome (`CkbFallbackDelegate`)
+and for the number symbols (`intl` has no `ckb`). One donor rather than two.
+
+The alternative is **arab**, which is CLDR's own default for `ckb` and is common
+in Iraqi Kurdistan print. That is a real argument and I cannot weigh it.
+
+Cost if wrong: a Sorani reader in Iraq sees Persian digit shapes where they
+expect Arabic ones. One settings row fixes it for them; one line and one test
+fixes it for everyone.
+
+**§18.9 — should `ckb-IR` default to Jalali, or do Sorani speakers in Iran
+expect Gregorian in a Kurdish-language app?**
+
+Shipped: **Jalali**. Iran runs on it, and a date that disagrees with every other
+date the reader sees that day is worse than an unexpected one.
+
+The alternative is a question about identity rather than about calendars — a
+Kurdish-language app might be expected to differ deliberately from the state
+calendar — and only a native reader can settle it.
+
+Cost if wrong: a Sorani reader in Iran opens the app on a calendar they did not
+expect. Again one settings row.
+
+**Who is being asked.** `CONTRIBUTING.md` already invites exactly these readers;
+§18 items 8, 9, 11 and 23 all need a native `ckb` reviewer, and this epic is the
+point at which they stop being notes and become answerable questions with a
+running app behind them. **`CLAUDE.md` §9 names Sorani translation quality as
+the single largest risk to the RTL launch, and this epic did not reduce it** —
+the `ckb` strings in the six ARB files are mine, nothing in the suite can tell a
+fluent sentence from an embarrassing one, and that is the item to put in front
+of a reader first.
