@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "appTitle": "Odova",
+  "@appTitle": {
+    "description": "The application name. A brand name: identical in all six locales, never translated and never transliterated."
+  }
+}

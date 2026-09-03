@@ -5,6 +5,7 @@
 // milliseconds without a widget harness; feature isolation is what stops the
 // twelfth screen importing the third one's private state. Neither survives
 // twelve epics on good intentions.
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -22,6 +23,24 @@ const _sanctioned = {
 
 /// Names that mean "I could not decide where this goes".
 const _junkDrawers = {'utils', 'helpers', 'common', 'misc', 'shared'};
+
+/// The directory globs `analysis_options.yaml` excludes from analysis.
+///
+/// Read rather than retyped: generated code is exempt from the mirror rule for
+/// the same reason it is exempt from the analyzer, and two copies of that list
+/// drift. `test/policy/lint_test.dart` is the gate on that.
+Set<String> _excludedDirectories() {
+  final block = RegExp(
+    r'^  exclude:\s*$\n((?:^    - .*$\n?)+)',
+    multiLine: true,
+  ).firstMatch(File('analysis_options.yaml').readAsStringSync())!.group(1)!;
+
+  return {
+    for (final line in const LineSplitter().convert(block))
+      if (RegExp(r"-\s*'?([^'\n]+?)/\*\*'?\s*$").firstMatch(line) case final m?)
+        m.group(1)!,
+  };
+}
 
 Iterable<File> _dartFilesUnder(String path) => Directory(path)
     .listSync(recursive: true)
@@ -122,11 +141,19 @@ void main() {
   });
 
   test('every lib/ directory has a mirror under test/', () {
+    final excluded = _excludedDirectories();
+    expect(excluded, isNotEmpty, reason: 'the exclude parser found nothing');
+
     final unmirrored = <String>[];
     for (final directory in [
       'lib',
       ...(_directoriesUnder('lib').map((d) => d.path)),
     ]) {
+      // Generated code is exempt for the same reason the analyzer skips it.
+      if (excluded.any((e) => directory == e || directory.startsWith('$e/'))) {
+        continue;
+      }
+
       final holdsDart = Directory(
         directory,
       ).listSync().whereType<File>().any((f) => f.path.endsWith('.dart'));
