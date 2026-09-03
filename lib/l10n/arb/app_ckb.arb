@@ -13,9 +13,9 @@
   "dateToday": "ئەمڕۆ",
   "dateTomorrow": "سبەینێ",
   "dateYesterday": "دوێنێ",
-  "dateInDays": "{n, plural, one{{n} ڕۆژی دیکە} other{{n} ڕۆژی دیکە}}",
-  "dateInAboutWeeks": "{n, plural, one{نزیکەی {n} هەفتەی دیکە} other{نزیکەی {n} هەفتەی دیکە}}",
-  "dateInAboutMonths": "{n, plural, one{نزیکەی {n} مانگی دیکە} other{نزیکەی {n} مانگی دیکە}}",
-  "dateDaysOverdue": "{n, plural, one{{n} ڕۆژ دواکەوتووە} other{{n} ڕۆژ دواکەوتووە}}",
-  "remindersDueCount": "{n, plural, =0{هیچ شتێک نییە} one{{n} بیرخەرەوە} other{{n} بیرخەرەوە}}"
+  "dateInDays": "{n, plural, one{{nText} ڕۆژی دیکە} other{{nText} ڕۆژی دیکە}}",
+  "dateInAboutWeeks": "{n, plural, one{نزیکەی {nText} هەفتەی دیکە} other{نزیکەی {nText} هەفتەی دیکە}}",
+  "dateInAboutMonths": "{n, plural, one{نزیکەی {nText} مانگی دیکە} other{نزیکەی {nText} مانگی دیکە}}",
+  "dateDaysOverdue": "{n, plural, one{{nText} ڕۆژ دواکەوتووە} other{{nText} ڕۆژ دواکەوتووە}}",
+  "remindersDueCount": "{n, plural, =0{هیچ شتێک نییە} one{{nText} بیرخەرەوە} other{{nText} بیرخەرەوە}}"
 }

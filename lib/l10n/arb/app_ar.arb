@@ -13,9 +13,9 @@
   "dateToday": "اليوم",
   "dateTomorrow": "غدًا",
   "dateYesterday": "أمس",
-  "dateInDays": "{n, plural, zero{خلال {n} يوم} one{خلال يوم} two{خلال يومين} few{خلال {n} أيام} many{خلال {n} يومًا} other{خلال {n} يوم}}",
-  "dateInAboutWeeks": "{n, plural, zero{خلال حوالي {n} أسبوع} one{خلال حوالي أسبوع} two{خلال حوالي أسبوعين} few{خلال حوالي {n} أسابيع} many{خلال حوالي {n} أسبوعًا} other{خلال حوالي {n} أسبوع}}",
-  "dateInAboutMonths": "{n, plural, zero{خلال حوالي {n} شهر} one{خلال حوالي شهر} two{خلال حوالي شهرين} few{خلال حوالي {n} أشهر} many{خلال حوالي {n} شهرًا} other{خلال حوالي {n} شهر}}",
-  "dateDaysOverdue": "{n, plural, zero{متأخر {n} يوم} one{متأخر يومًا} two{متأخر يومين} few{متأخر {n} أيام} many{متأخر {n} يومًا} other{متأخر {n} يوم}}",
-  "remindersDueCount": "{n, plural, zero{لا شيء مستحق} one{تذكير واحد مستحق} two{تذكيران مستحقان} few{{n} تذكيرات مستحقة} many{{n} تذكيرًا مستحقًا} other{{n} تذكير مستحق}}"
+  "dateInDays": "{n, plural, zero{خلال {nText} يوم} one{خلال يوم} two{خلال يومين} few{خلال {nText} أيام} many{خلال {nText} يومًا} other{خلال {nText} يوم}}",
+  "dateInAboutWeeks": "{n, plural, zero{خلال حوالي {nText} أسبوع} one{خلال حوالي أسبوع} two{خلال حوالي أسبوعين} few{خلال حوالي {nText} أسابيع} many{خلال حوالي {nText} أسبوعًا} other{خلال حوالي {nText} أسبوع}}",
+  "dateInAboutMonths": "{n, plural, zero{خلال حوالي {nText} شهر} one{خلال حوالي شهر} two{خلال حوالي شهرين} few{خلال حوالي {nText} أشهر} many{خلال حوالي {nText} شهرًا} other{خلال حوالي {nText} شهر}}",
+  "dateDaysOverdue": "{n, plural, zero{متأخر {nText} يوم} one{متأخر يومًا} two{متأخر يومين} few{متأخر {nText} أيام} many{متأخر {nText} يومًا} other{متأخر {nText} يوم}}",
+  "remindersDueCount": "{n, plural, zero{لا شيء مستحق} one{تذكير واحد مستحق} two{تذكيران مستحقان} few{{nText} تذكيرات مستحقة} many{{nText} تذكيرًا مستحقًا} other{{nText} تذكير مستحق}}"
 }

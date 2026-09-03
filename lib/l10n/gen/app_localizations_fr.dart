@@ -55,61 +55,61 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dateYesterday => 'Hier';
 
   @override
-  String dateInDays(int n) {
+  String dateInDays(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'dans $n jours',
-      many: 'dans $n jours',
-      one: 'dans $n jour',
+      other: 'dans $nText jours',
+      many: 'dans $nText jours',
+      one: 'dans $nText jour',
     );
     return '$_temp0';
   }
 
   @override
-  String dateInAboutWeeks(int n) {
+  String dateInAboutWeeks(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'dans environ $n semaines',
-      many: 'dans environ $n semaines',
-      one: 'dans environ $n semaine',
+      other: 'dans environ $nText semaines',
+      many: 'dans environ $nText semaines',
+      one: 'dans environ $nText semaine',
     );
     return '$_temp0';
   }
 
   @override
-  String dateInAboutMonths(int n) {
+  String dateInAboutMonths(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'dans environ $n mois',
-      many: 'dans environ $n mois',
-      one: 'dans environ $n mois',
+      other: 'dans environ $nText mois',
+      many: 'dans environ $nText mois',
+      one: 'dans environ $nText mois',
     );
     return '$_temp0';
   }
 
   @override
-  String dateDaysOverdue(int n) {
+  String dateDaysOverdue(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'en retard de $n jours',
-      many: 'en retard de $n jours',
-      one: 'en retard de $n jour',
+      other: 'en retard de $nText jours',
+      many: 'en retard de $nText jours',
+      one: 'en retard de $nText jour',
     );
     return '$_temp0';
   }
 
   @override
-  String remindersDueCount(int n) {
+  String remindersDueCount(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n rappels à échéance',
-      many: '$n rappels à échéance',
-      one: '$n rappel à échéance',
+      other: '$nText rappels à échéance',
+      many: '$nText rappels à échéance',
+      one: '$nText rappel à échéance',
       zero: 'Rien à faire',
     );
     return '$_temp0';

@@ -55,56 +55,56 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get dateYesterday => 'دوێنێ';
 
   @override
-  String dateInDays(int n) {
+  String dateInDays(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n ڕۆژی دیکە',
-      one: '$n ڕۆژی دیکە',
+      other: '$nText ڕۆژی دیکە',
+      one: '$nText ڕۆژی دیکە',
     );
     return '$_temp0';
   }
 
   @override
-  String dateInAboutWeeks(int n) {
+  String dateInAboutWeeks(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'نزیکەی $n هەفتەی دیکە',
-      one: 'نزیکەی $n هەفتەی دیکە',
+      other: 'نزیکەی $nText هەفتەی دیکە',
+      one: 'نزیکەی $nText هەفتەی دیکە',
     );
     return '$_temp0';
   }
 
   @override
-  String dateInAboutMonths(int n) {
+  String dateInAboutMonths(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'نزیکەی $n مانگی دیکە',
-      one: 'نزیکەی $n مانگی دیکە',
+      other: 'نزیکەی $nText مانگی دیکە',
+      one: 'نزیکەی $nText مانگی دیکە',
     );
     return '$_temp0';
   }
 
   @override
-  String dateDaysOverdue(int n) {
+  String dateDaysOverdue(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n ڕۆژ دواکەوتووە',
-      one: '$n ڕۆژ دواکەوتووە',
+      other: '$nText ڕۆژ دواکەوتووە',
+      one: '$nText ڕۆژ دواکەوتووە',
     );
     return '$_temp0';
   }
 
   @override
-  String remindersDueCount(int n) {
+  String remindersDueCount(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n بیرخەرەوە',
-      one: '$n بیرخەرەوە',
+      other: '$nText بیرخەرەوە',
+      one: '$nText بیرخەرەوە',
       zero: 'هیچ شتێک نییە',
     );
     return '$_temp0';

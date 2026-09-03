@@ -187,32 +187,32 @@ abstract class AppLocalizations {
   /// Relative date bucket: 2 to 13 days ahead.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, one{in {n} day} other{in {n} days}}'**
-  String dateInDays(int n);
+  /// **'{n, plural, one{in {nText} day} other{in {nText} days}}'**
+  String dateInDays(int n, String nText);
 
   /// Relative date bucket: 14 to 55 days ahead, expressed in whole weeks and hedged. The hedge is the point: the underlying number is a projection.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, one{in about {n} week} other{in about {n} weeks}}'**
-  String dateInAboutWeeks(int n);
+  /// **'{n, plural, one{in about {nText} week} other{in about {nText} weeks}}'**
+  String dateInAboutWeeks(int n, String nText);
 
   /// Relative date bucket: 56 days or more ahead, expressed in whole months and hedged.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, one{in about {n} month} other{in about {n} months}}'**
-  String dateInAboutMonths(int n);
+  /// **'{n, plural, one{in about {nText} month} other{in about {nText} months}}'**
+  String dateInAboutMonths(int n, String nText);
 
   /// How far past due something is. A SEPARATE message from the ahead buckets, never a negative relative time — SPEC.md §5.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, one{{n} day overdue} other{{n} days overdue}}'**
-  String dateDaysOverdue(int n);
+  /// **'{n, plural, one{{nText} day overdue} other{{nText} days overdue}}'**
+  String dateDaysOverdue(int n, String nText);
 
   /// How many reminders are due. Carries an explicit =0 case, because "0 reminders due" is a worse sentence than "Nothing due" in every one of the six.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, =0{Nothing due} one{{n} reminder due} other{{n} reminders due}}'**
-  String remindersDueCount(int n);
+  /// **'{n, plural, =0{Nothing due} one{{nText} reminder due} other{{nText} reminders due}}'**
+  String remindersDueCount(int n, String nText);
 }
 
 class _AppLocalizationsDelegate

@@ -55,73 +55,73 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dateYesterday => 'أمس';
 
   @override
-  String dateInDays(int n) {
+  String dateInDays(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'خلال $n يوم',
-      many: 'خلال $n يومًا',
-      few: 'خلال $n أيام',
+      other: 'خلال $nText يوم',
+      many: 'خلال $nText يومًا',
+      few: 'خلال $nText أيام',
       two: 'خلال يومين',
       one: 'خلال يوم',
-      zero: 'خلال $n يوم',
+      zero: 'خلال $nText يوم',
     );
     return '$_temp0';
   }
 
   @override
-  String dateInAboutWeeks(int n) {
+  String dateInAboutWeeks(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'خلال حوالي $n أسبوع',
-      many: 'خلال حوالي $n أسبوعًا',
-      few: 'خلال حوالي $n أسابيع',
+      other: 'خلال حوالي $nText أسبوع',
+      many: 'خلال حوالي $nText أسبوعًا',
+      few: 'خلال حوالي $nText أسابيع',
       two: 'خلال حوالي أسبوعين',
       one: 'خلال حوالي أسبوع',
-      zero: 'خلال حوالي $n أسبوع',
+      zero: 'خلال حوالي $nText أسبوع',
     );
     return '$_temp0';
   }
 
   @override
-  String dateInAboutMonths(int n) {
+  String dateInAboutMonths(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'خلال حوالي $n شهر',
-      many: 'خلال حوالي $n شهرًا',
-      few: 'خلال حوالي $n أشهر',
+      other: 'خلال حوالي $nText شهر',
+      many: 'خلال حوالي $nText شهرًا',
+      few: 'خلال حوالي $nText أشهر',
       two: 'خلال حوالي شهرين',
       one: 'خلال حوالي شهر',
-      zero: 'خلال حوالي $n شهر',
+      zero: 'خلال حوالي $nText شهر',
     );
     return '$_temp0';
   }
 
   @override
-  String dateDaysOverdue(int n) {
+  String dateDaysOverdue(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'متأخر $n يوم',
-      many: 'متأخر $n يومًا',
-      few: 'متأخر $n أيام',
+      other: 'متأخر $nText يوم',
+      many: 'متأخر $nText يومًا',
+      few: 'متأخر $nText أيام',
       two: 'متأخر يومين',
       one: 'متأخر يومًا',
-      zero: 'متأخر $n يوم',
+      zero: 'متأخر $nText يوم',
     );
     return '$_temp0';
   }
 
   @override
-  String remindersDueCount(int n) {
+  String remindersDueCount(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n تذكير مستحق',
-      many: '$n تذكيرًا مستحقًا',
-      few: '$n تذكيرات مستحقة',
+      other: '$nText تذكير مستحق',
+      many: '$nText تذكيرًا مستحقًا',
+      few: '$nText تذكيرات مستحقة',
       two: 'تذكيران مستحقان',
       one: 'تذكير واحد مستحق',
       zero: 'لا شيء مستحق',

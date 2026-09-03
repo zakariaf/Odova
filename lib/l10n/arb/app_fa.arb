@@ -13,9 +13,9 @@
   "dateToday": "امروز",
   "dateTomorrow": "فردا",
   "dateYesterday": "دیروز",
-  "dateInDays": "{n, plural, one{{n} روز دیگر} other{{n} روز دیگر}}",
-  "dateInAboutWeeks": "{n, plural, one{حدود {n} هفته دیگر} other{حدود {n} هفته دیگر}}",
-  "dateInAboutMonths": "{n, plural, one{حدود {n} ماه دیگر} other{حدود {n} ماه دیگر}}",
-  "dateDaysOverdue": "{n, plural, one{{n} روز گذشته} other{{n} روز گذشته}}",
-  "remindersDueCount": "{n, plural, =0{چیزی موعد ندارد} one{{n} یادآور موعددار} other{{n} یادآور موعددار}}"
+  "dateInDays": "{n, plural, one{{nText} روز دیگر} other{{nText} روز دیگر}}",
+  "dateInAboutWeeks": "{n, plural, one{حدود {nText} هفته دیگر} other{حدود {nText} هفته دیگر}}",
+  "dateInAboutMonths": "{n, plural, one{حدود {nText} ماه دیگر} other{حدود {nText} ماه دیگر}}",
+  "dateDaysOverdue": "{n, plural, one{{nText} روز گذشته} other{{nText} روز گذشته}}",
+  "remindersDueCount": "{n, plural, =0{چیزی موعد ندارد} one{{nText} یادآور موعددار} other{{nText} یادآور موعددار}}"
 }

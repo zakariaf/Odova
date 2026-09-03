@@ -136,3 +136,23 @@
   mapping (EPIC-15), so "no control reaches storage" and "no control reaches an
   export" are asserted at the helper boundary rather than through those layers.
   The corpus and the assertions are ready for both; recorded as deferred.
+
+- 4.8 plurals — `test/l10n/support/plural_matrix.dart` derives the key list
+  from the template (a hand-kept list drifts the moment somebody adds a plural)
+  and holds SPEC §17's fourteen counts. 7 tests, 6 locales × 14 counts × every
+  plural key. Verified to fail by deleting Arabic's `two` category.
+
+  **A real defect the matrix caught: `{n}` inside an ICU plural renders in
+  Latin digits.** gen-l10n interpolates the int with `toString()`, so
+  `dateInDays(1000)` in Persian read `1000 روز دیگر` — a Latin thousand inside
+  a Persian sentence, next to shaped digits everywhere else on the screen.
+
+  Fixed by splitting the number in two: `n` (int) SELECTS the CLDR category and
+  `nText` (String) is the same number already formatted and shaped by the app.
+  Two placeholders for one number is ugly, and the alternative is worse. The
+  obvious fix — `"format": "decimalPattern"` on the placeholder — makes
+  gen-l10n format with the LOCALE's default numbering system, which is right
+  until a Persian user sets `numerals: latin` (a setting SPEC §5 explicitly
+  supports, because "younger Persian and Gulf users often prefer Latin digits").
+  Then the sentence would shape and the rest of the screen would not, and
+  SPEC §5's rule is absolute: never mix two digit sets on one screen.

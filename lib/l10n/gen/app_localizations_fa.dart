@@ -55,56 +55,56 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dateYesterday => 'دیروز';
 
   @override
-  String dateInDays(int n) {
+  String dateInDays(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n روز دیگر',
-      one: '$n روز دیگر',
+      other: '$nText روز دیگر',
+      one: '$nText روز دیگر',
     );
     return '$_temp0';
   }
 
   @override
-  String dateInAboutWeeks(int n) {
+  String dateInAboutWeeks(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'حدود $n هفته دیگر',
-      one: 'حدود $n هفته دیگر',
+      other: 'حدود $nText هفته دیگر',
+      one: 'حدود $nText هفته دیگر',
     );
     return '$_temp0';
   }
 
   @override
-  String dateInAboutMonths(int n) {
+  String dateInAboutMonths(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: 'حدود $n ماه دیگر',
-      one: 'حدود $n ماه دیگر',
+      other: 'حدود $nText ماه دیگر',
+      one: 'حدود $nText ماه دیگر',
     );
     return '$_temp0';
   }
 
   @override
-  String dateDaysOverdue(int n) {
+  String dateDaysOverdue(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n روز گذشته',
-      one: '$n روز گذشته',
+      other: '$nText روز گذشته',
+      one: '$nText روز گذشته',
     );
     return '$_temp0';
   }
 
   @override
-  String remindersDueCount(int n) {
+  String remindersDueCount(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n یادآور موعددار',
-      one: '$n یادآور موعددار',
+      other: '$nText یادآور موعددار',
+      one: '$nText یادآور موعددار',
       zero: 'چیزی موعد ندارد',
     );
     return '$_temp0';

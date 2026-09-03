@@ -70,53 +70,78 @@
   "@dateYesterday": {
     "description": "Relative date bucket: exactly one day behind."
   },
-  "dateInDays": "{n, plural, one{in {n} day} other{in {n} days}}",
+  "dateInDays": "{n, plural, one{in {nText} day} other{in {nText} days}}",
   "@dateInDays": {
     "description": "Relative date bucket: 2 to 13 days ahead.",
     "placeholders": {
       "n": {
         "type": "int",
         "example": "9"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
       }
     }
   },
-  "dateInAboutWeeks": "{n, plural, one{in about {n} week} other{in about {n} weeks}}",
+  "dateInAboutWeeks": "{n, plural, one{in about {nText} week} other{in about {nText} weeks}}",
   "@dateInAboutWeeks": {
     "description": "Relative date bucket: 14 to 55 days ahead, expressed in whole weeks and hedged. The hedge is the point: the underlying number is a projection.",
     "placeholders": {
       "n": {
         "type": "int",
         "example": "6"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
       }
     }
   },
-  "dateInAboutMonths": "{n, plural, one{in about {n} month} other{in about {n} months}}",
+  "dateInAboutMonths": "{n, plural, one{in about {nText} month} other{in about {nText} months}}",
   "@dateInAboutMonths": {
     "description": "Relative date bucket: 56 days or more ahead, expressed in whole months and hedged.",
     "placeholders": {
       "n": {
         "type": "int",
         "example": "4"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
       }
     }
   },
-  "dateDaysOverdue": "{n, plural, one{{n} day overdue} other{{n} days overdue}}",
+  "dateDaysOverdue": "{n, plural, one{{nText} day overdue} other{{nText} days overdue}}",
   "@dateDaysOverdue": {
     "description": "How far past due something is. A SEPARATE message from the ahead buckets, never a negative relative time — SPEC.md §5.",
     "placeholders": {
       "n": {
         "type": "int",
         "example": "12"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
       }
     }
   },
-  "remindersDueCount": "{n, plural, =0{Nothing due} one{{n} reminder due} other{{n} reminders due}}",
+  "remindersDueCount": "{n, plural, =0{Nothing due} one{{nText} reminder due} other{{nText} reminders due}}",
   "@remindersDueCount": {
     "description": "How many reminders are due. Carries an explicit =0 case, because \"0 reminders due\" is a worse sentence than \"Nothing due\" in every one of the six.",
     "placeholders": {
       "n": {
         "type": "int",
         "example": "3"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
       }
     }
   }

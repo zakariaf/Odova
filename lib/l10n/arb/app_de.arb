@@ -13,9 +13,9 @@
   "dateToday": "Heute",
   "dateTomorrow": "Morgen",
   "dateYesterday": "Gestern",
-  "dateInDays": "{n, plural, one{in {n} Tag} other{in {n} Tagen}}",
-  "dateInAboutWeeks": "{n, plural, one{in etwa {n} Woche} other{in etwa {n} Wochen}}",
-  "dateInAboutMonths": "{n, plural, one{in etwa {n} Monat} other{in etwa {n} Monaten}}",
-  "dateDaysOverdue": "{n, plural, one{{n} Tag überfällig} other{{n} Tage überfällig}}",
-  "remindersDueCount": "{n, plural, =0{Nichts fällig} one{{n} Erinnerung fällig} other{{n} Erinnerungen fällig}}"
+  "dateInDays": "{n, plural, one{in {nText} Tag} other{in {nText} Tagen}}",
+  "dateInAboutWeeks": "{n, plural, one{in etwa {nText} Woche} other{in etwa {nText} Wochen}}",
+  "dateInAboutMonths": "{n, plural, one{in etwa {nText} Monat} other{in etwa {nText} Monaten}}",
+  "dateDaysOverdue": "{n, plural, one{{nText} Tag überfällig} other{{nText} Tage überfällig}}",
+  "remindersDueCount": "{n, plural, =0{Nichts fällig} one{{nText} Erinnerung fällig} other{{nText} Erinnerungen fällig}}"
 }
