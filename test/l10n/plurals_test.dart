@@ -68,25 +68,48 @@ void main() {
     }
   });
 
-  test('Arabic produces six visibly distinct forms across the counts', () {
-    // The whole reason `ar` carries all six categories. If two of them render
-    // the same string, one of them was copied and the distinction is lost for
-    // every reader.
+  test('Arabic renders each category distinctly, and zero reads as other', () {
+    // The whole reason `ar` carries all six categories: if two of them render
+    // the same string, one was copied and the distinction is lost for every
+    // reader. But `zero` and `other` SHOULD coincide here, and the count is
+    // exact rather than a floor because of it — Arabic takes the singular noun
+    // after 0 and after 100, so `خلال ٠ يوم` and `خلال ١٠٠ يوم` are both
+    // right and both read `يوم`. A `greaterThanOrEqualTo(5)` hedge passes
+    // whether that is grammar or a copy-paste, which is a test that has
+    // stopped asserting the thing its name claims.
     final l10n = lookupAppLocalizations(const Locale('ar'));
+    final digits = RegExp('[0-9٠-٩۰-۹٬٫,.]+');
+
     for (final key in pluralKeys()) {
-      final forms = {
-        for (final n in pluralCounts)
-          _render(
-            l10n,
-            key,
-            n,
-            _shaped(n, 'ar-EG'),
-          ).replaceAll(RegExp('[0-9٠-٩۰-۹٬٫,.]+'), '#'),
-      };
+      String render(int n) =>
+          _render(l10n, key, n, _shaped(n, 'ar-EG')).replaceAll(digits, '#');
+
+      // Read from the TEMPLATE, not from `ar`. The template decides whether
+      // zero gets a sentence of its own; each locale then implements that in
+      // whatever category CLDR gives it — `=0` in five of the six, and the
+      // real `zero` category in Arabic, which is why reading it from the
+      // Arabic file finds `zero` on every key and distinguishes nothing.
+      final hasExplicitZero = declaredCategories(
+        readArb('en')[key]! as String,
+      ).contains('=0');
+
+      // 0 and 100 take the same noun. Asserted, not tolerated — except where
+      // the message overrides zero with a sentence of its own ("Nothing due"),
+      // which is the entire point of an explicit `=0`.
+      if (!hasExplicitZero) {
+        expect(
+          render(0),
+          render(100),
+          reason: 'ar.$key: zero should read as other',
+        );
+      }
+
+      // Every other category is its own form: one, two, few, many, other.
+      final distinct = {for (final n in pluralCounts) render(n)};
       expect(
-        forms.length,
-        greaterThanOrEqualTo(5),
-        reason: 'ar.$key collapses to ${forms.length} forms: $forms',
+        distinct,
+        hasLength(hasExplicitZero ? 6 : 5),
+        reason: 'ar.$key rendered ${distinct.length} forms: $distinct',
       );
     }
   });

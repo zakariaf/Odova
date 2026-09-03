@@ -52,22 +52,20 @@ Map<String, dynamic> _arb(String locale) =>
 Iterable<String> _messageKeys(Map<String, dynamic> arb) =>
     arb.keys.where((k) => !k.startsWith('@'));
 
-/// Every literal chunk of an ICU message, with the placeholder names and the
-/// plural/select keywords removed.
+/// An ICU message with its SYNTAX removed, leaving only the copy.
 ///
 /// A plural message is `{n, plural, one{...} other{...}}` — the `n`, the word
 /// `plural` and the category names are syntax, not copy, and a digit inside
 /// `=0{...}` is a selector rather than a rendered number.
-Iterable<String> _literalRuns(String message) {
-  final withoutSyntax = message
-      .replaceAll(
-        RegExp(r'\{[A-Za-z][A-Za-z0-9]*\s*,\s*(plural|select)\s*,'),
-        '',
-      )
-      .replaceAll(RegExp(r'(=\d+|zero|one|two|few|many|other)\s*\{'), '{')
-      .replaceAll(RegExp(r'\{[A-Za-z][A-Za-z0-9]*\}'), '');
-  return [withoutSyntax];
-}
+///
+/// One string, not an iterable of one. The `Iterable` this returned first
+/// promised the caller a list of separate runs and then handed back a single
+/// element, so the loop over it ran exactly once forever and read as though it
+/// might not.
+String _copyOf(String message) => message
+    .replaceAll(RegExp(r'\{[A-Za-z][A-Za-z0-9]*\s*,\s*(plural|select)\s*,'), '')
+    .replaceAll(RegExp(r'(=\d+|zero|one|two|few|many|other)\s*\{'), '{')
+    .replaceAll(RegExp(r'\{[A-Za-z][A-Za-z0-9]*\}'), '');
 
 void main() {
   final template = _arb('en');
@@ -154,9 +152,8 @@ void main() {
     for (final locale in ['en', 'de', 'fr', 'fa', 'ar', 'ckb']) {
       final arb = _arb(locale);
       for (final key in _messageKeys(arb)) {
-        for (final run in _literalRuns(arb[key]! as String)) {
-          if (_anyDigit.hasMatch(run)) offenders.add('$locale.$key: "$run"');
-        }
+        final copy = _copyOf(arb[key]! as String);
+        if (_anyDigit.hasMatch(copy)) offenders.add('$locale.$key: "$copy"');
       }
     }
     expect(offenders, isEmpty);

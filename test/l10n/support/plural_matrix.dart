@@ -43,10 +43,19 @@ const requiredCategories = <String, List<String>>{
 /// The six locales, in SPEC.md §5's order.
 const shippedLocales = <String>['en', 'de', 'fr', 'fa', 'ar', 'ckb'];
 
+final _arbCache = <String, Map<String, dynamic>>{};
+
 /// Reads an ARB file.
-Map<String, dynamic> readArb(String locale) =>
-    jsonDecode(File('lib/l10n/arb/app_$locale.arb').readAsStringSync())
-        as Map<String, dynamic>;
+///
+/// Cached. The plural matrix reads the six files inside nested loops over
+/// keys, locales and counts, and re-parsing the JSON on every pass is the same
+/// answer computed a few hundred times.
+Map<String, dynamic> readArb(String locale) => _arbCache.putIfAbsent(
+  locale,
+  () =>
+      jsonDecode(File('lib/l10n/arb/app_$locale.arb').readAsStringSync())
+          as Map<String, dynamic>,
+);
 
 /// Message keys, ignoring `@` metadata.
 Iterable<String> messageKeys(Map<String, dynamic> arb) =>
@@ -56,13 +65,12 @@ Iterable<String> messageKeys(Map<String, dynamic> arb) =>
 ///
 /// Derived, not listed. A key added later with `{n, plural, …}` joins the
 /// matrix without anybody remembering to add it.
-List<String> pluralKeys() {
-  final template = readArb('en');
-  return [
-    for (final key in messageKeys(template))
-      if (RegExp(r',\s*plural\s*,').hasMatch(template[key]! as String)) key,
-  ];
-}
+List<String> pluralKeys() => _pluralKeys ??= [
+  for (final key in messageKeys(readArb('en')))
+    if (RegExp(r',\s*plural\s*,').hasMatch(readArb('en')[key]! as String)) key,
+];
+
+List<String>? _pluralKeys;
 
 /// The categories a message actually declares.
 Set<String> declaredCategories(String message) => {

@@ -104,28 +104,35 @@ final localeControllerProvider = NotifierProvider<LocaleController, String>(
   LocaleController.new,
 );
 
+/// The strings tag and the formats tag, resolved together.
+///
+/// One provider because it is one decision. Both halves come out of a single
+/// [resolveLocaleTags] call over the same two inputs, and running it twice
+/// invites the two answers to drift apart on the day somebody edits one call
+/// site — which is the bug that would show as German words with American
+/// separators and be blamed on `intl`.
+final resolvedLocaleTagsProvider = Provider<ResolvedLocale>(
+  (ref) => resolveLocaleTags(
+    ref.watch(localeControllerProvider),
+    ref.watch(deviceLocalesProvider).map((l) => l.toLanguageTag()).toList(),
+  ),
+);
+
 /// The locale whose STRINGS the app should load.
 ///
 /// Formats come from [resolvedFormatsLocaleProvider], and they are not the
 /// same answer: `de-AT` reads German and formats Austrian, `pt-BR` reads
 /// English and formats Brazilian.
-final resolvedLocaleProvider = Provider<Locale>((ref) {
-  final resolved = resolveLocaleTags(
-    ref.watch(localeControllerProvider),
-    ref.watch(deviceLocalesProvider).map((l) => l.toLanguageTag()).toList(),
-  );
-  return Locale(resolved.strings);
-});
+final resolvedLocaleProvider = Provider<Locale>(
+  (ref) => Locale(ref.watch(resolvedLocaleTagsProvider).strings),
+);
 
 /// The locale whose FORMATS the app should use — digits, dates, money, week
 /// start. Always derived from the device, whatever language the user reads in.
 final resolvedFormatsLocaleProvider = Provider<Locale>((ref) {
-  final resolved = resolveLocaleTags(
-    ref.watch(localeControllerProvider),
-    ref.watch(deviceLocalesProvider).map((l) => l.toLanguageTag()).toList(),
-  );
-  final parts = resolved.formats.split(RegExp('[-_]'));
-  return parts.length > 1
-      ? Locale(parts.first, parts.last)
-      : Locale(parts.first);
+  final tag = ref.watch(resolvedLocaleTagsProvider).formats;
+  final region = regionOf(tag);
+  return region == null
+      ? Locale(languageOf(tag))
+      : Locale(languageOf(tag), region);
 });
