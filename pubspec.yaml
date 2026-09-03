@@ -37,3 +37,23 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+  # SPEC.md §5 Fonts. Vazirmatn renders the ENTIRE UI under fa/ar/ckb, Latin
+  # runs included, so `VW Golf TDI 2.0` inside a Persian sentence is one line in
+  # one font rather than two fonts fighting over a baseline. en/de/fr use the
+  # platform font, which is a decision and not a compromise.
+  #
+  # One VARIABLE file, wght 100-900, taken from the upstream release
+  # (github.com/rastikerdar/vazirmatn v33.003, SIL OFL 1.1). Smaller than three
+  # statics, and Calm only uses 400/500/600 — but the axis has to stay live or
+  # the platform's bold-text accessibility flag stops working.
+  #
+  # An asset, never a fetch: `google_fonts` is refused by tools/audit_deps.sh
+  # and by test/policy/no_google_fonts_test.dart.
+  assets:
+    - assets/fonts/OFL.txt
+
+  fonts:
+    - family: Vazirmatn
+      fonts:
+        - asset: assets/fonts/Vazirmatn[wght].ttf
