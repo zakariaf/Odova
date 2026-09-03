@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- SPEC.md §2: no network permission it can avoid.
+         flutter create writes the INTERNET uses-permission here so the tool can
+         talk to a running app. It is not needed: hot reload and the debugger
+         reach the device over USB / adb forward, and the store listing's "zero
+         network calls" claim has to be true of every variant, not only release.
+         This manifest deliberately declares nothing. -->
+</manifest>
