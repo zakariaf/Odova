@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:odova/app/lifecycle_observer.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/supported_locales.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
@@ -68,9 +69,9 @@ class _LifecycleScopeState extends ConsumerState<_LifecycleScope> {
 
 /// The root widget.
 ///
-/// It carries the locale contract and nothing else yet: the theme arrives in
-/// EPIC-02 and the router in EPIC-08.
-class OdovaApp extends StatelessWidget {
+/// It carries the locale contract and the theme; the router arrives in
+/// EPIC-08.
+class OdovaApp extends ConsumerWidget {
   /// Creates the root widget.
   const OdovaApp({
     super.key,
@@ -79,10 +80,12 @@ class OdovaApp extends StatelessWidget {
     this.themeMode = ThemeMode.system,
   });
 
-  /// Forces a locale, overriding the device's list.
+  /// Forces a locale, overriding both the setting and the device's list.
   ///
   /// Null — the shipping default — resolves through
-  /// [odovaSupportedLocales]. Tests pass one to pin a direction.
+  /// [resolvedLocaleProvider], which is SPEC.md §5's three-step selection over
+  /// `Settings.language` and the device list. Tests pass one to pin a
+  /// direction without going through the setting.
   final Locale? locale;
 
   /// Replaces the placeholder screen.
@@ -118,10 +121,12 @@ class OdovaApp extends StatelessWidget {
   };
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-      locale: locale,
+      // Watched, not read: SPEC.md §5 forbids a restart, so changing the
+      // language has to rebuild from here and re-render in place.
+      locale: locale ?? ref.watch(resolvedLocaleProvider),
       localizationsDelegates: odovaLocalizationsDelegates,
       supportedLocales: odovaSupportedLocales,
       // These two decide the BRIGHTNESS. The script variant is applied in

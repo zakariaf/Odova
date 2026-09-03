@@ -1,7 +1,21 @@
 {
   "@@locale": "fr",
   "appTitle": "Odova",
-  "@appTitle": {
-    "description": "The application name. A brand name: identical in all six locales, never translated and never transliterated."
-  }
+  "commonEstimatedA11y": "estimé, environ {value}",
+  "homeDueSoonNoConfidence": "Odova a besoin d’un relevé pour le dire",
+  "unitDistanceKm": "km",
+  "unitDistanceMi": "mi",
+  "unitVolumeLitre": "l",
+  "unitVolumeGallon": "gal",
+  "unitConsumptionPerDistance": "l/{n} km",
+  "unitConsumptionMpg": "mpg",
+  "unitPerDistance": "/{unit}",
+  "dateToday": "Aujourd’hui",
+  "dateTomorrow": "Demain",
+  "dateYesterday": "Hier",
+  "dateInDays": "{n, plural, one{dans {nText} jour} many{dans {nText} jours} other{dans {nText} jours}}",
+  "dateInAboutWeeks": "{n, plural, one{dans environ {nText} semaine} many{dans environ {nText} semaines} other{dans environ {nText} semaines}}",
+  "dateInAboutMonths": "{n, plural, one{dans environ {nText} mois} many{dans environ {nText} mois} other{dans environ {nText} mois}}",
+  "dateDaysOverdue": "{n, plural, one{en retard de {nText} jour} many{en retard de {nText} jours} other{en retard de {nText} jours}}",
+  "remindersDueCount": "{n, plural, =0{Rien à faire} one{{nText} rappel à échéance} many{{nText} rappels à échéance} other{{nText} rappels à échéance}}"
 }

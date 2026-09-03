@@ -8,7 +8,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import '../support/source_tree.dart';
+import '../support/source_gates.dart';
 
 void main() {
   test(

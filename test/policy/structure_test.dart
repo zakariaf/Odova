@@ -63,6 +63,60 @@ void main() {
     );
   });
 
+  test('test/core imports no Flutter, transitively', () {
+    // The mirror of the gate above, on the test side, and it is the one that
+    // actually broke. `.github/workflows/ci.yml` runs `dart test test/core` on
+    // the plain VM to prove the domain layer needs no Flutter — and a shared
+    // test helper that imported `flutter_test` put `dart:ui` on the import
+    // graph of a file that lane compiles, which fails with `Dart library
+    // 'dart:ui' is not available on this platform` and a hundred lines of
+    // framework paths that say nothing about the cause.
+    //
+    // TRANSITIVELY, which is the whole point: the offending file imported a
+    // helper, and the helper imported flutter_test. Checking only direct
+    // imports would have passed.
+    final offenders = <String>[];
+
+    Set<String> reachableFrom(File file) {
+      final seen = <String>{};
+      final queue = <File>[file];
+      while (queue.isNotEmpty) {
+        final current = queue.removeLast();
+        for (final uri in importUrisIn(current.readAsStringSync())) {
+          if (!seen.add(uri)) continue;
+          if (uri.startsWith('package:') || uri.startsWith('dart:')) continue;
+          // Resolved by hand rather than with package:path, which is not a
+          // declared dependency and does not become one for a test helper.
+          final base = current.uri.resolve(uri);
+          final resolved = File.fromUri(base);
+          if (resolved.existsSync()) queue.add(resolved);
+        }
+      }
+      return seen;
+    }
+
+    for (final file in dartFilesUnder('test/core')) {
+      for (final uri in reachableFrom(file)) {
+        if (uri.startsWith('package:flutter/') ||
+            uri.startsWith('package:flutter_test/') ||
+            uri == 'dart:ui') {
+          offenders.add('${file.path} reaches $uri');
+        }
+      }
+    }
+
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          'test/core runs twice — under flutter test and under '
+          '`dart test test/core` on the plain VM. The second run is what '
+          'proves lib/core needs no Flutter, and anything reachable from '
+          'these files that imports Flutter breaks it. Put the assertion half '
+          'of a shared helper in test/support/source_gates.dart.',
+    );
+  });
+
   test('no feature imports another feature', () {
     final features = Directory(
       'lib/features',

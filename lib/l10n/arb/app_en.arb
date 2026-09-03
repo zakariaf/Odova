@@ -3,5 +3,146 @@
   "appTitle": "Odova",
   "@appTitle": {
     "description": "The application name. A brand name: identical in all six locales, never translated and never transliterated."
+  },
+  "commonEstimatedA11y": "estimated, about {value}",
+  "@commonEstimatedA11y": {
+    "description": "Screen-reader label for any estimated value. SPEC.md §5: the tilde is never read as \"tilde\" — the visible string keeps the ~ as its non-colour marker and this sentence is what a screen reader says instead.",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "186,512 km"
+      }
+    }
+  },
+  "homeDueSoonNoConfidence": "Odova needs a reading to say when",
+  "@homeDueSoonNoConfidence": {
+    "description": "Shown on a due card when the engine has no odometer history to project from. SPEC.md §9: it takes no placeholders, and it must never be assembled from parts — a sentence built in Dart is a sentence no translator can reorder."
+  },
+  "unitDistanceKm": "km",
+  "@unitDistanceKm": {
+    "description": "Kilometre, abbreviated, as a label beside a formatted number. SPEC.md §5: unit labels come from these files, not the platform unit formatter — ICU renders km in ckb-IQ as a Latin \"km\"."
+  },
+  "unitDistanceMi": "mi",
+  "@unitDistanceMi": {
+    "description": "Mile, abbreviated, as a label beside a formatted number."
+  },
+  "unitVolumeLitre": "L",
+  "@unitVolumeLitre": {
+    "description": "Litre, abbreviated, as a label beside a formatted number. ICU renders 45.2 L in fa-IR as \"۴۵٫۲L\" — a Latin L with no space — which is why this is ours."
+  },
+  "unitVolumeGallon": "gal",
+  "@unitVolumeGallon": {
+    "description": "Gallon, abbreviated. US and imperial gallons are different units and are never conflated; this is the shared label and the system is named elsewhere."
+  },
+  "unitConsumptionPerDistance": "L/{n} km",
+  "@unitConsumptionPerDistance": {
+    "description": "Fuel consumption as volume per distance, e.g. \"L/100 km\". {n} is the hundred, as a PLACEHOLDER rather than a literal, so the active numbering system shapes it like every other number.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "100"
+      }
+    }
+  },
+  "unitConsumptionMpg": "mpg",
+  "@unitConsumptionMpg": {
+    "description": "Fuel consumption as distance per volume: miles per gallon."
+  },
+  "unitPerDistance": "/{unit}",
+  "@unitPerDistance": {
+    "description": "Suffix for a rate expressed per unit of distance, e.g. a cost per kilometre. {unit} is one of the distance labels, never baked in, so the same message serves km and mi.",
+    "placeholders": {
+      "unit": {
+        "type": "String",
+        "example": "km"
+      }
+    }
+  },
+  "dateToday": "Today",
+  "@dateToday": {
+    "description": "Relative date bucket: the delta is zero days. SPEC.md §5 buckets before formatting — \"in 47 days\" is data, \"in about 7 weeks\" is an answer."
+  },
+  "dateTomorrow": "Tomorrow",
+  "@dateTomorrow": {
+    "description": "Relative date bucket: exactly one day ahead."
+  },
+  "dateYesterday": "Yesterday",
+  "@dateYesterday": {
+    "description": "Relative date bucket: exactly one day behind."
+  },
+  "dateInDays": "{n, plural, one{in {nText} day} other{in {nText} days}}",
+  "@dateInDays": {
+    "description": "Relative date bucket: 2 to 13 days ahead.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "9"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
+      }
+    }
+  },
+  "dateInAboutWeeks": "{n, plural, one{in about {nText} week} other{in about {nText} weeks}}",
+  "@dateInAboutWeeks": {
+    "description": "Relative date bucket: 14 to 55 days ahead, expressed in whole weeks and hedged. The hedge is the point: the underlying number is a projection.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "6"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
+      }
+    }
+  },
+  "dateInAboutMonths": "{n, plural, one{in about {nText} month} other{in about {nText} months}}",
+  "@dateInAboutMonths": {
+    "description": "Relative date bucket: 56 days or more ahead, expressed in whole months and hedged.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "4"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
+      }
+    }
+  },
+  "dateDaysOverdue": "{n, plural, one{{nText} day overdue} other{{nText} days overdue}}",
+  "@dateDaysOverdue": {
+    "description": "How far past due something is. A SEPARATE message from the ahead buckets, never a negative relative time — SPEC.md §5.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "12"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
+      }
+    }
+  },
+  "remindersDueCount": "{n, plural, =0{Nothing due} one{{nText} reminder due} other{{nText} reminders due}}",
+  "@remindersDueCount": {
+    "description": "How many reminders are due. Carries an explicit =0 case, because \"0 reminders due\" is a worse sentence than \"Nothing due\" in every one of the six.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1,000",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
+      }
+    }
   }
 }

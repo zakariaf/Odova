@@ -8,7 +8,7 @@
 // matters most — the promise is kept by having no client, not by policy.
 import 'package:flutter_test/flutter_test.dart';
 
-import '../support/source_tree.dart';
+import '../support/source_gates.dart';
 
 /// Identifiers that only appear in code that opens a socket.
 ///

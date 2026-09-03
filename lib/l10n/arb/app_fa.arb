@@ -1,7 +1,21 @@
 {
   "@@locale": "fa",
   "appTitle": "Odova",
-  "@appTitle": {
-    "description": "The application name. A brand name: identical in all six locales, never translated and never transliterated."
-  }
+  "commonEstimatedA11y": "تخمینی، حدود {value}",
+  "homeDueSoonNoConfidence": "اودووا برای گفتن زمان، به عدد کیلومترشمار نیاز دارد",
+  "unitDistanceKm": "کیلومتر",
+  "unitDistanceMi": "مایل",
+  "unitVolumeLitre": "لیتر",
+  "unitVolumeGallon": "گالن",
+  "unitConsumptionPerDistance": "ل/{n} کم",
+  "unitConsumptionMpg": "مایل بر گالن",
+  "unitPerDistance": "در هر {unit}",
+  "dateToday": "امروز",
+  "dateTomorrow": "فردا",
+  "dateYesterday": "دیروز",
+  "dateInDays": "{n, plural, one{{nText} روز دیگر} other{{nText} روز دیگر}}",
+  "dateInAboutWeeks": "{n, plural, one{حدود {nText} هفته دیگر} other{حدود {nText} هفته دیگر}}",
+  "dateInAboutMonths": "{n, plural, one{حدود {nText} ماه دیگر} other{حدود {nText} ماه دیگر}}",
+  "dateDaysOverdue": "{n, plural, one{{nText} روز گذشته} other{{nText} روز گذشته}}",
+  "remindersDueCount": "{n, plural, =0{چیزی موعد ندارد} one{{nText} یادآور موعددار} other{{nText} یادآور موعددار}}"
 }

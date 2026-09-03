@@ -1,7 +1,21 @@
 {
   "@@locale": "ckb",
   "appTitle": "Odova",
-  "@appTitle": {
-    "description": "The application name. A brand name: identical in all six locales, never translated and never transliterated."
-  }
+  "commonEstimatedA11y": "خەمڵێنراو، نزیکەی {value}",
+  "homeDueSoonNoConfidence": "ئۆدۆڤا پێویستی بە ژمارەی کیلۆمێتر هەیە بۆ دیاریکردنی کات",
+  "unitDistanceKm": "کم",
+  "unitDistanceMi": "مایل",
+  "unitVolumeLitre": "لیتر",
+  "unitVolumeGallon": "گاڵن",
+  "unitConsumptionPerDistance": "ل/{n} کم",
+  "unitConsumptionMpg": "مایل بۆ گاڵن",
+  "unitPerDistance": "بۆ هەر {unit}",
+  "dateToday": "ئەمڕۆ",
+  "dateTomorrow": "سبەینێ",
+  "dateYesterday": "دوێنێ",
+  "dateInDays": "{n, plural, one{{nText} ڕۆژی دیکە} other{{nText} ڕۆژی دیکە}}",
+  "dateInAboutWeeks": "{n, plural, one{نزیکەی {nText} هەفتەی دیکە} other{نزیکەی {nText} هەفتەی دیکە}}",
+  "dateInAboutMonths": "{n, plural, one{نزیکەی {nText} مانگی دیکە} other{نزیکەی {nText} مانگی دیکە}}",
+  "dateDaysOverdue": "{n, plural, one{{nText} ڕۆژ دواکەوتووە} other{{nText} ڕۆژ دواکەوتووە}}",
+  "remindersDueCount": "{n, plural, =0{هیچ شتێک نییە} one{{nText} بیرخەرەوە} other{{nText} بیرخەرەوە}}"
 }

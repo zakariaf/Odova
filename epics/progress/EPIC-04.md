@@ -1,0 +1,388 @@
+
+- 4.2 the three `ckb` delegates — 9 tests. **Changed `ckbFrameworkFallback`
+  from `ar` to `fa`**, which EPIC-01 shipped as `ar` and explicitly left to this
+  epic. `fa` is right: Sorani and Persian share the Perso-Arabic letterforms
+  Sorani actually uses — `ک`, `گ`, `ی` — which Arabic writes `ك` and has no
+  equivalent of, so Arabic chrome beside Sorani copy renders two shapes of the
+  same letter on one screen. Still a compromise, and the doc comment says so.
+
+  **Correction to the epic's premise.** Task 4.2 says
+  `GlobalWidgetsLocalizations` "claims every locale"; measured on Flutter
+  3.44.6, `isSupported(Locale('ckb'))` is **false**. The trap is real but its
+  mechanism is the other one: with no `WidgetsLocalizations` delegate claiming
+  `ckb`, Flutter falls back to `DefaultWidgetsLocalizations`, which hardcodes
+  `TextDirection.ltr`. Verified by deleting the vendored Widgets delegate and
+  watching both direction tests go red.
+
+  Android's `res/xml/locales_config.xml` + `android:localeConfig` added — without
+  it Odova is absent from Android 13's per-app language picker entirely. Both
+  platform manifests are now asserted against `odovaSupportedLocales`, because
+  neither is reachable from Dart at runtime and nothing else in the suite can
+  notice them drifting.
+
+- 4.3 locale resolution — `lib/core/l10n/locale_resolution.dart` (pure Dart, no
+  Flutter import, runs under `dart test`) plus `lib/l10n/locale_controller.dart`
+  as the seam to the widget tree. 19 tests, every row of SPEC §5's table
+  including `ku`/`kmr`/`ku-TR` → `en` LTR.
+
+  **The strings/formats split is the substance.** They are two answers, not one:
+  `de-AT` reads German and formats Austrian; `pt-BR` reads English and formats
+  Brazilian. Falling back to `en` formats as well would put a Brazilian on US
+  date order and dollars, so `resolveLocaleTags` returns a pair and the app has
+  two providers.
+
+  **Defect found by its own test:** the change event was a bare
+  `LocaleAffectingChange` enum in state, and Riverpod notifies on a value
+  CHANGE — so `de → fr → fa` fired once, not twice, and every scheduled
+  notification body would have stayed in the first language. It carries a
+  sequence now. The test that caught it was originally a widget test and was
+  measuring the wrong thing: a language change rebuilds from the root, so a
+  listener registered in a `Consumer`'s build is disposed and re-registered
+  around the very change it is watching. It is a `ProviderContainer` test.
+
+  `OdovaApp` is a `ConsumerWidget` now and watches the resolved locale, so three
+  tests that pumped it bare needed a `ProviderScope` — the honest consequence of
+  the app having state.
+
+- 4.4 numerals — `lib/core/l10n/numerals.dart` and `numeric_input.dart` (pure,
+  under `dart test`), `lib/l10n/numerals.dart` for the intl side and the
+  `CalmFigure`/`CalmCode` widgets. 41 tests.
+
+  **Two real defects found by SPEC's own verified-output table**, both silent:
+
+  1. `NumberFormat.decimalPattern('ar_MA')` does not throw and does not fall
+     back to `ar` — `intl` carries no `ar_MA`, so it falls back to **en_US**,
+     and every Maghreb amount rendered `1,234.56`: American separators under an
+     Arabic UI. `numberFormatLocale` now verifies the tag and falls back to the
+     LANGUAGE. `intl` has no European-separator Arabic at all, so the Maghreb
+     borrows German's number symbols — SPEC §5's verified `1.234,56` is exactly
+     German's shape. A second documented borrow beside `ckb` → `fa`.
+  2. `groupingSeparatorFor` scanned the formatted string for the first
+     non-`[0-9]` character, which trips over the very digits it exists to serve:
+     `۱٬۰۰۰` has no ASCII digit in it, so it returned the leading `۱`. It folds
+     to ASCII first.
+
+  **Deliberate strengthening of SPEC's pseudocode.** §5 says "one separator
+  char appears more than once: it is grouping, remove all", which reads
+  `1,23,456` as `123456`. That is Indian grouping, which none of the six locales
+  use, so reading it as anything is a guess — and this function's whole contract
+  is that it does not guess. The groups must be regular threes or the input is
+  rejected as `ambiguous`. The epic's own test list asks for exactly this
+  ("Fails if the function returns a number for `1,23,456`"), so the epic and the
+  spec's pseudocode disagree and the epic is right.
+
+  **TDD note, honestly.** The normaliser was written before its tests, which is
+  the wrong order. `tools/check_numeric_input_selftest.sh` compensates by
+  mutating each of the five load-bearing branches and asserting the suite goes
+  red — the rightmost-separator rule, the Arabic separator mapping, the
+  locale's grouping character, the irregular-grouping rejection, and digit
+  folding. All five verified, wired into CI.
+
+- 4.5 calendars — `lib/core/l10n/jalali.dart` (the pinned arithmetic),
+  `calendar.dart` (resolution, month names, region tables) and
+  `relative_date.dart` (bucketing). 26 tests, all pure.
+
+  **A transcription bug the 73,000-day round-trip caught and no anchor would
+  have.** My first `jdnToGregorian` — transcribed from jalaali-js's compact
+  form — returned `1921-04-31`, a date that does not exist, and the Jalali
+  round-trip inherited it: 12,261 mismatches. All four of SPEC §5's anchors
+  passed the whole time, because they are all in the 2020s and the error was
+  elsewhere. Replaced with the standard Fliegel–Van Flandern formulas, which
+  agree with jalaali-js on the anchors and actually invert. There is now a
+  Gregorian-only round-trip test as well, because the Jalali one cannot tell
+  which of the two conversions broke.
+
+  **A test assumption that was wrong, not the code.** I asserted Nowruz always
+  falls on 20 or 21 March. It fell on **22 March in 1922** — the equinox was
+  21 March 20:49 UTC and Tehran is +3:26 — so the assertion failed on the 1920s
+  and "fixing" it would have meant breaking correct arithmetic. The set is
+  `{20, 21, 22}` with the reason written next to it.
+
+  Also caught: reading the leap flag *after* decrementing the year in
+  `jdnToJalali`, a one-day error on every date in the last three months of a
+  leap year.
+
+- 4.6 money and units — `lib/core/money.dart` (the minimum EPIC-06 will extend
+  rather than replace), `lib/l10n/money_format.dart`, `unit_format.dart` and
+  `bidi.dart`. 11 tests.
+
+  **`NumberFormat.currency(name: 'USD')` renders `USD1,234.56`,** not
+  `$1,234.56`, and does it without an error — the `name` is used AS the symbol
+  unless one is supplied. `simpleCurrency` is the one that reads CLDR's symbol.
+  Caught by asserting SPEC §5's table verbatim rather than "starts with a
+  symbol".
+
+  **Gate fix:** `check_type_floor.sh`'s ARB digit rule flagged
+  `"example": "3"` inside a `@key` placeholder block — metadata, not translated
+  copy, and the example is FOR the digit. The rule now matches top-level message
+  keys only (two spaces of indent in a 2-space-pretty-printed ARB). Both arms
+  re-verified: a real `"L/100 km"` still fails it.
+
+  Toman is a branch inside the formatter and nothing else in the app knows about
+  it: the stored integer stays IRR minor units, and a grep test asserts `IRT`
+  — which is not an ISO 4217 code — appears nowhere in `lib/` or `test/`.
+
+- 4.7 bidi — `lib/l10n/bidi.dart` holds the one isolation helper set (`isolate`
+  FSI, `isolateLtr` LRI, `isolateRtl` RLI) plus `stripBidi`, used at opposite
+  ends: isolation on the way to a pixel, stripping on the way to storage, an
+  export, a search index or a semantics label. 13 tests over SPEC §5 testing
+  item 5's three-fixture corpus verbatim.
+
+  A grep test bans the legacy `LRE`/`RLE`/`LRO`/`RLO`/`PDF` embeddings from
+  `lib/` — they do not nest, they leak across a string boundary, and an
+  unbalanced one reorders the rest of the paragraph.
+
+  **Not yet wired:** there is no persistence layer (EPIC-05) and no export
+  mapping (EPIC-15), so "no control reaches storage" and "no control reaches an
+  export" are asserted at the helper boundary rather than through those layers.
+  The corpus and the assertions are ready for both; recorded as deferred.
+
+- 4.8 plurals — `test/l10n/support/plural_matrix.dart` derives the key list
+  from the template (a hand-kept list drifts the moment somebody adds a plural)
+  and holds SPEC §17's fourteen counts. 7 tests, 6 locales × 14 counts × every
+  plural key. Verified to fail by deleting Arabic's `two` category.
+
+  **A real defect the matrix caught: `{n}` inside an ICU plural renders in
+  Latin digits.** gen-l10n interpolates the int with `toString()`, so
+  `dateInDays(1000)` in Persian read `1000 روز دیگر` — a Latin thousand inside
+  a Persian sentence, next to shaped digits everywhere else on the screen.
+
+  Fixed by splitting the number in two: `n` (int) SELECTS the CLDR category and
+  `nText` (String) is the same number already formatted and shaped by the app.
+  Two placeholders for one number is ugly, and the alternative is worse. The
+  obvious fix — `"format": "decimalPattern"` on the placeholder — makes
+  gen-l10n format with the LOCALE's default numbering system, which is right
+  until a Persian user sets `numerals: latin` (a setting SPEC §5 explicitly
+  supports, because "younger Persian and Gulf users often prefer Latin digits").
+  Then the sentence would shape and the rest of the screen would not, and
+  SPEC §5's rule is absolute: never mix two digit sets on one screen.
+
+- 4.9 font coverage — 10 tests plus 2 goldens, all over the real ARB corpus
+  rather than a specimen letter list. EPIC-02's tests assert a fixed list; a
+  specimen is exactly what hides a face that draws Persian and is missing the
+  letters Sorani adds.
+
+  **The woff2 question, resolved:** EPIC-02 already bundled the variable TTF at
+  `assets/fonts/Vazirmatn[wght].ttf` (241 KB) with `OFL.txt`.
+  `design/_fonts/Vazirmatn.woff2` is a design artefact and stays one — Flutter
+  cannot load woff2. Asserted, so it cannot quietly become the shipped asset.
+
+  **Finding against the epic.** Task 4.9 asks for a test that "the
+  presentation-forms block is absent" (U+FB50–U+FEFF). Upstream Vazirmatn ships
+  **213 of the 944** — including the lam-alef ligatures U+FEF5–U+FEFC that
+  Unicode shaping REQUIRES and that have no decomposition path. That assertion
+  would have failed on the shipped font on day one. The test asserts what is
+  actually true and what actually matters: the block is a partial set (< 300)
+  rather than a wholesale duplicate, and the required ligatures are present.
+  The epic's underlying concern — a face that ships all 944 and doubles the
+  file for nothing — is real, and the remedy is a subsetting build step that
+  nothing in this repo has. Not built here; recorded.
+
+  **`tnum` is asserted behaviourally, not by parsing GSUB.** The claim that
+  matters is "a Persian odometer does not jitter as a digit changes", so the
+  test renders each digit of all three blocks and compares advance widths. A
+  GSUB feature-tag parse would prove `tnum` exists without proving it covers
+  `۰-۹`, which is the exact bug — a face with tabular Latin and proportional
+  Persian gives a stable English odometer and a jittering Persian one.
+
+- 4.10 gates and pseudo-locales — `tool/build_pseudo_locales.dart` derives
+  `en-XA` and `ar-XB` from the template; 9 tests; regeneration wired into CI so
+  a stale one is a red build.
+
+  **Two design corrections while building it.**
+
+  1. *The naive transform mangles ICU.* "Accent everything outside `{}`" turns
+     `one{...}` into `ǿǹḗ{...}` and `other{...}` into `eno {...}` — the plural
+     CATEGORY names sit outside braces and are syntax. A pseudo-locale that does
+     not parse reports nothing at all, which is the one failure mode that makes
+     the whole exercise pointless. The generator walks the message and
+     transforms only branch bodies and top-level literals.
+  2. *They must not live in `arb-dir`.* Anything there is compiled by gen-l10n
+     into the shipping binary and joins `AppLocalizations.supportedLocales`, so
+     a user picking a language could land in a pseudo-locale. They are written
+     to `test/fixtures/*.fixture.json` instead, and a test asserts `lib/l10n/arb`
+     contains nothing matching `_X`.
+
+  **Deferred to the first screen epic (EPIC-09).** The assertions this task
+  wants that need a rendered screen — "any string that comes back unaccented is
+  a hard-coded literal", "ar-XB finds no physical-side offset", "the
+  longest-of-six passes the golden suite at 100% and 200%", "tab labels respect
+  their 12-character maxChars" — cannot run here: EPIC-04 builds no screen.
+  The fixtures and the generator are ready for them.
+
+- 4.11 the two open questions — 4 tests, both defaults named by SPEC §18 number
+  in the code that implements them. `SPEC.md` is **unedited**: §18 says each
+  question "can be closed with one sentence from the right person", and closing
+  one is its own PR with that sentence in it.
+
+### `SPEC.md` §18 questions 8 and 9 — answered provisionally, awaiting a native Sorani reader
+
+**§18.8 — Kurdish Sorani numerals: extarab `۰۱۲۳` or arab `٠١٢٣`?**
+
+Shipped: **extarab**, matching Persian. Sorani shares Persian's letterforms, and
+the app already borrows Persian for the framework chrome (`CkbFallbackDelegate`)
+and for the number symbols (`intl` has no `ckb`). One donor rather than two.
+
+The alternative is **arab**, which is CLDR's own default for `ckb` and is common
+in Iraqi Kurdistan print. That is a real argument and I cannot weigh it.
+
+Cost if wrong: a Sorani reader in Iraq sees Persian digit shapes where they
+expect Arabic ones. One settings row fixes it for them; one line and one test
+fixes it for everyone.
+
+**§18.9 — should `ckb-IR` default to Jalali, or do Sorani speakers in Iran
+expect Gregorian in a Kurdish-language app?**
+
+Shipped: **Jalali**. Iran runs on it, and a date that disagrees with every other
+date the reader sees that day is worse than an unexpected one.
+
+The alternative is a question about identity rather than about calendars — a
+Kurdish-language app might be expected to differ deliberately from the state
+calendar — and only a native reader can settle it.
+
+Cost if wrong: a Sorani reader in Iran opens the app on a calendar they did not
+expect. Again one settings row.
+
+**Who is being asked.** `CONTRIBUTING.md` already invites exactly these readers;
+§18 items 8, 9, 11 and 23 all need a native `ckb` reviewer, and this epic is the
+point at which they stop being notes and become answerable questions with a
+running app behind them. **`CLAUDE.md` §9 names Sorani translation quality as
+the single largest risk to the RTL launch, and this epic did not reduce it** —
+the `ckb` strings in the six ARB files are mine, nothing in the suite can tell a
+fluent sentence from an embarrassing one, and that is the item to put in front
+of a reader first.
+
+---
+
+## `/simplify` and `/code-review` — every finding, applied or answered
+
+Both passes ran over `main...epic/04-localisation-and-rtl` before the PR was
+opened, in that order. The correctness pass found six defects that compiled,
+analysed clean and produced plausible output; those are the ones worth reading.
+
+### Applied — silent wrong answers
+
+1. **The grouping separator was never folded.** `normalizeNumericInput` maps
+   U+066C to `.` on its third line, then compared the separator against the
+   `groupingSeparator` argument exactly as the caller wrote it — still `٬`.
+   `'.' == '٬'` is never true, so the grouping branch was unreachable for every
+   locale that does not group with an ASCII character, and a Persian `۱٬۲۳۴`
+   read as **1.234**. A thousandfold error, on the odometer, silent. Fixed by
+   folding the argument through the same map; `groupingSeparator` is now
+   `required`, because a default of `,` means a caller who forgets it silently
+   gets English disambiguation, which in `de` or `fa` reads `1,5` as fifteen
+   hundred — the same corruption, reachable by omission and compile-clean.
+
+2. **Arabic-Indic digits with American separators.** `intl` carries `ar` and
+   `ar_EG` and almost nothing between them, and plain `ar`'s symbols pair
+   Arabic-Indic digits with a comma group and a full-stop decimal — a hybrid
+   CLDR never emits. Every Arabic tag but `ar_EG` fell through to it, and
+   `ar_EG` was also the only Arabic tag the test file asserted. Number symbols
+   resolve by region now (Maghreb borrows `de`, the rest borrow `ar_EG`) and the
+   test walks six Arabic tags.
+
+3. **`numerals: latin` did nothing on an Arabic or Persian locale.**
+   `shapeDigits` maps ASCII *into* a block and cannot map back out of one, and
+   both `ar_EG` and `fa_IR` carry a non-ASCII `zeroDigit`, so the formatter's
+   own output was already shaped. Both display formatters fold before they
+   shape.
+
+4. **The 30th of Esfand in a common year.** The Borkowski JDN formula is linear
+   in the day, so `jalaliToGregorian(1404, 12, 30)` answered 2026-03-21 — 1
+   Farvardin **1405**. A mistyped date moved a service by a year and every due
+   calculation downstream inherited it. `jalaliMonthLength` is new,
+   `jalaliToJdn` refuses a date the calendar does not have, and the round-trip
+   test walks 1300–1500 AP *through* the guard to prove it admits every real
+   date.
+
+5. **`ckb-IR` was shown Persian month names.** The calendar matched, so the
+   table was reused; the language does not. `kurdishJalaliMonthNames` is the
+   Rojhelat set. Listed below as a third open question — unlike §18.8 and
+   §18.9, **no settings row fixes a wrong month name.**
+
+6. **`formatsTag.startsWith('ar')`** is true of `arn` and false of `AR_EG`. It
+   reads the subtag now, as the numerals table already did.
+
+Also applied: `IRR` and `AFN` carry zero decimals (without which the toman path
+divides a hundredfold-wrong number by ten); `formatForExport` throws on a
+non-finite rather than writing `NaN` into a backup no parser reads back;
+`monthName` became nullable, because `''` renders as nothing at all and a month
+name that vanishes is the guess-shaped failure SPEC.md §2 forbids.
+
+### Applied — gates that asserted less than they claimed
+
+- **The dead-wire-value gate read its own rule backwards.** It skipped any file
+  not mentioning `CalmNumerals`, on the theory that only a numerals file could
+  misuse `'persian'`. But a dead wire value comes back in a settings map, a
+  migration or an import validator working in raw strings, and none of those
+  name the enum — EPIC-05 is full of exactly that code. The filter is on the
+  legitimate owner now: the literal is allowed only where `CalmCalendar` is.
+  Planting a two-line settings map under `lib/core/l10n/` fails the new gate and
+  passed the old one.
+- **Three hand-rolled `Directory.listSync` walks** in the l10n tests now go
+  through `dartFilesUnder`, which skips generated code and fails on an empty
+  walk. A gate that visits zero files passes while proving nothing.
+- **The Arabic plural test asserted `>= 5` under the name "six distinct
+  forms".** The floor was real — Arabic takes the singular noun after 0 and
+  after 100 — but a floor passes whether that is grammar or a copy-paste. Exact
+  counts now, plus `zero == other` as a positive claim. Collapsing `ar`'s
+  `remindersDueCount` zero fails the new assertion and passed the old one.
+- **The pseudo-locale accent table had two wrong entries** — `q` mapped to
+  `' q'` (a leading space, inserting a word break the English never had) and `Q`
+  mapped to itself. Neither showed up: not one of the eighteen English strings
+  contains a `q`. `accentFor` is exposed so the test walks the alphabet rather
+  than the strings that happen to exist today.
+
+### Applied — layering and shape
+
+- **The formatters moved to `lib/core/l10n/`.** `lib/l10n/numerals.dart` held
+  five pure formatters and two widgets in one file, so every caller of
+  `formatForDisplay` inherited `package:flutter/widgets.dart`. CLAUDE.md §4 is
+  explicit that domain logic is pure Dart. `bidi.dart`, `unit_format.dart` and
+  `money_format.dart` moved with it — all three were already Flutter-free and
+  were only there because their neighbour was. The existing "lib/core imports
+  no Flutter" gate now walks ten files instead of six.
+- **`CalmFigure.formatted`.** Money and units come out of their formatters as
+  finished runs — symbol placed on the locale's side, isolate wrapped, digits
+  shaped — and none of that is recoverable from the number, so the numeric
+  constructor cannot rebuild them. Without it the first screen that shows a
+  price reaches for a plain `Text` and drops tabular figures and the semantics
+  label, which are the two things the widget exists to guarantee.
+- `resolvedLocaleProvider` and `resolvedFormatsLocaleProvider` each resolved the
+  same inputs; both read one `resolvedLocaleTagsProvider` now.
+- `_literalRuns` returned an `Iterable` that always held one element, so the
+  caller's loop read as though it might do something. It is `_copyOf` and
+  returns the string.
+- `readArb` caches; the plural matrix re-parsed six JSON files inside nested
+  loops.
+
+### Answered, not applied
+
+- **"`dateDaysOverdue`'s `one` branch is unreachable."** Correct, and it stays.
+  SPEC.md §5's table lists both `±1 day → "Yesterday"` and `overdue → "{n} days
+  overdue"`, and a date one day past matches both; the rows are in order, so the
+  ±1 row wins and the overdue message never sees a count of 1. Deleting the
+  branch would trade something unreachable for a message that *throws* if it is
+  ever reached, because CLDR requires `one` wherever the locale has it and the
+  ARB gate enforces exactly that. The resolution is now a test that walks 400
+  days of deltas and asserts the overdue count is never 1 — otherwise it is a
+  comment nobody checked.
+- **"`open_questions_test.dart` duplicates assertions from
+  `numerals_test.dart`."** Deliberate. That file is the one a reviewer opens to
+  change the answer, and it has to fail when the answer changes. Its value is
+  that the assertion and the reasoning sit together.
+- **"`normalizeNumericInput` implementation preceded its tests."** True, and
+  recorded above rather than hidden. The compensation is
+  `tools/check_numeric_input_selftest.sh`, which mutates each branch and asserts
+  the suite goes red — a mutation test is the only honest answer to a test
+  written after the code.
+
+### The third open question this epic raised
+
+**Sorani Jalali month names.** Shipped: the Rojhelat (Iranian Kurdish) set,
+because it is the one a Jalali-calendar Sorani user reads and `ckb-IR` is the
+tag that gets the Jalali calendar at all. It has no §18 number because SPEC.md
+does not raise it. It is *worse* than §18.8 and §18.9: those two are one
+settings row away from the alternative, and this one is not — a reader who
+disagrees has no remedy in the app. It goes in front of the same native reader,
+first.

@@ -253,6 +253,36 @@ jobs:
       # the code is a gate that gets switched off.
       - run: flutter test --coverage --test-randomize-ordering-seed random --exclude-tags golden --reporter expanded
 
+      # Contract: the six ARB files are a contract with five translators who
+      # cannot read the code, and for three locales cannot be read back by the
+      # person who wrote them. The five structural gates in
+      # test/l10n/arb_template_test.dart pass trivially on a clean file, so
+      # this plants each violation in turn and asserts red — a description
+      # deleted, a placeholder untyped, a key that is not a Dart identifier, a
+      # bidi control, a baked digit, a missing CLDR plural category.
+      - name: the ARB contract has been seen to fail
+        run: bash tools/check_arb_selftest.sh
+
+      # Contract: the two pseudo-locales are GENERATED, never hand-edited.
+      # SPEC.md §5 testing items 2 and 3: en-XA finds a hard-coded string
+      # (anything that renders unaccented never went through the translation
+      # layer) and ar-XB finds a hard-coded left/right without anybody having
+      # to read Arabic. A hand-maintained one drifts from the template, and one
+      # missing a key cannot report the string it exists to find — so this
+      # regenerates them and the tree has to be unchanged.
+      - name: the pseudo-locales are current
+        run: |
+          dart run tool/build_pseudo_locales.dart
+          git diff --exit-code -- test/fixtures/
+
+      # Contract: SPEC.md §5's four disambiguation branches have each been
+      # SEEN to fail. A wrong answer in normalizeNumericInput does not throw —
+      # it records 15 litres as 1.5 and poisons a consumption history nobody
+      # will re-derive — so each branch is mutated in turn and the suite has to
+      # notice.
+      - name: the numeric normaliser has been seen to fail
+        run: bash tools/check_numeric_input_selftest.sh
+
       # Contract: lib/core/ really does run with no widget binding. The
       # structure test proves it imports no Flutter; this proves the tests
       # EXECUTE without one, which is what makes EPIC-06's fuel maths and
