@@ -1,0 +1,11 @@
+{
+  "_comment": "Synthetic, and the arm that matters. Nothing in this pubspec looks wrong: the root declares `photo_picker`, an innocuous name. Two hops down it pulls firebase_analytics, which is where a banned SDK actually arrives. Direct-only inspection of pubspec.yaml cannot see this; walking the resolved graph is the entire point of the gate.",
+  "root": "odova",
+  "packages": [
+    {"name": "odova", "version": "0.1.0", "kind": "root", "source": "root", "dependencies": ["flutter", "photo_picker"]},
+    {"name": "flutter", "version": "0.0.0", "kind": "direct", "source": "sdk", "dependencies": []},
+    {"name": "photo_picker", "version": "2.0.0", "kind": "direct", "source": "hosted", "dependencies": ["media_kit"]},
+    {"name": "media_kit", "version": "1.0.0", "kind": "transitive", "source": "hosted", "dependencies": ["firebase_analytics"]},
+    {"name": "firebase_analytics", "version": "11.0.0", "kind": "transitive", "source": "hosted", "dependencies": []}
+  ]
+}

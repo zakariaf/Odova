@@ -1,0 +1,11 @@
+{
+  "_comment": "Synthetic. build_runner legitimately pulls a local HTTP server for watch mode, and it never reaches the binary. A gate that fails on this is a gate somebody switches off, so this document must come back GREEN with the hit reported as build/test-only noise.",
+  "root": "odova",
+  "packages": [
+    {"name": "odova", "version": "0.1.0", "kind": "root", "source": "root", "dependencies": ["flutter"]},
+    {"name": "flutter", "version": "0.0.0", "kind": "direct", "source": "sdk", "dependencies": []},
+    {"name": "build_runner", "version": "2.4.0", "kind": "dev", "source": "hosted", "dependencies": ["shelf"]},
+    {"name": "shelf", "version": "1.4.0", "kind": "transitive", "source": "hosted", "dependencies": ["http"]},
+    {"name": "http", "version": "1.5.0", "kind": "transitive", "source": "hosted", "dependencies": []}
+  ]
+}

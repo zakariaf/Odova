@@ -1,0 +1,14 @@
+{
+  "_comment": "Synthetic. The carve-out arm. `web_socket_channel` is reachable through the test harness — riverpod declares `test`, which is why NEVER_SHIPS exists — AND through a genuine runtime path, `chart_widget`. The harness path must not launder the runtime one: this document has to come back RED.",
+  "root": "odova",
+  "packages": [
+    {"name": "odova", "version": "0.1.0", "kind": "root", "source": "root", "dependencies": ["flutter", "flutter_riverpod", "chart_widget"]},
+    {"name": "flutter", "version": "0.0.0", "kind": "direct", "source": "sdk", "dependencies": []},
+    {"name": "flutter_riverpod", "version": "3.4.2", "kind": "direct", "source": "hosted", "dependencies": ["riverpod", "flutter_test"]},
+    {"name": "flutter_test", "version": "0.0.0", "kind": "transitive", "source": "sdk", "dependencies": ["test"]},
+    {"name": "riverpod", "version": "3.2.1", "kind": "transitive", "source": "hosted", "dependencies": ["test"]},
+    {"name": "test", "version": "1.26.0", "kind": "transitive", "source": "hosted", "dependencies": ["web_socket_channel"]},
+    {"name": "chart_widget", "version": "1.0.0", "kind": "direct", "source": "hosted", "dependencies": ["web_socket_channel"]},
+    {"name": "web_socket_channel", "version": "3.0.0", "kind": "transitive", "source": "hosted", "dependencies": []}
+  ]
+}

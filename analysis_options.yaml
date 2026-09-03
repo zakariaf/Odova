@@ -22,15 +22,31 @@ analyzer:
     - lib/l10n/gen/**
 
   # Only silence-producing bug classes are promoted — never style preferences.
-  # Every rule here is one very_good_analysis already enables, because `errors:`
-  # re-ranks an existing diagnostic and cannot turn an off rule on.
+  #
+  # `errors:` RE-RANKS a diagnostic the effective ruleset already produces; it
+  # cannot turn an off rule on. Eight of the nine below are enabled by
+  # very_good_analysis 10.3.0. The ninth, close_sinks, is NOT in its `rules:`
+  # list at all — VGA carries `close_sinks: ignore` in its own `errors:` map,
+  # which re-ranks a diagnostic nothing emits — so it is switched on in the
+  # `linter:` block below and only then promoted here.
+  # test/policy/lint_test.dart asserts that every name here is enabled
+  # somewhere in the effective config, so a promotion can never quietly become
+  # a line that does nothing.
   errors:
     unawaited_futures: error
     discarded_futures: error
     empty_catches: error
     use_build_context_synchronously: error
     cancel_subscriptions: error
-    close_sinks: error # VGA ships this at `ignore`; re-promoted
+    close_sinks: error # enabled under linter: below; VGA does not ship it
     avoid_dynamic_calls: error
     exhaustive_cases: error
     avoid_print: error
+
+# Rules the base set does not enable. Odova holds long-lived StreamControllers
+# behind its service ports (SPEC.md §2: local notifications, the lifecycle
+# flush), and a controller nobody closes is a leak with no symptom until the
+# screen is opened a few hundred times.
+linter:
+  rules:
+    - close_sinks

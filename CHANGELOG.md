@@ -29,9 +29,21 @@ All notable changes to Odova are recorded here. The format follows
 - `design/calm/ACCESSIBILITY-FINDING.md` — two WCAG contrast failures found in
   Calm's light theme while writing those skills. Not yet fixed; the remedy is a
   design decision.
-
-### Not yet
-- The Flutter app. CI's Flutter lane arms itself the moment `pubspec.yaml`
-  exists.
+- The Flutter app — empty on purpose. It launches as **Odova**
+  (`io.applander.odova`) on iOS 15+ / Android API 26+, holds no `INTERNET`
+  permission in any manifest, resolves all six locales including `ckb` in
+  right-to-left, and boots through a composition root that installs its two
+  error handlers before anything that can throw. No theme, no database and no
+  screen yet.
+- `tools/audit_deps.sh` + `audit_deps.py` — the dependency policy gate. Refuses
+  any package that opens a network path, walking the **resolved transitive
+  tree** rather than `pubspec.yaml`.
+- `tools/check_lint_include.sh` — proves `very_good_analysis`' versioned
+  ruleset is actually loaded. An `include:` that resolves to nothing analyses
+  zero rules and reports green.
+- `tools/check_dependabot.sh`, `tools/strip_generated_from_lcov.sh`.
+- `test/policy/` — cross-cutting gates over the toolchain pins, the platform
+  floors, the lint config, the shape of `lib/`, the CI workflow, and a grep for
+  `dart:io`'s network APIs, which no dependency check can see.
 
 [Unreleased]: https://github.com/zakariaf/Odova/commits/main

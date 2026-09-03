@@ -1,0 +1,13 @@
+{
+  "_comment": "Synthetic. The other half of the carve-out arm, and the state this repo is actually in today: `web_socket_channel` reaches the tree only through riverpod's dependency on `package:test`. No release binary can reach it, so this document has to come back GREEN — and if it did not, the honest response would be to drop Riverpod, not to widen this gate.",
+  "root": "odova",
+  "packages": [
+    {"name": "odova", "version": "0.1.0", "kind": "root", "source": "root", "dependencies": ["flutter", "flutter_riverpod"]},
+    {"name": "flutter", "version": "0.0.0", "kind": "direct", "source": "sdk", "dependencies": []},
+    {"name": "flutter_riverpod", "version": "3.4.2", "kind": "direct", "source": "hosted", "dependencies": ["riverpod", "flutter_test"]},
+    {"name": "flutter_test", "version": "0.0.0", "kind": "transitive", "source": "sdk", "dependencies": ["test"]},
+    {"name": "riverpod", "version": "3.2.1", "kind": "transitive", "source": "hosted", "dependencies": ["test"]},
+    {"name": "test", "version": "1.26.0", "kind": "transitive", "source": "hosted", "dependencies": ["web_socket_channel"]},
+    {"name": "web_socket_channel", "version": "3.0.0", "kind": "transitive", "source": "hosted", "dependencies": []}
+  ]
+}

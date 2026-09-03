@@ -216,11 +216,14 @@ Three jobs:
 | `app` | `flutter` | only `if pubspec.yaml exists` | format, analyze `--fatal-infos --fatal-warnings`, `pub get --enforce-lockfile`, regenerated `lib/l10n/gen/` matches the ARBs, `flutter test --coverage` with randomized ordering |
 | `build` | `android build` | only `if pubspec.yaml exists`, after `app` | `flutter build apk --debug` — the app still compiles for a real target, unsigned on purpose |
 
-The gating is honest and deliberate: the `repo` job emits `has_app` from a `pubspec.yaml` check, and the two Flutter jobs are `if: needs.repo.outputs.has_app == 'true'`. Until EPIC-01 creates the app they **skip**, and skipped is not green — the pipeline says which lane is not yet armed rather than grepping for nothing and reporting success.
+The `app` job also runs `tools/audit_deps.sh` and `tools/check_lint_include.sh`, which live there rather than in `repo` because both need the resolved tree that `flutter pub get` produces.
+
+The gating is honest and deliberate: the `repo` job emits `has_app` from a `pubspec.yaml` check, and the two Flutter jobs are `if: needs.repo.outputs.has_app == 'true'`. EPIC-01 created the app, so all three lanes run today. The guard stays, because a pipeline that greps for nothing and reports success is worse than one that names the lane it did not run.
 
 The repo lane, which runs on every PR from today:
 
 - `tools/check_gates_selftest.sh` — every gate has been *seen to fail*. It plants a real violation for each gate, asserts red, removes it, asserts green. A gate that has only ever been green is a comment.
+- `tools/check_dependabot.sh` — the `pub` block in `.github/dependabot.yml` is live and grouped, not commented out.
 - `tools/check_release_hygiene.sh` — no signing material in the working tree **or anywhere in `git log --all`** (which is why checkout is `fetch-depth: 0`). A credential committed and later deleted is in every clone forever.
 - `tools/check_spec_examples.py` — the worked examples in `SPEC.md` parse and agree with themselves.
 - `tools/check_skill_frontmatter.py` — every skill's frontmatter parses, so it can actually be auto-invoked.
