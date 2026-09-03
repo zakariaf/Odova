@@ -67,17 +67,20 @@ end_of_record
     );
   });
 
-  test('no coverage threshold exists anywhere in CI', () {
-    // A threshold turns a report into a gate, and the first thing a threshold
-    // gate produces is a test written to raise a number.
+  test('nothing in CI consumes the coverage number except the artifact', () {
+    // The decision is "coverage is a published report, never a gate", and a
+    // denylist of three flag spellings does not state it: --fail-under,
+    // minimum_coverage or `lcov --check` all walk straight through. So assert
+    // the SHAPE instead — lcov.info is named in exactly two steps, the strip
+    // and the upload — which survives a tool rename.
     final workflow = File('.github/workflows/ci.yml').readAsStringSync();
+    final steps = workflow
+        .split(RegExp('^      - ', multiLine: true))
+        .where((s) => s.contains('lcov.info'))
+        .toList();
 
-    for (final pattern in [
-      'min-coverage',
-      'coverage-threshold',
-      'fail_under',
-    ]) {
-      expect(workflow, isNot(contains(pattern)));
-    }
+    expect(steps, hasLength(2), reason: 'lcov.info reached a third step');
+    expect(steps.first, contains('strip_generated_from_lcov.sh'));
+    expect(steps.last, contains('upload-artifact'));
   });
 }

@@ -42,35 +42,35 @@ BANNED = [
     (r"^google_mobile_ads|^appsflyer|^adjust", "ads/attribution SDK — network and identifiers"),
     # --- device identifiers. ------------------------------------------------
     (r"^device_info_plus", "device identifiers with no shipped use"),
-    (r"^package_info_plus", "see the ALLOW note below — the decision is deliberate"),
+    # Deliberate, and a real question rather than a hypothetical: SPEC.md §6
+    # and §17 put `app_version` and `app_build` in the backup file, so there IS
+    # a shipped use. It stays banned because the same two strings are available
+    # at build time for nothing — `--dart-define=ODOVA_VERSION` / `ODOVA_BUILD`,
+    # read with String.fromEnvironment — and the plugin adds native code on both
+    # platforms plus `installerStore` and `appName`, none of which Odova wants.
+    # Revisit only if something needs a value that is genuinely not knowable at
+    # build time.
+    (r"^package_info_plus", "the app version comes from --dart-define; see the note above"),
 ]
 
-# Names that match a BANNED pattern but are deliberately kept. A name goes here
-# ONLY with a written justification: why the reachable-but-inert dependency is
-# acceptable, and what the real enforced gate is instead.
-#
-# package_info_plus is the one that was a real question rather than a
-# hypothetical, so the answer is recorded here rather than left to the next
-# person to re-litigate. SPEC.md §6 and §17 put `app_version` and `app_build`
-# in the backup file, so there IS a shipped use. It stays banned anyway: the
-# same two strings are available at build time for nothing, and the plugin adds
-# native code on both platforms plus `installerStore` and `appName`, none of
-# which Odova wants. The version reaches the app through
-# `--dart-define=ODOVA_VERSION` / `ODOVA_BUILD`, read with
-# `String.fromEnvironment`. Revisit only if something needs a value that is
-# genuinely not knowable at build time.
-ALLOW: set[str] = set()
+# There is deliberately no ALLOW list. An exception to the ban is a decision
+# that has to be argued in a comment next to the BANNED entry it contradicts,
+# and an empty escape hatch sitting here is an invitation to use it without
+# writing that argument down. Add one back when there is a real exception, with
+# the reason attached.
 
-# Packages that are test harnesses, whatever declares them.
+# Test harnesses. An edge INTO one of these is not a shipping edge.
 #
 # This is a statement about the MODEL, not an exemption for a name. The naive
 # rule — "what ships is what `dependencies:` drags in" — assumes a runtime
-# dependency never pulls in a test framework. flutter_riverpod 3.x breaks that
-# assumption: it exports `RiverpodWidgetTesterX`, a `WidgetTester` extension,
-# so `flutter_test` is one of its regular dependencies. Everything the test
-# framework pulls in — `test`, and through it `web_socket_channel` and
-# `web_socket` — then appears to ship, and the gate goes red over a socket no
-# release binary can reach.
+# dependency never pulls in a test framework. Riverpod 3.x breaks that
+# assumption twice over: `flutter_riverpod` exports `RiverpodWidgetTesterX`, a
+# `WidgetTester` extension, so `flutter_test` is one of its regular
+# dependencies; and `riverpod` itself declares `test`, because
+# `ProviderContainer.test()` calls `package:test`'s `addTearDown`. Everything
+# those two pull in — `web_socket_channel`, and through it `web_socket` — then
+# appears to ship, and the gate goes red over a socket no release binary can
+# reach.
 #
 # The walk therefore stops at these names rather than traversing them, and
 # whatever is reachable ONLY through them is reported as build/test noise. A
@@ -89,7 +89,7 @@ ALLOW: set[str] = set()
 #     construction", and it holds whatever the dependency graph says.
 #
 # What is excluded is printed on every run, so nobody finds it by surprise.
-NEVER_SHIPS = frozenset(
+HARNESS_PACKAGES = frozenset(
     {"flutter_test", "integration_test", "flutter_driver", "test"}
 )
 
@@ -136,19 +136,17 @@ def main() -> int:
         return {n for n, p in pkgs.items() if p.get("kind") == kind}
 
     # What ships is what `dependencies:` drags in, minus the test harnesses in
-    # NEVER_SHIPS and anything reachable only through them. `dev_dependencies:`
+    # HARNESS_PACKAGES and anything reachable only through them. `dev_dependencies:`
     # (build_runner, codegen, the test framework) never reach the binary, so a
     # banned package that is ONLY dev-reachable is not a shipping defect —
     # build_runner legitimately pulls a local HTTP server for watch mode, and a
     # gate that fails on that gets switched off.
-    ships = reachable(declared("direct"), stop_at=NEVER_SHIPS)
-    dev_only = reachable(declared("dev") | (NEVER_SHIPS & names)) - ships
+    ships = reachable(declared("direct"), stop_at=HARNESS_PACKAGES)
+    dev_only = reachable(declared("dev") | (HARNESS_PACKAGES & names)) - ships
 
     def banned_in(pool: set[str]) -> list[tuple[str, str]]:
         found = []
         for name in sorted(pool):
-            if name in ALLOW:
-                continue
             for pattern, why in BANNED:
                 if re.search(pattern, name, re.IGNORECASE):
                     found.append((name, why))
@@ -156,10 +154,10 @@ def main() -> int:
         return found
 
     hits = banned_in(ships)
-    noise = banned_in(dev_only)
-    direct_names = {n for n, p in pkgs.items() if p.get("kind") == "direct"}
+    noise = sorted(name for name, _ in banned_in(dev_only))
+    direct_names = declared("direct")
 
-    harnesses = sorted(NEVER_SHIPS & names)
+    harnesses = sorted(HARNESS_PACKAGES & names)
     print(f"{len(names)} resolved · {len(ships)} ship in the binary · {len(dev_only)} build/test only")
     if harnesses:
         print(f"        test harnesses not traversed: {', '.join(harnesses)}")
@@ -169,7 +167,7 @@ def main() -> int:
 
     if noise:
         print("\nBuild/test only — not in the binary, not a defect:")
-        for name, _ in noise:
+        for name in noise:
             print(f"  {name}")
 
     if hits:

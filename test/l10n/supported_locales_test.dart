@@ -12,6 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 
+import '../support/capture_context.dart';
+
 void main() {
   testWidgets('supportedLocales is exactly en de fr fa ar ckb', (tester) async {
     await tester.pumpWidget(const OdovaApp());
@@ -39,11 +41,8 @@ void main() {
       await tester.pumpWidget(
         OdovaApp(
           locale: Locale(locale),
-          home: Builder(
-            builder: (context) {
-              resolved = Directionality.of(context);
-              return const SizedBox.shrink();
-            },
+          home: captureContext(
+            (context) => resolved = Directionality.of(context),
           ),
         ),
       );
@@ -57,11 +56,8 @@ void main() {
     late AppLocalizations l10n;
     await tester.pumpWidget(
       OdovaApp(
-        home: Builder(
-          builder: (context) {
-            l10n = AppLocalizations.of(context);
-            return const SizedBox.shrink();
-          },
+        home: captureContext(
+          (context) => l10n = AppLocalizations.of(context),
         ),
       ),
     );

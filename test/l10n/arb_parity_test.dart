@@ -7,10 +7,21 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/l10n/supported_locales.dart';
 
-/// SPEC.md §5. `en` first so a missing key falls back to a language the
-/// maintainer can read.
-const _locales = ['en', 'de', 'fr', 'fa', 'ar', 'ckb'];
+/// The locales that actually ship, read off disk.
+///
+/// Not a hardcoded six. A seventh ARB file added without a line here would go
+/// unchecked by every test below — which is exactly the silent
+/// missing-translation failure they exist to catch — and a stray `app_es.arb`
+/// would be invisible. The set is asserted against `odovaSupportedLocales`
+/// below, so the ARB directory and the app cannot disagree either.
+final List<String> _locales = Directory('lib/l10n/arb')
+    .listSync()
+    .whereType<File>()
+    .map((f) => RegExp(r'app_(\w+)\.arb$').firstMatch(f.path)?.group(1))
+    .nonNulls
+    .toList();
 
 File _arb(String locale) => File('lib/l10n/arb/app_$locale.arb');
 
@@ -34,14 +45,14 @@ String _displayTextOf(String value) => value
     .replaceAll(RegExp(r'\{\s*\w+\s*(?:,[^{}]*)?\}'), '');
 
 void main() {
-  test('all six ARB files exist', () {
-    for (final locale in _locales) {
-      expect(
-        _arb(locale).existsSync(),
-        isTrue,
-        reason: '${_arb(locale).path} is missing — six locales or none',
-      );
-    }
+  test('the ARB files on disk are exactly the locales the app ships', () {
+    // CLAUDE.md rule 6, in the only form that survives a seventh locale:
+    // lib/l10n/arb/ and odovaSupportedLocales are one list or they are a bug.
+    expect(
+      _locales.toSet(),
+      odovaSupportedLocales.map((l) => l.languageCode).toSet(),
+    );
+    expect(_locales, hasLength(6), reason: 'SPEC.md §5 ships six');
   });
 
   test('every key in app_en.arb exists in all five others', () {

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Contract: the coverage report covers only code somebody wrote.
 #
-#   usage: strip_generated_from_lcov.sh [LCOV_FILE]   (default: coverage/lcov.info)
+#   usage: strip_generated_from_lcov.sh [LCOV_FILE] [ANALYSIS_OPTIONS]
+#          (defaults: coverage/lcov.info, analysis_options.yaml)
 #
 # Coverage here is a PUBLISHED REPORT, never a gate — there is no threshold in
 # CI and no paid service. It still has to be honest: generated code is large and
@@ -9,28 +10,34 @@
 # *.g.dart / *.freezed.dart / *.drift.dart families in the report inflates the
 # total by thousands of lines nobody wrote or reviewed.
 #
-# The globs are READ from analysis_options.yaml's analyzer.exclude rather than
-# retyped here. That file's own header states the contract — "excludes and
-# coverage filters that drift apart lie the coverage number upward" — and
-# test/policy/lint_test.dart fails if any consumer keeps a second copy.
+# The globs are READ from analyzer.exclude rather than retyped here. That file's
+# own header states the contract — "excludes and coverage filters that drift
+# apart lie the coverage number upward".
+#
+# The second argument exists so test/policy/lint_test.dart can point this at a
+# temporary options file carrying a different glob and assert the output
+# follows. That proves the single source of truth is READ; a grep for the glob
+# strings would only prove nobody typed one particular string.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 lcov="${1:-coverage/lcov.info}"
+options="${2:-analysis_options.yaml}"
 [ -f "$lcov" ] || { echo "strip_generated_from_lcov: no such file: $lcov" >&2; exit 1; }
+[ -f "$options" ] || { echo "strip_generated_from_lcov: no such file: $options" >&2; exit 1; }
 
-python3 - "$lcov" <<'PY'
+python3 - "$lcov" "$options" <<'PY'
 import fnmatch
 import pathlib
 import re
 import sys
 
 lcov = pathlib.Path(sys.argv[1])
-options = pathlib.Path("analysis_options.yaml").read_text()
+options = pathlib.Path(sys.argv[2]).read_text()
 
 block = re.search(r"^  exclude:\s*$\n((?:^    - .*$\n?)+)", options, re.M)
 if block is None:
-    sys.exit("strip_generated_from_lcov: analysis_options.yaml has no analyzer.exclude")
+    sys.exit(f"strip_generated_from_lcov: {sys.argv[2]} has no analyzer.exclude")
 
 globs = [
     line.split("-", 1)[1].strip().strip("'\"")

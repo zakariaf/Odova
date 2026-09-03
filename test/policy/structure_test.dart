@@ -5,10 +5,12 @@
 // milliseconds without a widget harness; feature isolation is what stops the
 // twelfth screen importing the third one's private state. Neither survives
 // twelve epics on good intentions.
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/analysis_options_source.dart';
+import '../support/source_tree.dart';
 
 /// The seven directories `lib/` is allowed to hold, and their owners.
 const _sanctioned = {
@@ -24,60 +26,25 @@ const _sanctioned = {
 /// Names that mean "I could not decide where this goes".
 const _junkDrawers = {'utils', 'helpers', 'common', 'misc', 'shared'};
 
-/// The directory globs `analysis_options.yaml` excludes from analysis.
-///
-/// Read rather than retyped: generated code is exempt from the mirror rule for
-/// the same reason it is exempt from the analyzer, and two copies of that list
-/// drift. `test/policy/lint_test.dart` is the gate on that.
-Set<String> _excludedDirectories() {
-  final block = RegExp(
-    r'^  exclude:\s*$\n((?:^    - .*$\n?)+)',
-    multiLine: true,
-  ).firstMatch(File('analysis_options.yaml').readAsStringSync())!.group(1)!;
-
-  return {
-    for (final line in const LineSplitter().convert(block))
-      if (RegExp(r"-\s*'?([^'\n]+?)/\*\*'?\s*$").firstMatch(line) case final m?)
-        m.group(1)!,
-  };
-}
-
-Iterable<File> _dartFilesUnder(String path) => Directory(path)
-    .listSync(recursive: true)
-    .whereType<File>()
-    .where((f) => f.path.endsWith('.dart'));
+String _name(FileSystemEntity entity) => entity.path.split('/').last;
 
 Iterable<Directory> _directoriesUnder(String path) =>
     Directory(path).listSync(recursive: true).whereType<Directory>();
 
-/// Every `import`/`export` URI in [source].
-Iterable<String> _importUris(String source) => RegExp(
-  r'''^\s*(?:import|export)\s+['"]([^'"]+)['"]''',
-  multiLine: true,
-).allMatches(source).map((m) => m.group(1)!);
-
 void main() {
   test('lib/ contains exactly the seven sanctioned directories', () {
     final children = Directory('lib').listSync();
-    final directories = children
-        .whereType<Directory>()
-        .map((d) => d.uri.pathSegments[d.uri.pathSegments.length - 2])
-        .toSet();
-    final files = children
-        .whereType<File>()
-        .map((f) => f.uri.pathSegments.last)
-        .toSet();
 
     // A new top-level folder is a deliberate decision. Making it here, with a
     // README naming its owner, is the whole cost of the rule.
-    expect(directories, _sanctioned);
-    expect(files, {'main.dart'});
+    expect(children.whereType<Directory>().map(_name).toSet(), _sanctioned);
+    expect(children.whereType<File>().map(_name).toSet(), {'main.dart'});
   });
 
   test('lib/core imports no Flutter', () {
     final offenders = <String>[];
-    for (final file in _dartFilesUnder('lib/core')) {
-      for (final uri in _importUris(file.readAsStringSync())) {
+    for (final file in dartFilesUnder('lib/core')) {
+      for (final uri in importUrisIn(file.readAsStringSync())) {
         if (uri.startsWith('package:flutter/') ||
             uri == 'dart:ui' ||
             uri == 'dart:io') {
@@ -97,16 +64,14 @@ void main() {
   });
 
   test('no feature imports another feature', () {
-    final features = Directory('lib/features')
-        .listSync()
-        .whereType<Directory>()
-        .map((d) => d.uri.pathSegments[d.uri.pathSegments.length - 2])
-        .toList();
+    final features = Directory(
+      'lib/features',
+    ).listSync().whereType<Directory>().map(_name).toList();
 
     final offenders = <String>[];
     for (final feature in features) {
-      for (final file in _dartFilesUnder('lib/features/$feature')) {
-        for (final uri in _importUris(file.readAsStringSync())) {
+      for (final file in dartFilesUnder('lib/features/$feature')) {
+        for (final uri in importUrisIn(file.readAsStringSync())) {
           for (final other in features) {
             if (other != feature && uri.contains('features/$other/')) {
               offenders.add('${file.path} -> $uri');
@@ -126,10 +91,9 @@ void main() {
   });
 
   test('no junk-drawer directory', () {
-    final offenders = _directoriesUnder('lib')
-        .map((d) => d.path)
-        .where((p) => _junkDrawers.contains(p.split('/').last))
-        .toList();
+    final offenders = _directoriesUnder(
+      'lib',
+    ).map((d) => d.path).where((p) => _junkDrawers.contains(p.split('/').last));
 
     expect(
       offenders,
@@ -141,13 +105,13 @@ void main() {
   });
 
   test('every lib/ directory has a mirror under test/', () {
-    final excluded = _excludedDirectories();
+    final excluded = excludedDirectories();
     expect(excluded, isNotEmpty, reason: 'the exclude parser found nothing');
 
     final unmirrored = <String>[];
     for (final directory in [
       'lib',
-      ...(_directoriesUnder('lib').map((d) => d.path)),
+      ..._directoriesUnder('lib').map((d) => d.path),
     ]) {
       // Generated code is exempt for the same reason the analyzer skips it.
       if (excluded.any((e) => directory == e || directory.startsWith('$e/'))) {
@@ -170,5 +134,26 @@ void main() {
           'code with no mirrored test directory is code nobody has decided '
           'how to test',
     );
+  });
+
+  test('every directory listed as knownEmpty really is empty', () {
+    // dartFilesUnder() fails a walk that finds nothing, unless the directory is
+    // on that list. A stale entry would silently disarm the gate that walks it
+    // on the day the directory gains its first file.
+    for (final directory in knownEmptyLibDirectories) {
+      final dartFiles = Directory(directory)
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart'));
+
+      expect(
+        dartFiles,
+        isEmpty,
+        reason:
+            '$directory now holds Dart. Remove it from '
+            'knownEmptyLibDirectories so the gates that walk it start '
+            'asserting something.',
+      );
+    }
   });
 }

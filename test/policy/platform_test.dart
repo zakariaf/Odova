@@ -49,10 +49,22 @@ void main() {
   group('deployment floor', () {
     // SPEC.md §17 Targets: iOS 15+, Android 8.0 / API 26+.
     test('minSdk is 26 and iOS deployment target is 15.0', () {
-      expect(
-        File('android/app/build.gradle.kts').readAsStringSync(),
-        contains('minSdk = 26'),
-      );
+      // Every assignment, not the presence of the string: a second flavour or
+      // product-flavour block setting `minSdk = 21` would pass a `contains`.
+      // This mirrors the iOS arm below, which already sweeps for a lower one.
+      final minSdks = RegExp(r'minSdk\s*=\s*(\d+)')
+          .allMatches(File('android/app/build.gradle.kts').readAsStringSync())
+          .map((m) => int.parse(m.group(1)!))
+          .toList();
+
+      expect(minSdks, isNotEmpty, reason: 'no minSdk assignment at all');
+      for (final minSdk in minSdks) {
+        expect(
+          minSdk,
+          greaterThanOrEqualTo(26),
+          reason: 'SPEC.md §17 Targets: Android 8.0 / API 26+',
+        );
+      }
 
       final pbxproj = File(
         'ios/Runner.xcodeproj/project.pbxproj',

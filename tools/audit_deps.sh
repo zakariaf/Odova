@@ -8,46 +8,66 @@ set -euo pipefail
 # avoid." §17's offline gate says a dependency-graph check for networking APIs
 # runs in CI and fails the build. This is that check.
 #
-#   usage: audit_deps.sh [--deps DEPS_JSON]
+#   usage: audit_deps.sh [--deps DEPS_JSON] [--require-graph]
 #
 # --deps replaces the live `dart pub deps --json` with a document on disk. It
 # exists so tools/check_gates_selftest.sh can plant a transitive hit and watch
 # this go red WITHOUT a Flutter toolchain: the self-test runs in the `repo` CI
 # job, which has none, and an arm that silently skips there is an arm nobody
-# ever sees. The real audit — over the actual resolved tree — runs in the `app`
-# job after `flutter pub get --enforce-lockfile`.
+# ever sees.
+#
+# --require-graph turns "could not obtain a dependency graph" from a skip into a
+# failure. Without it this script exits 0 when `dart` is absent or when
+# `dart pub deps` fails, having audited nothing — which is fine in the repo job,
+# where the structural checks are the point, and NOT fine in the `app` job,
+# where the transitive audit is the whole reason the step exists. A gate that
+# can silently degrade to a no-op is a gate that is off.
 #
 # Checks, in order:
 #   1) pubspec.lock exists and is tracked by git (an app must commit its lock).
 #   2) no exact version pins in pubspec.yaml dependencies (caret ranges only).
-#   3) the version-pinned lint `include:` file exists in the resolved package
-#      (a missing include emits include_file_not_found — fatal to default
-#      analyze; where warnings are non-fatal it silently drops your ruleset's
-#      added/promoted rules, though the analyzer's built-in lints keep running).
-#   4) the full transitive tree contains no policy-banned package
+#   3) the full transitive tree contains no policy-banned package
 #      (delegates to audit_deps.py next to this script).
+#
+# The vendored version's lint-`include:` check lives in
+# tools/check_lint_include.sh instead. It is not a dependency audit, it needs a
+# different input, and two callers means reading one failure twice.
+#
 # Exits non-zero on any failure so CI can gate on it.
 
 DEPS_JSON=""
+REQUIRE_GRAPH=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --deps) DEPS_JSON="$2"; shift 2 ;;
-    -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
+    --require-graph) REQUIRE_GRAPH=1; shift ;;
+    -h|--help) sed -n '3,35p' "$0"; exit 0 ;;
     *) printf 'audit_deps: unknown argument %s\n' "$1" >&2; exit 2 ;;
   esac
 done
 
+# A relative --deps resolves against the CALLER's directory, before the cd below
+# changes what it means.
+if [[ -n "$DEPS_JSON" && "$DEPS_JSON" != /* ]]; then
+  DEPS_JSON="$PWD/$DEPS_JSON"
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
-
-# `--deps` is resolved before the cd above changes what a relative path means.
-if [[ -n "$DEPS_JSON" && "$DEPS_JSON" != /* ]]; then
-  DEPS_JSON="$SCRIPT_DIR/../$DEPS_JSON"
-fi
 
 fail=0
 note() { printf '%s\n' "$*"; }
 bad()  { printf 'FAIL  %s\n' "$*"; fail=1; }
+
+# No graph to walk. Under --require-graph that is a failure, not a skip: the
+# caller asked for the transitive audit and did not get one.
+graph_missing() {
+  if [[ "$REQUIRE_GRAPH" = 1 ]]; then
+    bad "no dependency graph — $* (--require-graph: this is not a skip)"
+  else
+    note "skip  no dependency graph — $*"
+  fi
+}
 
 # 1) committed lock -----------------------------------------------------------
 if [[ ! -f pubspec.lock ]]; then
@@ -76,16 +96,7 @@ if [[ -f pubspec.yaml ]]; then
   fi
 fi
 
-# 3) versioned lint include actually exists ----------------------------------
-# Delegated to tools/check_lint_include.sh, which resolves through
-# .dart_tool/package_config.json rather than guessing at PUB_CACHE — the
-# vendored version degrades to a skip when the cache is relocated, and a gate
-# that skips is a gate that is off.
-if ! bash "$SCRIPT_DIR/check_lint_include.sh"; then
-  fail=1
-fi
-
-# 4) transitive ban audit -----------------------------------------------------
+# 3) transitive ban audit -----------------------------------------------------
 if [[ -n "$DEPS_JSON" ]]; then
   note "note  auditing the supplied graph: $DEPS_JSON"
   if ! python3 "$SCRIPT_DIR/audit_deps.py" "$DEPS_JSON"; then
@@ -98,11 +109,11 @@ elif command -v dart >/dev/null 2>&1; then
       fail=1
     fi
   else
-    note "skip  'dart pub deps --json' failed (run 'flutter pub get' first)."
+    graph_missing "'dart pub deps --json' failed (run 'flutter pub get' first)."
   fi
   rm -f "$tmp"
 else
-  note "skip  dart not on PATH — transitive ban audit not run."
+  graph_missing "dart is not on PATH."
 fi
 
 exit "$fail"

@@ -13,6 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 
+import '../support/source_tree.dart';
+
 /// Every placeholder provider, and how to read it.
 ///
 /// Kept as data so the test below can assert this list covers every
@@ -80,29 +82,16 @@ void main() {
     expect(scope.retry!(9, StateError('x')), isNull);
   });
 
-  test('no get_it, no package:provider, no legacy StateNotifierProvider '
-      'anywhere in lib/', () {
-    const banned = {
-      'package:get_it': 'a second injection mechanism',
-      'package:provider/': 'a second injection mechanism',
-      'StateNotifierProvider': 'the Riverpod 1.x model, removed in 3.x',
-      'ChangeNotifierProvider': 'the same, via Flutter',
-    };
-
-    final offenders = <String>[];
-    for (final file
-        in Directory('lib')
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((f) => f.path.endsWith('.dart'))) {
-      final source = file.readAsStringSync();
-      for (final MapEntry(key: needle, value: why) in banned.entries) {
-        if (source.contains(needle)) {
-          offenders.add('${file.path}: $needle ($why)');
-        }
-      }
-    }
-
-    expect(offenders, isEmpty);
-  });
+  test(
+    'no get_it, no package:provider, no legacy StateNotifierProvider '
+    'anywhere in lib/',
+    () {
+      expectNoBannedPatterns(const {
+        'package:get_it': 'get_it — a second injection mechanism',
+        'package:provider/': 'package:provider — a second injection mechanism',
+        'StateNotifierProvider': 'the Riverpod 1.x model, removed in 3.x',
+        'ChangeNotifierProvider': 'the same, via Flutter',
+      });
+    },
+  );
 }

@@ -6,13 +6,13 @@
 // `Socket`, `RawDatagramSocket` and `HttpServer` with no dependency at all.
 // This is the gate for the code we write ourselves, and it is the one that
 // matters most — the promise is kept by having no client, not by policy.
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/source_tree.dart';
 
 /// Identifiers that only appear in code that opens a socket.
 ///
-/// Each is matched on a word boundary: `Socket` would otherwise fire on
+/// `Socket` is matched on a word boundary; without it the pattern fires on
 /// `SocketException` in a comment, and a gate people learn to work around by
 /// renaming a variable is not a gate.
 const _networkApis = {
@@ -31,28 +31,8 @@ const _networkApis = {
 
 void main() {
   test('no file under lib/ reaches for a network API', () {
-    final offenders = <String>[];
-
-    final files = Directory('lib')
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.dart'))
-        // Generated localizations are not hand-written and cannot contain one.
-        .where((f) => !f.path.startsWith('lib/l10n/gen/'));
-    expect(files, isNotEmpty, reason: 'the walk found no source at all');
-
-    for (final file in files) {
-      final source = file.readAsStringSync();
-      for (final MapEntry(key: pattern, value: what) in _networkApis.entries) {
-        if (RegExp(pattern).hasMatch(source)) {
-          offenders.add('${file.path}: $what');
-        }
-      }
-    }
-
-    expect(
-      offenders,
-      isEmpty,
+    expectNoBannedPatterns(
+      _networkApis,
       reason:
           'the store listing claims zero network calls, and that has to be '
           'true by construction rather than by policy',

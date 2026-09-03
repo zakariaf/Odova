@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
-import 'package:odova/l10n/supported_locales.dart';
 
 /// Pumps [child] inside everything a real Odova screen sits in.
 ///
@@ -21,6 +21,12 @@ import 'package:odova/l10n/supported_locales.dart';
 /// The text scaler is deliberately NOT clamped. SPEC.md §17's accessibility
 /// gate needs 200% to be reachable, and `MediaQuery.withClampedTextScaling` in
 /// a harness makes every large-text test pass without testing anything.
+///
+/// This pumps [OdovaApp] itself rather than rebuilding an equivalent
+/// `MaterialApp`. The 112 parity captures depend on the harness and the app
+/// being the same widget: a fork means every theme, delegate or locale change
+/// has to be made twice, and the day it is made once the captures are of
+/// something the user never sees.
 Future<void> pumpApp(
   WidgetTester tester,
   Widget child, {
@@ -38,18 +44,16 @@ Future<void> pumpApp(
     ProviderScope(
       overrides: overrides,
       retry: noProviderRetry,
-      child: MaterialApp(
-        locale: locale,
-        localizationsDelegates: odovaLocalizationsDelegates,
-        supportedLocales: odovaSupportedLocales,
-        // EPIC-02 replaces these with the Calm themes. Both are named here so
-        // themeMode has something to choose between from the first test.
-        theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
-        themeMode: themeMode,
-        home: child,
-      ),
+      child: OdovaApp(locale: locale, themeMode: themeMode, home: child),
     ),
   );
-  await tester.pumpAndSettle();
+  // Bounded on purpose. The default pumpAndSettle runs to a TEN MINUTE timeout
+  // against a repeating animation, so the first looping Calm animation on a
+  // pumped screen would turn one test into a ten-minute hang instead of a fast
+  // failure.
+  await tester.pumpAndSettle(
+    const Duration(milliseconds: 100),
+    EnginePhase.sendSemanticsUpdate,
+    const Duration(seconds: 5),
+  );
 }

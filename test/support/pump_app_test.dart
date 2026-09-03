@@ -7,9 +7,11 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:odova/app/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 
+import 'capture_context.dart';
 import 'pump_app.dart';
 
 void main() {
@@ -18,12 +20,7 @@ void main() {
     late BuildContext captured;
     await pumpApp(
       tester,
-      Builder(
-        builder: (context) {
-          captured = context;
-          return const SizedBox.shrink();
-        },
-      ),
+      captureContext((context) => captured = context),
       overrides: [clockProvider.overrideWithValue(Clock.fixed(DateTime(2026)))],
     );
 
@@ -54,12 +51,7 @@ void main() {
         late BuildContext captured;
         await pumpApp(
           tester,
-          Builder(
-            builder: (context) {
-              captured = context;
-              return const SizedBox.shrink();
-            },
-          ),
+          captureContext((context) => captured = context),
           locale: Locale(locale),
           themeMode: mode,
         );
@@ -83,12 +75,7 @@ void main() {
     late BuildContext captured;
     await pumpApp(
       tester,
-      Builder(
-        builder: (context) {
-          captured = context;
-          return const SizedBox.shrink();
-        },
-      ),
+      captureContext((context) => captured = context),
     );
 
     expect(MediaQuery.textScalerOf(captured).scale(10), 20);

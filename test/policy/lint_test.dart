@@ -9,40 +9,25 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// The `include:` target of [analysisOptions], resolved to a file on disk via
-/// `.dart_tool/package_config.json`.
-File _resolvedIncludeFile(String analysisOptions) {
-  final include = RegExp(
-    r'^include:\s*package:(\w+)/(\S+)$',
-    multiLine: true,
-  ).firstMatch(analysisOptions);
-  expect(include, isNotNull, reason: 'analysis_options.yaml has no include:');
+import '../support/analysis_options_source.dart';
 
-  final packageName = include!.group(1)!;
-  final relativePath = include.group(2)!;
-
-  final config =
-      jsonDecode(
-            File('.dart_tool/package_config.json').readAsStringSync(),
-          )
-          as Map<String, dynamic>;
-  final packages = (config['packages'] as List<dynamic>)
-      .cast<Map<String, dynamic>>();
-  final package = packages.firstWhere(
-    (p) => p['name'] == packageName,
-    orElse: () => throw StateError(
-      "'$packageName' is not in the resolved package config — the include "
-      'names a package that is not a dependency, so it adds no rules at all.',
-    ),
+/// The resolved `include:` target, from the one resolver.
+///
+/// `tools/check_lint_include.sh --print-path` does the work. Resolving through
+/// `.dart_tool/package_config.json` a second time in Dart would mean finding
+/// out twice, in two languages, that `rootUri` is sometimes relative to
+/// `.dart_tool/` and sometimes a percent-encoded `file:` URI.
+File _resolvedIncludeFile() {
+  final result = Process.runSync('bash', [
+    'tools/check_lint_include.sh',
+    '--print-path',
+  ]);
+  expect(
+    result.exitCode,
+    0,
+    reason: 'check_lint_include.sh failed: ${result.stderr}',
   );
-
-  // rootUri may be relative to .dart_tool/, and carries no trailing slash —
-  // without one, resolve() replaces the last path segment instead of
-  // descending into it.
-  final root = Uri.file(
-    '${Directory.current.path}/.dart_tool/',
-  ).resolve('${package['rootUri']}/');
-  return File.fromUri(root.resolve('${package['packageUri']}/$relativePath'));
+  return File((result.stdout as String).trim());
 }
 
 /// The lint names in [text]'s own `linter: rules:` block.
@@ -79,7 +64,7 @@ Set<String> _enabledRules(File file) {
 }
 
 void main() {
-  final analysisOptions = File('analysis_options.yaml').readAsStringSync();
+  final analysisOptions = File(analysisOptionsPath).readAsStringSync();
 
   test('every rule promoted under errors: is enabled by the base ruleset', () {
     // `errors:` RE-RANKS a diagnostic the ruleset already produces. It cannot
@@ -100,7 +85,7 @@ void main() {
     // The EFFECTIVE ruleset: what the include brings, plus anything this repo
     // switches on itself. close_sinks is the second kind — VGA never enables
     // it, so promoting it without the `linter:` block would do nothing.
-    final enabled = _enabledRules(_resolvedIncludeFile(analysisOptions))
+    final enabled = _enabledRules(_resolvedIncludeFile())
       ..addAll(_declaredRules(analysisOptions));
     expect(
       enabled.length,
@@ -115,53 +100,71 @@ void main() {
         enabled,
         contains(rule),
         reason:
-            "'$rule' is promoted to error but the base ruleset never "
-            'enables it, so the promotion does nothing',
+            "'$rule' is promoted to error but nothing in the effective "
+            'config enables it, so the promotion does nothing',
       );
     }
   });
 
-  test('the generated-code excludes are read from analysis_options.yaml, '
-      'never retyped', () {
-    final excludes = RegExp(r"^    - '?([^'\n]+)'?$", multiLine: true)
-        .allMatches(
-          RegExp(
-            r'^  exclude:\s*$\n((?:^    - .*$\n?)+)',
-            multiLine: true,
-          ).firstMatch(analysisOptions)!.group(1)!,
-        )
-        .map((m) => m.group(1)!)
-        .toList();
-    expect(excludes, hasLength(4));
+  test('the coverage filter reads the excludes, never a copy', () {
+    // The behaviour, not the spelling. A grep for the glob strings only proves
+    // nobody typed one particular string; it fires on a README that mentions
+    // one in prose, and it misses a consumer that retypes `lib/l10n/gen/`
+    // without the `**`. This drives the filter from a DIFFERENT options file
+    // and asserts the output follows it.
+    final workspace = Directory.systemTemp.createTempSync('odova_excludes');
+    addTearDown(() => workspace.deleteSync(recursive: true));
 
-    // Anything that needs this list parses this file. A second copy in a
-    // coverage filter drifts, and excludes that drift lie the coverage number
-    // upward — which is why analysis_options.yaml says so in its own header.
-    final searched = [
-      ...Directory('tools').listSync(recursive: true).whereType<File>(),
-      ...Directory('.github').listSync(recursive: true).whereType<File>(),
-      ...Directory('lib').listSync(recursive: true).whereType<File>(),
-      ...Directory('test').listSync(recursive: true).whereType<File>(),
-    ].where((f) => f.path != 'test/policy/lint_test.dart');
-    expect(searched, isNotEmpty);
+    final options = File('${workspace.path}/analysis_options.yaml')
+      ..writeAsStringSync('''
+analyzer:
+  exclude:
+    - '**/*.invented.dart'
+''');
+    final lcov = File('${workspace.path}/lcov.info')
+      ..writeAsStringSync(
+        'SF:lib/main.dart\nDA:1,1\nend_of_record\n'
+        'SF:lib/thing.invented.dart\nDA:1,1\nend_of_record\n'
+        // Excluded by the REAL options file, and by nothing in the temporary
+        // one — so it must survive, or the filter is not reading the argument.
+        'SF:lib/l10n/gen/app_localizations.dart\nDA:1,1\nend_of_record\n',
+      );
 
-    for (final file in searched) {
-      if (file.path.contains('node_modules')) continue;
-      final String text;
-      try {
-        text = file.readAsStringSync();
-      } on FileSystemException {
-        continue; // a binary asset
-      }
-      for (final glob in excludes) {
-        expect(
-          text,
-          isNot(contains(glob)),
-          reason:
-              "${file.path} retypes the exclude '$glob' instead of "
-              'reading it from analysis_options.yaml',
-        );
-      }
-    }
+    final result = Process.runSync('bash', [
+      'tools/strip_generated_from_lcov.sh',
+      lcov.path,
+      options.path,
+    ]);
+    expect(result.exitCode, 0, reason: '${result.stderr}');
+
+    expect(
+      RegExp(
+        r'^SF:(.+)$',
+        multiLine: true,
+      ).allMatches(lcov.readAsStringSync()).map((m) => m.group(1)!).toList(),
+      ['lib/main.dart', 'lib/l10n/gen/app_localizations.dart'],
+    );
+  });
+
+  test('exactly one Dart parser reads the analyzer excludes', () {
+    // The list has one home; so does the code that reads it. A second parser
+    // is how two callers end up disagreeing about what `lib/l10n/gen/**` means.
+    final parsers =
+        [
+              ...Directory('lib').listSync(recursive: true).whereType<File>(),
+              ...Directory('test').listSync(recursive: true).whereType<File>(),
+            ]
+            .where((f) => f.path.endsWith('.dart'))
+            // Split so this file does not match its own needle.
+            .where(
+              (f) => f.readAsStringSync().contains(
+                'exclude:'
+                r'\s*$',
+              ),
+            )
+            .map((f) => f.path)
+            .toList();
+
+    expect(parsers, ['test/support/analysis_options_source.dart']);
   });
 }

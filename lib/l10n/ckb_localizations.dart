@@ -11,58 +11,33 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 /// the framework layer is served from Arabic — the closest script, direction
 /// and letterforms available — while every Odova string comes from
 /// `app_ckb.arb`.
-const _ckbFrameworkFallback = Locale('ar');
+///
+/// EPIC-04 owns the consequence: Arabic month names under a Sorani UI are
+/// better than English ones and wrong all the same.
+const ckbFrameworkFallback = Locale('ar');
 
-bool _isCkb(Locale locale) => locale.languageCode == 'ckb';
+/// Serves any framework localization for `ckb` from [ckbFrameworkFallback].
+///
+/// One class rather than three. The decision — "ckb borrows from ar" — is one
+/// sentence, and three near-identical delegates state it three times and invite
+/// the copy-paste bug this shape is prone to: a Material delegate whose `load`
+/// forwards to `GlobalWidgetsLocalizations`.
+///
+/// [LocalizationsDelegate.type] returns `T`, so the type argument inferred from
+/// [source] is what `Localizations` keys the result on.
+class CkbFallbackDelegate<T> extends LocalizationsDelegate<T> {
+  /// Creates a delegate serving `ckb` from [source]'s Arabic localizations.
+  const CkbFallbackDelegate(this.source);
 
-/// Serves [WidgetsLocalizations] for `ckb`, which is what sets
-/// [Directionality] at the root of the app.
-class CkbWidgetsLocalizationsDelegate
-    extends LocalizationsDelegate<WidgetsLocalizations> {
-  /// Creates the delegate.
-  const CkbWidgetsLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) => _isCkb(locale);
-
-  @override
-  Future<WidgetsLocalizations> load(Locale locale) =>
-      GlobalWidgetsLocalizations.delegate.load(_ckbFrameworkFallback);
-
-  @override
-  bool shouldReload(CkbWidgetsLocalizationsDelegate old) => false;
-}
-
-/// Serves [MaterialLocalizations] for `ckb`.
-class CkbMaterialLocalizationsDelegate
-    extends LocalizationsDelegate<MaterialLocalizations> {
-  /// Creates the delegate.
-  const CkbMaterialLocalizationsDelegate();
+  /// The framework delegate the Arabic values come from.
+  final LocalizationsDelegate<T> source;
 
   @override
-  bool isSupported(Locale locale) => _isCkb(locale);
+  bool isSupported(Locale locale) => locale.languageCode == 'ckb';
 
   @override
-  Future<MaterialLocalizations> load(Locale locale) =>
-      GlobalMaterialLocalizations.delegate.load(_ckbFrameworkFallback);
+  Future<T> load(Locale locale) => source.load(ckbFrameworkFallback);
 
   @override
-  bool shouldReload(CkbMaterialLocalizationsDelegate old) => false;
-}
-
-/// Serves [CupertinoLocalizations] for `ckb`.
-class CkbCupertinoLocalizationsDelegate
-    extends LocalizationsDelegate<CupertinoLocalizations> {
-  /// Creates the delegate.
-  const CkbCupertinoLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) => _isCkb(locale);
-
-  @override
-  Future<CupertinoLocalizations> load(Locale locale) =>
-      GlobalCupertinoLocalizations.delegate.load(_ckbFrameworkFallback);
-
-  @override
-  bool shouldReload(CkbCupertinoLocalizationsDelegate old) => false;
+  bool shouldReload(covariant LocalizationsDelegate<T> old) => false;
 }

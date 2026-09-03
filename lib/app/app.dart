@@ -69,7 +69,12 @@ class _LifecycleScopeState extends ConsumerState<_LifecycleScope> {
 /// EPIC-02 and the router in EPIC-08.
 class OdovaApp extends StatelessWidget {
   /// Creates the root widget.
-  const OdovaApp({super.key, this.locale, this.home});
+  const OdovaApp({
+    super.key,
+    this.locale,
+    this.home,
+    this.themeMode = ThemeMode.system,
+  });
 
   /// Forces a locale, overriding the device's list.
   ///
@@ -83,6 +88,14 @@ class OdovaApp extends StatelessWidget {
   /// [AppLocalizations] from inside the app's own `Localizations` scope.
   final Widget? home;
 
+  /// Pins the palette.
+  ///
+  /// [ThemeMode.system] — the shipping default — follows the device. A test or
+  /// a parity capture passes an explicit value, because a capture that follows
+  /// the host compares a dark screenshot against a light reference on somebody
+  /// else's machine.
+  final ThemeMode themeMode;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -90,6 +103,13 @@ class OdovaApp extends StatelessWidget {
       locale: locale,
       localizationsDelegates: odovaLocalizationsDelegates,
       supportedLocales: odovaSupportedLocales,
+      // EPIC-02 replaces these two with buildCalmTheme(Brightness.light|dark).
+      // Both are named now so themeMode has something to choose between, and so
+      // that swap is one edit in one place — the test harness pumps THIS
+      // widget, not a second MaterialApp of its own.
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: themeMode,
       home: home ?? const _PlaceholderHome(),
     );
   }

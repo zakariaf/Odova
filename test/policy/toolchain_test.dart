@@ -7,14 +7,29 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+/// The `environment:` block of pubspec.yaml.
+///
+/// Both tests below read this rather than grepping the whole file: a bare
+/// `sdk:` search happens to hit `environment.sdk` only because of the current
+/// key order, and `dependencies: flutter: sdk: flutter` is one reordering away
+/// from being what it finds.
+String _environmentBlock() {
+  final block = RegExp(
+    r'^environment:\n(?:[ \t]+.*\n|\n)*',
+    multiLine: true,
+  ).stringMatch(File('pubspec.yaml').readAsStringSync());
+
+  expect(block, isNotNull, reason: 'pubspec.yaml has no environment:');
+  return block!;
+}
+
 void main() {
   group('toolchain', () {
     test('pubspec environment sdk is a range, not a pin', () {
-      final pubspec = File('pubspec.yaml').readAsStringSync();
       final match = RegExp(
         r'^\s*sdk:\s*(.+)$',
         multiLine: true,
-      ).firstMatch(pubspec);
+      ).firstMatch(_environmentBlock());
 
       expect(match, isNotNull, reason: 'pubspec.yaml has no environment.sdk');
 
@@ -43,19 +58,8 @@ void main() {
 
       // Two records of one fact drift. The Flutter pin has exactly one home,
       // and both CI jobs read it from there.
-      final pubspec = File('pubspec.yaml').readAsStringSync();
-      final environment = RegExp(
-        r'^environment:\n(?:[ \t]+.*\n|\n)*',
-        multiLine: true,
-      ).stringMatch(pubspec);
-
       expect(
-        environment,
-        isNotNull,
-        reason: 'pubspec.yaml has no environment:',
-      );
-      expect(
-        RegExp(r'^\s+flutter:', multiLine: true).hasMatch(environment!),
+        RegExp(r'^\s+flutter:', multiLine: true).hasMatch(_environmentBlock()),
         isFalse,
         reason: 'environment.flutter duplicates .flutter-version',
       );

@@ -52,7 +52,13 @@ mv .analysis_options.yaml.bak analysis_options.yaml
 assert 0 "green again once restored" bash tools/check_lint_include.sh
 
 echo "== audit_deps =="
-assert 0 "green on the real dependency tree" bash tools/audit_deps.sh
+assert 0 "green on the repo as it stands" bash tools/audit_deps.sh
+# The bare invocation SKIPS the transitive audit when dart is absent — which is
+# the state of the `repo` CI job — so an arm named "green on the real tree"
+# would be green on no tree at all. --require-graph is what the `app` job
+# passes, and this is the arm proving it refuses to degrade to a no-op.
+assert 1 "red when --require-graph cannot obtain a graph" \
+  env PATH=/usr/bin:/bin bash tools/audit_deps.sh --require-graph
 # The graph arms run against synthetic `dart pub deps --json` documents rather
 # than against a real resolve. That is deliberate: this self-test runs in the
 # `repo` CI job, which has no Flutter toolchain, and an arm that silently
@@ -73,16 +79,26 @@ assert 0 "green when a banned package is reachable ONLY through the test harness
 assert 1 "red when that same package is ALSO reachable at runtime" \
   bash tools/audit_deps.sh --deps test/fixtures/deps-harness-and-runtime.fixture.json
 
+# pubspec.lock is backed up too, and restored last. audit_deps.sh runs
+# `dart pub deps --json`, which quietly re-resolves when pubspec.yaml has
+# changed under it — so planting a pin here REWRITES the lock. A self-test that
+# leaves the repo dirtier than it found it is a self-test people stop running.
 cp pubspec.yaml .pubspec.yaml.bak
+cp pubspec.lock .pubspec.lock.bak
 perl -0pi -e 's|^dependencies:$|dependencies:\n  drift: 2.31.0|m' pubspec.yaml
-assert 1 "red on an exact version pin in pubspec.yaml" bash tools/audit_deps.sh
+assert 1 "red on an exact version pin in pubspec.yaml" \
+  bash tools/audit_deps.sh --deps test/fixtures/deps-harness-only.fixture.json
 mv .pubspec.yaml.bak pubspec.yaml
-assert 0 "green again once the pin is removed" bash tools/audit_deps.sh
+mv .pubspec.lock.bak pubspec.lock
+assert 0 "green again once the pin is removed" \
+  bash tools/audit_deps.sh --deps test/fixtures/deps-harness-only.fixture.json
 
 mv pubspec.lock .pubspec.lock.bak
-assert 1 "red when pubspec.lock is missing" bash tools/audit_deps.sh
+assert 1 "red when pubspec.lock is missing" \
+  bash tools/audit_deps.sh --deps test/fixtures/deps-harness-only.fixture.json
 mv .pubspec.lock.bak pubspec.lock
-assert 0 "green again once the lock is back" bash tools/audit_deps.sh
+assert 0 "green again once the lock is back" \
+  bash tools/audit_deps.sh --deps test/fixtures/deps-harness-only.fixture.json
 
 echo "== check_dependabot =="
 assert 0 "green on the live pub block" bash tools/check_dependabot.sh

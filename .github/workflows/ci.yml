@@ -41,6 +41,7 @@ jobs:
     timeout-minutes: 10
     outputs:
       has_app: ${{ steps.detect.outputs.has_app }}
+      flutter_version: ${{ steps.toolchain.outputs.version }}
     steps:
       # Contract: the gates below can see the whole of history.
       # check_release_hygiene.sh walks `git log --all` for a credential that
@@ -93,6 +94,15 @@ jobs:
       - name: shell scripts are syntactically valid
         run: for f in tools/*.sh; do bash -n "$f" || exit 1; done
 
+      # Contract: .flutter-version is the only place the toolchain version is
+      # written down. It is read ONCE, here, and both Flutter jobs consume it
+      # from this job's outputs — the workflow used to read it twice and the
+      # comment "keep == the app job's pin" was the only thing keeping the two
+      # in step.
+      - id: toolchain
+        name: read the pinned Flutter version
+        run: echo "version=$(cat .flutter-version)" >> "$GITHUB_OUTPUT"
+
       # Contract: the Flutter lane is armed by the presence of pubspec.yaml,
       # and says out loud when it is not. A pipeline that greps for nothing and
       # reports green is worse than one that names the lane it did not run.
@@ -115,19 +125,24 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
+      # Contract: this job analyses and tests the commit under review.
       - uses: actions/checkout@v7
 
       # subosito/flutter-action's `flutter-version-file` parses STRUCTURED files
       # (pubspec.yaml's environment block, .fvmrc JSON). Ours is a bare version
-      # string, so read it here and pass `flutter-version`.
-      - id: toolchain
-        run: echo "version=$(cat .flutter-version)" >> "$GITHUB_OUTPUT"
+      # string, so the repo job reads it and both Flutter jobs take it from
+      # there.
+      #
+      # Contract: the toolchain is the pinned one, not whatever the runner
+      # image ships.
       - uses: subosito/flutter-action@v2 # v2 is current; there is no v3
         with:
           channel: stable
-          flutter-version: ${{ steps.toolchain.outputs.version }}
+          flutter-version: ${{ needs.repo.outputs.flutter_version }}
           cache: true
 
+      # Contract: the toolchain the runner actually resolved is in the log.
+      # A cache hit on the wrong version is otherwise invisible.
       - run: flutter --version
 
       # Contract: the committed pubspec.lock IS the pin. Without
@@ -140,8 +155,11 @@ jobs:
       # job rather than the repo job because it needs the RESOLVED tree:
       # direct-only inspection of pubspec.yaml cannot see the second hop, which
       # is exactly where a banned SDK arrives.
+      # --require-graph: without it the script exits 0 when it cannot obtain a
+      # dependency graph, having audited nothing. In this job the transitive
+      # audit is the entire reason the step exists.
       - name: no dependency opens a network path
-        run: bash tools/audit_deps.sh
+        run: bash tools/audit_deps.sh --require-graph
 
       # Contract: the lint ruleset is actually loaded. analysis_options.yaml
       # names a VERSIONED file inside very_good_analysis; if that file is not
@@ -161,8 +179,11 @@ jobs:
 
       # Contract: the committed generated localizations ARE the ARB files. A
       # stale lib/l10n/gen/ compiles and runs, serving yesterday's strings — and
-      # with six locales that is not something review catches.
+      # with six locales that is not something review catches. Regenerate, then
+      # diff: the regeneration is not itself a gate, the diff is.
       - run: flutter gen-l10n
+      # Contract: the diff, not the regeneration, is the gate. Regenerating is
+      # a setup step; this is the step that can fail.
       - name: generated localizations are up to date
         run: git diff --exit-code -- lib/l10n/gen/
 
@@ -182,6 +203,9 @@ jobs:
       - name: strip generated code from the coverage report
         run: bash tools/strip_generated_from_lcov.sh coverage/lcov.info
 
+      # Contract: the coverage number leaves this pipeline as a downloadable
+      # report and nothing else. `if: always()` so a red test run still
+      # publishes what it managed to collect.
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -196,19 +220,23 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
+      # Contract: this job compiles the same commit the tests ran against.
       - uses: actions/checkout@v7
+      # Contract: the Android toolchain is pinned. Gradle picks a JDK from the
+      # runner image otherwise, and the image moves.
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
           cache: gradle
-      - id: toolchain
-        run: echo "version=$(cat .flutter-version)" >> "$GITHUB_OUTPUT"
+      # Contract: the same pinned toolchain the app job used.
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: ${{ steps.toolchain.outputs.version }} # keep == the app job's pin
+          flutter-version: ${{ needs.repo.outputs.flutter_version }}
           cache: true
+
+      # Contract: the same resolved version set the app job tested.
       - run: flutter pub get --enforce-lockfile
 
       # Contract: the app still compiles for a real target. Unsigned on purpose —
