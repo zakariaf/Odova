@@ -99,14 +99,23 @@ class OdovaApp extends StatelessWidget {
   /// else's machine.
   final ThemeMode themeMode;
 
-  /// The type variant for the locale this app was asked for.
+  /// The four themes, built once.
   ///
-  /// `locale` may be null — the shipping default, meaning "follow the device"
-  /// — and the resolved locale is not knowable above [MaterialApp]. Latin is
-  /// the right answer for null: it is what `en` takes, and `en` is the
-  /// fallback.
-  CalmType _typeFor(BuildContext context) =>
-      locale == null ? CalmType.latin : CalmType.forLocale(locale!);
+  /// Two brightnesses × two script variants. [MaterialApp.builder] runs on
+  /// every rebuild of the app root, and constructing a [ThemeData] there would
+  /// allocate one per frame.
+  static final _themes = <(Brightness, CalmType), ThemeData>{
+    (Brightness.light, CalmType.latin): buildCalmTheme(Brightness.light),
+    (Brightness.dark, CalmType.latin): buildCalmTheme(Brightness.dark),
+    (Brightness.light, CalmType.arabicScript): buildCalmTheme(
+      Brightness.light,
+      type: CalmType.arabicScript,
+    ),
+    (Brightness.dark, CalmType.arabicScript): buildCalmTheme(
+      Brightness.dark,
+      type: CalmType.arabicScript,
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -115,16 +124,10 @@ class OdovaApp extends StatelessWidget {
       locale: locale,
       localizationsDelegates: odovaLocalizationsDelegates,
       supportedLocales: odovaSupportedLocales,
-      // One builder, both brightnesses, and the locale's type variant on each.
-      // SPEC.md §5 needs no restart on a language change: a locale flip is a
-      // rebuild from the root, and because the type rides the ThemeData that
-      // rebuild carries the Arabic-script metrics with it.
-      //
-      // `builder` rather than a field read: `locale` here is the REQUESTED
-      // locale, and the resolved one is only known inside the app. Reading it
-      // from the Localizations scope is what makes `system` work.
-      theme: buildCalmTheme(Brightness.light, type: _typeFor(context)),
-      darkTheme: buildCalmTheme(Brightness.dark, type: _typeFor(context)),
+      // These two decide the BRIGHTNESS. The script variant is applied in
+      // `builder` below, because it depends on the resolved locale.
+      theme: _themes[(Brightness.light, CalmType.latin)],
+      darkTheme: _themes[(Brightness.dark, CalmType.latin)],
       themeMode: themeMode,
       // MaterialApp mounts an AnimatedTheme and crossfades ThemeData over
       // ~200ms unless told not to. That is not a Calm token, and it is
@@ -136,6 +139,26 @@ class OdovaApp extends StatelessWidget {
       // Restoring a persisted ThemeMode before the first frame is
       // design-system-structure rule 9. There is no settings store yet; the
       // seam is `themeMode` and EPIC-14 fills it from SettingsRepository.
+      // The script variant follows the RESOLVED locale, and the resolved
+      // locale is only knowable below `Localizations` — which is where
+      // `builder` runs and where the `theme:` field does not.
+      //
+      // This is what makes the shipping default work. `locale` is null when
+      // the app follows the device, so reading the FIELD would give a Persian
+      // phone Persian strings with Latin line heights: descenders clipped
+      // silently, on the one configuration nobody passes explicitly in a test.
+      //
+      // SPEC.md §5 needs no restart on a language change. A locale flip
+      // rebuilds from the root, this builder re-runs, and the Arabic-script
+      // metrics arrive with it.
+      builder: (context, child) => Theme(
+        data:
+            _themes[(
+              Theme.of(context).brightness,
+              CalmType.forLocale(Localizations.localeOf(context)),
+            )]!,
+        child: child!,
+      ),
       home: home ?? const _PlaceholderHome(),
     );
   }

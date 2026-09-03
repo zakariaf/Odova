@@ -270,13 +270,25 @@ assert 1 "check_extension_fields is red on a field dropped from lerp" \
   bash "$FIELDS" lib/theme/calm
 restore_all
 
-# The same failure on a WRAPPED declaration. dart format breaks a long
-# comma-separated field list across lines the moment it passes 80 columns, and
-# a single-line regex saw none of them — the gate reported OK over eight chart
-# slots it had never looked at.
+# The same failure on a WRAPPED declaration, which is the one the gate could
+# not see. `dart format` breaks a comma-separated field list across lines the
+# moment it passes 80 columns; a single-line regex matches none of the
+# continuation lines, so the gate reported OK over slots it had never looked
+# at. Planting `chart3: chart3,` on the CURRENT one-per-line declarations does
+# NOT exercise that — it is caught by the arm above either way — so this arm
+# rewrites the declaration into the wrapped shape first.
 plant lib/theme/calm/calm_colors.dart
-perl -0pi -e 's|chart3: Color\.lerp\(chart3, other\.chart3, t\)!,|chart3: chart3,|' \
-  lib/theme/calm/calm_colors.dart
+python3 - <<'WRAP'
+import pathlib
+p = pathlib.Path("lib/theme/calm/calm_colors.dart")
+s = p.read_text()
+# Collapse chart3 and chart4 onto one wrapped declaration, the shape the
+# formatter produces for a long field list.
+s = s.replace("  final Color chart3;\n", "  final Color chart3,\n      chart4;\n")
+s = s.replace("  /// `--chart-4`. Series 4. Identical to `dueSoon.base`.\n  final Color chart4;\n", "")
+s = s.replace("      chart3: Color.lerp(chart3, other.chart3, t)!,\n", "      chart3: chart3,\n")
+p.write_text(s)
+WRAP
 assert 1 "check_extension_fields is red on a WRAPPED field dropped from lerp" \
   bash "$FIELDS" lib/theme/calm
 restore_all
@@ -295,6 +307,24 @@ assert 1 "check_type_floor is red on a fontSize below 13" \
 restore_all
 
 assert 0 "check_calm_layering is green" bash "$LAYER" lib
+
+# The gate strips comments before scanning, as check_raw_values.sh does. A doc
+# comment that names `Scaffold(` in order to explain why the file uses a
+# Material instead is the most valuable line in that file, and a gate that
+# fails on it teaches people not to write it. This arm is what proves the strip
+# is load-bearing rather than decorative.
+write_scratch lib/features/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// Deliberately mentions Scaffold( and ListTile( and showDialog( in prose,
+/// which is what explaining a rule looks like.
+// Also as a line comment: AlertDialog( and SnackBar(.
+Widget probe() => const SizedBox.shrink();
+PROBE
+assert 0 "check_calm_layering ignores a Material name inside a comment" \
+  bash "$LAYER" lib
+restore_all
+
 write_scratch lib/features/selftest_probe.dart <<'PROBE'
 import 'package:flutter/material.dart';
 

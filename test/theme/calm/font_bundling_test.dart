@@ -11,11 +11,7 @@ import 'package:odova/theme/calm/font_licences.dart';
 
 import '../../support/ttf_reader.dart';
 
-const _fontPath = 'assets/fonts/Vazirmatn[wght].ttf';
 const _licencePath = 'assets/fonts/OFL.txt';
-
-TtfReader _font() =>
-    TtfReader(Uint8List.fromList(File(_fontPath).readAsBytesSync()));
 
 void main() {
   test('the Vazirmatn asset is a TTF or OTF, never woff2', () {
@@ -23,11 +19,15 @@ void main() {
     // Flutter's font loader cannot read woff2 at all, so the app's asset has to
     // come from the upstream release rather than from a conversion of the
     // mockup file.
-    expect(File(_fontPath).existsSync(), isTrue, reason: '$_fontPath missing');
-    expect(_font().isWoff2, isFalse);
+    expect(
+      File(vazirmatnPath).existsSync(),
+      isTrue,
+      reason: '$vazirmatnPath missing',
+    );
+    expect(vazirmatn.isWoff2, isFalse);
     expect(
       File('pubspec.yaml').readAsStringSync(),
-      contains(_fontPath),
+      contains(vazirmatnPath),
       reason: 'the asset is not declared under flutter: fonts:',
     );
   });
@@ -37,7 +37,7 @@ void main() {
     // fvar. FontWeight then stops working, and so does the platform's
     // bold-text accessibility flag — failing only for the user who turned bold
     // text on, who is nobody in review.
-    final axes = _font().variationAxes;
+    final axes = vazirmatn.variationAxes;
     expect(axes, hasLength(1), reason: 'expected exactly the wght axis');
 
     final wght = axes.single;

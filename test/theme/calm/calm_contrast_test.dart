@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 
+import '../../support/calm_ramps.dart';
 import '../../support/contrast.dart';
 import '../../support/source_tree.dart';
 
@@ -64,16 +65,6 @@ final _inks = <String, Color Function(CalmColors)>{
   'ink3': (c) => c.ink3,
 };
 
-final _ramps = <String, CalmRamp Function(CalmColors)>{
-  'overdue': (c) => c.overdue,
-  'due': (c) => c.due,
-  'dueSoon': (c) => c.dueSoon,
-  'ok': (c) => c.ok,
-  'unknown': (c) => c.unknown,
-  'needsOdometer': (c) => c.needsOdometer,
-  'business': (c) => c.business,
-};
-
 /// Every pair the design is accountable for.
 List<ContrastPair> declaredPairs() => [
   // The ink ramp on paper — where Calm is tight.
@@ -97,7 +88,7 @@ List<ContrastPair> declaredPairs() => [
   _text('danger on dangerTint', (c) => c.danger, (c) => c.dangerTint),
 
   // The status families: ink on tint is the text pair, base is the graphic.
-  for (final MapEntry(key: name, value: ramp) in _ramps.entries) ...[
+  for (final MapEntry(key: name, value: ramp) in rampAccessors.entries) ...[
     _text('$name.ink on $name.tint', (c) => ramp(c).ink, (c) => ramp(c).tint),
     _graphic('$name.base on surface', (c) => ramp(c).base, (c) => c.surface),
     _graphic(
@@ -227,6 +218,11 @@ double _measured(Color foreground, Color background) =>
 void main() {
   final themes = {'light': calmColorsLight, 'dark': calmColorsDark};
 
+  // Built once. The list is ~50 records from four nested comprehensions, and
+  // it was being rebuilt per theme and again per exception lookup.
+  final pairs = declaredPairs();
+  final byName = {for (final pair in pairs) pair.name: pair};
+
   test('every declared pair meets its threshold in both themes', () {
     final excepted = {
       for (final e in knownContrastExceptions) '${e.theme} ${e.pair}',
@@ -234,7 +230,7 @@ void main() {
     final failures = <String>[];
 
     for (final MapEntry(key: theme, value: colours) in themes.entries) {
-      for (final pair in declaredPairs()) {
+      for (final pair in pairs) {
         if (excepted.contains('$theme ${pair.name}')) continue;
         final ratio = _measured(
           pair.foreground(colours),
@@ -256,7 +252,7 @@ void main() {
     // If one passes, the design was fixed and the exception has to go.
     for (final exception in knownContrastExceptions) {
       final colours = themes[exception.theme]!;
-      final pair = declaredPairs().firstWhere((p) => p.name == exception.pair);
+      final pair = byName[exception.pair]!;
       final ratio = _measured(
         pair.foreground(colours),
         pair.background(colours),
@@ -284,7 +280,7 @@ void main() {
   test('no pair is missing from the declaration', () {
     // Adding an ink slot or a status family without declaring its pairs would
     // pass by omission, which is the quietest way to ship a contrast failure.
-    final declared = declaredPairs().map((p) => p.name).toSet();
+    final declared = byName.keys.toSet();
 
     for (final ink in _inks.keys) {
       for (final paper in _surfaces.keys) {
@@ -298,7 +294,7 @@ void main() {
           'ink4 is exempt as a disabled colour; if it has gained a text '
           'use, declare its pairs and expect them to fail',
     );
-    for (final ramp in _ramps.keys) {
+    for (final ramp in rampAccessors.keys) {
       expect(declared, contains('$ramp.ink on $ramp.tint'));
       expect(declared, contains('$ramp.base on surface'));
     }

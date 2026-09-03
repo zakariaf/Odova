@@ -96,9 +96,13 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
   /// DELIBERATE STEP. A half-interpolated `Duration` is not an observable
   /// thing — there is no 165ms that means anything — and a curve between two
   /// curves is not a curve anybody chose. `t < 0.5` rather than
-  /// `return this`, so BOTH endpoints still land: a theme transition that
-  /// never reached the target's motion tokens would leave the new theme
-  /// animating at the old one's speeds forever.
+  /// `return this`, so BOTH endpoints land rather than only the first.
+  ///
+  /// `lib/app/app.dart` sets `themeAnimationStyle: AnimationStyle.noAnimation`,
+  /// so `MaterialApp` no longer interpolates `ThemeData` and this is not
+  /// reached on a theme change. It stays because a `ThemeExtension` owes an
+  /// honest `lerp` to any local `AnimatedTheme` — and because a step that is
+  /// only correct by accident is not correct.
   @override
   CalmMotion lerp(covariant CalmMotion? other, double t) {
     if (other == null) return this;

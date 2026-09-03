@@ -11,14 +11,19 @@
 // leading clips them silently.
 import 'package:flutter/material.dart';
 
-// --font-latin, verbatim from the token, minus the CSS generics (system-ui,
-// -apple-system, sans-serif), which have no Flutter equivalent.
+// The Latin variant names NO family and NO fallback, and that is the spec's
+// decision rather than an omission.
 //
-// The Latin variant names no `fontFamily`. SPEC.md §5 gives en/de/fr the
-// PLATFORM font, which is a decision rather than a compromise — the fallback
-// list is where the design's preferred faces are named, so a device that has
-// them uses them and one that does not keeps its own.
-const _latinFallback = <String>['Avenir Next', 'Avenir', 'Optima'];
+// SPEC.md §5 Fonts: "Bundle one Arabic-script family and use it for the whole
+// app in fa, ar and ckb… **en, de, fr use the platform font.**" odova.css's
+// `--font-latin` opens with 'Avenir Next', but that is what the MOCKUP renders
+// in Chrome, and CLAUDE.md rule 5 is explicit that where the spec and a design
+// default disagree, the spec is the product decision.
+//
+// Declaring the faces as a `fontFamilyFallback` would not be a compromise
+// between the two: with `fontFamily` null, Flutter treats the first fallback
+// entry as the preferred family, so every iOS device would render Avenir Next
+// and no device would render the platform font. There is no half-measure here.
 
 /// The bundled Arabic-script family. SPEC.md §5: it renders the entire UI under
 /// fa/ar/ckb, Latin runs included, so a vehicle name in Latin letters inside a
@@ -35,7 +40,6 @@ const _trackNormal = -0.005;
 
 TextStyle _latin(double size, double height, FontWeight weight, double track) =>
     TextStyle(
-      fontFamilyFallback: _latinFallback,
       fontSize: size,
       height: height,
       fontWeight: weight,
@@ -227,7 +231,8 @@ class CalmType extends ThemeExtension<CalmType> {
       caption: TextStyle.lerp(caption, other.caption, t)!,
       // DELIBERATE STEP, like CalmMotion's. A weight is a discrete slot and
       // there is no FontWeight.w450; `t < 0.5` rather than `return this` so
-      // both endpoints land.
+      // both endpoints land. See CalmMotion.lerp for why this is not reached
+      // on a MaterialApp theme change any more, and why it stays anyway.
       regular: t < 0.5 ? regular : other.regular,
       medium: t < 0.5 ? medium : other.medium,
       semi: t < 0.5 ? semi : other.semi,

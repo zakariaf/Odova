@@ -3,8 +3,6 @@
 // EPIC-07's due engine lives in lib/core/due/ and may not import Flutter, so
 // the enums it returns cannot live beside a Color. This test is what stops
 // somebody moving them into lib/theme/calm/ to save an import.
-import 'dart:io';
-
 import 'package:odova/core/due/due_state.dart';
 import 'package:test/test.dart';
 
@@ -39,16 +37,17 @@ void main() {
     ]);
   });
 
-  test('lib/core/due imports nothing that would keep it out of the engine', () {
-    // The whole point: `dart test` can run this file with no widget binding,
-    // and the due engine can import these enums.
-    expect(
-      RegExp(
-        '^import ',
-        multiLine: true,
-      ).hasMatch(File('lib/core/due/due_state.dart').readAsStringSync()),
-      isFalse,
-      reason: 'the enums have no dependencies at all, and should keep none',
-    );
+  test('these enums run with no widget binding at all', () {
+    // The claim is not "this file has no imports" — `test/policy/structure_test.dart`
+    // already proves `lib/core` imports no Flutter, `dart:ui` or `dart:io`,
+    // and pinning a second rule to one filename would go red the day the file
+    // legitimately wants `package:meta`.
+    //
+    // The claim is that the pure tier is REAL: this file imports
+    // `package:test`, not `flutter_test`, so reaching it at all means the
+    // enums resolved without a widget binding. EPIC-06's fuel maths and
+    // EPIC-07's due engine are the reason that matters — they test in
+    // milliseconds or they do not get tested at every threshold.
+    expect(DueState.values, isNotEmpty);
   });
 }

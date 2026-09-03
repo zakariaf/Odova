@@ -10,6 +10,8 @@ import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 
 import '../../support/calm_css.dart';
+import '../../support/calm_ramps.dart';
+import '../../support/calm_theme_harness.dart';
 import '../../support/contrast.dart';
 
 /// Every one of the 56 CSS roles, and the slot it must land on.
@@ -85,17 +87,6 @@ String _hex(Color c) {
   return '#${channel(c.r)}${channel(c.g)}${channel(c.b)}';
 }
 
-/// The seven four-rung families, by name, for the loops below.
-Map<String, CalmRamp> _ramps(CalmColors c) => {
-  'overdue': c.overdue,
-  'due': c.due,
-  'dueSoon': c.dueSoon,
-  'ok': c.ok,
-  'unknown': c.unknown,
-  'needsOdometer': c.needsOdometer,
-  'business': c.business,
-};
-
 void main() {
   test('every CSS role lands on its slot, in both themes', () {
     for (final (label, colours, block) in [
@@ -143,40 +134,7 @@ void main() {
     }
   });
 
-  testWidgets('CalmColors.of asserts, naming the extension and the builder', (
-    tester,
-  ) async {
-    // Never `?? fallback`: a fallback ships a palette the contrast test has
-    // never seen, which is the one failure this extension exists to prevent.
-    // The message has to name both the extension and how to get one, because
-    // the person reading it is looking at a stack trace inside a widget that
-    // did nothing wrong.
-    Object? thrown;
-    await tester.pumpWidget(
-      Theme(
-        data: ThemeData.light(),
-        child: Builder(
-          builder: (context) {
-            try {
-              CalmColors.of(context);
-            } on Object catch (error) {
-              thrown = error;
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
-    );
-
-    expect(
-      thrown,
-      isA<AssertionError>().having(
-        (e) => e.toString(),
-        'message',
-        allOf(contains('CalmColors'), contains('buildCalmTheme')),
-      ),
-    );
-  });
+  testOfAsserts('CalmColors', CalmColors.of);
 
   test('lerp interpolates every field', () {
     // The bug everyone ships once: a field added to the constructor and
@@ -243,7 +201,7 @@ void main() {
       ('light', calmColorsLight),
       ('dark', calmColorsDark),
     ]) {
-      for (final MapEntry(key: name, value: ramp) in _ramps(colours).entries) {
+      for (final MapEntry(key: name, value: ramp) in rampsOf(colours).entries) {
         expect(
           contrastRatio(ramp.ink, ramp.tint),
           greaterThanOrEqualTo(bodyTextContrast),

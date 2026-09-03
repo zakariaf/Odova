@@ -11,21 +11,28 @@ import 'dart:io';
 /// The path to the design system's stylesheet.
 const calmCssPath = 'design/calm/odova.css';
 
-String _css() => File(calmCssPath).readAsStringSync();
+// Read once. The stylesheet is 82 KB and a single test file can ask for a
+// block eight times; re-reading and re-compiling the regex each time is work
+// that buys nothing.
+final String _css = File(calmCssPath).readAsStringSync();
 
-/// The body of the `:root, .theme-light` block.
-String lightTokenBlock() => RegExp(
+final String _light = RegExp(
   r'^:root,\n\.theme-light \{(.*?)^\}',
   multiLine: true,
   dotAll: true,
-).firstMatch(_css())!.group(1)!;
+).firstMatch(_css)!.group(1)!;
 
-/// The body of the `:root[data-theme="dark"], .theme-dark` block.
-String darkTokenBlock() => RegExp(
+final String _dark = RegExp(
   r'^:root\[data-theme="dark"\],\n\.theme-dark \{(.*?)^\}',
   multiLine: true,
   dotAll: true,
-).firstMatch(_css())!.group(1)!;
+).firstMatch(_css)!.group(1)!;
+
+/// The body of the `:root, .theme-light` block.
+String lightTokenBlock() => _light;
+
+/// The body of the `:root[data-theme="dark"], .theme-dark` block.
+String darkTokenBlock() => _dark;
 
 /// Every `--color-*` / `--chart-*` declaration in [block], as name → hex.
 ///

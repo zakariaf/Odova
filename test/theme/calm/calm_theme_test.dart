@@ -64,7 +64,7 @@ final _schemeRoles =
     };
 
 void main() {
-  test('ColorScheme.fromSeed and dynamic_color appear nowhere in lib/', () {
+  test('ColorScheme.fromSeed appears nowhere in lib/', () {
     // fromSeed builds every neutral from the seed's HUE at a chroma the M3
     // spec pins to a constant. Seeding on --color-brand #7A5340 (OKLCH H 47°)
     // regenerates Calm's paper at a clay-pink hue instead of its ochre 78–81°,
@@ -261,5 +261,26 @@ void main() {
 
       expect(CalmType.of(captured).body, expected.body, reason: locale);
     }
+  });
+
+  testWidgets('the type variant follows the RESOLVED locale, not the '
+      'requested one', (tester) async {
+    // The shipping default is `locale: null` — follow the device — and it is
+    // the one configuration no other test passes. Reading the `locale` FIELD
+    // would give a Persian phone Persian strings with Latin line heights, and
+    // Arabic descenders clip silently, so nothing would report it.
+    tester.platformDispatcher.localesTestValue = const [Locale('fa', 'IR')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+
+    late BuildContext captured;
+    await pumpApp(tester, captureContext((context) => captured = context));
+
+    expect(Localizations.localeOf(captured).languageCode, 'fa');
+    expect(
+      CalmType.of(captured).body,
+      CalmType.arabicScript.body,
+      reason: 'the device is Persian and the app never asked for a locale',
+    );
+    expect(Directionality.of(captured), TextDirection.rtl);
   });
 }

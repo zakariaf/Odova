@@ -7,6 +7,7 @@
 /// that needs a tool nobody has installed is a gate that gets skipped.
 library;
 
+import 'dart:io';
 import 'dart:typed_data';
 
 /// One variation axis from the `fvar` table.
@@ -153,3 +154,16 @@ class TtfReader {
     return map;
   }
 }
+
+/// The path to the bundled Arabic-script font.
+const vazirmatnPath = 'assets/fonts/Vazirmatn[wght].ttf';
+
+/// The bundled font, read and parsed once.
+///
+/// `_cmap` is `late final` per INSTANCE, so a fresh `TtfReader` per assertion
+/// re-reads 241 KB and rebuilds the whole code-point map. SPEC.md §17's
+/// per-locale gate promises to loop over every codepoint in the fa/ar/ckb ARB
+/// files, which multiplies that by the size of the string set.
+final TtfReader vazirmatn = TtfReader(
+  Uint8List.fromList(File(vazirmatnPath).readAsBytesSync()),
+);

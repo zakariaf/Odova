@@ -224,6 +224,15 @@ jobs:
       # the code is a gate that gets switched off.
       - run: flutter test --coverage --test-randomize-ordering-seed random --exclude-tags golden --reporter expanded
 
+      # Contract: lib/core/ really does run with no widget binding. The
+      # structure test proves it imports no Flutter; this proves the tests
+      # EXECUTE without one, which is what makes EPIC-06's fuel maths and
+      # EPIC-07's due engine testable in milliseconds at every threshold. A
+      # pubspec comment claiming a `dart test` tier that nothing runs is a
+      # claim, not a tier.
+      - name: the pure core runs without Flutter
+        run: dart test test/core
+
       # Contract: the published coverage report covers only code somebody
       # wrote. Generated code is large and fully exercised by its callers, so
       # leaving it in inflates the number by thousands of lines. The globs are

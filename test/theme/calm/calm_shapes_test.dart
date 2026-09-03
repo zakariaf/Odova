@@ -1,12 +1,12 @@
 // CalmShapes: eight radii, five elevations, and the one unit conversion that
 // silently ships every shadow too soft.
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 
 import '../../support/calm_css.dart';
+import '../../support/calm_theme_harness.dart';
+import '../../support/source_tree.dart';
 
 /// The CSS blur is 2σ; Flutter's `blurRadius` is converted with
 /// `Shadow.convertRadiusToSigma(r) = r * 0.57735 + 0.5`. This is the inverse.
@@ -28,7 +28,8 @@ List<BoxShadow> _elevation(CalmShapes s, int level) => switch (level) {
   1 => s.elev1,
   2 => s.elev2,
   3 => s.elev3,
-  _ => level == 4 ? s.elev4 : (throw ArgumentError('no elev$level')),
+  4 => s.elev4,
+  _ => throw ArgumentError('no elev$level'),
 };
 
 void main() {
@@ -51,11 +52,7 @@ void main() {
 
     // 999 in a ClipRRect allocates a path Skia re-clamps on every frame, and
     // it renders ALMOST right — which is why this is a grep and not an eye.
-    for (final file
-        in Directory('lib')
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((f) => f.path.endsWith('.dart'))) {
+    for (final file in dartFilesUnder('lib')) {
       final source = file.readAsStringSync();
       for (final match in RegExp(
         r'(?:BorderRadius|Radius)\.circular\(\s*[a-zA-Z.]*radiusPill',
@@ -117,33 +114,5 @@ void main() {
     expect(calmShapesDark.elev1.first.color.a, greaterThan(0.3));
   });
 
-  testWidgets('CalmShapes.of asserts, naming the extension and the builder', (
-    tester,
-  ) async {
-    Object? thrown;
-    await tester.pumpWidget(
-      Theme(
-        data: ThemeData.light(),
-        child: Builder(
-          builder: (context) {
-            try {
-              CalmShapes.of(context);
-            } on Object catch (error) {
-              thrown = error;
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
-    );
-
-    expect(
-      thrown,
-      isA<AssertionError>().having(
-        (e) => e.toString(),
-        'message',
-        allOf(contains('CalmShapes'), contains('buildCalmTheme')),
-      ),
-    );
-  });
+  testOfAsserts('CalmShapes', CalmShapes.of);
 }

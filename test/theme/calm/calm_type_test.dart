@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 
 import '../../support/calm_css.dart';
+import '../../support/calm_theme_harness.dart';
 import '../../support/source_tree.dart';
 
 /// The nine roles, in scale order, and their CSS tokens.
@@ -190,33 +191,5 @@ void main() {
     }
   });
 
-  testWidgets('CalmType.of asserts, naming the extension and the builder', (
-    tester,
-  ) async {
-    Object? thrown;
-    await tester.pumpWidget(
-      Theme(
-        data: ThemeData.light(),
-        child: Builder(
-          builder: (context) {
-            try {
-              CalmType.of(context);
-            } on Object catch (error) {
-              thrown = error;
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
-    );
-
-    expect(
-      thrown,
-      isA<AssertionError>().having(
-        (e) => e.toString(),
-        'message',
-        allOf(contains('CalmType'), contains('buildCalmTheme')),
-      ),
-    );
-  });
+  testOfAsserts('CalmType', CalmType.of);
 }

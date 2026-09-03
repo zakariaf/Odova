@@ -4,11 +4,11 @@
 // doubling scale and a step must never be computed. `s4 * 2` is 32, which is
 // `s7`, and the arithmetic looks like it works right up to `s5 * 2` being 40,
 // which is `s8` — a coincidence that stops holding at `s9`.
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 
 import '../../support/calm_css.dart';
+import '../../support/calm_theme_harness.dart';
 
 /// Every CalmSpace slot, and the CSS token it carries.
 final _slotToToken = <String, double Function(CalmSpace)>{
@@ -85,33 +85,5 @@ void main() {
     );
   });
 
-  testWidgets('CalmSpace.of asserts, naming the extension and the builder', (
-    tester,
-  ) async {
-    Object? thrown;
-    await tester.pumpWidget(
-      Theme(
-        data: ThemeData.light(),
-        child: Builder(
-          builder: (context) {
-            try {
-              CalmSpace.of(context);
-            } on Object catch (error) {
-              thrown = error;
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
-    );
-
-    expect(
-      thrown,
-      isA<AssertionError>().having(
-        (e) => e.toString(),
-        'message',
-        allOf(contains('CalmSpace'), contains('buildCalmTheme')),
-      ),
-    );
-  });
+  testOfAsserts('CalmSpace', CalmSpace.of);
 }

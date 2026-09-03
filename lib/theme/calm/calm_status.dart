@@ -123,27 +123,34 @@ class CalmStatusStyle {
   /// Creates a resolved style. Use [of] or [resolve] rather than this.
   const CalmStatusStyle({
     required this.state,
-    required this.base,
-    required this.ink,
-    required this.tint,
-    required this.edge,
+    required this.ramp,
     required this.mark,
   });
 
   /// The state this style resolves.
   final DueState state;
 
-  /// Paints the mark and the progress fill. >= 3:1 on its ground (non-text).
-  final Color base;
+  /// The four rungs of this state's family.
+  ///
+  /// Held whole rather than copied out. Four separate fields would let
+  /// [resolve] pair `overdue.base` with `due.ink` and nothing would notice —
+  /// a class of bug that cannot exist if the family arrives in one piece.
+  final CalmRamp ramp;
 
-  /// The only slot text uses. >= 4.5:1 on both [tint] and the card surface.
-  final Color ink;
+  /// Signal 3: the graphic colour — the mark, the progress fill, the chart
+  /// stroke. Held to 3:1 as a non-text graphic. Several bases are under 4.5:1
+  /// and MUST NOT carry text.
+  Color get base => ramp.base;
 
-  /// Badge ground and the primary card's gradient top stop.
-  final Color tint;
+  /// The only slot text uses. At least 4.5:1 on both [tint] and the card
+  /// surface, in both themes.
+  Color get ink => ramp.ink;
 
-  /// Hairline separator ONLY — 1.23–1.34:1 on [tint]. It cannot signify.
-  final Color edge;
+  /// The badge ground, and the primary card's gradient top stop.
+  Color get tint => ramp.tint;
+
+  /// A hairline separator only — 1.23–1.34:1 on [tint]. It cannot signify.
+  Color get edge => ramp.edge;
 
   /// Signal 1: the silhouette, which is what survives grayscale.
   final CalmStatusMark mark;
@@ -195,57 +202,25 @@ class CalmStatusStyle {
   /// API is that a caller does not get to choose the colours — a resolved
   /// style is derived from the theme, never constructed.
   // ignore: prefer_constructors_over_static_methods
-  static CalmStatusStyle resolve(CalmColors c, DueState state) =>
-      switch (state) {
-        DueState.overdue => CalmStatusStyle(
-          state: state,
-          base: c.overdue.base,
-          ink: c.overdue.ink,
-          tint: c.overdue.tint,
-          edge: c.overdue.edge,
-          mark: CalmStatusMark.filledLarge,
-        ),
-        DueState.due => CalmStatusStyle(
-          state: state,
-          base: c.due.base,
-          ink: c.due.ink,
-          tint: c.due.tint,
-          edge: c.due.edge,
-          mark: CalmStatusMark.ringHeavy,
-        ),
-        DueState.dueSoon => CalmStatusStyle(
-          state: state,
-          base: c.dueSoon.base,
-          ink: c.dueSoon.ink,
-          tint: c.dueSoon.tint,
-          edge: c.dueSoon.edge,
-          mark: CalmStatusMark.filledSmall,
-        ),
-        DueState.ok => CalmStatusStyle(
-          state: state,
-          base: c.ok.base,
-          ink: c.ok.ink,
-          tint: c.ok.tint,
-          edge: c.ok.edge,
-          mark: CalmStatusMark.filledLarge,
-        ),
-        DueState.unknown => CalmStatusStyle(
-          state: state,
-          base: c.unknown.base,
-          ink: c.unknown.ink,
-          tint: c.unknown.tint,
-          edge: c.unknown.edge,
-          mark: CalmStatusMark.ringLightFaded,
-        ),
-        DueState.needsOdometer => CalmStatusStyle(
-          state: state,
-          base: c.needsOdometer.base,
-          ink: c.needsOdometer.ink,
-          tint: c.needsOdometer.tint,
-          edge: c.needsOdometer.edge,
-          mark: CalmStatusMark.ringLight,
-        ),
-      };
+  static CalmStatusStyle resolve(CalmColors c, DueState state) {
+    // One switch, one line per state, and the ramp travels whole. Exhaustive
+    // over DueState with no `default:`, so a seventh state is a compile error
+    // here and nowhere else.
+    final (ramp, mark) = switch (state) {
+      DueState.overdue => (c.overdue, CalmStatusMark.filledLarge),
+      DueState.due => (c.due, CalmStatusMark.ringHeavy),
+      DueState.dueSoon => (c.dueSoon, CalmStatusMark.filledSmall),
+      DueState.ok => (c.ok, CalmStatusMark.filledLarge),
+      // The two "we do not know" states. Neither may borrow ok's sage or
+      // overdue's terracotta, and their marks are the faintest in the set —
+      // an app that cannot say when must not look like one making an
+      // accusation (SPEC.md §1).
+      DueState.unknown => (c.unknown, CalmStatusMark.ringLightFaded),
+      DueState.needsOdometer => (c.needsOdometer, CalmStatusMark.ringLight),
+    };
+
+    return CalmStatusStyle(state: state, ramp: ramp, mark: mark);
+  }
 }
 
 /// Whether a figure (a distance, a projected date) may appear at all.

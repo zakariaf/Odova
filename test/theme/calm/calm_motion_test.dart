@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
 
 import '../../support/calm_css.dart';
+import '../../support/calm_theme_harness.dart';
 
 final _durations = <String, Duration Function(CalmMotion)>{
   '--dur-instant': (m) => m.instant,
@@ -85,40 +86,20 @@ void main() {
     expect(calmMotion.lerp(other, 0.4).easeStandard, calmMotion.easeStandard);
     expect(calmMotion.lerp(other, 0.6).easeStandard, other.easeStandard);
 
-    expect(
-      File('lib/theme/calm/calm_motion.dart').readAsStringSync(),
-      contains('DELIBERATE STEP'),
-      reason: 'the step needs its reason next to it, or it reads as unfinished',
-    );
+    // Both files that step carry the marker, not just this one. A bare
+    // step-lerp with no reason beside it reads as unfinished and the next
+    // reader "fixes" it into an interpolation that has no meaning.
+    for (final path in [
+      'lib/theme/calm/calm_motion.dart',
+      'lib/theme/calm/calm_type.dart',
+    ]) {
+      expect(
+        File(path).readAsStringSync(),
+        contains('DELIBERATE STEP'),
+        reason: '$path steps without saying why',
+      );
+    }
   });
 
-  testWidgets('CalmMotion.of asserts, naming the extension and the builder', (
-    tester,
-  ) async {
-    Object? thrown;
-    await tester.pumpWidget(
-      Theme(
-        data: ThemeData.light(),
-        child: Builder(
-          builder: (context) {
-            try {
-              CalmMotion.of(context);
-            } on Object catch (error) {
-              thrown = error;
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
-    );
-
-    expect(
-      thrown,
-      isA<AssertionError>().having(
-        (e) => e.toString(),
-        'message',
-        allOf(contains('CalmMotion'), contains('buildCalmTheme')),
-      ),
-    );
-  });
+  testOfAsserts('CalmMotion', CalmMotion.of);
 }

@@ -5,20 +5,10 @@
 // colour and the text colour apart, so nobody can render 13px text in a 3.44:1
 // status base.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 
+import '../../support/calm_ramps.dart';
 import '../../support/contrast.dart';
-
-Map<String, CalmRamp> _ramps(CalmColors c) => {
-  'overdue': c.overdue,
-  'due': c.due,
-  'dueSoon': c.dueSoon,
-  'ok': c.ok,
-  'unknown': c.unknown,
-  'needsOdometer': c.needsOdometer,
-  'business': c.business,
-};
 
 void main() {
   test('all seven families are CalmRamps with four distinct rungs', () {
@@ -26,7 +16,7 @@ void main() {
       ('light', calmColorsLight),
       ('dark', calmColorsDark),
     ]) {
-      final ramps = _ramps(colours);
+      final ramps = rampsOf(colours);
       expect(ramps, hasLength(7));
 
       for (final MapEntry(key: name, value: ramp) in ramps.entries) {
@@ -50,7 +40,7 @@ void main() {
       ('light', calmColorsLight),
       ('dark', calmColorsDark),
     ]) {
-      for (final MapEntry(key: name, value: ramp) in _ramps(colours).entries) {
+      for (final MapEntry(key: name, value: ramp) in rampsOf(colours).entries) {
         final ratio = contrastRatio(ramp.base, colours.surface);
         expect(
           ratio,
