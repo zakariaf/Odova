@@ -52,3 +52,57 @@ Darkening tertiary text reduces the softness that is part of why Calm reads as c
 design judgement, not an engineering one — which is why this is a finding and not a
 commit. The alternative is to keep the value and never place tertiary text on
 `--color-surface-3`, which fixes three of the four cases and needs `#776758`.
+
+
+---
+
+## Decision — 2026-09-03
+
+**Taken by:** the engineer building EPIC-02 (Calm tokens and theme), as
+`epics/EPIC-02-calm-tokens-and-theme.md` task 2.8 requires one of its two paths
+to be complete before the epic is.
+
+**The decision: ship knowingly, and hand the design judgement to EPIC-17.**
+
+`CLAUDE.md` §9 already assigns this finding's closure to EPIC-17, and this
+document says in its own words that the remedy "is a design judgement, not an
+engineering one — which is why this is a finding and not a commit". Nobody
+building the token layer is in a position to trade Calm's softness for contrast
+on the designer's behalf. So the values are unchanged and the failures are
+recorded as **dated, executable exceptions** in
+`test/theme/calm/calm_contrast_test.dart` rather than left implicit.
+
+That test does three things a note in a document cannot:
+
+1. It asserts every other declared pair still clears its threshold, so this
+   finding cannot grow quietly.
+2. It asserts each exception **still fails, at the exact ratio it was written
+   against**. The day `--color-ink-3` is darkened, the test goes red with
+   *"light ink3 on bg measures 5.57:1, not the 3.67:1 this exception was
+   written against — delete the exception"*. An exception that silently goes
+   stale is how a fixed bug gets recorded as permanent.
+3. It refuses `--color-ink-4` to anything outside the token layer, which is the
+   only enforcement available until EPIC-03 builds the field whose placeholder
+   is the non-exempt use.
+
+### Two things this document does not say, found by writing the test
+
+- **`--color-ink-3` also fails in dark.** This document calls the finding
+  "light-theme only; dark is fine". It is not: `ink3` on `--color-surface-2` is
+  **4.39:1** and on `--color-surface-3` is **3.84:1**, both under 4.5. The
+  light/dark asymmetry is smaller than stated, which strengthens the case for
+  changing the value rather than avoiding `surface-3`.
+- **`--color-focus` is 2.82:1 on `--color-surface-3`**, below SC 1.4.11's 3:1
+  for a focus indicator. A control inside a `surface-3` container gets a focus
+  ring the user cannot see. EPIC-17 has to take this one alongside `ink-3`, or
+  fixing the text colour leaves the keyboard-only user no better off.
+
+### What it costs to decide, over time
+
+| When | Cost |
+|---|---|
+| Now (EPIC-02) | Two hex values, `node tools/build_screens.mjs && node tools/shoot_design.mjs && node tools/optimise_png.mjs`, ~4 minutes. **No app code changes — no screen exists yet.** |
+| After EPIC-15 | The same, plus re-running `calm-visual-parity` over all 28 built screens × 4 combinations. |
+
+The curve is steep and it points at deciding early. Filed as `SPEC.md` §18
+question 25.
