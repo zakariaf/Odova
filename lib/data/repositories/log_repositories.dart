@@ -1,0 +1,256 @@
+// Fill-ups, expenses and trips: the three logs with no decision in them.
+//
+// One file rather than three, because the three repositories are the same
+// shape — scoped watch, insert-or-update inside one transaction, map to a
+// domain model — and splitting them would be three copies of the same eight
+// lines with different table names. `OdometerRepository` and
+// `ServiceRepository` are separate because they carry rules; these do not.
+import 'package:drift/drift.dart';
+import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
+import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/result.dart';
+import 'package:odova/core/value_equality.dart';
+import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/mappers/audit_mapper.dart';
+import 'package:odova/data/db/mappers/row_mappers.dart';
+import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/guard.dart';
+
+/// Reads and writes fill-ups.
+class FillUpRepository {
+  /// Creates a repository over [_db].
+  const FillUpRepository(this._db);
+
+  final AppDatabase _db;
+
+  /// Every live fill-up for one vehicle, newest first.
+  ///
+  /// The order matches `idx_fillups_vehicle_date` exactly, so the page is an
+  /// index read rather than a scan and a sort.
+  Stream<List<FillUp>> watchForVehicle(VehicleId vehicleId) =>
+      (_db.select(_db.fillUps)
+            ..where(
+              (f) =>
+                  f.vehicleId.equals(vehicleId.toString()) &
+                  f.deletedAtUtcMs.isNull(),
+            )
+            ..orderBy([
+              (f) => OrderingTerm(
+                expression: f.occurredOn,
+                mode: OrderingMode.desc,
+              ),
+              (f) => OrderingTerm(expression: f.id, mode: OrderingMode.desc),
+            ]))
+          .watch()
+          .map((rows) => rows.map(fillUpFromRow).toList())
+          .distinct(valuesEqual);
+
+  /// Writes [fillUp].
+  Future<Result<FillUp, PersistFailure>> save(FillUp fillUp) =>
+      guardPersist(() async {
+        await _db.transaction(() async {
+          await _db
+              .into(_db.fillUps)
+              .insertOnConflictUpdate(
+                FillUpsCompanion.insert(
+                  id: fillUp.id.toString(),
+                  createdAtUtcMs: fillUp.createdAtUtcMs,
+                  updatedAtUtcMs: fillUp.updatedAtUtcMs,
+                  vehicleId: fillUp.vehicleId.toString(),
+                  occurredOn: fillUp.occurredOn,
+                  odometerM: Value(fillUp.odometerM),
+                  odometerUnit: fillUp.odometerUnit.wire,
+                  fuelKind: fillUp.fuelKind.wire,
+                  quantityMl: Value(fillUp.quantityMl),
+                  quantityG: Value(fillUp.quantityG),
+                  energyWh: Value(fillUp.energyWh),
+                  quantityUnit: fillUp.quantityUnit.wire,
+                  totalCostMinor: fillUp.totalCostMinor,
+                  currency: fillUp.currency,
+                  isFullTank: Value(fillUp.isFullTank),
+                  chainBroken: Value(fillUp.chainBroken),
+                  grade: Value(fillUp.grade),
+                  station: Value(fillUp.station),
+                  tripId: Value(fillUp.tripId?.toString()),
+                  notes: Value(fillUp.notes),
+                ),
+              );
+        });
+        return Ok(fillUp);
+      });
+}
+
+/// Reads and writes expenses.
+class ExpenseRepository {
+  /// Creates a repository over [_db].
+  const ExpenseRepository(this._db);
+
+  final AppDatabase _db;
+
+  /// Every live expense for one vehicle, newest first.
+  Stream<List<Expense>> watchForVehicle(VehicleId vehicleId) =>
+      (_db.select(_db.expenses)
+            ..where(
+              (e) =>
+                  e.vehicleId.equals(vehicleId.toString()) &
+                  e.deletedAtUtcMs.isNull(),
+            )
+            ..orderBy([
+              (e) => OrderingTerm(
+                expression: e.occurredOn,
+                mode: OrderingMode.desc,
+              ),
+              (e) => OrderingTerm(expression: e.id, mode: OrderingMode.desc),
+            ]))
+          .watch()
+          .map((rows) => rows.map(_expenseFromRow).toList())
+          .distinct(valuesEqual);
+
+  /// Writes [expense].
+  Future<Result<Expense, PersistFailure>> save(Expense expense) =>
+      guardPersist(() async {
+        await _db.transaction(() async {
+          await _db
+              .into(_db.expenses)
+              .insertOnConflictUpdate(
+                ExpensesCompanion.insert(
+                  id: expense.id.toString(),
+                  createdAtUtcMs: expense.createdAtUtcMs,
+                  updatedAtUtcMs: expense.updatedAtUtcMs,
+                  vehicleId: expense.vehicleId.toString(),
+                  tripId: Value(expense.tripId?.toString()),
+                  occurredOn: expense.occurredOn,
+                  category: expense.category.wire,
+                  label: Value(expense.label),
+                  amountMinor: expense.amountMinor,
+                  currency: expense.currency,
+                  coversFrom: Value(expense.coversFrom),
+                  coversTo: Value(expense.coversTo),
+                  odometerM: Value(expense.odometerM),
+                  odometerUnit: expense.odometerUnit.wire,
+                  vendor: Value(expense.vendor),
+                  notes: Value(expense.notes),
+                ),
+              );
+        });
+        return Ok(expense);
+      });
+
+  Expense _expenseFromRow(ExpenseRow row) {
+    final times = repairAuditTimes(
+      createdAtUtcMs: row.createdAtUtcMs,
+      updatedAtUtcMs: row.updatedAtUtcMs,
+    );
+
+    return Expense(
+      id: idFromStored(ExpenseId.tryParse, row.id),
+      vehicleId: idFromStored(VehicleId.tryParse, row.vehicleId),
+      tripId: row.tripId == null
+          ? null
+          : idFromStored(TripId.tryParse, row.tripId!),
+      occurredOn: row.occurredOn,
+      category: enumFromWire(
+        ExpenseCategory.values,
+        (v) => v.wire,
+        row.category,
+      ),
+      label: row.label,
+      amountMinor: row.amountMinor,
+      currency: row.currency,
+      coversFrom: row.coversFrom,
+      coversTo: row.coversTo,
+      odometerM: row.odometerM,
+      odometerUnit: enumFromWire(
+        DistanceUnit.values,
+        (v) => v.wire,
+        row.odometerUnit,
+      ),
+      vendor: row.vendor,
+      notes: row.notes,
+      createdAtUtcMs: times.createdAtUtcMs,
+      updatedAtUtcMs: times.updatedAtUtcMs,
+    );
+  }
+}
+
+/// Reads and writes trips.
+class TripRepository {
+  /// Creates a repository over [_db].
+  const TripRepository(this._db);
+
+  final AppDatabase _db;
+
+  /// Every live trip for one vehicle, newest first.
+  Stream<List<Trip>> watchForVehicle(VehicleId vehicleId) =>
+      (_db.select(_db.trips)
+            ..where(
+              (t) =>
+                  t.vehicleId.equals(vehicleId.toString()) &
+                  t.deletedAtUtcMs.isNull(),
+            )
+            ..orderBy([
+              (t) => OrderingTerm(
+                expression: t.startedOn,
+                mode: OrderingMode.desc,
+              ),
+              (t) => OrderingTerm(expression: t.id, mode: OrderingMode.desc),
+            ]))
+          .watch()
+          .map((rows) => rows.map(_tripFromRow).toList())
+          .distinct(valuesEqual);
+
+  /// Writes [trip].
+  Future<Result<Trip, PersistFailure>> save(Trip trip) =>
+      guardPersist(() async {
+        await _db.transaction(() async {
+          await _db
+              .into(_db.trips)
+              .insertOnConflictUpdate(
+                TripsCompanion.insert(
+                  id: trip.id.toString(),
+                  createdAtUtcMs: trip.createdAtUtcMs,
+                  updatedAtUtcMs: trip.updatedAtUtcMs,
+                  vehicleId: trip.vehicleId.toString(),
+                  title: Value(trip.title),
+                  purpose: trip.purpose.wire,
+                  startedOn: trip.startedOn,
+                  endedOn: Value(trip.endedOn),
+                  startOdometerM: Value(trip.startOdometerM),
+                  endOdometerM: Value(trip.endOdometerM),
+                  manualDistanceM: Value(trip.manualDistanceM),
+                  odometerUnit: trip.odometerUnit.wire,
+                  notes: Value(trip.notes),
+                ),
+              );
+        });
+        return Ok(trip);
+      });
+
+  Trip _tripFromRow(TripRow row) {
+    final times = repairAuditTimes(
+      createdAtUtcMs: row.createdAtUtcMs,
+      updatedAtUtcMs: row.updatedAtUtcMs,
+    );
+
+    return Trip(
+      id: idFromStored(TripId.tryParse, row.id),
+      vehicleId: idFromStored(VehicleId.tryParse, row.vehicleId),
+      title: row.title,
+      purpose: enumFromWire(TripPurpose.values, (v) => v.wire, row.purpose),
+      startedOn: row.startedOn,
+      endedOn: row.endedOn,
+      startOdometerM: row.startOdometerM,
+      endOdometerM: row.endOdometerM,
+      manualDistanceM: row.manualDistanceM,
+      odometerUnit: enumFromWire(
+        DistanceUnit.values,
+        (v) => v.wire,
+        row.odometerUnit,
+      ),
+      notes: row.notes,
+      createdAtUtcMs: times.createdAtUtcMs,
+      updatedAtUtcMs: times.updatedAtUtcMs,
+    );
+  }
+}

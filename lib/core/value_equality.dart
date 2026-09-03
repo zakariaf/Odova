@@ -26,13 +26,20 @@ mixin ValueEquality {
       identical(this, other) ||
       other.runtimeType == runtimeType &&
           other is ValueEquality &&
-          _listEquals(other.props, props);
+          valuesEqual(other.props, props);
 
   @override
   int get hashCode => Object.hashAll([runtimeType, ...props]);
 }
 
-bool _listEquals(List<Object?> a, List<Object?> b) {
+/// Whether two lists hold equal values, element by element.
+///
+/// Public because the repositories' watch streams use it as a `distinct`
+/// predicate: drift's stream invalidation is TABLE-level, so any write re-runs
+/// every query over that table, and this is what turns "the query ran again"
+/// into "nothing changed, do not rebuild".
+bool valuesEqual(List<Object?> a, List<Object?> b) {
+  if (identical(a, b)) return true;
   if (a.length != b.length) return false;
   for (var i = 0; i < a.length; i++) {
     if (a[i] != b[i]) return false;

@@ -83,17 +83,17 @@ Vehicle vehicleFromRow(VehicleRow row) {
     sortOrder: row.sortOrder,
     notificationsMuted: row.notificationsMuted,
     currency: row.currency,
-    distanceUnit: _optionalEnum(
+    distanceUnit: optionalEnumFromWire(
       DistanceUnit.values,
       (v) => v.wire,
       row.distanceUnit,
     ),
-    volumeUnit: _optionalEnum(
+    volumeUnit: optionalEnumFromWire(
       VolumeUnit.values,
       (v) => v.wire,
       row.volumeUnit,
     ),
-    consumptionUnit: _optionalEnum(
+    consumptionUnit: optionalEnumFromWire(
       ConsumptionUnit.values,
       (v) => v.wire,
       row.consumptionUnit,
@@ -205,7 +205,7 @@ OdometerCorrection odometerCorrectionFromRow(OdometerCorrectionRow row) {
 /// Takes the wire extractor like its non-null sibling rather than reaching for
 /// `(value as dynamic).wire`, which compiles for any type and fails at runtime
 /// on the first enum that does not have the field.
-T? _optionalEnum<T extends Object>(
+T? optionalEnumFromWire<T extends Object>(
   List<T> values,
   String Function(T) wire,
   String? stored,
