@@ -1,0 +1,12 @@
+# Generated code is committed here (the l10n gen/ tree and the Drift .g.dart),
+# because the app must build from a clean clone with a broken future generator,
+# and because a schema diff is worth reviewing. The freshness gate in CI is what
+# makes that a policy rather than a hope: regenerate, then `git diff
+# --exit-code`. A commit policy without its gate is not a policy.
+#
+# `linguist-generated` keeps them out of GitHub's language stats and collapses
+# them in a diff by default — the diff is still there for anyone who opens it,
+# which is the half that matters for a schema change.
+*.g.dart      linguist-generated=true
+*.drift.dart  linguist-generated=true
+lib/l10n/gen/** linguist-generated=true
