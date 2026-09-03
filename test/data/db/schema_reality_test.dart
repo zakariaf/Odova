@@ -73,15 +73,59 @@ void main() {
     expect(missing, isEmpty);
   });
 
+  test('no column stores a derived value', () async {
+    // SPEC.md §2: derived values are never persisted. Consumption, cost per
+    // km, monthly totals, next-due dates, due status and the CUMULATIVE
+    // odometer are pure functions computed at read time. A stored one survives
+    // an import and is then wrong forever — the corrections applied twice, or
+    // not at all, and nothing to say which.
+    const derived = [
+      'cumulative',
+      'consumption',
+      'cost_per_km',
+      'next_due',
+      'due_status',
+      'monthly_total',
+      'projected',
+    ];
+    // A stored PREFERENCE about how a derived value is displayed is not a
+    // stored derived value. `consumption_unit` says "show me mpg"; it does not
+    // hold a consumption figure.
+    const settingsNotValues = {'consumption_unit'};
+
+    final offenders = <String>[];
+    for (final table in (await schemas()).keys) {
+      final columns = await db.customSelect('PRAGMA table_info($table);').get();
+      for (final column in columns) {
+        final name = column.read<String>('name');
+        if (settingsNotValues.contains(name)) continue;
+        for (final word in derived) {
+          if (name.contains(word)) offenders.add('$table.$name');
+        }
+      }
+    }
+    expect(offenders, isEmpty);
+  });
+
   test('every *_id column that names another table has a REFERENCES', () async {
     // `.references()` generating nothing is silent. This asks SQLite what
     // foreign keys it actually has, per table, and compares against the
     // columns whose name says they point somewhere.
+    // Every exception is named, with the reason, because "it isn't a foreign
+    // key" is exactly what somebody says about a column that should have been
+    // one.
     const knownNotForeign = {
-      // The row's own id, and a settings pointer that must survive the
-      // vehicle being erased — SPEC.md §3 keeps history when a vehicle goes.
+      // The row's own id.
       'id',
+      // A settings pointer, not a child row: it must survive the vehicle
+      // being erased rather than take the settings row with it.
       'active_vehicle_id',
+      // POLYMORPHIC. `odometer_readings.source_id` points into one of five
+      // tables depending on `source`, and SQLite has no polymorphic
+      // reference. The fan-out in task 5.9 keeps it consistent — a derived
+      // reading is deleted with its parent by that code, not by a constraint —
+      // which is a real weakening and is why it is written down here.
+      'source_id',
     };
 
     final missing = <String>[];

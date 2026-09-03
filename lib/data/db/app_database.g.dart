@@ -9877,6 +9877,1467 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
   }
 }
 
+class $OdometerReadingsTable extends OdometerReadings
+    with TableInfo<$OdometerReadingsTable, OdometerReadingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OdometerReadingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtUtcMsMeta = const VerificationMeta(
+    'updatedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtUtcMs = GeneratedColumn<int>(
+    'updated_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtUtcMsMeta = const VerificationMeta(
+    'deletedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAtUtcMs = GeneratedColumn<int>(
+    'deleted_at_utc_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _vehicleIdMeta = const VerificationMeta(
+    'vehicleId',
+  );
+  @override
+  late final GeneratedColumn<String> vehicleId = GeneratedColumn<String>(
+    'vehicle_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE',
+  );
+  static const VerificationMeta _occurredOnMeta = const VerificationMeta(
+    'occurredOn',
+  );
+  @override
+  late final GeneratedColumn<String> occurredOn = GeneratedColumn<String>(
+    'occurred_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'NOT NULL CHECK (occurred_on GLOB \'[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\')',
+  );
+  static const VerificationMeta _odometerMMeta = const VerificationMeta(
+    'odometerM',
+  );
+  @override
+  late final GeneratedColumn<int> odometerM = GeneratedColumn<int>(
+    'odometer_m',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL CHECK (odometer_m >= 0)',
+  );
+  static const VerificationMeta _odometerUnitMeta = const VerificationMeta(
+    'odometerUnit',
+  );
+  @override
+  late final GeneratedColumn<String> odometerUnit = GeneratedColumn<String>(
+    'odometer_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL CHECK (odometer_unit IN (\'km\', \'mi\'))',
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'NOT NULL CHECK (source IN (\'manual\', \'fillup\', \'service\', \'expense\', \'trip_start\', \'trip_end\', \'import\'))',
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAtUtcMs,
+    updatedAtUtcMs,
+    deletedAtUtcMs,
+    vehicleId,
+    occurredOn,
+    odometerM,
+    odometerUnit,
+    source,
+    sourceId,
+    notes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'odometer_readings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OdometerReadingRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    if (data.containsKey('updated_at_utc_ms')) {
+      context.handle(
+        _updatedAtUtcMsMeta,
+        updatedAtUtcMs.isAcceptableOrUnknown(
+          data['updated_at_utc_ms']!,
+          _updatedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtUtcMsMeta);
+    }
+    if (data.containsKey('deleted_at_utc_ms')) {
+      context.handle(
+        _deletedAtUtcMsMeta,
+        deletedAtUtcMs.isAcceptableOrUnknown(
+          data['deleted_at_utc_ms']!,
+          _deletedAtUtcMsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vehicle_id')) {
+      context.handle(
+        _vehicleIdMeta,
+        vehicleId.isAcceptableOrUnknown(data['vehicle_id']!, _vehicleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vehicleIdMeta);
+    }
+    if (data.containsKey('occurred_on')) {
+      context.handle(
+        _occurredOnMeta,
+        occurredOn.isAcceptableOrUnknown(data['occurred_on']!, _occurredOnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_occurredOnMeta);
+    }
+    if (data.containsKey('odometer_m')) {
+      context.handle(
+        _odometerMMeta,
+        odometerM.isAcceptableOrUnknown(data['odometer_m']!, _odometerMMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_odometerMMeta);
+    }
+    if (data.containsKey('odometer_unit')) {
+      context.handle(
+        _odometerUnitMeta,
+        odometerUnit.isAcceptableOrUnknown(
+          data['odometer_unit']!,
+          _odometerUnitMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_odometerUnitMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OdometerReadingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OdometerReadingRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+      updatedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_utc_ms'],
+      )!,
+      deletedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at_utc_ms'],
+      ),
+      vehicleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vehicle_id'],
+      )!,
+      occurredOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}occurred_on'],
+      )!,
+      odometerM: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}odometer_m'],
+      )!,
+      odometerUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}odometer_unit'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+    );
+  }
+
+  @override
+  $OdometerReadingsTable createAlias(String alias) {
+    return $OdometerReadingsTable(attachedDatabase, alias);
+  }
+
+  @override
+  bool get isStrict => true;
+}
+
+class OdometerReadingRow extends DataClass
+    implements Insertable<OdometerReadingRow> {
+  /// `<prefix>_<ULID>`; see `RecordId`.
+  final String id;
+
+  /// When the row was first written. UTC epoch milliseconds.
+  final int createdAtUtcMs;
+
+  /// When it was last changed. UTC epoch milliseconds.
+  ///
+  /// Never less than [createdAtUtcMs] — but repaired on READ rather than
+  /// blocked on write. See `repairAuditTimes`.
+  final int updatedAtUtcMs;
+
+  /// When it was soft-deleted, or null.
+  ///
+  /// Soft delete is what makes Undo possible for the length of a snackbar.
+  /// After that the row is purged, so a settled database has this null on
+  /// every row that exists.
+  final int? deletedAtUtcMs;
+
+  /// The vehicle.
+  final String vehicleId;
+
+  /// The day the dash showed this.
+  final String occurredOn;
+
+  /// What the dash showed, in metres.
+  ///
+  /// The RAW dash number, not the cumulative one. The cumulative value is a
+  /// pure function of this plus the corrections that sort at or before it, and
+  /// SPEC.md §2 forbids persisting a derived value: a stored cumulative
+  /// survives an import and is then wrong forever.
+  final int odometerM;
+
+  /// The unit it was entered in. Display fidelity only.
+  final String odometerUnit;
+
+  /// Which record produced it.
+  final String source;
+
+  /// The row that produced it, if any.
+  ///
+  /// Not a foreign key: it points into one of five different tables depending
+  /// on [source], and SQLite has no polymorphic reference. The fan-out in task
+  /// 5.9 is what keeps it consistent, and a derived reading is deleted with
+  /// its parent by that code rather than by a constraint.
+  final String? sourceId;
+
+  /// Free text. Carried by an import and by derived readings; the odometer log
+  /// itself offers no notes field.
+  final String? notes;
+  const OdometerReadingRow({
+    required this.id,
+    required this.createdAtUtcMs,
+    required this.updatedAtUtcMs,
+    this.deletedAtUtcMs,
+    required this.vehicleId,
+    required this.occurredOn,
+    required this.odometerM,
+    required this.odometerUnit,
+    required this.source,
+    this.sourceId,
+    this.notes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs);
+    if (!nullToAbsent || deletedAtUtcMs != null) {
+      map['deleted_at_utc_ms'] = Variable<int>(deletedAtUtcMs);
+    }
+    map['vehicle_id'] = Variable<String>(vehicleId);
+    map['occurred_on'] = Variable<String>(occurredOn);
+    map['odometer_m'] = Variable<int>(odometerM);
+    map['odometer_unit'] = Variable<String>(odometerUnit);
+    map['source'] = Variable<String>(source);
+    if (!nullToAbsent || sourceId != null) {
+      map['source_id'] = Variable<String>(sourceId);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  OdometerReadingsCompanion toCompanion(bool nullToAbsent) {
+    return OdometerReadingsCompanion(
+      id: Value(id),
+      createdAtUtcMs: Value(createdAtUtcMs),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+      deletedAtUtcMs: deletedAtUtcMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAtUtcMs),
+      vehicleId: Value(vehicleId),
+      occurredOn: Value(occurredOn),
+      odometerM: Value(odometerM),
+      odometerUnit: Value(odometerUnit),
+      source: Value(source),
+      sourceId: sourceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceId),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+    );
+  }
+
+  factory OdometerReadingRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OdometerReadingRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+      updatedAtUtcMs: serializer.fromJson<int>(json['updatedAtUtcMs']),
+      deletedAtUtcMs: serializer.fromJson<int?>(json['deletedAtUtcMs']),
+      vehicleId: serializer.fromJson<String>(json['vehicleId']),
+      occurredOn: serializer.fromJson<String>(json['occurredOn']),
+      odometerM: serializer.fromJson<int>(json['odometerM']),
+      odometerUnit: serializer.fromJson<String>(json['odometerUnit']),
+      source: serializer.fromJson<String>(json['source']),
+      sourceId: serializer.fromJson<String?>(json['sourceId']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+      'updatedAtUtcMs': serializer.toJson<int>(updatedAtUtcMs),
+      'deletedAtUtcMs': serializer.toJson<int?>(deletedAtUtcMs),
+      'vehicleId': serializer.toJson<String>(vehicleId),
+      'occurredOn': serializer.toJson<String>(occurredOn),
+      'odometerM': serializer.toJson<int>(odometerM),
+      'odometerUnit': serializer.toJson<String>(odometerUnit),
+      'source': serializer.toJson<String>(source),
+      'sourceId': serializer.toJson<String?>(sourceId),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  OdometerReadingRow copyWith({
+    String? id,
+    int? createdAtUtcMs,
+    int? updatedAtUtcMs,
+    Value<int?> deletedAtUtcMs = const Value.absent(),
+    String? vehicleId,
+    String? occurredOn,
+    int? odometerM,
+    String? odometerUnit,
+    String? source,
+    Value<String?> sourceId = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+  }) => OdometerReadingRow(
+    id: id ?? this.id,
+    createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+    updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+    deletedAtUtcMs: deletedAtUtcMs.present
+        ? deletedAtUtcMs.value
+        : this.deletedAtUtcMs,
+    vehicleId: vehicleId ?? this.vehicleId,
+    occurredOn: occurredOn ?? this.occurredOn,
+    odometerM: odometerM ?? this.odometerM,
+    odometerUnit: odometerUnit ?? this.odometerUnit,
+    source: source ?? this.source,
+    sourceId: sourceId.present ? sourceId.value : this.sourceId,
+    notes: notes.present ? notes.value : this.notes,
+  );
+  OdometerReadingRow copyWithCompanion(OdometerReadingsCompanion data) {
+    return OdometerReadingRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAtUtcMs: data.createdAtUtcMs.present
+          ? data.createdAtUtcMs.value
+          : this.createdAtUtcMs,
+      updatedAtUtcMs: data.updatedAtUtcMs.present
+          ? data.updatedAtUtcMs.value
+          : this.updatedAtUtcMs,
+      deletedAtUtcMs: data.deletedAtUtcMs.present
+          ? data.deletedAtUtcMs.value
+          : this.deletedAtUtcMs,
+      vehicleId: data.vehicleId.present ? data.vehicleId.value : this.vehicleId,
+      occurredOn: data.occurredOn.present
+          ? data.occurredOn.value
+          : this.occurredOn,
+      odometerM: data.odometerM.present ? data.odometerM.value : this.odometerM,
+      odometerUnit: data.odometerUnit.present
+          ? data.odometerUnit.value
+          : this.odometerUnit,
+      source: data.source.present ? data.source.value : this.source,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OdometerReadingRow(')
+          ..write('id: $id, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs, ')
+          ..write('deletedAtUtcMs: $deletedAtUtcMs, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('occurredOn: $occurredOn, ')
+          ..write('odometerM: $odometerM, ')
+          ..write('odometerUnit: $odometerUnit, ')
+          ..write('source: $source, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAtUtcMs,
+    updatedAtUtcMs,
+    deletedAtUtcMs,
+    vehicleId,
+    occurredOn,
+    odometerM,
+    odometerUnit,
+    source,
+    sourceId,
+    notes,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OdometerReadingRow &&
+          other.id == this.id &&
+          other.createdAtUtcMs == this.createdAtUtcMs &&
+          other.updatedAtUtcMs == this.updatedAtUtcMs &&
+          other.deletedAtUtcMs == this.deletedAtUtcMs &&
+          other.vehicleId == this.vehicleId &&
+          other.occurredOn == this.occurredOn &&
+          other.odometerM == this.odometerM &&
+          other.odometerUnit == this.odometerUnit &&
+          other.source == this.source &&
+          other.sourceId == this.sourceId &&
+          other.notes == this.notes);
+}
+
+class OdometerReadingsCompanion extends UpdateCompanion<OdometerReadingRow> {
+  final Value<String> id;
+  final Value<int> createdAtUtcMs;
+  final Value<int> updatedAtUtcMs;
+  final Value<int?> deletedAtUtcMs;
+  final Value<String> vehicleId;
+  final Value<String> occurredOn;
+  final Value<int> odometerM;
+  final Value<String> odometerUnit;
+  final Value<String> source;
+  final Value<String?> sourceId;
+  final Value<String?> notes;
+  final Value<int> rowid;
+  const OdometerReadingsCompanion({
+    this.id = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+    this.updatedAtUtcMs = const Value.absent(),
+    this.deletedAtUtcMs = const Value.absent(),
+    this.vehicleId = const Value.absent(),
+    this.occurredOn = const Value.absent(),
+    this.odometerM = const Value.absent(),
+    this.odometerUnit = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OdometerReadingsCompanion.insert({
+    required String id,
+    required int createdAtUtcMs,
+    required int updatedAtUtcMs,
+    this.deletedAtUtcMs = const Value.absent(),
+    required String vehicleId,
+    required String occurredOn,
+    required int odometerM,
+    required String odometerUnit,
+    required String source,
+    this.sourceId = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAtUtcMs = Value(createdAtUtcMs),
+       updatedAtUtcMs = Value(updatedAtUtcMs),
+       vehicleId = Value(vehicleId),
+       occurredOn = Value(occurredOn),
+       odometerM = Value(odometerM),
+       odometerUnit = Value(odometerUnit),
+       source = Value(source);
+  static Insertable<OdometerReadingRow> custom({
+    Expression<String>? id,
+    Expression<int>? createdAtUtcMs,
+    Expression<int>? updatedAtUtcMs,
+    Expression<int>? deletedAtUtcMs,
+    Expression<String>? vehicleId,
+    Expression<String>? occurredOn,
+    Expression<int>? odometerM,
+    Expression<String>? odometerUnit,
+    Expression<String>? source,
+    Expression<String>? sourceId,
+    Expression<String>? notes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (updatedAtUtcMs != null) 'updated_at_utc_ms': updatedAtUtcMs,
+      if (deletedAtUtcMs != null) 'deleted_at_utc_ms': deletedAtUtcMs,
+      if (vehicleId != null) 'vehicle_id': vehicleId,
+      if (occurredOn != null) 'occurred_on': occurredOn,
+      if (odometerM != null) 'odometer_m': odometerM,
+      if (odometerUnit != null) 'odometer_unit': odometerUnit,
+      if (source != null) 'source': source,
+      if (sourceId != null) 'source_id': sourceId,
+      if (notes != null) 'notes': notes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OdometerReadingsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAtUtcMs,
+    Value<int>? updatedAtUtcMs,
+    Value<int?>? deletedAtUtcMs,
+    Value<String>? vehicleId,
+    Value<String>? occurredOn,
+    Value<int>? odometerM,
+    Value<String>? odometerUnit,
+    Value<String>? source,
+    Value<String?>? sourceId,
+    Value<String?>? notes,
+    Value<int>? rowid,
+  }) {
+    return OdometerReadingsCompanion(
+      id: id ?? this.id,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+      deletedAtUtcMs: deletedAtUtcMs ?? this.deletedAtUtcMs,
+      vehicleId: vehicleId ?? this.vehicleId,
+      occurredOn: occurredOn ?? this.occurredOn,
+      odometerM: odometerM ?? this.odometerM,
+      odometerUnit: odometerUnit ?? this.odometerUnit,
+      source: source ?? this.source,
+      sourceId: sourceId ?? this.sourceId,
+      notes: notes ?? this.notes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    if (updatedAtUtcMs.present) {
+      map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs.value);
+    }
+    if (deletedAtUtcMs.present) {
+      map['deleted_at_utc_ms'] = Variable<int>(deletedAtUtcMs.value);
+    }
+    if (vehicleId.present) {
+      map['vehicle_id'] = Variable<String>(vehicleId.value);
+    }
+    if (occurredOn.present) {
+      map['occurred_on'] = Variable<String>(occurredOn.value);
+    }
+    if (odometerM.present) {
+      map['odometer_m'] = Variable<int>(odometerM.value);
+    }
+    if (odometerUnit.present) {
+      map['odometer_unit'] = Variable<String>(odometerUnit.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OdometerReadingsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs, ')
+          ..write('deletedAtUtcMs: $deletedAtUtcMs, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('occurredOn: $occurredOn, ')
+          ..write('odometerM: $odometerM, ')
+          ..write('odometerUnit: $odometerUnit, ')
+          ..write('source: $source, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('notes: $notes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $OdometerCorrectionsTable extends OdometerCorrections
+    with TableInfo<$OdometerCorrectionsTable, OdometerCorrectionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OdometerCorrectionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtUtcMsMeta = const VerificationMeta(
+    'updatedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtUtcMs = GeneratedColumn<int>(
+    'updated_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtUtcMsMeta = const VerificationMeta(
+    'deletedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAtUtcMs = GeneratedColumn<int>(
+    'deleted_at_utc_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _vehicleIdMeta = const VerificationMeta(
+    'vehicleId',
+  );
+  @override
+  late final GeneratedColumn<String> vehicleId = GeneratedColumn<String>(
+    'vehicle_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE',
+  );
+  static const VerificationMeta _fromReadingIdMeta = const VerificationMeta(
+    'fromReadingId',
+  );
+  @override
+  late final GeneratedColumn<String> fromReadingId = GeneratedColumn<String>(
+    'from_reading_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'NOT NULL REFERENCES odometer_readings (id) ON DELETE CASCADE',
+  );
+  static const VerificationMeta _previousMMeta = const VerificationMeta(
+    'previousM',
+  );
+  @override
+  late final GeneratedColumn<int> previousM = GeneratedColumn<int>(
+    'previous_m',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL CHECK (previous_m >= 0)',
+  );
+  static const VerificationMeta _newMMeta = const VerificationMeta('newM');
+  @override
+  late final GeneratedColumn<int> newM = GeneratedColumn<int>(
+    'new_m',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL CHECK (new_m >= 0)',
+  );
+  static const VerificationMeta _odometerUnitMeta = const VerificationMeta(
+    'odometerUnit',
+  );
+  @override
+  late final GeneratedColumn<String> odometerUnit = GeneratedColumn<String>(
+    'odometer_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL CHECK (odometer_unit IN (\'km\', \'mi\'))',
+  );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'NOT NULL CHECK (reason IN (\'cluster_replaced\', \'rollover\', \'typo_fix\'))',
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAtUtcMs,
+    updatedAtUtcMs,
+    deletedAtUtcMs,
+    vehicleId,
+    fromReadingId,
+    previousM,
+    newM,
+    odometerUnit,
+    reason,
+    notes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'odometer_corrections';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OdometerCorrectionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    if (data.containsKey('updated_at_utc_ms')) {
+      context.handle(
+        _updatedAtUtcMsMeta,
+        updatedAtUtcMs.isAcceptableOrUnknown(
+          data['updated_at_utc_ms']!,
+          _updatedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtUtcMsMeta);
+    }
+    if (data.containsKey('deleted_at_utc_ms')) {
+      context.handle(
+        _deletedAtUtcMsMeta,
+        deletedAtUtcMs.isAcceptableOrUnknown(
+          data['deleted_at_utc_ms']!,
+          _deletedAtUtcMsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vehicle_id')) {
+      context.handle(
+        _vehicleIdMeta,
+        vehicleId.isAcceptableOrUnknown(data['vehicle_id']!, _vehicleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vehicleIdMeta);
+    }
+    if (data.containsKey('from_reading_id')) {
+      context.handle(
+        _fromReadingIdMeta,
+        fromReadingId.isAcceptableOrUnknown(
+          data['from_reading_id']!,
+          _fromReadingIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fromReadingIdMeta);
+    }
+    if (data.containsKey('previous_m')) {
+      context.handle(
+        _previousMMeta,
+        previousM.isAcceptableOrUnknown(data['previous_m']!, _previousMMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_previousMMeta);
+    }
+    if (data.containsKey('new_m')) {
+      context.handle(
+        _newMMeta,
+        newM.isAcceptableOrUnknown(data['new_m']!, _newMMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_newMMeta);
+    }
+    if (data.containsKey('odometer_unit')) {
+      context.handle(
+        _odometerUnitMeta,
+        odometerUnit.isAcceptableOrUnknown(
+          data['odometer_unit']!,
+          _odometerUnitMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_odometerUnitMeta);
+    }
+    if (data.containsKey('reason')) {
+      context.handle(
+        _reasonMeta,
+        reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_reasonMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OdometerCorrectionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OdometerCorrectionRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+      updatedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_utc_ms'],
+      )!,
+      deletedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at_utc_ms'],
+      ),
+      vehicleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vehicle_id'],
+      )!,
+      fromReadingId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}from_reading_id'],
+      )!,
+      previousM: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}previous_m'],
+      )!,
+      newM: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}new_m'],
+      )!,
+      odometerUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}odometer_unit'],
+      )!,
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+    );
+  }
+
+  @override
+  $OdometerCorrectionsTable createAlias(String alias) {
+    return $OdometerCorrectionsTable(attachedDatabase, alias);
+  }
+
+  @override
+  bool get isStrict => true;
+}
+
+class OdometerCorrectionRow extends DataClass
+    implements Insertable<OdometerCorrectionRow> {
+  /// `<prefix>_<ULID>`; see `RecordId`.
+  final String id;
+
+  /// When the row was first written. UTC epoch milliseconds.
+  final int createdAtUtcMs;
+
+  /// When it was last changed. UTC epoch milliseconds.
+  ///
+  /// Never less than [createdAtUtcMs] — but repaired on READ rather than
+  /// blocked on write. See `repairAuditTimes`.
+  final int updatedAtUtcMs;
+
+  /// When it was soft-deleted, or null.
+  ///
+  /// Soft delete is what makes Undo possible for the length of a snackbar.
+  /// After that the row is purged, so a settled database has this null on
+  /// every row that exists.
+  final int? deletedAtUtcMs;
+
+  /// The vehicle.
+  final String vehicleId;
+
+  /// The FIRST reading on the new scale.
+  ///
+  /// The boundary reading is itself corrected — the offset applies at or after
+  /// it, never before — which is what makes the boundary deterministic.
+  final String fromReadingId;
+
+  /// What the old cluster last showed, in metres.
+  final int previousM;
+
+  /// What the new cluster shows, in metres.
+  final int newM;
+
+  /// The unit both sides were entered in.
+  final String odometerUnit;
+
+  /// Why.
+  ///
+  /// **Three reasons, not four.** SPEC.md §3's enum listed `unit_mixup` and
+  /// §14 *Edge cases* said "`unit_mixup` is removed as a correction reason".
+  /// §14 is the narrower, explicitly-decided statement and it is right:
+  /// storage is canonical metres and the odometer unit is a per-record fact,
+  /// so a km cluster fitted to a miles car needs no offset — the reading is
+  /// entered in the unit the new cluster shows and converted on the way in.
+  /// The `CHECK` was not widened to dodge the contradiction; §3 was fixed in
+  /// the same PR as this table.
+  final String reason;
+
+  /// Free text.
+  final String? notes;
+  const OdometerCorrectionRow({
+    required this.id,
+    required this.createdAtUtcMs,
+    required this.updatedAtUtcMs,
+    this.deletedAtUtcMs,
+    required this.vehicleId,
+    required this.fromReadingId,
+    required this.previousM,
+    required this.newM,
+    required this.odometerUnit,
+    required this.reason,
+    this.notes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs);
+    if (!nullToAbsent || deletedAtUtcMs != null) {
+      map['deleted_at_utc_ms'] = Variable<int>(deletedAtUtcMs);
+    }
+    map['vehicle_id'] = Variable<String>(vehicleId);
+    map['from_reading_id'] = Variable<String>(fromReadingId);
+    map['previous_m'] = Variable<int>(previousM);
+    map['new_m'] = Variable<int>(newM);
+    map['odometer_unit'] = Variable<String>(odometerUnit);
+    map['reason'] = Variable<String>(reason);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  OdometerCorrectionsCompanion toCompanion(bool nullToAbsent) {
+    return OdometerCorrectionsCompanion(
+      id: Value(id),
+      createdAtUtcMs: Value(createdAtUtcMs),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+      deletedAtUtcMs: deletedAtUtcMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAtUtcMs),
+      vehicleId: Value(vehicleId),
+      fromReadingId: Value(fromReadingId),
+      previousM: Value(previousM),
+      newM: Value(newM),
+      odometerUnit: Value(odometerUnit),
+      reason: Value(reason),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+    );
+  }
+
+  factory OdometerCorrectionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OdometerCorrectionRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+      updatedAtUtcMs: serializer.fromJson<int>(json['updatedAtUtcMs']),
+      deletedAtUtcMs: serializer.fromJson<int?>(json['deletedAtUtcMs']),
+      vehicleId: serializer.fromJson<String>(json['vehicleId']),
+      fromReadingId: serializer.fromJson<String>(json['fromReadingId']),
+      previousM: serializer.fromJson<int>(json['previousM']),
+      newM: serializer.fromJson<int>(json['newM']),
+      odometerUnit: serializer.fromJson<String>(json['odometerUnit']),
+      reason: serializer.fromJson<String>(json['reason']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+      'updatedAtUtcMs': serializer.toJson<int>(updatedAtUtcMs),
+      'deletedAtUtcMs': serializer.toJson<int?>(deletedAtUtcMs),
+      'vehicleId': serializer.toJson<String>(vehicleId),
+      'fromReadingId': serializer.toJson<String>(fromReadingId),
+      'previousM': serializer.toJson<int>(previousM),
+      'newM': serializer.toJson<int>(newM),
+      'odometerUnit': serializer.toJson<String>(odometerUnit),
+      'reason': serializer.toJson<String>(reason),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  OdometerCorrectionRow copyWith({
+    String? id,
+    int? createdAtUtcMs,
+    int? updatedAtUtcMs,
+    Value<int?> deletedAtUtcMs = const Value.absent(),
+    String? vehicleId,
+    String? fromReadingId,
+    int? previousM,
+    int? newM,
+    String? odometerUnit,
+    String? reason,
+    Value<String?> notes = const Value.absent(),
+  }) => OdometerCorrectionRow(
+    id: id ?? this.id,
+    createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+    updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+    deletedAtUtcMs: deletedAtUtcMs.present
+        ? deletedAtUtcMs.value
+        : this.deletedAtUtcMs,
+    vehicleId: vehicleId ?? this.vehicleId,
+    fromReadingId: fromReadingId ?? this.fromReadingId,
+    previousM: previousM ?? this.previousM,
+    newM: newM ?? this.newM,
+    odometerUnit: odometerUnit ?? this.odometerUnit,
+    reason: reason ?? this.reason,
+    notes: notes.present ? notes.value : this.notes,
+  );
+  OdometerCorrectionRow copyWithCompanion(OdometerCorrectionsCompanion data) {
+    return OdometerCorrectionRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAtUtcMs: data.createdAtUtcMs.present
+          ? data.createdAtUtcMs.value
+          : this.createdAtUtcMs,
+      updatedAtUtcMs: data.updatedAtUtcMs.present
+          ? data.updatedAtUtcMs.value
+          : this.updatedAtUtcMs,
+      deletedAtUtcMs: data.deletedAtUtcMs.present
+          ? data.deletedAtUtcMs.value
+          : this.deletedAtUtcMs,
+      vehicleId: data.vehicleId.present ? data.vehicleId.value : this.vehicleId,
+      fromReadingId: data.fromReadingId.present
+          ? data.fromReadingId.value
+          : this.fromReadingId,
+      previousM: data.previousM.present ? data.previousM.value : this.previousM,
+      newM: data.newM.present ? data.newM.value : this.newM,
+      odometerUnit: data.odometerUnit.present
+          ? data.odometerUnit.value
+          : this.odometerUnit,
+      reason: data.reason.present ? data.reason.value : this.reason,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OdometerCorrectionRow(')
+          ..write('id: $id, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs, ')
+          ..write('deletedAtUtcMs: $deletedAtUtcMs, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('fromReadingId: $fromReadingId, ')
+          ..write('previousM: $previousM, ')
+          ..write('newM: $newM, ')
+          ..write('odometerUnit: $odometerUnit, ')
+          ..write('reason: $reason, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAtUtcMs,
+    updatedAtUtcMs,
+    deletedAtUtcMs,
+    vehicleId,
+    fromReadingId,
+    previousM,
+    newM,
+    odometerUnit,
+    reason,
+    notes,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OdometerCorrectionRow &&
+          other.id == this.id &&
+          other.createdAtUtcMs == this.createdAtUtcMs &&
+          other.updatedAtUtcMs == this.updatedAtUtcMs &&
+          other.deletedAtUtcMs == this.deletedAtUtcMs &&
+          other.vehicleId == this.vehicleId &&
+          other.fromReadingId == this.fromReadingId &&
+          other.previousM == this.previousM &&
+          other.newM == this.newM &&
+          other.odometerUnit == this.odometerUnit &&
+          other.reason == this.reason &&
+          other.notes == this.notes);
+}
+
+class OdometerCorrectionsCompanion
+    extends UpdateCompanion<OdometerCorrectionRow> {
+  final Value<String> id;
+  final Value<int> createdAtUtcMs;
+  final Value<int> updatedAtUtcMs;
+  final Value<int?> deletedAtUtcMs;
+  final Value<String> vehicleId;
+  final Value<String> fromReadingId;
+  final Value<int> previousM;
+  final Value<int> newM;
+  final Value<String> odometerUnit;
+  final Value<String> reason;
+  final Value<String?> notes;
+  final Value<int> rowid;
+  const OdometerCorrectionsCompanion({
+    this.id = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+    this.updatedAtUtcMs = const Value.absent(),
+    this.deletedAtUtcMs = const Value.absent(),
+    this.vehicleId = const Value.absent(),
+    this.fromReadingId = const Value.absent(),
+    this.previousM = const Value.absent(),
+    this.newM = const Value.absent(),
+    this.odometerUnit = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OdometerCorrectionsCompanion.insert({
+    required String id,
+    required int createdAtUtcMs,
+    required int updatedAtUtcMs,
+    this.deletedAtUtcMs = const Value.absent(),
+    required String vehicleId,
+    required String fromReadingId,
+    required int previousM,
+    required int newM,
+    required String odometerUnit,
+    required String reason,
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAtUtcMs = Value(createdAtUtcMs),
+       updatedAtUtcMs = Value(updatedAtUtcMs),
+       vehicleId = Value(vehicleId),
+       fromReadingId = Value(fromReadingId),
+       previousM = Value(previousM),
+       newM = Value(newM),
+       odometerUnit = Value(odometerUnit),
+       reason = Value(reason);
+  static Insertable<OdometerCorrectionRow> custom({
+    Expression<String>? id,
+    Expression<int>? createdAtUtcMs,
+    Expression<int>? updatedAtUtcMs,
+    Expression<int>? deletedAtUtcMs,
+    Expression<String>? vehicleId,
+    Expression<String>? fromReadingId,
+    Expression<int>? previousM,
+    Expression<int>? newM,
+    Expression<String>? odometerUnit,
+    Expression<String>? reason,
+    Expression<String>? notes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (updatedAtUtcMs != null) 'updated_at_utc_ms': updatedAtUtcMs,
+      if (deletedAtUtcMs != null) 'deleted_at_utc_ms': deletedAtUtcMs,
+      if (vehicleId != null) 'vehicle_id': vehicleId,
+      if (fromReadingId != null) 'from_reading_id': fromReadingId,
+      if (previousM != null) 'previous_m': previousM,
+      if (newM != null) 'new_m': newM,
+      if (odometerUnit != null) 'odometer_unit': odometerUnit,
+      if (reason != null) 'reason': reason,
+      if (notes != null) 'notes': notes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OdometerCorrectionsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAtUtcMs,
+    Value<int>? updatedAtUtcMs,
+    Value<int?>? deletedAtUtcMs,
+    Value<String>? vehicleId,
+    Value<String>? fromReadingId,
+    Value<int>? previousM,
+    Value<int>? newM,
+    Value<String>? odometerUnit,
+    Value<String>? reason,
+    Value<String?>? notes,
+    Value<int>? rowid,
+  }) {
+    return OdometerCorrectionsCompanion(
+      id: id ?? this.id,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+      deletedAtUtcMs: deletedAtUtcMs ?? this.deletedAtUtcMs,
+      vehicleId: vehicleId ?? this.vehicleId,
+      fromReadingId: fromReadingId ?? this.fromReadingId,
+      previousM: previousM ?? this.previousM,
+      newM: newM ?? this.newM,
+      odometerUnit: odometerUnit ?? this.odometerUnit,
+      reason: reason ?? this.reason,
+      notes: notes ?? this.notes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    if (updatedAtUtcMs.present) {
+      map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs.value);
+    }
+    if (deletedAtUtcMs.present) {
+      map['deleted_at_utc_ms'] = Variable<int>(deletedAtUtcMs.value);
+    }
+    if (vehicleId.present) {
+      map['vehicle_id'] = Variable<String>(vehicleId.value);
+    }
+    if (fromReadingId.present) {
+      map['from_reading_id'] = Variable<String>(fromReadingId.value);
+    }
+    if (previousM.present) {
+      map['previous_m'] = Variable<int>(previousM.value);
+    }
+    if (newM.present) {
+      map['new_m'] = Variable<int>(newM.value);
+    }
+    if (odometerUnit.present) {
+      map['odometer_unit'] = Variable<String>(odometerUnit.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OdometerCorrectionsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs, ')
+          ..write('deletedAtUtcMs: $deletedAtUtcMs, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('fromReadingId: $fromReadingId, ')
+          ..write('previousM: $previousM, ')
+          ..write('newM: $newM, ')
+          ..write('odometerUnit: $odometerUnit, ')
+          ..write('reason: $reason, ')
+          ..write('notes: $notes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -9888,6 +11349,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TripsTable trips = $TripsTable(this);
   late final $FillUpsTable fillUps = $FillUpsTable(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
+  late final $OdometerReadingsTable odometerReadings = $OdometerReadingsTable(
+    this,
+  );
+  late final $OdometerCorrectionsTable odometerCorrections =
+      $OdometerCorrectionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9901,6 +11367,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     trips,
     fillUps,
     expenses,
+    odometerReadings,
+    odometerCorrections,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -14217,6 +15685,680 @@ typedef $$ExpensesTableProcessedTableManager =
       ExpenseRow,
       PrefetchHooks Function()
     >;
+typedef $$OdometerReadingsTableCreateCompanionBuilder =
+    OdometerReadingsCompanion Function({
+      required String id,
+      required int createdAtUtcMs,
+      required int updatedAtUtcMs,
+      Value<int?> deletedAtUtcMs,
+      required String vehicleId,
+      required String occurredOn,
+      required int odometerM,
+      required String odometerUnit,
+      required String source,
+      Value<String?> sourceId,
+      Value<String?> notes,
+      Value<int> rowid,
+    });
+typedef $$OdometerReadingsTableUpdateCompanionBuilder =
+    OdometerReadingsCompanion Function({
+      Value<String> id,
+      Value<int> createdAtUtcMs,
+      Value<int> updatedAtUtcMs,
+      Value<int?> deletedAtUtcMs,
+      Value<String> vehicleId,
+      Value<String> occurredOn,
+      Value<int> odometerM,
+      Value<String> odometerUnit,
+      Value<String> source,
+      Value<String?> sourceId,
+      Value<String?> notes,
+      Value<int> rowid,
+    });
+
+class $$OdometerReadingsTableFilterComposer
+    extends Composer<_$AppDatabase, $OdometerReadingsTable> {
+  $$OdometerReadingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vehicleId => $composableBuilder(
+    column: $table.vehicleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get occurredOn => $composableBuilder(
+    column: $table.occurredOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get odometerM => $composableBuilder(
+    column: $table.odometerM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get odometerUnit => $composableBuilder(
+    column: $table.odometerUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$OdometerReadingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OdometerReadingsTable> {
+  $$OdometerReadingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vehicleId => $composableBuilder(
+    column: $table.vehicleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get occurredOn => $composableBuilder(
+    column: $table.occurredOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get odometerM => $composableBuilder(
+    column: $table.odometerM,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get odometerUnit => $composableBuilder(
+    column: $table.odometerUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$OdometerReadingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OdometerReadingsTable> {
+  $$OdometerReadingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get vehicleId =>
+      $composableBuilder(column: $table.vehicleId, builder: (column) => column);
+
+  GeneratedColumn<String> get occurredOn => $composableBuilder(
+    column: $table.occurredOn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get odometerM =>
+      $composableBuilder(column: $table.odometerM, builder: (column) => column);
+
+  GeneratedColumn<String> get odometerUnit => $composableBuilder(
+    column: $table.odometerUnit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+}
+
+class $$OdometerReadingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OdometerReadingsTable,
+          OdometerReadingRow,
+          $$OdometerReadingsTableFilterComposer,
+          $$OdometerReadingsTableOrderingComposer,
+          $$OdometerReadingsTableAnnotationComposer,
+          $$OdometerReadingsTableCreateCompanionBuilder,
+          $$OdometerReadingsTableUpdateCompanionBuilder,
+          (
+            OdometerReadingRow,
+            BaseReferences<
+              _$AppDatabase,
+              $OdometerReadingsTable,
+              OdometerReadingRow
+            >,
+          ),
+          OdometerReadingRow,
+          PrefetchHooks Function()
+        > {
+  $$OdometerReadingsTableTableManager(
+    _$AppDatabase db,
+    $OdometerReadingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OdometerReadingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OdometerReadingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OdometerReadingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> createdAtUtcMs = const Value.absent(),
+                Value<int> updatedAtUtcMs = const Value.absent(),
+                Value<int?> deletedAtUtcMs = const Value.absent(),
+                Value<String> vehicleId = const Value.absent(),
+                Value<String> occurredOn = const Value.absent(),
+                Value<int> odometerM = const Value.absent(),
+                Value<String> odometerUnit = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OdometerReadingsCompanion(
+                id: id,
+                createdAtUtcMs: createdAtUtcMs,
+                updatedAtUtcMs: updatedAtUtcMs,
+                deletedAtUtcMs: deletedAtUtcMs,
+                vehicleId: vehicleId,
+                occurredOn: occurredOn,
+                odometerM: odometerM,
+                odometerUnit: odometerUnit,
+                source: source,
+                sourceId: sourceId,
+                notes: notes,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int createdAtUtcMs,
+                required int updatedAtUtcMs,
+                Value<int?> deletedAtUtcMs = const Value.absent(),
+                required String vehicleId,
+                required String occurredOn,
+                required int odometerM,
+                required String odometerUnit,
+                required String source,
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OdometerReadingsCompanion.insert(
+                id: id,
+                createdAtUtcMs: createdAtUtcMs,
+                updatedAtUtcMs: updatedAtUtcMs,
+                deletedAtUtcMs: deletedAtUtcMs,
+                vehicleId: vehicleId,
+                occurredOn: occurredOn,
+                odometerM: odometerM,
+                odometerUnit: odometerUnit,
+                source: source,
+                sourceId: sourceId,
+                notes: notes,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OdometerReadingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OdometerReadingsTable,
+      OdometerReadingRow,
+      $$OdometerReadingsTableFilterComposer,
+      $$OdometerReadingsTableOrderingComposer,
+      $$OdometerReadingsTableAnnotationComposer,
+      $$OdometerReadingsTableCreateCompanionBuilder,
+      $$OdometerReadingsTableUpdateCompanionBuilder,
+      (
+        OdometerReadingRow,
+        BaseReferences<
+          _$AppDatabase,
+          $OdometerReadingsTable,
+          OdometerReadingRow
+        >,
+      ),
+      OdometerReadingRow,
+      PrefetchHooks Function()
+    >;
+typedef $$OdometerCorrectionsTableCreateCompanionBuilder =
+    OdometerCorrectionsCompanion Function({
+      required String id,
+      required int createdAtUtcMs,
+      required int updatedAtUtcMs,
+      Value<int?> deletedAtUtcMs,
+      required String vehicleId,
+      required String fromReadingId,
+      required int previousM,
+      required int newM,
+      required String odometerUnit,
+      required String reason,
+      Value<String?> notes,
+      Value<int> rowid,
+    });
+typedef $$OdometerCorrectionsTableUpdateCompanionBuilder =
+    OdometerCorrectionsCompanion Function({
+      Value<String> id,
+      Value<int> createdAtUtcMs,
+      Value<int> updatedAtUtcMs,
+      Value<int?> deletedAtUtcMs,
+      Value<String> vehicleId,
+      Value<String> fromReadingId,
+      Value<int> previousM,
+      Value<int> newM,
+      Value<String> odometerUnit,
+      Value<String> reason,
+      Value<String?> notes,
+      Value<int> rowid,
+    });
+
+class $$OdometerCorrectionsTableFilterComposer
+    extends Composer<_$AppDatabase, $OdometerCorrectionsTable> {
+  $$OdometerCorrectionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vehicleId => $composableBuilder(
+    column: $table.vehicleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fromReadingId => $composableBuilder(
+    column: $table.fromReadingId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get previousM => $composableBuilder(
+    column: $table.previousM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get newM => $composableBuilder(
+    column: $table.newM,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get odometerUnit => $composableBuilder(
+    column: $table.odometerUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$OdometerCorrectionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OdometerCorrectionsTable> {
+  $$OdometerCorrectionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vehicleId => $composableBuilder(
+    column: $table.vehicleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fromReadingId => $composableBuilder(
+    column: $table.fromReadingId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get previousM => $composableBuilder(
+    column: $table.previousM,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get newM => $composableBuilder(
+    column: $table.newM,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get odometerUnit => $composableBuilder(
+    column: $table.odometerUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$OdometerCorrectionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OdometerCorrectionsTable> {
+  $$OdometerCorrectionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get vehicleId =>
+      $composableBuilder(column: $table.vehicleId, builder: (column) => column);
+
+  GeneratedColumn<String> get fromReadingId => $composableBuilder(
+    column: $table.fromReadingId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get previousM =>
+      $composableBuilder(column: $table.previousM, builder: (column) => column);
+
+  GeneratedColumn<int> get newM =>
+      $composableBuilder(column: $table.newM, builder: (column) => column);
+
+  GeneratedColumn<String> get odometerUnit => $composableBuilder(
+    column: $table.odometerUnit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+}
+
+class $$OdometerCorrectionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OdometerCorrectionsTable,
+          OdometerCorrectionRow,
+          $$OdometerCorrectionsTableFilterComposer,
+          $$OdometerCorrectionsTableOrderingComposer,
+          $$OdometerCorrectionsTableAnnotationComposer,
+          $$OdometerCorrectionsTableCreateCompanionBuilder,
+          $$OdometerCorrectionsTableUpdateCompanionBuilder,
+          (
+            OdometerCorrectionRow,
+            BaseReferences<
+              _$AppDatabase,
+              $OdometerCorrectionsTable,
+              OdometerCorrectionRow
+            >,
+          ),
+          OdometerCorrectionRow,
+          PrefetchHooks Function()
+        > {
+  $$OdometerCorrectionsTableTableManager(
+    _$AppDatabase db,
+    $OdometerCorrectionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OdometerCorrectionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OdometerCorrectionsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$OdometerCorrectionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> createdAtUtcMs = const Value.absent(),
+                Value<int> updatedAtUtcMs = const Value.absent(),
+                Value<int?> deletedAtUtcMs = const Value.absent(),
+                Value<String> vehicleId = const Value.absent(),
+                Value<String> fromReadingId = const Value.absent(),
+                Value<int> previousM = const Value.absent(),
+                Value<int> newM = const Value.absent(),
+                Value<String> odometerUnit = const Value.absent(),
+                Value<String> reason = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OdometerCorrectionsCompanion(
+                id: id,
+                createdAtUtcMs: createdAtUtcMs,
+                updatedAtUtcMs: updatedAtUtcMs,
+                deletedAtUtcMs: deletedAtUtcMs,
+                vehicleId: vehicleId,
+                fromReadingId: fromReadingId,
+                previousM: previousM,
+                newM: newM,
+                odometerUnit: odometerUnit,
+                reason: reason,
+                notes: notes,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int createdAtUtcMs,
+                required int updatedAtUtcMs,
+                Value<int?> deletedAtUtcMs = const Value.absent(),
+                required String vehicleId,
+                required String fromReadingId,
+                required int previousM,
+                required int newM,
+                required String odometerUnit,
+                required String reason,
+                Value<String?> notes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OdometerCorrectionsCompanion.insert(
+                id: id,
+                createdAtUtcMs: createdAtUtcMs,
+                updatedAtUtcMs: updatedAtUtcMs,
+                deletedAtUtcMs: deletedAtUtcMs,
+                vehicleId: vehicleId,
+                fromReadingId: fromReadingId,
+                previousM: previousM,
+                newM: newM,
+                odometerUnit: odometerUnit,
+                reason: reason,
+                notes: notes,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OdometerCorrectionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OdometerCorrectionsTable,
+      OdometerCorrectionRow,
+      $$OdometerCorrectionsTableFilterComposer,
+      $$OdometerCorrectionsTableOrderingComposer,
+      $$OdometerCorrectionsTableAnnotationComposer,
+      $$OdometerCorrectionsTableCreateCompanionBuilder,
+      $$OdometerCorrectionsTableUpdateCompanionBuilder,
+      (
+        OdometerCorrectionRow,
+        BaseReferences<
+          _$AppDatabase,
+          $OdometerCorrectionsTable,
+          OdometerCorrectionRow
+        >,
+      ),
+      OdometerCorrectionRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -14237,4 +16379,8 @@ class $AppDatabaseManager {
       $$FillUpsTableTableManager(_db, _db.fillUps);
   $$ExpensesTableTableManager get expenses =>
       $$ExpensesTableTableManager(_db, _db.expenses);
+  $$OdometerReadingsTableTableManager get odometerReadings =>
+      $$OdometerReadingsTableTableManager(_db, _db.odometerReadings);
+  $$OdometerCorrectionsTableTableManager get odometerCorrections =>
+      $$OdometerCorrectionsTableTableManager(_db, _db.odometerCorrections);
 }

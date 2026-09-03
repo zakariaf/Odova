@@ -267,7 +267,7 @@ OdometerCorrection : Record {
   previous_m           int               # what the old cluster last showed, in metres
   new_m                int               # what the new cluster shows, in metres
   odometer_unit        DistanceUnit
-  reason               cluster_replaced|rollover|unit_mixup|typo_fix
+  reason               cluster_replaced|rollover|typo_fix
   notes                string?
 }
 
@@ -348,7 +348,9 @@ cumulative_m(reading) = reading.odometer_m
                         from_reading_id sorts at or before `reading`
 ```
 
-Readings sort by `(occurred_on, created_at)`. A cluster swapped for one showing 0 at a real 187,412 km gives an offset of +187,412 km; a 999,999 rollover gives +1,000,000 km. A `unit_mixup` — a km cluster fitted to a miles car — is the same arithmetic once both sides are in metres: `previous_m − new_m` with each side converted first. The dash number is what the app *displays*; the cumulative number is what it *computes with*.
+Readings sort by `(occurred_on, created_at)`. A cluster swapped for one showing 0 at a real 187,412 km gives an offset of +187,412 km; a 999,999 rollover gives +1,000,000 km. The dash number is what the app *displays*; the cumulative number is what it *computes with*.
+
+A km cluster fitted to a miles car is **not** a correction — see *Edge cases*. Storage is canonical metres and the odometer unit is a per-record fact, so the reading is simply entered in the unit the new cluster shows and there is no offset to carry. `unit_mixup` was listed as a fourth `reason` here and removed; the two sections contradicted each other and *Edge cases* is the narrower, explicitly-decided one.
 
 **Monotonicity.** Readings must be non-decreasing in cumulative terms.
 

@@ -265,16 +265,22 @@ enum OdometerSource {
   final String wire;
 }
 
-/// Why the dash number jumped.
+/// Why the dash number jumped. Three reasons, not four.
+///
+/// SPEC.md contradicted itself here: §3's enum listed a fourth, `unit_mixup`,
+/// and §14 *Edge cases* said "unit_mixup is removed as a correction reason".
+/// §14 is right and is the narrower, explicitly-decided statement — storage is
+/// canonical metres and the odometer unit is a per-record fact, so a km
+/// cluster fitted to a miles car needs no offset at all: the reading is
+/// entered in the unit the new cluster shows and the conversion happens on
+/// the way in. The `CHECK` was NOT widened to admit both; §3 was fixed in the
+/// same PR that added this table.
 enum OdometerCorrectionReason {
   /// A new instrument cluster showing a different number.
   clusterReplaced('cluster_replaced'),
 
   /// The counter wrapped past 999,999.
   rollover('rollover'),
-
-  /// A km cluster in a miles car, or the reverse.
-  unitMixup('unit_mixup'),
 
   /// A digit was entered wrong and the correction is bookkeeping.
   typoFix('typo_fix');

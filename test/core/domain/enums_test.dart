@@ -66,10 +66,14 @@ void main() {
       'trip_end',
       'import',
     ]);
+    // Three, not four. SPEC.md §3 listed `unit_mixup` and §14 said it was
+    // removed; §14 won and §3 was fixed in the same PR. A km cluster on a
+    // miles car needs no correction — storage is metres and the unit is a
+    // per-record fact — so admitting the value would offer the user a
+    // resolution that does nothing.
     expect(OdometerCorrectionReason.values.map((e) => e.wire), [
       'cluster_replaced',
       'rollover',
-      'unit_mixup',
       'typo_fix',
     ]);
   });

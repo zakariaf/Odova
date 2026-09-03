@@ -14,3 +14,14 @@
   four currency columns were unchecked). Both now gated by
   `test/data/db/schema_reality_test.dart`, which reads `sqlite_schema` and
   `PRAGMA foreign_key_list` rather than trusting the Dart.
+- 5.5 The four event tables. Six constraints mutated and each seen to turn the suite
+  red; the tests were written after the tables here and the mutation sweep stands in
+  for the red I did not watch.
+- 5.6 Odometer readings, corrections, cumulative fold, monotonicity guard, four
+  indexes. **SPEC.md edited:** §3's `OdometerCorrection.reason` enum listed
+  `unit_mixup` and §14 said it was removed. §14 wins — storage is metres and the unit
+  is a per-record fact, so a km cluster on a miles car needs no offset — and §3 was
+  fixed rather than the CHECK widened. Recorded for the PR's **Spec** heading.
+  The index tests use `EXPLAIN QUERY PLAN`: reordering an index's columns leaves it
+  existing *and used* while adding a sort step, which only the `TEMP B-TREE`
+  assertion catches.
