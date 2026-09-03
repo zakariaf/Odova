@@ -1,7 +1,21 @@
 {
   "@@locale": "ar",
   "appTitle": "Odova",
-  "@appTitle": {
-    "description": "The application name. A brand name: identical in all six locales, never translated and never transliterated."
-  }
+  "commonEstimatedA11y": "تقديري، حوالي {value}",
+  "homeDueSoonNoConfidence": "يحتاج أودوفا إلى قراءة عدّاد ليحدّد الموعد",
+  "unitDistanceKm": "كم",
+  "unitDistanceMi": "ميل",
+  "unitVolumeLitre": "لتر",
+  "unitVolumeGallon": "جالون",
+  "unitConsumptionPerDistance": "ل/{n} كم",
+  "unitConsumptionMpg": "ميل/جالون",
+  "unitPerDistance": "لكل {unit}",
+  "dateToday": "اليوم",
+  "dateTomorrow": "غدًا",
+  "dateYesterday": "أمس",
+  "dateInDays": "{n, plural, zero{خلال {n} يوم} one{خلال يوم} two{خلال يومين} few{خلال {n} أيام} many{خلال {n} يومًا} other{خلال {n} يوم}}",
+  "dateInAboutWeeks": "{n, plural, zero{خلال حوالي {n} أسبوع} one{خلال حوالي أسبوع} two{خلال حوالي أسبوعين} few{خلال حوالي {n} أسابيع} many{خلال حوالي {n} أسبوعًا} other{خلال حوالي {n} أسبوع}}",
+  "dateInAboutMonths": "{n, plural, zero{خلال حوالي {n} شهر} one{خلال حوالي شهر} two{خلال حوالي شهرين} few{خلال حوالي {n} أشهر} many{خلال حوالي {n} شهرًا} other{خلال حوالي {n} شهر}}",
+  "dateDaysOverdue": "{n, plural, zero{متأخر {n} يوم} one{متأخر يومًا} two{متأخر يومين} few{متأخر {n} أيام} many{متأخر {n} يومًا} other{متأخر {n} يوم}}",
+  "remindersDueCount": "{n, plural, zero{لا شيء مستحق} one{تذكير واحد مستحق} two{تذكيران مستحقان} few{{n} تذكيرات مستحقة} many{{n} تذكيرًا مستحقًا} other{{n} تذكير مستحق}}"
 }

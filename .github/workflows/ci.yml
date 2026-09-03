@@ -253,6 +253,16 @@ jobs:
       # the code is a gate that gets switched off.
       - run: flutter test --coverage --test-randomize-ordering-seed random --exclude-tags golden --reporter expanded
 
+      # Contract: the six ARB files are a contract with five translators who
+      # cannot read the code, and for three locales cannot be read back by the
+      # person who wrote them. The five structural gates in
+      # test/l10n/arb_template_test.dart pass trivially on a clean file, so
+      # this plants each violation in turn and asserts red — a description
+      # deleted, a placeholder untyped, a key that is not a Dart identifier, a
+      # bidi control, a baked digit, a missing CLDR plural category.
+      - name: the ARB contract has been seen to fail
+        run: bash tools/check_arb_selftest.sh
+
       # Contract: lib/core/ really does run with no widget binding. The
       # structure test proves it imports no Flutter; this proves the tests
       # EXECUTE without one, which is what makes EPIC-06's fuel maths and

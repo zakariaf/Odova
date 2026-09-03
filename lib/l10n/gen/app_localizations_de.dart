@@ -10,4 +10,103 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get appTitle => 'Odova';
+
+  @override
+  String commonEstimatedA11y(String value) {
+    return 'geschätzt, etwa $value';
+  }
+
+  @override
+  String get homeDueSoonNoConfidence =>
+      'Odova braucht einen Kilometerstand, um das zu sagen';
+
+  @override
+  String get unitDistanceKm => 'km';
+
+  @override
+  String get unitDistanceMi => 'mi';
+
+  @override
+  String get unitVolumeLitre => 'l';
+
+  @override
+  String get unitVolumeGallon => 'gal';
+
+  @override
+  String unitConsumptionPerDistance(int n) {
+    return 'l/$n km';
+  }
+
+  @override
+  String get unitConsumptionMpg => 'mpg';
+
+  @override
+  String unitPerDistance(String unit) {
+    return '/$unit';
+  }
+
+  @override
+  String get dateToday => 'Heute';
+
+  @override
+  String get dateTomorrow => 'Morgen';
+
+  @override
+  String get dateYesterday => 'Gestern';
+
+  @override
+  String dateInDays(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'in $n Tagen',
+      one: 'in $n Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateInAboutWeeks(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'in etwa $n Wochen',
+      one: 'in etwa $n Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateInAboutMonths(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'in etwa $n Monaten',
+      one: 'in etwa $n Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateDaysOverdue(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Tage überfällig',
+      one: '$n Tag überfällig',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String remindersDueCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Erinnerungen fällig',
+      one: '$n Erinnerung fällig',
+      zero: 'Nichts fällig',
+    );
+    return '$_temp0';
+  }
 }

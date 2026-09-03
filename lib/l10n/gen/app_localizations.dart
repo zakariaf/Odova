@@ -111,6 +111,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Odova'**
   String get appTitle;
+
+  /// Screen-reader label for any estimated value. SPEC.md §5: the tilde is never read as "tilde" — the visible string keeps the ~ as its non-colour marker and this sentence is what a screen reader says instead.
+  ///
+  /// In en, this message translates to:
+  /// **'estimated, about {value}'**
+  String commonEstimatedA11y(String value);
+
+  /// Shown on a due card when the engine has no odometer history to project from. SPEC.md §9: it takes no placeholders, and it must never be assembled from parts — a sentence built in Dart is a sentence no translator can reorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova needs a reading to say when'**
+  String get homeDueSoonNoConfidence;
+
+  /// Kilometre, abbreviated, as a label beside a formatted number. SPEC.md §5: unit labels come from these files, not the platform unit formatter — ICU renders km in ckb-IQ as a Latin "km".
+  ///
+  /// In en, this message translates to:
+  /// **'km'**
+  String get unitDistanceKm;
+
+  /// Mile, abbreviated, as a label beside a formatted number.
+  ///
+  /// In en, this message translates to:
+  /// **'mi'**
+  String get unitDistanceMi;
+
+  /// Litre, abbreviated, as a label beside a formatted number. ICU renders 45.2 L in fa-IR as "۴۵٫۲L" — a Latin L with no space — which is why this is ours.
+  ///
+  /// In en, this message translates to:
+  /// **'L'**
+  String get unitVolumeLitre;
+
+  /// Gallon, abbreviated. US and imperial gallons are different units and are never conflated; this is the shared label and the system is named elsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'gal'**
+  String get unitVolumeGallon;
+
+  /// Fuel consumption as volume per distance, e.g. "L/100 km". {n} is the hundred, as a PLACEHOLDER rather than a literal, so the active numbering system shapes it like every other number.
+  ///
+  /// In en, this message translates to:
+  /// **'L/{n} km'**
+  String unitConsumptionPerDistance(int n);
+
+  /// Fuel consumption as distance per volume: miles per gallon.
+  ///
+  /// In en, this message translates to:
+  /// **'mpg'**
+  String get unitConsumptionMpg;
+
+  /// Suffix for a rate expressed per unit of distance, e.g. a cost per kilometre. {unit} is one of the distance labels, never baked in, so the same message serves km and mi.
+  ///
+  /// In en, this message translates to:
+  /// **'/{unit}'**
+  String unitPerDistance(String unit);
+
+  /// Relative date bucket: the delta is zero days. SPEC.md §5 buckets before formatting — "in 47 days" is data, "in about 7 weeks" is an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dateToday;
+
+  /// Relative date bucket: exactly one day ahead.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get dateTomorrow;
+
+  /// Relative date bucket: exactly one day behind.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get dateYesterday;
+
+  /// Relative date bucket: 2 to 13 days ahead.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{in {n} day} other{in {n} days}}'**
+  String dateInDays(int n);
+
+  /// Relative date bucket: 14 to 55 days ahead, expressed in whole weeks and hedged. The hedge is the point: the underlying number is a projection.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{in about {n} week} other{in about {n} weeks}}'**
+  String dateInAboutWeeks(int n);
+
+  /// Relative date bucket: 56 days or more ahead, expressed in whole months and hedged.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{in about {n} month} other{in about {n} months}}'**
+  String dateInAboutMonths(int n);
+
+  /// How far past due something is. A SEPARATE message from the ahead buckets, never a negative relative time — SPEC.md §5.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{n} day overdue} other{{n} days overdue}}'**
+  String dateDaysOverdue(int n);
+
+  /// How many reminders are due. Carries an explicit =0 case, because "0 reminders due" is a worse sentence than "Nothing due" in every one of the six.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{Nothing due} one{{n} reminder due} other{{n} reminders due}}'**
+  String remindersDueCount(int n);
 }
 
 class _AppLocalizationsDelegate
