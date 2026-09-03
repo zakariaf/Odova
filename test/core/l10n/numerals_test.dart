@@ -64,17 +64,27 @@ void main() {
     );
   });
 
-  test('the withdrawn value name `persian` appears nowhere in lib/', () {
-    // `persian` is a CALENDAR value. The old numeral name is dead, and a
-    // resurrected one would be a fifth wire value nothing reads.
+  test('the withdrawn NUMERAL name `persian` appears nowhere', () {
+    // `persian` is alive as a CALENDAR value and dead as a numeral one, so a
+    // blanket grep over lib/ is wrong — it fires on CalmCalendar.persian,
+    // which is correct code. The rule is narrower and this states it twice:
+    // no CalmNumerals value is spelled that way, and no file that DEFINES a
+    // numbering system mentions it.
+    expect(
+      CalmNumerals.values.map((n) => n.wire),
+      isNot(contains('persian')),
+    );
+
     final offenders = <String>[];
     for (final file in Directory('lib').listSync(recursive: true)) {
       if (file is! File || !file.path.endsWith('.dart')) continue;
       final source = file
           .readAsLinesSync()
           .where((line) => !line.trimLeft().startsWith('//'))
-          .where((line) => !line.trimLeft().startsWith('///'))
           .join('\n');
+      // Only where a numbering system is decided. Elsewhere the word is a
+      // calendar, a language or a font.
+      if (!source.contains('CalmNumerals')) continue;
       if (RegExp("['\"]persian['\"]").hasMatch(source)) {
         offenders.add(file.path);
       }

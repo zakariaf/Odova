@@ -77,3 +77,27 @@
   red — the rightmost-separator rule, the Arabic separator mapping, the
   locale's grouping character, the irregular-grouping rejection, and digit
   folding. All five verified, wired into CI.
+
+- 4.5 calendars — `lib/core/l10n/jalali.dart` (the pinned arithmetic),
+  `calendar.dart` (resolution, month names, region tables) and
+  `relative_date.dart` (bucketing). 26 tests, all pure.
+
+  **A transcription bug the 73,000-day round-trip caught and no anchor would
+  have.** My first `jdnToGregorian` — transcribed from jalaali-js's compact
+  form — returned `1921-04-31`, a date that does not exist, and the Jalali
+  round-trip inherited it: 12,261 mismatches. All four of SPEC §5's anchors
+  passed the whole time, because they are all in the 2020s and the error was
+  elsewhere. Replaced with the standard Fliegel–Van Flandern formulas, which
+  agree with jalaali-js on the anchors and actually invert. There is now a
+  Gregorian-only round-trip test as well, because the Jalali one cannot tell
+  which of the two conversions broke.
+
+  **A test assumption that was wrong, not the code.** I asserted Nowruz always
+  falls on 20 or 21 March. It fell on **22 March in 1922** — the equinox was
+  21 March 20:49 UTC and Tehran is +3:26 — so the assertion failed on the 1920s
+  and "fixing" it would have meant breaking correct arithmetic. The set is
+  `{20, 21, 22}` with the reason written next to it.
+
+  Also caught: reading the leap flag *after* decrementing the year in
+  `jdnToJalali`, a one-day error on every date in the last three months of a
+  leap year.
