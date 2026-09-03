@@ -324,6 +324,16 @@ jobs:
       - name: the specimen goldens match
         run: flutter test --tags golden --reporter expanded
 
+      # Contract: the comparator's 0.05% tolerance has been SEEN to reject a
+      # real change. Byte-exact comparison across machines measures Skia's
+      # rasteriser rather than the design — 70 of 88 differ by 1-21px between
+      # two macOS builds — so the comparison is bounded; a bound nobody has
+      # watched go red is a tolerance, not a gate. This shifts one palette
+      # value by a single hex step, which no person can see, and asserts the
+      # lane fails.
+      - name: the golden tolerance has been seen to fail
+        run: bash tools/check_goldens_selftest.sh
+
       # Contract: a failed golden is reviewable. The comparator writes the
       # actual/expected/diff triple, and without this they die with the runner.
       - name: keep the failure images

@@ -256,3 +256,26 @@ earlier.
     arm plants a rebaselining skill script.
 
 Twelve goldens regenerated for 7, 8 and the switch specimen. All deliberate.
+
+### CI: the goldens are host-specific, and that took two commits to get right
+
+The first push put the golden lane on the ubuntu runner. 80 of 88 failed by
+0.03–0.61% — Skia rasterising text differently on macOS and Linux. The app job's
+own comment, written in EPIC-01, already said exactly that two lines above the
+step I added under it. Moved to a `macos-15` job (free: public repo).
+
+Same OS, still 70 of 88 failed — by 1 to 21 pixels out of roughly four million,
+between two different macOS/Skia builds. That is the floor of what
+`matchesGoldenFile` can do across machines.
+
+So `test/flutter_test_config.dart` sets a comparator with a **0.05% bound**,
+~100× the observed noise. CLAUDE.md §7 forbids widening a tolerance to make a
+failing check pass, and this is deliberately not that: an exact comparison
+across machines does not measure the design at all, and a gate that goes red for
+the host is a gate that gets switched off.
+
+What makes it a gate rather than a fudge is `tools/check_goldens_selftest.sh`,
+wired into the same CI job: it shifts `sand94` — `--color-surface-2`, the ground
+under every tinted card, chip, stepper track and field — by **one hex step**
+(`F3EADC` → `F3EADB`), asserts the lane goes red, restores it and asserts green.
+A change no person can see still fails the bound.
