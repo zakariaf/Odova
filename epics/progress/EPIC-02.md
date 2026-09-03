@@ -142,6 +142,33 @@ token layer may reach the slot; and ratios compare at two decimal places,
 because `due.base` on `due.tint` measures **2.999997257573712**, the design
 landing exactly on 3.0 with sRGB float error underneath it.
 
+## The two review passes
+
+Both ran before the PR. What they changed, beyond tidying:
+
+- **`CalmType.latin` was not the platform font.** SPEC.md §5 says "en, de, fr
+  use the platform font"; the test asserted `fontFamily` is null and called
+  that proof. With `fontFamily` null, Flutter treats the first
+  `fontFamilyFallback` entry as the preferred family — so the
+  `['Avenir Next', …]` list ported from `--font-latin` meant every iOS device
+  rendered Avenir Next and no device rendered the platform font. **The test
+  passed and the decision it protected did not hold.** The list is gone.
+- **The type variant followed the requested locale, not the resolved one.** The
+  comment described reading it from `Localizations`; the code read the `locale`
+  field from a context above it. On `locale: null` — the shipping default — a
+  Persian phone got Latin line heights and Arabic descenders clipped silently.
+  Now `MaterialApp.builder` resolves it, and there is a test that pins a Persian
+  device locale and passes no locale at all.
+- **`calm_status.dart` had no test.** 258 lines in a TDD epic. It has one now,
+  and `CalmStatusStyle` holds the `CalmRamp` whole instead of copying its four
+  rungs out — which removes the class of bug where `resolve` pairs
+  `overdue.base` with `due.ink`.
+- **A self-test arm did not exercise the thing it named.** The
+  "WRAPPED field dropped from lerp" arm planted its violation on an unwrapped
+  declaration, so the `perl` unwrap it existed to prove was untested. It now
+  rewrites the declaration into the wrapped shape first, and was verified both
+  ways.
+
 ## Deferred
 
 - No widget. `lib/ui/calm/` is empty; that is EPIC-03.
