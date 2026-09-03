@@ -190,6 +190,36 @@ Both ran before the PR. What they changed, beyond tidying:
   rewrites the declaration into the wrapped shape first, and was verified both
   ways.
 
+## The reference pipeline is reproducible — for Calm, and only for Calm
+
+Measured, because the deferred contrast decision turns on it and because
+EPIC-18 will run this pipeline for real. Full chain —
+`node tools/build_screens.mjs && node tools/shoot_design.mjs &&
+node tools/optimise_png.mjs` — against the committed set:
+
+| Set | Files differing after a clean regenerate |
+|---|---|
+| **`design/reference/calm/`** | **1 of 112** (`firstrun.vehicle-dark-rtl.png`, 77 bytes) |
+| `design/reference/garage-slip/` | 105 of 108 |
+| `design/reference/instrument/` | 98 of 108 |
+| contact sheets | 8 |
+
+Two things follow.
+
+**The contrast fix is cheap and reviewable.** Re-shooting Calm after changing
+`--color-ink-3` produces a diff containing the images that actually changed and
+essentially nothing else — not 112 files of encoder noise. The decision in
+`SPEC.md` §18 question 25 costs about four minutes and yields a reviewable PR.
+Chrome and the node tooling both work in this environment; that was checked.
+
+**A trap for EPIC-18.** `shoot_design.mjs` and `optimise_png.mjs` regenerate
+**all three** design systems, and the two candidate sets that were not chosen do
+not reproduce — 203 files change for reasons that have nothing to do with any
+edit. Anyone running the full pipeline to refresh Calm will dirty them too.
+Either restrict the run to `calm`, or `git checkout -- design/reference/garage-slip
+design/reference/instrument` afterwards. Reviewing a 315-file diff to find the
+four that matter is how a deliberate design change stops being reviewable.
+
 ## Deferred
 
 - No widget. `lib/ui/calm/` is empty; that is EPIC-03.
