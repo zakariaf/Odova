@@ -120,7 +120,23 @@ needs to know.
    before committing any ARB change, or the `flutter` job fails on
    `git diff --exit-code`.
 
-8. **The structure test reads its exclusions from `analysis_options.yaml`.**
+8. **The harness is `test/support/pump_app.dart`, not `test/support/harness.dart`,
+   and there is no `Device` type yet.** EPIC-03 and EPIC-04 both open with
+   *"EPIC-01 has created … `test/support/harness.dart` carrying the `Device`
+   value type and the `pumpApp` extension"*. It does not: EPIC-01's own task 1.7
+   names `test/support/pump_app.dart` and asks for a `pumpApp(tester, child,
+   {locale, themeMode, overrides})` function, which is what exists. The epic
+   that owns a task wins over another epic's summary of it. **EPIC-03 builds
+   `Device`** — it is the first epic that needs one, for its overflow × text
+   scale × bold matrix — and it belongs beside `pumpApp` in `test/support/`.
+
+9. **`pumpApp` pumps `OdovaApp` itself, deliberately.** Not an equivalent
+   `MaterialApp`. The 112 parity captures depend on the harness and the app
+   being the same widget, so EPIC-02's swap to `buildCalmTheme` is one edit on
+   `OdovaApp` and the harness follows. `OdovaApp` already carries `locale`,
+   `home` and `themeMode`; add `theme`/`darkTheme` there and nowhere else.
+
+10. **The structure test reads its exclusions from `analysis_options.yaml`.**
    Adding a generated-code family means adding one glob there, and both the
    analyzer and the coverage filter follow. Do not retype the list anywhere —
    `test/policy/lint_test.dart` fails on a second copy.
