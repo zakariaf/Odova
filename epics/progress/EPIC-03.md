@@ -67,3 +67,21 @@
   `motion.slow`), a self-mirroring `Icon` and `BorderRadius.circular(radiusPill)`
   in a ClipRRect. First progress bar drew zero-width: `Align(widthFactor:)`
   scales the CHILD, not the track — `FractionallySizedBox` does what was meant.
+- 3.11 gallery + goldens + matrices — `example/calm_gallery.dart`,
+  `test/ui/calm/support/specimens.dart` (22 specimens, one list for both), 88
+  committed goldens, and the touch-target / overflow / traversal matrices; plus
+  APCA alongside WCAG in the contrast audit. **Six defects found by the
+  matrices:** a 21pt overflow in the secondary due card at 200%, four
+  `maxLines: 1` clips (tab labels, modal Cancel, odometer value, button label),
+  and a negative EdgeInsets on the `ƒ` badge in the Arabic type variant.
+  **New finding from APCA:** `ink3` on `surface` in DARK is 39.1 Lc — below the
+  45 non-text floor — while WCAG 2.x passes it at 4.6:1. Same ink3 finding,
+  new evidence that EPIC-17's fix is not light-theme-only.
+  New gate `tools/check_golden_lane.sh` with both self-test arms.
+
+  **Handover — what the automated checks cannot see.** EPIC-03's definition of
+  done includes a human pass over the gallery against `design/calm/system.html`
+  at both themes and both directions: type weight, icon shape and optical
+  alignment. The goldens pin what the library IS, not what it should be. Run
+  `flutter run -t example/calm_gallery.dart` and open the system sheet beside
+  it. Not done here, and not doable by an automated pass.
