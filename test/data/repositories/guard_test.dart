@@ -1,0 +1,115 @@
+// The boundary that turns a driver exception into a typed failure.
+//
+// Tested directly, because two of its three arms cannot be reached through a
+// repository in a test. The app opens its connection with
+// `NativeDatabase.createInBackground`, so on a device every exception crosses
+// an isolate boundary and arrives wrapped; a test using a direct
+// `NativeDatabase` never produces that shape. An arm no test reaches is an arm
+// nobody has checked, and this one carries every real-device constraint
+// failure.
+@TestOn('vm')
+library;
+
+import 'package:drift/drift.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/result.dart';
+import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/guard.dart';
+import 'package:sqlite3/common.dart' show SqliteException;
+
+/// Stands in for `DriftRemoteException`, whose type lives in drift's
+/// experimental `remote.dart`. What the guard reads is `toString()`, and this
+/// carries the same shape: the wrapper's own text with the remote cause inside.
+class _RemoteLike implements Exception {
+  const _RemoteLike(this.cause);
+  final String cause;
+
+  @override
+  String toString() => 'DriftRemoteException: $cause';
+}
+
+Future<Result<int, PersistFailure>> _throwing(Object error) =>
+    guardPersist<int>(
+      () async => Error.throwWithStackTrace(
+        error,
+        StackTrace.empty,
+      ),
+    );
+
+void main() {
+  test(
+    'a SqliteException constraint failure classifies as a constraint',
+    () async {
+      final result = await _throwing(
+        SqliteException(19, 'CHECK constraint failed: vehicles'),
+      );
+      expect(
+        (result as Err<int, PersistFailure>).failure,
+        isA<ConstraintViolated>(),
+      );
+    },
+  );
+
+  test(
+    'a SqliteException disk failure classifies as a write failure',
+    () async {
+      final result = await _throwing(
+        SqliteException(13, 'database or disk is full'),
+      );
+      expect((result as Err<int, PersistFailure>).failure, isA<WriteFailed>());
+    },
+  );
+
+  test(
+    'a DriftWrappedException is unwrapped before it is classified',
+    () async {
+      final result = await _throwing(
+        DriftWrappedException(
+          message: 'insert',
+          cause: SqliteException(19, 'FOREIGN KEY constraint failed'),
+          trace: StackTrace.empty,
+        ),
+      );
+      expect(
+        (result as Err<int, PersistFailure>).failure,
+        isA<ConstraintViolated>(),
+      );
+    },
+  );
+
+  test('an isolate-wrapped exception is classified, not swallowed', () async {
+    // The arm that carries every constraint failure on a real device. Without
+    // it a user's "that plate is already taken" would arrive as an
+    // unclassified write error and read as "something went wrong".
+    final result = await _throwing(
+      const _RemoteLike('SqliteException(19): CHECK constraint failed'),
+    );
+
+    expect(result, isA<Err<int, PersistFailure>>());
+    expect(
+      (result as Err<int, PersistFailure>).failure,
+      isA<ConstraintViolated>(),
+    );
+  });
+
+  test(
+    'an Error passes straight through and is not made into a failure',
+    () async {
+      // `error-handling-typed-results` rule 6. A StateError from a mapper means
+      // the schema and the enums have drifted — a BUG — and it must crash in
+      // debug rather than become a failure value the UI renders as "something
+      // went wrong" while the data quietly stops matching.
+      await expectLater(
+        _throwing(StateError('the CHECK and the enum have drifted')),
+        throwsA(isA<StateError>()),
+      );
+    },
+  );
+
+  test('a successful body is returned untouched', () async {
+    expect(
+      await guardPersist<int>(() async => const Ok(7)),
+      const Ok<int, PersistFailure>(7),
+    );
+  });
+}
