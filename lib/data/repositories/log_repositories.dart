@@ -9,6 +9,7 @@ import 'package:drift/drift.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/app_database.dart';
@@ -16,13 +17,20 @@ import 'package:odova/data/db/mappers/audit_mapper.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
+import 'package:odova/data/repositories/odometer_fan_out.dart';
 
 /// Reads and writes fill-ups.
 class FillUpRepository {
   /// Creates a repository over [_db].
-  const FillUpRepository(this._db);
+  ///
+  /// [_ids] mints the id of the derived odometer reading this emits. SPEC.md
+  /// §3: every record carrying an odometer emits one, and the fan-out is
+  /// inside this repository's transaction so the pair is written together or
+  /// not at all.
+  const FillUpRepository(this._db, this._ids);
 
   final AppDatabase _db;
+  final UlidFactory _ids;
 
   /// Every live fill-up for one vehicle, newest first.
   ///
@@ -76,6 +84,17 @@ class FillUpRepository {
                   notes: Value(fillUp.notes),
                 ),
               );
+          await syncDerivedReading(
+            _db,
+            ids: _ids,
+            parentId: fillUp.id.toString(),
+            vehicleId: fillUp.vehicleId,
+            source: OdometerSource.fillUp,
+            occurredOn: fillUp.occurredOn,
+            odometerUnit: fillUp.odometerUnit,
+            odometerM: fillUp.odometerM,
+            nowUtcMs: fillUp.updatedAtUtcMs,
+          );
         });
         return Ok(fillUp);
       });
@@ -84,9 +103,10 @@ class FillUpRepository {
 /// Reads and writes expenses.
 class ExpenseRepository {
   /// Creates a repository over [_db].
-  const ExpenseRepository(this._db);
+  const ExpenseRepository(this._db, this._ids);
 
   final AppDatabase _db;
+  final UlidFactory _ids;
 
   /// Every live expense for one vehicle, newest first.
   Stream<List<Expense>> watchForVehicle(VehicleId vehicleId) =>
@@ -133,6 +153,20 @@ class ExpenseRepository {
                   notes: Value(expense.notes),
                 ),
               );
+          // `odometerM` is nullable on an expense, and a null one emits NO
+          // reading — `syncDerivedReading` removes any it had. An insurance
+          // premium paid online has no odometer to record.
+          await syncDerivedReading(
+            _db,
+            ids: _ids,
+            parentId: expense.id.toString(),
+            vehicleId: expense.vehicleId,
+            source: OdometerSource.expense,
+            occurredOn: expense.occurredOn,
+            odometerUnit: expense.odometerUnit,
+            odometerM: expense.odometerM,
+            nowUtcMs: expense.updatedAtUtcMs,
+          );
         });
         return Ok(expense);
       });
@@ -177,9 +211,10 @@ class ExpenseRepository {
 /// Reads and writes trips.
 class TripRepository {
   /// Creates a repository over [_db].
-  const TripRepository(this._db);
+  const TripRepository(this._db, this._ids);
 
   final AppDatabase _db;
+  final UlidFactory _ids;
 
   /// Every live trip for one vehicle, newest first.
   Stream<List<Trip>> watchForVehicle(VehicleId vehicleId) =>
@@ -223,6 +258,32 @@ class TripRepository {
                   notes: Value(trip.notes),
                 ),
               );
+          // TWO readings, and they differ by `source` alone — which is why the
+          // fan-out keys on `(source_id, source)` rather than on the parent id.
+          // An open trip has no end, so its end reading is removed rather than
+          // left holding yesterday's number.
+          await syncDerivedReading(
+            _db,
+            ids: _ids,
+            parentId: trip.id.toString(),
+            vehicleId: trip.vehicleId,
+            source: OdometerSource.tripStart,
+            occurredOn: trip.startedOn,
+            odometerUnit: trip.odometerUnit,
+            odometerM: trip.startOdometerM,
+            nowUtcMs: trip.updatedAtUtcMs,
+          );
+          await syncDerivedReading(
+            _db,
+            ids: _ids,
+            parentId: trip.id.toString(),
+            vehicleId: trip.vehicleId,
+            source: OdometerSource.tripEnd,
+            occurredOn: trip.endedOn ?? trip.startedOn,
+            odometerUnit: trip.odometerUnit,
+            odometerM: trip.endedOn == null ? null : trip.endOdometerM,
+            nowUtcMs: trip.updatedAtUtcMs,
+          );
         });
         return Ok(trip);
       });

@@ -22,6 +22,8 @@ import 'package:odova/data/repositories/odometer_repository.dart';
 import 'package:odova/data/repositories/service_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
 
+import '../support/test_ids.dart';
+
 const String _body = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
 final VehicleId _vehicleId = VehicleId.tryParse('veh_$_body')!;
 final VehicleId _otherId = VehicleId.tryParse(
@@ -100,7 +102,7 @@ void main() {
         updatedAtUtcMs: 1000,
       ),
     );
-    await ExpenseRepository(db).save(
+    await ExpenseRepository(db, testIds()).save(
       Expense(
         id: ExpenseId.tryParse('exp_${_body.substring(0, 25)}$suffix')!,
         vehicleId: vehicleId,
@@ -113,7 +115,7 @@ void main() {
         updatedAtUtcMs: 1000,
       ),
     );
-    await TripRepository(db).save(
+    await TripRepository(db, testIds()).save(
       Trip(
         id: TripId.tryParse('trp_${_body.substring(0, 25)}$suffix')!,
         vehicleId: vehicleId,
@@ -173,8 +175,8 @@ void main() {
   setUp(() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     vehicles = VehicleRepository(db);
-    services = ServiceRepository(db);
-    fillUps = FillUpRepository(db);
+    services = ServiceRepository(db, testIds());
+    fillUps = FillUpRepository(db, testIds());
     odometer = OdometerRepository(db);
   });
   tearDown(() => db.close());

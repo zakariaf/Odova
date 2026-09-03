@@ -8,6 +8,7 @@ import 'package:drift/drift.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/app_database.dart';
@@ -15,13 +16,15 @@ import 'package:odova/data/db/mappers/audit_mapper.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
+import 'package:odova/data/repositories/odometer_fan_out.dart';
 
 /// Reads and writes the service side of a vehicle.
 class ServiceRepository {
   /// Creates a repository over [_db].
-  const ServiceRepository(this._db);
+  const ServiceRepository(this._db, this._ids);
 
   final AppDatabase _db;
+  final UlidFactory _ids;
 
   /// Every live service item for one vehicle.
   ///
@@ -103,6 +106,17 @@ class ServiceRepository {
       for (final line in record.lines) {
         await _db.into(_db.serviceLines).insert(_lineCompanion(line));
       }
+      await syncDerivedReading(
+        _db,
+        ids: _ids,
+        parentId: record.id.toString(),
+        vehicleId: record.vehicleId,
+        source: OdometerSource.service,
+        occurredOn: record.occurredOn,
+        odometerUnit: record.odometerUnit,
+        odometerM: record.odometerM,
+        nowUtcMs: record.updatedAtUtcMs,
+      );
     });
 
     return Ok(record);

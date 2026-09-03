@@ -19,6 +19,8 @@ import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/service_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
 
+import '../support/test_ids.dart';
+
 const String _body = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
 final VehicleId _vehicleId = VehicleId.tryParse('veh_$_body')!;
 final ServiceRecordId _recordId = ServiceRecordId.tryParse('srv_$_body')!;
@@ -47,7 +49,7 @@ void main() {
 
   setUp(() async {
     db = AppDatabase.forTesting(NativeDatabase.memory());
-    repository = ServiceRepository(db);
+    repository = ServiceRepository(db, testIds());
     await VehicleRepository(db).save(
       Vehicle(
         id: _vehicleId,

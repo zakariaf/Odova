@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/misc.dart' show StreamProviderFamily;
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/ids/id_provider.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/log_repositories.dart';
@@ -32,22 +33,34 @@ final vehicleRepositoryProvider = Provider<VehicleRepository>(
 
 /// Service items, records and lines.
 final serviceRepositoryProvider = Provider<ServiceRepository>(
-  (ref) => ServiceRepository(ref.watch(appDatabaseProvider)),
+  (ref) => ServiceRepository(
+    ref.watch(appDatabaseProvider),
+    ref.watch(ulidFactoryProvider),
+  ),
 );
 
 /// Fill-ups.
 final fillUpRepositoryProvider = Provider<FillUpRepository>(
-  (ref) => FillUpRepository(ref.watch(appDatabaseProvider)),
+  (ref) => FillUpRepository(
+    ref.watch(appDatabaseProvider),
+    ref.watch(ulidFactoryProvider),
+  ),
 );
 
 /// Expenses.
 final expenseRepositoryProvider = Provider<ExpenseRepository>(
-  (ref) => ExpenseRepository(ref.watch(appDatabaseProvider)),
+  (ref) => ExpenseRepository(
+    ref.watch(appDatabaseProvider),
+    ref.watch(ulidFactoryProvider),
+  ),
 );
 
 /// Trips.
 final tripRepositoryProvider = Provider<TripRepository>(
-  (ref) => TripRepository(ref.watch(appDatabaseProvider)),
+  (ref) => TripRepository(
+    ref.watch(appDatabaseProvider),
+    ref.watch(ulidFactoryProvider),
+  ),
 );
 
 /// Odometer readings and corrections.
