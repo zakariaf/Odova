@@ -24,6 +24,18 @@ final _curves = <String, Cubic Function(CalmMotion)>{
 };
 
 void main() {
+  test('undoWindow is six seconds and is not a CSS token', () {
+    // SPEC.md §10. It sits on CalmMotion because every duration in the app
+    // sits on CalmMotion, not because the design system chose it — and this
+    // test says so, so the next person to look for `--dur-undo` stops here.
+    expect(calmMotion.undoWindow, const Duration(seconds: 6));
+    expect(
+      lightTokenBlock(),
+      isNot(contains('--dur-undo')),
+      reason: 'a token appeared; trace the slot to it and delete this test',
+    );
+  });
+
   test('all five durations trace to odova.css', () {
     final css = durationsIn(lightTokenBlock());
     expect(css, hasLength(5));
@@ -75,6 +87,7 @@ void main() {
       base: Duration(seconds: 9),
       slow: Duration(seconds: 9),
       sheet: Duration(seconds: 9),
+      undoWindow: Duration(seconds: 9),
       easeStandard: Cubic(1, 1, 1, 1),
       easeOut: Cubic(1, 1, 1, 1),
       easeIn: Cubic(1, 1, 1, 1),

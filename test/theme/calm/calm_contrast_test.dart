@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
+import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 
 import '../../support/calm_ramps.dart';
@@ -52,13 +53,17 @@ final _surfaces = <String, Color Function(CalmColors)>{
 
 /// The ink slots that carry text, and are therefore held to 4.5:1.
 ///
-/// `ink4` is deliberately NOT here. Its only sanctioned use in Calm is
-/// disabled text, which SC 1.4.3 exempts — `.btn:disabled`,
-/// `.stepper__btn.is-disabled`, `.input:disabled`. Declaring it as a text pair
-/// would assert something the design never claimed. Its two NON-exempt uses in
-/// the CSS, the row chevron and the chart label, are real failures and both
-/// arrive with EPIC-03; until then the gate is that nothing outside the token
-/// layer can reach the slot at all, which is the last test in this file.
+/// `ink4` is deliberately NOT here. Its use as *text* in Calm is disabled
+/// text, which SC 1.4.3 exempts — `.btn:disabled`, `.stepper__btn.is-disabled`,
+/// `.input:disabled`. Declaring it as a text pair would assert something the
+/// design never claimed.
+///
+/// Its NON-exempt use is the row disclosure chevron, which arrived with
+/// EPIC-03 task 3.3 exactly as this file predicted it would. A chevron is a
+/// non-text graphic, so it is declared below at the 3:1 floor and it fails
+/// there — see [knownContrastExceptions]. The chart axis label, the other
+/// predicted use, reaches the slot through `chartAxisInk` and is already
+/// declared as text.
 final _inks = <String, Color Function(CalmColors)>{
   'ink': (c) => c.ink,
   'ink2': (c) => c.ink2,
@@ -99,6 +104,12 @@ List<ContrastPair> declaredPairs() => [
   ],
 
   // Non-text graphics.
+  // The row disclosure chevron is `ink4` on whichever ground the row has:
+  // `surface` in a plain group, `surface2` in a tinted one, `surface3` while
+  // the row is pressed.
+  _graphic('ink4 on surface', (c) => c.ink4, (c) => c.surface),
+  _graphic('ink4 on surface2', (c) => c.ink4, (c) => c.surface2),
+  _graphic('ink4 on surface3', (c) => c.ink4, (c) => c.surface3),
   _graphic('focus on surface', (c) => c.focus, (c) => c.surface),
   _graphic('focus on surface3', (c) => c.focus, (c) => c.surface3),
   for (var i = 1; i <= 5; i++)
@@ -190,6 +201,43 @@ const knownContrastExceptions =
         theme: 'light',
         measured: 3.99,
         decision: 'chartAxisInk is ink3; fixing ink3 fixes this',
+      ),
+      // The disclosure chevron, 2026-09-03, EPIC-03 task 3.3. `--color-ink-4`
+      // is #AC9C8B; against `--color-surface` it is 2.60:1, below SC 1.4.11's
+      // 3:1 floor for a graphical object. It is the same design decision as
+      // ink3 and the focus ring — deferred to EPIC-17, which must take all
+      // three or the chevron stays invisible. Dark on `surface` clears at
+      // 3.17:1 and is deliberately NOT excepted, so darkening light to match
+      // dark would close five of these six entries at once.
+      (
+        pair: 'ink4 on surface',
+        theme: 'light',
+        measured: 2.60,
+        decision: 'deferred to EPIC-17 with ink3 and the focus ring',
+      ),
+      (
+        pair: 'ink4 on surface2',
+        theme: 'light',
+        measured: 2.23,
+        decision: 'same finding; a tinted group',
+      ),
+      (
+        pair: 'ink4 on surface3',
+        theme: 'light',
+        measured: 1.97,
+        decision: 'same finding; a pressed row, the worst pair in the palette',
+      ),
+      (
+        pair: 'ink4 on surface2',
+        theme: 'dark',
+        measured: 2.85,
+        decision: 'same finding, DARK theme; a tinted group',
+      ),
+      (
+        pair: 'ink4 on surface3',
+        theme: 'dark',
+        measured: 2.49,
+        decision: 'same finding, DARK theme; a pressed row',
       ),
       // Finding 4 — a focus ring on the warmest surface. SC 1.4.11 holds a
       // focus indicator to 3:1, and a control inside a `surface3` container
@@ -300,15 +348,88 @@ void main() {
     }
   });
 
-  test('ink4 is never reachable as a text or affordance colour', () {
-    // #AC9C8B is 2.60:1 on surface — below even the 3:1 non-text floor.
-    // Disabled uses are exempt under SC 1.4.3; the placeholder and the row
-    // chevron are not, and both arrive in EPIC-03. Until then the gate is that
-    // nothing outside the token layer can reach the slot at all.
+  group('APCA', () {
+    // Run ALONGSIDE WCAG 2.x, not instead of it. WCAG is a ratio of
+    // luminances and treats a pair identically to its inverse; APCA is
+    // polarity-aware, and a warm low-contrast palette that clears 4.5:1 in
+    // light can be meaningfully worse in dark. Calm is exactly that palette.
+    test('the implementation lands on the published anchors', () {
+      // Guard the guard. An APCA function with a wrong exponent still returns
+      // plausible numbers, and every assertion below would then be measuring
+      // nothing. Black on white is 106.0 Lc and white on black is -107.9 in
+      // the reference implementation.
+      expect(
+        apcaLc(const Color(0xFF000000), const Color(0xFFFFFFFF)),
+        closeTo(106.0, 0.1),
+      );
+      expect(
+        apcaLc(const Color(0xFFFFFFFF), const Color(0xFF000000)),
+        closeTo(-107.9, 0.1),
+      );
+    });
+
+    test('every status pair clears its Lc floor in both themes', () {
+      final failures = <String>[];
+
+      for (final MapEntry(key: theme, value: colours) in themes.entries) {
+        for (final state in DueState.values) {
+          final style = CalmStatusStyle.resolve(colours, state);
+          final ink = apcaLc(style.ink, style.tint).abs();
+          final base = apcaLc(style.base, colours.surface).abs();
+          if (ink < bodyTextLc) {
+            failures.add('$theme ${state.name} ink on tint: $ink Lc');
+          }
+          if (base < largeTextAndGraphicLc) {
+            failures.add('$theme ${state.name} base on surface: $base Lc');
+          }
+        }
+      }
+
+      expect(failures, isEmpty);
+    });
+
+    test('ink3 in DARK is an APCA failure that WCAG 2.x passes', () {
+      // The reason both are run. `--color-ink-3` on `--color-surface` measures
+      // 4.6:1 in dark — a WCAG pass — and 39.1 Lc, which is below even the
+      // 45 non-text floor, let alone the 60 for body text. Light measures
+      // 66.4 Lc and passes.
+      //
+      // This is the SAME ink3 finding deferred to EPIC-17, with a second piece
+      // of evidence: fixing it is not only a light-theme change. Pinned at the
+      // measured value so the day the palette moves, this goes red.
+      expect(
+        apcaLc(calmColorsDark.ink3, calmColorsDark.surface).abs(),
+        closeTo(39.1, 0.1),
+      );
+      expect(
+        apcaLc(calmColorsLight.ink3, calmColorsLight.surface).abs(),
+        greaterThanOrEqualTo(bodyTextLc),
+      );
+      // And the primary ink slots do clear it, in both themes.
+      for (final MapEntry(key: theme, value: colours) in themes.entries) {
+        for (final (name, ink) in [
+          ('ink', colours.ink),
+          ('ink2', colours.ink2),
+        ]) {
+          expect(
+            apcaLc(ink, colours.surface).abs(),
+            greaterThanOrEqualTo(bodyTextLc),
+            reason: '$theme $name',
+          );
+        }
+      }
+    });
+  });
+
+  test('ink4 is reachable only from its declared call sites', () {
+    // #AC9C8B is 2.60:1 on surface — below even the 3:1 non-text floor. The
+    // slot is not banned outright any more, because the design does place it
+    // on the chevron; it is ALLOWLISTED, so the file that adds the next use
+    // has to come here and say what the use is and which SC exempts it.
     // Comment lines stripped — EPIC-03's CalmField will want to write
     // "/// Never [CalmColors.ink4] here" above its placeholder colour, and
     // that sentence is the point.
-    final offenders = dartFilesUnder('lib')
+    final callSites = dartFilesUnder('lib')
         .where((f) => !f.path.startsWith('lib/theme/calm/'))
         .where(
           (f) => f
@@ -318,8 +439,29 @@ void main() {
               .contains('.ink4'),
         )
         .map((f) => f.path)
-        .toList();
+        .toSet();
 
-    expect(offenders, isEmpty);
+    expect(
+      callSites,
+      {
+        // The disclosure chevron — a non-text graphic, declared above and
+        // failing at 2.60:1. Deferred to EPIC-17 with ink3.
+        'lib/ui/calm/calm_list_row.dart',
+        // Disabled button text, which SC 1.4.3 exempts outright.
+        'lib/ui/calm/calm_button.dart',
+        // TWO uses, and only one is exempt. Disabled field text is SC 1.4.3
+        // exempt like the button's; the PLACEHOLDER is not, and it fails at
+        // the same 2.60 / 2.23 the chevron does — see the ink4 pairs above.
+        'lib/ui/calm/calm_field.dart',
+        // `.modal-head__action.is-disabled` — disabled text, SC 1.4.3 exempt.
+        // SPEC.md §10 forbids a disabled Save on the five log.* forms; the
+        // state exists for the other modal heads.
+        'lib/ui/calm/calm_scaffold.dart',
+      },
+      reason:
+          'a new ink4 use — or a removed one. Every call site is declared '
+          'here with the SC that exempts it or the exception that records '
+          'its failure; see knownContrastExceptions.',
+    );
   });
 }

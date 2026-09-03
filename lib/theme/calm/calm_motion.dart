@@ -15,6 +15,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
     required this.base,
     required this.slow,
     required this.sheet,
+    required this.undoWindow,
     required this.easeStandard,
     required this.easeOut,
     required this.easeIn,
@@ -37,6 +38,20 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
 
   /// `--dur-sheet`. A sheet arriving or leaving.
   final Duration sheet;
+
+  /// How long an Undo stays reachable — SPEC.md §10, six seconds.
+  ///
+  /// The one duration here that does NOT trace to a `--dur-*` token: it is a
+  /// product decision, not a design one. It lives on this extension anyway
+  /// because every duration in the app lives on this extension — the
+  /// alternative is a `Duration(seconds: 6)` in a feature file, which is
+  /// exactly what check_touch_targets.sh's motion rule exists to catch, and
+  /// "it is not really motion" is not a distinction a grep can make.
+  ///
+  /// It is deliberately NOT collapsed by reduced motion: a user who asked for
+  /// stillness did not ask for less time to undo. `calmDuration` is for
+  /// animation; this is a dwell.
+  final Duration undoWindow;
 
   /// `--ease-standard`. The default, and the ONLY curve for colour.
   final Cubic easeStandard;
@@ -73,6 +88,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
     Duration? base,
     Duration? slow,
     Duration? sheet,
+    Duration? undoWindow,
     Cubic? easeStandard,
     Cubic? easeOut,
     Cubic? easeIn,
@@ -84,6 +100,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
       base: base ?? this.base,
       slow: slow ?? this.slow,
       sheet: sheet ?? this.sheet,
+      undoWindow: undoWindow ?? this.undoWindow,
       easeStandard: easeStandard ?? this.easeStandard,
       easeOut: easeOut ?? this.easeOut,
       easeIn: easeIn ?? this.easeIn,
@@ -112,6 +129,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
       base: t < 0.5 ? base : other.base,
       slow: t < 0.5 ? slow : other.slow,
       sheet: t < 0.5 ? sheet : other.sheet,
+      undoWindow: t < 0.5 ? undoWindow : other.undoWindow,
       easeStandard: t < 0.5 ? easeStandard : other.easeStandard,
       easeOut: t < 0.5 ? easeOut : other.easeOut,
       easeIn: t < 0.5 ? easeIn : other.easeIn,
@@ -127,6 +145,7 @@ const calmMotion = CalmMotion(
   base: Duration(milliseconds: 240),
   slow: Duration(milliseconds: 360),
   sheet: Duration(milliseconds: 420),
+  undoWindow: Duration(seconds: 6),
   easeStandard: Cubic(0.32, 0.72, 0, 1),
   easeOut: Cubic(0.2, 0.8, 0.2, 1),
   easeIn: Cubic(0.4, 0, 1, 1),

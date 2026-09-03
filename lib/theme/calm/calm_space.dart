@@ -31,6 +31,10 @@ class CalmSpace extends ThemeExtension<CalmSpace> {
     required this.tabbarH,
     required this.homebarH,
     required this.touchMin,
+    required this.iconSm,
+    required this.iconMd,
+    required this.iconLg,
+    required this.iconXl,
   });
 
   /// `--space-1`. The tightest gap: a label to the figure under it.
@@ -81,6 +85,19 @@ class CalmSpace extends ThemeExtension<CalmSpace> {
   /// `--homebar-h`. The home indicator's height.
   final double homebarH;
 
+  /// `.icon--sm` — 18. The disclosure chevron, a helper-line glyph.
+  final double iconSm;
+
+  /// `.icon` — 24. The default: a tab bar item, a keypad backspace.
+  final double iconMd;
+
+  /// `.icon--lg` — 32.
+  final double iconLg;
+
+  /// `.icon--xl` — 44. The only size Calm uses above 32: an all-clear mark, an
+  /// empty-state glyph.
+  final double iconXl;
+
   /// `--touch-min`. The hit-area floor.
   ///
   /// 52, not Material's 48. SPEC.md §1: logging happens at a fuel pump, in
@@ -120,6 +137,10 @@ class CalmSpace extends ThemeExtension<CalmSpace> {
     double? tabbarH,
     double? homebarH,
     double? touchMin,
+    double? iconSm,
+    double? iconMd,
+    double? iconLg,
+    double? iconXl,
   }) {
     return CalmSpace(
       s1: s1 ?? this.s1,
@@ -138,6 +159,10 @@ class CalmSpace extends ThemeExtension<CalmSpace> {
       tabbarH: tabbarH ?? this.tabbarH,
       homebarH: homebarH ?? this.homebarH,
       touchMin: touchMin ?? this.touchMin,
+      iconSm: iconSm ?? this.iconSm,
+      iconMd: iconMd ?? this.iconMd,
+      iconLg: iconLg ?? this.iconLg,
+      iconXl: iconXl ?? this.iconXl,
     );
   }
 
@@ -162,6 +187,10 @@ class CalmSpace extends ThemeExtension<CalmSpace> {
       tabbarH: lerpDouble(tabbarH, other.tabbarH, t)!,
       homebarH: lerpDouble(homebarH, other.homebarH, t)!,
       touchMin: lerpDouble(touchMin, other.touchMin, t)!,
+      iconSm: lerpDouble(iconSm, other.iconSm, t)!,
+      iconMd: lerpDouble(iconMd, other.iconMd, t)!,
+      iconLg: lerpDouble(iconLg, other.iconLg, t)!,
+      iconXl: lerpDouble(iconXl, other.iconXl, t)!,
     );
   }
 }
@@ -184,4 +213,8 @@ const calmSpace = CalmSpace(
   tabbarH: 62,
   homebarH: 34,
   touchMin: 52,
+  iconSm: 18,
+  iconMd: 24,
+  iconLg: 32,
+  iconXl: 44,
 );

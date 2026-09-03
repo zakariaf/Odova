@@ -201,6 +201,35 @@ jobs:
       - name: the Calm layering holds
         run: bash .claude/skills/calm-design-system/scripts/check_calm_layering.sh lib
 
+      # Contract: presses go through CalmPressable. No InkWell, no live
+      # splash, no Material substitute for a widget Calm replaces, and no
+      # BoxDecoration outside lib/ui/calm/.
+      - name: the Calm component hygiene holds
+        run: bash .claude/skills/calm-components/scripts/check_component_hygiene.sh lib
+
+      # Contract: 52pt is the hit floor — above Material's 48 — because the app
+      # is used one-handed at a fuel pump in the rain. Also: motion is a
+      # CalmMotion slot, and a reduced-motion test case may not pumpAndSettle,
+      # because once the duration collapses there is nothing to settle and the
+      # call hides what the case exists to assert.
+      - name: the touch floor and the motion tokens hold
+        run: >-
+          bash .claude/skills/calm-layout-and-motion/scripts/check_touch_targets.sh
+          lib test
+
+      # Contract: the committed specimen PNGs are compared, and CI never
+      # rebaselines them. A pipeline that blesses its own goldens cannot fail.
+      - name: the golden lane is armed and never self-rebaselining
+        run: bash tools/check_golden_lane.sh
+
+      # Contract: one resolution point for DueState. SPEC.md §1 — never guess
+      # in a way that looks like fact — is enforceable only if a single file
+      # decides what "we do not know" looks like.
+      - name: DueState has one resolution point
+        run: >-
+          bash .claude/skills/calm-due-state-and-status/scripts/check_status_encoding.sh
+          lib
+
       # Contract: whitespace is not a review topic.
       - run: dart format --output=none --set-exit-if-changed .
 
@@ -251,6 +280,69 @@ jobs:
           name: coverage-lcov
           path: coverage/lcov.info
           retention-days: 14
+
+  # The goldens are host-specific, and that is not a defect to be tolerated
+  # away: Skia rasterises text differently on macOS and Linux, so 80 of the 88
+  # PNGs differ by 0.03-0.61% across hosts. A percentage tolerance wide enough
+  # to absorb that is wide enough to absorb a real one-shade regression, and a
+  # gate that goes red for the host instead of the code is a gate that gets
+  # switched off. So the lane runs on the platform the PNGs were authored on.
+  # Free here: macOS runners are not billed for a public repository.
+  #
+  # Regenerating them on any other machine is what the `run-goldens-rebaseline`
+  # runbook is for, and it has to happen on macOS too.
+  goldens:
+    name: goldens
+    needs: repo
+    if: needs.repo.outputs.has_app == 'true'
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      # Contract: this job compares the commit under review.
+      - uses: actions/checkout@v7
+
+      # Contract: the toolchain is the pinned one, not whatever the runner
+      # image ships.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ needs.repo.outputs.flutter_version }}
+          cache: true
+
+      # Contract: the toolchain the runner actually resolved is in the log.
+      - run: flutter --version
+
+      # Contract: the committed pubspec.lock IS the pin.
+      - run: flutter pub get --enforce-lockfile
+
+      # Contract: the 88 committed specimen PNGs are actually compared against.
+      # Their own lane, because a golden failure is a different conversation
+      # from a logic failure — it is either an intended visual change that has
+      # to be blessed, or a rendering difference nobody meant. Never with the
+      # rebaseline flag: a pipeline that rebaselines its own goldens cannot
+      # fail, and tools/check_golden_lane.sh proves that in both directions.
+      - name: the specimen goldens match
+        run: flutter test --tags golden --reporter expanded
+
+      # Contract: the comparator's 0.05% tolerance has been SEEN to reject a
+      # real change. Byte-exact comparison across machines measures Skia's
+      # rasteriser rather than the design — 70 of 88 differ by 1-21px between
+      # two macOS builds — so the comparison is bounded; a bound nobody has
+      # watched go red is a tolerance, not a gate. This shifts one palette
+      # value by a single hex step, which no person can see, and asserts the
+      # lane fails.
+      - name: the golden tolerance has been seen to fail
+        run: bash tools/check_goldens_selftest.sh
+
+      # Contract: a failed golden is reviewable. The comparator writes the
+      # actual/expected/diff triple, and without this they die with the runner.
+      - name: keep the failure images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures
+          path: test/ui/calm/goldens/failures/
+          if-no-files-found: ignore
 
   build:
     name: android build

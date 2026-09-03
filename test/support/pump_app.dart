@@ -18,6 +18,16 @@ import 'package:odova/app/providers.dart';
 /// dark screenshot against a light reference on somebody else's machine, which
 /// `calm-visual-parity` says is almost always the test rather than the screen.
 ///
+/// [textScaler], [boldText] and [accessibleNavigation] are the three
+/// accessibility axes SPEC.md §17's gate varies. They are arguments rather
+/// than a MediaQuery each test builds, because a MediaQuery built inside the
+/// app sits BELOW MaterialApp and is overridden by the one the app inserts.
+///
+/// All three are NULLABLE and default to null, which `copyWith` ignores. A
+/// default of `TextScaler.noScaling` would silently pin every test to 100%
+/// and override a scale set on the platform dispatcher — a harness that
+/// clamps makes every large-text test pass by not testing anything.
+///
 /// The text scaler is deliberately NOT clamped. SPEC.md §17's accessibility
 /// gate needs 200% to be reachable, and `MediaQuery.withClampedTextScaling` in
 /// a harness makes every large-text test pass without testing anything.
@@ -33,6 +43,10 @@ Future<void> pumpApp(
   Locale? locale,
   ThemeMode themeMode = ThemeMode.light,
   List<Override> overrides = const [],
+  TextScaler? textScaler,
+  bool? boldText,
+  bool? accessibleNavigation,
+  bool settle = true,
 }) async {
   assert(
     themeMode != ThemeMode.system,
@@ -44,9 +58,30 @@ Future<void> pumpApp(
     ProviderScope(
       overrides: overrides,
       retry: noProviderRetry,
-      child: OdovaApp(locale: locale, themeMode: themeMode, home: child),
+      // The MediaQuery sits ABOVE the app, not inside it: MaterialApp inserts
+      // none of its own, so this is the nearest ancestor and it wins. It is
+      // built from `copyWith` rather than a bare MediaQueryData so the surface
+      // `useDevice` pinned is not zeroed.
+      child: Builder(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: textScaler,
+            boldText: boldText,
+            accessibleNavigation: accessibleNavigation,
+          ),
+          child: OdovaApp(locale: locale, themeMode: themeMode, home: child),
+        ),
+      ),
     ),
   );
+  // A repeating animation NEVER settles — a spinner, a shimmer, a pulsing due
+  // dot. `settle: false` is the escape, and it is one pump rather than a
+  // longer timeout, because waiting on something that cannot finish is not a
+  // slower test, it is a different test.
+  if (!settle) {
+    await tester.pump();
+    return;
+  }
   // Bounded on purpose. The default pumpAndSettle runs to a TEN MINUTE timeout
   // against a repeating animation, so the first looping Calm animation on a
   // pumped screen would turn one test into a ten-minute hang instead of a fast

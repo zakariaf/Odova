@@ -336,4 +336,166 @@ assert 1 "check_calm_layering is red on raw Material in a feature" \
 restore_all
 assert 0 "check_calm_layering is green again once removed" bash "$LAYER" lib
 
+HYGIENE=.claude/skills/calm-components/scripts/check_component_hygiene.sh
+TARGETS=.claude/skills/calm-layout-and-motion/scripts/check_touch_targets.sh
+STATUS=.claude/skills/calm-due-state-and-status/scripts/check_status_encoding.sh
+
+assert 0 "check_component_hygiene is green over the real lib/" bash "$HYGIENE" lib
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: Calm's press is a scale-and-tint, not a ripple.
+Widget probe() => InkWell(onTap: () {}, child: const SizedBox.shrink());
+PROBE
+assert 1 "check_component_hygiene is red on an InkWell" bash "$HYGIENE" lib
+restore_all
+
+assert 0 "check_touch_targets is green" bash "$TARGETS" lib test
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: 44 is accessibility-as-code's floor, not Calm's 52.
+const probe = ButtonStyle(minimumSize: WidgetStatePropertyAll(Size(44, 44)));
+PROBE
+assert 1 "check_touch_targets is red on a 44pt control" bash "$TARGETS" lib test
+restore_all
+
+# Rule 4 is scoped to the test CASE. A file may hold one reduced-motion case
+# beside a dozen live-animation ones; only the reduced one may not settle.
+write_scratch test/ui/selftest_probe_test.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('a live animation may settle', (tester) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a reduced-motion case may not', (tester) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: SizedBox.shrink(),
+      ),
+    );
+  });
+}
+PROBE
+assert 0 "check_touch_targets allows pumpAndSettle in a LIVE case beside a reduced one" \
+  bash "$TARGETS" lib test
+restore_all
+
+write_scratch test/ui/selftest_probe_test.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('a reduced-motion case that settles asserts nothing', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: SizedBox.shrink(),
+      ),
+    );
+    await tester.pumpAndSettle();
+  });
+}
+PROBE
+assert 1 "check_touch_targets is red on pumpAndSettle INSIDE a reduced-motion case" \
+  bash "$TARGETS" lib test
+restore_all
+assert 0 "check_touch_targets is green again once removed" bash "$TARGETS" lib test
+
+# The SAME violation, written the way a real test is written: with a nested
+# closure before the pumpAndSettle. The first version of rule 4 ended the case
+# at the first line matching `});`, which is the close of any inner closure —
+# so this shape defeated the rule entirely while the arm above stayed green.
+write_scratch test/ui/selftest_probe_test.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('a reduced-motion case with a nested closure', (tester) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: SizedBox.shrink(),
+      ),
+    );
+    addTearDown(() {
+      debugPrint('a nested closure that closes with a brace-paren');
+    });
+    await tester.pumpAndSettle();
+  });
+}
+PROBE
+assert 1 "check_touch_targets sees past a nested closure in the same case" \
+  bash "$TARGETS" lib test
+restore_all
+assert 0 "check_touch_targets is green again" bash "$TARGETS" lib test
+
+assert 0 "check_status_encoding is green" bash "$STATUS" lib
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_status.dart';
+
+/// A planted violation: only calm_status.dart may switch on a DueState.
+Color probe(DueState state) => switch (state) {
+  DueState.overdue => const Color(0xFF000000),
+  DueState.due => const Color(0xFF000000),
+  DueState.dueSoon => const Color(0xFF000000),
+  DueState.ok => const Color(0xFF000000),
+  DueState.unknown => const Color(0xFF000000),
+  DueState.needsOdometer => const Color(0xFF000000),
+};
+PROBE
+assert 1 "check_status_encoding is red on a widget switching on DueState" \
+  bash "$STATUS" lib
+restore_all
+assert 0 "check_status_encoding is green again once removed" bash "$STATUS" lib
+
+echo "== check_golden_lane =="
+GOLDEN=tools/check_golden_lane.sh
+assert 0 "check_golden_lane is green on the real workflow" bash "$GOLDEN"
+
+# Arm 1: the lane is gone. A `--exclude-tags golden` with nothing running them
+# leaves 88 committed PNGs that nothing ever compares.
+write_scratch .selftest_no_lane.yml <<'YML'
+jobs:
+  app:
+    steps:
+      - run: flutter test --exclude-tags golden
+YML
+assert 1 "check_golden_lane is red with no golden lane" \
+  bash "$GOLDEN" .selftest_no_lane.yml
+
+# Arm 2: the lane rebaselines itself, which makes it incapable of failing.
+# Written with the flag split, so this file does not contain it either.
+UPD='--update''-goldens'
+write_scratch .selftest_self_bless.yml <<YML
+jobs:
+  app:
+    steps:
+      - run: flutter test --tags golden $UPD
+YML
+assert 1 "check_golden_lane is red when CI rebaselines its own goldens" \
+  bash "$GOLDEN" .selftest_self_bless.yml
+restore_all
+
+# The scan has to reach .claude/skills too: five of the scripts CI invokes live
+# there, including the parity script. It used to look only at .github and tools.
+write_scratch .claude/skills/selftest-probe/scripts/rebaseline.sh <<SH
+#!/usr/bin/env bash
+flutter test --tags golden $UPD
+SH
+assert 1 "check_golden_lane is red on a skill script that rebaselines" \
+  bash "$GOLDEN"
+restore_all
+rmdir .claude/skills/selftest-probe/scripts .claude/skills/selftest-probe 2>/dev/null || true
+assert 0 "check_golden_lane is green again" bash "$GOLDEN"
+assert 0 "check_golden_lane is green again" bash "$GOLDEN"
+
 exit "$rc"
