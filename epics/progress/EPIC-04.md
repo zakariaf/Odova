@@ -121,3 +121,18 @@
   Toman is a branch inside the formatter and nothing else in the app knows about
   it: the stored integer stays IRR minor units, and a grep test asserts `IRT`
   — which is not an ISO 4217 code — appears nowhere in `lib/` or `test/`.
+
+- 4.7 bidi — `lib/l10n/bidi.dart` holds the one isolation helper set (`isolate`
+  FSI, `isolateLtr` LRI, `isolateRtl` RLI) plus `stripBidi`, used at opposite
+  ends: isolation on the way to a pixel, stripping on the way to storage, an
+  export, a search index or a semantics label. 13 tests over SPEC §5 testing
+  item 5's three-fixture corpus verbatim.
+
+  A grep test bans the legacy `LRE`/`RLE`/`LRO`/`RLO`/`PDF` embeddings from
+  `lib/` — they do not nest, they leak across a string boundary, and an
+  unbalanced one reorders the rest of the paragraph.
+
+  **Not yet wired:** there is no persistence layer (EPIC-05) and no export
+  mapping (EPIC-15), so "no control reaches storage" and "no control reaches an
+  export" are asserted at the helper boundary rather than through those layers.
+  The corpus and the assertions are ready for both; recorded as deferred.

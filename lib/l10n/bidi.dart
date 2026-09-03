@@ -24,12 +24,32 @@ const bidiControls = <String>{
   '\u202A', '\u202B', '\u202C', '\u202D', '\u202E', // the embeddings
 };
 
+/// Left-to-right isolate.
+const leftToRightIsolate = '\u2066';
+
+/// Right-to-left isolate.
+const rightToLeftIsolate = '\u2067';
+
 /// Wraps [text] so it cannot reorder against the paragraph around it.
 ///
 /// FSI rather than LRI or RLI: the run's own direction is whatever its first
 /// strong character says, so one function serves a Latin workshop name inside
 /// a Persian sentence AND a Persian note inside an English one.
 String isolate(String text) => '$firstStrongIsolate$text$popDirectionalIsolate';
+
+/// Wraps [text] as a left-to-right run, whatever it starts with.
+///
+/// For a code: a VIN, a plate, a filename, a version string. These are LTR
+/// even on an RTL screen, and first-strong would flip a plate that begins with
+/// a Persian digit. Prefer a KNOWN direction wherever there is one — first
+/// strong mis-guesses on leading punctuation and on leading digits, which are
+/// directionally weak.
+String isolateLtr(String text) =>
+    '$leftToRightIsolate$text$popDirectionalIsolate';
+
+/// Wraps [text] as a right-to-left run, whatever it starts with.
+String isolateRtl(String text) =>
+    '$rightToLeftIsolate$text$popDirectionalIsolate';
 
 /// Removes every bidi control from [text].
 ///
