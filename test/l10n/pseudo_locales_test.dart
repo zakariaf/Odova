@@ -162,4 +162,51 @@ void main() {
     expect(supported, isNot(contains('XA')));
     expect(supported, isNot(contains('XB')));
   });
+
+  group('the accent table itself', () {
+    test('every ASCII letter maps to exactly one accented letter', () {
+      // Two entries were wrong and neither showed up in the output as
+      // anything but slightly odd text. `q` mapped to `' q'` — an accented
+      // letter with a SPACE in front of it, which inserts a word break the
+      // English never had, and lengthens the string by a character that has
+      // nothing to do with the deliberate padding. `Q` mapped to itself, so
+      // the one letter in the alphabet that never changed was invisible in a
+      // sea of letters that did. A pseudo-locale exists to make an
+      // untranslated string obvious; a table that quietly passes a character
+      // through defeats it at exactly one letter.
+      const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+      for (final c in [
+        ...alphabet.split(''),
+        ...alphabet.toUpperCase().split(''),
+      ]) {
+        final mapped = accentFor(c);
+        expect(mapped, isNotNull, reason: '$c is not in the table');
+        expect(
+          mapped!.runes,
+          hasLength(1),
+          reason: '$c -> "$mapped" is not one character',
+        );
+        expect(mapped, isNot(c), reason: '$c maps to itself');
+        expect(
+          mapped.trim(),
+          mapped,
+          reason: '$c -> "$mapped" carries whitespace',
+        );
+      }
+    });
+
+    test('no two letters collide', () {
+      // A collision makes the pseudo-locale ambiguous to read back, which is
+      // how you end up unable to tell `l` from `I` in a bug report.
+      const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+      final mapped = [
+        for (final c in [
+          ...alphabet.split(''),
+          ...alphabet.toUpperCase().split(''),
+        ])
+          accentFor(c)!,
+      ];
+      expect(mapped.toSet(), hasLength(mapped.length));
+    });
+  });
 }

@@ -249,6 +249,30 @@ void main() {
       expect(bucketRelativeDays(90).count, 3);
     });
 
+    test("SPEC's two rows overlap at -1, and the +/-1 row wins", () {
+      // SPEC.md §5's table lists both `+/-1 day -> "Yesterday"` and
+      // `overdue -> "{n} days overdue"`, and a date one day past matches both.
+      // The rows are in order and the +/-1 row comes first, so that is the one
+      // that fires. Written down here because the consequence is invisible
+      // otherwise: `dateDaysOverdue`'s `one` branch is unreachable in all six
+      // locales, since the only count that could select it never reaches the
+      // message. The branch STAYS — CLDR requires `one` for every locale that
+      // has it and the ARB gate enforces exactly that, so deleting it would
+      // trade an unreachable branch for a message that throws if it is ever
+      // reached.
+      expect(bucketRelativeDays(-1).bucket, RelativeDateBucket.yesterday);
+      expect(bucketRelativeDays(-2).bucket, RelativeDateBucket.overdue);
+      expect(bucketRelativeDays(-2).count, 2);
+
+      final counts = [
+        for (var d = -400; d < 0; d++)
+          if (bucketRelativeDays(d).bucket == RelativeDateBucket.overdue)
+            bucketRelativeDays(d).count,
+      ];
+      expect(counts, isNot(contains(1)));
+      expect(counts.reduce((a, b) => a < b ? a : b), 2);
+    });
+
     test('overdue is a separate bucket with a positive count', () {
       // Never a negative relative time: "in -12 days" is not a sentence
       // anybody says, and passing a negative delta to a relative formatter is

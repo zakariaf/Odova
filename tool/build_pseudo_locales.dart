@@ -36,7 +36,7 @@ const _accents = <String, String>{
   'n': 'ǹ',
   'o': 'ǿ',
   'p': 'ƥ',
-  'q': ' q',
+  'q': 'ʠ',
   'r': 'ř',
   's': 'ŝ',
   't': 'ţ',
@@ -62,7 +62,7 @@ const _accents = <String, String>{
   'N': 'Ǹ',
   'O': 'Ǿ',
   'P': 'Ƥ',
-  'Q': 'Q',
+  'Q': 'Ǫ',
   'R': 'Ř',
   'S': 'Ŝ',
   'T': 'Ţ',
@@ -153,6 +153,14 @@ int _matchingBrace(String s, int open) {
 /// Catches a hard-coded string — anything that comes back unaccented never
 /// went through the translation layer — and catches truncation at the same
 /// time.
+/// The accented form of a single ASCII letter, or null.
+///
+/// Exposed so a test can walk the whole alphabet: two entries were wrong for
+/// the whole life of this file and neither was visible in the output — `q`
+/// carried a leading SPACE, and `Q` mapped to itself, so the one letter that
+/// never changed was invisible among twenty-five that did.
+String? accentFor(String character) => _accents[character];
+
 String pseudoAccented(String message) {
   String accent(String run) =>
       run.split('').map((c) => _accents[c] ?? c).join();
