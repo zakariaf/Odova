@@ -58,9 +58,11 @@ else in the app exists to make that answer correct.
 
 ## Repo state
 
-**Specification stage.** `SPEC.md` is complete and is the source of truth; the
-Flutter app has not been created yet. CI runs the repo gates today and arms its
-Flutter lane automatically the moment `pubspec.yaml` exists.
+**Scaffold stage.** `SPEC.md` is complete and is the source of truth. The
+Flutter app exists and is empty on purpose: it launches, it speaks six
+languages, and every gate around it is armed and has been seen to fail. There
+is no theme, no database and no screen yet — those are EPIC-02 onward. All
+three CI lanes run: `repo gates`, `flutter`, `android build`.
 
 | File | What it is |
 |---|---|
@@ -69,6 +71,7 @@ Flutter lane automatically the moment `pubspec.yaml` exists.
 | [`design/`](design/README.md) | Three candidate design systems, each covering all 28 screens, with 340 reference screenshots in light/dark and LTR/RTL. |
 | [`epics/`](epics/README.md) | 19 executable build epics derived from the spec — 182 TDD tasks, each screen task gated against its reference screenshot. |
 | [`.claude/`](.claude/README.md) | 47 Flutter engineering skills — 40 vendored, 7 written here for the Calm design system. |
+| `lib/` | The app. Seven directories with a stated owner each — `app core data features l10n theme ui` — and a policy test that keeps the list at seven. |
 | `tools/` | Repo gates, the design mockup pipeline, and the app-name availability checker. |
 
 Start with **§1 Who it is for** and **§2 Non-negotiables**. If you are about to
@@ -88,7 +91,15 @@ Repo gates, which run with no Flutter toolchain at all:
 ```bash
 bash tools/check_gates_selftest.sh    # proves each gate can fail
 bash tools/check_release_hygiene.sh   # no signing material, tree or history
+bash tools/check_dependabot.sh        # the pub block is armed, not commented
 python3 tools/check_spec_examples.py  # SPEC.md's JSON examples parse
+```
+
+Gates that need the resolved dependency tree, so a `flutter pub get` first:
+
+```bash
+bash tools/audit_deps.sh              # no dependency opens a network path
+bash tools/check_lint_include.sh      # the lint ruleset is actually loaded
 ```
 
 ## Contributing

@@ -84,4 +84,13 @@ assert 1 "red when pubspec.lock is missing" bash tools/audit_deps.sh
 mv .pubspec.lock.bak pubspec.lock
 assert 0 "green again once the lock is back" bash tools/audit_deps.sh
 
+echo "== check_dependabot =="
+assert 0 "green on the live pub block" bash tools/check_dependabot.sh
+cp .github/dependabot.yml .dependabot.yml.bak
+# Re-comment it exactly the way a hurried commit would.
+perl -0pi -e 's|^(  - package-ecosystem: pub$)|  # $1|m' .github/dependabot.yml
+assert 1 "red when the pub block is commented out again" bash tools/check_dependabot.sh
+mv .dependabot.yml.bak .github/dependabot.yml
+assert 0 "green again once restored" bash tools/check_dependabot.sh
+
 exit "$rc"

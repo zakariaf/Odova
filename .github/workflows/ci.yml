@@ -4,11 +4,11 @@ name: ci
 # that enforces it. A check with no contract behind it is gate-sprawl and does
 # not belong here.
 #
-# The repo currently holds the specification and its tooling; the Flutter app
-# has not been created yet. The `app` job below therefore GUARDS ITSELF on the
-# presence of pubspec.yaml and skips cleanly until it exists. That is deliberate
-# and honest: a pipeline that greps for nothing and reports green is worse than
-# one that says which lane is not yet armed.
+# The `app` and `build` jobs GUARD THEMSELVES on the presence of pubspec.yaml.
+# EPIC-01 created it, so all three lanes run today; the guard stays because a
+# pipeline that greps for nothing and reports green is worse than one that says
+# which lane is not armed, and because it is what made the repo lane meaningful
+# before there was an app.
 #
 # WHAT THIS PIPELINE CANNOT PROVE, stated plainly so the manual pass stays
 # load-bearing:
@@ -42,11 +42,12 @@ jobs:
     outputs:
       has_app: ${{ steps.detect.outputs.has_app }}
     steps:
+      # Contract: the gates below can see the whole of history.
+      # check_release_hygiene.sh walks `git log --all` for a credential that
+      # was committed and later deleted. A shallow clone cannot see one, and
+      # the gate would report OK over a leaked key.
       - uses: actions/checkout@v7
         with:
-          # check_release_hygiene.sh walks `git log --all` for a credential that
-          # was committed and later deleted. A shallow clone cannot see one, and
-          # the gate would report OK over a leaked key.
           fetch-depth: 0
 
       # Contract: every gate here has been SEEN to fail. A gate that has only
@@ -75,12 +76,26 @@ jobs:
           python3 -m pip install --quiet pyyaml
           python3 tools/check_skill_frontmatter.py
 
+      # Contract: the pub ecosystem block in .github/dependabot.yml is live
+      # and grouped. It shipped commented out because Dependabot aborts on a
+      # missing pubspec.yaml; pubspec.yaml exists now, and this is what stops
+      # the block being re-commented in a hurry.
+      - name: dependabot watches pub
+        run: bash tools/check_dependabot.sh
+
+      # Contract: every gate in tools/ still parses. A gate with a syntax
+      # error exits non-zero for the wrong reason, or — worse, for a Python
+      # one imported rather than run — not at all.
       - name: python tooling compiles
         run: python3 -m compileall -q tools/
 
+      # Contract: same, for the shell gates.
       - name: shell scripts are syntactically valid
         run: for f in tools/*.sh; do bash -n "$f" || exit 1; done
 
+      # Contract: the Flutter lane is armed by the presence of pubspec.yaml,
+      # and says out loud when it is not. A pipeline that greps for nothing and
+      # reports green is worse than one that names the lane it did not run.
       - id: detect
         name: is there a Flutter app yet?
         run: |
@@ -120,6 +135,24 @@ jobs:
       # re-resolve, and CI then reports green over a version set nobody reviewed.
       - run: flutter pub get --enforce-lockfile
 
+      # Contract: SPEC.md §2 — no dependency opens a network path, directly or
+      # transitively, and the committed lock is the pin. This lives in the app
+      # job rather than the repo job because it needs the RESOLVED tree:
+      # direct-only inspection of pubspec.yaml cannot see the second hop, which
+      # is exactly where a banned SDK arrives.
+      - name: no dependency opens a network path
+        run: bash tools/audit_deps.sh
+
+      # Contract: the lint ruleset is actually loaded. analysis_options.yaml
+      # names a VERSIONED file inside very_good_analysis; if that file is not
+      # there, analysis runs with zero added rules and the step below reports
+      # green over a codebase nobody is checking. Needs .dart_tool/, so it runs
+      # after pub get. (audit_deps.sh delegates to the same script; this step
+      # exists so the failure has its own name in the log — it is the silent
+      # one.)
+      - name: the lint include resolves
+        run: bash tools/check_lint_include.sh
+
       # Contract: whitespace is not a review topic.
       - run: dart format --output=none --set-exit-if-changed .
 
@@ -139,6 +172,15 @@ jobs:
       # rasterisation differs, and a gate that goes red for the host instead of
       # the code is a gate that gets switched off.
       - run: flutter test --coverage --test-randomize-ordering-seed random --exclude-tags golden --reporter expanded
+
+      # Contract: the published coverage report covers only code somebody
+      # wrote. Generated code is large and fully exercised by its callers, so
+      # leaving it in inflates the number by thousands of lines. The globs are
+      # read from analysis_options.yaml, never retyped — a coverage filter that
+      # drifts from the analyzer excludes lies the number upward. Coverage is a
+      # report and never a gate: there is no threshold anywhere in this file.
+      - name: strip generated code from the coverage report
+        run: bash tools/strip_generated_from_lcov.sh coverage/lcov.info
 
       - uses: actions/upload-artifact@v7
         if: always()
