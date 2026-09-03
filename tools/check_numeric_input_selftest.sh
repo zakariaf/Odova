@@ -9,7 +9,11 @@
 # Plain string replacement rather than a regex, because the strings being
 # mutated are themselves Arabic separators and escaping them through two shells
 # and a regex engine is how a mutation silently stops applying — which is a
-# self-test that reports "ok" for a mutation that never happened.
+# self-test that reports "ok" for a mutation that never happened. The source
+# spells them as \uXXXX escapes for the same reason, so no Arabic character
+# has to survive this file at all. `mutate` exits 2 when its find string is
+# absent, which is what turned a later refactor into a CI failure rather than
+# into two mutations quietly not running.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 rc=0
@@ -54,15 +58,23 @@ mutate "red when the rightmost-separator rule is flipped" \
 # Without this mapping a Persian keyboard's ٫ and ٬ survive into the reject
 # branch and every fa amount is refused.
 mutate "red when the Arabic decimal separator stops mapping" \
-  ".replaceAll('٫', ',')" \
-  ".replaceAll('ZZ', ',')"
+  "replaceAll('\\u066B', ',')" \
+  "replaceAll('ZZ', ',')"
 
 # The locale's grouping character is the only locale knowledge this function
 # has. Ignoring it makes 1.234 in English 1234 rather than one point two three
 # four.
 mutate "red when the grouping separator is ignored" \
-  "separator == groupingSeparator && tail.length == 3" \
+  "separator == grouping && tail.length == 3" \
   "tail.length == 3"
+
+# The thousandfold bug. The input's separators are folded to ASCII on line 3
+# and the caller's grouping separator arrives raw, so comparing them without
+# folding the argument too is a comparison that is never true for fa, ar or
+# ckb — and a grouped Persian ۱٬۲۳۴ reads as 1.234. On the odometer.
+mutate "red when the grouping separator itself is not folded" \
+  "final grouping = _toAsciiSeparators(groupingSeparator);" \
+  "final grouping = groupingSeparator;"
 
 # SPEC's pseudocode stops before this check; without it 1,23,456 becomes
 # 123456, which is a guess at a grouping none of the six locales use.
