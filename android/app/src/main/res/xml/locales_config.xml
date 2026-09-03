@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The six locales, for Android 13's per-app language picker.
+
+  Without this the picker does not list Odova at all, and a user whose phone is
+  in English but who wants the app in Persian has no way to say so from the OS.
+  SPEC.md §13 gives them an in-app override too, but the OS route is the one
+  they will look for first.
+
+  ckb is here even though Android's own resource resolver does not know it: the
+  tag reaches Flutter through the platform locale list, and lib/l10n/ resolves
+  it. An OS that cannot name the language can still pass it along.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="de" />
+    <locale android:name="fr" />
+    <locale android:name="fa" />
+    <locale android:name="ar" />
+    <locale android:name="ckb" />
+</locale-config>
