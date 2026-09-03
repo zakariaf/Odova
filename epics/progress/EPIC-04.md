@@ -101,3 +101,23 @@
   Also caught: reading the leap flag *after* decrementing the year in
   `jdnToJalali`, a one-day error on every date in the last three months of a
   leap year.
+
+- 4.6 money and units — `lib/core/money.dart` (the minimum EPIC-06 will extend
+  rather than replace), `lib/l10n/money_format.dart`, `unit_format.dart` and
+  `bidi.dart`. 11 tests.
+
+  **`NumberFormat.currency(name: 'USD')` renders `USD1,234.56`,** not
+  `$1,234.56`, and does it without an error — the `name` is used AS the symbol
+  unless one is supplied. `simpleCurrency` is the one that reads CLDR's symbol.
+  Caught by asserting SPEC §5's table verbatim rather than "starts with a
+  symbol".
+
+  **Gate fix:** `check_type_floor.sh`'s ARB digit rule flagged
+  `"example": "3"` inside a `@key` placeholder block — metadata, not translated
+  copy, and the example is FOR the digit. The rule now matches top-level message
+  keys only (two spaces of indent in a 2-space-pretty-printed ARB). Both arms
+  re-verified: a real `"L/100 km"` still fails it.
+
+  Toman is a branch inside the formatter and nothing else in the app knows about
+  it: the stored integer stays IRR minor units, and a grep test asserts `IRT`
+  — which is not an ISO 4217 code — appears nowhere in `lib/` or `test/`.

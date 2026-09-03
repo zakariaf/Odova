@@ -33,8 +33,13 @@ fi
 # {placeholder}; any digit left in the value was baked into a translation. awk
 # re-strips the file:line prefix so its own digits cannot false-positive.
 if [ -d "$L10N" ]; then
+  # TOP-LEVEL message keys only — exactly two spaces of indent in a
+  # 2-space-pretty-printed ARB. A `@key` metadata block is not translated copy:
+  # its `example` field is FOR the digit ("example": "3" on a plural's count),
+  # and flagging it made the gate refuse the very thing SPEC.md §5 asks
+  # translators to be given.
   report "digit baked into a translated string — use a {placeholder}" \
-    "$(grep -Hn '^[[:space:]]*"[A-Za-z][A-Za-z0-9_.]*"[[:space:]]*:[[:space:]]*"' \
+    "$(grep -Hn '^  "[A-Za-z][A-Za-z0-9_]*"[[:space:]]*:[[:space:]]*"' \
         "$L10N"/app_*.arb 2>/dev/null \
       | sed -E 's/^([^:]*:[0-9]+:)[[:space:]]*"[^"]*"[[:space:]]*:[[:space:]]*/\1/; s/=[0-9]+//g; s/\{[^}]*\}//g' \
       | awk '{ v = $0; sub(/^[^:]*:[0-9]+:/, "", v);
