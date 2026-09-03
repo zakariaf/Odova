@@ -379,6 +379,10 @@ void main() {
         // exempt like the button's; the PLACEHOLDER is not, and it fails at
         // the same 2.60 / 2.23 the chevron does — see the ink4 pairs above.
         'lib/ui/calm/calm_field.dart',
+        // `.modal-head__action.is-disabled` — disabled text, SC 1.4.3 exempt.
+        // SPEC.md §10 forbids a disabled Save on the five log.* forms; the
+        // state exists for the other modal heads.
+        'lib/ui/calm/calm_scaffold.dart',
       },
       reason:
           'a new ink4 use — or a removed one. Every call site is declared '

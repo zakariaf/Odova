@@ -26,3 +26,13 @@
   The (mark, label) pair is unique and that is what is asserted; the collision is
   pinned so a future design fix goes red. Third occurrence of the doubled
   `semanticLabel` defect.
+- 3.6 input kit — `CalmField`, `CalmStepper`, `CalmSwitch`, `CalmSegmented`; 26
+  tests. Reference example missing the `ƒ` badge, `onChanged`, the merged
+  semantics node and `didUpdateWidget` for a changing `focusNode` (a real leak).
+  Field height was 58 until the line-height came from `.input` (1.4) rather than
+  the type role (1.5). `TextField` needs a transparent `Material`.
+  **Gate limit noted:** `check_calm_rejects.sh`'s `min(Height|Width):` rule only
+  matches bare literals, so every Calm widget's named size constant is invisible
+  to it. The real floor is measured by `getSize` per widget, and task 3.11's
+  matrix does it at five text scales — that is where the floor is actually
+  enforced.
