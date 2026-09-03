@@ -73,6 +73,36 @@ void main() {
     expect(missing, isEmpty);
   });
 
+  test('every foreign key states what happens on delete', () async {
+    // SQLite's default is NO ACTION, which is not a decision — it is the
+    // absence of one, and it shows up as a constraint failure at delete time
+    // rather than as the cascade or the detach the design intended. SPEC.md §3
+    // specifies both behaviours by name: a vehicle CASCADES to its history, and
+    // a deleted ServiceItem SETS NULL on its lines so the work that was
+    // actually done survives.
+    final offenders = <String>[];
+    for (final MapEntry(key: table, value: sql) in (await schemas()).entries) {
+      final foreignKeys = await db
+          .customSelect('PRAGMA foreign_key_list($table);')
+          .get();
+
+      for (final key in foreignKeys) {
+        final column = key.read<String>('from');
+        final onDelete = key.read<String>('on_delete');
+        if (onDelete == 'NO ACTION') {
+          offenders.add('$table.$column');
+        }
+      }
+      // And the action is written in the schema text, so a reviewer reading
+      // the table file sees it rather than having to ask SQLite.
+      if (foreignKeys.isNotEmpty && !sql.contains('ON DELETE')) {
+        offenders.add('$table (no ON DELETE in the CREATE TABLE)');
+      }
+    }
+
+    expect(offenders, isEmpty);
+  });
+
   test('no column stores a derived value', () async {
     // SPEC.md §2: derived values are never persisted. Consumption, cost per
     // km, monthly totals, next-due dates, due status and the CUMULATIVE
