@@ -39,7 +39,7 @@ DEPS_JSON=""
 REQUIRE_GRAPH=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --deps) DEPS_JSON="$2"; shift 2 ;;
+    --deps) DEPS_JSON="${2:?--deps needs a path to a dart pub deps --json document}"; shift 2 ;;
     --require-graph) REQUIRE_GRAPH=1; shift ;;
     -h|--help) sed -n '3,35p' "$0"; exit 0 ;;
     *) printf 'audit_deps: unknown argument %s\n' "$1" >&2; exit 2 ;;
@@ -81,13 +81,25 @@ elif command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev
 fi
 
 # 2) no exact pins in pubspec.yaml -------------------------------------------
-# Flags bare OR quoted version pins like `drift: 2.31.0` / `drift: '2.31.0'`.
-# Allows `^`, ranges, `path:`/`git:` blocks, and the `environment:` keys
-# (`sdk:`/`flutter:`, which are pinned there on purpose, not dependency pins).
+# Flags bare OR quoted version pins in both shapes a pubspec can carry them:
+#
+#   drift: 2.31.0              <- the flat form, two-space indent
+#   drift:
+#     hosted: https://pub.dev
+#     version: 2.31.0          <- the nested form, deeper indent
+#
+# The second is the one a two-space-indent grep cannot see, and it is the shape
+# every hosted-with-an-explicit-server and git dependency uses. Allows `^`,
+# ranges, `path:`/`git:` blocks, the top-level `version:` (the app's OWN
+# version, at zero indent) and the `environment:` keys (`sdk:`/`flutter:`,
+# pinned there on purpose and not dependency pins).
 if [[ -f pubspec.yaml ]]; then
-  pins="$(grep -nE "^[[:space:]]{2}[a-z0-9_]+:[[:space:]]+['\"]?[0-9]+\.[0-9]+" pubspec.yaml \
+  flat="$(grep -nE "^[[:space:]]{2}[a-z0-9_]+:[[:space:]]+['\"]?[0-9]+\.[0-9]+" pubspec.yaml \
             | grep -vE ":[[:space:]]+['\"]?\^" \
             | grep -vE '^[0-9]+:[[:space:]]{2}(flutter|sdk):' || true)"
+  nested="$(grep -nE "^[[:space:]]{4,}version:[[:space:]]+['\"]?[0-9]+\.[0-9]+" pubspec.yaml \
+            | grep -vE ":[[:space:]]+['\"]?\^" || true)"
+  pins="$(printf '%s\n%s\n' "$flat" "$nested" | grep -v '^[[:space:]]*$' || true)"
   if [[ -n "$pins" ]]; then
     bad "exact version pin(s) in pubspec.yaml — use caret ranges (^x.y.z):"
     printf '        %s\n' "$pins"

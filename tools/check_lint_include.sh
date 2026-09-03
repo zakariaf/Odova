@@ -22,7 +22,12 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 quiet=0
-if [ "${1:-}" = "--print-path" ]; then quiet=1; fi
+case "${1:-}" in
+  "") ;;
+  --print-path) quiet=1 ;;
+  # A typo'd flag must not silently run the default path and report ok.
+  *) echo "check_lint_include: unknown argument $1" >&2; exit 2 ;;
+esac
 say() { [ "$quiet" = 1 ] || printf '%s\n' "$*"; }
 
 options=analysis_options.yaml

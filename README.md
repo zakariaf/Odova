@@ -98,7 +98,9 @@ python3 tools/check_spec_examples.py  # SPEC.md's JSON examples parse
 Gates that need the resolved dependency tree, so a `flutter pub get` first:
 
 ```bash
-bash tools/audit_deps.sh              # no dependency opens a network path
+# --require-graph: without it the audit exits 0 when it cannot resolve the
+# tree, having walked nothing. CI passes it and so should you.
+bash tools/audit_deps.sh --require-graph   # no dependency opens a network path
 bash tools/check_lint_include.sh      # the lint ruleset is actually loaded
 ```
 

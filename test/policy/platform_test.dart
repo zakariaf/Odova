@@ -7,6 +7,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/l10n/supported_locales.dart';
 
 /// Every `AndroidManifest.xml` under `android/app/src/`, in any build variant.
 List<File> _androidManifests() => Directory('android/app/src')
@@ -17,6 +18,40 @@ List<File> _androidManifests() => Directory('android/app/src')
     .toList();
 
 void main() {
+  group('the six locales are reachable from the OS', () {
+    // SPEC.md §5 ships six locales. Declaring them in the app is not enough on
+    // iOS: the OS filters `[NSLocale preferredLanguages]` against the bundle's
+    // declared localizations before handing the list to the engine, so a locale
+    // absent from CFBundleLocalizations never reaches
+    // `PlatformDispatcher.locales` and `basicLocaleListResolution` never sees
+    // it. An iPhone set to Persian would launch Odova in English, LTR.
+    //
+    // test/l10n/supported_locales_test.dart cannot catch this: it passes an
+    // explicit `locale:` to OdovaApp and bypasses resolution entirely.
+    test('ios CFBundleLocalizations lists exactly the shipped locales', () {
+      final plist = File('ios/Runner/Info.plist').readAsStringSync();
+
+      final declared = RegExp(
+        r'<key>CFBundleLocalizations</key>\s*<array>(.*?)</array>',
+        dotAll: true,
+      ).firstMatch(plist);
+      expect(
+        declared,
+        isNotNull,
+        reason:
+            'Info.plist has no CFBundleLocalizations — iOS will offer only '
+            'CFBundleDevelopmentRegion',
+      );
+
+      expect(
+        RegExp(
+          r'<string>(\w+)</string>',
+        ).allMatches(declared!.group(1)!).map((m) => m.group(1)!).toSet(),
+        odovaSupportedLocales.map((l) => l.languageCode).toSet(),
+      );
+    });
+  });
+
   group('application identity', () {
     test('android applicationId is io.applander.odova', () {
       final gradle = File('android/app/build.gradle.kts').readAsStringSync();
@@ -26,6 +61,23 @@ void main() {
         gradle,
         isNot(contains('com.example')),
         reason: 'the flutter create default survived',
+      );
+    });
+
+    test('the launcher name is Odova on both platforms', () {
+      // A brand name, per app_en.arb's own metadata: identical in all six
+      // locales, never translated and never transliterated. `flutter create`
+      // writes the lowercase project name into the Android label, and it is
+      // what the launcher, the app switcher and Settings all show.
+      expect(
+        File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
+        contains('android:label="Odova"'),
+      );
+
+      final plist = File('ios/Runner/Info.plist').readAsStringSync();
+      expect(
+        plist,
+        contains('<key>CFBundleDisplayName</key>\n\t<string>Odova</string>'),
       );
     });
 

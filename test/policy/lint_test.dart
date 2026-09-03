@@ -127,7 +127,10 @@ analyzer:
         'SF:lib/thing.invented.dart\nDA:1,1\nend_of_record\n'
         // Excluded by the REAL options file, and by nothing in the temporary
         // one — so it must survive, or the filter is not reading the argument.
-        'SF:lib/l10n/gen/app_localizations.dart\nDA:1,1\nend_of_record\n',
+        // Deliberately no trailing newline: some coverage tools end the last
+        // record without one, and a split on 'end_of_record\\n' then leaves the
+        // marker inside the record and appends a second.
+        'SF:lib/l10n/gen/app_localizations.dart\nDA:1,1\nend_of_record',
       );
 
     final result = Process.runSync('bash', [
@@ -143,6 +146,12 @@ analyzer:
         multiLine: true,
       ).allMatches(lcov.readAsStringSync()).map((m) => m.group(1)!).toList(),
       ['lib/main.dart', 'lib/l10n/gen/app_localizations.dart'],
+    );
+    expect(
+      lcov.readAsStringSync(),
+      isNot(contains('end_of_recordend_of_record')),
+      reason:
+          'a record with no trailing newline was corrupted rather than kept',
     );
   });
 

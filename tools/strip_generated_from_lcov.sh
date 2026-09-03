@@ -61,7 +61,10 @@ def excluded(path: str) -> bool:
     return False
 
 
-records = lcov.read_text().split("end_of_record\n")
+# Split on the marker with an OPTIONAL newline: a file whose final record ends
+# `end_of_record` with no trailing newline would otherwise keep the literal
+# inside the record text and get a second one appended on write.
+records = re.split(r"end_of_record\n?", lcov.read_text())
 kept = []
 dropped = []
 for record in records:

@@ -84,7 +84,7 @@ needs to know.
    exports `RiverpodWidgetTesterX`, a `WidgetTester` extension, and `riverpod`
    declares `package:test` because `ProviderContainer.test()` calls its
    `addTearDown`. That put `web_socket` and `web_socket_channel` in the
-   shipping set. `NEVER_SHIPS` in `tools/audit_deps.py` stops the walk at
+   shipping set. `HARNESS_PACKAGES` in `tools/audit_deps.py` stops the walk at
    `flutter_test`, `integration_test`, `flutter_driver` and `test`; two
    self-test arms prove the same banned package is still caught when it is also
    reachable at runtime. If a later epic sees `web_socket` in the "build/test

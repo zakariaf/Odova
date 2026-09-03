@@ -14,6 +14,21 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<!-- SPEC.md §5 ships six locales. iOS filters preferredLanguages against
+	     this list before the engine sees it, so a locale missing here never
+	     reaches PlatformDispatcher.locales and an iPhone set to Persian would
+	     launch Odova in English, left-to-right.
+	     test/policy/platform_test.dart asserts this equals
+	     odovaSupportedLocales. -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>de</string>
+		<string>fr</string>
+		<string>fa</string>
+		<string>ar</string>
+		<string>ckb</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>odova</string>
 	<key>CFBundlePackageType</key>
