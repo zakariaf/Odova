@@ -67,3 +67,63 @@ String? tokenValue(String block, String name) => RegExp(
   '^\\s*${RegExp.escape(name)}:\\s*(.+?);',
   multiLine: true,
 ).firstMatch(block)?.group(1);
+
+/// One layer of a CSS `box-shadow`: `<dy>px <blur>px <spread>px rgba(...)`.
+typedef CssShadowLayer = ({
+  double dy,
+  double blur,
+  double spread,
+  double alpha,
+});
+
+/// The layers of `--elev-<level>` in [block].
+///
+/// CSS writes `0 2px 4px rgba(76, 50, 32, 0.05)` and omits the spread when it
+/// is zero, so the parser has to treat the third length as optional.
+List<CssShadowLayer> elevationLayers(String block, int level) {
+  final value = tokenValue(block, '--elev-$level');
+  if (value == null || value == 'none') return const [];
+
+  return [
+    for (final match in RegExp(
+      r'0 (-?[\d.]+)px (-?[\d.]+)px(?: (-?[\d.]+)px)? '
+      r'rgba\(\s*\d+,\s*\d+,\s*\d+,\s*([\d.]+)\s*\)',
+    ).allMatches(value))
+      (
+        dy: double.parse(match.group(1)!),
+        blur: double.parse(match.group(2)!),
+        spread: double.parse(match.group(3) ?? '0'),
+        alpha: double.parse(match.group(4)!),
+      ),
+  ];
+}
+
+/// Every `--space-*` and fixed-metric declaration in [block], as name → px.
+Map<String, double> pixelMetricsIn(String block) => {
+  for (final match in RegExp(
+    r'^\s*(--(?:space-\d+|screen-pad|appbar-h|statusbar-h|tabbar-h|homebar-h|'
+    r'touch-min|radius-[a-z0-9]+)):\s*(\d+)px;',
+    multiLine: true,
+  ).allMatches(block))
+    match.group(1)!: double.parse(match.group(2)!),
+};
+
+/// Every `--dur-*` declaration in [block], as name → milliseconds.
+Map<String, int> durationsIn(String block) => {
+  for (final match in RegExp(
+    r'^\s*(--dur-[a-z]+):\s*(\d+)ms;',
+    multiLine: true,
+  ).allMatches(block))
+    match.group(1)!: int.parse(match.group(2)!),
+};
+
+/// Every `--ease-*` declaration in [block], as name → its four control points.
+Map<String, List<double>> curvesIn(String block) => {
+  for (final match in RegExp(
+    r'^\s*(--ease-[a-z]+):\s*cubic-bezier\(([^)]+)\);',
+    multiLine: true,
+  ).allMatches(block))
+    match.group(1)!: [
+      for (final part in match.group(2)!.split(',')) double.parse(part.trim()),
+    ],
+};
