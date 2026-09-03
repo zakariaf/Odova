@@ -42,3 +42,14 @@
   on the tab bar contradicts `.tabbar`'s `box-shadow: 0 -1px 0 divider`; the CSS
   wins. `Container(alignment:)` made the app bar 600pt tall in a `Center`.
   Modal title was 5.1pt off centre until the Row's `mainAxisAlignment`.
+- 3.8 overlays — `CalmSheet`(+`.show`), `CalmDialog`, `CalmSnackbar`; 11 tests.
+  One shared `CalmOverlayTransition` reads the route animation so scrim and
+  surface cannot drift. The scrim-timing test was wrong twice before it was
+  right (animated barrier colour; tree presence vs. visibility). Added
+  `CalmMotion.undoWindow` — the one duration with no `--dur-*` token — because
+  two gates correctly refuse a bare `Duration(seconds: 6)` outside the theme.
+  **Deferred:** `showModalBottomSheet` contributes its own full-height slide
+  under Calm's 24pt rise. The rise, fade, durations and curves are all pinned;
+  the composite entry is a slide-plus-settle rather than the pure 24pt rise
+  odova.css describes. If the motion review rejects it, the fix is a custom
+  PopupRoute — not a tolerance change.

@@ -358,7 +358,15 @@ class CalmDirectionalIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glyph = Icon(icon, size: size, color: color);
+    // The glyph is drawn under a forced LTR so Flutter never mirrors it
+    // itself. Material's directional icons — backspace_outlined, arrow_back,
+    // undo — carry `matchTextDirection: true`, and an Icon that mirrors itself
+    // inside a Transform that also mirrors it comes out UNFLIPPED. One flip,
+    // decided here, whatever the glyph's own flag says.
+    final glyph = Directionality(
+      textDirection: TextDirection.ltr,
+      child: Icon(icon, size: size, color: color),
+    );
     if (Directionality.of(context) != TextDirection.rtl) return glyph;
     return Transform(
       alignment: Alignment.center,

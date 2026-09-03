@@ -227,6 +227,32 @@ void main() {
     expect(_focusRingShape(tester), isA<StadiumBorder>());
   });
 
+  testWidgets('a directional icon flips exactly once, whatever its own '
+      'matchTextDirection flag says', (tester) async {
+    // Icons.backspace_outlined carries matchTextDirection: true, so Flutter
+    // mirrors it on its own. An Icon that mirrors itself inside a Transform
+    // that also mirrors it comes out UNFLIPPED — and it looks right in English,
+    // which is where it gets reviewed.
+    for (final icon in [Icons.backspace_outlined, Icons.chevron_right]) {
+      await pumpApp(
+        tester,
+        Center(
+          child: CalmDirectionalIcon(
+            icon,
+            size: 24,
+            color: const Color(0xFF000000),
+          ),
+        ),
+        locale: const Locale('fa'),
+      );
+
+      final flips = tester
+          .widgetList<Transform>(find.byType(Transform))
+          .where((t) => t.transform.entry(0, 0) < 0);
+      expect(flips, hasLength(1), reason: '$icon');
+    }
+  });
+
   testWidgets('Enter and Space activate through ActivateIntent', (
     tester,
   ) async {
