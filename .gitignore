@@ -40,7 +40,14 @@ app.*.map.json
 /android/app/release
 
 # Golden diff artefacts. Written on a red run, never committed.
-**/failures/
+#
+# SCOPED to the goldens directory rather than `**/failures/`. The broad pattern
+# silently swallowed `lib/data/failures/`, the sealed PersistFailure family that
+# nine files in the data layer import — `git status` read clean, the branch
+# compiled locally, and a fresh clone would not have built at all. A gitignore
+# rule wide enough to catch a directory name somebody will legitimately want is
+# a rule that removes source from the repository without saying so.
+test/ui/calm/goldens/failures/
 
 # Python scratch (tools/)
 __pycache__/
