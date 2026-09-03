@@ -125,6 +125,76 @@ void main() {
       expect(parts.monthName, 'مهر');
     });
 
+    test('a Sorani projection uses the KURDISH month names', () {
+      // `ckb-IR` resolves to the Jalali calendar, and the first version handed
+      // it the PERSIAN month names — the same table, because the calendar was
+      // the same. It is not the same language. A Kurdish reader in Iran calls
+      // the seventh month ڕەزبەر, not مهر, and being shown the Persian name
+      // inside an otherwise Kurdish screen is the specific thing the six-locale
+      // rule exists to prevent.
+      final ckb = projectDate(
+        DateTime.utc(2026, 10, 14),
+        CalmCalendar.persian,
+        'ckb-IR',
+      );
+      expect((ckb.year, ckb.month, ckb.day), (1405, 7, 22));
+      expect(ckb.monthName, 'ڕەزبەر');
+
+      // Same calendar, same numbers, different words — twelve of them.
+      expect(kurdishJalaliMonthNames, hasLength(12));
+      expect(
+        kurdishJalaliMonthNames.toSet().intersection(jalaliMonthNames.toSet()),
+        isEmpty,
+        reason: 'a shared name means one table was copied from the other',
+      );
+    });
+
+    test('a language check is a language check, not a prefix match', () {
+      // `startsWith('ar')` is true of `arn` (Mapudungun) and `ary` (Moroccan
+      // Arabic) and false of `AR-EG`, and the same shape of test elsewhere in
+      // this repo is what put Arabic-Indic digits in Morocco. It reads the
+      // subtag now.
+      expect(
+        projectDate(
+          DateTime.utc(2026, 1, 5),
+          CalmCalendar.gregorian,
+          'arn-CL',
+        ).monthName,
+        isNull,
+      );
+      expect(
+        projectDate(
+          DateTime.utc(2026, 1, 5),
+          CalmCalendar.gregorian,
+          'AR_EG',
+        ).monthName,
+        'يناير',
+      );
+    });
+
+    test('a locale Odova has no table for says so, rather than blank', () {
+      // It returned `''` before, which a Text widget renders as nothing at
+      // all: a month name that silently disappeared instead of a caller that
+      // was made to choose ICU's own name. SPEC.md §2 — never a shape that
+      // looks like an answer when there is none.
+      expect(
+        projectDate(
+          DateTime.utc(2026, 10, 14),
+          CalmCalendar.gregorian,
+          'en-US',
+        ).monthName,
+        isNull,
+      );
+      expect(
+        projectDate(
+          DateTime.utc(2026, 10, 14),
+          CalmCalendar.gregorian,
+          'de-DE',
+        ).monthName,
+        isNull,
+      );
+    });
+
     test('a Gregorian projection leaves the stored parts alone', () {
       final parts = projectDate(
         DateTime.utc(2026, 10, 14),

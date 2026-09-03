@@ -129,13 +129,22 @@ void main() {
     });
   });
 
-  test('decimal places come from CLDR', () {
+  test('decimal places come from the ISO minor unit', () {
     expect(currencyDecimals('JPY'), 0);
+    // Zero, and the toman path depends on it: dividing by ten is only a
+    // rial-to-toman conversion if the minor unit IS the rial. At the default
+    // exponent of 2 the same stored integer read a hundredfold apart between
+    // the two display modes.
+    expect(currencyDecimals('IRR'), 0);
+    expect(currencyDecimals('AFN'), 0);
     expect(currencyDecimals('KWD'), 3);
     expect(currencyDecimals('IQD'), 3);
     expect(currencyDecimals('EUR'), 2);
     expect(currencyDecimals('USD'), 2);
-    // A dinar rendered with two decimals is out by a factor of ten.
+    // A dinar rendered with two decimals is out by a factor of ten. The
+    // separators are Arabic here and the digits are Latin, which is exactly
+    // what `numerals: latin` on an Arabic locale means: the digit SET is the
+    // user's setting, the separators are the locale's.
     expect(
       _visible(
         formatMoney(
@@ -144,7 +153,7 @@ void main() {
           numerals: CalmNumerals.latin,
         ),
       ),
-      contains('1,234.567'),
+      contains('1٬234٫567'),
     );
   });
 

@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 // enum — and it wins the import race. Hidden, so `TextDirection.ltr` below
 // means what every other file in this repo means by it.
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:odova/core/l10n/locale_resolution.dart';
 import 'package:odova/core/l10n/numerals.dart';
 
 /// Locales `intl` has no number symbols for, and who lends them.
@@ -28,13 +29,7 @@ import 'package:odova/core/l10n/numerals.dart';
 /// and plain `ar` yields `1,234.56` — AMERICAN separators under an Arabic UI.
 /// German is the donor because its separators are exactly SPEC's, not because
 /// the languages are related.
-const numberSymbolBorrows = <String, String>{
-  'ckb': 'fa',
-  'ar_MA': 'de',
-  'ar_DZ': 'de',
-  'ar_TN': 'de',
-  'ar_LY': 'de',
-};
+const numberSymbolBorrows = <String, String>{'ckb': 'fa'};
 
 /// The locale `intl` should format numbers for.
 ///
@@ -43,11 +38,29 @@ const numberSymbolBorrows = <String, String>{
 /// separators.
 String numberFormatLocale(String formatsTag) {
   final normalised = formatsTag.replaceAll('-', '_');
-  for (final MapEntry(key: borrower, value: donor)
-      in numberSymbolBorrows.entries) {
-    if (normalised == borrower || normalised.startsWith('${borrower}_')) {
-      return donor;
-    }
+  final language = languageOf(formatsTag);
+  final region = regionOf(formatsTag);
+
+  final borrowed = numberSymbolBorrows[language];
+  if (borrowed != null) return borrowed;
+
+  // Arabic, by region, and BOTH branches matter.
+  //
+  // `intl` carries `ar` and `ar_EG` and almost nothing between them. Plain
+  // `ar`'s symbols are Latin-digit with AMERICAN separators, so every Arabic
+  // tag that is not `ar_EG` fell through to it and rendered `١,٢٣٤.٥٦` —
+  // Arabic-Indic digits with a comma group and a full-stop decimal, a hybrid
+  // CLDR never emits. The first version fixed only the Maghreb, which is the
+  // half that is Latin-digit anyway.
+  if (language == 'ar') {
+    return maghrebRegions.contains(region)
+        // SPEC.md §5's verified `1.234,56`: Latin digits, European
+        // separators. German's symbols are exactly that shape; `intl` has no
+        // European-separator Arabic at all.
+        ? 'de'
+        // U+066C group, U+066B decimal — what `ar_EG` carries and what SPEC's
+        // table requires for Arabic outside the Maghreb.
+        : 'ar_EG';
   }
 
   // Verified, and falling back to the LANGUAGE rather than to intl's default.
@@ -108,9 +121,14 @@ String formatForDisplay(
       ..minimumFractionDigits = decimalDigits
       ..maximumFractionDigits = decimalDigits;
   }
-  // Shaping LAST, on the finished string.
+  // Folded to ASCII, THEN shaped. `shapeDigits` only maps ASCII into a block,
+  // so without the fold it cannot map back OUT of one — and `ar_EG`'s symbols
+  // carry `zeroDigit: ٠`, so the formatter emits Arabic-Indic digits on its
+  // own. A user who set `numerals: latin` on an Arabic locale got Arabic-Indic
+  // digits anyway, with the setting silently doing nothing. SPEC.md §5 offers
+  // that row precisely because younger Gulf and Persian readers pick it.
   return shapeDigits(
-    format.format(value),
+    foldDigitsToAscii(format.format(value)),
     resolveNumerals(numerals, formatsTag),
   );
 }
@@ -120,7 +138,20 @@ String formatForDisplay(
 /// ASCII digits, a `.` decimal point and no grouping, whatever the user's
 /// settings say. SPEC.md §5: RFC 8259 permits ASCII digits only, and a JSON
 /// number containing `۴` is not JSON.
-String formatForExport(num value) => value.toString();
+///
+/// Throws on a non-finite value rather than writing one. `toString()` on a
+/// NaN or an infinity yields `NaN` / `Infinity`, which no JSON parser will
+/// read back — and a derived value CAN be non-finite: consumption over a
+/// zero-distance segment, cost per km with no odometer delta. SPEC.md §2 calls
+/// losing eight years of history the worst bug this app can have, so an
+/// unparseable backup is worth a crash at the point of the mistake rather than
+/// a caller convention nobody enforces.
+String formatForExport(num value) {
+  if (value is double && !value.isFinite) {
+    throw ArgumentError.value(value, 'value', 'not representable in JSON');
+  }
+  return value.toString();
+}
 
 /// A number on screen, in the active digit block.
 ///

@@ -44,6 +44,23 @@ void main() {
       expect(_value('١٬٢٣٤٫٥٦'), 1234.56);
     });
 
+    test('a Persian GROUPING separator alone is grouping, not a decimal '
+        'point', () {
+      // The thousandfold error this signature used to hide. A Persian keyboard
+      // emits U+066C between the thousands; the input folds it to `.`, and the
+      // grouping-separator argument arrives as the raw `٬` — so the comparison
+      // `'.' == '٬'` was never true, the separator fell through to the decimal
+      // branch, and ۱٬۲۳۴ km read as 1.234 km. Silently, on the odometer.
+      expect(
+        _value('۱٬۲۳۴', groupingSeparator: '٬'),
+        1234,
+        reason: 'a grouped Persian thousand read as a decimal fraction',
+      );
+      expect(_value('۱۲٬۳۴۵', groupingSeparator: '٬'), 12345);
+      // And the decimal separator still is one.
+      expect(_value('۱٫۵', groupingSeparator: '٬'), 1.5);
+    });
+
     test('bidi controls and every space-as-grouper are stripped', () {
       // Escapes, not the characters: a literal U+202E in source reorders the
       // code a reviewer reads.
@@ -109,7 +126,6 @@ void main() {
       // six locales use — so reading it as anything is a guess. Recorded as a
       // deliberate strengthening in epics/progress/EPIC-04.md.
       expect(_failure('1,23,456'), NumericInputFailure.ambiguous);
-      expect(_value('1,23,456'), isNull);
     });
 
     test('anything outside [0-9 . -] after normalisation is rejected', () {
@@ -118,14 +134,22 @@ void main() {
       expect(_failure('١٢٣ لیتر'), NumericInputFailure.notANumber);
     });
 
-    test('more than one decimal point is rejected', () {
-      expect(
-        _failure('1.2.3'),
-        anyOf(
-          NumericInputFailure.tooManyDecimalPoints,
-          NumericInputFailure.ambiguous,
-        ),
-      );
+    test('two separators of the same kind with irregular groups is '
+        'ambiguous', () {
+      // Pinned flatly rather than with an `anyOf`. The first version hedged
+      // between `ambiguous` and a `tooManyDecimalPoints` branch that turns out
+      // to be unreachable — the final pattern admits at most one dot — so it
+      // pinned neither.
+      expect(_failure('1.2.3'), NumericInputFailure.ambiguous);
+    });
+
+    test('the shapes the final pattern admits all parse', () {
+      // The reason `double.parse` is safe there: every string the pattern lets
+      // through is a Dart double, including the three that look like they
+      // might not be.
+      expect(_value('.5'), 0.5);
+      expect(_value('5.'), 5.0);
+      expect(_value('-.5'), -0.5);
     });
 
     test('nothing but noise is rejected as empty', () {
@@ -135,13 +159,17 @@ void main() {
     });
 
     test('a rejection carries a code, never a localised string', () {
-      // The message a user sees is an ICU message the caller chooses. This is
+      // The message a user sees is an ICU message the caller chooses; this is
       // what the caller switches on, and it is stable across six languages.
-      final result = normalizeNumericInput('1,23,456');
-      expect(result, isA<NumericInputRejected>());
+      // Asserting the CODE, not that the field has its own declared type —
+      // which a non-nullable typed field always does.
       expect(
-        (result as NumericInputRejected).failure,
-        isA<NumericInputFailure>(),
+        normalizeNumericInput('1,23,456', groupingSeparator: ','),
+        isA<NumericInputRejected>().having(
+          (r) => r.failure,
+          'failure',
+          NumericInputFailure.ambiguous,
+        ),
       );
     });
   });

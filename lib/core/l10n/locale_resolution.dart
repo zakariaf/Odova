@@ -34,7 +34,33 @@ const _aliases = <String, String>{
 typedef ResolvedLocale = ({String strings, String formats});
 
 /// The language subtag of a BCP 47 tag: `de-AT` -> `de`.
-String languageOf(String tag) => tag.split(RegExp('[-_]')).first.toLowerCase();
+String languageOf(String tag) => _subtags(tag).first.toLowerCase();
+
+/// The region subtag of a BCP 47 tag, or null.
+///
+/// A region is TWO letters or three digits — `de-AT` -> `AT`, `es-419` -> 419.
+/// Taking the LAST subtag instead is what `ar-Latn-MA` breaks: `MA` is last
+/// there by luck, and `en-US-POSIX` puts a variant last by design. Six copies
+/// of `parts.last` were written before this existed.
+String? regionOf(String tag) {
+  for (final part in _subtags(tag).skip(1)) {
+    if (RegExp(r'^([A-Za-z]{2}|[0-9]{3})$').hasMatch(part)) {
+      return part.toUpperCase();
+    }
+  }
+  return null;
+}
+
+List<String> _subtags(String tag) => tag.split(RegExp('[-_]'));
+
+/// The Arabic-speaking regions written with Latin digits and European
+/// separators. SPEC.md §5: "Arabic-Indic digits read as foreign there."
+///
+/// ONE constant, read by both the digit rule and the number-symbol borrow
+/// table. They used to be two lists in two layers keyed two different ways —
+/// bare region here, full tag there — which is how `ar-Latn-MA` ended up with
+/// Latin digits and AMERICAN separators.
+const maghrebRegions = <String>{'MA', 'DZ', 'TN', 'LY'};
 
 /// Whether [tag]'s language is written right to left.
 bool isRightToLeft(String tag) =>

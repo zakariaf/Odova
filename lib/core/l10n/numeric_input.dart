@@ -19,9 +19,6 @@ enum NumericInputFailure {
   /// A character survived normalisation that cannot be part of a number.
   notANumber,
 
-  /// More than one decimal point after disambiguation.
-  tooManyDecimalPoints,
-
   /// The separators are readable two ways and neither is more likely.
   ///
   /// `1,23,456` is the shape that gets here: a repeated separator, but with
@@ -68,14 +65,26 @@ const _stripped = <String>{
 
 /// Reads a typed number, or says why it could not.
 ///
-/// [groupingSeparator] is the character the ACTIVE locale groups with — `,`
-/// for `en`, `.` for `de` and `fa`. It is the only locale knowledge this
-/// function has, and it is used for exactly one decision: whether a lone
-/// separator with three digits after it is grouping or a decimal point.
-/// `1,5` in German is one and a half; `1,500` in English is fifteen hundred.
+/// [groupingSeparator] is the character the ACTIVE locale groups with, AS THE
+/// LOCALE WRITES IT — `,` for `en`, `.` for `de`, `٬` U+066C for `fa`. It is
+/// mapped through the same ASCII folding as the input before it is compared,
+/// which is the bug this signature used to hide: the input's `٬` became `.`
+/// on line 3 while the argument stayed `٬`, so `'.' == '٬'` was never true and
+/// a Persian `۱٬۲۳۴` — a grouped one thousand two hundred and thirty-four —
+/// read as 1.234. A thousandfold error, silent, on the odometer.
+///
+/// Required rather than defaulted. A default of `,` means every caller that
+/// forgets the argument silently gets English disambiguation, which in `de` or
+/// `fa` reads `1,5` as fifteen hundred — the exact corruption this file exists
+/// to prevent, reachable by omission and compile-clean.
+///
+/// It is the only locale knowledge this function has, and it decides exactly
+/// one thing: whether a lone separator with three digits after it is grouping
+/// or a decimal point. `1,5` in German is one and a half; `1,500` in English
+/// is fifteen hundred.
 NumericInputResult normalizeNumericInput(
   String input, {
-  String groupingSeparator = ',',
+  required String groupingSeparator,
 }) {
   // 1. Strip the controls and the spaces.
   var s = input;
@@ -87,15 +96,14 @@ NumericInputResult normalizeNumericInput(
   s = foldDigitsToAscii(s);
 
   // 3. Map the Arabic separators onto their ASCII counterparts.
-  s = s
-      .replaceAll('٫', ',') // Arabic decimal separator
-      .replaceAll('٬', '.') // Arabic thousands separator
-      .replaceAll('،', ','); // Arabic comma
-
-  if (s.isEmpty) return const NumericInputRejected(NumericInputFailure.empty);
+  s = _toAsciiSeparators(s);
 
   final hasDot = s.contains('.');
   final hasComma = s.contains(',');
+
+  // The SAME folding the input went through. Comparing a raw locale separator
+  // against a folded one is a comparison that is never true.
+  final grouping = _toAsciiSeparators(groupingSeparator);
 
   if (hasDot && hasComma) {
     // Both present: the RIGHTMOST is the decimal point, the other is grouping.
@@ -125,31 +133,40 @@ NumericInputResult normalizeNumericInput(
       // half rather than fifteen, the case that silently corrupts an amount
       // when digits are folded and separators are not.
       final isGrouping =
-          separator == groupingSeparator && tail.length == 3 && _isDigits(tail);
+          separator == grouping && tail.length == 3 && _isDigits(tail);
       s = isGrouping
           ? s.replaceAll(separator, '')
           : s.replaceAll(separator, '.');
     }
   }
 
-  // 4. Reject anything that is not a plain signed decimal.
+  // 4. Reject anything that is not a plain signed decimal. The pattern admits
+  // AT MOST ONE dot, so a separate "too many decimal points" branch after it
+  // is unreachable — `1.2.3` and `1.2,3.4` both land here as notANumber. There
+  // was one, and the test for it hedged with `anyOf(...)`, which is a test
+  // written by somebody who did not know which branch fired and pinned
+  // neither.
   if (!RegExp(r'^-?[0-9]*\.?[0-9]*$').hasMatch(s)) {
     return const NumericInputRejected(NumericInputFailure.notANumber);
   }
-  if ('.'.allMatches(s).length > 1) {
-    return const NumericInputRejected(
-      NumericInputFailure.tooManyDecimalPoints,
-    );
-  }
+  // Nothing but a sign and separators.
   if (!RegExp('[0-9]').hasMatch(s)) {
     return const NumericInputRejected(NumericInputFailure.empty);
   }
 
-  final value = double.tryParse(s);
-  if (value == null) {
-    return const NumericInputRejected(NumericInputFailure.notANumber);
-  }
-  return NumericInputOk(s, value);
+  // `parse`, not `tryParse`: the pattern above has already established the
+  // shape, and `.5`, `5.` and `-.5` all parse. A null-check here would be a
+  // branch no input can reach.
+  return NumericInputOk(s, double.parse(s));
 }
 
 bool _isDigits(String s) => s.isNotEmpty && RegExp(r'^[0-9]+$').hasMatch(s);
+
+/// Folds the Arabic separators onto their ASCII counterparts.
+///
+/// Applied to the input AND to the grouping separator, so the two are
+/// comparable.
+String _toAsciiSeparators(String s) => s
+    .replaceAll('\u066B', ',') // Arabic decimal separator
+    .replaceAll('\u066C', '.') // Arabic thousands separator
+    .replaceAll('\u060C', ','); // Arabic comma

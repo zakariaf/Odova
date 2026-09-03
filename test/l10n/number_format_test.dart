@@ -52,6 +52,43 @@ void main() {
     }
   });
 
+  test('every Arabic region gets Arabic separators, not American ones', () {
+    // `intl` carries `ar` and `ar_EG` and almost nothing between them, and
+    // plain `ar`'s symbols are Latin-digit with AMERICAN separators. So every
+    // Arabic tag that is not ar_EG fell through to it and rendered
+    // `١,٢٣٤.٥٦` — Arabic-Indic digits with a comma group and a full-stop
+    // decimal, a hybrid CLDR never emits. ar-EG was the only Arabic tag this
+    // file asserted, which is why it passed.
+    for (final tag in ['ar', 'ar-SA', 'ar-AE', 'ar-IQ', 'ar-JO', 'ar-KW']) {
+      final actual = formatForDisplay(
+        1234.56,
+        tag,
+        numerals: CalmNumerals.auto,
+      );
+      expect(
+        actual,
+        '١٬٢٣٤٫٥٦',
+        reason: '$tag\n  got ${_codepoints(actual)}',
+      );
+    }
+  });
+
+  test("an explicit Latin setting survives the formatter's own digits", () {
+    // `ar_EG`'s symbols carry `zeroDigit: ٠`, so the formatter emits
+    // Arabic-Indic digits itself. shapeDigits only maps ASCII INTO a block, so
+    // without folding first it cannot map back out of one, and a user who set
+    // `numerals: latin` on an Arabic locale got Arabic-Indic digits anyway
+    // with the setting silently doing nothing.
+    expect(
+      formatForDisplay(1234.56, 'ar-EG', numerals: CalmNumerals.latin),
+      '1٬234٫56',
+    );
+    expect(
+      formatForDisplay(1234.56, 'fa-IR', numerals: CalmNumerals.latin),
+      '1٬234٫56',
+    );
+  });
+
   test('the Maghreb borrows European separators, not American ones', () {
     // `intl` carries no ar_MA at all, and plain `ar` yields 1,234.56 —
     // American separators under an Arabic UI, silently. SPEC.md §5's verified
@@ -102,6 +139,18 @@ void main() {
       expect(formatForExport(1234.56), '1234.56');
       expect(formatForExport(215104000), '215104000');
       expect(RegExp(r'^[0-9.-]+$').hasMatch(formatForExport(-1234.56)), isTrue);
+    });
+
+    test('a non-finite value is refused, not written', () {
+      // `toString()` on a NaN or an infinity yields `NaN` / `Infinity`, which
+      // no JSON parser reads back — and a derived value CAN be non-finite:
+      // consumption over a zero-distance segment, cost per km with no odometer
+      // delta. SPEC.md §2 calls losing eight years of history the worst bug
+      // this app can have, so it throws at the mistake rather than writing an
+      // unparseable backup.
+      expect(() => formatForExport(double.nan), throwsArgumentError);
+      expect(() => formatForExport(double.infinity), throwsArgumentError);
+      expect(() => formatForExport(-double.infinity), throwsArgumentError);
     });
 
     test(

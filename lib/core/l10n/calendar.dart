@@ -5,6 +5,7 @@
 // display calendar is a projection, and a stored Jalali date survives an import
 // and is then wrong forever.
 import 'package:odova/core/l10n/jalali.dart';
+import 'package:odova/core/l10n/locale_resolution.dart';
 
 /// The display calendars Odova has.
 ///
@@ -43,13 +44,9 @@ enum CalmCalendar {
 CalmCalendar resolveCalendar(CalmCalendar? setting, String formatsTag) {
   if (setting != null) return setting;
 
-  final parts = formatsTag.split(RegExp('[-_]'));
-  final language = parts.first.toLowerCase();
-  final region = parts.length > 1 ? parts.last.toUpperCase() : null;
-
-  return switch (language) {
+  return switch (languageOf(formatsTag)) {
     'fa' => CalmCalendar.persian,
-    'ckb' when region == 'IR' => CalmCalendar.persian,
+    'ckb' when regionOf(formatsTag) == 'IR' => CalmCalendar.persian,
     _ => CalmCalendar.gregorian,
   };
 }
@@ -68,6 +65,33 @@ const jalaliMonthNames = <String>[
   'دی',
   'بهمن',
   'اسفند',
+];
+
+/// The twelve Jalali months, in Sorani Kurdish.
+///
+/// Same calendar, different language. `ckb-IR` resolves to
+/// [CalmCalendar.persian] and the first version handed it
+/// [jalaliMonthNames] — the Persian words — because the CALENDAR matched. A
+/// Kurdish reader calls the seventh month ڕەزبەر; مهر is a Persian word on an
+/// otherwise Kurdish screen.
+///
+/// These are the Rojhelat (Iranian Kurdish) names, which are the ones a
+/// Jalali-calendar Sorani user reads. **SPEC.md §18 flags Sorani quality as
+/// the single largest RTL risk; this table wants a native reader's eye before
+/// launch, alongside the numerals question.**
+const kurdishJalaliMonthNames = <String>[
+  'خاکەلێوە',
+  'گوڵان',
+  'جۆزەردان',
+  'پووشپەڕ',
+  'گەلاوێژ',
+  'خەرمانان',
+  'ڕەزبەر',
+  'گەڵاڕێزان',
+  'سەرماوەز',
+  'بەفرانبار',
+  'ڕێبەندان',
+  'ڕەشەمە',
 ];
 
 /// Regions that use the Levantine Gregorian month names.
@@ -111,13 +135,10 @@ const arabicMonthNamesLevant = <String>[
 ];
 
 /// The Arabic month names [formatsTag]'s region uses.
-List<String> arabicMonthNames(String formatsTag) {
-  final parts = formatsTag.split(RegExp('[-_]'));
-  final region = parts.length > 1 ? parts.last.toUpperCase() : null;
-  return levantineMonthRegions.contains(region)
-      ? arabicMonthNamesLevant
-      : arabicMonthNamesGulf;
-}
+List<String> arabicMonthNames(String formatsTag) =>
+    levantineMonthRegions.contains(regionOf(formatsTag))
+    ? arabicMonthNamesLevant
+    : arabicMonthNamesGulf;
 
 /// A weekday, `DateTime`'s numbering: Monday is 1, Sunday is 7.
 typedef Weekday = int;
@@ -131,56 +152,76 @@ const Weekday sunday = DateTime.sunday;
 /// Monday.
 const Weekday monday = DateTime.monday;
 
-const _weekStartByRegion = <String, Weekday>{
-  'IR': saturday,
-  'IQ': saturday,
-  'EG': saturday,
-  'AE': saturday,
-  'SA': sunday,
-  'US': sunday,
-  'CA': sunday,
-  'JP': sunday,
+/// One region, one week: when it starts and which two days are the weekend.
+///
+/// ONE table, not two. The first version had `_weekStartByRegion` and
+/// `_fridaySaturdayWeekendRegions` side by side, and six regions — KW, QA, BH,
+/// OM, JO, SY — were in the second and absent from the first. They got a
+/// Friday-Saturday weekend with a Monday week start, which renders a calendar
+/// strip with the weekend sitting in the middle of it. Neither test could
+/// catch it: both only named regions that happened to be in both tables.
+///
+/// SPEC.md §5: "Week start from CLDR region data, never per language: `ar-SA`
+/// Sunday; `ar-MA`, `ar-LB`, `ar-TN` Monday; the rest Saturday."
+typedef WeekShape = ({Weekday first, Set<Weekday> weekend});
+
+const _friSat = <Weekday>{DateTime.friday, DateTime.saturday};
+const _satSun = <Weekday>{DateTime.saturday, DateTime.sunday};
+
+const _weekByRegion = <String, WeekShape>{
+  // Saturday start, Friday-Saturday weekend: most of the Arab world plus Iran.
+  'IR': (first: saturday, weekend: _friSat),
+  'IQ': (first: saturday, weekend: _friSat),
+  'EG': (first: saturday, weekend: _friSat),
+  'AE': (first: saturday, weekend: _friSat),
+  'KW': (first: saturday, weekend: _friSat),
+  'QA': (first: saturday, weekend: _friSat),
+  'BH': (first: saturday, weekend: _friSat),
+  'OM': (first: saturday, weekend: _friSat),
+  'JO': (first: saturday, weekend: _friSat),
+  'SY': (first: saturday, weekend: _friSat),
+  'YE': (first: saturday, weekend: _friSat),
+  'PS': (first: saturday, weekend: _friSat),
+  // Saudi Arabia starts on Sunday and still takes Friday-Saturday off.
+  'SA': (first: sunday, weekend: _friSat),
+  // The Maghreb and Lebanon follow the European week entirely.
+  'MA': (first: monday, weekend: _satSun),
+  'DZ': (first: monday, weekend: _satSun),
+  'TN': (first: monday, weekend: _satSun),
+  'LY': (first: monday, weekend: _satSun),
+  'LB': (first: monday, weekend: _satSun),
+  // The Latin-script three, where they differ from the ISO default.
+  'US': (first: sunday, weekend: _satSun),
+  'CA': (first: sunday, weekend: _satSun),
+  'JP': (first: sunday, weekend: _satSun),
 };
 
-const _fridaySaturdayWeekendRegions = <String>{
-  'IR',
-  'IQ',
-  'EG',
-  'AE',
-  'SA',
-  'KW',
-  'QA',
-  'BH',
-  'OM',
-  'JO',
-  'SY',
-};
+/// Monday and a Saturday-Sunday weekend: ISO 8601's, and Europe's.
+const WeekShape _defaultWeek = (first: monday, weekend: _satSun);
+
+/// The week [formatsTag]'s region keeps.
+WeekShape weekShape(String formatsTag) =>
+    _weekByRegion[regionOf(formatsTag)] ?? _defaultWeek;
 
 /// The first day of the week for [formatsTag].
 ///
 /// From the REGION, never the language: `ar-EG` starts Saturday and `ar-MA`
-/// starts Monday, and they speak the same language. Monday is the fallback
-/// because it is ISO 8601's.
-Weekday firstDayOfWeek(String formatsTag) {
-  final parts = formatsTag.split(RegExp('[-_]'));
-  final region = parts.length > 1 ? parts.last.toUpperCase() : null;
-  return _weekStartByRegion[region] ?? monday;
-}
+/// starts Monday, and they speak the same language.
+Weekday firstDayOfWeek(String formatsTag) => weekShape(formatsTag).first;
 
 /// The two weekend days for [formatsTag].
 ///
-/// Drives `weekdays_only` on a reminder and nothing else — it is not a
-/// styling decision.
-Set<Weekday> weekendDays(String formatsTag) {
-  final parts = formatsTag.split(RegExp('[-_]'));
-  final region = parts.length > 1 ? parts.last.toUpperCase() : null;
-  return _fridaySaturdayWeekendRegions.contains(region)
-      ? const {DateTime.friday, DateTime.saturday}
-      : const {DateTime.saturday, DateTime.sunday};
-}
+/// Drives `weekdays_only` on a reminder and nothing else — it is not a styling
+/// decision.
+Set<Weekday> weekendDays(String formatsTag) => weekShape(formatsTag).weekend;
 
 /// A date as the user's calendar shows it.
-typedef CalmDateParts = ({int year, int month, int day, String monthName});
+///
+/// The month name is null where Odova supplies no table of its own and ICU's
+/// `DateFormat` is the right source. It was `''` first, which a `Text` renders
+/// as nothing at all — a month name that silently vanished instead of a caller
+/// that was made to choose.
+typedef CalmDateParts = ({int year, int month, int day, String? monthName});
 
 /// Projects a stored Gregorian civil date into [calendar]'s parts.
 ///
@@ -191,22 +232,27 @@ CalmDateParts projectDate(
   CalmCalendar calendar,
   String formatsTag,
 ) {
+  final language = languageOf(formatsTag);
+
   if (calendar == CalmCalendar.persian) {
     final j = gregorianToJalali(utcDate.year, utcDate.month, utcDate.day);
+    final names = language == 'ckb'
+        ? kurdishJalaliMonthNames
+        : jalaliMonthNames;
     return (
       year: j.year,
       month: j.month,
       day: j.day,
-      monthName: jalaliMonthNames[j.month - 1],
+      monthName: names[j.month - 1],
     );
   }
-  final names = formatsTag.startsWith('ar')
-      ? arabicMonthNames(formatsTag)
-      : const <String>[];
+
   return (
     year: utcDate.year,
     month: utcDate.month,
     day: utcDate.day,
-    monthName: names.isEmpty ? '' : names[utcDate.month - 1],
+    monthName: language == 'ar'
+        ? arabicMonthNames(formatsTag)[utcDate.month - 1]
+        : null,
   );
 }

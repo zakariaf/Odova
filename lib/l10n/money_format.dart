@@ -6,6 +6,7 @@
 // "{amount} €" will move the euro, and they will be right to, and it will be
 // wrong in the other five.
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:odova/core/l10n/locale_resolution.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money.dart';
 import 'package:odova/l10n/bidi.dart';
@@ -13,8 +14,9 @@ import 'package:odova/l10n/numerals.dart';
 
 /// `Settings.currency_display`.
 enum CalmCurrencyDisplay {
-  /// The ISO currency, formatted by CLDR.
-  iso('iso'),
+  /// The ISO currency, formatted by CLDR. SPEC.md §3 spells the wire value
+  /// `none`, and the enum name is the code's word for the same thing.
+  iso('none'),
 
   /// Iranian toman: the stored IRR amount divided by ten, zero decimals, and
   /// the word تومان.
@@ -30,14 +32,23 @@ enum CalmCurrencyDisplay {
   final String wire;
 }
 
-/// Currency labels Odova supplies itself.
+/// Currency symbols Odova supplies itself, per (currency, script) pair.
 ///
-/// Only where CLDR's own symbol is wrong for this app's readers, and each one
-/// is a label rather than a symbol — the same principle as the unit
-/// abbreviations, and for the same reason.
-const _labelOverrides = <String, String>{
-  // Not an ISO code: the toman is ten rials and exists only on price tags.
-  'toman': 'تومان',
+/// `NumberFormat.simpleCurrency` resolves its symbol from a LOCALE-INDEPENDENT
+/// map, so the locale argument changes the pattern and never the symbol: every
+/// currency SPEC.md §5's table names for an RTL locale came out in Latin —
+/// `Rial۱٬۲۳۴٫۵۶`, `١٬٢٣٤٫٥٦ E£`, `1.234,56 dh`, `din۱۲۳٫۴۵۶`. The table is
+/// the same mechanism as the unit abbreviations: ICU formats the number, the
+/// label is ours.
+const arabicScriptCurrencySymbols = <String, String>{
+  'EGP': 'ج.م.',
+  'MAD': 'د.م.',
+  'IQD': 'د.ع.',
+  'IRR': 'ریال',
+  'SAR': 'ر.س.',
+  'AED': 'د.إ.',
+  'KWD': 'د.ك.',
+  'AFN': '؋',
 };
 
 /// Formats [money] for the screen.
@@ -59,10 +70,10 @@ String formatMoney(
     // pixel. The stored integer does not move.
     final tomans = (money.minorUnits / 10).round();
     final digits = shapeDigits(
-      calmDecimalFormat(formatsTag).format(tomans),
+      foldDigitsToAscii(calmDecimalFormat(formatsTag).format(tomans)),
       resolved,
     );
-    return isolate('$digits ${_labelOverrides['toman']}');
+    return isolate('$digits $tomanLabel');
   }
 
   // simpleCurrency, not currency: the latter uses the CODE as the symbol
@@ -74,12 +85,24 @@ String formatMoney(
     decimalDigits: currencyDecimals(money.currency),
   );
 
-  return isolate(shapeDigits(format.format(money.major), resolved));
+  var rendered = format.format(money.major);
+
+  // Substitute the Arabic-script symbol where SPEC.md §5's table names one.
+  // Done on the formatted string rather than by passing `symbol:` so ICU still
+  // decides the PLACEMENT and the spacing, which is the half that differs by
+  // locale and the half a translation string must never carry.
+  final ours = arabicScriptCurrencySymbols[money.currency];
+  if (ours != null && _usesArabicScript(formatsTag)) {
+    rendered = rendered.replaceFirst(format.currencySymbol, ours);
+  }
+
+  // Folded first: see formatForDisplay. The formatter's own zero-digit would
+  // otherwise defeat an explicit `numerals: latin`.
+  return isolate(shapeDigits(foldDigitsToAscii(rendered), resolved));
 }
 
-/// The currency symbol CLDR gives [currency] in [formatsTag].
-String currencySymbolFor(String currency, String formatsTag) =>
-    NumberFormat.simpleCurrency(
-      locale: numberFormatLocale(formatsTag),
-      name: currency,
-    ).currencySymbol;
+/// The toman label. Not an ISO currency, so it has no CLDR symbol.
+const tomanLabel = 'تومان';
+
+bool _usesArabicScript(String formatsTag) =>
+    const {'fa', 'ar', 'ckb'}.contains(languageOf(formatsTag));

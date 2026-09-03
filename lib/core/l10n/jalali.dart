@@ -128,8 +128,39 @@ int gregorianToJdn(int year, int month, int day) {
 /// A Jalali civil date.
 typedef JalaliDate = ({int year, int month, int day});
 
+/// The number of days in Jalali month [jm] of year [jy].
+///
+/// Farvardin-Shahrivar are 31, Mehr-Bahman are 30, and Esfand is 29 or 30
+/// depending on the leap year. There is no month-length table in the Borkowski
+/// algorithm — its JDN formula is continuous in the day, which is what let
+/// `jalaliToGregorian(1404, 12, 30)` answer with 1 Farvardin *1405* instead of
+/// refusing.
+int jalaliMonthLength(int jy, int jm) {
+  if (jm < 1 || jm > 12) {
+    throw ArgumentError.value(jm, 'jm', 'Jalali month must be 1-12');
+  }
+  if (jm <= 6) return 31;
+  if (jm <= 11) return 30;
+  return isJalaliLeapYear(jy) ? 30 : 29;
+}
+
 /// Jalali civil date to Julian Day Number.
+///
+/// Throws [ArgumentError] for a date the calendar does not have. The
+/// arithmetic below is linear in [jd] and will happily answer for the 30th of
+/// a 29-day Esfand or the 400th of Farvardin, and the answer looks like a
+/// date — which is the shape of mistake SPEC.md §2 forbids above all others.
+/// A user picking a date cannot reach this, but stored data, an imported
+/// backup and a typed year all can.
 int jalaliToJdn(int jy, int jm, int jd) {
+  final length = jalaliMonthLength(jy, jm);
+  if (jd < 1 || jd > length) {
+    throw ArgumentError.value(
+      jd,
+      'jd',
+      'month $jm of $jy has $length days',
+    );
+  }
   final r = _jalaliCal(jy);
   return gregorianToJdn(r.gy, 3, r.march) +
       (jm - 1) * 31 -

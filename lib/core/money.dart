@@ -13,8 +13,21 @@
 /// The default is 2. These are the ones that are not, and they are not
 /// cosmetic: rendering an Iraqi dinar with two decimals is out by a factor of
 /// ten, and rendering a yen with two invents a subunit that does not exist.
+/// This is the ISO 4217 MINOR-UNIT exponent — what the stored integer is in —
+/// and it is deliberately not `intl`'s `currencyFractionDigits`, which carries
+/// CLDR's *cash rounding*. The two agree on eleven of these twelve and
+/// disagree on IQD, where CLDR says 0 because Iraqi cash does not circulate in
+/// fils and ISO says 3 because the dinar is divided into a thousand of them.
+/// SPEC.md §5 states IQD 3 for display too, so this table serves both.
 const currencyDecimalsOverrides = <String, int>{
   'JPY': 0,
+  // Zero, and the toman display path depends on it: dividing minorUnits by ten
+  // is only a rial-to-toman conversion if the minor unit IS the rial. With the
+  // default exponent of 2 the same stored integer read a hundredfold apart
+  // between the two display modes.
+  'IRR': 0,
+  // CLDR gives Afghanistan's afghani zero digits too. SPEC.md §5 ships fa-AF.
+  'AFN': 0,
   'KRW': 0,
   'VND': 0,
   'CLP': 0,
@@ -50,9 +63,6 @@ extension type const Money((int minorUnits, String currency) _value) {
 
   /// The amount as a decimal, for a formatter. Computed, never stored.
   double get major => minorUnits / _pow10(currencyDecimals(currency));
-
-  /// Whether the amount is below zero.
-  bool get isNegative => minorUnits < 0;
 }
 
 int _pow10(int exponent) {

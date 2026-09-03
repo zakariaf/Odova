@@ -7,6 +7,7 @@
 //
 // Never mix two digit sets on one screen. One numbering system is active
 // app-wide, which is why this resolves once rather than per widget.
+import 'package:odova/core/l10n/locale_resolution.dart';
 
 /// The four values `Settings.numerals` can hold.
 ///
@@ -40,9 +41,6 @@ enum CalmNumerals {
   final String wire;
 }
 
-/// The Maghreb, where Arabic is written with Latin digits.
-const _latinDigitArabicRegions = <String>{'MA', 'DZ', 'TN', 'LY'};
-
 /// The first codepoint of each block.
 const _blockStart = <CalmNumerals, int>{
   CalmNumerals.latin: 0x30,
@@ -69,13 +67,10 @@ const _blockStart = <CalmNumerals, int>{
 CalmNumerals resolveNumerals(CalmNumerals setting, String formatsTag) {
   if (setting != CalmNumerals.auto) return setting;
 
-  final parts = formatsTag.split(RegExp('[-_]'));
-  final language = parts.first.toLowerCase();
-  final region = parts.length > 1 ? parts.last.toUpperCase() : null;
-
-  return switch (language) {
+  return switch (languageOf(formatsTag)) {
     'fa' || 'ckb' => CalmNumerals.extendedArabicIndic,
-    'ar' when _latinDigitArabicRegions.contains(region) => CalmNumerals.latin,
+    'ar' when maghrebRegions.contains(regionOf(formatsTag)) =>
+      CalmNumerals.latin,
     'ar' => CalmNumerals.arabicIndic,
     _ => CalmNumerals.latin,
   };
