@@ -21,7 +21,6 @@ import 'analysis_options_source.dart';
 const knownEmptyLibDirectories = {
   'lib/data', // EPIC-05 — persistence, schema and migrations
   'lib/features', // EPIC-09 — first run and the garage
-  'lib/ui', // EPIC-03 — the Calm component library
 };
 
 /// Every hand-written `.dart` file under [path].

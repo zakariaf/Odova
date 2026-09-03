@@ -5,7 +5,7 @@
 #   1. a control-sizing literal below 52
 #   2. MaterialTapTargetSize.shrinkWrap (it drops Material's own 48 padding)
 #   3. a raw Duration()/Curves.* outside */theme/  (motion is a CalmMotion slot)
-#   4. pumpAndSettle() in a test that asserts a collapsed animation
+#   4. pumpAndSettle() in a test CASE that asserts a collapsed animation
 set -euo pipefail
 
 LIB="${1:-lib}"; TESTS="${2:-test}"; FLOOR=52; fail=0
@@ -46,11 +46,28 @@ while IFS= read -r -d '' f; do
   fi
 done < <(find "$LIB" -name '*.dart' -type f -print0)
 
+# Rule 4 is scoped to the test CASE, not the file.
+#
+# `pumpAndSettle` in a reduced-motion test asserts nothing — once the duration
+# collapses to zero there is nothing to settle, so the call hides the very thing
+# under test. But a widget's test file legitimately holds one reduced-motion
+# case beside a dozen live-animation ones, and a file-wide check makes those
+# twelve unwriteable: every one of the 22 Calm widgets would have to split its
+# reduced-motion case into a second file to satisfy a rule that is about a
+# single case. So each `testWidgets(` / `test(` block is examined on its own.
 if [ -d "$TESTS" ]; then
   while IFS= read -r -d '' f; do
-    if src "$f" | grep -q 'disableAnimations\|AnimationStyle\.noAnimation' &&
-       hits="$(src "$f" | grep -n 'pumpAndSettle')"; then
-      echo "$f: pumpAndSettle in a reduced-motion test -> $hits"; fail=1
+    hits="$(src "$f" | awk '
+      /^[[:space:]]*(testWidgets|test)\(/ { block=NR; reduced=0; settles="" }
+      /disableAnimations|AnimationStyle\.noAnimation/ { if (block) reduced=1 }
+      /pumpAndSettle/ { if (block) settles = settles " " NR }
+      /^[[:space:]]*\}\);[[:space:]]*$/ {
+        if (block && reduced && settles != "") print "case at line " block ":" settles
+        block=0
+      }
+    ')"
+    if [ -n "$hits" ]; then
+      echo "$f: pumpAndSettle in a reduced-motion case -> $hits"; fail=1
     fi
   done < <(find "$TESTS" -name '*.dart' -type f -print0)
 fi

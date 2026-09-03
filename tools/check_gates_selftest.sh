@@ -336,4 +336,97 @@ assert 1 "check_calm_layering is red on raw Material in a feature" \
 restore_all
 assert 0 "check_calm_layering is green again once removed" bash "$LAYER" lib
 
+HYGIENE=.claude/skills/calm-components/scripts/check_component_hygiene.sh
+TARGETS=.claude/skills/calm-layout-and-motion/scripts/check_touch_targets.sh
+STATUS=.claude/skills/calm-due-state-and-status/scripts/check_status_encoding.sh
+
+assert 0 "check_component_hygiene is green over the real lib/" bash "$HYGIENE" lib
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: Calm's press is a scale-and-tint, not a ripple.
+Widget probe() => InkWell(onTap: () {}, child: const SizedBox.shrink());
+PROBE
+assert 1 "check_component_hygiene is red on an InkWell" bash "$HYGIENE" lib
+restore_all
+
+assert 0 "check_touch_targets is green" bash "$TARGETS" lib test
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: 44 is accessibility-as-code's floor, not Calm's 52.
+const probe = ButtonStyle(minimumSize: WidgetStatePropertyAll(Size(44, 44)));
+PROBE
+assert 1 "check_touch_targets is red on a 44pt control" bash "$TARGETS" lib test
+restore_all
+
+# Rule 4 is scoped to the test CASE. A file may hold one reduced-motion case
+# beside a dozen live-animation ones; only the reduced one may not settle.
+write_scratch test/ui/selftest_probe_test.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('a live animation may settle', (tester) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a reduced-motion case may not', (tester) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: SizedBox.shrink(),
+      ),
+    );
+  });
+}
+PROBE
+assert 0 "check_touch_targets allows pumpAndSettle in a LIVE case beside a reduced one" \
+  bash "$TARGETS" lib test
+restore_all
+
+write_scratch test/ui/selftest_probe_test.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('a reduced-motion case that settles asserts nothing', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: SizedBox.shrink(),
+      ),
+    );
+    await tester.pumpAndSettle();
+  });
+}
+PROBE
+assert 1 "check_touch_targets is red on pumpAndSettle INSIDE a reduced-motion case" \
+  bash "$TARGETS" lib test
+restore_all
+assert 0 "check_touch_targets is green again once removed" bash "$TARGETS" lib test
+
+assert 0 "check_status_encoding is green" bash "$STATUS" lib
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_status.dart';
+
+/// A planted violation: only calm_status.dart may switch on a DueState.
+Color probe(DueState state) => switch (state) {
+  DueState.overdue => const Color(0xFF000000),
+  DueState.due => const Color(0xFF000000),
+  DueState.dueSoon => const Color(0xFF000000),
+  DueState.ok => const Color(0xFF000000),
+  DueState.unknown => const Color(0xFF000000),
+  DueState.needsOdometer => const Color(0xFF000000),
+};
+PROBE
+assert 1 "check_status_encoding is red on a widget switching on DueState" \
+  bash "$STATUS" lib
+restore_all
+assert 0 "check_status_encoding is green again once removed" bash "$STATUS" lib
+
 exit "$rc"
