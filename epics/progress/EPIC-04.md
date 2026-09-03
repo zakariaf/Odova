@@ -156,3 +156,31 @@
   supports, because "younger Persian and Gulf users often prefer Latin digits").
   Then the sentence would shape and the rest of the screen would not, and
   SPEC §5's rule is absolute: never mix two digit sets on one screen.
+
+- 4.9 font coverage — 10 tests plus 2 goldens, all over the real ARB corpus
+  rather than a specimen letter list. EPIC-02's tests assert a fixed list; a
+  specimen is exactly what hides a face that draws Persian and is missing the
+  letters Sorani adds.
+
+  **The woff2 question, resolved:** EPIC-02 already bundled the variable TTF at
+  `assets/fonts/Vazirmatn[wght].ttf` (241 KB) with `OFL.txt`.
+  `design/_fonts/Vazirmatn.woff2` is a design artefact and stays one — Flutter
+  cannot load woff2. Asserted, so it cannot quietly become the shipped asset.
+
+  **Finding against the epic.** Task 4.9 asks for a test that "the
+  presentation-forms block is absent" (U+FB50–U+FEFF). Upstream Vazirmatn ships
+  **213 of the 944** — including the lam-alef ligatures U+FEF5–U+FEFC that
+  Unicode shaping REQUIRES and that have no decomposition path. That assertion
+  would have failed on the shipped font on day one. The test asserts what is
+  actually true and what actually matters: the block is a partial set (< 300)
+  rather than a wholesale duplicate, and the required ligatures are present.
+  The epic's underlying concern — a face that ships all 944 and doubles the
+  file for nothing — is real, and the remedy is a subsetting build step that
+  nothing in this repo has. Not built here; recorded.
+
+  **`tnum` is asserted behaviourally, not by parsing GSUB.** The claim that
+  matters is "a Persian odometer does not jitter as a digit changes", so the
+  test renders each digit of all three blocks and compares advance widths. A
+  GSUB feature-tag parse would prove `tnum` exists without proving it covers
+  `۰-۹`, which is the exact bug — a face with tabular Latin and proportional
+  Persian gives a stable English odometer and a jittering Persian one.
