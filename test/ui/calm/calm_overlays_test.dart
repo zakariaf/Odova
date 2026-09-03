@@ -21,15 +21,36 @@ import '../../support/pump_app.dart';
 import '../../support/source_tree.dart';
 
 /// A screen with one button that opens the overlay under test.
-Widget _opener(void Function(BuildContext) open, {String label = 'Open'}) =>
-    Builder(
-      builder: (context) => CalmScaffold(
-        appBar: const CalmAppBar(title: 'Home'),
-        children: [
-          CalmButton(label: label, onPressed: () => open(context)),
-        ],
+Widget _opener(
+  void Function(BuildContext) open, {
+  String label = 'Open',
+  bool tabBar = false,
+}) => Builder(
+  builder: (context) => CalmScaffold(
+    appBar: const CalmAppBar(title: 'Home'),
+    tabBar: tabBar
+        ? CalmTabBar(
+            index: 0,
+            onChanged: (_) {},
+            onAdd: () {},
+            addLabel: 'Add',
+            labels: const ['Home', 'History', 'Costs', 'Settings'],
+          )
+        : null,
+    children: [
+      // The button's OWN context, from inside the scaffold. `CalmChromeScope`
+      // is published by CalmScaffold, so a context captured above it — which
+      // is what the enclosing Builder gives — cannot see it, and neither can a
+      // real screen that reaches for the wrong one.
+      Builder(
+        builder: (inner) => CalmButton(
+          label: label,
+          onPressed: () => open(inner),
+        ),
       ),
-    );
+    ],
+  ),
+);
 
 ShapeDecoration _decorationOf(WidgetTester tester, Type type) =>
     calmDecorationOf<ShapeDecoration>(tester, find.byType(type));
@@ -364,6 +385,7 @@ void main() {
               actionLabel: 'Undo',
               onAction: () {},
             ),
+            tabBar: true,
           ),
         ),
       ),
@@ -379,6 +401,32 @@ void main() {
       screen.bottom - bar.bottom,
       closeTo(calmSpace.tabbarH + calmSpace.homebarH + calmSpace.s3, 1),
     );
+  });
+
+  testWidgets('a snackbar on a screen with no tab bar does not reserve one', (
+    tester,
+  ) async {
+    // SPEC.md §10 puts Undo on the five log.* forms, which are MODAL and have
+    // no tab bar. An unconditional `+ tabbarH` floated the bar 62pt above
+    // where the design puts it, over content instead of above the chrome.
+    await pumpApp(
+      tester,
+      _opener(
+        (context) => CalmSnackbar.show(
+          context,
+          message: 'Fill-up saved',
+          actionLabel: 'Undo',
+          onAction: () {},
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    final bar = tester.getRect(find.byType(CalmSnackbar));
+    final screen = tester.getRect(find.byType(MaterialApp));
+    expect(screen.bottom - bar.bottom, closeTo(calmSpace.s3, 1));
   });
 
   testWidgets('the snackbar action renders inkInverse semi, not brand', (

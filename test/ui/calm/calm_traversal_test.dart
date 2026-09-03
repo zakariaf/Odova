@@ -36,6 +36,7 @@ void main() {
     tester.useDevice(Device.specimenSheet);
 
     final ringless = <String>[];
+    final unreachable = <String>[];
 
     for (final specimen in calmSpecimens()) {
       await pumpApp(
@@ -49,18 +50,31 @@ void main() {
           .where((p) => p.onTap != null && p.enabled)
           .length;
 
+      // WHICH node has focus, not merely "something is ringed". Counting
+      // rings passes on a tree where Tab cycles between two controls and never
+      // reaches the other N-2 — which is exactly what this test is named for.
+      final stops = <int>{};
       for (var i = 0; i < count; i++) {
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pump();
+
+        final focused = FocusManager.instance.primaryFocus;
+        if (focused != null) stops.add(identityHashCode(focused));
 
         final ring = calmFocusRing(tester)?.side;
         if (ring == null || ring.color != calmColorsLight.focus) {
           ringless.add('${specimen.name} stop $i');
         }
       }
+      if (stops.length != count) {
+        unreachable.add(
+          '${specimen.name}: $count controls, ${stops.length} distinct stops',
+        );
+      }
     }
 
     expect(ringless, isEmpty);
+    expect(unreachable, isEmpty);
   });
 
   testWidgets('traversal order follows layout order in both directions', (

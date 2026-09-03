@@ -42,7 +42,12 @@ scan "$WF"
 while IFS= read -r -d '' f; do
   [ "$f" = "$WF" ] && continue
   scan "$f"
-done < <(find .github tools -type f \( -name '*.yml' -o -name '*.yaml' -o -name '*.sh' \) -print0 2>/dev/null)
+# .claude/skills included, because that is where five of the scripts CI
+# actually invokes live — and where check_parity.sh lives, which is the
+# golden-adjacent script most likely to grow the flag. Scanning only .github
+# and tools while the comment claimed "the whole automation surface" left the
+# gate blind to exactly the directory it needed to watch.
+done < <(find .github tools .claude/skills -type f \( -name '*.yml' -o -name '*.yaml' -o -name '*.sh' \) -print0 2>/dev/null)
 
 if [ "$fail" -ne 0 ]; then echo "FAIL: golden lane."; exit 1; fi
 echo "OK: golden lane armed and never self-rebaselining."

@@ -20,6 +20,8 @@ class CalmOverlayTransition extends StatelessWidget {
     required this.rise,
     required this.fadeFrom,
     required this.scaleFrom,
+    required this.curve,
+    required this.reverseCurve,
     super.key,
   });
 
@@ -35,10 +37,25 @@ class CalmOverlayTransition extends StatelessWidget {
   /// The scale it starts at. 1 for a sheet; 0.96 for a dialog.
   final double scaleFrom;
 
+  /// Entry. `ModalRoute.animation` is the RAW controller value, so without a
+  /// CurvedAnimation the rise, the scale and the fade all interpolate
+  /// linearly — the durations were pinned by tests and the curves reached
+  /// nothing.
+  final Curve curve;
+
+  /// Exit. Not the reverse of [curve]: accelerating away is what makes a
+  /// dismissal feel like a dismissal rather than a rewind.
+  final Curve reverseCurve;
+
   @override
   Widget build(BuildContext context) {
-    final animation = ModalRoute.of(context)?.animation;
-    if (animation == null) return child;
+    final route = ModalRoute.of(context)?.animation;
+    if (route == null) return child;
+    final animation = CurvedAnimation(
+      parent: route,
+      curve: curve,
+      reverseCurve: reverseCurve,
+    );
 
     return AnimatedBuilder(
       animation: animation,
@@ -48,8 +65,12 @@ class CalmOverlayTransition extends StatelessWidget {
           offset: Offset(0, rise * (1 - t)),
           child: Transform.scale(
             scale: scaleFrom + (1 - scaleFrom) * t,
+            // Clamped, because easeSettle OVERSHOOTS — that is what makes it
+            // the settle curve — and `calm_motion.dart` says in as many words
+            // that it is for transforms and that colour uses easeStandard. An
+            // overshooting opacity is not a brighter fade, it is an assertion.
             child: Opacity(
-              opacity: fadeFrom + (1 - fadeFrom) * t,
+              opacity: (fadeFrom + (1 - fadeFrom) * t).clamp(0.0, 1.0),
               child: child,
             ),
           ),

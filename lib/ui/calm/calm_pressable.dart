@@ -67,6 +67,7 @@ class CalmPressable extends StatefulWidget {
     this.toggled,
     this.isButton = true,
     this.focusNode,
+    this.focusInset = false,
   });
 
   /// What is pressed.
@@ -114,6 +115,16 @@ class CalmPressable extends StatefulWidget {
 
   /// Supplied when a caller owns traversal order.
   final FocusNode? focusNode;
+
+  /// Draws the ring INSIDE the box instead of outside it.
+  ///
+  /// For a control whose parent clips: a `CalmListRow` sits inside
+  /// `CalmRowGroup`'s `ClipRRect`, so an outset ring loses both side strokes
+  /// entirely and the top or bottom stroke on the first and last row — a
+  /// focused row shows two floating bars, or nothing. SPEC.md §17 wants a
+  /// visible indicator, and no widget test can see this: the ring's
+  /// DecoratedBox is in the tree either way, it is the pixels that are gone.
+  final bool focusInset;
 
   @override
   State<CalmPressable> createState() => _CalmPressableState();
@@ -172,10 +183,10 @@ class _CalmPressableState extends State<CalmPressable> {
         content,
         if (_focused)
           Positioned.fill(
-            left: -kCalmFocusOutset,
-            top: -kCalmFocusOutset,
-            right: -kCalmFocusOutset,
-            bottom: -kCalmFocusOutset,
+            left: widget.focusInset ? 0 : -kCalmFocusOutset,
+            top: widget.focusInset ? 0 : -kCalmFocusOutset,
+            right: widget.focusInset ? 0 : -kCalmFocusOutset,
+            bottom: widget.focusInset ? 0 : -kCalmFocusOutset,
             child: IgnorePointer(
               child: DecoratedBox(
                 decoration: ShapeDecoration(
@@ -192,7 +203,9 @@ class _CalmPressableState extends State<CalmPressable> {
                         )
                       : RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            widget.borderRadius + kCalmFocusOutset,
+                            widget.focusInset
+                                ? widget.borderRadius
+                                : widget.borderRadius + kCalmFocusOutset,
                           ),
                           side: BorderSide(
                             color: colors.focus,
@@ -231,7 +244,12 @@ class _CalmPressableState extends State<CalmPressable> {
     return Semantics(
       button: widget.toggled == null && widget.isButton,
       toggled: widget.toggled,
-      enabled: widget.enabled,
+      // `active`, not `widget.enabled`. onTap's own doc says null means
+      // disabled, and the gestures, the cursor and the focus detector all
+      // already read `active` — only this node did not, so a control built
+      // with a null callback announced itself as an enabled button that draws
+      // no ring and does nothing when activated.
+      enabled: active,
       label: widget.semanticLabel,
       value: widget.semanticsValue,
       child: FocusableActionDetector(

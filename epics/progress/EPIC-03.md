@@ -168,3 +168,91 @@ colour mismatch.
 **Signature contract updated** in `.claude/skills/calm-components/` for the three
 public API changes (`CalmPressable`, `CalmSurface`, `CalmSwitch`) — that file
 says a change to a signature is a change to the widget and the table together.
+
+### `/code-review` — 15 findings, all applied
+
+Run after `/simplify`, per CLAUDE.md §5. Nothing was answered-not-applied: every
+finding was real, and one of them was introduced by the simplify pass an hour
+earlier.
+
+**Accessibility (6).** These are the ones no test in this epic could see.
+
+1. *The primary due card stripped its own action button out of the semantics
+   tree.* `semanticLabel` replaces the subtree — the change `/simplify` had just
+   made — and `CalmDueCard` passed one unconditionally, so `_PrimaryBody`,
+   including the "Log it" button, was excluded. A screen-reader user on Home
+   heard "Oil change, Due now, button" with no way to invoke the action. The
+   label now goes through the primitive only at SECONDARY density, where nothing
+   in the subtree is interactive.
+2. *`Semantics(enabled:)` read `widget.enabled` instead of the resolved
+   `active`.* A control built with `onTap: null` — `CalmVehicleTitle` with no
+   `onTapVehicle`, a snackbar action with no callback — announced itself as an
+   enabled button that draws no ring and does nothing, contradicting `onTap`'s
+   own doc comment.
+3. *A row inside a `CalmRowGroup` had an invisible focus ring.* The ring is drawn
+   6pt OUTSIDE the box; the group's `ClipRRect` clipped both side strokes
+   entirely. `focusInset` draws it inside where the parent clips. No widget test
+   can see this — the ring's `DecoratedBox` is in the tree either way; it is the
+   pixels that are gone.
+4. *A disabled `CalmListRow` carried no disabled semantics.* Opacity is not a
+   channel a screen reader has. `CalmChip` already did this and the two
+   disagreed.
+5. *`CalmField` put the error in the semantic `value`.* `MergeSemantics` absorbs
+   the `TextField`'s configuration and `SemanticsConfiguration.absorb`
+   CONCATENATES value strings, so the error fused with the typed text and was
+   re-announced on every keystroke. It rides the `hint` now.
+6. *The traversal test proved nothing.* It counted rings, so a tree where Tab
+   cycles between two controls and never reaches the other N−2 passed. It
+   collects `primaryFocus` per stop and asserts N distinct nodes; verified by
+   planting a missed stop.
+
+**Design and correctness (5).**
+
+7. *`loading` collapsed into the disabled palette.* `.btn.is-loading` sets
+   `color: transparent` and nothing else — the fill stays the variant's. A
+   loading primary Save rendered grey, lost its `elev1`, and drew the spinner in
+   `ink4` on `surface2` at 2.60:1: an undeclared SC 1.4.11 failure that the ink4
+   allowlist justifies only as exempt disabled TEXT. Split into `interactive`
+   (taps) and `enabled` (palette).
+8. *A switch inside a `CalmListRow.switchRow` rendered at 42%.* The sanctioned
+   arrangement is `onChanged: null` — the row owns the tap — and that was mapped
+   straight onto "disabled", so every settings row showed a greyed-out switch
+   that toggled perfectly well. `enabled` is now its own parameter.
+9. *`calmSnackbarBottomInset` always added the 62pt tab bar.* SPEC §10 puts Undo
+   on the five `log.*` forms, which are modal and have none, so it floated 62pt
+   above where the design puts it. `CalmChromeScope` publishes what is actually
+   there; both cases are tested.
+10. *Overlay entry was linear, and the dialog faded twice.* `ModalRoute.animation`
+    is the raw controller value, so the rise, scale and fade never touched a
+    curve — the durations were pinned by tests and the curves reached nothing.
+    `RawDialogRoute`'s default `FadeTransition` also multiplied with the
+    transition's own, making the dialog's opacity t². Curved now, with an
+    identity transition builder; opacity is clamped because `easeSettle`
+    overshoots by design.
+11. *`CalmProgressBar` read the global `calmMotion` const* — the only place in
+    `lib/ui/` that bypassed `CalmMotion.of(context)`, so a Theme that overrode
+    the extension was silently ignored by one widget.
+
+**Gates and matrices (4).** Each of these made a green check meaningless.
+
+12. *The overflow matrix looped all 22 specimens inside one `testWidgets`* — the
+    exact failure its own header warned against.
+    `DebugOverflowIndicatorMixin` never resets `_overflowReportNeeded`, so a
+    `RenderFlex` that overflowed on specimen 3 reported nothing on specimen 11.
+    One test per specimen now: 1320 cases, 10s.
+13. *The overflow and touch-target matrices ran LTR English only.* The Arabic
+    type ramp is a different `CalmType` with a taller line box — the variant that
+    produced the `ƒ` badge's negative-EdgeInsets bug — and it was never measured.
+    Both directions now, and the first RTL run found a real clip:
+    `CalmTile`'s label needs three lines at 300% in Persian.
+14. *`check_touch_targets.sh` rule 4 ended a test case at the first line matching
+    `});`* — the close of any nested closure. A realistic reduced-motion case
+    with a `setState` or an `addTearDown` in it defeated the rule entirely, and
+    the self-test's planted violation had no nested closure so both arms stayed
+    green. It tracks brace depth now, with a second arm in that shape.
+15. *`check_golden_lane.sh` scanned only `.github` and `tools`* while its own
+    comment claimed "the whole automation surface" — missing `.claude/skills`,
+    where five of the scripts CI invokes live, including the parity script. New
+    arm plants a rebaselining skill script.
+
+Twelve goldens regenerated for 7, 8 and the switch specimen. All deliberate.

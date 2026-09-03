@@ -74,7 +74,10 @@ class CalmTile extends StatelessWidget {
             SizedBox(height: space.s1),
             Text(
               label,
-              maxLines: 2,
+              // No maxLines. Two lines are RESERVED — German runs ~30% longer
+              // than English — but not imposed: a cap that is reached is a
+              // clip, and the RTL sweep of the overflow matrix found
+              // "لیتر در ۱۰۰ کیلومتر" needing three at 300% on a 320pt screen.
               style: type.caption.copyWith(color: colors.ink3),
             ),
           ],

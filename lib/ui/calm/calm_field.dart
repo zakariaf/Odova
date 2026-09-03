@@ -255,8 +255,18 @@ class _CalmFieldState extends State<CalmField> {
     return MergeSemantics(
       child: Semantics(
         label: widget.label,
-        value: widget.errorText,
-        hint: widget.computed ? widget.computedHint : widget.hint,
+        // The error rides the HINT, not the value. MergeSemantics absorbs the
+        // TextField's own configuration, and SemanticsConfiguration.absorb
+        // CONCATENATES value strings — so an error in `value` fused with the
+        // typed text, and a user editing the odometer heard a stale error
+        // string every time the value was re-announced.
+        hint: [
+          if (widget.errorText != null) widget.errorText!,
+          if (widget.computed && widget.computedHint != null)
+            widget.computedHint!
+          else if (widget.hint != null)
+            widget.hint!,
+        ].join('. '),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,

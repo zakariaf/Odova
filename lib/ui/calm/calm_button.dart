@@ -105,7 +105,14 @@ class CalmButton extends StatelessWidget {
     final shapes = CalmShapes.of(context);
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
-    final enabled = onPressed != null && !loading;
+    // Two different questions. `interactive` decides whether taps land;
+    // `enabled` decides the PALETTE. `.btn.is-loading` in odova.css sets
+    // `color: transparent` and nothing else — the fill stays the variant's —
+    // so folding loading into the disabled branch painted a loading primary
+    // Save grey, dropped its elev1, and drew the spinner in ink4 on surface2
+    // at 2.60:1, which is an undeclared SC 1.4.11 failure.
+    final enabled = onPressed != null;
+    final interactive = enabled && !loading;
 
     if (onPressed == null) _assertExplained(context);
 
@@ -180,8 +187,8 @@ class CalmButton extends StatelessWidget {
         .copyWith(color: foreground, fontWeight: type.semi);
 
     return CalmPressable(
-      onTap: enabled ? onPressed : null,
-      enabled: enabled,
+      onTap: interactive ? onPressed : null,
+      enabled: interactive,
       borderRadius: shapes.radiusPill,
       semanticLabel: label,
       child: _CalmButtonBody(

@@ -180,9 +180,18 @@ class CalmListRow extends StatelessWidget {
       // AbsorbPointer, not IgnorePointer: a disabled row must eat its own tap
       // rather than hand it to the row underneath it.
       return MergeSemantics(
-        child: Opacity(
-          opacity: kCalmRowDisabledOpacity,
-          child: AbsorbPointer(child: row),
+        // The `enabled: false` is not decoration. Without it the merged node
+        // carries no hasEnabledState flag and a screen reader announces a
+        // disabled row identically to an enabled one — the user double-taps
+        // and nothing happens, with no explanation. Opacity is not a channel a
+        // screen reader has. CalmChip's disabled branch already did this; the
+        // two disagreed.
+        child: Semantics(
+          enabled: false,
+          child: Opacity(
+            opacity: kCalmRowDisabledOpacity,
+            child: AbsorbPointer(child: row),
+          ),
         ),
       );
     }
@@ -195,6 +204,9 @@ class CalmListRow extends StatelessWidget {
         onTap: activate,
         borderRadius: standalone ? shapes.radiusXl : 0,
         pressScale: 1, // rows tint only; a 64pt slab does not squeeze
+        // Inside a group the surface CLIPS, so an outset ring is a ring the
+        // user never sees. A standalone row has nothing above it to clip.
+        focusInset: !standalone,
         // No semanticLabel. MergeSemantics already folds the title, subtitle
         // and value into one node, and a label here is announced ON TOP of
         // them: "Reminders, Reminders, on".

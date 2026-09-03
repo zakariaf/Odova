@@ -116,38 +116,42 @@ class CalmDueCard extends StatelessWidget {
     // BorderRadius built from the same number, so they cannot drift.
     final radius = isPrimary ? shapes.radius3xl : shapes.radiusXl;
 
-    // The label and value go THROUGH the primitive rather than around it. The
-    // first version wrapped CalmPressable in Semantics + ExcludeSemantics,
-    // which discarded the primitive's own `Semantics(button:, enabled:)` node
-    // — so the card was a button that could never report disabled, and the
-    // primitive's `enabled` argument was dead there.
-    return MergeSemantics(
-      child: CalmPressable(
-        onTap: onTap,
-        borderRadius: radius,
-        semanticLabel: view.title,
-        semanticsValue: view.statusLine,
-        child: CalmSurface(
-          color: colors.surface,
-          gradient: isPrimary
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [style.tint, colors.surface],
-                  stops: const [0, kCalmDueCardTintStop],
-                )
-              : null,
-          radius: radius,
-          shadow: isPrimary ? shapes.elev2 : shapes.elev1,
-          padding: EdgeInsetsDirectional.all(
-            isPrimary ? space.s6 : space.s4,
-          ),
-          child: isPrimary
-              ? _PrimaryBody(view: view, style: style, onAction: onAction)
-              : _SecondaryBody(view: view, style: style),
+    // The label goes through the primitive ONLY at secondary density.
+    //
+    // A `semanticLabel` replaces the subtree's words, which is right for a
+    // secondary card — a dot, a title, a status line and a chevron, none of
+    // them interactive. At primary density the body contains the card's own
+    // action button, and replacing the subtree would strip Home's main action
+    // out of the semantics tree entirely: a screen-reader user would hear
+    // "Oil change, Due now, button" and have no way to invoke "Log it".
+    final navigable = CalmPressable(
+      onTap: onTap,
+      borderRadius: radius,
+      semanticLabel: isPrimary ? null : view.title,
+      semanticsValue: isPrimary ? null : view.statusLine,
+      child: CalmSurface(
+        color: colors.surface,
+        gradient: isPrimary
+            ? LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [style.tint, colors.surface],
+                stops: const [0, kCalmDueCardTintStop],
+              )
+            : null,
+        radius: radius,
+        shadow: isPrimary ? shapes.elev2 : shapes.elev1,
+        padding: EdgeInsetsDirectional.all(
+          isPrimary ? space.s6 : space.s4,
         ),
+        child: isPrimary
+            ? _PrimaryBody(view: view, style: style, onAction: onAction)
+            : _SecondaryBody(view: view, style: style),
       ),
     );
+
+    // MergeSemantics only where there is nothing interactive to merge away.
+    return isPrimary ? navigable : MergeSemantics(child: navigable);
   }
 }
 
@@ -281,15 +285,16 @@ class CalmProgressBar extends StatelessWidget {
   /// The state's graphic colour.
   final Color color;
 
-  /// How long the fill takes to move.
-  Duration get duration => calmMotion.slow;
-
-  /// The curve it moves on.
-  Curve get curve => calmMotion.easeStandard;
-
   @override
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
+    // Through the extension, like every other value in this library. Reading
+    // the global `calmMotion` const worked and was the only place in lib/ui/
+    // that bypassed CalmMotion.of — so a Theme that overrode the extension,
+    // which is what its lerp and copyWith exist for, was silently ignored by
+    // this one widget. No gate catches it: the motion rule greps for literal
+    // Durations and Curves.
+    final motion = CalmMotion.of(context);
     final space = CalmSpace.of(context);
     return ClipPath(
       // A StadiumBorder's clip, not BorderRadius.circular(radiusPill): 999 is
@@ -302,8 +307,8 @@ class CalmProgressBar extends StatelessWidget {
           color: colors.surface3,
           child: TweenAnimationBuilder<double>(
             tween: Tween(end: value.clamp(0.0, 1.0)),
-            duration: calmDuration(context, duration),
-            curve: curve,
+            duration: calmDuration(context, motion.slow),
+            curve: motion.easeStandard,
             // FractionallySizedBox, not Align(widthFactor:): a width factor
             // multiplies the CHILD's width, and the fill has none of its own,
             // so an Align here draws a zero-width bar that looks like an empty

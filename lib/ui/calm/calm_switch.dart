@@ -28,14 +28,23 @@ class CalmSwitch extends StatelessWidget {
     required this.value,
     required this.onChanged,
     super.key,
+    this.enabled = true,
     this.semanticLabel,
   });
 
   /// On or off.
   final bool value;
 
-  /// Null disables it.
+  /// Null means this switch is not the tap target — which is the SANCTIONED
+  /// arrangement inside a `CalmListRow.switchRow`, where the whole row toggles.
+  ///
+  /// It is NOT the same as [enabled]. Conflating the two painted every
+  /// settings row's switch at 42% opacity, telling the user a control was
+  /// unavailable while the row toggled it perfectly well.
   final ValueChanged<bool>? onChanged;
+
+  /// False fades it. This is the disabled state.
+  final bool enabled;
 
   /// Only for a switch that stands alone. Inside a `CalmListRow.switchRow` the
   /// row's title is the label and this stays null.
@@ -55,12 +64,12 @@ class CalmSwitch extends StatelessWidget {
     // opted out was the one control it could not check.
     return CalmPressable(
       onTap: onChanged == null ? null : () => onChanged(!value),
-      enabled: onChanged != null,
+      enabled: enabled,
       borderRadius: kCalmSwitchTrackSize.height / 2,
       pressScale: 1, // the thumb travels; the track does not squeeze
       toggled: value,
       semanticLabel: semanticLabel,
-      child: CalmSwitchTrack(value: value, enabled: onChanged != null),
+      child: CalmSwitchTrack(value: value, enabled: enabled),
     );
   }
 }

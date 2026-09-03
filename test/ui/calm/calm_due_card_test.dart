@@ -192,9 +192,18 @@ void main() {
         locale: Locale(locale),
       );
 
-      final bar = tester.widget<CalmProgressBar>(find.byType(CalmProgressBar));
-      expect(bar.duration, calmMotion.slow, reason: locale);
-      expect(bar.curve, calmMotion.easeStandard, reason: locale);
+      // Read off the animation itself rather than off getters on the widget:
+      // the widget used to expose `duration`/`curve` that read the global
+      // `calmMotion` const, which is the one thing in lib/ui/ that bypassed
+      // the ThemeExtension.
+      final tween = tester.widget<TweenAnimationBuilder<double>>(
+        find.descendant(
+          of: find.byType(CalmProgressBar),
+          matching: find.byType(TweenAnimationBuilder<double>),
+        ),
+      );
+      expect(tween.duration, calmMotion.slow, reason: locale);
+      expect(tween.curve, calmMotion.easeStandard, reason: locale);
 
       final track = tester.getRect(find.byType(CalmProgressBar));
       // The ColoredBox INSIDE the FractionallySizedBox is the fill — the
@@ -227,15 +236,27 @@ void main() {
     expect(button.dueState, DueState.overdue);
   });
 
-  testWidgets('a card is one semantics node carrying its title and status', (
-    tester,
-  ) async {
+  testWidgets('a secondary card is one node; a primary card keeps its action '
+      'reachable', (tester) async {
     final handle = tester.ensureSemantics();
-    await pumpApp(tester, _card());
 
-    final node = tester.getSemantics(find.byType(CalmDueCard));
-    expect(node.label, 'Oil change');
-    expect(node.value, 'Due now');
+    await pumpApp(tester, _card(density: CalmDueDensity.secondary));
+    final secondary = tester.getSemantics(find.byType(CalmDueCard));
+    expect(secondary.label, 'Oil change');
+    expect(secondary.value, 'Due now');
+
+    // The primary card is NOT one node, deliberately. A semanticLabel on the
+    // pressable replaces the subtree's semantics, and the primary body holds
+    // the card's own action button — so folding it into one node strips Home's
+    // main action out of the tree entirely and a screen-reader user hears
+    // "Oil change, Due now, button" with no way to invoke "Log it".
+    await pumpApp(tester, _card());
+    expect(
+      tester.getSemantics(find.text('Log it')),
+      isSemantics(label: 'Log it', isButton: true),
+    );
+    expect(find.text('Oil change'), findsOneWidget);
+    expect(find.text('Due now'), findsOneWidget);
 
     handle.dispose();
   });

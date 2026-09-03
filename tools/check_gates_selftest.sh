@@ -409,6 +409,34 @@ assert 1 "check_touch_targets is red on pumpAndSettle INSIDE a reduced-motion ca
 restore_all
 assert 0 "check_touch_targets is green again once removed" bash "$TARGETS" lib test
 
+# The SAME violation, written the way a real test is written: with a nested
+# closure before the pumpAndSettle. The first version of rule 4 ended the case
+# at the first line matching `});`, which is the close of any inner closure —
+# so this shape defeated the rule entirely while the arm above stayed green.
+write_scratch test/ui/selftest_probe_test.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('a reduced-motion case with a nested closure', (tester) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: SizedBox.shrink(),
+      ),
+    );
+    addTearDown(() {
+      debugPrint('a nested closure that closes with a brace-paren');
+    });
+    await tester.pumpAndSettle();
+  });
+}
+PROBE
+assert 1 "check_touch_targets sees past a nested closure in the same case" \
+  bash "$TARGETS" lib test
+restore_all
+assert 0 "check_touch_targets is green again" bash "$TARGETS" lib test
+
 assert 0 "check_status_encoding is green" bash "$STATUS" lib
 write_scratch lib/ui/selftest_probe.dart <<'PROBE'
 import 'package:flutter/material.dart';
@@ -456,6 +484,18 @@ YML
 assert 1 "check_golden_lane is red when CI rebaselines its own goldens" \
   bash "$GOLDEN" .selftest_self_bless.yml
 restore_all
+
+# The scan has to reach .claude/skills too: five of the scripts CI invokes live
+# there, including the parity script. It used to look only at .github and tools.
+write_scratch .claude/skills/selftest-probe/scripts/rebaseline.sh <<SH
+#!/usr/bin/env bash
+flutter test --tags golden $UPD
+SH
+assert 1 "check_golden_lane is red on a skill script that rebaselines" \
+  bash "$GOLDEN"
+restore_all
+rmdir .claude/skills/selftest-probe/scripts .claude/skills/selftest-probe 2>/dev/null || true
+assert 0 "check_golden_lane is green again" bash "$GOLDEN"
 assert 0 "check_golden_lane is green again" bash "$GOLDEN"
 
 exit "$rc"

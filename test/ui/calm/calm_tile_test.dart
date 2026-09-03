@@ -57,7 +57,10 @@ void main() {
     );
 
     final label = tester.widget<Text>(find.text('Durchschnittsverbrauch'));
-    expect(label.maxLines, 2);
+    // Two lines are RESERVED, not imposed: a cap that is reached is a clip.
+    // The overflow matrix's RTL sweep found the Persian label needing three at
+    // 300% on a 320pt screen.
+    expect(label.maxLines, isNull);
     expect(label.overflow, isNot(TextOverflow.ellipsis));
     expect(tester.takeException(), isNull);
   });

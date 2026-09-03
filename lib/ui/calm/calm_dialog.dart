@@ -77,12 +77,19 @@ class CalmDialog extends StatelessWidget {
       barrierColor: colors.scrim,
       transitionDuration: calmDuration(context, motion.base),
       pageBuilder: (context, _, _) => builder(context),
+      // The identity transition, on purpose. RawDialogRoute's default is a
+      // linear FadeTransition, and CalmOverlayTransition already fades — the
+      // two multiply, so the dialog's effective opacity was t squared: an
+      // ease-in nobody chose, on top of a duration that is supposed to be
+      // easeStandard.
+      transitionBuilder: (context, _, _, child) => child,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
+    final motion = CalmMotion.of(context);
     final shapes = CalmShapes.of(context);
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
@@ -91,6 +98,8 @@ class CalmDialog extends StatelessWidget {
       rise: 0,
       scaleFrom: kCalmDialogScaleFrom,
       fadeFrom: 0,
+      curve: motion.easeSettle,
+      reverseCurve: motion.easeIn,
       child: Center(
         child: Padding(
           padding: EdgeInsetsDirectional.all(space.s6),

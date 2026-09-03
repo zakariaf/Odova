@@ -22,6 +22,36 @@ const double kCalmTabFabLift = 18;
 /// `.modal-head__action` paints 44; Calm's floor is still 52.
 const double kCalmAppBarActionHeight = 44;
 
+/// Published by [CalmScaffold] so a snackbar knows what it has to clear.
+///
+/// The inset used to add `tabbarH` unconditionally. SPEC.md §10 puts the Undo
+/// snackbar on the five `log.*` forms, which are modal and have NO tab bar —
+/// so it floated 62pt above where the design puts it, over content instead of
+/// above the chrome.
+class CalmChromeScope extends InheritedWidget {
+  /// Marks the subtree as a screen with or without a tab bar.
+  const CalmChromeScope({
+    required this.hasTabBar,
+    required super.child,
+    super.key,
+  });
+
+  /// Whether a tab bar is on screen below this subtree.
+  final bool hasTabBar;
+
+  /// False when there is no scaffold above, which is what a bare test pump
+  /// looks like.
+  static bool hasTabBarIn(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<CalmChromeScope>()
+          ?.hasTabBar ??
+      false;
+
+  @override
+  bool updateShouldNotify(CalmChromeScope oldWidget) =>
+      oldWidget.hasTabBar != hasTabBar;
+}
+
 /// The only screen skeleton in Odova.
 class CalmScaffold extends StatelessWidget {
   /// Creates a screen.
@@ -56,41 +86,44 @@ class CalmScaffold extends StatelessWidget {
     final colors = CalmColors.of(context);
     final space = CalmSpace.of(context);
 
-    return Scaffold(
-      backgroundColor: colors.bg,
-      // The odometer strip is typed into, and SPEC.md §10 forbids a primary
-      // action under the keyboard. Scaffold reads MediaQuery.viewInsetsOf.
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        bottom: tabBar == null, // the tab bar draws its own bottom inset
-        child: Column(
-          children: [
-            appBar,
-            Expanded(
-              child: ListView.separated(
-                padding: EdgeInsetsDirectional.fromSTEB(
-                  space.screenPad,
-                  space.s5,
-                  space.screenPad,
-                  space.s6,
+    return CalmChromeScope(
+      hasTabBar: tabBar != null,
+      child: Scaffold(
+        backgroundColor: colors.bg,
+        // The odometer strip is typed into, and SPEC.md §10 forbids a primary
+        // action under the keyboard. Scaffold reads MediaQuery.viewInsetsOf.
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          bottom: tabBar == null, // the tab bar draws its own bottom inset
+          child: Column(
+            children: [
+              appBar,
+              Expanded(
+                child: ListView.separated(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                    space.screenPad,
+                    space.s5,
+                    space.screenPad,
+                    space.s6,
+                  ),
+                  itemCount: children.length,
+                  separatorBuilder: (_, _) => SizedBox(height: space.s5),
+                  itemBuilder: (_, i) => children[i],
                 ),
-                itemCount: children.length,
-                separatorBuilder: (_, _) => SizedBox(height: space.s5),
-                itemBuilder: (_, i) => children[i],
               ),
-            ),
-            if (footer != null)
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(
-                  space.screenPad,
-                  space.s4,
-                  space.screenPad,
-                  space.s5,
+              if (footer != null)
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                    space.screenPad,
+                    space.s4,
+                    space.screenPad,
+                    space.s5,
+                  ),
+                  child: footer,
                 ),
-                child: footer,
-              ),
-            ?tabBar,
-          ],
+              ?tabBar,
+            ],
+          ),
         ),
       ),
     );
@@ -715,5 +748,6 @@ class _CalmTabItem extends StatelessWidget {
 /// The CSS composes `--homebar-h`; on device that number is MediaQuery's.
 double calmSnackbarBottomInset(BuildContext context) {
   final space = CalmSpace.of(context);
-  return space.tabbarH + MediaQuery.paddingOf(context).bottom + space.s3;
+  final tabBar = CalmChromeScope.hasTabBarIn(context) ? space.tabbarH : 0.0;
+  return tabBar + MediaQuery.paddingOf(context).bottom + space.s3;
 }

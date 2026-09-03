@@ -185,7 +185,16 @@ void main() {
     // blind user never hears.
     final node = tester.getSemantics(find.byType(CalmField));
     expect(node.label, 'Odometer');
-    expect(node.value, contains('Lower than the last reading'));
+    // The error is the HINT. It cannot be the value: MergeSemantics absorbs
+    // the TextField's configuration and concatenates value strings, so an
+    // error there fuses with the typed text and is re-announced on every
+    // keystroke.
+    expect(node.hint, contains('Lower than the last reading'));
+    expect(
+      node.value,
+      isNot(contains('Lower than the last reading')),
+      reason: 'the error fused with the field value',
+    );
 
     handle.dispose();
   });

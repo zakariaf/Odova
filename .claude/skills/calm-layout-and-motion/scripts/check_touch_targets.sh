@@ -57,13 +57,25 @@ done < <(find "$LIB" -name '*.dart' -type f -print0)
 # single case. So each `testWidgets(` / `test(` block is examined on its own.
 if [ -d "$TESTS" ]; then
   while IFS= read -r -d '' f; do
+    # The block ends when BRACE DEPTH returns to zero, not at the first line
+    # that looks like `});`. That pattern fires on the close of any nested
+    # closure — a setState, a Builder, an addTearDown — so a realistic
+    # reduced-motion case ended at its first inner closure and every
+    # pumpAndSettle after it was invisible to the rule.
     hits="$(src "$f" | awk '
-      /^[[:space:]]*(testWidgets|test)\(/ { block=NR; reduced=0; settles="" }
-      /disableAnimations|AnimationStyle\.noAnimation/ { if (block) reduced=1 }
-      /pumpAndSettle/ { if (block) settles = settles " " NR }
-      /^[[:space:]]*\}\);[[:space:]]*$/ {
-        if (block && reduced && settles != "") print "case at line " block ":" settles
-        block=0
+      !block && /^[[:space:]]*(testWidgets|test)\(/ {
+        block=NR; reduced=0; settles=""; depth=0; opened=0
+      }
+      block {
+        opens = gsub(/\{/, "{"); closes = gsub(/\}/, "}")
+        depth += opens - closes
+        if (opens > 0) opened = 1
+        if (/disableAnimations|AnimationStyle\.noAnimation/) reduced=1
+        if (/pumpAndSettle/) settles = settles " " NR
+        if (opened && depth <= 0) {
+          if (reduced && settles != "") print "case at line " block ":" settles
+          block=0
+        }
       }
     ')"
     if [ -n "$hits" ]; then

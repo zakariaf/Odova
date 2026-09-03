@@ -98,6 +98,7 @@ class CalmSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
+    final motion = CalmMotion.of(context);
     final shapes = CalmShapes.of(context);
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
@@ -192,6 +193,8 @@ class CalmSheet extends StatelessWidget {
         rise: kCalmSheetRise,
         fadeFrom: kCalmSheetFadeFrom,
         scaleFrom: 1,
+        curve: motion.easeStandard,
+        reverseCurve: motion.easeIn,
         child: surface,
       ),
     );
