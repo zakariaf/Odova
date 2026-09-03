@@ -24,6 +24,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # The Flutter-free test tier. lib/core/ imports no Flutter by construction
+  # (test/policy/structure_test.dart), so its tests run under `dart test` with
+  # no widget binding — which is what makes the due engine and the fuel maths
+  # testable in milliseconds, and what turns a stray `Widget` in lib/core/ into
+  # a compile error rather than a review comment. Dev-only: it never ships.
+  test: ^1.31.0
   # The ruleset analysis_options.yaml includes. Caret range; pubspec.lock is
   # the pin (dependency-hygiene rule 1).
   very_good_analysis: ^10.3.0

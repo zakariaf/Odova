@@ -19,7 +19,6 @@ import 'analysis_options_source.dart';
 /// so "this gate currently checks nothing" is a decision written down rather
 /// than an accident. Each entry names the epic that fills it.
 const knownEmptyLibDirectories = {
-  'lib/core', // EPIC-06 — units, money and the fuel engine
   'lib/data', // EPIC-05 — persistence, schema and migrations
   'lib/features', // EPIC-09 — first run and the garage
   'lib/ui', // EPIC-03 — the Calm component library

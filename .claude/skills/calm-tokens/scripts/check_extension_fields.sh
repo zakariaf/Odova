@@ -21,6 +21,17 @@ fi
 # The trailing `(//.*)?` matters: most Calm field lines carry an inline comment,
 # and a `;$` anchor sees zero fields in those files — a gate that passes because
 # it found nothing to check.
+#
+# Declarations are UNWRAPPED before matching. `dart format` breaks a long
+# comma-separated field list across lines the moment it passes 80 columns:
+#
+#   final Color chart1,
+#       chart2,
+#       ...
+#
+# A single-line regex sees none of those, so the gate reported OK over eight
+# chart slots it had never looked at — the exact failure it exists to catch,
+# switched off by a formatter rather than by a person.
 FIELD_RE='^  final [A-Za-z_][A-Za-z0-9_]*(<[^>]*>)?\??[[:space:]]+([a-z][A-Za-z0-9_]*([[:space:]]*,[[:space:]]*[a-z][A-Za-z0-9_]*)*);[[:space:]]*(//.*)?$'
 
 fail=0
@@ -31,6 +42,7 @@ for f in "$DIR"/*.dart; do
   # Emit each lerp-bearing class body, then pull instance fields out of it.
   fields="$(awk '/^class /{inblock=1; buf=""} inblock{buf=buf $0 "\n"}
                  /^}/{ if (inblock && buf ~ /lerp\(/) printf "%s", buf; inblock=0 }' "$f" \
+            | perl -0pe 's/,\n\s+/, /g' \
             | sed -nE "s@$FIELD_RE@\2@p" | tr -d ' ' | tr ',' '\n' | grep -v '^$' || true)"
   [ -n "$fields" ] || continue
 
