@@ -57,6 +57,17 @@ class FillUpRepository {
   /// Writes [fillUp].
   Future<Result<FillUp, PersistFailure>> save(FillUp fillUp) =>
       guardPersist(() async {
+        final refusal = await checkDerivedReading(
+          _db,
+          parentId: fillUp.id.toString(),
+          vehicleId: fillUp.vehicleId,
+          source: OdometerSource.fillUp,
+          occurredOn: fillUp.occurredOn,
+          odometerM: fillUp.odometerM,
+          nowUtcMs: fillUp.updatedAtUtcMs,
+        );
+        if (refusal != null) return Err(refusal);
+
         await _db.transaction(() async {
           await _db
               .into(_db.fillUps)
@@ -127,49 +138,61 @@ class ExpenseRepository {
           .map((rows) => rows.map(_expenseFromRow).toList())
           .distinct(valuesEqual);
 
-  /// Writes [expense].
-  Future<Result<Expense, PersistFailure>> save(Expense expense) =>
-      guardPersist(() async {
-        await _db.transaction(() async {
-          await _db
-              .into(_db.expenses)
-              .insertOnConflictUpdate(
-                ExpensesCompanion.insert(
-                  id: expense.id.toString(),
-                  createdAtUtcMs: expense.createdAtUtcMs,
-                  updatedAtUtcMs: expense.updatedAtUtcMs,
-                  vehicleId: expense.vehicleId.toString(),
-                  tripId: Value(expense.tripId?.toString()),
-                  occurredOn: expense.occurredOn,
-                  category: expense.category.wire,
-                  label: Value(expense.label),
-                  amountMinor: expense.amountMinor,
-                  currency: expense.currency,
-                  coversFrom: Value(expense.coversFrom),
-                  coversTo: Value(expense.coversTo),
-                  odometerM: Value(expense.odometerM),
-                  odometerUnit: expense.odometerUnit.wire,
-                  vendor: Value(expense.vendor),
-                  notes: Value(expense.notes),
-                ),
-              );
-          // `odometerM` is nullable on an expense, and a null one emits NO
-          // reading — `syncDerivedReading` removes any it had. An insurance
-          // premium paid online has no odometer to record.
-          await syncDerivedReading(
-            _db,
-            ids: _ids,
-            parentId: expense.id.toString(),
-            vehicleId: expense.vehicleId,
-            source: OdometerSource.expense,
-            occurredOn: expense.occurredOn,
-            odometerUnit: expense.odometerUnit,
-            odometerM: expense.odometerM,
-            nowUtcMs: expense.updatedAtUtcMs,
+  /// Writes [expense] and its derived odometer reading, together.
+  Future<Result<Expense, PersistFailure>> save(
+    Expense expense,
+  ) => guardPersist(() async {
+    final refusal = await checkDerivedReading(
+      _db,
+      parentId: expense.id.toString(),
+      vehicleId: expense.vehicleId,
+      source: OdometerSource.expense,
+      occurredOn: expense.occurredOn,
+      odometerM: expense.odometerM,
+      nowUtcMs: expense.updatedAtUtcMs,
+    );
+    if (refusal != null) return Err(refusal);
+
+    await _db.transaction(() async {
+      await _db
+          .into(_db.expenses)
+          .insertOnConflictUpdate(
+            ExpensesCompanion.insert(
+              id: expense.id.toString(),
+              createdAtUtcMs: expense.createdAtUtcMs,
+              updatedAtUtcMs: expense.updatedAtUtcMs,
+              vehicleId: expense.vehicleId.toString(),
+              tripId: Value(expense.tripId?.toString()),
+              occurredOn: expense.occurredOn,
+              category: expense.category.wire,
+              label: Value(expense.label),
+              amountMinor: expense.amountMinor,
+              currency: expense.currency,
+              coversFrom: Value(expense.coversFrom),
+              coversTo: Value(expense.coversTo),
+              odometerM: Value(expense.odometerM),
+              odometerUnit: expense.odometerUnit.wire,
+              vendor: Value(expense.vendor),
+              notes: Value(expense.notes),
+            ),
           );
-        });
-        return Ok(expense);
-      });
+      // `odometerM` is nullable on an expense, and a null one emits NO
+      // reading — `syncDerivedReading` removes any it had. An insurance
+      // premium paid online has no odometer to record.
+      await syncDerivedReading(
+        _db,
+        ids: _ids,
+        parentId: expense.id.toString(),
+        vehicleId: expense.vehicleId,
+        source: OdometerSource.expense,
+        occurredOn: expense.occurredOn,
+        odometerUnit: expense.odometerUnit,
+        odometerM: expense.odometerM,
+        nowUtcMs: expense.updatedAtUtcMs,
+      );
+    });
+    return Ok(expense);
+  });
 
   Expense _expenseFromRow(ExpenseRow row) {
     final times = repairAuditTimes(
@@ -235,58 +258,80 @@ class TripRepository {
           .map((rows) => rows.map(_tripFromRow).toList())
           .distinct(valuesEqual);
 
-  /// Writes [trip].
-  Future<Result<Trip, PersistFailure>> save(Trip trip) =>
-      guardPersist(() async {
-        await _db.transaction(() async {
-          await _db
-              .into(_db.trips)
-              .insertOnConflictUpdate(
-                TripsCompanion.insert(
-                  id: trip.id.toString(),
-                  createdAtUtcMs: trip.createdAtUtcMs,
-                  updatedAtUtcMs: trip.updatedAtUtcMs,
-                  vehicleId: trip.vehicleId.toString(),
-                  title: Value(trip.title),
-                  purpose: trip.purpose.wire,
-                  startedOn: trip.startedOn,
-                  endedOn: Value(trip.endedOn),
-                  startOdometerM: Value(trip.startOdometerM),
-                  endOdometerM: Value(trip.endOdometerM),
-                  manualDistanceM: Value(trip.manualDistanceM),
-                  odometerUnit: trip.odometerUnit.wire,
-                  notes: Value(trip.notes),
-                ),
-              );
-          // TWO readings, and they differ by `source` alone — which is why the
-          // fan-out keys on `(source_id, source)` rather than on the parent id.
-          // An open trip has no end, so its end reading is removed rather than
-          // left holding yesterday's number.
-          await syncDerivedReading(
-            _db,
-            ids: _ids,
-            parentId: trip.id.toString(),
-            vehicleId: trip.vehicleId,
-            source: OdometerSource.tripStart,
-            occurredOn: trip.startedOn,
-            odometerUnit: trip.odometerUnit,
-            odometerM: trip.startOdometerM,
-            nowUtcMs: trip.updatedAtUtcMs,
+  /// Writes [trip] and its one or two derived odometer readings, together.
+  Future<Result<Trip, PersistFailure>> save(
+    Trip trip,
+  ) => guardPersist(() async {
+    // Both endpoints, because either can be the one that goes backwards.
+    for (final (source, occurredOn, odometerM) in [
+      (OdometerSource.tripStart, trip.startedOn, trip.startOdometerM),
+      (
+        OdometerSource.tripEnd,
+        trip.endedOn ?? trip.startedOn,
+        trip.endedOn == null ? null : trip.endOdometerM,
+      ),
+    ]) {
+      final refusal = await checkDerivedReading(
+        _db,
+        parentId: trip.id.toString(),
+        vehicleId: trip.vehicleId,
+        source: source,
+        occurredOn: occurredOn,
+        odometerM: odometerM,
+        nowUtcMs: trip.updatedAtUtcMs,
+      );
+      if (refusal != null) return Err(refusal);
+    }
+
+    await _db.transaction(() async {
+      await _db
+          .into(_db.trips)
+          .insertOnConflictUpdate(
+            TripsCompanion.insert(
+              id: trip.id.toString(),
+              createdAtUtcMs: trip.createdAtUtcMs,
+              updatedAtUtcMs: trip.updatedAtUtcMs,
+              vehicleId: trip.vehicleId.toString(),
+              title: Value(trip.title),
+              purpose: trip.purpose.wire,
+              startedOn: trip.startedOn,
+              endedOn: Value(trip.endedOn),
+              startOdometerM: Value(trip.startOdometerM),
+              endOdometerM: Value(trip.endOdometerM),
+              manualDistanceM: Value(trip.manualDistanceM),
+              odometerUnit: trip.odometerUnit.wire,
+              notes: Value(trip.notes),
+            ),
           );
-          await syncDerivedReading(
-            _db,
-            ids: _ids,
-            parentId: trip.id.toString(),
-            vehicleId: trip.vehicleId,
-            source: OdometerSource.tripEnd,
-            occurredOn: trip.endedOn ?? trip.startedOn,
-            odometerUnit: trip.odometerUnit,
-            odometerM: trip.endedOn == null ? null : trip.endOdometerM,
-            nowUtcMs: trip.updatedAtUtcMs,
-          );
-        });
-        return Ok(trip);
-      });
+      // TWO readings, and they differ by `source` alone — which is why the
+      // fan-out keys on `(source_id, source)` rather than on the parent id.
+      // An open trip has no end, so its end reading is removed rather than
+      // left holding yesterday's number.
+      await syncDerivedReading(
+        _db,
+        ids: _ids,
+        parentId: trip.id.toString(),
+        vehicleId: trip.vehicleId,
+        source: OdometerSource.tripStart,
+        occurredOn: trip.startedOn,
+        odometerUnit: trip.odometerUnit,
+        odometerM: trip.startOdometerM,
+        nowUtcMs: trip.updatedAtUtcMs,
+      );
+      await syncDerivedReading(
+        _db,
+        ids: _ids,
+        parentId: trip.id.toString(),
+        vehicleId: trip.vehicleId,
+        source: OdometerSource.tripEnd,
+        occurredOn: trip.endedOn ?? trip.startedOn,
+        odometerUnit: trip.odometerUnit,
+        odometerM: trip.endedOn == null ? null : trip.endOdometerM,
+        nowUtcMs: trip.updatedAtUtcMs,
+      );
+    });
+    return Ok(trip);
+  });
 
   Trip _tripFromRow(TripRow row) {
     final times = repairAuditTimes(

@@ -85,6 +85,24 @@ class OdometerRepository {
     required DistanceUnit vehicleUnit,
     int? purchaseOdometerM,
   }) => guardPersist(() async {
+    // SPEC.md §3: a derived reading follows its parent and is not directly
+    // editable. Editing it here would leave the reading and the record that
+    // produced it disagreeing, with nothing to say which is right — and the
+    // next save of that parent would silently overwrite the edit anyway.
+    //
+    // `import` is editable alongside `manual`: an imported reading has no live
+    // parent in this database to follow, so refusing it would make a restored
+    // backup permanently uncorrectable.
+    if (reading.source != OdometerSource.manual &&
+        reading.source != OdometerSource.import) {
+      return Err(
+        DerivedReadingNotEditable(
+          readingId: reading.id.toString(),
+          source: reading.source.wire,
+        ),
+      );
+    }
+
     final state = await _stateOf(reading.vehicleId);
 
     // The proposed reading is excluded from the existing set so that an EDIT

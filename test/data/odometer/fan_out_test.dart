@@ -13,7 +13,9 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/log_repositories.dart';
 import 'package:odova/data/repositories/service_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
@@ -232,6 +234,128 @@ void main() {
         .customSelect('SELECT COUNT(*) AS n FROM service_records;')
         .getSingle();
     expect(records.read<int>('n'), 0);
+  });
+
+  test('a derived reading participates in monotonicity', () async {
+    // EPIC-05 task 5.9 names this test, and it did not exist. The fan-out
+    // writes straight into `odometer_readings` with an upsert, so it does not
+    // pass through `OdometerRepository.saveReading` — which meant four of the
+    // five write paths into the table skipped the guard entirely. A fill-up
+    // whose odometer went backwards was accepted, and the distance history it
+    // feeds was non-monotonic from that point on: a wrong consumption figure,
+    // a wrong projection and a wrong cost per km, all plausible-looking.
+    await fillUps.save(fillUp());
+
+    final backwards = await fillUps.save(
+      FillUp(
+        id: FillUpId.tryParse('fil_01JV7B5X4G2K9M6P0S3D8FNRTC')!,
+        vehicleId: _vehicleId,
+        occurredOn: '2026-09-04',
+        odometerM: 100000,
+        odometerUnit: DistanceUnit.km,
+        fuelKind: FuelKind.diesel,
+        quantityMl: 45200,
+        quantityUnit: VolumeUnit.l,
+        totalCostMinor: 7845,
+        currency: 'EUR',
+        createdAtUtcMs: 2000,
+        updatedAtUtcMs: 2000,
+      ),
+    );
+
+    expect(backwards, isA<Err<FillUp, PersistFailure>>());
+    final failure =
+        (backwards as Err<FillUp, PersistFailure>).failure
+            as OdometerWouldGoBackwards;
+    expect(failure.previousCumulativeM, 186512000);
+    expect(failure.previousOccurredOn, '2026-09-03');
+
+    // Neither the fill-up nor a reading, which is the half of task 5.9's
+    // wording a check inside the transaction could not give: the refusal
+    // happens before it opens.
+    expect(await readings(), hasLength(1));
+    final rows = await db
+        .customSelect('SELECT COUNT(*) AS n FROM fill_ups;')
+        .getSingle();
+    expect(rows.read<int>('n'), 1);
+  });
+
+  test(
+    'editing a parent is checked against its NEIGHBOURS, not itself',
+    () async {
+      // The same trap the manual path had. The reading being replaced has to be
+      // excluded from the comparison, or a fill-up's own stored odometer blocks
+      // the edit that lowers it.
+      await fillUps.save(fillUp());
+      expect(
+        await fillUps.save(fillUp(odometerM: 186000000)),
+        isA<Ok<FillUp, PersistFailure>>(),
+      );
+
+      expect(await readings(), [
+        ('fillup', 'fil_$_b', 186000000, '2026-09-03'),
+      ]);
+    },
+  );
+
+  test('an edit that would exceed a LATER reading is refused', () async {
+    // The case that separates the two halves of the fix. Reusing the row's
+    // real id makes a LOWERING edit safe on its own — the stale copy collapses
+    // onto the proposal in the cumulative map keyed by id — but the stale copy
+    // still sits in the sorted order where the SUCCESSOR belongs, reporting
+    // the proposed value. The check then compares the reading to itself, finds
+    // no conflict, and lets through an edit that puts 187,000 km before a
+    // stored 186,600.
+    await fillUps.save(fillUp());
+    await fillUps.save(
+      FillUp(
+        id: FillUpId.tryParse('fil_01JV7B5X4G2K9M6P0S3D8FNRTC')!,
+        vehicleId: _vehicleId,
+        occurredOn: '2026-09-10',
+        odometerM: 186600000,
+        odometerUnit: DistanceUnit.km,
+        fuelKind: FuelKind.diesel,
+        quantityMl: 45200,
+        quantityUnit: VolumeUnit.l,
+        totalCostMinor: 7845,
+        currency: 'EUR',
+        createdAtUtcMs: 2000,
+        updatedAtUtcMs: 2000,
+      ),
+    );
+
+    final result = await fillUps.save(fillUp(odometerM: 187000000));
+
+    expect(result, isA<Err<FillUp, PersistFailure>>());
+    final failure =
+        (result as Err<FillUp, PersistFailure>).failure
+            as OdometerWouldGoBackwards;
+    expect(failure.previousCumulativeM, 186600000);
+    expect(failure.previousOccurredOn, '2026-09-10');
+  });
+
+  test('a trip is checked at BOTH endpoints', () async {
+    // Either can be the one that goes backwards, so one check would let the
+    // other through.
+    await fillUps.save(fillUp());
+
+    final backwards = await trips.save(
+      Trip(
+        id: TripId.tryParse('trp_$_b')!,
+        vehicleId: _vehicleId,
+        purpose: TripPurpose.business,
+        startedOn: '2026-09-04',
+        endedOn: '2026-09-05',
+        startOdometerM: 186600000,
+        endOdometerM: 100000,
+        odometerUnit: DistanceUnit.km,
+        createdAtUtcMs: 2000,
+        updatedAtUtcMs: 2000,
+      ),
+    );
+
+    expect(backwards, isA<Err<Trip, PersistFailure>>());
+    expect(await readings(), hasLength(1), reason: 'only the fill-up survives');
   });
 
   test('a derived reading knows it is derived', () async {

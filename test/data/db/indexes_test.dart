@@ -46,11 +46,17 @@ void main() {
         .get();
     expect(rows.map((r) => r.read<String>('name')).toSet(), {
       'idx_readings_vehicle_order',
+      'idx_readings_source',
       'idx_fillups_vehicle_date',
+      'idx_items_vehicle',
+      'idx_records_vehicle_date',
+      'idx_expenses_vehicle_date',
+      'idx_trips_vehicle_date',
+      'idx_corrections_vehicle',
       'idx_lines_record',
       'idx_lines_item',
     });
-    expect(schemaIndexes, hasLength(4));
+    expect(schemaIndexes, hasLength(10));
   });
 
   test('the reading history query uses idx_readings_vehicle_order', () async {
@@ -114,6 +120,74 @@ void main() {
       ['rem_01JV7B5X4G2K9M6P0S3D8FNRTC'],
     );
     expect(detail, contains('idx_lines_item'), reason: detail);
+  });
+
+  test('every scoped watch query is an index seek, not a scan', () async {
+    // Each of these is re-run on every write to its table, because drift's
+    // stream invalidation is table-level — including for a vehicle the user is
+    // not looking at. Four of them were scans with a TEMP B-TREE for the ORDER
+    // BY, while a doc comment on `watchItems` claimed it was "one indexed
+    // lookup rather than a scan". The comment was false and nothing said so.
+    const queries = <String, (String, List<Object?>)>{
+      'idx_items_vehicle': (
+        'SELECT * FROM service_items WHERE vehicle_id = ? '
+            'AND deleted_at_utc_ms IS NULL ORDER BY id',
+        ['veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD'],
+      ),
+      'idx_records_vehicle_date': (
+        'SELECT * FROM service_records WHERE vehicle_id = ? '
+            'AND deleted_at_utc_ms IS NULL ORDER BY occurred_on DESC, id DESC',
+        ['veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD'],
+      ),
+      'idx_expenses_vehicle_date': (
+        'SELECT * FROM expenses WHERE vehicle_id = ? '
+            'AND deleted_at_utc_ms IS NULL ORDER BY occurred_on DESC, id DESC',
+        ['veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD'],
+      ),
+      'idx_trips_vehicle_date': (
+        'SELECT * FROM trips WHERE vehicle_id = ? '
+            'AND deleted_at_utc_ms IS NULL ORDER BY started_on DESC, id DESC',
+        ['veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD'],
+      ),
+      'idx_corrections_vehicle': (
+        'SELECT * FROM odometer_corrections WHERE vehicle_id = ? '
+            'AND deleted_at_utc_ms IS NULL',
+        ['veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD'],
+      ),
+    };
+
+    for (final MapEntry(key: index, value: (sql, args)) in queries.entries) {
+      final detail = await plan(sql, args);
+      expect(detail, contains(index), reason: '$index\n  $detail');
+      expect(
+        detail,
+        isNot(contains('TEMP B-TREE')),
+        reason: '$index sorts after reading\n  $detail',
+      );
+    }
+  });
+
+  test('the fan-out lookup is a seek, and cannot hold a duplicate', () async {
+    // `(source_id, source)` runs on EVERY fill-up, service and expense save,
+    // and twice on a trip. Without the index it is a full scan of the readings
+    // table inside the write transaction under `synchronous = FULL` — at a
+    // household's few thousand readings, on the save somebody makes standing
+    // at a pump.
+    final detail = await plan(
+      'SELECT id FROM odometer_readings WHERE source_id = ? AND source = ?',
+      ['fil_01JQ8ZK3M7F0R6XN2E9TB4HCVD', 'fillup'],
+    );
+    expect(detail, contains('idx_readings_source'), reason: detail);
+    expect(detail, isNot(contains('SCAN')), reason: detail);
+
+    // UNIQUE, which is what makes a second reading for one parent and source
+    // impossible rather than merely unlikely.
+    final index = await db
+        .customSelect(
+          "SELECT sql FROM sqlite_schema WHERE name = 'idx_readings_source';",
+        )
+        .getSingle();
+    expect(index.read<String>('sql'), contains('UNIQUE'));
   });
 
   test('the reading index is partial, and the planner knows it', () async {

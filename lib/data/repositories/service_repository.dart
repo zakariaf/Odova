@@ -92,6 +92,19 @@ class ServiceRepository {
       return const Err(ConstraintViolated('service_record_needs_a_line'));
     }
 
+    // Checked before the transaction opens: the reading this record emits has
+    // to pass the same monotonicity guard a manual one does.
+    final refusal = await checkDerivedReading(
+      _db,
+      parentId: record.id.toString(),
+      vehicleId: record.vehicleId,
+      source: OdometerSource.service,
+      occurredOn: record.occurredOn,
+      odometerM: record.odometerM,
+      nowUtcMs: record.updatedAtUtcMs,
+    );
+    if (refusal != null) return Err(refusal);
+
     await _db.transaction(() async {
       await _db
           .into(_db.serviceRecords)

@@ -34,7 +34,13 @@ part 'app_database.g.dart';
 /// queries and asserts each plan names its index rather than SCAN.
 const schemaIndexes = <String>[
   _readingsVehicleOrder,
+  _readingsSource,
   _fillUpsVehicleDate,
+  _itemsVehicle,
+  _recordsVehicleDate,
+  _expensesVehicleDate,
+  _tripsVehicleDate,
+  _correctionsVehicle,
   _linesRecord,
   _linesItem,
 ];
@@ -46,6 +52,58 @@ const _readingsVehicleOrder =
     'CREATE INDEX idx_readings_vehicle_order ON odometer_readings '
     '(vehicle_id, occurred_on, created_at_utc_ms) '
     'WHERE deleted_at_utc_ms IS NULL';
+
+/// The fan-out's lookup, and the constraint that makes it an upsert.
+///
+/// `syncDerivedReading` runs `(source_id, source)` on EVERY fill-up, service
+/// and expense save, and twice on a trip. Without this index that is a full
+/// scan of the readings table inside the write transaction, under
+/// `synchronous = FULL` — at a household's few thousand readings, on the save
+/// somebody makes standing at a pump.
+///
+/// UNIQUE, which is the half that matters beyond speed: it makes
+/// `INSERT ... ON CONFLICT (source_id, source) DO UPDATE` possible, so the
+/// fan-out is one statement instead of a SELECT and then an INSERT or UPDATE.
+/// It also makes a second reading for the same parent and source impossible
+/// rather than merely unlikely.
+const _readingsSource =
+    'CREATE UNIQUE INDEX idx_readings_source ON odometer_readings '
+    '(source_id, source) WHERE source_id IS NOT NULL';
+
+/// The four scoped watch queries that had no index.
+///
+/// Every one is re-run on every write to its table, because drift's stream
+/// invalidation is table-level — including for a vehicle the user is not
+/// looking at. Without these the plan is `SCAN` plus a `TEMP B-TREE` for the
+/// ORDER BY, which is the shape `idx_fillups_vehicle_date` was added to avoid
+/// and which the other four tables were simply missing.
+const _itemsVehicle =
+    'CREATE INDEX idx_items_vehicle ON service_items (vehicle_id, id) '
+    'WHERE deleted_at_utc_ms IS NULL';
+
+/// Service history, newest first.
+const _recordsVehicleDate =
+    'CREATE INDEX idx_records_vehicle_date ON service_records '
+    '(vehicle_id, occurred_on DESC, id DESC) '
+    'WHERE deleted_at_utc_ms IS NULL';
+
+/// Expenses, newest first.
+const _expensesVehicleDate =
+    'CREATE INDEX idx_expenses_vehicle_date ON expenses '
+    '(vehicle_id, occurred_on DESC, id DESC) '
+    'WHERE deleted_at_utc_ms IS NULL';
+
+/// Trips, newest first.
+const _tripsVehicleDate =
+    'CREATE INDEX idx_trips_vehicle_date ON trips '
+    '(vehicle_id, started_on DESC, id DESC) '
+    'WHERE deleted_at_utc_ms IS NULL';
+
+/// Corrections for one vehicle. Read on every odometer write, because the
+/// cumulative offset depends on them.
+const _correctionsVehicle =
+    'CREATE INDEX idx_corrections_vehicle ON odometer_corrections '
+    '(vehicle_id) WHERE deleted_at_utc_ms IS NULL';
 
 /// The fuel history page, newest first. `id DESC` is the keyset tiebreak: a
 /// ULID sorts in mint order, so `(occurred_on, id)` is a total order and the

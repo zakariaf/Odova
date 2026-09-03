@@ -292,6 +292,59 @@ void main() {
     expect(readings.first.occurredOn, '2019-05-01');
   });
 
+  test('a derived reading cannot be edited directly', () async {
+    // SPEC.md §3 and EPIC-05 task 5.9. A derived reading follows its parent;
+    // editing it here would leave the two disagreeing with nothing to say
+    // which is right, and the next save of that parent would silently
+    // overwrite the edit anyway.
+    //
+    // `DerivedReadingNotEditable` existed as a failure variant with no code
+    // path returning it — the sealed-family test's exhaustive switch reported
+    // coverage the app did not have.
+    for (final source in OdometerSource.values) {
+      final result = await save(
+        _reading('A', '2026-01-01', 180000 * _km, source: source),
+      );
+
+      if (source == OdometerSource.manual || source == OdometerSource.import) {
+        expect(
+          result,
+          isA<Ok<SavedReading, PersistFailure>>(),
+          reason: source.wire,
+        );
+        await db.customStatement('DELETE FROM odometer_readings;');
+        continue;
+      }
+
+      expect(
+        result,
+        isA<Err<SavedReading, PersistFailure>>(),
+        reason: source.wire,
+      );
+      final failure =
+          (result as Err<SavedReading, PersistFailure>).failure
+              as DerivedReadingNotEditable;
+      expect(failure.source, source.wire);
+      expect(await countReadings(), 0, reason: 'nothing may be written');
+    }
+  });
+
+  test('an imported reading IS editable, because it has no live parent', () {
+    // Refusing it would make a restored backup permanently uncorrectable — the
+    // parent that produced the reading is in a file, not in this database.
+    expect(
+      save(
+        _reading(
+          'A',
+          '2026-01-01',
+          180000 * _km,
+          source: OdometerSource.import,
+        ),
+      ),
+      completion(isA<Ok<SavedReading, PersistFailure>>()),
+    );
+  });
+
   test('below the purchase odometer is refused', () async {
     final result = await save(
       _reading('A', '2019-05-01', 50000 * _km),

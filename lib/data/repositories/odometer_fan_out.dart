@@ -16,7 +16,10 @@ import 'package:drift/drift.dart' show Variable;
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/ids/ulid.dart';
+import 'package:odova/core/odometer/monotonicity.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/mappers/row_mappers.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 
 /// Writes, updates or removes the derived reading for one parent row.
 ///
@@ -46,50 +49,44 @@ Future<void> syncDerivedReading(
   required int? odometerM,
   required int nowUtcMs,
 }) async {
-  final existing = await db
-      .customSelect(
-        'SELECT id FROM odometer_readings WHERE source_id = ? AND source = ?;',
-        variables: [
-          Variable.withString(parentId),
-          Variable.withString(source.wire),
-        ],
-      )
-      .getSingleOrNull();
-
   if (odometerM == null) {
-    if (existing != null) {
-      await db.customStatement('DELETE FROM odometer_readings WHERE id = ?;', [
-        existing.read<String>('id'),
-      ]);
-    }
-    return;
-  }
-
-  if (existing != null) {
     await db.customStatement(
-      '''
-        UPDATE odometer_readings SET
-          occurred_on = ?, odometer_m = ?, odometer_unit = ?,
-          updated_at_utc_ms = ?, deleted_at_utc_ms = NULL
-        WHERE id = ?;
-      ''',
-      [
-        occurredOn,
-        odometerM,
-        odometerUnit.wire,
-        nowUtcMs,
-        existing.read<String>('id'),
-      ],
+      'DELETE FROM odometer_readings WHERE source_id = ? AND source = ?;',
+      [parentId, source.wire],
     );
     return;
   }
 
+  // ONE statement, on `idx_readings_source`. It was a SELECT and then an
+  // INSERT or an UPDATE — two round trips inside the write transaction, and
+  // the SELECT was a full table scan because nothing indexed `source_id`. That
+  // ran on every fill-up, service and expense save, and twice on a trip, under
+  // `synchronous = FULL`, on the save somebody makes standing at a pump.
+  //
+  // The `WHERE source_id IS NOT NULL` on the conflict target is not optional:
+  // `idx_readings_source` is a PARTIAL unique index, and SQLite only matches a
+  // conflict target to one when the predicates match too. Without it the
+  // statement fails with "ON CONFLICT clause does not match any PRIMARY KEY or
+  // UNIQUE constraint" — inside the write transaction, so the save returns an
+  // Err and NO reading is written at all. The index is partial on purpose: a
+  // manual reading has no `source_id` and has no business occupying it.
+  //
+  // The id is minted unconditionally and discarded on the update path. That is
+  // one ULID and costs nothing; reading the row first to find out whether it
+  // was needed is what cost something.
   await db.customStatement(
     '''
       INSERT INTO odometer_readings (
         id, vehicle_id, occurred_on, odometer_m, odometer_unit, source,
         source_id, created_at_utc_ms, updated_at_utc_ms
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (source_id, source) WHERE source_id IS NOT NULL
+      DO UPDATE SET
+        occurred_on = excluded.occurred_on,
+        odometer_m = excluded.odometer_m,
+        odometer_unit = excluded.odometer_unit,
+        updated_at_utc_ms = excluded.updated_at_utc_ms,
+        deleted_at_utc_ms = NULL;
     ''',
     [
       OdometerReadingId.mint(ids).toString(),
@@ -105,28 +102,137 @@ Future<void> syncDerivedReading(
   );
 }
 
-/// Stamps the derived readings of [parentId] with [deletedAtUtcMs].
+/// Whether the reading [parentId] is about to emit would break monotonicity.
 ///
-/// The same timestamp as the parent, so the vehicle-level Undo restores the
-/// pair together. Matching on `source_id` covers a trip's two readings in one
-/// statement.
-Future<void> softDeleteDerivedReadings(
-  AppDatabase db,
-  String parentId,
-  int deletedAtUtcMs,
-) => db.customStatement(
-  'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
-  "WHERE source_id = ? AND source <> 'manual' AND deleted_at_utc_ms IS NULL;",
-  [deletedAtUtcMs, parentId],
-);
+/// Returns the failure, or null when the write may proceed.
+///
+/// **Called BEFORE the parent's transaction opens**, by each of the four
+/// repositories that emit a reading. `syncDerivedReading` writes with a raw
+/// upsert and cannot itself refuse — it runs inside a transaction, so throwing
+/// from it would surface through `guardPersist` as an unclassified write
+/// error rather than as the typed failure SPEC.md §3's three resolutions need.
+///
+/// Without this, four of the five write paths into `odometer_readings` skipped
+/// the guard entirely: a fill-up whose odometer went backwards was accepted,
+/// and the distance history it feeds was non-monotonic from that point on —
+/// which is a wrong consumption figure, a wrong projection and a wrong cost per
+/// km, all of them plausible-looking.
+Future<PersistFailure?> checkDerivedReading(
+  AppDatabase db, {
+  required String parentId,
+  required VehicleId vehicleId,
+  required OdometerSource source,
+  required String occurredOn,
+  required int? odometerM,
+  required int nowUtcMs,
+}) async {
+  if (odometerM == null) return null;
 
-/// Clears the delete stamp [softDeleteDerivedReadings] wrote.
-Future<void> undoDeleteDerivedReadings(
-  AppDatabase db,
-  String parentId,
-  int deletedAtUtcMs,
-) => db.customStatement(
-  'UPDATE odometer_readings SET deleted_at_utc_ms = NULL '
-  'WHERE source_id = ? AND deleted_at_utc_ms = ?;',
-  [parentId, deletedAtUtcMs],
-);
+  // The vehicle's own unit and purchase odometer, read here rather than passed
+  // in. Making every caller supply them would put the same two arguments on
+  // four `save` signatures and on every call site in the app, for values the
+  // database already holds one primary-key lookup away.
+  //
+  // A null `distance_unit` means inherit from Settings, and this does NOT
+  // chase that: the unit affects only the km/mi mix-up WARNING, never the
+  // block, and a warning raised by a derived reading has nowhere to surface
+  // yet. `km` is the fallback, and the consequence of it being wrong is one
+  // unshown warning rather than a wrong answer.
+  final vehicle = await db
+      .customSelect(
+        'SELECT distance_unit, purchase_odometer_m FROM vehicles '
+        'WHERE id = ?;',
+        variables: [Variable.withString(vehicleId.toString())],
+      )
+      .getSingleOrNull();
+
+  final vehicleUnit =
+      optionalEnumFromWire(
+        DistanceUnit.values,
+        (v) => v.wire,
+        vehicle?.data['distance_unit'] as String?,
+      ) ??
+      DistanceUnit.km;
+  final purchaseOdometerM = vehicle?.data['purchase_odometer_m'] as int?;
+
+  // Every live reading for the vehicle, including the one this parent already
+  // owns — which is then SEPARATED out rather than filtered in SQL, so the
+  // proposed reading can inherit its id.
+  //
+  // That matters more than it looks. `compareReadings` breaks a same-date,
+  // same-created-at tie on the id, so a proposed reading carrying an invented
+  // id sorts at an arbitrary point among its own neighbours: an edit is then
+  // compared against a predecessor or a successor depending on how the
+  // invented string happens to collate. Reusing the real id makes the position
+  // exact, and reusing the real CREATED-AT keeps the tie-break stable across
+  // the edit.
+  final all = await db
+      .customSelect(
+        'SELECT id, source_id, source, occurred_on, created_at_utc_ms, '
+        'odometer_m FROM odometer_readings '
+        'WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL;',
+        variables: [Variable.withString(vehicleId.toString())],
+      )
+      .get();
+
+  final mine = all
+      .where(
+        (row) =>
+            row.data['source_id'] == parentId &&
+            row.read<String>('source') == source.wire,
+      )
+      .firstOrNull;
+
+  final existing = all.where(
+    (row) => row.read<String>('id') != mine?.read<String>('id'),
+  );
+
+  final corrections = await db
+      .customSelect(
+        'SELECT from_reading_id, previous_m, new_m '
+        'FROM odometer_corrections '
+        'WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL;',
+        variables: [Variable.withString(vehicleId.toString())],
+      )
+      .get();
+
+  final verdict = checkReading(
+    proposed: (
+      // The id and created-at the row will actually have: the existing one on
+      // an edit, a placeholder that sorts last on an insert. An invented id
+      // would sort arbitrarily among its own neighbours.
+      id: mine?.read<String>('id') ?? '\uffff$parentId',
+      occurredOn: occurredOn,
+      createdAtUtcMs: mine?.read<int>('created_at_utc_ms') ?? nowUtcMs,
+      odometerM: odometerM,
+    ),
+    existing: [
+      for (final row in existing)
+        (
+          id: row.read<String>('id'),
+          occurredOn: row.read<String>('occurred_on'),
+          createdAtUtcMs: row.read<int>('created_at_utc_ms'),
+          odometerM: row.read<int>('odometer_m'),
+        ),
+    ],
+    corrections: [
+      for (final row in corrections)
+        (
+          fromReadingId: row.read<String>('from_reading_id'),
+          previousM: row.read<int>('previous_m'),
+          newM: row.read<int>('new_m'),
+        ),
+    ],
+    vehicleUnit: vehicleUnit,
+    purchaseOdometerM: purchaseOdometerM,
+  );
+
+  final blocked = verdict.blocked;
+  if (blocked == null) return null;
+
+  return OdometerWouldGoBackwards(
+    previousCumulativeM: blocked.previousCumulativeM,
+    previousOccurredOn: blocked.previousOccurredOn,
+    attemptedCumulativeM: blocked.attemptedCumulativeM,
+  );
+}
