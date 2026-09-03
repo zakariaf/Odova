@@ -125,6 +125,40 @@ needs to know.
    analyzer and the coverage filter follow. Do not retype the list anywhere —
    `test/policy/lint_test.dart` fails on a second copy.
 
+## `/simplify` — findings answered rather than applied
+
+Four passes ran over the epic's diff (reuse, simplification, efficiency,
+altitude) before the PR was opened. Most findings were applied; these three were
+not, and this is the answer CLAUDE.md requires in writing.
+
+1. **"`bootstrap()` is `async` with nothing to await."** Correct, and kept. The
+   `Future` is the seam EPIC-05 opens the database through, and the comment in
+   `lib/app/bootstrap.dart` says so. Making it synchronous now means changing
+   `main()`'s shape in the epic that can least afford a startup-order change —
+   SPEC.md §2's "data survives app updates" rides on that ordering. The cost is
+   one microtask hop before `runApp`.
+
+2. **"`test/support/fakes.dart` contains no code; delete it."** Kept. EPIC-01
+   task 1.7 asks for it by name, and `epics/README.md` rule 5 says the epic is
+   the product decision where a general default disagrees. Its job is to exist
+   before the first fake does, so EPIC-05 does not invent a second location for
+   one; a barrel that arrives with its first occupant arrives after the decision
+   it was meant to make.
+
+3. **"Evaluate the ban over `lib/`'s import closure rather than the pub
+   graph."** Not done, and the two are complementary rather than one being
+   deeper. An import-closure model would drop `web_socket_channel` with no name
+   list to maintain — but it would also miss a plugin that registers an
+   analytics SDK natively without a single Dart import, which is exactly the
+   arrival this gate is for. `test/policy/no_network_test.dart` already walks
+   what Odova writes; `tools/audit_deps.py` walks what Odova's dependencies
+   drag in. Both, or the gate has a hole either way.
+
+Two efficiency findings were noted and left: 11 `RegExp`s recompiled per file in
+`no_network_test.dart`, and each ARB read three times in `arb_parity_test.dart`.
+Both are milliseconds today. The ARB one scales with the string set and is worth
+doing when EPIC-04 next touches that file.
+
 ## Deferred
 
 - No theme, no database, no domain type, no route beyond the placeholder. All
