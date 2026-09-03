@@ -8,15 +8,20 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/app.dart';
+import 'package:odova/app/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 
 import '../support/capture_context.dart';
 
 void main() {
   testWidgets('supportedLocales is exactly en de fr fa ar ckb', (tester) async {
-    await tester.pumpWidget(const OdovaApp());
+    // A scope, because OdovaApp reads the resolved locale from a provider.
+    await tester.pumpWidget(
+      const ProviderScope(retry: noProviderRetry, child: OdovaApp()),
+    );
 
     final app = tester.widget<WidgetsApp>(find.byType(WidgetsApp));
     expect(
@@ -39,10 +44,13 @@ void main() {
     testWidgets('$locale resolves to $direction', (tester) async {
       late TextDirection resolved;
       await tester.pumpWidget(
-        OdovaApp(
-          locale: Locale(locale),
-          home: captureContext(
-            (context) => resolved = Directionality.of(context),
+        ProviderScope(
+          retry: noProviderRetry,
+          child: OdovaApp(
+            locale: Locale(locale),
+            home: captureContext(
+              (context) => resolved = Directionality.of(context),
+            ),
           ),
         ),
       );
@@ -55,9 +63,15 @@ void main() {
   testWidgets('AppLocalizations.of returns non-null', (tester) async {
     late AppLocalizations l10n;
     await tester.pumpWidget(
-      OdovaApp(
-        home: captureContext(
-          (context) => l10n = AppLocalizations.of(context),
+      // OdovaApp reads the resolved locale from a provider now — SPEC.md §5's
+      // three-step selection over Settings.language and the device list — so
+      // it needs a scope even when a test pins the locale itself.
+      ProviderScope(
+        retry: noProviderRetry,
+        child: OdovaApp(
+          home: captureContext(
+            (context) => l10n = AppLocalizations.of(context),
+          ),
         ),
       ),
     );

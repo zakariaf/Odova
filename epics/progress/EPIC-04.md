@@ -19,3 +19,27 @@
   platform manifests are now asserted against `odovaSupportedLocales`, because
   neither is reachable from Dart at runtime and nothing else in the suite can
   notice them drifting.
+
+- 4.3 locale resolution — `lib/core/l10n/locale_resolution.dart` (pure Dart, no
+  Flutter import, runs under `dart test`) plus `lib/l10n/locale_controller.dart`
+  as the seam to the widget tree. 19 tests, every row of SPEC §5's table
+  including `ku`/`kmr`/`ku-TR` → `en` LTR.
+
+  **The strings/formats split is the substance.** They are two answers, not one:
+  `de-AT` reads German and formats Austrian; `pt-BR` reads English and formats
+  Brazilian. Falling back to `en` formats as well would put a Brazilian on US
+  date order and dollars, so `resolveLocaleTags` returns a pair and the app has
+  two providers.
+
+  **Defect found by its own test:** the change event was a bare
+  `LocaleAffectingChange` enum in state, and Riverpod notifies on a value
+  CHANGE — so `de → fr → fa` fired once, not twice, and every scheduled
+  notification body would have stayed in the first language. It carries a
+  sequence now. The test that caught it was originally a widget test and was
+  measuring the wrong thing: a language change rebuilds from the root, so a
+  listener registered in a `Consumer`'s build is disposed and re-registered
+  around the very change it is watching. It is a `ProviderContainer` test.
+
+  `OdovaApp` is a `ConsumerWidget` now and watches the resolved locale, so three
+  tests that pumped it bare needed a `ProviderScope` — the honest consequence of
+  the app having state.
