@@ -375,6 +375,10 @@ void main() {
         'lib/ui/calm/calm_list_row.dart',
         // Disabled button text, which SC 1.4.3 exempts outright.
         'lib/ui/calm/calm_button.dart',
+        // TWO uses, and only one is exempt. Disabled field text is SC 1.4.3
+        // exempt like the button's; the PLACEHOLDER is not, and it fails at
+        // the same 2.60 / 2.23 the chevron does — see the ink4 pairs above.
+        'lib/ui/calm/calm_field.dart',
       },
       reason:
           'a new ink4 use — or a removed one. Every call site is declared '
