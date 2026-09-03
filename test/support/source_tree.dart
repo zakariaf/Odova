@@ -22,7 +22,6 @@ const knownEmptyLibDirectories = {
   'lib/core', // EPIC-06 — units, money and the fuel engine
   'lib/data', // EPIC-05 — persistence, schema and migrations
   'lib/features', // EPIC-09 — first run and the garage
-  'lib/theme', // EPIC-02 — Calm tokens and theme
   'lib/ui', // EPIC-03 — the Calm component library
 };
 
