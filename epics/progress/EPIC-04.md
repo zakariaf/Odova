@@ -184,3 +184,28 @@
   GSUB feature-tag parse would prove `tnum` exists without proving it covers
   `۰-۹`, which is the exact bug — a face with tabular Latin and proportional
   Persian gives a stable English odometer and a jittering Persian one.
+
+- 4.10 gates and pseudo-locales — `tool/build_pseudo_locales.dart` derives
+  `en-XA` and `ar-XB` from the template; 9 tests; regeneration wired into CI so
+  a stale one is a red build.
+
+  **Two design corrections while building it.**
+
+  1. *The naive transform mangles ICU.* "Accent everything outside `{}`" turns
+     `one{...}` into `ǿǹḗ{...}` and `other{...}` into `eno {...}` — the plural
+     CATEGORY names sit outside braces and are syntax. A pseudo-locale that does
+     not parse reports nothing at all, which is the one failure mode that makes
+     the whole exercise pointless. The generator walks the message and
+     transforms only branch bodies and top-level literals.
+  2. *They must not live in `arb-dir`.* Anything there is compiled by gen-l10n
+     into the shipping binary and joins `AppLocalizations.supportedLocales`, so
+     a user picking a language could land in a pseudo-locale. They are written
+     to `test/fixtures/*.fixture.json` instead, and a test asserts `lib/l10n/arb`
+     contains nothing matching `_X`.
+
+  **Deferred to the first screen epic (EPIC-09).** The assertions this task
+  wants that need a rendered screen — "any string that comes back unaccented is
+  a hard-coded literal", "ar-XB finds no physical-side offset", "the
+  longest-of-six passes the golden suite at 100% and 200%", "tab labels respect
+  their 12-character maxChars" — cannot run here: EPIC-04 builds no screen.
+  The fixtures and the generator are ready for them.

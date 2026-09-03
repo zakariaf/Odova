@@ -1,0 +1,21 @@
+{
+  "@@locale": "en_XA",
+  "appTitle": "[Ǿḍǿṽá ǃǃ]",
+  "commonEstimatedA11y": "[ḗŝţīḿáţḗḍ, áḅǿǔţ {value} ǃǃǃǃǃǃǃǃǃǃ]",
+  "homeDueSoonNoConfidence": "[Ǿḍǿṽá ǹḗḗḍŝ á řḗáḍīǹḡ ţǿ ŝáẏ ẇħḗǹ ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "unitDistanceKm": "[ķḿ ǃ]",
+  "unitDistanceMi": "[ḿī ǃ]",
+  "unitVolumeLitre": "[Ŀ ǃ]",
+  "unitVolumeGallon": "[ḡáŀ ǃǃ]",
+  "unitConsumptionPerDistance": "[Ŀ/{n} ķḿ ǃǃǃǃ]",
+  "unitConsumptionMpg": "[ḿƥḡ ǃǃ]",
+  "unitPerDistance": "[/{unit} ǃǃǃ]",
+  "dateToday": "[Ţǿḍáẏ ǃǃ]",
+  "dateTomorrow": "[Ţǿḿǿřřǿẇ ǃǃǃǃ]",
+  "dateYesterday": "[Ẏḗŝţḗřḍáẏ ǃǃǃǃ]",
+  "dateInDays": "[{n, plural, one{īǹ {nText} ḍáẏ} other{īǹ {nText} ḍáẏŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "dateInAboutWeeks": "[{n, plural, one{īǹ áḅǿǔţ {nText} ẇḗḗķ} other{īǹ áḅǿǔţ {nText} ẇḗḗķŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "dateInAboutMonths": "[{n, plural, one{īǹ áḅǿǔţ {nText} ḿǿǹţħ} other{īǹ áḅǿǔţ {nText} ḿǿǹţħŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "dateDaysOverdue": "[{n, plural, one{{nText} ḍáẏ ǿṽḗřḍǔḗ} other{{nText} ḍáẏŝ ǿṽḗřḍǔḗ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "remindersDueCount": "[{n, plural, =0{Ǹǿţħīǹḡ ḍǔḗ} one{{nText} řḗḿīǹḍḗř ḍǔḗ} other{{nText} řḗḿīǹḍḗřŝ ḍǔḗ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]"
+}

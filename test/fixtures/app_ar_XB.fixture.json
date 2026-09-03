@@ -1,0 +1,21 @@
+{
+  "@@locale": "ar_XB",
+  "appTitle": "‏avodO",
+  "commonEstimatedA11y": "‏ tuoba ,detamitse{value}",
+  "homeDueSoonNoConfidence": "‏nehw yas ot gnidaer a sdeen avodO",
+  "unitDistanceKm": "‏mk",
+  "unitDistanceMi": "‏im",
+  "unitVolumeLitre": "‏L",
+  "unitVolumeGallon": "‏lag",
+  "unitConsumptionPerDistance": "‏/L{n}mk ",
+  "unitConsumptionMpg": "‏gpm",
+  "unitPerDistance": "‏/{unit}",
+  "dateToday": "‏yadoT",
+  "dateTomorrow": "‏worromoT",
+  "dateYesterday": "‏yadretseY",
+  "dateInDays": "‏{n, plural, one{ ni{nText}yad } other{ ni{nText}syad }}",
+  "dateInAboutWeeks": "‏{n, plural, one{ tuoba ni{nText}keew } other{ tuoba ni{nText}skeew }}",
+  "dateInAboutMonths": "‏{n, plural, one{ tuoba ni{nText}htnom } other{ tuoba ni{nText}shtnom }}",
+  "dateDaysOverdue": "‏{n, plural, one{{nText}eudrevo yad } other{{nText}eudrevo syad }}",
+  "remindersDueCount": "‏{n, plural, =0{eud gnihtoN} one{{nText}eud rednimer } other{{nText}eud srednimer }}"
+}
