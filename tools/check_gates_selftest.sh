@@ -22,6 +22,12 @@ move_aside() { # move_aside <file> — the file must be ABSENT for the arm
   mv "$1" "$1.selftest.moved"
   moved+=("$1")
 }
+scratch=()
+write_scratch() { # write_scratch <file> <<'EOF' ... EOF
+  mkdir -p "$(dirname "$1")"
+  cat >"$1"
+  scratch+=("$1")
+}
 restore_all() {
   local f
   for f in "${backups[@]:-}"; do
@@ -30,7 +36,10 @@ restore_all() {
   for f in "${moved[@]:-}"; do
     [ -n "$f" ] && [ -e "$f.selftest.moved" ] && mv -f "$f.selftest.moved" "$f"
   done
-  backups=(); moved=()
+  for f in "${scratch[@]:-}"; do
+    [ -n "$f" ] && rm -f "$f"
+  done
+  backups=(); moved=(); scratch=()
 }
 trap restore_all EXIT INT TERM
 
@@ -205,5 +214,96 @@ assert 1 "red when groups: moves off the pub entry onto another ecosystem" \
   bash tools/check_dependabot.sh
 restore_all
 assert 0 "green again once restored" bash tools/check_dependabot.sh
+
+echo "== calm token gates =="
+RAW=.claude/skills/calm-tokens/scripts/check_raw_values.sh
+FIELDS=.claude/skills/calm-tokens/scripts/check_extension_fields.sh
+FLOOR=.claude/skills/calm-typography-and-rtl/scripts/check_type_floor.sh
+LAYER=.claude/skills/calm-design-system/scripts/check_calm_layering.sh
+
+assert 0 "check_raw_values is green over the real lib/" bash "$RAW" lib
+
+# Rule 1: a raw aesthetic value outside lib/theme/calm/.
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation.
+const probe = Color(0xFFFF0000);
+PROBE
+assert 1 "check_raw_values is red on a hex planted in lib/ui/" bash "$RAW" lib
+restore_all
+assert 0 "check_raw_values is green again once removed" bash "$RAW" lib
+
+# Rule 2, the one people forget exists: a Tier-1 primitive read from a widget
+# has hardcoded ONE brightness, and looks perfectly correct in light mode.
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:odova/theme/calm/calm_palette.dart';
+
+/// A planted violation.
+final probe = CalmPalette.sand96;
+PROBE
+assert 1 "check_raw_values is red on a CalmPalette reference outside the theme" \
+  bash "$RAW" lib
+restore_all
+
+# The fromSeed ban is GLOBAL — the path exemption must not leak into it.
+write_scratch lib/theme/calm/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation, inside the one exempt directory.
+final probe = ColorScheme.fromSeed(seedColor: const Color(0xFF7A5340));
+PROBE
+assert 1 "check_raw_values is red on fromSeed even inside lib/theme/calm/" \
+  bash "$RAW" lib
+restore_all
+
+assert 0 "check_extension_fields is green over lib/theme/calm" \
+  bash "$FIELDS" lib/theme/calm
+
+# A field carried rather than interpolated: it compiles, it is silently a hard
+# cut forever, and the compiler cannot see it because copyWith's signature is
+# ours and lerp just takes the value.
+plant lib/theme/calm/calm_colors.dart
+perl -0pi -e 's|ink3: Color\.lerp\(ink3, other\.ink3, t\)!,|ink3: ink3,|' \
+  lib/theme/calm/calm_colors.dart
+assert 1 "check_extension_fields is red on a field dropped from lerp" \
+  bash "$FIELDS" lib/theme/calm
+restore_all
+
+# The same failure on a WRAPPED declaration. dart format breaks a long
+# comma-separated field list across lines the moment it passes 80 columns, and
+# a single-line regex saw none of them — the gate reported OK over eight chart
+# slots it had never looked at.
+plant lib/theme/calm/calm_colors.dart
+perl -0pi -e 's|chart3: Color\.lerp\(chart3, other\.chart3, t\)!,|chart3: chart3,|' \
+  lib/theme/calm/calm_colors.dart
+assert 1 "check_extension_fields is red on a WRAPPED field dropped from lerp" \
+  bash "$FIELDS" lib/theme/calm
+restore_all
+assert 0 "check_extension_fields is green again once restored" \
+  bash "$FIELDS" lib/theme/calm
+
+assert 0 "check_type_floor is green" bash "$FLOOR" lib lib/l10n/arb
+write_scratch lib/ui/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: 11px is a design that assumes an audience sitting down.
+const probe = TextStyle(fontSize: 11);
+PROBE
+assert 1 "check_type_floor is red on a fontSize below 13" \
+  bash "$FLOOR" lib lib/l10n/arb
+restore_all
+
+assert 0 "check_calm_layering is green" bash "$LAYER" lib
+write_scratch lib/features/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: wrapping Material is lib/ui/calm/'s job.
+Widget probe() => Scaffold(body: const SizedBox.shrink());
+PROBE
+assert 1 "check_calm_layering is red on raw Material in a feature" \
+  bash "$LAYER" lib
+restore_all
+assert 0 "check_calm_layering is green again once removed" bash "$LAYER" lib
 
 exit "$rc"
