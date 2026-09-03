@@ -14,6 +14,7 @@ import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 /// A 40pt box, the size a chip paints.
@@ -82,22 +83,21 @@ void main() {
     );
   });
 
-  testWidgets('a 40pt child reports a 52pt hit area under expandTapTarget', (
-    tester,
-  ) async {
+  testWidgets('a 40pt child reports a 52pt hit area', (tester) async {
     await pumpApp(
       tester,
       Center(
         child: CalmPressable(
           borderRadius: 12,
-          expandTapTarget: true,
           onTap: () {},
           child: _child(),
         ),
       ),
     );
 
-    // The PAINT stays 40; only the gesture box grows.
+    // The PAINT stays 40; only the gesture box grows. Unconditional: above the
+    // floor the wrapper is provably a no-op, so a flag could only ever be
+    // wrong, and three widgets had already re-implemented it by hand.
     expect(tester.getSize(find.byType(CalmTapTarget)), const Size(52, 52));
     expect(
       tester.getSize(
@@ -120,7 +120,6 @@ void main() {
       Center(
         child: CalmPressable(
           borderRadius: 12,
-          expandTapTarget: true,
           onTap: () => taps++,
           child: _child(),
         ),
@@ -133,6 +132,28 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(taps, 1, reason: 'the padded ring is part of the target');
+  });
+
+  testWidgets('the floor survives an intrinsic-sizing parent', (tester) async {
+    // RenderShiftedBox's intrinsics delegate straight to the child, so before
+    // RenderCalmTapTarget overrode them a 40pt chip inside an IntrinsicHeight
+    // reported 40 and the 52 quietly was not there. Layout is one of three
+    // sizing paths and it was the only one that held.
+    await pumpApp(
+      tester,
+      Center(
+        child: IntrinsicHeight(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CalmPressable(borderRadius: 12, onTap: () {}, child: _child()),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.getSize(find.byType(CalmTapTarget)).height, 52);
   });
 
   testWidgets('keyboard focus draws a ring outside the box and does not '
@@ -165,16 +186,16 @@ void main() {
     );
 
     final before = tester.getSize(find.byType(CalmPressable));
-    expect(_focusRing(tester), isNull, reason: 'a ring before focus');
+    expect(calmFocusRing(tester)?.side, isNull, reason: 'a ring before focus');
 
     node.requestFocus();
     await tester.pumpAndSettle();
 
-    final ring = _focusRing(tester);
+    final ring = calmFocusRing(tester)?.side;
     expect(ring, isNotNull);
     expect(ring!.color, calmColorsLight.focus);
     expect(ring.width, kCalmFocusWidth);
-    expect(_focusRingShape(tester), isA<RoundedRectangleBorder>());
+    expect(calmFocusRing(tester), isA<RoundedRectangleBorder>());
 
     // Not one pixel of layout change. A ring drawn INSIDE the box would eat
     // 6pt of the child on every side; one drawn outside costs nothing.
@@ -224,7 +245,7 @@ void main() {
     // 999 is a sentinel meaning "fully round". Adding the 6pt outset to it and
     // handing 1005 to a RoundedRectangleBorder renders ALMOST right, which is
     // why this is a test and not an eye.
-    expect(_focusRingShape(tester), isA<StadiumBorder>());
+    expect(calmFocusRing(tester), isA<StadiumBorder>());
   });
 
   testWidgets('a directional icon flips exactly once, whatever its own '
@@ -391,35 +412,3 @@ Color _tintOf(WidgetTester tester) => tester
       ),
     )
     .color;
-
-/// The ring's stroke, whatever shape carries it.
-///
-/// It is a `ShapeDecoration`: a pill's ring must be a `StadiumBorder`, because
-/// `radiusPill` is the 999 sentinel and 999 + the outset as a real radius is a
-/// path Skia re-clamps every frame to draw the stadium it would draw anyway.
-BorderSide? _focusRing(WidgetTester tester) {
-  for (final box in tester.widgetList<DecoratedBox>(
-    find.byType(DecoratedBox),
-  )) {
-    final decoration = box.decoration;
-    if (decoration is ShapeDecoration && decoration.shape is OutlinedBorder) {
-      final side = (decoration.shape as OutlinedBorder).side;
-      if (side != BorderSide.none) return side;
-    }
-  }
-  return null;
-}
-
-/// The ring's shape, for the pill case.
-ShapeBorder? _focusRingShape(WidgetTester tester) {
-  for (final box in tester.widgetList<DecoratedBox>(
-    find.byType(DecoratedBox),
-  )) {
-    final decoration = box.decoration;
-    if (decoration is ShapeDecoration && decoration.shape is OutlinedBorder) {
-      final shape = decoration.shape as OutlinedBorder;
-      if (shape.side != BorderSide.none) return shape;
-    }
-  }
-  return null;
-}

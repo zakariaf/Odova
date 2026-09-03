@@ -10,6 +10,7 @@ import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_chip.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 Finder _paint() => find.descendant(
@@ -18,7 +19,7 @@ Finder _paint() => find.descendant(
 );
 
 ShapeDecoration _decoration(WidgetTester tester) =>
-    tester.widget<AnimatedContainer>(_paint()).decoration! as ShapeDecoration;
+    calmDecorationOf<ShapeDecoration>(tester, find.byType(CalmChip));
 
 TextStyle _labelStyle(WidgetTester tester, String label) =>
     tester.widget<Text>(find.text(label)).style!;

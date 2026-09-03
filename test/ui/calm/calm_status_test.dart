@@ -16,6 +16,7 @@ import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_badge.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/contrast.dart';
 import '../../support/pump_app.dart';
 
@@ -49,17 +50,7 @@ const _grayscale = ColorFilter.matrix(<double>[
 ]);
 
 ShapeDecoration _badgeDecoration(WidgetTester tester) =>
-    tester
-            .widget<DecoratedBox>(
-              find
-                  .descendant(
-                    of: find.byType(CalmBadge),
-                    matching: find.byType(DecoratedBox),
-                  )
-                  .first,
-            )
-            .decoration
-        as ShapeDecoration;
+    calmDecorationOf<ShapeDecoration>(tester, find.byType(CalmBadge));
 
 void main() {
   testWidgets('each of the eleven badge kinds reads exactly one (tint, ink) '

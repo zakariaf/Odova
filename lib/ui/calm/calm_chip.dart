@@ -77,8 +77,6 @@ class CalmChip extends StatelessWidget {
         pressScale: kCalmPressScaleChip,
         // No semanticLabel: the chip's own Text is the label, and one here
         // would be announced on top of it — "Fuel, Fuel".
-        // Paints 40, hits 52.
-        expandTapTarget: true,
         child: chip,
       ),
     );

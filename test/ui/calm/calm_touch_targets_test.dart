@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 
+import '../../support/device.dart';
 import '../../support/fonts.dart';
 import '../../support/pump_app.dart';
 import 'support/specimens.dart';
@@ -22,16 +23,14 @@ void main() {
   for (final scale in [1.0, 1.3, 1.5, 2.0, 3.0]) {
     testWidgets('every interactive Calm widget reports 52 at text scale '
         '$scale', (tester) async {
-      tester.view.physicalSize = const Size(430 * 3, 4000 * 3);
-      tester.view.devicePixelRatio = 3;
-      addTearDown(tester.view.reset);
+      tester.useDevice(Device.specimenSheet);
 
       final undersized = <String>[];
 
       for (final specimen in calmSpecimens()) {
         await pumpApp(
           tester,
-          _Stack(children: specimen.build(rtl: false)),
+          CalmSpecimenSheet(children: specimen.build(rtl: false)),
           textScaler: TextScaler.linear(scale),
           // The `loading` button's spinner never settles.
           settle: false,
@@ -44,8 +43,14 @@ void main() {
           (w) => (w is CalmPressable && w.onTap != null) || w is CalmTapTarget,
         );
 
-        for (var i = 0; i < tester.widgetList(targets).length; i++) {
-          final size = tester.getSize(targets.at(i));
+        // Evaluated once. `FinderBase.evaluate` only caches inside
+        // `runCached`, so a `tester.widgetList(targets).length` in the loop
+        // CONDITION re-walks the whole element tree on every iteration, and
+        // `targets.at(i)` walks it again — 2N+1 tree walks against a
+        // byWidgetPredicate finder, 22 specimens x 5 scales.
+        final found = targets.evaluate().toList();
+        for (var i = 0; i < found.length; i++) {
+          final size = found[i].size!;
           if (size.height + 0.01 < calmSpace.touchMin ||
               size.width + 0.01 < calmSpace.touchMin) {
             undersized.add('${specimen.name} target $i: $size');
@@ -56,21 +61,4 @@ void main() {
       expect(undersized, isEmpty);
     });
   }
-}
-
-class _Stack extends StatelessWidget {
-  const _Stack({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) => CalmSpecimenFont(
-    child: SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      ),
-    ),
-  );
 }

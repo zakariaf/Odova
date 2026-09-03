@@ -12,6 +12,7 @@ import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 const _labels = ['Home', 'History', 'Costs', 'Settings'];
@@ -101,19 +102,17 @@ void main() {
       ),
     );
 
-    // It is part of the page, not a card floating over it.
-    final decoration =
-        tester
-                .widget<Container>(
-                  find.descendant(
-                    of: find.byType(CalmAppBar),
-                    matching: find.byType(Container),
-                  ),
-                )
-                .decoration
-            as BoxDecoration?;
-    expect(decoration?.boxShadow ?? const [], isEmpty);
-    expect(decoration?.border, isNull);
+    // It is part of the page, not a card floating over it — so it paints NO
+    // surface at all, which is a stronger claim than "its decoration has no
+    // shadow". The first version of this test read a Container's decoration
+    // that was always null, so both of its assertions passed unconditionally.
+    expect(
+      find.descendant(
+        of: find.byType(CalmAppBar),
+        matching: find.byType(DecoratedBox),
+      ),
+      findsNothing,
+    );
   });
 
   testWidgets('the four app-bar shapes render', (tester) async {
@@ -223,16 +222,10 @@ void main() {
     // `.tabbar { box-shadow: 0 -1px 0 var(--color-divider) }` — a hairline
     // ABOVE, drawn as a shadow. Not elev2, and not a Border: only
     // calm_field.dart and calm_pressable.dart may construct one.
-    final decoration =
-        tester
-                .widget<Container>(
-                  find.descendant(
-                    of: find.byType(CalmTabBarSurface),
-                    matching: find.byType(Container),
-                  ),
-                )
-                .decoration!
-            as BoxDecoration;
+    final decoration = calmDecorationOf<BoxDecoration>(
+      tester,
+      find.byType(CalmTabBarSurface),
+    );
     expect(decoration.border, isNull);
     expect(decoration.boxShadow, hasLength(1));
     expect(decoration.boxShadow!.single.color, calmColorsLight.divider);

@@ -13,6 +13,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../support/device.dart';
 import '../../../support/fonts.dart';
 import '../../../support/pump_app.dart';
 import '../support/specimens.dart';
@@ -48,14 +49,12 @@ void main() {
     ]) {
       for (final (dir, locale) in [('ltr', 'en'), ('rtl', 'fa')]) {
         testWidgets('${specimen.name} $theme $dir', (tester) async {
-          tester.view.physicalSize = const Size(430 * 3, 1400 * 3);
-          tester.view.devicePixelRatio = 3;
-          addTearDown(tester.view.reset);
+          tester.useDevice(Device.specimenSheet);
 
           await pumpApp(
             tester,
-            _Sheet(
-              name: specimen.name,
+            CalmSpecimenSheet(
+              padded: true,
               children: specimen.build(rtl: dir == 'rtl'),
             ),
             themeMode: mode,
@@ -67,43 +66,11 @@ void main() {
           );
 
           await expectLater(
-            find.byType(_Sheet),
+            find.byType(CalmSpecimenSheet),
             matchesGoldenFile('${specimen.name}-$theme-$dir.png'),
           );
         });
       }
     }
-  }
-}
-
-/// One widget's states, stacked, on the theme's own background.
-class _Sheet extends StatelessWidget {
-  const _Sheet({required this.name, required this.children});
-
-  final String name;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return CalmSpecimenFont(
-      child: ColoredBox(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final child in children) ...[
-                  child,
-                  const SizedBox(height: 16),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

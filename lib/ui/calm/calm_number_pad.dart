@@ -422,7 +422,11 @@ class _CalmNumberPadKeyBody extends StatelessWidget {
       child: icon != null
           ? Directionality(
               textDirection: iconDirection ?? Directionality.of(context),
-              child: CalmDirectionalIcon(icon!, size: 24, color: foreground),
+              child: CalmDirectionalIcon(
+                icon!,
+                size: CalmSpace.of(context).iconMd,
+                color: foreground,
+              ),
             )
           : Text(label!, style: textStyle, textAlign: TextAlign.center),
     );

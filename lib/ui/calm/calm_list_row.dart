@@ -297,7 +297,7 @@ class _CalmRowBody extends StatelessWidget {
                   SizedBox(width: space.s2),
                   CalmDirectionalIcon(
                     Icons.chevron_right,
-                    size: 18, // .icon--sm
+                    size: space.iconSm,
                     color: colors.ink4,
                   ),
                 ],

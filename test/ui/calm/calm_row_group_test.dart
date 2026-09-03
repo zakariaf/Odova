@@ -13,6 +13,7 @@ import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 /// The group's own surface — there must be exactly one inside a group.
@@ -22,14 +23,7 @@ Finder _groupSurface() => find.descendant(
 );
 
 BoxDecoration _decorationOf(WidgetTester tester, Finder surface) =>
-    tester
-            .widget<DecoratedBox>(
-              find
-                  .descendant(of: surface, matching: find.byType(DecoratedBox))
-                  .first,
-            )
-            .decoration
-        as BoxDecoration;
+    calmDecorationOf<BoxDecoration>(tester, surface);
 
 /// Divider hairlines, found by their token colour rather than by their type:
 /// `CalmSurface` paints the sheen with a `ColoredBox` too.

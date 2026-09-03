@@ -16,6 +16,7 @@ import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
 import 'package:odova/ui/calm/calm_snackbar.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 import '../../support/source_tree.dart';
 
@@ -31,17 +32,7 @@ Widget _opener(void Function(BuildContext) open, {String label = 'Open'}) =>
     );
 
 ShapeDecoration _decorationOf(WidgetTester tester, Type type) =>
-    tester
-            .widget<DecoratedBox>(
-              find
-                  .descendant(
-                    of: find.byType(type),
-                    matching: find.byType(DecoratedBox),
-                  )
-                  .first,
-            )
-            .decoration
-        as ShapeDecoration;
+    calmDecorationOf<ShapeDecoration>(tester, find.byType(type));
 
 Future<void> _openSheet(WidgetTester tester) async {
   await pumpApp(

@@ -11,6 +11,7 @@ import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/device.dart';
 import '../../support/pump_app.dart';
 
@@ -20,7 +21,7 @@ Finder _box() => find.descendant(
 );
 
 BoxDecoration _decoration(WidgetTester tester) =>
-    tester.widget<AnimatedContainer>(_box()).decoration! as BoxDecoration;
+    calmDecorationOf<BoxDecoration>(tester, find.byType(CalmField));
 
 ({Color color, double width}) _ring(WidgetTester tester) {
   final side = (_decoration(tester).border! as Border).top;

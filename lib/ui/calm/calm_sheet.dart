@@ -10,6 +10,7 @@ import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/ui/calm/calm_overlay_transition.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 
 /// How far the sheet rises as it enters. Not a slide: the scrim carries the
@@ -187,7 +188,12 @@ class CalmSheet extends StatelessWidget {
         maxHeight:
             MediaQuery.sizeOf(context).height * kCalmSheetMaxHeightFactor,
       ),
-      child: CalmOverlayTransition(child: surface),
+      child: CalmOverlayTransition(
+        rise: kCalmSheetRise,
+        fadeFrom: kCalmSheetFadeFrom,
+        scaleFrom: 1,
+        child: surface,
+      ),
     );
   }
 }
@@ -212,58 +218,6 @@ class CalmSheetGrip extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// The rise-and-fade every Calm overlay enters with.
-///
-/// Reads the enclosing route's animation, so entry and exit are driven by the
-/// SAME value as the scrim: they end on the same frame, or the scrim flashes
-/// over an empty screen.
-class CalmOverlayTransition extends StatelessWidget {
-  /// Wraps [child].
-  const CalmOverlayTransition({
-    required this.child,
-    super.key,
-    this.rise = kCalmSheetRise,
-    this.fadeFrom = kCalmSheetFadeFrom,
-    this.scaleFrom = 1,
-  });
-
-  /// What rises.
-  final Widget child;
-
-  /// How far, in logical pixels.
-  final double rise;
-
-  /// The opacity it starts at.
-  final double fadeFrom;
-
-  /// The scale it starts at. 1 for a sheet; 0.96 for a dialog.
-  final double scaleFrom;
-
-  @override
-  Widget build(BuildContext context) {
-    final animation = ModalRoute.of(context)?.animation;
-    if (animation == null) return child;
-
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        final t = animation.value;
-        return Transform.translate(
-          offset: Offset(0, rise * (1 - t)),
-          child: Transform.scale(
-            scale: scaleFrom + (1 - scaleFrom) * t,
-            child: Opacity(
-              opacity: fadeFrom + (1 - fadeFrom) * t,
-              child: child,
-            ),
-          ),
-        );
-      },
-      child: child,
     );
   }
 }

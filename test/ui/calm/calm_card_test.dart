@@ -17,20 +17,11 @@ import 'package:odova/ui/calm/calm_card.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 BoxDecoration _surfaceDecoration(WidgetTester tester) =>
-    tester
-            .widget<DecoratedBox>(
-              find
-                  .descendant(
-                    of: find.byType(CalmSurface),
-                    matching: find.byType(DecoratedBox),
-                  )
-                  .first,
-            )
-            .decoration
-        as BoxDecoration;
+    calmDecorationOf<BoxDecoration>(tester, find.byType(CalmSurface));
 
 Finder _sheenOf() => find.descendant(
   of: find.byType(CalmSurface),

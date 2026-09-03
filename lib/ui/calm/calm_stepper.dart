@@ -130,8 +130,6 @@ class _CalmStepperButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: kCalmStepperButtonSize / 2,
       semanticLabel: semanticLabel,
-      // Paints 48, hits 52.
-      expandTapTarget: true,
       child: Builder(
         builder: (context) {
           final pressed = CalmPressState.of(context);

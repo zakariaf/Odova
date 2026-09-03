@@ -184,8 +184,6 @@ class CalmButton extends StatelessWidget {
       enabled: enabled,
       borderRadius: shapes.radiusPill,
       semanticLabel: label,
-      // .btn--sm paints 42; the target is still 52.
-      expandTapTarget: size == CalmButtonSize.sm,
       child: _CalmButtonBody(
         label: label,
         icon: icon,

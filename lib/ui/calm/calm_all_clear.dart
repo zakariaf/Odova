@@ -10,9 +10,7 @@ import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
-
-/// `.icon--xl` — the only icon size Calm uses above 32.
-const double kCalmIconXl = 44;
+import 'package:odova/ui/calm/calm_surface.dart';
 
 /// `.allclear__mark` — 92 square.
 const double kCalmAllClearMarkSize = 92;
@@ -74,23 +72,26 @@ class CalmAllClear extends StatelessWidget {
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
 
-    return Container(
+    // Through CalmSurface, which is what restores the sheen: `.allclear`
+    // declares `--elev-2, --elev-sheen` and the hand-rolled BoxDecoration this
+    // replaced carried only the first, because CalmSurface had no `gradient`
+    // and the card went around it. A missing parameter, not a decision.
+    return CalmSurface(
+      color: colors.surface,
+      radius: shapes.radius3xl,
+      shadow: shapes.elev2, // warm-tinted and layered, never a border
+      // The sage wash is what makes this NOT an empty state.
+      gradient: RadialGradient(
+        center: Alignment.topCenter,
+        radius: 1.2,
+        colors: [colors.ok.tint, colors.surface],
+        stops: const [0, 0.72],
+      ),
       padding: EdgeInsetsDirectional.fromSTEB(
         space.s6,
         space.s8,
         space.s6,
         space.s7,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(shapes.radius3xl),
-        // The sage wash is what makes this NOT an empty state.
-        gradient: RadialGradient(
-          center: Alignment.topCenter,
-          radius: 1.2,
-          colors: [colors.ok.tint, colors.surface],
-          stops: const [0, 0.72],
-        ),
-        boxShadow: shapes.elev2, // warm-tinted and layered, never a border
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -149,7 +150,11 @@ class CalmAllClearMark extends StatelessWidget {
             BoxShadow(color: colors.ok.tint, spreadRadius: kCalmAllClearHalo),
           ],
         ),
-        child: Icon(Icons.check, size: kCalmIconXl, color: colors.ok.ink),
+        child: Icon(
+          Icons.check,
+          size: CalmSpace.of(context).iconXl,
+          color: colors.ok.ink,
+        ),
       ),
     );
   }
@@ -247,7 +252,7 @@ class CalmEmptyState extends StatelessWidget {
                 color: colors.surface2,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: kCalmIconXl, color: colors.ink2),
+              child: Icon(icon, size: space.iconXl, color: colors.ink2),
             ),
           ),
           Semantics(

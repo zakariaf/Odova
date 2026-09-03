@@ -13,20 +13,11 @@ import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_all_clear.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 BoxDecoration _decorationOf(WidgetTester tester, Type type) =>
-    tester
-            .widget<Container>(
-              find
-                  .descendant(
-                    of: find.byType(type),
-                    matching: find.byType(Container),
-                  )
-                  .first,
-            )
-            .decoration!
-        as BoxDecoration;
+    calmDecorationOf<BoxDecoration>(tester, find.byType(type));
 
 void main() {
   testWidgets('CalmAllClear renders the ok radial wash, a 92pt mark with a '

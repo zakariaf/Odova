@@ -11,6 +11,7 @@ import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
+import 'package:odova/ui/calm/calm_scaffold.dart' show calmSnackbarBottomInset;
 
 /// The bar itself.
 class CalmSnackbar extends StatelessWidget {
@@ -49,10 +50,6 @@ class CalmSnackbar extends StatelessWidget {
     bool danger = false,
   }) {
     final space = CalmSpace.of(context);
-    // `.snackbar` composes `--homebar-h`; on device that number is
-    // MediaQuery's, and it is 0 on most Android hardware.
-    final bottom =
-        space.tabbarH + MediaQuery.paddingOf(context).bottom + space.s3;
 
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
@@ -76,7 +73,7 @@ class CalmSnackbar extends StatelessWidget {
             space.s5,
             0,
             space.s5,
-            bottom,
+            calmSnackbarBottomInset(context),
           ),
         ),
       );
@@ -118,7 +115,6 @@ class CalmSnackbar extends StatelessWidget {
                 onTap: onAction,
                 borderRadius: shapes.radiusPill,
                 pressScale: kCalmPressScaleChip,
-                expandTapTarget: true,
                 child: Padding(
                   padding: EdgeInsetsDirectional.symmetric(
                     horizontal: space.s3,

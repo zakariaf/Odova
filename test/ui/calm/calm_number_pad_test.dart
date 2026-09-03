@@ -16,6 +16,7 @@ import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_number_pad.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/device.dart';
 import '../../support/pump_app.dart';
 
@@ -49,15 +50,7 @@ Finder _keyFor(String label) => find.ancestor(
 );
 
 ShapeDecoration _keyDecoration(WidgetTester tester, String label) =>
-    tester
-            .widget<AnimatedContainer>(
-              find.descendant(
-                of: _keyFor(label),
-                matching: find.byType(AnimatedContainer),
-              ),
-            )
-            .decoration!
-        as ShapeDecoration;
+    calmDecorationOf<ShapeDecoration>(tester, _keyFor(label));
 
 void main() {
   testWidgets('keys are 68pt in a 3-column grid with s3 gutters, and every key '

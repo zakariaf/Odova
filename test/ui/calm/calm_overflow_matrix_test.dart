@@ -29,7 +29,7 @@ void main() {
           for (final specimen in calmSpecimens()) {
             await pumpApp(
               tester,
-              _Scroller(children: specimen.build(rtl: false)),
+              CalmSpecimenSheet(children: specimen.build(rtl: false)),
               textScaler: TextScaler.linear(scale),
               boldText: bold,
               // The `loading` button's spinner never settles.
@@ -79,21 +79,4 @@ void main() {
       }
     }
   }
-}
-
-class _Scroller extends StatelessWidget {
-  const _Scroller({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) => CalmSpecimenFont(
-    child: SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      ),
-    ),
-  );
 }

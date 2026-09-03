@@ -118,7 +118,7 @@ class CalmAppBar extends StatelessWidget {
   const CalmAppBar({
     required this.title,
     super.key,
-    this.showVehicleChevron = false,
+    bool showVehicleChevron = false,
     this.onTapVehicle,
     this.actions = const [],
   }) : shape = showVehicleChevron
@@ -137,7 +137,6 @@ class CalmAppBar extends StatelessWidget {
     this.subtitle,
     this.actions = const [],
   }) : shape = CalmAppBarShape.large,
-       showVehicleChevron = false,
        onTapVehicle = null,
        startLabel = null,
        onStart = null,
@@ -152,7 +151,6 @@ class CalmAppBar extends StatelessWidget {
     super.key,
     this.actions = const [],
   }) : shape = CalmAppBarShape.vehicle,
-       showVehicleChevron = true,
        subtitle = null,
        startLabel = null,
        onStart = null,
@@ -172,7 +170,6 @@ class CalmAppBar extends StatelessWidget {
     required this.onEnd,
     super.key,
   }) : shape = CalmAppBarShape.modal,
-       showVehicleChevron = false,
        onTapVehicle = null,
        subtitle = null,
        actions = const [];
@@ -187,7 +184,11 @@ class CalmAppBar extends StatelessWidget {
   final String? subtitle;
 
   /// True only on the vehicle shape.
-  final bool showVehicleChevron;
+  ///
+  /// Derived, not stored: the flag and [shape] said the same thing in every
+  /// reachable state and were kept in sync by hand across four constructors.
+  /// It stays in the public API because the inventory's signature declares it.
+  bool get showVehicleChevron => shape == CalmAppBarShape.vehicle;
 
   /// What tapping the vehicle title does.
   final VoidCallback? onTapVehicle;
@@ -300,21 +301,28 @@ class CalmAppBar extends StatelessWidget {
           ],
         ),
       ),
-      CalmAppBarShape.vehicle || CalmAppBarShape.standard => Padding(
+      CalmAppBarShape.vehicle => Padding(
         padding: EdgeInsetsDirectional.symmetric(horizontal: space.s4),
         child: Row(
           children: [
             Expanded(
-              child: showVehicleChevron
-                  ? Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: CalmVehicleTitle(
-                        onTap: onTapVehicle,
-                        child: label(type.title),
-                      ),
-                    )
-                  : label(type.title),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: CalmVehicleTitle(
+                  onTap: onTapVehicle,
+                  child: label(type.title),
+                ),
+              ),
             ),
+            ...actions,
+          ],
+        ),
+      ),
+      CalmAppBarShape.standard => Padding(
+        padding: EdgeInsetsDirectional.symmetric(horizontal: space.s4),
+        child: Row(
+          children: [
+            Expanded(child: label(type.title)),
             ...actions,
           ],
         ),
@@ -322,10 +330,11 @@ class CalmAppBar extends StatelessWidget {
     };
 
     // The bar is part of the page, not a card floating over it: no shadow, no
-    // hairline, the same `bg` as the body behind it. No `alignment` either —
-    // a Container with one expands to fill whatever it is given, and in a
-    // Center that is the whole screen.
-    return Container(
+    // hairline, the same `bg` as the body behind it — so a ConstrainedBox, not
+    // a Container with a null decoration. (The test that asserted on that null
+    // decoration passed unconditionally, which is why it now asserts there is
+    // no DecoratedBox at all.)
+    return ConstrainedBox(
       constraints: BoxConstraints(minHeight: space.appbarH),
       child: child,
     );
@@ -361,19 +370,15 @@ class CalmVehicleTitle extends StatelessWidget {
                 : Colors.transparent,
             shape: const StadiumBorder(),
           ),
-          child: ConstrainedBox(
-            // 52, not the 44 the visible pill would give us.
-            constraints: BoxConstraints(minHeight: space.touchMin),
-            child: Padding(
-              padding: EdgeInsetsDirectional.symmetric(horizontal: space.s3),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(child: child),
-                  SizedBox(width: space.s2),
-                  Icon(Icons.expand_more, color: colors.ink3),
-                ],
-              ),
+          child: Padding(
+            padding: EdgeInsetsDirectional.symmetric(horizontal: space.s3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: child),
+                SizedBox(width: space.s2),
+                Icon(Icons.expand_more, color: colors.ink3),
+              ],
             ),
           ),
         ),
@@ -411,9 +416,6 @@ class CalmAppBarAction extends StatelessWidget {
       onTap: onTap,
       enabled: onTap != null,
       borderRadius: kCalmAppBarActionHeight / 2,
-      // `.modal-head__action` paints 44 — Material's floor, not Calm's. The
-      // paint stays 44 and the target grows to 52.
-      expandTapTarget: true,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           minHeight: kCalmAppBarActionHeight,
@@ -514,21 +516,29 @@ class CalmTabBar extends StatelessWidget {
           ),
           // `grid-template-columns: repeat(5, 1fr)`. The middle slot is empty:
           // the + lives in its own band above, so its whole 62 is hittable.
+          // Four tabs, with the empty middle slot inserted between the second
+          // and the third. Iterating the FIVE grid slots instead meant
+          // `i < 2 ? i : i - 1` written four times in four places, which is
+          // four chances to get an off-by-one wrong on a bar that is on all 28
+          // screens.
           child: Row(
             children: [
-              for (var i = 0; i < 5; i++)
+              for (var tab = 0; tab < 4; tab++) ...[
+                if (tab == 2)
+                  const Expanded(
+                    child: CalmTabSlot(child: SizedBox.shrink()),
+                  ),
                 Expanded(
                   child: CalmTabSlot(
-                    child: i == 2
-                        ? const SizedBox.shrink()
-                        : _CalmTabItem(
-                            label: labels[i < 2 ? i : i - 1],
-                            icon: icons?[i < 2 ? i : i - 1],
-                            active: (i < 2 ? i : i - 1) == index,
-                            onTap: () => onChanged(i < 2 ? i : i - 1),
-                          ),
+                    child: _CalmTabItem(
+                      label: labels[tab],
+                      icon: icons?[tab],
+                      active: tab == index,
+                      onTap: () => onChanged(tab),
+                    ),
                   ),
                 ),
+              ],
             ],
           ),
         ),
@@ -557,7 +567,7 @@ class CalmTabBarSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: colors.bg,
         // `.tabbar { box-shadow: 0 -1px 0 var(--color-divider) }` — a hairline
@@ -675,7 +685,7 @@ class _CalmTabItem extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, size: 24, color: tint), // .tabbar__icon
+                  Icon(icon, size: space.iconMd, color: tint),
                   const SizedBox(height: 3), // .tabbar__item { gap: 3px }
                 ],
                 Text(

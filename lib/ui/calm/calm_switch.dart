@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
-import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 
 /// The painted track size.
@@ -44,22 +43,24 @@ class CalmSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final space = CalmSpace.of(context);
     final onChanged = this.onChanged;
 
-    return Semantics(
+    // Through CalmPressable, not around it. The first version hand-assembled
+    // Semantics + CalmTapTarget + a raw GestureDetector — a strict subset of
+    // the primitive — because there was no way to say "toggle, not button".
+    // The cost was invisible: a standalone switch had no
+    // FocusableActionDetector, so it was unreachable by Tab, drew no focus
+    // ring and could not be activated by keyboard, against SPEC.md §17. And
+    // the traversal matrix enumerates CalmPressable, so the one control that
+    // opted out was the one control it could not check.
+    return CalmPressable(
+      onTap: onChanged == null ? null : () => onChanged(!value),
+      enabled: onChanged != null,
+      borderRadius: kCalmSwitchTrackSize.height / 2,
+      pressScale: 1, // the thumb travels; the track does not squeeze
       toggled: value,
-      label: semanticLabel,
-      // Not a button: a switch that announces itself as a button offers a
-      // navigation that does not exist.
-      child: CalmTapTarget(
-        minSize: Size(kCalmSwitchTrackSize.width, space.touchMin),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onChanged == null ? null : () => onChanged(!value),
-          child: CalmSwitchTrack(value: value, enabled: onChanged != null),
-        ),
-      ),
+      semanticLabel: semanticLabel,
+      child: CalmSwitchTrack(value: value, enabled: onChanged != null),
     );
   }
 }

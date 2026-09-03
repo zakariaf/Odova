@@ -63,9 +63,10 @@ class CalmPressable extends StatefulWidget {
     this.pressScale = kCalmPressScaleButton,
     this.enabled = true,
     this.semanticLabel,
+    this.semanticsValue,
+    this.toggled,
     this.isButton = true,
     this.focusNode,
-    this.expandTapTarget = false,
   });
 
   /// What is pressed.
@@ -88,19 +89,31 @@ class CalmPressable extends StatefulWidget {
   /// Whether the control accepts input at all.
   final bool enabled;
 
-  /// The accessible name, when the child does not carry one.
+  /// The accessible name.
+  ///
+  /// Supplying it REPLACES the subtree's own semantics rather than adding to
+  /// them — the child is wrapped in an `ExcludeSemantics`. Without that rule a
+  /// control whose child is a `Text` announces its label twice ("Save, Save"),
+  /// which this library shipped and fixed three times before the primitive
+  /// made it unrepresentable. Leave it null when the child carries the words.
   final String? semanticLabel;
+
+  /// The spoken value beside [semanticLabel] — a due card's status line.
+  final String? semanticsValue;
+
+  /// Non-null makes this a TOGGLE rather than a button: it reports
+  /// `isToggled`, and [isButton] is ignored.
+  ///
+  /// A switch that announces itself as a button offers a navigation that does
+  /// not exist, and a switch that opts out of this primitive to say so loses
+  /// its focus ring and its keyboard activation with it.
+  final bool? toggled;
 
   /// Whether this announces as a button. False for a row that navigates.
   final bool isButton;
 
   /// Supplied when a caller owns traversal order.
   final FocusNode? focusNode;
-
-  /// Set on any control that PAINTS smaller than --touch-min: a chip (40), a
-  /// segment (46), a switch (34 tall), a stepper button (48). The paint stays
-  /// as designed; only the gesture box grows to 52.
-  final bool expandTapTarget;
 
   @override
   State<CalmPressable> createState() => _CalmPressableState();
@@ -109,6 +122,21 @@ class CalmPressable extends StatefulWidget {
 class _CalmPressableState extends State<CalmPressable> {
   bool _pressed = false;
   bool _focused = false;
+
+  /// Built once. A fresh map on every build changes the map's IDENTITY, and
+  /// `Actions` then re-runs its listener bookkeeping — two set allocations,
+  /// two differences, a remove and an add — on every press-down, press-up and
+  /// focus change, for a callback that is semantically the same every time.
+  /// `widget.onTap` is read at INVOKE time, so this stays correct across
+  /// widget updates.
+  late final Map<Type, Action<Intent>> _actions = {
+    ActivateIntent: CallbackAction<ActivateIntent>(
+      onInvoke: (_) {
+        if (widget.enabled) widget.onTap?.call();
+        return null;
+      },
+    ),
+  };
 
   void _setPressed(bool value) {
     if (_pressed != value) setState(() => _pressed = value);
@@ -122,11 +150,18 @@ class _CalmPressableState extends State<CalmPressable> {
     final space = CalmSpace.of(context);
     final active = widget.enabled && widget.onTap != null;
 
+    // The exclusion wraps the CHILD's words, not the control: a label here
+    // replaces what the subtree would say, and excluding the gesture layer as
+    // well would take the tap action with it.
+    final labelled = widget.semanticLabel != null;
     Widget content = AnimatedScale(
       scale: _pressed && active ? widget.pressScale : 1,
       duration: calmDuration(context, motion.instant), // --dur-instant, 90ms
       curve: motion.easeOut, // --ease-out
-      child: CalmPressState(pressed: _pressed && active, child: widget.child),
+      child: CalmPressState(
+        pressed: _pressed && active,
+        child: labelled ? ExcludeSemantics(child: widget.child) : widget.child,
+      ),
     );
 
     // The focus ring lives OUTSIDE the child's box, so taking focus never
@@ -183,17 +218,22 @@ class _CalmPressableState extends State<CalmPressable> {
       child: content,
     );
 
-    if (widget.expandTapTarget) {
-      gesture = CalmTapTarget(
-        minSize: Size(space.touchMin, space.touchMin),
-        child: gesture,
-      );
-    }
+    // Unconditional, and it used to be a flag. `RenderCalmTapTarget` sizes to
+    // `max(child, 52)`, so above the floor it is provably a no-op — which
+    // means the flag could only ever be WRONG, and three widgets had already
+    // re-implemented it as a hand-rolled ConstrainedBox instead. Now the floor
+    // holds for controls nobody has written yet.
+    gesture = CalmTapTarget(
+      minSize: Size(space.touchMin, space.touchMin),
+      child: gesture,
+    );
 
     return Semantics(
-      button: widget.isButton,
+      button: widget.toggled == null && widget.isButton,
+      toggled: widget.toggled,
       enabled: widget.enabled,
       label: widget.semanticLabel,
+      value: widget.semanticsValue,
       child: FocusableActionDetector(
         enabled: active,
         focusNode: widget.focusNode,
@@ -206,14 +246,7 @@ class _CalmPressableState extends State<CalmPressable> {
         },
         // Without this a GestureDetector-based control is focusable and
         // unusable: Enter and Space would do nothing.
-        actions: <Type, Action<Intent>>{
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) {
-              widget.onTap?.call();
-              return null;
-            },
-          ),
-        },
+        actions: _actions,
         child: gesture,
       ),
     );
@@ -293,6 +326,40 @@ class RenderCalmTapTarget extends RenderShiftedBox {
     markNeedsLayout();
   }
 
+  // The floor has to hold in all THREE sizing paths, not just in layout.
+  // RenderShiftedBox's intrinsics delegate straight to the child, so inside an
+  // IntrinsicHeight, an intrinsic-sizing Row, or any parent that asks for a
+  // dry layout, a 40pt chip reported 40 and the 52 quietly was not there.
+  @override
+  double computeMinIntrinsicWidth(double height) =>
+      math.max(super.computeMinIntrinsicWidth(height), minSize.width);
+
+  @override
+  double computeMaxIntrinsicWidth(double height) =>
+      math.max(super.computeMaxIntrinsicWidth(height), minSize.width);
+
+  @override
+  double computeMinIntrinsicHeight(double width) =>
+      math.max(super.computeMinIntrinsicHeight(width), minSize.height);
+
+  @override
+  double computeMaxIntrinsicHeight(double width) =>
+      math.max(super.computeMaxIntrinsicHeight(width), minSize.height);
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final child = this.child;
+    if (child == null) return Size.zero;
+    return _floor(constraints, child.getDryLayout(constraints));
+  }
+
+  Size _floor(BoxConstraints constraints, Size child) => constraints.constrain(
+    Size(
+      math.max(child.width, minSize.width),
+      math.max(child.height, minSize.height),
+    ),
+  );
+
   @override
   void performLayout() {
     final child = this.child;
@@ -301,12 +368,7 @@ class RenderCalmTapTarget extends RenderShiftedBox {
       return;
     }
     child.layout(constraints, parentUsesSize: true);
-    size = constraints.constrain(
-      Size(
-        math.max(child.size.width, minSize.width),
-        math.max(child.size.height, minSize.height),
-      ),
-    );
+    size = _floor(constraints, child.size);
     (child.parentData! as BoxParentData).offset = Alignment.center.alongOffset(
       (size - child.size) as Offset,
     );

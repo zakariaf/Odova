@@ -13,6 +13,7 @@ import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
+import 'package:odova/ui/calm/calm_surface.dart';
 
 /// odova.css §13: the primary card fades from the state tint to the surface at
 /// 78%, so the status line's ink must clear 4.5:1 on BOTH stops.
@@ -115,40 +116,35 @@ class CalmDueCard extends StatelessWidget {
     // BorderRadius built from the same number, so they cannot drift.
     final radius = isPrimary ? shapes.radius3xl : shapes.radiusXl;
 
+    // The label and value go THROUGH the primitive rather than around it. The
+    // first version wrapped CalmPressable in Semantics + ExcludeSemantics,
+    // which discarded the primitive's own `Semantics(button:, enabled:)` node
+    // — so the card was a button that could never report disabled, and the
+    // primitive's `enabled` argument was dead there.
     return MergeSemantics(
-      child: Semantics(
-        button: true,
-        label: view.title,
-        value: view.statusLine,
-        child: ExcludeSemantics(
-          child: CalmPressable(
-            onTap: onTap,
-            borderRadius: radius,
-            child: Container(
-              constraints: BoxConstraints(
-                minHeight: isPrimary ? 0.0 : space.touchMin,
-              ),
-              padding: EdgeInsetsDirectional.all(
-                isPrimary ? space.s6 : space.s4,
-              ),
-              decoration: BoxDecoration(
-                color: isPrimary ? null : colors.surface,
-                gradient: isPrimary
-                    ? LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [style.tint, colors.surface],
-                        stops: const [0, kCalmDueCardTintStop],
-                      )
-                    : null,
-                borderRadius: BorderRadius.circular(radius),
-                boxShadow: isPrimary ? shapes.elev2 : shapes.elev1,
-              ),
-              child: isPrimary
-                  ? _PrimaryBody(view: view, style: style, onAction: onAction)
-                  : _SecondaryBody(view: view, style: style),
-            ),
+      child: CalmPressable(
+        onTap: onTap,
+        borderRadius: radius,
+        semanticLabel: view.title,
+        semanticsValue: view.statusLine,
+        child: CalmSurface(
+          color: colors.surface,
+          gradient: isPrimary
+              ? LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [style.tint, colors.surface],
+                  stops: const [0, kCalmDueCardTintStop],
+                )
+              : null,
+          radius: radius,
+          shadow: isPrimary ? shapes.elev2 : shapes.elev1,
+          padding: EdgeInsetsDirectional.all(
+            isPrimary ? space.s6 : space.s4,
           ),
+          child: isPrimary
+              ? _PrimaryBody(view: view, style: style, onAction: onAction)
+              : _SecondaryBody(view: view, style: style),
         ),
       ),
     );
@@ -262,7 +258,7 @@ class _SecondaryBody extends StatelessWidget {
         ),
         CalmDirectionalIcon(
           Icons.chevron_right,
-          size: space.s5,
+          size: space.iconSm,
           color: colors.ink3,
         ),
       ],
@@ -317,23 +313,11 @@ class CalmProgressBar extends StatelessWidget {
               // the right-hand one in fa, ar and ckb.
               alignment: AlignmentDirectional.centerStart,
               widthFactor: t,
-              child: CalmProgressFill(color: color),
+              child: ColoredBox(color: color),
             ),
           ),
         ),
       ),
     );
   }
-}
-
-/// The filled part of a [CalmProgressBar].
-class CalmProgressFill extends StatelessWidget {
-  /// Creates the fill.
-  const CalmProgressFill({required this.color, super.key});
-
-  /// The state's graphic colour.
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => ColoredBox(color: color);
 }

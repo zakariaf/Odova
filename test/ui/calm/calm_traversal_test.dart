@@ -10,33 +10,11 @@ import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_chip.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 
+import '../../support/calm_finders.dart';
+import '../../support/device.dart';
 import '../../support/fonts.dart';
 import '../../support/pump_app.dart';
 import 'support/specimens.dart';
-
-/// The focus ring's stroke, wherever it is drawn.
-BorderSide? _ring(WidgetTester tester) {
-  for (final box in tester.widgetList<DecoratedBox>(
-    find.byType(DecoratedBox),
-  )) {
-    final decoration = box.decoration;
-    if (decoration is ShapeDecoration && decoration.shape is OutlinedBorder) {
-      final side = (decoration.shape as OutlinedBorder).side;
-      if (side != BorderSide.none) return side;
-    }
-  }
-  return null;
-}
-
-Widget _sheet(List<Widget> children) => CalmSpecimenFont(
-  child: SingleChildScrollView(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: children,
-    ),
-  ),
-);
 
 void main() {
   setUpAll(loadAppFonts);
@@ -55,16 +33,14 @@ void main() {
 
   testWidgets('every focusable Calm control is reachable by Tab and draws a '
       'visible ring', (tester) async {
-    tester.view.physicalSize = const Size(430 * 3, 6000 * 3);
-    tester.view.devicePixelRatio = 3;
-    addTearDown(tester.view.reset);
+    tester.useDevice(Device.specimenSheet);
 
     final ringless = <String>[];
 
     for (final specimen in calmSpecimens()) {
       await pumpApp(
         tester,
-        _sheet(specimen.build(rtl: false)),
+        CalmSpecimenSheet(children: specimen.build(rtl: false)),
         settle: false,
       );
 
@@ -77,7 +53,7 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pump();
 
-        final ring = _ring(tester);
+        final ring = calmFocusRing(tester)?.side;
         if (ring == null || ring.color != calmColorsLight.focus) {
           ringless.add('${specimen.name} stop $i');
         }
@@ -93,10 +69,12 @@ void main() {
     for (final locale in ['en', 'fa']) {
       await pumpApp(
         tester,
-        _sheet([
-          for (final label in ['One', 'Two', 'Three'])
-            CalmChip(label: label, onTap: () {}),
-        ]),
+        CalmSpecimenSheet(
+          children: [
+            for (final label in ['One', 'Two', 'Three'])
+              CalmChip(label: label, onTap: () {}),
+          ],
+        ),
         locale: Locale(locale),
       );
 

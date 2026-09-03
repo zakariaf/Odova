@@ -3,6 +3,7 @@
 // Each paints its design size and reports the 52pt hit floor. Each mirrors its
 // ORDER and not its glyphs — a minus and a plus mean the same thing in Sorani.
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
@@ -11,6 +12,7 @@ import 'package:odova/ui/calm/calm_segmented.dart';
 import 'package:odova/ui/calm/calm_stepper.dart';
 import 'package:odova/ui/calm/calm_switch.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 void main() {
@@ -173,6 +175,58 @@ void main() {
       Center(child: CalmSwitch(value: true, onChanged: (_) {})),
     );
     expect(_trackColour(tester), calmColorsLight.brand);
+  });
+
+  testWidgets('a standalone switch is keyboard-reachable and announces as a '
+      'toggle', (tester) async {
+    // It used to hand-assemble Semantics + CalmTapTarget + a raw
+    // GestureDetector — a strict subset of CalmPressable — because the
+    // primitive had no way to say "toggle, not button". The cost was invisible:
+    // no FocusableActionDetector, so no Tab stop, no focus ring and no keyboard
+    // activation, against SPEC.md §17. And the traversal matrix enumerates
+    // CalmPressable, so the one control that opted out was the one control it
+    // could not check.
+    FocusManager.instance.highlightStrategy =
+        FocusHighlightStrategy.alwaysTraditional;
+    addTearDown(
+      () => FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.automatic,
+    );
+
+    final handle = tester.ensureSemantics();
+    var value = false;
+
+    await pumpApp(
+      tester,
+      StatefulBuilder(
+        builder: (context, setState) => Center(
+          child: CalmSwitch(
+            value: value,
+            semanticLabel: 'Reminders',
+            onChanged: (v) => setState(() => value = v),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.byType(CalmSwitch)),
+      isSemantics(label: 'Reminders', isToggled: false, isButton: false),
+    );
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    expect(
+      calmFocusRing(tester)?.side.color,
+      calmColorsLight.focus,
+      reason: 'a switch nobody can see the focus of',
+    );
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(value, isTrue, reason: 'Enter did not activate the switch');
+
+    handle.dispose();
   });
 
   testWidgets('CalmSegmented marks selection with the pill, semi weight and '

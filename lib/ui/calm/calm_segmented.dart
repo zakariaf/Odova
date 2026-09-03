@@ -94,8 +94,6 @@ class CalmSegmentedOption extends StatelessWidget {
         onTap: onTap,
         borderRadius: kCalmSegmentedOptionHeight / 2,
         pressScale: kCalmPressScaleChip,
-        // Paints 46, hits 52.
-        expandTapTarget: true,
         child: AnimatedContainer(
           duration: calmDuration(context, motion.base),
           curve: motion.easeStandard,

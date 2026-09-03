@@ -74,8 +74,9 @@ CalmDueView _due(
 
 /// Every widget in `lib/ui/calm/`, in every state it declares.
 List<CalmSpecimen> calmSpecimens() => [
-  CalmSpecimen('pressable', ({required rtl}) {
-    return [
+  CalmSpecimen(
+    'pressable',
+    ({required rtl}) => [
       CalmPressable(
         onTap: () {},
         borderRadius: 16,
@@ -86,23 +87,24 @@ List<CalmSpecimen> calmSpecimens() => [
       CalmPressable(
         onTap: () {},
         borderRadius: 16,
-        expandTapTarget: true,
         child: const CalmDirectionalIcon(
           Icons.chevron_right,
           size: 24,
           color: Color(0xFF2C2420),
         ),
       ),
-    ];
-  }),
-  CalmSpecimen('card', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'card',
+    ({required rtl}) => [
       for (final variant in CalmCardVariant.values)
         CalmCard(variant: variant, child: Text(variant.name)),
-    ];
-  }),
-  CalmSpecimen('tile', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'tile',
+    ({required rtl}) => [
       Row(
         children: [
           Expanded(
@@ -128,10 +130,11 @@ List<CalmSpecimen> calmSpecimens() => [
           ),
         ],
       ),
-    ];
-  }),
-  CalmSpecimen('icon-tile', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'icon-tile',
+    ({required rtl}) => [
       Wrap(
         spacing: 12,
         children: [
@@ -140,10 +143,11 @@ List<CalmSpecimen> calmSpecimens() => [
             CalmIconTile(icon: Icons.build_outlined, state: state),
         ],
       ),
-    ];
-  }),
-  CalmSpecimen('rows', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'rows',
+    ({required rtl}) => [
       CalmRowGroup(
         header: _t(rtl: rtl, latin: 'Reminders', persian: 'یادآورها'),
         footer: _t(
@@ -198,10 +202,11 @@ List<CalmSpecimen> calmSpecimens() => [
         onTap: () {},
         showChevron: true,
       ),
-    ];
-  }),
-  CalmSpecimen('button', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'button',
+    ({required rtl}) => [
       for (final variant in CalmButtonVariant.values)
         CalmButton(
           label: variant.name,
@@ -235,10 +240,11 @@ List<CalmSpecimen> calmSpecimens() => [
           ),
         ],
       ),
-    ];
-  }),
-  CalmSpecimen('chip', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'chip',
+    ({required rtl}) => [
       CalmChipBar(
         chips: [
           CalmChip(
@@ -262,10 +268,11 @@ List<CalmSpecimen> calmSpecimens() => [
           ),
         ],
       ),
-    ];
-  }),
-  CalmSpecimen('badge', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'badge',
+    ({required rtl}) => [
       Wrap(
         spacing: 8,
         runSpacing: 8,
@@ -277,10 +284,11 @@ List<CalmSpecimen> calmSpecimens() => [
               CalmBadge(label: kind.name, kind: kind),
         ],
       ),
-    ];
-  }),
-  CalmSpecimen('status-dot', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'status-dot',
+    ({required rtl}) => [
       // A Builder, not a captured context: a specimen list that holds a
       // BuildContext resolves the theme of whichever sheet was built last.
       Builder(
@@ -296,10 +304,11 @@ List<CalmSpecimen> calmSpecimens() => [
           ],
         ),
       ),
-    ];
-  }),
-  CalmSpecimen('field', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'field',
+    ({required rtl}) => [
       CalmField(
         label: _t(rtl: rtl, latin: 'Odometer', persian: 'کیلومترشمار'),
         controller: TextEditingController(
@@ -339,10 +348,11 @@ List<CalmSpecimen> calmSpecimens() => [
         controller: TextEditingController(text: '—'),
         enabled: false,
       ),
-    ];
-  }),
-  CalmSpecimen('stepper', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'stepper',
+    ({required rtl}) => [
       Align(
         alignment: AlignmentDirectional.centerStart,
         child: CalmStepper(
@@ -353,21 +363,29 @@ List<CalmSpecimen> calmSpecimens() => [
           incrementLabel: _t(rtl: rtl, latin: 'More', persian: 'بیشتر'),
         ),
       ),
-    ];
-  }),
-  CalmSpecimen('switch', ({required rtl}) {
-    return [
-      const Row(
+    ],
+  ),
+  CalmSpecimen(
+    'switch',
+    ({required rtl}) => [
+      // Two ENABLED, so the traversal matrix actually reaches them: it
+      // enumerates CalmPressable, and a disabled control is skipped. A switch
+      // that opted out of the primitive was the one control that matrix could
+      // never check, which is exactly how it went keyboard-unreachable.
+      Row(
         children: [
-          CalmSwitch(value: false, onChanged: null),
-          SizedBox(width: 16),
-          CalmSwitch(value: true, onChanged: null),
+          CalmSwitch(value: false, onChanged: (_) {}),
+          const SizedBox(width: 16),
+          CalmSwitch(value: true, onChanged: (_) {}),
+          const SizedBox(width: 16),
+          const CalmSwitch(value: true, onChanged: null),
         ],
       ),
-    ];
-  }),
-  CalmSpecimen('segmented', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'segmented',
+    ({required rtl}) => [
       CalmSegmented(
         labels: [
           _t(rtl: rtl, latin: 'km', persian: 'کیلومتر'),
@@ -376,10 +394,11 @@ List<CalmSpecimen> calmSpecimens() => [
         index: 0,
         onChanged: (_) {},
       ),
-    ];
-  }),
-  CalmSpecimen('app-bar', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'app-bar',
+    ({required rtl}) => [
       CalmAppBar(
         title: _t(rtl: rtl, latin: 'Settings', persian: 'تنظیمات'),
       ),
@@ -402,10 +421,11 @@ List<CalmSpecimen> calmSpecimens() => [
         endLabel: _t(rtl: rtl, latin: 'Save', persian: 'ذخیره'),
         onEnd: () {},
       ),
-    ];
-  }),
-  CalmSpecimen('tab-bar', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'tab-bar',
+    ({required rtl}) => [
       CalmTabBar(
         index: 0,
         onChanged: (_) {},
@@ -424,10 +444,11 @@ List<CalmSpecimen> calmSpecimens() => [
           Icons.settings_outlined,
         ],
       ),
-    ];
-  }),
-  CalmSpecimen('sheet', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'sheet',
+    ({required rtl}) => [
       CalmSheet(
         title: _t(
           rtl: rtl,
@@ -451,10 +472,11 @@ List<CalmSpecimen> calmSpecimens() => [
           Text(_t(rtl: rtl, latin: 'Brake pads', persian: 'لنت ترمز')),
         ],
       ),
-    ];
-  }),
-  CalmSpecimen('dialog', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'dialog',
+    ({required rtl}) => [
       CalmDialog(
         icon: Icons.delete_outline,
         danger: true,
@@ -473,10 +495,11 @@ List<CalmSpecimen> calmSpecimens() => [
         cancelLabel: _t(rtl: rtl, latin: 'Keep it', persian: 'نگه‌داشتن'),
         onCancel: () {},
       ),
-    ];
-  }),
-  CalmSpecimen('snackbar', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'snackbar',
+    ({required rtl}) => [
       CalmSnackbar(
         message: _t(
           rtl: rtl,
@@ -496,10 +519,11 @@ List<CalmSpecimen> calmSpecimens() => [
         onAction: () {},
         danger: true,
       ),
-    ];
-  }),
-  CalmSpecimen('number-pad', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'number-pad',
+    ({required rtl}) => [
       CalmNumberPad(
         value: _t(rtl: rtl, latin: '187,412', persian: '۱۸۷٬۴۱۲'),
         unit: _t(rtl: rtl, latin: 'km', persian: 'کیلومتر'),
@@ -525,10 +549,11 @@ List<CalmSpecimen> calmSpecimens() => [
           persian: 'حذف',
         ),
       ),
-    ];
-  }),
-  CalmSpecimen('due-card', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'due-card',
+    ({required rtl}) => [
       CalmDueCard(
         view: _due(
           rtl,
@@ -561,10 +586,11 @@ List<CalmSpecimen> calmSpecimens() => [
           onTap: () {},
           onAction: () {},
         ),
-    ];
-  }),
-  CalmSpecimen('all-clear', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'all-clear',
+    ({required rtl}) => [
       CalmAllClear(
         headline: _t(
           rtl: rtl,
@@ -594,10 +620,11 @@ List<CalmSpecimen> calmSpecimens() => [
           ),
         ),
       ),
-    ];
-  }),
-  CalmSpecimen('empty-state', ({required rtl}) {
-    return [
+    ],
+  ),
+  CalmSpecimen(
+    'empty-state',
+    ({required rtl}) => [
       CalmEmptyState(
         icon: Icons.local_gas_station_outlined,
         title: _t(
@@ -615,8 +642,8 @@ List<CalmSpecimen> calmSpecimens() => [
           onPressed: () {},
         ),
       ),
-    ];
-  }),
+    ],
+  ),
 ];
 
 /// Every Latin string in these sheets renders in Vazirmatn.
@@ -639,4 +666,57 @@ class CalmSpecimenFont extends StatelessWidget {
     style: const TextStyle(fontFamily: 'Vazirmatn'),
     child: child,
   );
+}
+
+/// The sheet every specimen matrix pumps.
+///
+/// Here rather than in each matrix, for the same reason [calmSpecimens] is:
+/// the overflow, touch-target, traversal and golden lanes all sweep the whole
+/// library, and three of them had their own copy of this tree. A change one of
+/// them needs — a MediaQuery, a wider constraint, a Directionality — landed in
+/// one and silently not the others, and each matrix then measured a slightly
+/// different library.
+class CalmSpecimenSheet extends StatelessWidget {
+  /// Wraps [children].
+  const CalmSpecimenSheet({
+    required this.children,
+    super.key,
+    this.padded = false,
+  });
+
+  /// One specimen's states.
+  final List<Widget> children;
+
+  /// The golden lane's variant: the theme's own ground, a margin, and a gap
+  /// between states so the sheet reads as a specimen sheet.
+  final bool padded;
+
+  @override
+  Widget build(BuildContext context) {
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: padded
+          ? [
+              for (final child in children) ...[
+                child,
+                const SizedBox(height: 16),
+              ],
+            ]
+          : children,
+    );
+
+    return CalmSpecimenFont(
+      child: ColoredBox(
+        color: padded
+            ? Theme.of(context).scaffoldBackgroundColor
+            : const Color(0x00000000),
+        child: SingleChildScrollView(
+          child: padded
+              ? Padding(padding: const EdgeInsets.all(20), child: column)
+              : column,
+        ),
+      ),
+    );
+  }
 }

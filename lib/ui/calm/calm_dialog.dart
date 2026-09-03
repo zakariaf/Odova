@@ -10,8 +10,8 @@ import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_button.dart';
+import 'package:odova/ui/calm/calm_overlay_transition.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
-import 'package:odova/ui/calm/calm_sheet.dart' show CalmOverlayTransition;
 
 /// The dialog's icon disc.
 const double kCalmDialogIconSize = 56;

@@ -21,6 +21,7 @@ class CalmSurface extends StatelessWidget {
     this.shadow = const <BoxShadow>[],
     this.sheen = true,
     this.padding = EdgeInsets.zero,
+    this.gradient,
   });
 
   /// What sits on it.
@@ -42,6 +43,15 @@ class CalmSurface extends StatelessWidget {
   /// Inset padding. Directional, so it mirrors.
   final EdgeInsetsGeometry padding;
 
+  /// Replaces [color] when non-null: the due card's state-tint-to-surface
+  /// fade, the all-clear's sage radial wash.
+  ///
+  /// It exists because two cards were building their own BoxDecoration to get
+  /// one, and both then silently lost the sheen — `.due-card` and `.allclear`
+  /// BOTH declare `--elev-sheen` in odova.css, and a missing parameter is not
+  /// a design decision.
+  final Gradient? gradient;
+
   @override
   Widget build(BuildContext context) {
     // `sheen` is --elev-sheen carried as a Color on CalmColors, NOT on
@@ -52,7 +62,8 @@ class CalmSurface extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: color,
+        color: gradient == null ? color : null,
+        gradient: gradient,
         borderRadius: borderRadius,
         boxShadow: shadow,
       ),

@@ -14,6 +14,7 @@ import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/device.dart';
 import '../../support/pump_app.dart';
 
@@ -26,7 +27,7 @@ Finder _pill() => find.descendant(
 /// A [ShapeDecoration] with a [StadiumBorder], never a `BorderRadius.circular`
 /// of the 999 pill sentinel.
 ShapeDecoration _pillDecoration(WidgetTester tester) =>
-    tester.widget<AnimatedContainer>(_pill()).decoration! as ShapeDecoration;
+    calmDecorationOf<ShapeDecoration>(tester, find.byType(CalmButton));
 
 /// A disabled button under test needs its explanation, or the assertion this
 /// file also tests fires and drowns the assertion under test.

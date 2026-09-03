@@ -85,3 +85,86 @@
   alignment. The goldens pin what the library IS, not what it should be. Run
   `flutter run -t example/calm_gallery.dart` and open the system sheet beside
   it. Not done here, and not doable by an automated pass.
+
+### `/simplify` — four agents, all findings applied or answered
+
+**Applied (17).**
+
+*Correctness, found by the altitude pass and not by any test:*
+- `CalmSwitch` hand-assembled `Semantics` + `CalmTapTarget` + `GestureDetector` —
+  a strict subset of `CalmPressable` — so a standalone switch had **no Tab stop,
+  no focus ring and no keyboard activation** (SPEC §17), and the traversal matrix
+  could not see it because that matrix enumerates `CalmPressable`. It goes
+  through the primitive now, which gained a `toggled` capability. Pinned by a
+  test, and the switch specimen is enabled so the matrix actually reaches it.
+- `CalmDueCard` wrapped the primitive in `Semantics` + `ExcludeSemantics`,
+  discarding its `Semantics(button:, enabled:)` node — a button that could never
+  report disabled. Now goes through `semanticLabel`/`semanticsValue`.
+- `RenderCalmTapTarget` enforced the 52pt floor in **one of three sizing paths**:
+  it inherited `RenderShiftedBox`'s intrinsics and never overrode
+  `computeDryLayout`, so inside an `IntrinsicHeight` a 40pt chip reported 40.
+  All three paths now, with a test.
+- `expandTapTarget` deleted. Above the floor the wrapper is provably a no-op, so
+  the flag could only ever be wrong; three widgets had already re-implemented it
+  as a hand-rolled `ConstrainedBox`. The floor is unconditional and now holds for
+  widgets nobody has written yet.
+- `semanticLabel` now **replaces** the subtree's words. The doubled-label defect
+  was found and fixed locally three times (3.3, 3.4, 3.5); the primitive makes it
+  unrepresentable.
+- `CalmDueCard` and `CalmAllClear` were missing `--elev-sheen`, which `.due-card`
+  and `.allclear` both declare, because `CalmSurface` had no `gradient` and both
+  went around it. A missing parameter, not a decision. Eight goldens regenerated.
+- The disclosure chevron was 18 in `CalmListRow` and `space.s5` (20) in
+  `CalmDueCard` — same glyph, two sizes, one drawn from the *spacing* ramp. Added
+  the icon scale (`.icon--sm` 18 / `.icon` 24 / `.icon--lg` 32 / `.icon--xl` 44)
+  to `CalmSpace` and routed all nine literals through it.
+- A test that asserted on the app bar's decoration passed **unconditionally** —
+  the decoration was always null. It asserts there is no `DecoratedBox` at all.
+
+*Efficiency:*
+- `CalmPressable` rebuilt its `Actions` map on every press-down, press-up and
+  focus change, so `Actions` re-ran its listener bookkeeping each time on the
+  touch path of every tappable surface in the app. Built once.
+- The touch-target matrix evaluated its finder in the loop condition: 2N+1 full
+  tree walks per specimen instead of one.
+
+*Structure:*
+- `CalmOverlayTransition` moved out of `calm_sheet.dart` into its own file with
+  every motion parameter required — its defaults were the sheet's constants, so
+  the third overlay would have inherited sheet motion by accident.
+- `CalmBadge`'s two switches over `kind` (whose `_` arms had to stay exact
+  complements for a `status!` to be sound) collapsed into one.
+- `CalmAppBar.showVehicleChevron` is derived from `shape` rather than stored in
+  parallel across four constructors. Still public: the inventory declares it.
+- The tab bar's `i < 2 ? i : i - 1` written four times, replaced by iterating the
+  four tabs and inserting the empty middle slot.
+- `calmSnackbarBottomInset` was dead **and** its body was copy-pasted into
+  `CalmSnackbar.show`; the show method calls it now.
+- `CalmProgressFill` was a public widget that existed to give one test a
+  `find.byType`. Deleted.
+- Two `Container`s that were a `ConstrainedBox` and a `DecoratedBox`.
+
+*Test infrastructure* — 12 decoration helpers, 3 focus-ring scanners and 4
+specimen sheets collapsed into `test/support/calm_finders.dart`,
+`CalmSpecimenSheet` and `Device.specimenSheet`. Each copy had hard-coded *which
+container widget the implementation happens to paint through*, so a widget that
+later gains an `AnimatedContainer` wrapper fails with a cast error rather than a
+colour mismatch.
+
+**Answered, not applied (3).**
+
+- *"`CalmPressable.enabled` says what `onTap: null` already says."* It does not:
+  `enabled` drives `Semantics(enabled:)`, which is how a disabled button reports
+  `isEnabled: false` — a test pins that. It is also in the declared signature.
+- *"`CalmIconTile` could absorb the dialog icon, the all-clear mark and the
+  empty-state art."* The reviewer flagged this as their weakest finding and I
+  agree: each copy is four lines, the constants genuinely differ, and
+  `calm_icon_tile.dart` carries a justification for its own fixed 44 that does
+  not generalise.
+- *"Scope the golden CI lane to its directory to save ~6s of test enumeration."*
+  Not taken. A golden-tagged test added elsewhere would then be silently skipped,
+  which is a worse failure than six seconds of a multi-minute job.
+
+**Signature contract updated** in `.claude/skills/calm-components/` for the three
+public API changes (`CalmPressable`, `CalmSurface`, `CalmSwitch`) — that file
+says a change to a signature is a change to the widget and the table together.

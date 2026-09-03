@@ -32,7 +32,22 @@ class Device {
   /// 412x915 — a current flagship.
   static const medium = Device('medium_412', Size(412, 915), 2.625);
 
-  /// The matrix iterates this list.
+  /// A tall surface for a SPECIMEN sheet, which stacks every state of one
+  /// widget in a column and is not a phone.
+  ///
+  /// The sheets scroll, and a `SingleChildScrollView` lays its child out
+  /// unbounded — so `getSize` and `didExceedMaxLines` see every state whether
+  /// or not it is on screen, and the viewport height only decides what a
+  /// golden frames.
+  ///
+  /// Here rather than as three hand-rolled `view.physicalSize` assignments in
+  /// three matrix files, each with its own height and its own chance to forget
+  /// `addTearDown(view.reset)` — which the doc on [CalmDeviceHarness.useDevice]
+  /// warns poisons every later test in the file.
+  static const specimenSheet = Device('specimen_430', Size(430, 1400), 3);
+
+  /// The matrix iterates this list. [specimenSheet] is deliberately NOT in it:
+  /// it is a sheet, not a device.
   static const all = <Device>[compact, small, medium];
 
   @override

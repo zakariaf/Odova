@@ -15,6 +15,7 @@ import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_due_card.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 CalmDueView _view({
@@ -50,17 +51,7 @@ Widget _card({
 );
 
 BoxDecoration _decoration(WidgetTester tester) =>
-    tester
-            .widget<Container>(
-              find
-                  .descendant(
-                    of: find.byType(CalmDueCard),
-                    matching: find.byType(Container),
-                  )
-                  .first,
-            )
-            .decoration!
-        as BoxDecoration;
+    calmDecorationOf<BoxDecoration>(tester, find.byType(CalmDueCard));
 
 void main() {
   testWidgets('the primary density is radius3xl on elev2 with a gradient, and '
@@ -206,7 +197,16 @@ void main() {
       expect(bar.curve, calmMotion.easeStandard, reason: locale);
 
       final track = tester.getRect(find.byType(CalmProgressBar));
-      final fill = tester.getRect(find.byType(CalmProgressFill));
+      // The ColoredBox INSIDE the FractionallySizedBox is the fill — the
+      // fractional box itself spans the whole track and positions the fill
+      // within it. A public CalmProgressFill widget existed only to give this
+      // line a `find.byType`, which is a public API for a test handle.
+      final fill = tester.getRect(
+        find.descendant(
+          of: find.byType(FractionallySizedBox),
+          matching: find.byType(ColoredBox),
+        ),
+      );
       expect(fill.width, closeTo(track.width * 0.7, 0.5), reason: locale);
       if (mirrored) {
         // Right to left, from the start edge, which is the right one.

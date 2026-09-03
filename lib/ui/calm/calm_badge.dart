@@ -79,38 +79,54 @@ class CalmBadge extends StatelessWidget {
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
 
-    // The six status kinds name a DueState and resolve through
-    // CalmStatusStyle; nothing here reads a status colour slot itself.
-    final state = switch (kind) {
-      CalmBadgeKind.overdue || CalmBadgeKind.dot => DueState.overdue,
-      CalmBadgeKind.due => DueState.due,
-      CalmBadgeKind.dueSoon => DueState.dueSoon,
-      CalmBadgeKind.ok => DueState.ok,
-      CalmBadgeKind.unknown => DueState.unknown,
-      CalmBadgeKind.needsOdometer => DueState.needsOdometer,
-      _ => null,
+    // ONE switch. The first version had two — kind to DueState, then kind to
+    // colours — whose `_` arms had to stay exact complements of each other for
+    // a `status!` to be sound. Adding a kind to one and not the other was a
+    // runtime null-assertion failure rather than an analyzer error.
+    CalmStatusStyle status(DueState state) =>
+        CalmStatusStyle.of(context, state);
+
+    final (Color background, Color? foreground) = switch (kind) {
+      CalmBadgeKind.overdue => (
+        status(DueState.overdue).tint,
+        status(DueState.overdue).ink,
+      ),
+      CalmBadgeKind.due => (
+        status(DueState.due).tint,
+        status(DueState.due).ink,
+      ),
+      CalmBadgeKind.dueSoon => (
+        status(DueState.dueSoon).tint,
+        status(DueState.dueSoon).ink,
+      ),
+      CalmBadgeKind.ok => (status(DueState.ok).tint, status(DueState.ok).ink),
+      CalmBadgeKind.unknown => (
+        status(DueState.unknown).tint,
+        status(DueState.unknown).ink,
+      ),
+      CalmBadgeKind.needsOdometer => (
+        status(DueState.needsOdometer).tint,
+        status(DueState.needsOdometer).ink,
+      ),
+      CalmBadgeKind.business => (colors.business.tint, colors.business.ink),
+      CalmBadgeKind.brand => (colors.brandSoft, colors.brandSoftInk),
+      CalmBadgeKind.neutral => (colors.surface2, colors.ink2),
+      CalmBadgeKind.count => (colors.brand, colors.onBrand),
+      // The label-less form: 10pt of --color-overdue and no text at all.
+      CalmBadgeKind.dot => (status(DueState.overdue).base, null),
     };
-    final status = state == null ? null : CalmStatusStyle.of(context, state);
 
     if (kind == CalmBadgeKind.dot) {
       return SizedBox.square(
         dimension: kCalmBadgeDotSize,
         child: DecoratedBox(
           decoration: ShapeDecoration(
-            color: status!.base,
+            color: background,
             shape: const CircleBorder(),
           ),
         ),
       );
     }
-
-    final (Color background, Color foreground) = switch (kind) {
-      CalmBadgeKind.business => (colors.business.tint, colors.business.ink),
-      CalmBadgeKind.brand => (colors.brandSoft, colors.brandSoftInk),
-      CalmBadgeKind.neutral => (colors.surface2, colors.ink2),
-      CalmBadgeKind.count => (colors.brand, colors.onBrand),
-      _ => (status!.tint, status.ink),
-    };
 
     return DecoratedBox(
       decoration: ShapeDecoration(
