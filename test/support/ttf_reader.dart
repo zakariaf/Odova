@@ -17,6 +17,14 @@ typedef VariationAxis = ({String tag, double min, double def, double max});
 class TtfReader {
   /// Wraps [bytes], which must be a whole font file.
   TtfReader(this.bytes) : _data = ByteData.sublistView(bytes) {
+    // Check the sfnt version BEFORE walking the table directory. A WOFF2 file
+    // has `wOF2` where the version goes and its own header shape, so reading
+    // `numTables` from offset 4 yields the flavour field — 20308 for `OT` —
+    // and the loop runs off the end of the buffer with a RangeError. The test
+    // named "never woff2" would then crash instead of failing on its own
+    // assertion, which is a worse failure than the one it is looking for.
+    if (!_isSfnt) return;
+
     final tableCount = _data.getUint16(4);
     for (var i = 0; i < tableCount; i++) {
       final record = 12 + i * 16;
@@ -38,7 +46,16 @@ class TtfReader {
 
   /// Whether the file begins with the WOFF2 signature, which Flutter's font
   /// loader cannot read.
-  bool get isWoff2 => String.fromCharCodes(bytes.sublist(0, 4)) == 'wOF2';
+  bool get isWoff2 => _tag == 'wOF2';
+
+  String get _tag => String.fromCharCodes(bytes.sublist(0, 4));
+
+  /// Whether the file is an sfnt: TrueType (`0x00010000`), CFF (`OTTO`) or an
+  /// Apple TrueType collection member (`true`).
+  bool get _isSfnt =>
+      _tag == 'OTTO' ||
+      _tag == 'true' ||
+      (bytes.length >= 4 && _data.getUint32(0) == 0x00010000);
 
   /// The variation axes declared in `fvar`, or empty if the font is static.
   ///

@@ -282,7 +282,20 @@ ThemeData buildCalmTheme(Brightness brightness, {CalmType? type}) {
     colorScheme: _scheme(brightness, c),
     scaffoldBackgroundColor: c.bg,
     canvasColor: c.bg,
-    focusColor: c.focus,
+    // NOT `c.focus`. `ThemeData.focusColor` is not a ring colour — it is the
+    // translucent overlay an InkHighlight FILLS a control's whole shape with,
+    // and Flutter's own default is black at 12% alpha. `--color-focus` is only
+    // ever drawn as `outline: 3px solid` in odova.css, and it is opaque, so
+    // putting it here paints a solid #A8794F block over the label of any
+    // focused control. `splashFactory: NoSplash` does not suppress that — it
+    // suppresses the splash — and `highlightColor` covers only the PRESSED
+    // highlight.
+    //
+    // Calm's focus ring is drawn by CalmPressable from `CalmColors.focus`,
+    // outside the layout box, in EPIC-03. Material's overlay is one more
+    // feedback channel Calm does not use.
+    focusColor: Colors.transparent,
+    hoverColor: Colors.transparent,
     textTheme: _textTheme(calmType),
     // Calm's press is a 90ms scale-and-tint (CalmMotion.instant). A ripple
     // underneath it is a second, slower answer to the same gesture.
@@ -320,6 +333,45 @@ ThemeData buildCalmTheme(Brightness brightness, {CalmType? type}) {
     ),
     // The design has no divider-width token: odova.css draws every separator
     // as `box-shadow: 0 1px 0 var(--color-divider)`, so 1 is read off the rule.
+    // The rest of Material's elevated components. `surfaceTint == surface`
+    // already neutralises the TONAL half globally; these are the shadows, and
+    // Material's defaults are non-zero (snackbar 6, navigation bar 3, drawer
+    // 1). EPIC-03 replaces the widgets, but a stock one reaching the tree
+    // before then must not draw a shadow Calm did not ask for.
+    snackBarTheme: SnackBarThemeData(
+      elevation: 0,
+      backgroundColor: c.surfaceInverse,
+      contentTextStyle: TextStyle(color: c.inkInverse),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      elevation: 0,
+      backgroundColor: c.bg,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+    ),
+    drawerTheme: DrawerThemeData(
+      elevation: 0,
+      backgroundColor: c.surface,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+    ),
+    menuTheme: const MenuThemeData(
+      style: MenuStyle(
+        elevation: WidgetStatePropertyAll(0),
+        shadowColor: WidgetStatePropertyAll(Colors.transparent),
+        surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+      ),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      elevation: 0,
+      color: c.surface,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+    ),
+    navigationRailTheme: NavigationRailThemeData(
+      elevation: 0,
+      backgroundColor: c.bg,
+    ),
     dividerTheme: DividerThemeData(color: c.divider, thickness: 1, space: 1),
     extensions: <ThemeExtension<dynamic>>[
       c,

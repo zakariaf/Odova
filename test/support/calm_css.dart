@@ -139,3 +139,29 @@ Map<String, List<double>> curvesIn(String block) => {
       for (final part in match.group(2)!.split(',')) double.parse(part.trim()),
     ],
 };
+
+/// One `rgba(r, g, b, a)` value.
+typedef CssRgba = ({int r, int g, int b, double a});
+
+/// The `rgba()` value of [name] in [block], or null.
+///
+/// `--scrim` and `--elev-sheen` are the only two Calm tokens whose value is an
+/// alpha colour rather than a hex, so they appear in neither
+/// [colourRolesIn] nor [allCalmHexes] — which is exactly how they went
+/// untraced.
+CssRgba? rgbaToken(String block, String name) {
+  final value = tokenValue(block, name);
+  if (value == null) return null;
+
+  final match = RegExp(
+    r'rgba\(\s*(\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\s*\)',
+  ).firstMatch(value);
+  if (match == null) return null;
+
+  return (
+    r: int.parse(match.group(1)!),
+    g: int.parse(match.group(2)!),
+    b: int.parse(match.group(3)!),
+    a: double.parse(match.group(4)!),
+  );
+}

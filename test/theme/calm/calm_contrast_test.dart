@@ -305,9 +305,18 @@ void main() {
     // Disabled uses are exempt under SC 1.4.3; the placeholder and the row
     // chevron are not, and both arrive in EPIC-03. Until then the gate is that
     // nothing outside the token layer can reach the slot at all.
+    // Comment lines stripped — EPIC-03's CalmField will want to write
+    // "/// Never [CalmColors.ink4] here" above its placeholder colour, and
+    // that sentence is the point.
     final offenders = dartFilesUnder('lib')
         .where((f) => !f.path.startsWith('lib/theme/calm/'))
-        .where((f) => f.readAsStringSync().contains('.ink4'))
+        .where(
+          (f) => f
+              .readAsLinesSync()
+              .where((line) => !line.trimLeft().startsWith('//'))
+              .join('\n')
+              .contains('.ink4'),
+        )
         .map((f) => f.path)
         .toList();
 

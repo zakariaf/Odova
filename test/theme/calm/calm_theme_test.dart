@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
+import 'package:odova/theme/calm/calm_palette.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
@@ -63,6 +64,13 @@ final _schemeRoles =
       'surfaceTint': ((s) => s.surfaceTint, (c) => c.surface),
     };
 
+/// The one role whose value is a Tier-1 primitive rather than a CalmColors
+/// slot: `--elev-*`'s opaque base.
+///
+/// `ThemeData.shadowColor` defaults to `colorScheme.shadow`, so a wrong value
+/// here tints every Material elevation shadow in the app.
+const Color _shadowRole = CalmPalette.shadowTint;
+
 void main() {
   test('ColorScheme.fromSeed appears nowhere in lib/', () {
     // fromSeed builds every neutral from the seed's HUE at a chroma the M3
@@ -90,6 +98,7 @@ void main() {
           reason: '$label $role',
         );
       }
+      expect(theme.colorScheme.shadow, _shadowRole, reason: '$label shadow');
     }
   });
 
@@ -153,6 +162,14 @@ void main() {
       expect(theme.appBarTheme.surfaceTintColor, Colors.transparent);
       expect(theme.bottomSheetTheme.elevation, 0);
       expect(theme.dialogTheme.elevation, 0);
+      // The rest of Material's elevated components. Their defaults are
+      // non-zero — snackbar 6, navigation bar 3, drawer 1 — and
+      // `surfaceTint == surface` only neutralises the TONAL half.
+      expect(theme.snackBarTheme.elevation, 0);
+      expect(theme.navigationBarTheme.elevation, 0);
+      expect(theme.drawerTheme.elevation, 0);
+      expect(theme.popupMenuTheme.elevation, 0);
+      expect(theme.navigationRailTheme.elevation, 0);
 
       // surfaceTint == surface makes M3's elevation overlay a no-op without
       // chasing surfaceTintColor on nine component themes. Do both anyway:
@@ -170,35 +187,52 @@ void main() {
     ]) {
       expect(theme.splashFactory, NoSplash.splashFactory);
       expect(theme.highlightColor, Colors.transparent);
+      // focusColor is an overlay FILL, not a ring colour: an InkHighlight
+      // paints a control's whole shape with it. `--color-focus` is opaque and
+      // is only ever drawn as a 3px outline, so putting it here would cover
+      // the label of any focused control with a solid brown block.
+      expect(theme.focusColor, Colors.transparent);
+      expect(theme.hoverColor, Colors.transparent);
+      expect(theme.focusColor, isNot(theme.colorScheme.primary));
     }
   });
 
   testWidgets('a Material TextField themes itself with no InputDecoration '
       'patch', (tester) async {
-    // Naming the roles correctly is what buys the free theming. If this fails,
-    // a role is missing rather than a widget needing a patch.
+    // Naming the M3 roles correctly is what buys the free theming. This has to
+    // read the FIELD's resolved decoration, not the ColorScheme it came from:
+    // asserting `scheme.surfaceContainerHighest` here would restate a check
+    // the role table already makes, and would still pass if buildCalmTheme
+    // grew an `inputDecorationTheme` that painted every field magenta.
     for (final (mode, colours) in [
       (ThemeMode.light, calmColorsLight),
       (ThemeMode.dark, calmColorsDark),
     ]) {
-      late BuildContext captured;
       await pumpApp(
         tester,
-        Material(
-          child: Column(
-            children: [
-              const TextField(),
-              captureContext((context) => captured = context),
-            ],
-          ),
-        ),
+        const Material(child: TextField()),
         themeMode: mode,
       );
 
-      final scheme = Theme.of(captured).colorScheme;
-      expect(scheme.surfaceContainerHighest, colours.surface3);
-      expect(scheme.outline, colours.divider);
-      expect(scheme.onSurfaceVariant, colours.ink2);
+      final field = tester.widget<TextField>(find.byType(TextField));
+      final decoration = field.decoration!;
+      final theme = Theme.of(
+        tester.element(find.byType(TextField)),
+      ).inputDecorationTheme;
+
+      // Nothing patches the field: the decoration the caller passed is the
+      // decoration the field has, and the theme adds no fill of its own.
+      expect(decoration.fillColor, isNull, reason: '$mode');
+      expect(theme.fillColor, isNull, reason: '$mode');
+      expect(theme.filled, isFalse, reason: '$mode');
+
+      // And the roles a Material field actually reads are Calm's.
+      final scheme = Theme.of(
+        tester.element(find.byType(TextField)),
+      ).colorScheme;
+      expect(scheme.surfaceContainerHighest, colours.surface3, reason: '$mode');
+      expect(scheme.outline, colours.divider, reason: '$mode');
+      expect(scheme.onSurfaceVariant, colours.ink2, reason: '$mode');
     }
   });
 

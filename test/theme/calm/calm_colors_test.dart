@@ -111,6 +111,31 @@ void main() {
     }
   });
 
+  test('the two alpha slots trace to the CSS too', () {
+    // `scrim` and `sheen` are the only CalmColors slots whose CSS value is an
+    // `rgba()` rather than a hex, so they appear in neither the role sweep nor
+    // the palette's hex trace — the two mechanisms that catch everything else.
+    // Without this, `Color.fromRGBO(44, 34, 26, 0.4)` instead of `0.44` ships a
+    // measurably wrong scrim behind every sheet and dialog, silently.
+    for (final (label, colours, block) in [
+      ('light', calmColorsLight, lightTokenBlock()),
+      ('dark', calmColorsDark, darkTokenBlock()),
+    ]) {
+      for (final (name, token, slot) in <(String, String, Color)>[
+        ('scrim', '--scrim', colours.scrim),
+        ('sheen', '--elev-sheen', colours.sheen),
+      ]) {
+        final css = rgbaToken(block, token);
+        expect(css, isNotNull, reason: '$label $token is not in the CSS');
+
+        expect((slot.r * 255).round(), css!.r, reason: '$label $name red');
+        expect((slot.g * 255).round(), css.g, reason: '$label $name green');
+        expect((slot.b * 255).round(), css.b, reason: '$label $name blue');
+        expect(slot.a, closeTo(css.a, 0.002), reason: '$label $name alpha');
+      }
+    }
+  });
+
   test('the slot table covers every role the CSS declares', () {
     // Guard the guard: a role added to the CSS and not to the table would be
     // skipped by the loop above rather than failing it.

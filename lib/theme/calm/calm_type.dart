@@ -30,6 +30,19 @@ import 'package:flutter/material.dart';
 /// Persian sentence is one line in one font.
 const _arabicFamily = 'Vazirmatn';
 
+/// `--font-arabic`'s last resort, and one we expect never to reach.
+///
+/// The Arabic variant DOES declare a fallback where the Latin one does not,
+/// and the asymmetry is the point. Vazirmatn is bundled, so this is
+/// unreachable in practice — but if the asset ever failed to load, falling
+/// through to whatever the platform picks for Arabic is how Sorani becomes
+/// ransom-note text, and Geeza Pro at least joins.
+///
+/// `calm-typography-and-rtl` is right that it is not a supported rendering:
+/// Geeza Pro's `ک` U+06A9 and `ی` U+06CC carry Arabic rather than Persian
+/// shapes. It is named so the failure is legible rather than absent.
+const _arabicFallback = <String>['Geeza Pro'];
+
 /// The three language subtags that take the compensated metrics.
 const _arabicScriptLanguages = {'fa', 'ar', 'ckb'};
 
@@ -48,6 +61,7 @@ TextStyle _latin(double size, double height, FontWeight weight, double track) =>
 
 TextStyle _arabic(double size, double height, FontWeight weight) => TextStyle(
   fontFamily: _arabicFamily,
+  fontFamilyFallback: _arabicFallback,
   fontSize: size,
   height: height,
   fontWeight: weight,

@@ -58,14 +58,16 @@ epic needs to know.
    domain; what it LOOKS LIKE belongs to the theme.
 
 2. **`buildCalmTheme(Brightness, {CalmType? type})` takes the locale's type
-   variant.** `lib/app/app.dart` passes `CalmType.forLocale(locale)`, so a
-   language change carries the Arabic-script metrics with it — SPEC.md §5's
-   "no restart" is a rebuild from the root, not a theme animation. **EPIC-04
-   owns making that follow the RESOLVED locale**: today it follows the
-   *requested* one, and `locale: null` (the shipping default, "follow the
-   device") falls back to Latin, so a device set to Persian gets Persian strings
-   with Latin type metrics until EPIC-04's locale controller exists. That is the
-   one real gap this epic leaves.
+   variant, and `lib/app/app.dart` resolves it below `Localizations`.**
+   `MaterialApp.builder` reads `Localizations.localeOf(context)` and swaps in
+   one of four pre-built themes, so the variant follows the **resolved** locale
+   — including `locale: null`, the shipping default, where a Persian device now
+   gets Persian metrics. `test/theme/calm/calm_theme_test.dart` pins that path
+   specifically; the first version read the `locale` field from a context above
+   `Localizations` and quietly gave Latin line heights to a Persian phone.
+   SPEC.md §5's "no restart" is a rebuild from the root that carries the
+   Arabic-script metrics with it. **EPIC-04 does not need to fix this**; it
+   needs the locale *controller* that lets a user override the device.
 
 3. **`themeMode` is a parameter with no store behind it.**
    `design-system-structure` rule 9 wants the persisted mode restored before
@@ -223,7 +225,5 @@ four that matter is how a deliberate design change stops being reviewable.
 ## Deferred
 
 - No widget. `lib/ui/calm/` is empty; that is EPIC-03.
-- The locale→type wiring follows the *requested* locale, not the resolved one
-  (item 2 above). EPIC-04.
 - `themeMode` has no persistence (item 3). EPIC-14.
 - The font is not subsetted (item 7).

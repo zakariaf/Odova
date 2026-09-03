@@ -76,6 +76,13 @@ void main() {
       }
     }
 
+    // This finds nothing today, and that is the correct state for a rule that
+    // FORBIDS something: every Calm size is passed positionally to `_latin` /
+    // `_arabic`, so no file names a numeric `fontSize:` at all. The walk
+    // itself is guarded — `dartFilesUnder` fails on an empty visit — so a
+    // broken walk is a red test rather than a silent pass. The role assertions
+    // above are what prove the scale; this is what catches the first component
+    // that writes a literal.
     for (final file in dartFilesUnder('lib')) {
       for (final match in RegExp(
         r'fontSize:\s*([0-9]+(?:\.[0-9]+)?)',
@@ -122,10 +129,16 @@ void main() {
 
     // A literal weight outside the token layer is a component inventing a step
     // rather than reading one.
+    // Comment lines stripped: a doc comment saying "never write
+    // FontWeight.w600 here" must not fail the build for saying it.
     for (final file in dartFilesUnder('lib')) {
       if (file.path.startsWith('lib/theme/calm/')) continue;
+      final code = file
+          .readAsLinesSync()
+          .where((line) => !line.trimLeft().startsWith('//'))
+          .join('\n');
       expect(
-        file.readAsStringSync(),
+        code,
         isNot(contains('FontWeight.')),
         reason: '${file.path} names a FontWeight directly',
       );
@@ -139,6 +152,12 @@ void main() {
         final variant = CalmType.forLocale(Locale(code));
         expect(variant, same(CalmType.arabicScript), reason: code);
         expect(variant.body.fontFamily, 'Vazirmatn', reason: code);
+        // A last resort we expect never to reach — Vazirmatn is bundled — but
+        // named, because falling through to whatever the platform picks for
+        // Arabic is how Sorani becomes ransom-note text. The Latin variant
+        // declares none, and that asymmetry is deliberate: there the platform
+        // font IS the decision.
+        expect(variant.body.fontFamilyFallback, ['Geeza Pro'], reason: code);
       }
 
       for (final code in ['en', 'de', 'fr']) {

@@ -115,15 +115,37 @@ void main() {
     expect(unknown.mark.opacity, isNot(needs.mark.opacity));
   });
 
-  test('only the two uncertain states ask for an odometer reading', () {
+  test('a state the engine is only guessing at asks for a reading', () {
+    // SPEC.md §9's estimate table: at `confidence = default` the card reads
+    // "Odova needs a reading to say when" and its action is Update odometer —
+    // whatever the state. "Log it" is the one action that cannot resolve this:
+    // the app does not know when the item is due, and doing the job does not
+    // tell it.
     for (final state in DueState.values) {
       final style = CalmStatusStyle.resolve(calmColorsLight, state);
-      expect(
-        style.actionKey,
-        style.isUncertain ? 'action.updateOdometer' : 'action.logIt',
-        reason: state.name,
-      );
+
+      for (final confidence in DueConfidence.values) {
+        final expected =
+            style.isUncertain || confidence == DueConfidence.defaulted
+            ? 'action.updateOdometer'
+            : 'action.logIt';
+        expect(
+          style.actionKey(confidence),
+          expected,
+          reason: '${state.name} at ${confidence.name}',
+        );
+      }
     }
+
+    // The case the skill's own example gets wrong, named so it cannot
+    // regress: a measured due-soon item logs, the same item at `defaulted`
+    // asks for a reading.
+    final dueSoon = CalmStatusStyle.resolve(calmColorsLight, DueState.dueSoon);
+    expect(dueSoon.actionKey(DueConfidence.measured), 'action.logIt');
+    expect(
+      dueSoon.actionKey(DueConfidence.defaulted),
+      'action.updateOdometer',
+    );
   });
 
   test('ok is the only state that does not show on Home', () {

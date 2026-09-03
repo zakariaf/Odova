@@ -13,6 +13,12 @@ import '../../support/source_tree.dart';
 
 const _paletteFile = 'lib/theme/calm/calm_palette.dart';
 
+/// [file]'s source with whole comment lines removed.
+String _codeOf(File file) => file
+    .readAsLinesSync()
+    .where((line) => !line.trimLeft().startsWith('//'))
+    .join('\n');
+
 /// Every `static const <name> = Color(0xFFRRGGBB);` in the palette.
 ///
 /// Parsed rather than reflected: `dart:mirrors` is not available in Flutter,
@@ -108,9 +114,13 @@ void main() {
     // A widget naming sand96 has hardcoded light mode. This mirrors
     // check_raw_values.sh's second rule; the script is the CI gate and this is
     // the same rule where a person reads it.
+    // Comment lines are stripped, like check_raw_values.sh and
+    // expectNoBannedPatterns: a doc comment naming CalmPalette in order to
+    // explain why a widget must not read it is the most useful line in that
+    // file.
     final offenders = dartFilesUnder('lib')
         .where((f) => !f.path.startsWith('lib/theme/calm/'))
-        .where((f) => f.readAsStringSync().contains('CalmPalette.'))
+        .where((f) => _codeOf(f).contains('CalmPalette.'))
         .map((f) => f.path)
         .toList();
 

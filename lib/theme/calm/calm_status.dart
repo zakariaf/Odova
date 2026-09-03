@@ -164,15 +164,24 @@ class CalmStatusStyle {
   /// calm-layout-and-motion.
   bool get showsOnHome => state != DueState.ok;
 
-  /// Signal 4. `unknown` and `needsOdometer` ask for a reading; nothing else
-  /// does.
-  String get actionKey => switch (state) {
-    DueState.unknown || DueState.needsOdometer => 'action.updateOdometer',
-    DueState.overdue ||
-    DueState.due ||
-    DueState.dueSoon ||
-    DueState.ok => 'action.logIt',
-  };
+  /// Signal 4: the one action this card offers.
+  ///
+  /// Takes the [DueConfidence] because the state alone does not decide it.
+  /// SPEC.md §9's estimate table: *"Date from the distance axis,
+  /// `confidence = default` → **No date and no figure.** The card reads
+  /// `Odova needs a reading to say when` and its action is **Update
+  /// odometer**"*. A `dueSoon` item the engine is guessing at gets the same
+  /// action as an `unknown` one, because "log it" is the one action that
+  /// cannot resolve the state — the app does not know when it is due, and
+  /// logging the job does not tell it.
+  ///
+  /// `calm-due-state-and-status`' own examples switch on the state alone;
+  /// where a skill and the spec disagree, CLAUDE.md §3 says the spec is the
+  /// product decision.
+  String actionKey(DueConfidence confidence) =>
+      isUncertain || confidence == DueConfidence.defaulted
+      ? 'action.updateOdometer'
+      : 'action.logIt';
 
   /// Signal 2: the word for this state, from the app's localizations.
   String label(CalmStatusStrings s) => switch (state) {
