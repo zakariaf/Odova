@@ -53,7 +53,14 @@ void main() {
     // 999 in a ClipRRect allocates a path Skia re-clamps on every frame, and
     // it renders ALMOST right — which is why this is a grep and not an eye.
     for (final file in dartFilesUnder('lib')) {
-      final source = file.readAsStringSync();
+      // Comment lines stripped, as check_raw_values.sh does: the sentence
+      // "not BorderRadius.circular(radiusPill)" above the StadiumBorder that
+      // replaced it is the point, and a gate that fails on its own
+      // explanation teaches people to delete the explanation.
+      final source = file
+          .readAsLinesSync()
+          .where((line) => !line.trimLeft().startsWith('//'))
+          .join('\n');
       for (final match in RegExp(
         r'(?:BorderRadius|Radius)\.circular\(\s*[a-zA-Z.]*radiusPill',
       ).allMatches(source)) {

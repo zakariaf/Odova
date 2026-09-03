@@ -55,15 +55,6 @@ Widget _toggle({required bool value, required VoidCallback onChanged}) =>
       ),
     );
 
-Widget _scaled(double scale, Widget child) => Builder(
-  builder: (context) => MediaQuery(
-    data: MediaQuery.of(
-      context,
-    ).copyWith(textScaler: TextScaler.linear(scale)),
-    child: child,
-  ),
-);
-
 void main() {
   testWidgets('a group of three rows draws one radius, one shadow and two '
       'dividers', (tester) async {
@@ -161,18 +152,16 @@ void main() {
     ) async {
       await pumpApp(
         tester,
-        _scaled(
-          scale,
-          const Center(
-            child: CalmRowGroup(
-              rows: [
-                CalmListRow(title: 'C', size: CalmRowSize.compact),
-                CalmListRow(title: 'M'),
-                CalmListRow(title: 'L', size: CalmRowSize.lg),
-              ],
-            ),
+        const Center(
+          child: CalmRowGroup(
+            rows: [
+              CalmListRow(title: 'C', size: CalmRowSize.compact),
+              CalmListRow(title: 'M'),
+              CalmListRow(title: 'L', size: CalmRowSize.lg),
+            ],
           ),
         ),
+        textScaler: TextScaler.linear(scale),
       );
 
       for (final (index, floor) in [(0, 56.0), (1, 64.0), (2, 76.0)]) {

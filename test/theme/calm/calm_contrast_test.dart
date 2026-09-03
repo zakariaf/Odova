@@ -369,7 +369,13 @@ void main() {
 
     expect(
       callSites,
-      {'lib/ui/calm/calm_list_row.dart'},
+      {
+        // The disclosure chevron — a non-text graphic, declared above and
+        // failing at 2.60:1. Deferred to EPIC-17 with ink3.
+        'lib/ui/calm/calm_list_row.dart',
+        // Disabled button text, which SC 1.4.3 exempts outright.
+        'lib/ui/calm/calm_button.dart',
+      },
       reason:
           'a new ink4 use — or a removed one. Every call site is declared '
           'here with the SC that exempts it or the exception that records '

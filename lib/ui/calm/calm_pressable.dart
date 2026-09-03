@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
+import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 
 // Press displacement, by widget mass. odova.css: .btn:active .98,
@@ -117,6 +118,7 @@ class _CalmPressableState extends State<CalmPressable> {
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
     final motion = CalmMotion.of(context);
+    final shapes = CalmShapes.of(context);
     final space = CalmSpace.of(context);
     final active = widget.enabled && widget.onTap != null;
 
@@ -141,14 +143,27 @@ class _CalmPressableState extends State<CalmPressable> {
             bottom: -kCalmFocusOutset,
             child: IgnorePointer(
               child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                    widget.borderRadius + kCalmFocusOutset,
-                  ),
-                  border: Border.all(
-                    color: colors.focus,
-                    width: kCalmFocusWidth,
-                  ),
+                decoration: ShapeDecoration(
+                  // A pill's ring is a stadium. borderRadius is the 999
+                  // sentinel there, and 999 + the outset as a real radius is
+                  // a path Skia re-clamps every frame to draw the stadium it
+                  // would have drawn anyway.
+                  shape: widget.borderRadius >= shapes.radiusPill
+                      ? StadiumBorder(
+                          side: BorderSide(
+                            color: colors.focus,
+                            width: kCalmFocusWidth,
+                          ),
+                        )
+                      : RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            widget.borderRadius + kCalmFocusOutset,
+                          ),
+                          side: BorderSide(
+                            color: colors.focus,
+                            width: kCalmFocusWidth,
+                          ),
+                        ),
                 ),
               ),
             ),

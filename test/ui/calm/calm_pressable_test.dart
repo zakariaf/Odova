@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
+import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 
@@ -171,8 +172,9 @@ void main() {
 
     final ring = _focusRing(tester);
     expect(ring, isNotNull);
-    expect(ring!.top.color, calmColorsLight.focus);
-    expect(ring.top.width, kCalmFocusWidth);
+    expect(ring!.color, calmColorsLight.focus);
+    expect(ring.width, kCalmFocusWidth);
+    expect(_focusRingShape(tester), isA<RoundedRectangleBorder>());
 
     // Not one pixel of layout change. A ring drawn INSIDE the box would eat
     // 6pt of the child on every side; one drawn outside costs nothing.
@@ -187,6 +189,42 @@ void main() {
     expect(ringRect.top, closeTo(child.top - kCalmFocusOutset, 0.01));
     expect(ringRect.right, closeTo(child.right + kCalmFocusOutset, 0.01));
     expect(ringRect.bottom, closeTo(child.bottom + kCalmFocusOutset, 0.01));
+  });
+
+  testWidgets('a pill control gets a stadium ring, not a 1005pt radius', (
+    tester,
+  ) async {
+    FocusManager.instance.highlightStrategy =
+        FocusHighlightStrategy.alwaysTraditional;
+    addTearDown(
+      () => FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.automatic,
+    );
+
+    final node = FocusNode();
+    addTearDown(node.dispose);
+
+    await pumpApp(
+      tester,
+      Center(
+        child: Builder(
+          builder: (context) => CalmPressable(
+            borderRadius: CalmShapes.of(context).radiusPill,
+            focusNode: node,
+            onTap: () {},
+            child: _child(),
+          ),
+        ),
+      ),
+    );
+
+    node.requestFocus();
+    await tester.pumpAndSettle();
+
+    // 999 is a sentinel meaning "fully round". Adding the 6pt outset to it and
+    // handing 1005 to a RoundedRectangleBorder renders ALMOST right, which is
+    // why this is a test and not an eye.
+    expect(_focusRingShape(tester), isA<StadiumBorder>());
   });
 
   testWidgets('Enter and Space activate through ActivateIntent', (
@@ -328,13 +366,33 @@ Color _tintOf(WidgetTester tester) => tester
     )
     .color;
 
-Border? _focusRing(WidgetTester tester) {
+/// The ring's stroke, whatever shape carries it.
+///
+/// It is a `ShapeDecoration`: a pill's ring must be a `StadiumBorder`, because
+/// `radiusPill` is the 999 sentinel and 999 + the outset as a real radius is a
+/// path Skia re-clamps every frame to draw the stadium it would draw anyway.
+BorderSide? _focusRing(WidgetTester tester) {
   for (final box in tester.widgetList<DecoratedBox>(
     find.byType(DecoratedBox),
   )) {
     final decoration = box.decoration;
-    if (decoration is BoxDecoration && decoration.border != null) {
-      return decoration.border! as Border;
+    if (decoration is ShapeDecoration && decoration.shape is OutlinedBorder) {
+      final side = (decoration.shape as OutlinedBorder).side;
+      if (side != BorderSide.none) return side;
+    }
+  }
+  return null;
+}
+
+/// The ring's shape, for the pill case.
+ShapeBorder? _focusRingShape(WidgetTester tester) {
+  for (final box in tester.widgetList<DecoratedBox>(
+    find.byType(DecoratedBox),
+  )) {
+    final decoration = box.decoration;
+    if (decoration is ShapeDecoration && decoration.shape is OutlinedBorder) {
+      final shape = decoration.shape as OutlinedBorder;
+      if (shape.side != BorderSide.none) return shape;
     }
   }
   return null;
