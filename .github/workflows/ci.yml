@@ -253,15 +253,6 @@ jobs:
       # the code is a gate that gets switched off.
       - run: flutter test --coverage --test-randomize-ordering-seed random --exclude-tags golden --reporter expanded
 
-      # Contract: the 88 committed specimen PNGs are actually compared against.
-      # Their own lane, because a golden failure is a different conversation
-      # from a logic failure — it is either an intended visual change that has
-      # to be blessed, or a rendering difference nobody meant. Never with the
-      # rebaseline flag: a pipeline that rebaselines its own goldens cannot
-      # fail.
-      - name: the specimen goldens match
-        run: flutter test --tags golden --reporter expanded
-
       # Contract: lib/core/ really does run with no widget binding. The
       # structure test proves it imports no Flutter; this proves the tests
       # EXECUTE without one, which is what makes EPIC-06's fuel maths and
@@ -289,6 +280,59 @@ jobs:
           name: coverage-lcov
           path: coverage/lcov.info
           retention-days: 14
+
+  # The goldens are host-specific, and that is not a defect to be tolerated
+  # away: Skia rasterises text differently on macOS and Linux, so 80 of the 88
+  # PNGs differ by 0.03-0.61% across hosts. A percentage tolerance wide enough
+  # to absorb that is wide enough to absorb a real one-shade regression, and a
+  # gate that goes red for the host instead of the code is a gate that gets
+  # switched off. So the lane runs on the platform the PNGs were authored on.
+  # Free here: macOS runners are not billed for a public repository.
+  #
+  # Regenerating them on any other machine is what the `run-goldens-rebaseline`
+  # runbook is for, and it has to happen on macOS too.
+  goldens:
+    name: goldens
+    needs: repo
+    if: needs.repo.outputs.has_app == 'true'
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      # Contract: this job compares the commit under review.
+      - uses: actions/checkout@v7
+
+      # Contract: the toolchain is the pinned one, not whatever the runner
+      # image ships.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ needs.repo.outputs.flutter_version }}
+          cache: true
+
+      # Contract: the toolchain the runner actually resolved is in the log.
+      - run: flutter --version
+
+      # Contract: the committed pubspec.lock IS the pin.
+      - run: flutter pub get --enforce-lockfile
+
+      # Contract: the 88 committed specimen PNGs are actually compared against.
+      # Their own lane, because a golden failure is a different conversation
+      # from a logic failure — it is either an intended visual change that has
+      # to be blessed, or a rendering difference nobody meant. Never with the
+      # rebaseline flag: a pipeline that rebaselines its own goldens cannot
+      # fail, and tools/check_golden_lane.sh proves that in both directions.
+      - name: the specimen goldens match
+        run: flutter test --tags golden --reporter expanded
+
+      # Contract: a failed golden is reviewable. The comparator writes the
+      # actual/expected/diff triple, and without this they die with the runner.
+      - name: keep the failure images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures
+          path: test/ui/calm/goldens/failures/
+          if-no-files-found: ignore
 
   build:
     name: android build

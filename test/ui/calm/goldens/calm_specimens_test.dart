@@ -3,6 +3,13 @@ library;
 
 // One golden per widget, per theme, per direction.
 //
+// These are HOST-SPECIFIC. Skia rasterises text differently on macOS and
+// Linux, so 80 of the 88 differ by 0.03-0.61% across the two — which is why
+// CI runs this lane on macOS, the platform they were authored on, and why
+// regenerating them anywhere else produces a diff nobody intended. A
+// percentage tolerance wide enough to absorb that is wide enough to absorb a
+// real one-shade regression.
+//
 // A golden CANNOT fail on a widget that was wrong the day it was written — it
 // pins what is, not what should be. That is why EPIC-03's definition of done
 // also carries a human pass over `design/calm/system.html`, and why the
