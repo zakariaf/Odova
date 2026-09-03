@@ -126,6 +126,13 @@ class OdovaApp extends StatelessWidget {
       theme: buildCalmTheme(Brightness.light, type: _typeFor(context)),
       darkTheme: buildCalmTheme(Brightness.dark, type: _typeFor(context)),
       themeMode: themeMode,
+      // MaterialApp mounts an AnimatedTheme and crossfades ThemeData over
+      // ~200ms unless told not to. That is not a Calm token, and it is
+      // actively worse than either alternative here: CalmMotion and CalmType
+      // lerp as deliberate STEPS, so without this the ColorScheme crossfades
+      // while the durations and weights snap at the midpoint. Motion is
+      // CalmMotion's, at the call site, or it does not happen.
+      themeAnimationStyle: AnimationStyle.noAnimation,
       // Restoring a persisted ThemeMode before the first frame is
       // design-system-structure rule 9. There is no settings store yet; the
       // seam is `themeMode` and EPIC-14 fills it from SettingsRepository.

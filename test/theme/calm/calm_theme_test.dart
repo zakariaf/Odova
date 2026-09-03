@@ -232,6 +232,19 @@ void main() {
     }
   });
 
+  testWidgets("Material's own theme crossfade is off", (tester) async {
+    // MaterialApp mounts an AnimatedTheme and interpolates ThemeData over
+    // ~200ms. CalmMotion and CalmType lerp as deliberate steps, so leaving it
+    // on makes the ColorScheme crossfade while the durations and weights snap
+    // at the midpoint — worse than either alone.
+    await pumpApp(tester, const SizedBox.shrink());
+
+    expect(
+      tester.widget<MaterialApp>(find.byType(MaterialApp)).themeAnimationStyle,
+      AnimationStyle.noAnimation,
+    );
+  });
+
   testWidgets('the type variant follows the locale', (tester) async {
     for (final (locale, expected) in [
       ('en', CalmType.latin),
