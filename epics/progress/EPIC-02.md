@@ -94,7 +94,22 @@ epic needs to know.
    and `test/theme/calm/font_bundling_test.dart` is the gate that must stay
    green after it.
 
-8. **Three gates were fixed, and two of them were punishing the comment that
+8. **EPIC-04 task 4.9 will force the subsetting, and it will fail on day one.**
+   That task asserts *"the presentation-forms block is absent — U+FB50–U+FEFF
+   are excluded from the subset"*. Measured against the shipped asset: **213 of
+   those 944 code points are present**, and the font maps 811 in total. So the
+   deferral above is a deferral of two epics, not an open question — EPIC-04
+   is the place the epic itself nominates for "whatever subsetting fix the
+   tests demand", and this is what it will find.
+
+   Two more things that task needs and this epic did not build:
+   `test/support/ttf_reader.dart` parses the table directory, `fvar` and `cmap`
+   — it does **not** parse `GSUB` feature lists, so the `tnum`/`lnum`-for-both-
+   digit-blocks assertion needs a reader extension. And EPIC-04 asserts
+   coverage over the real ARB corpus rather than a fixed letter list, which is
+   strictly stronger than what ships here.
+
+9. **Three gates were fixed, and two of them were punishing the comment that
    explains them.** `check_extension_fields.sh` could not see a field
    declaration `dart format` had wrapped across lines — it reported 33 fields
    over a class with 41. `check_calm_layering.sh` and
@@ -102,10 +117,16 @@ epic needs to know.
    naming `Scaffold(` or `ColorScheme.fromSeed` in order to forbid it failed the
    build. All three now behave like `check_raw_values.sh`, which had it right.
 
-9. **`test/support/` grew five helpers** every later epic can use:
+10. **`test/support/` grew five helpers** every later epic can use:
    `calm_css.dart` (the CSS is the design; parse it, never retype it),
    `contrast.dart`, `ttf_reader.dart`, `capture_context.dart` and
-   `analysis_options_source.dart`.
+   `analysis_options_source.dart` — plus `calm_ramps.dart` (the seven families,
+   in one place) and `calm_theme_harness.dart` (`pumpCalm`, and the
+   `testOfAsserts` helper every future extension owes a test to).
+
+11. **`CalmType.tabular(style)` exists and is untested**, because nothing renders
+    a figure yet. EPIC-03's `CalmTile` and `CalmNumberPad` are its first callers
+    and should assert `FontFeature.tabularFigures` rather than assume it.
 
 ## The accessibility decision — SPEC.md §18 question 25
 
