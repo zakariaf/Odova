@@ -65,6 +65,13 @@ Iterable<String> importUrisIn(String source) => RegExp(
 ///
 /// Keys are regular expressions; values say why the identifier is refused, and
 /// end up in the failure message where somebody can act on them.
+///
+/// **Whole comment lines are stripped first.** A doc comment that names
+/// `ColorScheme.fromSeed` in order to explain why Calm cannot use it must not
+/// trip the gate that forbids it — the reasoning is the most valuable thing in
+/// the file, and a gate that punishes writing it down teaches people not to.
+/// `check_raw_values.sh` strips comments for exactly this reason. Only whole
+/// lines go, so a trailing comment and every string literal still count.
 void expectNoBannedPatterns(
   Map<String, String> banned, {
   String path = 'lib',
@@ -72,7 +79,11 @@ void expectNoBannedPatterns(
 }) {
   final offenders = <String>[];
   for (final file in dartFilesUnder(path)) {
-    final source = file.readAsStringSync();
+    final source = file
+        .readAsStringSync()
+        .split('\n')
+        .where((line) => !line.trimLeft().startsWith('//'))
+        .join('\n');
     for (final MapEntry(key: pattern, value: why) in banned.entries) {
       if (RegExp(pattern).hasMatch(source)) {
         offenders.add('${file.path}: $why');

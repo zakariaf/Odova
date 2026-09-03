@@ -9,11 +9,13 @@
 // in both — a slot that fell through to light is invisible until somebody opens
 // the app at night.
 //
-// The ColorScheme mapping and buildCalmTheme() arrive in task 2.6.
 import 'package:flutter/material.dart';
-
 import 'package:odova/theme/calm/calm_colors.dart';
+import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_palette.dart';
+import 'package:odova/theme/calm/calm_shapes.dart';
+import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 
 /// Calm's light theme: the `:root` block of `design/calm/odova.css`.
 const calmColorsLight = CalmColors(
@@ -178,3 +180,153 @@ const calmColorsDark = CalmColors(
     edge: CalmPalette.plum35,
   ),
 );
+
+/// Calm's roles as Material's, stated one by one.
+///
+/// [ColorScheme.fromSeed] cannot produce this and there is nothing to "seed
+/// plus override". fromSeed builds every neutral from the seed's HUE at a
+/// chroma the M3 spec pins to a constant; seeding on `--color-brand` `#7A5340`
+/// (OKLCH H 47°) regenerates Calm's paper at a clay-pink hue rather than its
+/// ochre 78–81°, and flattens a chroma rise the design makes on purpose —
+/// Calm's surfaces get WARMER as they get darker (.007 → .029 across
+/// `surface`..`surface3`), and a constant-chroma neutral palette cannot
+/// express a rise at all. Dark is worse: the dark brand sits at 59° while the
+/// dark surfaces sit at 63–71°, so a dark seed drifts the other way.
+ColorScheme _scheme(Brightness brightness, CalmColors c) => ColorScheme(
+  brightness: brightness,
+  primary: c.brand,
+  onPrimary: c.onBrand,
+  primaryContainer: c.brandSoft,
+  onPrimaryContainer: c.brandSoftInk,
+  // One brand hue. `secondary` repeats it rather than inventing a second.
+  secondary: c.brand,
+  onSecondary: c.onBrand,
+  secondaryContainer: c.surface2,
+  onSecondaryContainer: c.ink2,
+  // Parked on the neutral pair on purpose. Calm's other eight hues all MEAN
+  // something — ochre is `due`, plum is a business trip — so a stock Material
+  // widget reaching for `tertiary` must render as plain text, never as a false
+  // status colour.
+  tertiary: c.ink,
+  onTertiary: c.surface,
+  tertiaryContainer: c.surface2,
+  onTertiaryContainer: c.ink2,
+  surface: c.surface,
+  onSurface: c.ink,
+  surfaceDim: c.bgSunk,
+  surfaceBright: c.surface,
+  surfaceContainerLowest: c.surface,
+  surfaceContainerLow: c.bg,
+  surfaceContainer: c.surface2,
+  surfaceContainerHigh: c.surface2,
+  surfaceContainerHighest: c.surface3,
+  onSurfaceVariant: c.ink2,
+  outline: c.divider,
+  outlineVariant: c.divider,
+  error: c.danger,
+  onError: c.inkInverse,
+  errorContainer: c.dangerTint,
+  // Calm ships no `--color-danger-ink`. `danger` on `dangerTint` is 4.86:1
+  // light / 5.51:1 dark, so it passes AA — but it is a hole in the palette,
+  // and this is where it shows.
+  onErrorContainer: c.danger,
+  inverseSurface: c.surfaceInverse,
+  onInverseSurface: c.inkInverse,
+  inversePrimary: c.brandSoft,
+  scrim: c.scrim,
+  shadow: CalmPalette.shadowTint,
+  // A no-op, on purpose. M3 tints an elevated surface by compositing
+  // surfaceTint at an elevation-dependent alpha; Calm's elevation is shadow,
+  // never tonal lift, and a primary-tinted Card would put clay into #FFFCF7.
+  surfaceTint: c.surface,
+);
+
+/// Material's own text roles, so a stock widget picks up Calm type unaided.
+///
+/// Colour is deliberately absent: it comes from [CalmColors] at the call site,
+/// never baked into a [TextStyle].
+TextTheme _textTheme(CalmType t) => TextTheme(
+  displayLarge: t.display,
+  displayMedium: t.hero,
+  displaySmall: t.titleLg,
+  headlineLarge: t.titleLg,
+  headlineMedium: t.title,
+  headlineSmall: t.headline,
+  titleLarge: t.title,
+  titleMedium: t.headline,
+  titleSmall: t.label,
+  bodyLarge: t.bodyLg,
+  bodyMedium: t.body,
+  bodySmall: t.caption,
+  labelLarge: t.label,
+  labelMedium: t.label,
+  labelSmall: t.caption,
+);
+
+/// The one theme builder.
+///
+/// Every extension is attached to BOTH brightnesses. An extension missing from
+/// one makes `of()` assert on that theme only, which is the bug that ships
+/// because nobody ran the app in dark.
+///
+/// [type] is the locale's variant from [CalmType.forLocale]; it defaults to
+/// Latin so a caller that does not have a locale yet still gets a usable theme.
+ThemeData buildCalmTheme(Brightness brightness, {CalmType? type}) {
+  final isDark = brightness == Brightness.dark;
+  final c = isDark ? calmColorsDark : calmColorsLight;
+  final shapes = isDark ? calmShapesDark : calmShapesLight;
+  final calmType = type ?? CalmType.latin;
+
+  return ThemeData(
+    brightness: brightness,
+    colorScheme: _scheme(brightness, c),
+    scaffoldBackgroundColor: c.bg,
+    canvasColor: c.bg,
+    focusColor: c.focus,
+    textTheme: _textTheme(calmType),
+    // Calm's press is a 90ms scale-and-tint (CalmMotion.instant). A ripple
+    // underneath it is a second, slower answer to the same gesture.
+    splashFactory: NoSplash.splashFactory,
+    highlightColor: Colors.transparent,
+    // Calm paints its own layered shadow. Left on, Material draws a second.
+    cardTheme: CardThemeData(
+      elevation: 0,
+      color: c.surface,
+      margin: EdgeInsets.zero,
+      shape: shapes.card(),
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+    ),
+    appBarTheme: AppBarTheme(
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: c.bg,
+      foregroundColor: c.ink,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      elevation: 0,
+      backgroundColor: c.surface,
+      shape: shapes.sheet(),
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+    ),
+    dialogTheme: DialogThemeData(
+      elevation: 0,
+      backgroundColor: c.surface,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+    ),
+    // The design has no divider-width token: odova.css draws every separator
+    // as `box-shadow: 0 1px 0 var(--color-divider)`, so 1 is read off the rule.
+    dividerTheme: DividerThemeData(color: c.divider, thickness: 1, space: 1),
+    extensions: <ThemeExtension<dynamic>>[
+      c,
+      calmType,
+      calmSpace,
+      shapes,
+      calmMotion,
+    ],
+  );
+}

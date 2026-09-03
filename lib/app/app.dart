@@ -6,6 +6,9 @@ import 'package:odova/app/lifecycle_observer.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/supported_locales.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
+import 'package:odova/theme/calm/calm_theme.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 
 /// The root of the widget tree: the single [ProviderScope], the lifecycle
 /// observer, and the app.
@@ -96,6 +99,15 @@ class OdovaApp extends StatelessWidget {
   /// else's machine.
   final ThemeMode themeMode;
 
+  /// The type variant for the locale this app was asked for.
+  ///
+  /// `locale` may be null — the shipping default, meaning "follow the device"
+  /// — and the resolved locale is not knowable above [MaterialApp]. Latin is
+  /// the right answer for null: it is what `en` takes, and `en` is the
+  /// fallback.
+  CalmType _typeFor(BuildContext context) =>
+      locale == null ? CalmType.latin : CalmType.forLocale(locale!);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -103,25 +115,45 @@ class OdovaApp extends StatelessWidget {
       locale: locale,
       localizationsDelegates: odovaLocalizationsDelegates,
       supportedLocales: odovaSupportedLocales,
-      // EPIC-02 replaces these two with buildCalmTheme(Brightness.light|dark).
-      // Both are named now so themeMode has something to choose between, and so
-      // that swap is one edit in one place — the test harness pumps THIS
-      // widget, not a second MaterialApp of its own.
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      // One builder, both brightnesses, and the locale's type variant on each.
+      // SPEC.md §5 needs no restart on a language change: a locale flip is a
+      // rebuild from the root, and because the type rides the ThemeData that
+      // rebuild carries the Arabic-script metrics with it.
+      //
+      // `builder` rather than a field read: `locale` here is the REQUESTED
+      // locale, and the resolved one is only known inside the app. Reading it
+      // from the Localizations scope is what makes `system` work.
+      theme: buildCalmTheme(Brightness.light, type: _typeFor(context)),
+      darkTheme: buildCalmTheme(Brightness.dark, type: _typeFor(context)),
       themeMode: themeMode,
+      // Restoring a persisted ThemeMode before the first frame is
+      // design-system-structure rule 9. There is no settings store yet; the
+      // seam is `themeMode` and EPIC-14 fills it from SettingsRepository.
       home: home ?? const _PlaceholderHome(),
     );
   }
 }
 
+/// The placeholder screen, until EPIC-08 brings the shell.
+///
+/// A [Material] rather than a [Scaffold]: `check_calm_layering.sh` refuses a
+/// raw `Scaffold(` outside `lib/ui/calm/`, because wrapping Material is that
+/// layer's job and `CalmScaffold` is EPIC-03's. There is nothing here worth
+/// building a screen skeleton for.
 class _PlaceholderHome extends StatelessWidget {
   const _PlaceholderHome();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text(AppLocalizations.of(context).appTitle)),
+    final colours = CalmColors.of(context);
+    return Material(
+      color: colours.bg,
+      child: Center(
+        child: Text(
+          AppLocalizations.of(context).appTitle,
+          style: CalmType.of(context).hero.copyWith(color: colours.ink),
+        ),
+      ),
     );
   }
 }

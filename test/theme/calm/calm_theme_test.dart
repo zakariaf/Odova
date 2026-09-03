@@ -1,0 +1,252 @@
+// buildCalmTheme: two hand-authored ColorSchemes, five extensions each, and
+// Material's own elevation switched off so nothing draws two shadows.
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
+import 'package:odova/theme/calm/calm_motion.dart';
+import 'package:odova/theme/calm/calm_shapes.dart';
+import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_theme.dart';
+import 'package:odova/theme/calm/calm_type.dart';
+
+import '../../support/capture_context.dart';
+import '../../support/pump_app.dart';
+import '../../support/source_tree.dart';
+
+/// The 24 M3 roles Calm states by name, and the slot each takes.
+final _schemeRoles =
+    <String, (Color Function(ColorScheme), Color Function(CalmColors))>{
+      'primary': ((s) => s.primary, (c) => c.brand),
+      'onPrimary': ((s) => s.onPrimary, (c) => c.onBrand),
+      'primaryContainer': ((s) => s.primaryContainer, (c) => c.brandSoft),
+      'onPrimaryContainer': (
+        (s) => s.onPrimaryContainer,
+        (c) => c.brandSoftInk,
+      ),
+      'secondary': ((s) => s.secondary, (c) => c.brand),
+      'onSecondary': ((s) => s.onSecondary, (c) => c.onBrand),
+      'secondaryContainer': ((s) => s.secondaryContainer, (c) => c.surface2),
+      'onSecondaryContainer': ((s) => s.onSecondaryContainer, (c) => c.ink2),
+      'tertiary': ((s) => s.tertiary, (c) => c.ink),
+      'onTertiary': ((s) => s.onTertiary, (c) => c.surface),
+      'tertiaryContainer': ((s) => s.tertiaryContainer, (c) => c.surface2),
+      'onTertiaryContainer': ((s) => s.onTertiaryContainer, (c) => c.ink2),
+      'surface': ((s) => s.surface, (c) => c.surface),
+      'onSurface': ((s) => s.onSurface, (c) => c.ink),
+      'surfaceDim': ((s) => s.surfaceDim, (c) => c.bgSunk),
+      'surfaceBright': ((s) => s.surfaceBright, (c) => c.surface),
+      'surfaceContainerLowest': (
+        (s) => s.surfaceContainerLowest,
+        (c) => c.surface,
+      ),
+      'surfaceContainerLow': ((s) => s.surfaceContainerLow, (c) => c.bg),
+      'surfaceContainer': ((s) => s.surfaceContainer, (c) => c.surface2),
+      'surfaceContainerHigh': (
+        (s) => s.surfaceContainerHigh,
+        (c) => c.surface2,
+      ),
+      'surfaceContainerHighest': (
+        (s) => s.surfaceContainerHighest,
+        (c) => c.surface3,
+      ),
+      'onSurfaceVariant': ((s) => s.onSurfaceVariant, (c) => c.ink2),
+      'outline': ((s) => s.outline, (c) => c.divider),
+      'outlineVariant': ((s) => s.outlineVariant, (c) => c.divider),
+      'error': ((s) => s.error, (c) => c.danger),
+      'onError': ((s) => s.onError, (c) => c.inkInverse),
+      'errorContainer': ((s) => s.errorContainer, (c) => c.dangerTint),
+      'onErrorContainer': ((s) => s.onErrorContainer, (c) => c.danger),
+      'inverseSurface': ((s) => s.inverseSurface, (c) => c.surfaceInverse),
+      'onInverseSurface': ((s) => s.onInverseSurface, (c) => c.inkInverse),
+      'inversePrimary': ((s) => s.inversePrimary, (c) => c.brandSoft),
+      'scrim': ((s) => s.scrim, (c) => c.scrim),
+      'surfaceTint': ((s) => s.surfaceTint, (c) => c.surface),
+    };
+
+void main() {
+  test('ColorScheme.fromSeed and dynamic_color appear nowhere in lib/', () {
+    // fromSeed builds every neutral from the seed's HUE at a chroma the M3
+    // spec pins to a constant. Seeding on --color-brand #7A5340 (OKLCH H 47°)
+    // regenerates Calm's paper at a clay-pink hue instead of its ochre 78–81°,
+    // and flattens a chroma rise the design makes on purpose (.007 → .029
+    // across surface..surface3). There is no seed that produces this ramp, so
+    // there is nothing to "seed plus override".
+    expectNoBannedPatterns(const {
+      r'ColorScheme\.fromSeed':
+          'fromSeed cannot produce Calm — state the roles',
+      'dynamic_color': "the platform palette is not Calm's",
+    });
+  });
+
+  test('every M3 role the app reads is explicitly stated, in both themes', () {
+    for (final (label, theme, colours) in [
+      ('light', buildCalmTheme(Brightness.light), calmColorsLight),
+      ('dark', buildCalmTheme(Brightness.dark), calmColorsDark),
+    ]) {
+      for (final MapEntry(key: role, value: pair) in _schemeRoles.entries) {
+        expect(
+          pair.$1(theme.colorScheme),
+          pair.$2(colours),
+          reason: '$label $role',
+        );
+      }
+    }
+  });
+
+  test('tertiary is parked on the neutral pair, deliberately', () {
+    // Calm ships one brand hue and eight semantic ones, and none of the eight
+    // is decoration — ochre MEANS due, plum means business trip. A stock
+    // Material widget reaching for tertiary must render as plain text, never
+    // as a false status colour.
+    for (final theme in [
+      buildCalmTheme(Brightness.light),
+      buildCalmTheme(Brightness.dark),
+    ]) {
+      final scheme = theme.colorScheme;
+      expect(scheme.tertiary, scheme.onSurface);
+      expect(scheme.tertiary, isNot(scheme.primary));
+    }
+  });
+
+  test('both ThemeDatas carry all five extensions', () {
+    // An extension attached to one brightness makes of() assert only in the
+    // theme nobody tested.
+    for (final (label, theme) in [
+      ('light', buildCalmTheme(Brightness.light)),
+      ('dark', buildCalmTheme(Brightness.dark)),
+    ]) {
+      expect(theme.extension<CalmColors>(), isNotNull, reason: label);
+      expect(theme.extension<CalmType>(), isNotNull, reason: label);
+      expect(theme.extension<CalmSpace>(), isNotNull, reason: label);
+      expect(theme.extension<CalmShapes>(), isNotNull, reason: label);
+      expect(theme.extension<CalmMotion>(), isNotNull, reason: label);
+    }
+  });
+
+  test('the extensions match the brightness they are attached to', () {
+    expect(
+      buildCalmTheme(Brightness.light).extension<CalmColors>()!.bg,
+      calmColorsLight.bg,
+    );
+    expect(
+      buildCalmTheme(Brightness.dark).extension<CalmColors>()!.bg,
+      calmColorsDark.bg,
+    );
+    expect(
+      buildCalmTheme(Brightness.dark).extension<CalmShapes>()!.elev1,
+      calmShapesDark.elev1,
+    );
+  });
+
+  test('Material elevation and surface tint are zeroed', () {
+    // Left alone, a Card draws Calm's two stacked warm shadows AND M3's tonal
+    // lift, and the surface ramp reads muddy.
+    for (final theme in [
+      buildCalmTheme(Brightness.light),
+      buildCalmTheme(Brightness.dark),
+    ]) {
+      expect(theme.cardTheme.elevation, 0);
+      expect(theme.cardTheme.shadowColor, Colors.transparent);
+      expect(theme.cardTheme.surfaceTintColor, Colors.transparent);
+      expect(theme.appBarTheme.elevation, 0);
+      expect(theme.appBarTheme.scrolledUnderElevation, 0);
+      expect(theme.appBarTheme.surfaceTintColor, Colors.transparent);
+      expect(theme.bottomSheetTheme.elevation, 0);
+      expect(theme.dialogTheme.elevation, 0);
+
+      // surfaceTint == surface makes M3's elevation overlay a no-op without
+      // chasing surfaceTintColor on nine component themes. Do both anyway:
+      // ThemeData reads the widget theme first.
+      expect(theme.colorScheme.surfaceTint, theme.colorScheme.surface);
+    }
+  });
+
+  test('every Material feedback channel is off', () {
+    // Calm's press is a 90ms scale-and-tint. A ripple underneath it is a
+    // second, slower answer to the same gesture.
+    for (final theme in [
+      buildCalmTheme(Brightness.light),
+      buildCalmTheme(Brightness.dark),
+    ]) {
+      expect(theme.splashFactory, NoSplash.splashFactory);
+      expect(theme.highlightColor, Colors.transparent);
+    }
+  });
+
+  testWidgets('a Material TextField themes itself with no InputDecoration '
+      'patch', (tester) async {
+    // Naming the roles correctly is what buys the free theming. If this fails,
+    // a role is missing rather than a widget needing a patch.
+    for (final (mode, colours) in [
+      (ThemeMode.light, calmColorsLight),
+      (ThemeMode.dark, calmColorsDark),
+    ]) {
+      late BuildContext captured;
+      await pumpApp(
+        tester,
+        Material(
+          child: Column(
+            children: [
+              const TextField(),
+              captureContext((context) => captured = context),
+            ],
+          ),
+        ),
+        themeMode: mode,
+      );
+
+      final scheme = Theme.of(captured).colorScheme;
+      expect(scheme.surfaceContainerHighest, colours.surface3);
+      expect(scheme.outline, colours.divider);
+      expect(scheme.onSurfaceVariant, colours.ink2);
+    }
+  });
+
+  testWidgets("the app paints Calm, not Flutter's baseline", (tester) async {
+    // The test EPIC-01's placeholder screen has been waiting for. All four
+    // theme/direction combinations, because half the shipped locales are RTL
+    // and the mirror is where layout bugs live.
+    for (final (mode, locale, colours) in [
+      (ThemeMode.light, 'en', calmColorsLight),
+      (ThemeMode.dark, 'en', calmColorsDark),
+      (ThemeMode.light, 'fa', calmColorsLight),
+      (ThemeMode.dark, 'fa', calmColorsDark),
+    ]) {
+      late BuildContext captured;
+      await pumpApp(
+        tester,
+        captureContext((context) => captured = context),
+        locale: Locale(locale),
+        themeMode: mode,
+      );
+
+      final theme = Theme.of(captured);
+      expect(
+        theme.scaffoldBackgroundColor,
+        colours.bg,
+        reason: '$mode $locale',
+      );
+      expect(CalmColors.of(captured).bg, colours.bg, reason: '$mode $locale');
+      // Flutter's stock M3 baseline is a purple that appears nowhere in Calm.
+      expect(theme.colorScheme.primary, colours.brand, reason: '$mode $locale');
+    }
+  });
+
+  testWidgets('the type variant follows the locale', (tester) async {
+    for (final (locale, expected) in [
+      ('en', CalmType.latin),
+      ('de', CalmType.latin),
+      ('fa', CalmType.arabicScript),
+      ('ckb', CalmType.arabicScript),
+    ]) {
+      late BuildContext captured;
+      await pumpApp(
+        tester,
+        captureContext((context) => captured = context),
+        locale: Locale(locale),
+      );
+
+      expect(CalmType.of(captured).body, expected.body, reason: locale);
+    }
+  });
+}
