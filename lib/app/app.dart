@@ -1,6 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+// Override lives in misc.dart in Riverpod 3.x, not the root library.
+import 'package:flutter_riverpod/misc.dart';
+import 'package:odova/app/lifecycle_observer.dart';
+import 'package:odova/app/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/supported_locales.dart';
+
+/// The root of the widget tree: the single [ProviderScope], the lifecycle
+/// observer, and the app.
+///
+/// [overrides] come from `bootstrap()`. The default — none — is what a test
+/// that does not care about infrastructure gets, and every placeholder
+/// provider then throws by name rather than returning null.
+class OdovaRoot extends StatelessWidget {
+  /// Creates the root.
+  const OdovaRoot({super.key, this.overrides = const []});
+
+  /// The real infrastructure, built once in `bootstrap()`.
+  final List<Override> overrides;
+
+  @override
+  Widget build(BuildContext context) {
+    return ProviderScope(
+      overrides: overrides,
+      retry: noProviderRetry,
+      child: const _LifecycleScope(child: OdovaApp()),
+    );
+  }
+}
+
+/// Registers exactly one [LifecycleObserver], for exactly as long as the app
+/// is mounted.
+class _LifecycleScope extends ConsumerStatefulWidget {
+  const _LifecycleScope({required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<_LifecycleScope> createState() => _LifecycleScopeState();
+}
+
+class _LifecycleScopeState extends ConsumerState<_LifecycleScope> {
+  late final LifecycleObserver _observer;
+
+  @override
+  void initState() {
+    super.initState();
+    // ref.read, never watch: this is a service the observer calls, and a watch
+    // would rebuild the whole app whenever it changed.
+    _observer = LifecycleObserver(() => ref.read(durableFlushProvider)());
+    WidgetsBinding.instance.addObserver(_observer);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(_observer);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
 
 /// The root widget.
 ///

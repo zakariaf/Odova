@@ -7,10 +7,16 @@ environment:
   sdk: ^3.12.2
 
 dependencies:
+  # An injectable now(). SPEC.md §3's due engine is a pure function of the
+  # date, so the date has to be an argument and never a global.
+  clock: ^1.1.2
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  # State AND dependency injection. Deciding that here is what stops get_it
+  # arriving in epic seven.
+  flutter_riverpod: ^3.0.0
   # Bidi, numeral systems and the CLDR plural categories. SPEC.md §5 needs all
   # three before there is a second string.
   intl: ^0.20.2
