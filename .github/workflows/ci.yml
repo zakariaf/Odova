@@ -263,6 +263,14 @@ jobs:
       - name: the ARB contract has been seen to fail
         run: bash tools/check_arb_selftest.sh
 
+      # Contract: SPEC.md §5's four disambiguation branches have each been
+      # SEEN to fail. A wrong answer in normalizeNumericInput does not throw —
+      # it records 15 litres as 1.5 and poisons a consumption history nobody
+      # will re-derive — so each branch is mutated in turn and the suite has to
+      # notice.
+      - name: the numeric normaliser has been seen to fail
+        run: bash tools/check_numeric_input_selftest.sh
+
       # Contract: lib/core/ really does run with no widget binding. The
       # structure test proves it imports no Flutter; this proves the tests
       # EXECUTE without one, which is what makes EPIC-06's fuel maths and

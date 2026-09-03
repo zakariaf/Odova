@@ -43,3 +43,37 @@
   `OdovaApp` is a `ConsumerWidget` now and watches the resolved locale, so three
   tests that pumped it bare needed a `ProviderScope` — the honest consequence of
   the app having state.
+
+- 4.4 numerals — `lib/core/l10n/numerals.dart` and `numeric_input.dart` (pure,
+  under `dart test`), `lib/l10n/numerals.dart` for the intl side and the
+  `CalmFigure`/`CalmCode` widgets. 41 tests.
+
+  **Two real defects found by SPEC's own verified-output table**, both silent:
+
+  1. `NumberFormat.decimalPattern('ar_MA')` does not throw and does not fall
+     back to `ar` — `intl` carries no `ar_MA`, so it falls back to **en_US**,
+     and every Maghreb amount rendered `1,234.56`: American separators under an
+     Arabic UI. `numberFormatLocale` now verifies the tag and falls back to the
+     LANGUAGE. `intl` has no European-separator Arabic at all, so the Maghreb
+     borrows German's number symbols — SPEC §5's verified `1.234,56` is exactly
+     German's shape. A second documented borrow beside `ckb` → `fa`.
+  2. `groupingSeparatorFor` scanned the formatted string for the first
+     non-`[0-9]` character, which trips over the very digits it exists to serve:
+     `۱٬۰۰۰` has no ASCII digit in it, so it returned the leading `۱`. It folds
+     to ASCII first.
+
+  **Deliberate strengthening of SPEC's pseudocode.** §5 says "one separator
+  char appears more than once: it is grouping, remove all", which reads
+  `1,23,456` as `123456`. That is Indian grouping, which none of the six locales
+  use, so reading it as anything is a guess — and this function's whole contract
+  is that it does not guess. The groups must be regular threes or the input is
+  rejected as `ambiguous`. The epic's own test list asks for exactly this
+  ("Fails if the function returns a number for `1,23,456`"), so the epic and the
+  spec's pseudocode disagree and the epic is right.
+
+  **TDD note, honestly.** The normaliser was written before its tests, which is
+  the wrong order. `tools/check_numeric_input_selftest.sh` compensates by
+  mutating each of the five load-bearing branches and asserting the suite goes
+  red — the rightmost-separator rule, the Arabic separator mapping, the
+  locale's grouping character, the irregular-grouping rejection, and digit
+  folding. All five verified, wired into CI.
