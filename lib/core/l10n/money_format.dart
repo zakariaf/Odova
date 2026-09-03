@@ -6,11 +6,11 @@
 // "{amount} €" will move the euro, and they will be right to, and it will be
 // wrong in the other five.
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
+import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money.dart';
-import 'package:odova/l10n/bidi.dart';
-import 'package:odova/l10n/numerals.dart';
 
 /// `Settings.currency_display`.
 enum CalmCurrencyDisplay {

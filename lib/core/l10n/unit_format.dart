@@ -4,9 +4,9 @@
 // platform unit formatter. CLDR's short forms are wrong in places — ICU renders
 // 45.2 L in fa-IR as `۴۵٫۲L`, a Latin L with no space, and km in ckb-IQ as a
 // Latin `km`. ICU formats the number; the label is ours.
+import 'package:odova/core/l10n/bidi.dart';
+import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/l10n/bidi.dart';
-import 'package:odova/l10n/numerals.dart';
 
 /// Formats [value] with [label] as a single isolated run.
 ///

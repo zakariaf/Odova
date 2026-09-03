@@ -6,9 +6,9 @@
 // a device, in a language nobody on the team reads.
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
-import 'package:odova/l10n/numerals.dart';
 
 import 'support/plural_matrix.dart';
 

@@ -3,10 +3,11 @@
 // The mistake this file exists to prevent is switching on the language subtag:
 // `ar-MA` is written with Latin digits and `ar-EG` is not, so a resolver that
 // reads "ar" and stops ships Arabic-Indic digits to Morocco.
-import 'dart:io';
 
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:test/test.dart';
+
+import '../../support/source_tree.dart';
 
 void main() {
   group('resolveNumerals reads the region, not the language', () {
@@ -75,21 +76,26 @@ void main() {
       isNot(contains('persian')),
     );
 
+    // The filter is on the LEGITIMATE owner, not on the suspect. The first
+    // version skipped any file that did not mention `CalmNumerals`, which
+    // reads the rule backwards: the place a dead wire value comes back is a
+    // settings map, a migration or an import validator working in raw
+    // strings, and none of those need name the enum. EPIC-05 is full of
+    // exactly that code.
     final offenders = <String>[];
-    for (final file in Directory('lib').listSync(recursive: true)) {
-      if (file is! File || !file.path.endsWith('.dart')) continue;
-      final source = file
-          .readAsLinesSync()
-          .where((line) => !line.trimLeft().startsWith('//'))
-          .join('\n');
-      // Only where a numbering system is decided. Elsewhere the word is a
-      // calendar, a language or a font.
-      if (!source.contains('CalmNumerals')) continue;
-      if (RegExp("['\"]persian['\"]").hasMatch(source)) {
-        offenders.add(file.path);
-      }
+    for (final file in dartFilesUnder('lib')) {
+      final source = sourceWithoutLineComments(file);
+      if (!RegExp('''['"]persian['"]''').hasMatch(source)) continue;
+      // `CalmCalendar` is the one thing in the app allowed to spell it.
+      if (!source.contains('CalmCalendar')) offenders.add(file.path);
     }
-    expect(offenders, isEmpty);
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          'the literal `persian` outside the calendar enum is a numeral '
+          'wire value coming back from the dead',
+    );
   });
 
   test('the four wire values are exactly what is stored and exported', () {

@@ -7,12 +7,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/l10n/bidi.dart';
+import 'package:odova/core/l10n/money_format.dart';
+import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/l10n/unit_format.dart';
 import 'package:odova/core/money.dart';
-import 'package:odova/l10n/bidi.dart';
-import 'package:odova/l10n/money_format.dart';
-import 'package:odova/l10n/numerals.dart';
-import 'package:odova/l10n/unit_format.dart';
+
+import '../support/source_tree.dart';
 
 String _codepoints(String s) => s.runes
     .map((r) => 'U+${r.toRadixString(16).toUpperCase().padLeft(4, '0')}')
@@ -113,14 +115,11 @@ void main() {
       // currency.
       final offenders = <String>[];
       for (final dir in ['lib', 'test']) {
-        for (final file in Directory(dir).listSync(recursive: true)) {
-          if (file is! File || !file.path.endsWith('.dart')) continue;
+        for (final file in dartFilesUnder(dir)) {
           if (file.path.endsWith('money_and_units_test.dart')) continue;
-          final source = file
-              .readAsLinesSync()
-              .where((line) => !line.trimLeft().startsWith('//'))
-              .join('\n');
-          if (RegExp("['\"]IRT['\"]").hasMatch(source)) {
+          if (RegExp('''['"]IRT['"]''').hasMatch(
+            sourceWithoutLineComments(file),
+          )) {
             offenders.add(file.path);
           }
         }

@@ -54,6 +54,18 @@ List<File> dartFilesUnder(String path) {
   return files;
 }
 
+/// [file]'s source with every whole-line `//` comment removed.
+///
+/// A doc comment that names the thing a gate forbids — in order to explain why
+/// it is forbidden — must not trip that gate. The reasoning is the most
+/// valuable thing in the file and a gate that punishes writing it down teaches
+/// people not to. Only WHOLE lines go, so a trailing comment and every string
+/// literal still count.
+String sourceWithoutLineComments(File file) => file
+    .readAsLinesSync()
+    .where((line) => !line.trimLeft().startsWith('//'))
+    .join('\n');
+
 /// Every `import`/`export` URI in [source].
 Iterable<String> importUrisIn(String source) => RegExp(
   r'''^\s*(?:import|export)\s+['"]([^'"]+)['"]''',
@@ -78,11 +90,7 @@ void expectNoBannedPatterns(
 }) {
   final offenders = <String>[];
   for (final file in dartFilesUnder(path)) {
-    final source = file
-        .readAsStringSync()
-        .split('\n')
-        .where((line) => !line.trimLeft().startsWith('//'))
-        .join('\n');
+    final source = sourceWithoutLineComments(file);
     for (final MapEntry(key: pattern, value: why) in banned.entries) {
       if (RegExp(pattern).hasMatch(source)) {
         offenders.add('${file.path}: $why');

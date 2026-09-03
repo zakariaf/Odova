@@ -4,7 +4,6 @@
 // separators, the locale's own conventions — and shaping is the LAST step,
 // applied to the finished string. Shaping first would give ICU a digit string
 // to group, and it would group it wrong.
-import 'package:flutter/widgets.dart';
 // `intl` exports a TextDirection of its own — a bidi helper, not the layout
 // enum — and it wins the import race. Hidden, so `TextDirection.ltr` below
 // means what every other file in this repo means by it.
@@ -151,88 +150,4 @@ String formatForExport(num value) {
     throw ArgumentError.value(value, 'value', 'not representable in JSON');
   }
   return value.toString();
-}
-
-/// A number on screen, in the active digit block.
-///
-/// A widget rather than a call so that the two things that are easy to forget
-/// — tabular figures, and the language tag a screen reader needs — happen in
-/// one place. SPEC.md §5: numbers are announced in the display digit set.
-class CalmFigure extends StatelessWidget {
-  /// Creates a figure.
-  const CalmFigure(
-    this.value, {
-    required this.formatsTag,
-    required this.numerals,
-    super.key,
-    this.decimalDigits,
-    this.style,
-    this.semanticsLabel,
-  });
-
-  /// The number. Stored as a number, never as a digit string.
-  final num value;
-
-  /// The full BCP 47 tag formats come from.
-  final String formatsTag;
-
-  /// The active digit block, or [CalmNumerals.auto] to resolve from
-  /// [formatsTag].
-  final CalmNumerals numerals;
-
-  /// Fixed decimals, when the caller has a currency or a unit that fixes them.
-  final int? decimalDigits;
-
-  /// The text style. Tabular figures are applied on top of it.
-  final TextStyle? style;
-
-  /// Overrides what a screen reader says — an estimate's "about", say.
-  final String? semanticsLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = formatForDisplay(
-      value,
-      formatsTag,
-      numerals: numerals,
-      decimalDigits: decimalDigits,
-    );
-
-    return Text(
-      text,
-      semanticsLabel: semanticsLabel,
-      style: (style ?? const TextStyle()).copyWith(
-        // A column of figures that jitters as a digit changes reads as broken
-        // rather than as live.
-        fontFeatures: const [FontFeature.tabularFigures()],
-      ),
-    );
-  }
-}
-
-/// A code that is NEVER shaped: a VIN, a plate, a filename, a version string.
-///
-/// SPEC.md §5's always-Latin table. The plate is the subtle one — it is
-/// verbatim as typed, never shaped either way, because an Iranian plate
-/// legitimately contains Persian digits and a Persian letter. Transcribed,
-/// not computed.
-class CalmCode extends StatelessWidget {
-  /// Creates a code.
-  const CalmCode(this.value, {super.key, this.style});
-
-  /// The characters, exactly as they are stored.
-  final String value;
-
-  /// The text style.
-  final TextStyle? style;
-
-  @override
-  Widget build(BuildContext context) => Text(
-    value,
-    // The direction is pinned rather than inherited: a VIN inside a Persian
-    // sentence is a Latin run, and letting it take the paragraph's direction
-    // is what reverses it.
-    textDirection: TextDirection.ltr,
-    style: style,
-  );
 }

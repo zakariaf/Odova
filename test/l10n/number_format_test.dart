@@ -7,9 +7,10 @@
 // answers.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/l10n/numeric_input.dart';
-import 'package:odova/l10n/numerals.dart';
+import 'package:odova/ui/calm/calm_figure.dart';
 
 /// Codepoints, so a failure message names the character rather than showing
 /// two that look identical.

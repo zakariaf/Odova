@@ -4,18 +4,19 @@
 // SPEC.md §5: a bidi control in storage survives an export and a screen reader
 // — which either voices U+2068 or silently swallows it, and both are wrong —
 // and it defeats every comparison, sort and search along the way.
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/l10n/bidi.dart';
+import 'package:odova/core/l10n/money_format.dart';
+import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/l10n/unit_format.dart';
 import 'package:odova/core/money.dart';
-import 'package:odova/l10n/bidi.dart';
-import 'package:odova/l10n/money_format.dart';
-import 'package:odova/l10n/numerals.dart';
-import 'package:odova/l10n/unit_format.dart';
+import 'package:odova/ui/calm/calm_figure.dart';
 
 import '../support/pump_app.dart';
+import '../support/source_tree.dart';
 
 /// SPEC.md §5 testing item 5's corpus, verbatim.
 const _corpus = <String>[
@@ -46,8 +47,7 @@ void main() {
         '\u202E': 'RLO',
       };
       final offenders = <String>[];
-      for (final file in Directory('lib').listSync(recursive: true)) {
-        if (file is! File || !file.path.endsWith('.dart')) continue;
+      for (final file in dartFilesUnder('lib')) {
         // bidi.dart names them in order to strip them.
         if (file.path.endsWith('l10n/bidi.dart')) continue;
         final source = file.readAsStringSync();
