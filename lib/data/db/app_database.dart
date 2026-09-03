@@ -8,14 +8,29 @@
 // (SPEC.md §2).
 import 'package:drift/drift.dart';
 import 'package:odova/data/db/connection.dart';
+import 'package:odova/data/db/tables/expenses.dart';
+import 'package:odova/data/db/tables/fill_ups.dart';
 import 'package:odova/data/db/tables/service_items.dart';
+import 'package:odova/data/db/tables/service_records.dart';
 import 'package:odova/data/db/tables/settings.dart';
+import 'package:odova/data/db/tables/trips.dart';
 import 'package:odova/data/db/tables/vehicles.dart';
 
 part 'app_database.g.dart';
 
 /// The application database.
-@DriftDatabase(tables: [Vehicles, ServiceItems, SettingsTable])
+@DriftDatabase(
+  tables: [
+    Vehicles,
+    ServiceItems,
+    SettingsTable,
+    ServiceRecords,
+    ServiceLines,
+    Trips,
+    FillUps,
+    Expenses,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   /// Opens the app's own database, in the application support directory.
   AppDatabase() : super(openConnection());

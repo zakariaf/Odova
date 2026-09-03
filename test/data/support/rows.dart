@@ -118,3 +118,141 @@ Future<void> insertSettings(
     consumptionUnit,
   ],
 );
+
+/// Inserts a service record.
+Future<void> insertServiceRecord(
+  AppDatabase db, {
+  String id = 'srv_01K0C4V2H9B8N3Q7ZE5RY6TMWX',
+  String vehicleId = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+  String occurredOn = '2026-09-03',
+  int? odometerM = 186512000,
+}) => db.customStatement(
+  '''
+    INSERT INTO service_records (
+      id, vehicle_id, occurred_on, odometer_m, odometer_unit,
+      odometer_estimated, cost_estimated, created_at_utc_ms, updated_at_utc_ms
+    ) VALUES (?, ?, ?, ?, 'km', 0, 0, 1000, 1000);
+  ''',
+  [id, vehicleId, occurredOn, odometerM],
+);
+
+/// Inserts one line of a service record.
+Future<void> insertServiceLine(
+  AppDatabase db, {
+  String id = 'lin_01K0C4V2H9B8N3Q7ZE5RY6TMWY',
+  String serviceRecordId = 'srv_01K0C4V2H9B8N3Q7ZE5RY6TMWX',
+  String? serviceItemId,
+  String label = 'Oil and filter',
+  int amountMinor = 8900,
+  String currency = 'EUR',
+}) => db.customStatement(
+  '''
+    INSERT INTO service_lines (
+      id, service_record_id, service_item_id, label, amount_minor, currency
+    ) VALUES (?, ?, ?, ?, ?, ?);
+  ''',
+  [id, serviceRecordId, serviceItemId, label, amountMinor, currency],
+);
+
+/// Inserts a fill-up.
+Future<void> insertFillUp(
+  AppDatabase db, {
+  String id = 'fil_01K1C4V2H9B8N3Q7ZE5RY6TMWX',
+  String vehicleId = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+  String occurredOn = '2026-09-03',
+  String fuelKind = 'diesel',
+  int? quantityMl = 45200,
+  int? quantityG,
+  int? energyWh,
+  int totalCostMinor = 7845,
+  String currency = 'EUR',
+  String? tripId,
+}) => db.customStatement(
+  '''
+    INSERT INTO fill_ups (
+      id, vehicle_id, occurred_on, odometer_m, odometer_unit, fuel_kind,
+      quantity_ml, quantity_g, energy_wh, quantity_unit, total_cost_minor,
+      currency, is_full_tank, chain_broken, trip_id,
+      created_at_utc_ms, updated_at_utc_ms
+    ) VALUES (?, ?, ?, 186512000, 'km', ?, ?, ?, ?, 'l', ?, ?, 1, 0, ?,
+              1000, 1000);
+  ''',
+  [
+    id,
+    vehicleId,
+    occurredOn,
+    fuelKind,
+    quantityMl,
+    quantityG,
+    energyWh,
+    totalCostMinor,
+    currency,
+    tripId,
+  ],
+);
+
+/// Inserts an expense.
+Future<void> insertExpense(
+  AppDatabase db, {
+  String id = 'exp_01K3C4V2H9B8N3Q7ZE5RY6TMWX',
+  String vehicleId = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+  String occurredOn = '2026-09-03',
+  String category = 'insurance',
+  String? label,
+  int amountMinor = 42000,
+  String currency = 'EUR',
+  String? coversFrom,
+  String? coversTo,
+  String? tripId,
+}) => db.customStatement(
+  '''
+    INSERT INTO expenses (
+      id, vehicle_id, trip_id, occurred_on, category, label, amount_minor,
+      currency, covers_from, covers_to, odometer_unit,
+      created_at_utc_ms, updated_at_utc_ms
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'km', 1000, 1000);
+  ''',
+  [
+    id,
+    vehicleId,
+    tripId,
+    occurredOn,
+    category,
+    label,
+    amountMinor,
+    currency,
+    coversFrom,
+    coversTo,
+  ],
+);
+
+/// Inserts a trip.
+Future<void> insertTrip(
+  AppDatabase db, {
+  String id = 'trp_01K4C4V2H9B8N3Q7ZE5RY6TMWX',
+  String vehicleId = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+  String purpose = 'business',
+  String startedOn = '2026-09-01',
+  String? endedOn = '2026-09-03',
+  int? startOdometerM = 186000000,
+  int? endOdometerM = 186512000,
+  int? manualDistanceM,
+}) => db.customStatement(
+  '''
+    INSERT INTO trips (
+      id, vehicle_id, purpose, started_on, ended_on, start_odometer_m,
+      end_odometer_m, manual_distance_m, odometer_unit,
+      created_at_utc_ms, updated_at_utc_ms
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'km', 1000, 1000);
+  ''',
+  [
+    id,
+    vehicleId,
+    purpose,
+    startedOn,
+    endedOn,
+    startOdometerM,
+    endOdometerM,
+    manualDistanceM,
+  ],
+);
