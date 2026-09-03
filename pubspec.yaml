@@ -27,6 +27,11 @@ dependencies:
   # Bidi, numeral systems and the CLDR plural categories. SPEC.md §5 needs all
   # three before there is a second string.
   intl: ^0.20.2
+  # `@immutable` on the Result/Failure spine and on RecordId. A direct import
+  # in lib/core/, so a direct dependency — it arrives transitively through
+  # flutter either way, and relying on that is how a transitive bump becomes a
+  # compile error in a file that never mentioned the package.
+  meta: ^1.18.0
   # Where the database file goes. The application SUPPORT directory, not
   # Documents: on iOS, Documents is user-visible and iCloud-backed, and a
   # half-written WAL syncing to iCloud is a corruption vector for a file the
