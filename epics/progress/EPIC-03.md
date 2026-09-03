@@ -53,3 +53,11 @@
   the composite entry is a slide-plus-settle rather than the pure 24pt rise
   odova.css describes. If the motion review rejects it, the fix is a custom
   PopupRoute — not a tolerance change.
+- 3.9 `CalmNumberPad` — 9 tests. **Defect in task 3.1's `CalmDirectionalIcon`:**
+  Material's directional glyphs carry `matchTextDirection: true`, so every one
+  of them was being flipped twice and rendered unflipped in RTL. Fixed at the
+  source (forced-LTR glyph + one explicit flip), pinned with a two-arm test.
+  The row chevron was affected too. Also: the grid mirrored (now forced LTR with
+  the backspace glyph given the real direction), and `Expanded(flex: 2)` made
+  the confirm key 4pt narrow. Added an optional `digits` parameter — EPIC-04's
+  seam for `۰۱۲۳`.
