@@ -185,6 +185,39 @@ void main() {
       );
     });
 
+    test('a day is a civil day, even when the clocks change', () {
+      // `DateTime.parse('2026-03-28')` returns a LOCAL time, and across a
+      // European spring-forward two dates two calendar days apart differ by
+      // 23 + 24 hours — which `inDays` truncates to 1. The implied rate then
+      // DOUBLES: 2,200 km over that weekend, which is 1,100 km/day and fine,
+      // was reported as 2,200 km/day and flagged.
+      //
+      // A false warning is not a blocked save, but it is the app telling a
+      // delivery driver their own odometer looks wrong, twice a year, on a
+      // weekend they worked.
+      final springForward = check(
+        reading('odo_2', '2026-03-30', 182200 * _km),
+        existing: [reading('odo_1', '2026-03-28', 180000 * _km)],
+      );
+      expect(
+        springForward.warnings,
+        isNot(contains(OdometerWarning.impliedRateHigh)),
+        reason: '1,100 km/day over two days is not implausible',
+      );
+
+      // And the autumn boundary, where the extra hour must not round a real
+      // violation down out of sight.
+      final fallBack = check(
+        reading('odo_2', '2026-10-26', 190000 * _km),
+        existing: [reading('odo_1', '2026-10-24', 180000 * _km)],
+      );
+      expect(
+        fallBack.warnings,
+        contains(OdometerWarning.impliedRateHigh),
+        reason: '5,000 km/day is implausible in either direction',
+      );
+    });
+
     test('a single jump above 100,000 km warns, and still writes', () {
       final verdict = check(
         reading('odo_2', '2030-01-01', 300000 * _km),

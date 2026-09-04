@@ -11,6 +11,7 @@
 // distance history for everything downstream.
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/l10n/relative_date.dart';
 import 'package:odova/core/odometer/cumulative.dart';
 
 /// Something worth telling the user, that does not stop the write.
@@ -166,9 +167,19 @@ List<OdometerWarning> _softWarnings({
   final warnings = <OdometerWarning>[];
   final jump = toM - fromM;
 
-  final days = DateTime.parse(
-    toDate,
-  ).difference(DateTime.parse(fromDate)).inDays;
+  // Counted as CIVIL days, through the same UTC anchoring `wholeDaysBetween`
+  // uses. `DateTime.parse('2026-03-28')` returns a LOCAL time, and across a
+  // European spring-forward two dates two calendar days apart differ by
+  // 23 + 24 hours — which `inDays` truncates to 1. The implied rate then
+  // DOUBLES, and a driver who did 1,100 km/day over that weekend is told they
+  // did 2,200.
+  //
+  // The same trap `lib/core/l10n/relative_date.dart` already documents: "a
+  // 23-hour day across a daylight-saving boundary is still one day".
+  final days = wholeDaysBetween(
+    DateTime.parse(fromDate),
+    DateTime.parse(toDate),
+  );
   // Same-day readings have no rate to imply — dividing by zero days would
   // make every second entry of the day look impossible.
   if (days > 0 && jump ~/ days > _maxPlausibleMetresPerDay) {
