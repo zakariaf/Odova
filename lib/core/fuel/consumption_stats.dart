@@ -11,8 +11,8 @@
 // they sell the car.
 import 'package:meta/meta.dart';
 import 'package:odova/core/fuel/consumption_unavailable.dart';
-import 'package:odova/core/fuel/fuel_result.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -25,10 +25,12 @@ Consumption segmentConsumption(FuelSegment segment) => segment.consumption;
 ///
 /// Total volume over total distance. See the file header for why this is not
 /// the mean of the per-segment figures.
-FuelValue<Consumption> averageConsumption(Iterable<FuelSegment> segments) {
+Result<Consumption, ConsumptionUnavailable> averageConsumption(
+  Iterable<FuelSegment> segments,
+) {
   final list = segments.toList();
   if (list.isEmpty) {
-    return const Unavailable(InsufficientData(have: 0, need: 1));
+    return const Err(InsufficientData(have: 0, need: 1));
   }
 
   final distance = Distance(
@@ -37,12 +39,13 @@ FuelValue<Consumption> averageConsumption(Iterable<FuelSegment> segments) {
   final quantity = FuelQuantity.sumOf(list.map((s) => s.quantity));
   if (quantity == null) {
     // Segments of different fuel FORMS in one list — litres beside watt-hours.
-    // The caller split by fuel kind wrongly, and a total across them would be
-    // arithmetic on two different physical things.
-    return const Unavailable(InsufficientData(have: 0, need: 1));
+    // A total across them would be arithmetic on two different physical
+    // things. NOT insufficiency: more fills will not help, and the sentence
+    // "one more full fill" is advice that cannot work.
+    return const Err(MixedFuelForms());
   }
 
-  return Computed(Consumption(distance: distance, quantity: quantity));
+  return Ok(Consumption(distance: distance, quantity: quantity));
 }
 
 /// A segment and its figure, for the best/worst rows.
@@ -70,13 +73,13 @@ class RankedSegment with ValueEquality {
 /// "Best" depends on the unit's direction: lower is better in L/100 km and
 /// higher is better in MPG. Getting that backwards makes the thirstiest tank
 /// the best one, which is why `ConsumptionUnit.isFuelPerDistance` exists.
-FuelValue<RankedSegment> bestSegment(
+Result<RankedSegment, ConsumptionUnavailable> bestSegment(
   Iterable<FuelSegment> segments,
   ConsumptionUnit unit,
 ) => _rank(segments, unit, best: true);
 
 /// The least economical segment, in [unit].
-FuelValue<RankedSegment> worstSegment(
+Result<RankedSegment, ConsumptionUnavailable> worstSegment(
   Iterable<FuelSegment> segments,
   ConsumptionUnit unit,
 ) => _rank(segments, unit, best: false);
@@ -87,21 +90,24 @@ FuelValue<RankedSegment> worstSegment(
 /// pair of fills was DISCARDED, because a discarded segment is not in the list
 /// at all and "last tank" then means the one before it, not a guess about the
 /// one that failed.
-FuelValue<Consumption> lastSegment(Iterable<FuelSegment> segments) {
+Result<Consumption, ConsumptionUnavailable> lastSegment(
+  Iterable<FuelSegment> segments,
+) {
   final list = segments.toList();
   if (list.isEmpty) {
-    return const Unavailable(InsufficientData(have: 0, need: 1));
+    return const Err(InsufficientData(have: 0, need: 1));
   }
-  return Computed(list.last.consumption);
+  return Ok(list.last.consumption);
 }
 
-FuelValue<RankedSegment> _rank(
+Result<RankedSegment, ConsumptionUnavailable> _rank(
   Iterable<FuelSegment> segments,
   ConsumptionUnit unit, {
   required bool best,
 }) {
+  final list = segments.toList();
   final ranked = <RankedSegment>[];
-  for (final segment in segments) {
+  for (final segment in list) {
     final value = segment.consumption.asUnit(unit);
     if (value != null) {
       ranked.add(RankedSegment(segment: segment, value: value));
@@ -109,7 +115,14 @@ FuelValue<RankedSegment> _rank(
   }
 
   if (ranked.isEmpty) {
-    return const Unavailable(InsufficientData(have: 0, need: 1));
+    // Two different situations, and only one of them gets better with time.
+    // There were no segments — log another full fill — versus there were
+    // segments and NONE of them converts to this unit, which is a CNG car
+    // asked for litres per 100 km. A driver of one was being told to keep
+    // logging, forever.
+    return list.isEmpty
+        ? const Err(InsufficientData(have: 0, need: 1))
+        : Err(UnitNotApplicable(unit.wire));
   }
 
   // Lower is better for fuel-per-distance, higher for distance-per-fuel.
@@ -124,5 +137,5 @@ FuelValue<RankedSegment> _rank(
         : a.segment.toFillUpId.compareTo(b.segment.toFillUpId);
   });
 
-  return Computed(ranked.first);
+  return Ok(ranked.first);
 }

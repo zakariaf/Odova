@@ -4,12 +4,14 @@
 import 'dart:math';
 
 import 'package:odova/core/fuel/consumption_stats.dart';
-import 'package:odova/core/fuel/fuel_result.dart';
+import 'package:odova/core/fuel/consumption_unavailable.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/rounding/rounding.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
+import 'package:odova/core/units/mass.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:test/test.dart';
 
@@ -50,9 +52,10 @@ void main() {
     ];
 
     final average = averageConsumption(segments);
-    final value = (average as Computed<Consumption>).value.asUnit(
-      ConsumptionUnit.lPer100km,
-    )!;
+    final value = (average as Ok<Consumption, ConsumptionUnavailable>).value
+        .asUnit(
+          ConsumptionUnit.lPer100km,
+        )!;
 
     expect(roundHalfAwayFromZero(value, decimals: 1), 6.3);
     expect(
@@ -84,9 +87,11 @@ void main() {
       final totalM = segments.fold(0, (sum, s) => sum + s.distance.metres);
       final oracle = (totalMl / 1000) / (totalM / 1000) * 100;
 
-      final actual = (averageConsumption(segments) as Computed<Consumption>)
-          .value
-          .asUnit(ConsumptionUnit.lPer100km)!;
+      final actual =
+          (averageConsumption(segments)
+                  as Ok<Consumption, ConsumptionUnavailable>)
+              .value
+              .asUnit(ConsumptionUnit.lPer100km)!;
 
       expect(actual, closeTo(oracle, 1e-9), reason: 'seed $seed');
     }
@@ -96,7 +101,7 @@ void main() {
     // A zero here would render as 0.0 L/100 km, which is a number the user
     // would believe.
     final average = averageConsumption(const []);
-    expect(average, isA<Unavailable<Consumption>>());
+    expect(average, isA<Err<Consumption, ConsumptionUnavailable>>());
     expect(average.valueOrNull, isNull);
   });
 
@@ -111,13 +116,13 @@ void main() {
       // Getting the direction backwards makes the thirstiest tank the best.
       final bestMetric =
           (bestSegment(segments, ConsumptionUnit.lPer100km)
-                  as Computed<RankedSegment>)
+                  as Ok<RankedSegment, ConsumptionUnavailable>)
               .value;
       expect(bestMetric.segment.toFillUpId, 'lean');
 
       final bestMpg =
           (bestSegment(segments, ConsumptionUnit.mpgUs)
-                  as Computed<RankedSegment>)
+                  as Ok<RankedSegment, ConsumptionUnavailable>)
               .value;
       expect(bestMpg.segment.toFillUpId, 'lean', reason: 'the same tank');
     });
@@ -125,7 +130,7 @@ void main() {
     test('worst is the other end, in both directions', () {
       expect(
         (worstSegment(segments, ConsumptionUnit.lPer100km)
-                as Computed<RankedSegment>)
+                as Ok<RankedSegment, ConsumptionUnavailable>)
             .value
             .segment
             .toFillUpId,
@@ -133,7 +138,7 @@ void main() {
       );
       expect(
         (worstSegment(segments, ConsumptionUnit.mpgUs)
-                as Computed<RankedSegment>)
+                as Ok<RankedSegment, ConsumptionUnavailable>)
             .value
             .segment
             .toFillUpId,
@@ -146,7 +151,7 @@ void main() {
       // km, 14 August" — and a bare double could not say when.
       final best =
           (bestSegment(segments, ConsumptionUnit.lPer100km)
-                  as Computed<RankedSegment>)
+                  as Ok<RankedSegment, ConsumptionUnavailable>)
               .value;
       expect(best.segment.toFillUpId, isNotEmpty);
       expect(best.value, closeTo(6.0, 1e-9));
@@ -159,7 +164,7 @@ void main() {
       ];
       expect(
         (bestSegment(tied, ConsumptionUnit.lPer100km)
-                as Computed<RankedSegment>)
+                as Ok<RankedSegment, ConsumptionUnavailable>)
             .value
             .segment
             .toFillUpId,
@@ -170,7 +175,7 @@ void main() {
     test('no segments is Unavailable', () {
       expect(
         bestSegment(const [], ConsumptionUnit.lPer100km),
-        isA<Unavailable<RankedSegment>>(),
+        isA<Err<RankedSegment, ConsumptionUnavailable>>(),
       );
     });
 
@@ -179,7 +184,7 @@ void main() {
       // question does not apply.
       expect(
         bestSegment(segments, ConsumptionUnit.kwhPer100km),
-        isA<Unavailable<RankedSegment>>(),
+        isA<Err<RankedSegment, ConsumptionUnavailable>>(),
       );
     });
   });
@@ -190,7 +195,9 @@ void main() {
         segment('older', km: 500, millilitres: 30000),
         segment('newest', km: 500, millilitres: 45000),
       ];
-      final last = (lastSegment(segments) as Computed<Consumption>).value;
+      final last =
+          (lastSegment(segments) as Ok<Consumption, ConsumptionUnavailable>)
+              .value;
       expect(last.asUnit(ConsumptionUnit.lPer100km), closeTo(9.0, 1e-9));
     });
 
@@ -198,7 +205,59 @@ void main() {
       // A discarded segment is not in the list at all, so "last tank" means
       // the one before it — and with none at all it is a refusal, not a guess
       // about the pair that failed.
-      expect(lastSegment(const []), isA<Unavailable<Consumption>>());
+      expect(
+        lastSegment(const []),
+        isA<Err<Consumption, ConsumptionUnavailable>>(),
+      );
+    });
+  });
+  group('a refusal names the thing that is actually wrong', () {
+    FuelSegment gas(String id, {required int km, required int grams}) =>
+        FuelSegment(
+          fromFillUpId: '${id}_from',
+          toFillUpId: id,
+          distance: Distance(km * _km),
+          quantity: GasMass(Mass(grams)),
+          partialCount: 0,
+        );
+
+    test('a CNG car asked for L/100 km is told the unit does not apply', () {
+      // It used to be told `insufficient_data`, whose sentence is "one more
+      // full fill" — and no number of fills will ever produce a litre figure
+      // for a car with no tank. The driver was being told to keep logging,
+      // forever, in a screen that would never change.
+      final segments = [
+        for (var i = 0; i < 5; i++) gas('s$i', km: 500, grams: 30000),
+      ];
+
+      final best = bestSegment(segments, ConsumptionUnit.lPer100km);
+      expect(best, isA<Err<RankedSegment, ConsumptionUnavailable>>());
+      expect(
+        (best as Err<RankedSegment, ConsumptionUnavailable>).failure,
+        const UnitNotApplicable('l_100km'),
+      );
+    });
+
+    test('and NO segments is still insufficiency, which does get better', () {
+      final best = bestSegment(const [], ConsumptionUnit.lPer100km);
+      expect(
+        (best as Err<RankedSegment, ConsumptionUnavailable>).failure,
+        const InsufficientData(have: 0, need: 1),
+        reason: 'this one is fixed by logging; the other is not',
+      );
+    });
+
+    test('mixed forms in one average is not insufficiency either', () {
+      final mixed = [
+        segment('a', km: 500, millilitres: 40000),
+        gas('b', km: 500, grams: 30000),
+      ];
+
+      final average = averageConsumption(mixed);
+      expect(
+        (average as Err<Consumption, ConsumptionUnavailable>).failure,
+        const MixedFuelForms(),
+      );
     });
   });
 }

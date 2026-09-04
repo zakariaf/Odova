@@ -11,16 +11,22 @@
 //
 // Sealed, so a `switch` needs no `default:` and a new reason is a compile error
 // at every call site rather than a case that silently renders the generic one.
+//
+// **A `Failure`, so the fuel engine returns `Result` like everything else.**
+// This file used to declare `String get code` — the whole `Failure` contract —
+// without implementing it, beside a `Result<T, ConsumptionUnavailable>`/`Computed`/`Unavailable`
+// that restated `Result<T, F>`/`Ok`/`Err`. Two vocabularies for "no value, and
+// here is why" means a screen that already switches on a `PersistFailure`
+// writes a second, unrelated switch for a fuel figure, and the combinators
+// (`fold`, `map`) live on only one of them.
 import 'package:meta/meta.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// Why a consumption figure could not be computed.
 @immutable
-sealed class ConsumptionUnavailable with ValueEquality {
+sealed class ConsumptionUnavailable extends Failure with ValueEquality {
   const ConsumptionUnavailable();
-
-  /// A stable identifier. The UI localises the sentence from this.
-  String get code;
 
   /// The fills the user should be shown, where there are any.
   ///
@@ -153,19 +159,62 @@ final class InsufficientData extends ConsumptionUnavailable {
   List<Object?> get props => [have, need];
 }
 
-/// The amounts span more than one currency.
+/// Segments of two different fuel FORMS in one list.
 ///
-/// SPEC.md §12: money never mixes, and the app has no rate to mix it with.
-final class MixedCurrency extends ConsumptionUnavailable {
+/// Litres beside watt-hours: a bi-fuel car whose fills an importer landed
+/// under one `fuel_kind`, or a caller that did not split by kind. Not
+/// [InsufficientData] — more fills will not help, and telling the user to log
+/// another one is advice that cannot work. SPEC.md §3: the two series are
+/// never merged.
+final class MixedFuelForms extends ConsumptionUnavailable {
   /// Creates the reason.
-  const MixedCurrency(this.currencyCodes);
-
-  /// Which currencies were present, sorted.
-  final List<String> currencyCodes;
+  const MixedFuelForms();
 
   @override
-  String get code => 'mixed_currency';
+  String get code => 'mixed_fuel_forms';
 
   @override
-  List<Object?> get props => currencyCodes;
+  List<Object?> get props => const [];
+}
+
+/// The requested unit does not apply to this fuel.
+///
+/// L/100 km for a CNG car, which is sold by mass; kWh/100 km for a diesel.
+/// **The reason this type exists rather than an [InsufficientData] placeholder:
+/// the placeholder's sentence is "one more full fill" and no number of fills
+/// will ever produce a litre figure for a car with no tank.** A CNG driver was
+/// being told to keep logging.
+final class UnitNotApplicable extends ConsumptionUnavailable {
+  /// Creates the reason.
+  const UnitNotApplicable(this.unit);
+
+  /// The unit that was asked for, as its wire value.
+  final String unit;
+
+  @override
+  String get code => 'unit_not_applicable';
+
+  @override
+  List<Object?> get props => [unit];
+}
+
+/// A fill-up recording no fuel.
+///
+/// Zero litres divides into the unit price. Not insufficiency: the row exists
+/// and is wrong, and the fix is to edit it rather than to add another.
+final class NonPositiveQuantity extends ConsumptionUnavailable {
+  /// Creates the reason.
+  const NonPositiveQuantity(this.fillUpId);
+
+  /// Which fill.
+  final String fillUpId;
+
+  @override
+  String get code => 'non_positive_quantity';
+
+  @override
+  List<String> get flaggedFillUpIds => [fillUpId];
+
+  @override
+  List<Object?> get props => [fillUpId];
 }

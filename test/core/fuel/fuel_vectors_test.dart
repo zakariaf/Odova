@@ -19,7 +19,7 @@ import 'dart:io';
 
 import 'package:odova/core/fuel/build_fuel_segments.dart';
 import 'package:odova/core/fuel/consumption_stats.dart';
-import 'package:odova/core/fuel/fuel_result.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -158,11 +158,19 @@ void main() {
           expectedKind['flagged'],
           reason: '$id/$kind: flagged',
         );
+        expect(
+          {
+            for (final flagged in set.flaggedFillUpIds)
+              flagged: set.discarded[flagged]!.code,
+          },
+          expectedKind['discarded'],
+          reason: '$id/$kind: WHY each was discarded',
+        );
 
         final wantAverage = expectedKind['average']! as Map<String, Object?>;
         final average = averageConsumption(set.segments);
         switch (average) {
-          case Computed(:final value):
+          case Ok(:final value):
             expect(
               wantAverage.containsKey('unavailable'),
               isFalse,
@@ -173,9 +181,9 @@ void main() {
               wantAverage['l_per_100km'],
               reason: '$id/$kind: average L/100km',
             );
-          case Unavailable(:final reason):
+          case Err(:final failure):
             expect(
-              reason.code,
+              failure.code,
               wantAverage['unavailable'],
               reason: '$id/$kind: refusal code',
             );

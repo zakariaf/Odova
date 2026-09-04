@@ -87,8 +87,10 @@ void main() {
       // from the same amounts would never be equal; both are encoded as
       // sorted strings instead.
       'lib/core/money/money_total.dart': {'byCurrency', '_counts'},
-      // Same shape: a Map of warnings per fill, encoded with its sorted set.
-      'lib/core/fuel/fuel_segment.dart': {'warnings'},
+      // Same shape: two Maps per fill — the warnings with their sorted set,
+      // and the discard reasons with their sorted ids AND the reason objects,
+      // which are themselves ValueEquality and so compare by value.
+      'lib/core/fuel/fuel_segment.dart': {'warnings', 'discarded'},
       // And a Map of rates per currency, encoded the same way.
       'lib/core/fuel/fuel_money.dart': {'minorPerMetre'},
     };

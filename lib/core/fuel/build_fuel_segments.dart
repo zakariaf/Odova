@@ -6,6 +6,7 @@
 // starts, because that fuel filled the tank for the distance already travelled.
 // Getting it wrong shifts every figure in the app by one tank, and the result
 // looks entirely plausible.
+import 'package:odova/core/fuel/consumption_unavailable.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -61,7 +62,7 @@ FuelSegmentSet buildFuelSegments(Iterable<FillUpPoint> fills) {
   final ordered = [...fills]..sort(compareFills);
 
   final segments = <FuelSegment>[];
-  final flagged = <String>[];
+  final discarded = <String, ConsumptionUnavailable>{};
   final warnings = <String, Set<FuelWarning>>{};
 
   FillUpPoint? open;
@@ -74,6 +75,13 @@ FuelSegmentSet buildFuelSegments(Iterable<FillUpPoint> fills) {
     // that would have closed here is DISCARDED — not averaged, not pro-rated.
     // A new one opens here only if this fill is itself full and readable.
     if (fill.chainBroken || fill.cumulativeM == null) {
+      // Two different sentences and two different fixes. A missing odometer is
+      // something the user can supply; a chain break is a fill-up they did not
+      // log. Telling them the chain broke when the reading is simply absent
+      // sends them looking for a fill-up that never happened.
+      discarded[fill.id] = fill.cumulativeM == null
+          ? MissingOdometer(fill.id)
+          : ChainBroken(fill.id);
       open = (fill.isFullTank && fill.cumulativeM != null) ? fill : null;
       pending = [];
       continue;
@@ -107,11 +115,19 @@ FuelSegmentSet buildFuelSegments(Iterable<FillUpPoint> fills) {
       );
     } else {
       // Two fills at the same odometer, or a distance running backwards. A
-      // data error, and BOTH fills are flagged because only the user knows
-      // which of the two numbers is wrong. Never a 0 L/100 km.
-      flagged
-        ..add(open.id)
-        ..add(fill.id);
+      // data error, and BOTH fills are named because only the user knows which
+      // of the two numbers is wrong. Never a 0 L/100 km.
+      //
+      // The reason carries BOTH ids on both entries, so a row highlighted in
+      // the list can say which other row it conflicts with — "this reading and
+      // the one on 3 September are the same number" is actionable and "check
+      // this fill-up" is not.
+      final reason = NonPositiveDistance(
+        fromFillUpId: open.id,
+        toFillUpId: fill.id,
+      );
+      discarded[open.id] = reason;
+      discarded[fill.id] = reason;
     }
 
     open = fill;
@@ -120,7 +136,7 @@ FuelSegmentSet buildFuelSegments(Iterable<FillUpPoint> fills) {
 
   return FuelSegmentSet(
     segments: segments,
-    flaggedFillUpIds: flagged,
+    discarded: discarded,
     warnings: warnings,
   );
 }
@@ -157,4 +173,47 @@ void _warnIfOverTank(FillUpPoint fill, Map<String, Set<FuelWarning>> into) {
   if (quantity.volume.millilitres * 100 > capacity * 115) {
     into.putIfAbsent(fill.id, () => {}).add(FuelWarning.volumeExceedsTank);
   }
+}
+
+/// Why [set] holds no segments, given the [fills] it was built from.
+///
+/// Null once there IS a figure. "No segments" is one state on screen and five
+/// different sentences, and the difference lives entirely in the fills — which
+/// is why this takes both and why it is here rather than on [FuelSegmentSet].
+///
+/// The ORDER is the design. A data error outranks everything, because it is
+/// the one the user can act on today; an EV that never marks a charge full
+/// outranks the opening fill, because ticking a box is also actionable; and
+/// [FirstFill] is last, because "your first figure arrives at your next full
+/// fill" is the only one of the five that is not a task.
+ConsumptionUnavailable? whyNoSegments(
+  Iterable<FillUpPoint> fills,
+  FuelSegmentSet set,
+) {
+  if (set.segments.isNotEmpty) return null;
+
+  final list = fills.toList();
+  if (list.isEmpty) {
+    // TWO, not one: a segment needs a full fill to open it and a full fill to
+    // close it. Telling a new user they need one more would be wrong on the
+    // day they log it.
+    return const InsufficientData(have: 0, need: 2);
+  }
+
+  // The first discard in fill order, so the sentence points at the earliest
+  // row the user can fix rather than at whichever the map happened to hold.
+  for (final fill in [...list]..sort(compareFills)) {
+    final reason = set.discarded[fill.id];
+    if (reason != null) return reason;
+  }
+
+  // SPEC.md §3: "full" for an EV means the driver's usual charge target, which
+  // only they can say. The app shows cost per distance only, and SAYS SO —
+  // this is the saying so.
+  if (list.every((f) => f.quantity is ElectricEnergy) &&
+      !list.any((f) => f.isFullTank)) {
+    return const NoFullCharge();
+  }
+
+  return const FirstFill();
 }

@@ -3,8 +3,9 @@
 // SPEC.md §3 Fuel maths. A false alarm is the one the user remembers, and the
 // second one teaches them to ignore the app.
 import 'package:odova/core/fuel/consumption_trend.dart';
-import 'package:odova/core/fuel/fuel_result.dart';
+import 'package:odova/core/fuel/consumption_unavailable.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/energy.dart';
@@ -57,7 +58,7 @@ void main() {
     final eight = [for (var i = 0; i < 8; i++) segment('s$i', 6)];
     final trend = consumptionTrend(eight);
 
-    expect(trend, isA<Unavailable<ConsumptionTrend>>());
+    expect(trend, isA<Err<ConsumptionTrend, ConsumptionUnavailable>>());
   });
 
   test('nine is the minimum that produces a verdict', () {
@@ -65,14 +66,16 @@ void main() {
     expect(trendSegmentFloor, 9);
     expect(
       consumptionTrend(chain(6, 6)),
-      isA<Computed<ConsumptionTrend>>(),
+      isA<Ok<ConsumptionTrend, ConsumptionUnavailable>>(),
     );
   });
 
   test('more than 8% above is thirstier', () {
     // 6.0 -> 6.6 is exactly 10%.
     final trend =
-        (consumptionTrend(chain(6, 6.6)) as Computed<ConsumptionTrend>).value;
+        (consumptionTrend(chain(6, 6.6))
+                as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value;
 
     expect(trend.direction, TrendDirection.thirstier);
     expect(trend.changePercent, closeTo(10, 0.01));
@@ -80,7 +83,9 @@ void main() {
 
   test('more than 8% below is leaner', () {
     final trend =
-        (consumptionTrend(chain(6, 5.4)) as Computed<ConsumptionTrend>).value;
+        (consumptionTrend(chain(6, 5.4))
+                as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value;
 
     expect(trend.direction, TrendDirection.leaner);
     expect(trend.changePercent, closeTo(-10, 0.01));
@@ -97,18 +102,23 @@ void main() {
     // rounding this boundary would be decided by where the float landed
     // rather than by the rule.
     final up =
-        (consumptionTrend(chain(6, 6.48)) as Computed<ConsumptionTrend>).value;
+        (consumptionTrend(chain(6, 6.48))
+                as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value;
     expect(up.changePercent, closeTo(8, 0.01));
     expect(up.direction, TrendDirection.steady);
 
     // And a hair over does alarm, so the band is a band and not a wall.
     final justOver =
-        (consumptionTrend(chain(6, 6.4801)) as Computed<ConsumptionTrend>)
+        (consumptionTrend(chain(6, 6.4801))
+                as Ok<ConsumptionTrend, ConsumptionUnavailable>)
             .value;
     expect(justOver.direction, TrendDirection.thirstier);
 
     final down =
-        (consumptionTrend(chain(6, 5.52)) as Computed<ConsumptionTrend>).value;
+        (consumptionTrend(chain(6, 5.52))
+                as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value;
     expect(down.changePercent, closeTo(-8, 0.01));
     expect(down.direction, TrendDirection.steady);
   });
@@ -116,7 +126,8 @@ void main() {
   test('inside the band is steady', () {
     for (final recent in [6.0, 6.2, 5.8, 6.4, 5.6]) {
       final trend =
-          (consumptionTrend(chain(6, recent)) as Computed<ConsumptionTrend>)
+          (consumptionTrend(chain(6, recent))
+                  as Ok<ConsumptionTrend, ConsumptionUnavailable>)
               .value;
       expect(trend.direction, TrendDirection.steady, reason: '$recent');
     }
@@ -126,7 +137,9 @@ void main() {
     // "Last 3 tanks 7.1, the 6 before 6.5". A bare direction would leave the
     // user with an assertion and no evidence.
     final trend =
-        (consumptionTrend(chain(6.5, 7.1)) as Computed<ConsumptionTrend>).value;
+        (consumptionTrend(chain(6.5, 7.1))
+                as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value;
 
     expect(
       trend.recent.asUnit(ConsumptionUnit.lPer100km),
@@ -154,7 +167,9 @@ void main() {
     ];
 
     final trend =
-        (consumptionTrend(withShort) as Computed<ConsumptionTrend>).value;
+        (consumptionTrend(withShort)
+                as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value;
     final recent = trend.recent.asUnit(ConsumptionUnit.lPer100km)!;
 
     // Mean of 12.0, 6.0, 6.0 is 8.0. Total over total — 64.8 L over 1,040 km
@@ -169,7 +184,9 @@ void main() {
       // In MPG the sign inverts, and in whatever the user selected the verdict
       // would depend on a setting.
       final thirstier =
-          (consumptionTrend(chain(6, 7)) as Computed<ConsumptionTrend>).value;
+          (consumptionTrend(chain(6, 7))
+                  as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+              .value;
       expect(thirstier.direction, TrendDirection.thirstier);
 
       // The same data read as MPG: recent is a LOWER mpg, which is still
@@ -185,10 +202,13 @@ void main() {
     // measured tanks and not nine attempts.
     final nine = chain(6, 6.6);
     expect(nine, hasLength(9));
-    expect(consumptionTrend(nine), isA<Computed<ConsumptionTrend>>());
+    expect(
+      consumptionTrend(nine),
+      isA<Ok<ConsumptionTrend, ConsumptionUnavailable>>(),
+    );
     expect(
       consumptionTrend(nine.sublist(1)),
-      isA<Unavailable<ConsumptionTrend>>(),
+      isA<Err<ConsumptionTrend, ConsumptionUnavailable>>(),
       reason: 'eight is eight, whatever was discarded',
     );
   });
@@ -205,9 +225,11 @@ void main() {
       ];
 
       final verdict = consumptionTrend(rising);
-      expect(verdict, isA<Computed<ConsumptionTrend>>());
+      expect(verdict, isA<Ok<ConsumptionTrend, ConsumptionUnavailable>>());
       expect(
-        (verdict as Computed<ConsumptionTrend>).value.direction,
+        (verdict as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value
+            .direction,
         TrendDirection.thirstier,
       );
     });
@@ -215,9 +237,11 @@ void main() {
     test('a CNG history too', () {
       final steady = [for (var i = 0; i < 9; i++) gasSegment('s$i', 5)];
       final verdict = consumptionTrend(steady);
-      expect(verdict, isA<Computed<ConsumptionTrend>>());
+      expect(verdict, isA<Ok<ConsumptionTrend, ConsumptionUnavailable>>());
       expect(
-        (verdict as Computed<ConsumptionTrend>).value.direction,
+        (verdict as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value
+            .direction,
         TrendDirection.steady,
       );
     });
@@ -230,7 +254,10 @@ void main() {
         for (var i = 0; i < 5; i++) segment('l$i', 6),
         for (var i = 0; i < 4; i++) chargeSegment('e$i', 80),
       ];
-      expect(consumptionTrend(mixed), isA<Unavailable<ConsumptionTrend>>());
+      expect(
+        consumptionTrend(mixed),
+        isA<Err<ConsumptionTrend, ConsumptionUnavailable>>(),
+      );
     });
   });
 }

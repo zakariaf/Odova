@@ -4,6 +4,7 @@
 // be MEASURED rather than estimated: the tank was full at both ends, so
 // everything bought in between went into the distance travelled in between.
 import 'package:meta/meta.dart';
+import 'package:odova/core/fuel/consumption_unavailable.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -76,24 +77,39 @@ class FuelSegmentSet with ValueEquality {
   /// Creates a set.
   const FuelSegmentSet({
     required this.segments,
-    required this.flaggedFillUpIds,
+    required this.discarded,
     required this.warnings,
   });
 
   /// Nothing at all.
   static const empty = FuelSegmentSet(
     segments: [],
-    flaggedFillUpIds: [],
+    discarded: {},
     warnings: {},
   );
 
   /// The measurable stretches, in order.
   final List<FuelSegment> segments;
 
-  /// Fills the user should look at: a same-odometer pair, a backwards
-  /// distance. Flagged rather than corrected, because only the user knows
-  /// which of the two numbers is wrong.
-  final List<String> flaggedFillUpIds;
+  /// Fills the user should look at, and WHY, by fill id.
+  ///
+  /// Flagged rather than corrected, because only the user knows which of two
+  /// identical readings is wrong. The reason travels with the id because the
+  /// builder is the only thing that knows it: a chain break, a missing
+  /// odometer and a backwards reading are three different sentences and three
+  /// different fixes, and SPEC.md §3 spells all three separately.
+  ///
+  /// This used to be a bare `List<String>`, and the reason was computed here
+  /// and discarded. A screen given only the ids has two options and both are
+  /// wrong: one generic sentence for four problems, or a second
+  /// implementation of the discard rules that drifts from this one.
+  final Map<String, ConsumptionUnavailable> discarded;
+
+  /// Just the ids, sorted — for a caller that only wants to highlight rows.
+  ///
+  /// Sorted so two runs agree; the map's own order follows the fill order,
+  /// which is stable but is not what a caller comparing two sets wants.
+  List<String> get flaggedFillUpIds => discarded.keys.toList()..sort();
 
   /// Warnings, by the fill they concern.
   final Map<String, Set<FuelWarning>> warnings;
@@ -101,7 +117,11 @@ class FuelSegmentSet with ValueEquality {
   @override
   List<Object?> get props => [
     ...segments,
-    ...flaggedFillUpIds,
+    // Sorted ids AND the reasons themselves. Encoding only `code` would make
+    // two sets equal whose `NonPositiveDistance` named different conflicting
+    // fills — the `MoneyTotal` bug again, where a field was half-encoded and
+    // two "equal" values answered a question differently.
+    for (final id in flaggedFillUpIds) ...[id, discarded[id]],
     for (final entry in warnings.entries)
       '${entry.key}:${entry.value.map((w) => w.name).toList()..sort()}',
   ];

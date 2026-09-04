@@ -9,8 +9,8 @@
 // history is about a year of driving for most people.
 import 'package:meta/meta.dart';
 import 'package:odova/core/fuel/consumption_unavailable.dart';
-import 'package:odova/core/fuel/fuel_result.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/rounding/rounding.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
@@ -78,9 +78,11 @@ class ConsumptionTrend with ValueEquality {
 /// Returns `insufficientData` below [trendSegmentFloor]. Only VALID segments
 /// count — a discarded pair is not in the list, so nine here means nine
 /// measured tanks and not nine attempts.
-FuelValue<ConsumptionTrend> consumptionTrend(List<FuelSegment> segments) {
+Result<ConsumptionTrend, ConsumptionUnavailable> consumptionTrend(
+  List<FuelSegment> segments,
+) {
   if (segments.length < trendSegmentFloor) {
-    return Unavailable(
+    return Err(
       InsufficientData(have: segments.length, need: trendSegmentFloor),
     );
   }
@@ -91,9 +93,7 @@ FuelValue<ConsumptionTrend> consumptionTrend(List<FuelSegment> segments) {
   );
   if (recent == null || previous == null) {
     // Mixed fuel forms in one list: the caller split by fuel kind wrongly.
-    return const Unavailable(
-      InsufficientData(have: 0, need: trendSegmentFloor),
-    );
+    return const Err(MixedFuelForms());
   }
 
   // Compared in the CANONICAL ratio, not in a display unit. Doing it in MPG
@@ -102,8 +102,20 @@ FuelValue<ConsumptionTrend> consumptionTrend(List<FuelSegment> segments) {
   final recentRatio = _ratio(recent);
   final previousRatio = _ratio(previous);
   if (recentRatio == null || previousRatio == null || previousRatio == 0) {
-    return const Unavailable(
-      InsufficientData(have: 0, need: trendSegmentFloor),
+    // A window with no distance or no fuel in it. `buildFuelSegments` discards
+    // both, so this is unreachable from the builder and reachable from an
+    // arbitrary list — and it is NOT a mixed-form problem, which the line
+    // above already ruled out. Named as the non-positive-distance pair the
+    // window actually contains, so the sentence points at rows.
+    final offender = segments.firstWhere(
+      (s) => !s.consumption.isComputable,
+      orElse: () => segments.last,
+    );
+    return Err(
+      NonPositiveDistance(
+        fromFillUpId: offender.fromFillUpId,
+        toFillUpId: offender.toFillUpId,
+      ),
     );
   }
 
@@ -116,7 +128,7 @@ FuelValue<ConsumptionTrend> consumptionTrend(List<FuelSegment> segments) {
   // far finer than anything the UI shows and far coarser than the wobble.
   final compared = roundHalfAwayFromZero(change, decimals: 6);
 
-  return Computed(
+  return Ok(
     ConsumptionTrend(
       direction: switch (compared) {
         > trendBandPercent => TrendDirection.thirstier,

@@ -4,11 +4,12 @@
 // so a price per litre that added euros to pounds and divided by litres is a
 // number with no meaning that looks like a price — and somebody would compare
 // it between two cars.
+import 'package:odova/core/fuel/consumption_unavailable.dart';
 import 'package:odova/core/fuel/fuel_money.dart';
-import 'package:odova/core/fuel/fuel_result.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/rounding/rounding.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -35,7 +36,7 @@ void main() {
     test('is total over quantity, to three decimals per litre', () {
       // 78.45 EUR for 45.2 L is 1.735 EUR/L.
       final price = unitPrice(fill('a', cents: 7845, millilitres: 45200));
-      final perMillilitre = (price as Computed<double>).value;
+      final perMillilitre = (price as Ok<double, ConsumptionUnavailable>).value;
       final perLitre = perMillilitre * 1000 / 100; // minor -> major, mL -> L
 
       expect(
@@ -52,14 +53,14 @@ void main() {
       // test/data/db/tables/event_tables_test.dart.
       expect(
         unitPrice(fill('a', cents: 7845, millilitres: 45200)),
-        isA<Computed<double>>(),
+        isA<Ok<double, ConsumptionUnavailable>>(),
       );
     });
 
     test('a zero quantity is Unavailable, never a division', () {
       expect(
         unitPrice(fill('a', cents: 7845, millilitres: 0)),
-        isA<Unavailable<double>>(),
+        isA<Err<double, ConsumptionUnavailable>>(),
       );
     });
   });
@@ -128,7 +129,8 @@ void main() {
       ]);
 
       expect(
-        ((volume as Computed<FuelQuantity>).value as LiquidVolume)
+        ((volume as Ok<FuelQuantity, ConsumptionUnavailable>).value
+                as LiquidVolume)
             .volume
             .millilitres,
         75200,
@@ -136,7 +138,10 @@ void main() {
     });
 
     test('volume over nothing is Unavailable, not zero', () {
-      expect(fuelVolume(const []), isA<Unavailable<FuelQuantity>>());
+      expect(
+        fuelVolume(const []),
+        isA<Err<FuelQuantity, ConsumptionUnavailable>>(),
+      );
     });
 
     test('volume across two FORMS is Unavailable, not a coerced total', () {
@@ -151,7 +156,7 @@ void main() {
         (id: 'b', cost: Money(0, _eur), quantity: const GasMass(Mass(4000))),
       ]);
 
-      expect(mixed, isA<Unavailable<FuelQuantity>>());
+      expect(mixed, isA<Err<FuelQuantity, ConsumptionUnavailable>>());
     });
   });
 

@@ -9,11 +9,11 @@
 // price, and somebody would compare it between two cars.
 import 'package:meta/meta.dart';
 import 'package:odova/core/fuel/consumption_unavailable.dart';
-import 'package:odova/core/fuel/fuel_result.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/money/money_total.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/value_equality.dart';
 
@@ -31,12 +31,13 @@ typedef FillUpCost = ({String id, Money cost, FuelQuantity quantity});
 /// per watt-hour — because that is the only ratio that stays exact. The
 /// presentation edge multiplies up to a litre or a gallon and rounds to three
 /// decimals, per SPEC.md §3's table.
-FuelValue<double> unitPrice(FillUpCost fill) {
+Result<double, ConsumptionUnavailable> unitPrice(FillUpCost fill) {
   final amount = fill.quantity.amount;
   if (amount <= 0) {
-    return const Unavailable(InsufficientData(have: 0, need: 1));
+    // The row exists and is wrong; the fix is to edit it, not to add another.
+    return Err(NonPositiveQuantity(fill.id));
   }
-  return Computed(fill.cost.amountMinor / amount);
+  return Ok(fill.cost.amountMinor / amount);
 }
 
 /// The average price paid, per currency.
@@ -170,10 +171,12 @@ FuelCostPerDistance fuelCostPerDistance(
 /// meaning, presented as a fact and indistinguishable from a correct one. A
 /// bi-fuel car whose fills an importer landed under one `fuel_kind` produces
 /// exactly that list.
-FuelValue<FuelQuantity> fuelVolume(Iterable<FillUpCost> fills) {
+Result<FuelQuantity, ConsumptionUnavailable> fuelVolume(
+  Iterable<FillUpCost> fills,
+) {
+  if (fills.isEmpty) return const Err(InsufficientData(have: 0, need: 1));
+
   final total = FuelQuantity.sumOf(fills.map((f) => f.quantity));
-  if (total == null) {
-    return const Unavailable(InsufficientData(have: 0, need: 1));
-  }
-  return Computed(total);
+  if (total == null) return const Err(MixedFuelForms());
+  return Ok(total);
 }

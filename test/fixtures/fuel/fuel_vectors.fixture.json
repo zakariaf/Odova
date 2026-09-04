@@ -22,6 +22,7 @@
         "diesel": {
           "segments": [],
           "flagged": [],
+          "discarded": {},
           "average": {
             "unavailable": "insufficient_data"
           }
@@ -93,6 +94,7 @@
             }
           ],
           "flagged": [],
+          "discarded": {},
           "average": {
             "l_per_100km": 7.5,
             "kwh_per_100km": null
@@ -153,7 +155,12 @@
               "kwh_per_100km": null
             }
           ],
-          "flagged": [],
+          "flagged": [
+            "b"
+          ],
+          "discarded": {
+            "b": "chain_broken"
+          },
           "average": {
             "l_per_100km": 8.333333,
             "kwh_per_100km": null
@@ -202,7 +209,12 @@
       "expected": {
         "diesel": {
           "segments": [],
-          "flagged": [],
+          "flagged": [
+            "b"
+          ],
+          "discarded": {
+            "b": "missing_odometer"
+          },
           "average": {
             "unavailable": "insufficient_data"
           }
@@ -243,6 +255,10 @@
             "a",
             "b"
           ],
+          "discarded": {
+            "a": "non_positive_distance",
+            "b": "non_positive_distance"
+          },
           "average": {
             "unavailable": "insufficient_data"
           }
@@ -283,6 +299,10 @@
             "a",
             "b"
           ],
+          "discarded": {
+            "a": "non_positive_distance",
+            "b": "non_positive_distance"
+          },
           "average": {
             "unavailable": "insufficient_data"
           }
@@ -354,6 +374,7 @@
             }
           ],
           "flagged": [],
+          "discarded": {},
           "average": {
             "l_per_100km": 7.5,
             "kwh_per_100km": null
@@ -374,6 +395,7 @@
             }
           ],
           "flagged": [],
+          "discarded": {},
           "average": {
             "l_per_100km": 5.833333,
             "kwh_per_100km": null
@@ -424,6 +446,7 @@
             }
           ],
           "flagged": [],
+          "discarded": {},
           "average": {
             "l_per_100km": null,
             "kwh_per_100km": 17.333333
@@ -462,6 +485,7 @@
         "electric": {
           "segments": [],
           "flagged": [],
+          "discarded": {},
           "average": {
             "unavailable": "insufficient_data"
           }
@@ -533,6 +557,7 @@
             }
           ],
           "flagged": [],
+          "discarded": {},
           "average": {
             "l_per_100km": 6.255319,
             "kwh_per_100km": null

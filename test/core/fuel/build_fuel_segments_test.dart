@@ -7,6 +7,7 @@
 import 'dart:math';
 
 import 'package:odova/core/fuel/build_fuel_segments.dart';
+import 'package:odova/core/fuel/consumption_unavailable.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -26,13 +27,14 @@ FillUpPoint fill(
   int createdAtUtcMs = 0,
   String fuelKind = 'diesel',
   int? tankCapacityMl,
+  FuelQuantity? quantity,
 }) => (
   id: id,
   occurredOn: occurredOn,
   createdAtUtcMs: createdAtUtcMs,
   fuelKind: fuelKind,
   cumulativeM: km == null ? null : km * _km,
-  quantity: LiquidVolume(Volume(litres * 1000)),
+  quantity: quantity ?? LiquidVolume(Volume(litres * 1000)),
   isFullTank: full,
   chainBroken: chainBroken,
   tankCapacityMl: tankCapacityMl,
@@ -399,5 +401,162 @@ void main() {
 
     expect(set.segments, isEmpty);
     expect(set.flaggedFillUpIds, ['a', 'b']);
+  });
+  group('a discarded fill says WHY, not just that it was discarded', () {
+    // The builder knows precisely which of four things happened, and used to
+    // throw that away into a bare `List<String>`. SPEC.md §3's copy for these
+    // is four different sentences — "we could not measure this tank because
+    // the chain was broken here" is not "these two readings are the same
+    // number" — and CLAUDE.md rule 7 says the app never renders one generic
+    // sentence in place of a fact it holds.
+    //
+    // Without this the screen epic has two options, and both are wrong: one
+    // sentence for four problems, or a second implementation of the discard
+    // rules that is guaranteed to drift from this one.
+
+    test(
+      'the same odometer twice is a non-positive distance, and names both',
+      () {
+        final set = buildFuelSegments([
+          fill('a', km: 600, litres: 40, occurredOn: '2026-01-01'),
+          fill('b', km: 600, litres: 45, occurredOn: '2026-02-01'),
+        ]);
+
+        expect(set.discarded, {
+          'a': const NonPositiveDistance(fromFillUpId: 'a', toFillUpId: 'b'),
+          'b': const NonPositiveDistance(fromFillUpId: 'a', toFillUpId: 'b'),
+        });
+      },
+    );
+
+    test('a fill marked chain-broken says so, and names itself', () {
+      final set = buildFuelSegments([
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill(
+          'b',
+          km: 600,
+          litres: 45,
+          occurredOn: '2026-02-01',
+          chainBroken: true,
+        ),
+        fill('c', km: 1200, litres: 50, occurredOn: '2026-03-01'),
+      ]);
+
+      expect(set.discarded, {'b': const ChainBroken('b')});
+      expect(
+        set.segments.map((s) => s.toFillUpId),
+        ['c'],
+        reason: 'the chain restarts AT b and closes at c',
+      );
+    });
+
+    test('an imported fill with no reading says the odometer is missing', () {
+      // A different sentence from a chain break, and a different fix: the user
+      // can supply the reading. Telling them the chain broke invites them to
+      // look for a fill-up they never missed.
+      final set = buildFuelSegments([
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill('b', km: null, litres: 45, occurredOn: '2026-02-01'),
+        fill('c', km: 1200, litres: 50, occurredOn: '2026-03-01'),
+      ]);
+
+      expect(set.discarded, {'b': const MissingOdometer('b')});
+    });
+
+    test('flaggedFillUpIds is still the sorted key set', () {
+      // The old shape, kept as a derived getter so a caller that only wants
+      // "which rows to highlight" does not switch over reasons to get them.
+      final set = buildFuelSegments([
+        fill('a', km: 600, litres: 40, occurredOn: '2026-01-01'),
+        fill('b', km: 500, litres: 45, occurredOn: '2026-02-01'),
+      ]);
+
+      expect(set.flaggedFillUpIds, ['a', 'b']);
+      expect(set.flaggedFillUpIds, set.discarded.keys.toList()..sort());
+    });
+  });
+  group('why there is no figure yet', () {
+    // "No segments" is one state on screen and five different sentences, and
+    // the difference is entirely in the fills. SPEC.md §3 spells them out:
+    // "your first figure arrives at your next full fill" is encouragement,
+    // "these two readings are the same number" is a task, and an EV that never
+    // marks a charge full gets cost per distance and IS TOLD SO. One generic
+    // "not enough data" for all five is the app declining to say what it
+    // knows, which CLAUDE.md rule 7 forbids.
+
+    test('one full fill is the opening one, not a problem', () {
+      final fills = [fill('a', km: 0, litres: 40, occurredOn: '2026-01-01')];
+      final set = buildFuelSegments(fills);
+
+      expect(set.segments, isEmpty);
+      expect(whyNoSegments(fills, set), const FirstFill());
+    });
+
+    test('several fills, none of them a second FULL one, is still that', () {
+      final fills = [
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill('b', km: 200, litres: 15, occurredOn: '2026-01-10', full: false),
+        fill('c', km: 400, litres: 20, occurredOn: '2026-01-20', full: false),
+      ];
+      expect(
+        whyNoSegments(fills, buildFuelSegments(fills)),
+        const FirstFill(),
+        reason: 'nothing is wrong; the segment has not closed yet',
+      );
+    });
+
+    test('an EV that never marks a charge full says exactly that', () {
+      // SPEC.md §3: "full" for an EV means the driver's usual charge target,
+      // which only they can say. The app shows cost per distance and does not
+      // invent an energy figure from partial charges — and it says which,
+      // because the user can fix it by ticking a box.
+      final fills = [
+        for (var i = 0; i < 4; i++)
+          fill(
+            'c$i',
+            km: i * 300,
+            litres: 50,
+            occurredOn: '2026-0${i + 1}-01',
+            full: false,
+            fuelKind: 'electric',
+            quantity: const ElectricEnergy(Energy(50000)),
+          ),
+      ];
+
+      expect(
+        whyNoSegments(fills, buildFuelSegments(fills)),
+        const NoFullCharge(),
+      );
+    });
+
+    test('a data error outranks both: it is the one the user can fix', () {
+      final fills = [
+        fill('a', km: 600, litres: 40, occurredOn: '2026-01-01'),
+        fill('b', km: 600, litres: 45, occurredOn: '2026-02-01'),
+      ];
+
+      expect(
+        whyNoSegments(fills, buildFuelSegments(fills)),
+        const NonPositiveDistance(fromFillUpId: 'a', toFillUpId: 'b'),
+      );
+    });
+
+    test('no fills at all needs two, and says two', () {
+      // Not "one more": a consumption figure needs a full fill to open the
+      // segment and a full fill to close it, and telling a new user they need
+      // one would be wrong on the day they log it.
+      expect(
+        whyNoSegments(const [], FuelSegmentSet.empty),
+        const InsufficientData(have: 0, need: 2),
+      );
+    });
+
+    test('null once there IS a figure', () {
+      final fills = [
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill('b', km: 600, litres: 45, occurredOn: '2026-02-01'),
+      ];
+      expect(whyNoSegments(fills, buildFuelSegments(fills)), isNull);
+    });
   });
 }

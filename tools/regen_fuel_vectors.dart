@@ -19,7 +19,7 @@ import 'dart:io';
 
 import 'package:odova/core/fuel/build_fuel_segments.dart';
 import 'package:odova/core/fuel/consumption_stats.dart';
-import 'package:odova/core/fuel/fuel_result.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -205,6 +205,14 @@ Map<String, Object?> evaluate(Vector vector) {
               },
           ],
           'flagged': entry.value.flaggedFillUpIds,
+          // WHY each was discarded, not just that it was. A chain break, a
+          // missing odometer and a backwards reading are three different
+          // sentences and three different fixes; a golden file that recorded
+          // only the ids could not tell a regression between them apart.
+          'discarded': {
+            for (final id in entry.value.flaggedFillUpIds)
+              id: entry.value.discarded[id]!.code,
+          },
           'average': _averageJson(entry.value.segments),
         },
     },
@@ -214,11 +222,11 @@ Map<String, Object?> evaluate(Vector vector) {
 Map<String, Object?> _averageJson(List<dynamic> segments) {
   final average = averageConsumption(segments.cast());
   return switch (average) {
-    Computed(:final value) => {
+    Ok(:final value) => {
       'l_per_100km': _round(value.asUnit(ConsumptionUnit.lPer100km)),
       'kwh_per_100km': _round(value.asUnit(ConsumptionUnit.kwhPer100km)),
     },
-    Unavailable(:final reason) => {'unavailable': reason.code},
+    Err(:final failure) => {'unavailable': failure.code},
   };
 }
 
