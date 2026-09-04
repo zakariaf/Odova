@@ -18,6 +18,12 @@ import 'package:odova/app/routing/page_kinds.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
+import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
+import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
+import 'package:odova/features/vehicles/presentation/vehicle_switcher_sheet.dart';
+import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 
 /// The root navigator.
 ///
@@ -104,7 +110,7 @@ final List<RouteBase> _routes = [
     pageBuilder: (context, state) => PageKind.sheet.page(
       context,
       state,
-      const PlaceholderScreen(screenId: 'vehicle.switcher'),
+      const VehicleSwitcherSheet(),
     ),
   ),
   // The log modal, in both modes, as TWO SIBLINGS rather than a parent and a
@@ -142,7 +148,7 @@ final List<RouteBase> _routes = [
     pageBuilder: (context, state) => PageKind.push.page(
       context,
       state,
-      const PlaceholderScreen(screenId: 'firstrun.language'),
+      const FirstRunLanguageScreen(),
     ),
   ),
   GoRoute(
@@ -150,7 +156,7 @@ final List<RouteBase> _routes = [
     pageBuilder: (context, state) => PageKind.push.page(
       context,
       state,
-      const PlaceholderScreen(screenId: 'firstrun.vehicle'),
+      const FirstRunVehicleScreen(),
     ),
   ),
 ];
@@ -294,7 +300,7 @@ final List<StatefulShellBranch> _branches = [
             pageBuilder: (context, state) => PageKind.push.page(
               context,
               state,
-              const PlaceholderScreen(screenId: 'vehicles'),
+              const VehiclesScreen(),
             ),
             routes: [
               GoRoute(
@@ -303,9 +309,14 @@ final List<StatefulShellBranch> _branches = [
                 pageBuilder: (context, state) => PageKind.modal.page(
                   context,
                   state,
-                  PlaceholderScreen(
-                    screenId: 'vehicle.edit',
-                    detail: state.pathParameters['vehicleId'],
+                  // The id comes from the PATH, so a deep link and a tap open
+                  // the same screen. A malformed one is `VehicleEditState
+                  // .missing`, which the screen draws rather than throwing —
+                  // SPEC.md §7: a bad link lands somewhere, never nowhere.
+                  VehicleEditScreen(
+                    vehicleId: VehicleId.tryParse(
+                      state.pathParameters['vehicleId'] ?? '',
+                    ),
                   ),
                 ),
               ),

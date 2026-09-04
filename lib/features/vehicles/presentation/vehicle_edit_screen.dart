@@ -60,8 +60,14 @@ class VehicleEditScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const VehicleEditScreen({required this.vehicleId, super.key});
 
-  /// Which vehicle.
-  final VehicleId vehicleId;
+  /// Which vehicle, or null when a deep link carried an id that will not
+  /// parse.
+  ///
+  /// NULLABLE because `/settings/vehicles/not-an-id` is a link somebody can
+  /// send, and SPEC.md §7 says a bad one lands somewhere rather than nowhere.
+  /// It draws the same shell an unloaded or deleted vehicle draws — the user
+  /// sees a modal they can close, not a crash and not a blank route.
+  final VehicleId? vehicleId;
 
   @override
   ConsumerState<VehicleEditScreen> createState() => _VehicleEditScreenState();
@@ -102,15 +108,18 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
   }
 
   VehicleEditNotifier get _notifier =>
-      ref.read(vehicleEditProvider(widget.vehicleId).notifier);
+      ref.read(vehicleEditProvider(widget.vehicleId!).notifier);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final space = CalmSpace.of(context);
-    final state = ref.watch(vehicleEditProvider(widget.vehicleId));
+    final id = widget.vehicleId;
+    final state = id == null ? null : ref.watch(vehicleEditProvider(id));
 
-    if (state is! VehicleEditReady) {
+    // BOTH conditions, and the null check is what promotes `id` for the rest
+    // of the method — Dart cannot see that a Ready state implies a parsed id.
+    if (id == null || state is! VehicleEditReady) {
       return CalmScaffold(
         appBar: CalmAppBar.modal(
           title: l10n.vehicleEditTitle,
@@ -132,7 +141,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
       // supplies only the SUBJECT and the SUMMARY and owns the draft it drops;
       // what a dismissal means is one decision made once, for every modal.
       isDirty: () => draft.isDirty,
-      onDiscard: () => ref.invalidate(vehicleEditProvider(widget.vehicleId)),
+      onDiscard: () => ref.invalidate(vehicleEditProvider(id)),
       confirmDiscard: (context) async =>
           await showDiscardDialog(
             context,
@@ -140,7 +149,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
             summary: l10n.vehicleEditTitle,
           ) ==
           DiscardChoice.discard,
-      child: _form(context, l10n, space, state),
+      child: _form(context, l10n, space, state, id),
     );
   }
 
@@ -149,6 +158,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     AppLocalizations l10n,
     CalmSpace space,
     VehicleEditReady state,
+    VehicleId id,
   ) {
     final draft = state.draft;
     return CalmScaffold(
@@ -323,7 +333,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         // correcting the plate would stamp today's date on a number they last
         // checked in March, and that corrupts the series the whole app depends
         // on. Tapping it goes to `log.odometer`, where a reading has a date.
-        _OdometerRow(vehicleId: widget.vehicleId, unit: draft.distanceUnit),
+        _OdometerRow(vehicleId: id, unit: draft.distanceUnit),
         CalmRowGroup(
           rows: [
             CalmListRow(
