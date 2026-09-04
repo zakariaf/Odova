@@ -261,6 +261,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log'**
   String get tabLogA11y;
+
+  /// Title of the global discard dialog. SPEC.md §7: dismissing a dirty modal opens this; dismissing a clean one is silent.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get discardTitle;
+
+  /// The body of the discard dialog. It names what would be lost, because a generic "you have unsaved changes" is not a question the user can answer — {subject} is what is being edited and {summary} is the edits themselves, both supplied by the caller and both already localised.
+  ///
+  /// In en, this message translates to:
+  /// **'Your edits to {subject} — {summary} — have not been saved.'**
+  String discardBody(String subject, String summary);
+
+  /// The safe action, and the one the reference puts FIRST. SPEC.md §7: no dialog is ever dismissed into a destructive outcome, so tap-out and system back both return this.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get discardKeepEditing;
+
+  /// The destructive action. SPEC.md §10: it drops every segment draft, not only the visible one.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discardDiscard;
 }
 
 class _AppLocalizationsDelegate

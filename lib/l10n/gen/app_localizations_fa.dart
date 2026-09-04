@@ -133,4 +133,18 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get tabLogA11y => 'ثبت';
+
+  @override
+  String get discardTitle => 'تغییرات دور ریخته شود؟';
+
+  @override
+  String discardBody(String subject, String summary) {
+    return 'ویرایش‌های شما روی $subject — $summary — ذخیره نشده است.';
+  }
+
+  @override
+  String get discardKeepEditing => 'ادامه ویرایش';
+
+  @override
+  String get discardDiscard => 'دور بریز';
 }

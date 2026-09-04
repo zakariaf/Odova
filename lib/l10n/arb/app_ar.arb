@@ -25,5 +25,9 @@
   "tabHistory": "السجل",
   "tabCosts": "التكاليف",
   "tabSettings": "الإعدادات",
-  "tabLogA11y": "تسجيل"
+  "tabLogA11y": "تسجيل",
+  "discardTitle": "تجاهل التغييرات؟",
+  "discardBody": "لم يتم حفظ تعديلاتك على {subject} — {summary}.",
+  "discardKeepEditing": "متابعة التحرير",
+  "discardDiscard": "تجاهل"
 }

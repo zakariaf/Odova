@@ -25,5 +25,9 @@
   "tabHistory": "مێژوو",
   "tabCosts": "تێچووەکان",
   "tabSettings": "ڕێکخستنەکان",
-  "tabLogA11y": "تۆمارکردن"
+  "tabLogA11y": "تۆمارکردن",
+  "discardTitle": "گۆڕانکارییەکان فڕێبدرێن؟",
+  "discardBody": "دەستکارییەکانت لەسەر {subject} — {summary} — پاشەکەوت نەکراون.",
+  "discardKeepEditing": "بەردەوامبوون لە دەستکاری",
+  "discardDiscard": "فڕێدان"
 }

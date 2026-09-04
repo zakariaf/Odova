@@ -132,4 +132,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tabLogA11y => 'Log';
+
+  @override
+  String get discardTitle => 'Discard changes?';
+
+  @override
+  String discardBody(String subject, String summary) {
+    return 'Your edits to $subject — $summary — have not been saved.';
+  }
+
+  @override
+  String get discardKeepEditing => 'Keep editing';
+
+  @override
+  String get discardDiscard => 'Discard';
 }

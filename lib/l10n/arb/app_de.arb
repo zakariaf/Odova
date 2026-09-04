@@ -25,5 +25,9 @@
   "tabHistory": "Verlauf",
   "tabCosts": "Kosten",
   "tabSettings": "Einstellungen",
-  "tabLogA11y": "Erfassen"
+  "tabLogA11y": "Erfassen",
+  "discardTitle": "Änderungen verwerfen?",
+  "discardBody": "Deine Änderungen an {subject} — {summary} — wurden nicht gespeichert.",
+  "discardKeepEditing": "Weiter bearbeiten",
+  "discardDiscard": "Verwerfen"
 }

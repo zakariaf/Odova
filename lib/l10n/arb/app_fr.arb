@@ -25,5 +25,9 @@
   "tabHistory": "Historique",
   "tabCosts": "Coûts",
   "tabSettings": "Réglages",
-  "tabLogA11y": "Enregistrer"
+  "tabLogA11y": "Enregistrer",
+  "discardTitle": "Abandonner les modifications ?",
+  "discardBody": "Vos modifications de {subject} — {summary} — n’ont pas été enregistrées.",
+  "discardKeepEditing": "Continuer à modifier",
+  "discardDiscard": "Abandonner"
 }

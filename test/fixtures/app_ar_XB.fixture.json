@@ -25,5 +25,9 @@
   "tabHistory": "‏yrotsiH",
   "tabCosts": "‏stsoC",
   "tabSettings": "‏sgnitteS",
-  "tabLogA11y": "‏goL"
+  "tabLogA11y": "‏goL",
+  "discardTitle": "‏?segnahc dracsiD",
+  "discardBody": "‏ ot stide ruoY{subject} — {summary}.devas neeb ton evah — ",
+  "discardKeepEditing": "‏gnitide peeK",
+  "discardDiscard": "‏dracsiD"
 }

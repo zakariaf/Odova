@@ -25,5 +25,9 @@
   "tabHistory": "تاریخچه",
   "tabCosts": "هزینه‌ها",
   "tabSettings": "تنظیمات",
-  "tabLogA11y": "ثبت"
+  "tabLogA11y": "ثبت",
+  "discardTitle": "تغییرات دور ریخته شود؟",
+  "discardBody": "ویرایش‌های شما روی {subject} — {summary} — ذخیره نشده است.",
+  "discardKeepEditing": "ادامه ویرایش",
+  "discardDiscard": "دور بریز"
 }

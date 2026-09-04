@@ -138,4 +138,18 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tabLogA11y => 'Enregistrer';
+
+  @override
+  String get discardTitle => 'Abandonner les modifications ?';
+
+  @override
+  String discardBody(String subject, String summary) {
+    return 'Vos modifications de $subject — $summary — n’ont pas été enregistrées.';
+  }
+
+  @override
+  String get discardKeepEditing => 'Continuer à modifier';
+
+  @override
+  String get discardDiscard => 'Abandonner';
 }

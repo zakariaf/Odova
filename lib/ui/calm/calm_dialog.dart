@@ -21,22 +21,48 @@ const double kCalmDialogScaleFrom = 0.96;
 
 /// One of Calm's three dialogs.
 class CalmDialog extends StatelessWidget {
-  /// Creates a dialog.
+  /// Creates a two-action dialog: the confirming action, then the way out.
   ///
-  /// The action ORDER is the widget's, not the caller's: the destructive
-  /// action is first and Cancel is last, always, so a user who has learned
-  /// where Cancel is on one dialog has learned it on all three.
+  /// The order is the widget's, not the caller's, so a user who has learned
+  /// where the way out is on one dialog has learned it on all of them. A dialog
+  /// that offers a safe ALTERNATIVE — something that does a different thing
+  /// rather than nothing — needs three actions and uses [CalmDialog.actions].
   const CalmDialog({
     required this.title,
     required this.body,
-    required this.confirmLabel,
-    required this.onConfirm,
-    required this.cancelLabel,
-    required this.onCancel,
+    required String this.confirmLabel,
+    required VoidCallback this.onConfirm,
+    required String this.cancelLabel,
+    required VoidCallback this.onCancel,
     super.key,
     this.icon,
     this.danger = false,
-  });
+  }) : actions = null;
+
+  /// Creates a dialog whose actions the caller orders.
+  ///
+  /// For the dialogs whose reference offers a safe alternative. All three
+  /// references in `design/reference/calm/` order their actions **safe first**:
+  /// *Keep editing* above *Discard*, and *Keep it — mark it sold* above
+  /// *Delete* above *Cancel*. `calm-components` said "destructive first"; the
+  /// reference is the authority (`calm-visual-parity` rule 1) and SPEC.md §7's
+  /// "no dialog is ever dismissed into a destructive outcome" points the same
+  /// way. The skill is amended to match (EPIC-08 finding F-8.4).
+  ///
+  /// The dialog still owns the STACKING and the gaps — full width, one under
+  /// another, never a row. A row of two puts the destructive action under the
+  /// thumb that was reaching for the other one.
+  const CalmDialog.actions({
+    required this.title,
+    required this.body,
+    required List<Widget> this.actions,
+    super.key,
+    this.icon,
+    this.danger = false,
+  }) : confirmLabel = null,
+       onConfirm = null,
+       cancelLabel = null,
+       onCancel = null;
 
   /// The question, already localised.
   final String title;
@@ -45,16 +71,23 @@ class CalmDialog extends StatelessWidget {
   final String body;
 
   /// The destructive or confirming action's label.
-  final String confirmLabel;
+  ///
+  /// Null on [CalmDialog.actions].
+  final String? confirmLabel;
 
   /// What it does.
-  final VoidCallback onConfirm;
+  final VoidCallback? onConfirm;
 
   /// The way out.
-  final String cancelLabel;
+  final String? cancelLabel;
 
   /// What that does.
-  final VoidCallback onCancel;
+  final VoidCallback? onCancel;
+
+  /// The caller's own actions, in the order they are shown.
+  ///
+  /// Null on the two-action constructor, which builds its own pair.
+  final List<Widget>? actions;
 
   /// An optional glyph in a 56pt disc above the title.
   final IconData? icon;
@@ -86,6 +119,26 @@ class CalmDialog extends StatelessWidget {
     );
   }
 
+  /// What to stack, whichever constructor was used.
+  List<Widget> get _actions =>
+      actions ??
+      [
+        CalmButton(
+          label: confirmLabel!,
+          onPressed: onConfirm,
+          variant: danger
+              ? CalmButtonVariant.dangerSolid
+              : CalmButtonVariant.primary,
+          block: true,
+        ),
+        CalmButton(
+          label: cancelLabel!,
+          onPressed: onCancel,
+          variant: CalmButtonVariant.tonal,
+          block: true,
+        ),
+      ];
+
   @override
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
@@ -103,67 +156,70 @@ class CalmDialog extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: EdgeInsetsDirectional.all(space.s6),
-          child: DecoratedBox(
-            decoration: ShapeDecoration(
-              color: colors.surface,
-              shadows: shapes.elev4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(shapes.radius3xl),
+          // An overlay route has no Material above it, and `WidgetsApp`'s
+          // fallback `DefaultTextStyle` for that case is 48pt bold red
+          // monospace with a double yellow underline — an error style meant to
+          // be unmissable. It is not, here: every `Text` below sets its size
+          // and colour from `CalmType`, which overrides all of that except the
+          // one part it never sets, the FAMILY. So without this the dialog came
+          // out the right size, in the right colour, in monospace, and nothing
+          // went red. The parity capture is what noticed.
+          //
+          // `transparency`, because the dialog paints its own surface below.
+          child: Material(
+            type: MaterialType.transparency,
+            child: DecoratedBox(
+              decoration: ShapeDecoration(
+                color: colors.surface,
+                shadows: shapes.elev4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(shapes.radius3xl),
+                ),
               ),
-            ),
-            child: Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(
-                space.s6,
-                space.s7,
-                space.s6,
-                space.s6,
-              ),
-              child: Column(
-                // start, not centre: centred body copy is unreadable at
-                // Sorani line lengths.
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (icon != null) ...[
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: _CalmDialogIcon(icon: icon!, danger: danger),
+              child: Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  space.s6,
+                  space.s7,
+                  space.s6,
+                  space.s6,
+                ),
+                child: Column(
+                  // start, not centre: centred body copy is unreadable at
+                  // Sorani line lengths.
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: _CalmDialogIcon(icon: icon!, danger: danger),
+                      ),
+                      SizedBox(height: space.s4),
+                    ],
+                    Text(
+                      title,
+                      textAlign: TextAlign.start,
+                      style: type.title.copyWith(
+                        color: colors.ink,
+                        fontWeight: type.semi,
+                      ),
                     ),
-                    SizedBox(height: space.s4),
+                    SizedBox(height: space.s2),
+                    Text(
+                      body,
+                      textAlign: TextAlign.start,
+                      style: type.bodyLg.copyWith(color: colors.ink2),
+                    ),
+                    SizedBox(height: space.s6),
+                    // Stacked and full width. A row of two puts the
+                    // destructive action under the thumb that was reaching
+                    // for the other one.
+                    for (final (index, action) in _actions.indexed) ...[
+                      if (index > 0) SizedBox(height: space.s3),
+                      action,
+                    ],
                   ],
-                  Text(
-                    title,
-                    textAlign: TextAlign.start,
-                    style: type.title.copyWith(
-                      color: colors.ink,
-                      fontWeight: type.semi,
-                    ),
-                  ),
-                  SizedBox(height: space.s2),
-                  Text(
-                    body,
-                    textAlign: TextAlign.start,
-                    style: type.bodyLg.copyWith(color: colors.ink2),
-                  ),
-                  SizedBox(height: space.s6),
-                  // Stacked and full width. A row of two puts the destructive
-                  // action under the thumb that was reaching for Cancel.
-                  CalmButton(
-                    label: confirmLabel,
-                    onPressed: onConfirm,
-                    variant: danger
-                        ? CalmButtonVariant.dangerSolid
-                        : CalmButtonVariant.primary,
-                    block: true,
-                  ),
-                  SizedBox(height: space.s3),
-                  CalmButton(
-                    label: cancelLabel,
-                    onPressed: onCancel,
-                    variant: CalmButtonVariant.tonal,
-                    block: true,
-                  ),
-                ],
+                ),
               ),
             ),
           ),

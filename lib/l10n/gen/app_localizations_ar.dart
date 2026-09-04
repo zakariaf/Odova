@@ -152,4 +152,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tabLogA11y => 'تسجيل';
+
+  @override
+  String get discardTitle => 'تجاهل التغييرات؟';
+
+  @override
+  String discardBody(String subject, String summary) {
+    return 'لم يتم حفظ تعديلاتك على $subject — $summary.';
+  }
+
+  @override
+  String get discardKeepEditing => 'متابعة التحرير';
+
+  @override
+  String get discardDiscard => 'تجاهل';
 }

@@ -12,7 +12,6 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +22,8 @@ import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/app_shell.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+
+export '../../support/pump_app.dart' show systemBack;
 
 /// Mounts the app at [location], on a torn-down tree, and returns the container
 /// its providers live in so a test can read one.
@@ -124,25 +125,6 @@ Future<void> setLocale(
 /// The direction the app resolved.
 TextDirection directionOf(WidgetTester tester) =>
     Directionality.of(_shellElement(tester));
-
-/// Sends the platform message the engine sends on an Android system back.
-///
-/// The Flutter SDK has this as `simulateSystemBack` in
-/// `packages/flutter/test/cupertino/navigator_utils.dart` — a test helper that
-/// is not exported from `flutter_test`, so it is copied here rather than
-/// approximated with `Navigator.pop`. The two are not the same event: a real
-/// system back goes through `PopScope`, and a `Navigator.pop` bypasses the
-/// exact guard SPEC.md §7's back rules live in.
-Future<void> systemBack() => TestDefaultBinaryMessengerBinding
-    .instance
-    .defaultBinaryMessenger
-    .handlePlatformMessage(
-      SystemChannels.navigation.name,
-      const JSONMessageCodec().encodeMessage(<String, dynamic>{
-        'method': 'popRoute',
-      }),
-      (_) {},
-    );
 
 /// The shell's own back guard.
 ///

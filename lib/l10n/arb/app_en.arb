@@ -176,5 +176,31 @@
   "tabLogA11y": "Log",
   "@tabLogA11y": {
     "description": "Spoken label for the central + . It carries no visible text, so this is the only name a screen reader has for the app's most-pressed control. SPEC.md §7: logging is an act that finishes and returns you, which is why it is a button and not a fifth tab."
+  },
+  "discardTitle": "Discard changes?",
+  "@discardTitle": {
+    "description": "Title of the global discard dialog. SPEC.md §7: dismissing a dirty modal opens this; dismissing a clean one is silent."
+  },
+  "discardBody": "Your edits to {subject} — {summary} — have not been saved.",
+  "@discardBody": {
+    "description": "The body of the discard dialog. It names what would be lost, because a generic \"you have unsaved changes\" is not a question the user can answer — {subject} is what is being edited and {summary} is the edits themselves, both supplied by the caller and both already localised.",
+    "placeholders": {
+      "subject": {
+        "type": "String",
+        "example": "Oil and filter"
+      },
+      "summary": {
+        "type": "String",
+        "example": "a 15,000 km interval and a new baseline"
+      }
+    }
+  },
+  "discardKeepEditing": "Keep editing",
+  "@discardKeepEditing": {
+    "description": "The safe action, and the one the reference puts FIRST. SPEC.md §7: no dialog is ever dismissed into a destructive outcome, so tap-out and system back both return this."
+  },
+  "discardDiscard": "Discard",
+  "@discardDiscard": {
+    "description": "The destructive action. SPEC.md §10: it drops every segment draft, not only the visible one."
   }
 }

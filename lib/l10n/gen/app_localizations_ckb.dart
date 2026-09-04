@@ -133,4 +133,18 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get tabLogA11y => 'تۆمارکردن';
+
+  @override
+  String get discardTitle => 'گۆڕانکارییەکان فڕێبدرێن؟';
+
+  @override
+  String discardBody(String subject, String summary) {
+    return 'دەستکارییەکانت لەسەر $subject — $summary — پاشەکەوت نەکراون.';
+  }
+
+  @override
+  String get discardKeepEditing => 'بەردەوامبوون لە دەستکاری';
+
+  @override
+  String get discardDiscard => 'فڕێدان';
 }

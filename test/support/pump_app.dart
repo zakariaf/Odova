@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
@@ -130,3 +134,41 @@ GoRouter singleScreenRouter(Widget child) => GoRouter(
 List<Override> noLaunchGate() => [
   routerProvider.overrideWithValue(buildRouter()),
 ];
+
+/// The ARB files that are missing any of [keys].
+///
+/// SPEC.md §2: every user-visible string lands in all six ARB files in the same
+/// commit. `arb_parity_test.dart` already asserts the six agree with each
+/// other;
+/// this is for a feature test that wants to name ITS keys, so the failure says
+/// which screen lost a translation rather than only that the files disagree.
+List<String> missingArbKeys(List<String> keys) {
+  final missing = <String>[];
+  for (final locale in ['en', 'de', 'fr', 'fa', 'ar', 'ckb']) {
+    final arb =
+        jsonDecode(File('lib/l10n/arb/app_$locale.arb').readAsStringSync())
+            as Map<String, dynamic>;
+    for (final key in keys) {
+      if (!arb.containsKey(key)) missing.add('$locale: $key');
+    }
+  }
+  return missing;
+}
+
+/// Sends the platform message the engine sends on an Android system back.
+///
+/// The Flutter SDK has this as `simulateSystemBack` in
+/// `packages/flutter/test/cupertino/navigator_utils.dart`, which
+/// `flutter_test` does not export. Not approximated with `Navigator.pop`: the
+/// two are not the same event, and a `Navigator.pop` bypasses every `PopScope`
+/// in the tree.
+Future<void> systemBack() => TestDefaultBinaryMessengerBinding
+    .instance
+    .defaultBinaryMessenger
+    .handlePlatformMessage(
+      SystemChannels.navigation.name,
+      const JSONMessageCodec().encodeMessage(<String, dynamic>{
+        'method': 'popRoute',
+      }),
+      (_) {},
+    );

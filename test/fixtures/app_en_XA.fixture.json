@@ -25,5 +25,9 @@
   "tabHistory": "[Ħīŝţǿřẏ ǃǃǃ]",
   "tabCosts": "[Çǿŝţŝ ǃǃ]",
   "tabSettings": "[Ŝḗţţīǹḡŝ ǃǃǃǃ]",
-  "tabLogA11y": "[Ŀǿḡ ǃǃ]"
+  "tabLogA11y": "[Ŀǿḡ ǃǃ]",
+  "discardTitle": "[Ḍīŝçářḍ çħáǹḡḗŝ? ǃǃǃǃǃǃǃ]",
+  "discardBody": "[Ẏǿǔř ḗḍīţŝ ţǿ {subject} — {summary} — ħáṽḗ ǹǿţ ḅḗḗǹ ŝáṽḗḍ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "discardKeepEditing": "[Ķḗḗƥ ḗḍīţīǹḡ ǃǃǃǃǃ]",
+  "discardDiscard": "[Ḍīŝçářḍ ǃǃǃ]"
 }

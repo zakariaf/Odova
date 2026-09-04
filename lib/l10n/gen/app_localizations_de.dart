@@ -133,4 +133,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get tabLogA11y => 'Erfassen';
+
+  @override
+  String get discardTitle => 'Änderungen verwerfen?';
+
+  @override
+  String discardBody(String subject, String summary) {
+    return 'Deine Änderungen an $subject — $summary — wurden nicht gespeichert.';
+  }
+
+  @override
+  String get discardKeepEditing => 'Weiter bearbeiten';
+
+  @override
+  String get discardDiscard => 'Verwerfen';
 }

@@ -195,7 +195,15 @@ class CalmSheet extends StatelessWidget {
         scaleFrom: 1,
         curve: motion.easeStandard,
         reverseCurve: motion.easeIn,
-        child: surface,
+        // An overlay route has no Material above it, and `WidgetsApp`'s
+        // fallback `DefaultTextStyle` for that case is 48pt bold red monospace.
+        // Every `Text` here sets its size and colour from `CalmType`, which
+        // overrides all of that except the one part it never sets — the FAMILY
+        // — so the sheet came out the right size, in the right colour, in
+        // monospace, and nothing went red. See `calm_overlay_typography_test`.
+        //
+        // `transparency`, because the sheet paints its own surface.
+        child: Material(type: MaterialType.transparency, child: surface),
       ),
     );
   }
