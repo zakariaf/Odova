@@ -1,0 +1,544 @@
+{
+  "_generated_by": "tools/regen_fuel_vectors.dart",
+  "_spec": "SPEC.md §17's fuel fixture suite",
+  "vectors": [
+    {
+      "id": "first_fill",
+      "why": "One fill opens a segment and produces nothing, ever.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 0,
+          "quantity": {
+            "ml": 40000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "diesel": {
+          "segments": [],
+          "flagged": [],
+          "average": {
+            "unavailable": "insufficient_data"
+          }
+        }
+      }
+    },
+    {
+      "id": "partials",
+      "why": "Two partials join the enclosing segment; neither opens or closes.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 0,
+          "quantity": {
+            "ml": 40000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "b",
+          "occurred_on": "2026-01-10",
+          "fuel_kind": "diesel",
+          "cumulative_m": 200000,
+          "quantity": {
+            "ml": 15000
+          },
+          "is_full_tank": false,
+          "chain_broken": false
+        },
+        {
+          "id": "c",
+          "occurred_on": "2026-01-20",
+          "fuel_kind": "diesel",
+          "cumulative_m": 400000,
+          "quantity": {
+            "ml": 20000
+          },
+          "is_full_tank": false,
+          "chain_broken": false
+        },
+        {
+          "id": "d",
+          "occurred_on": "2026-02-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 600000,
+          "quantity": {
+            "ml": 10000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "diesel": {
+          "segments": [
+            {
+              "from": "a",
+              "to": "d",
+              "distance_m": 600000,
+              "quantity": {
+                "ml": 45000
+              },
+              "partial_count": 2,
+              "l_per_100km": 7.5,
+              "kwh_per_100km": null
+            }
+          ],
+          "flagged": [],
+          "average": {
+            "l_per_100km": 7.5,
+            "kwh_per_100km": null
+          }
+        }
+      }
+    },
+    {
+      "id": "chain_broken",
+      "why": "The segment that would have closed is discarded, not averaged.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 0,
+          "quantity": {
+            "ml": 40000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "b",
+          "occurred_on": "2026-02-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 600000,
+          "quantity": {
+            "ml": 45000
+          },
+          "is_full_tank": true,
+          "chain_broken": true
+        },
+        {
+          "id": "c",
+          "occurred_on": "2026-03-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 1200000,
+          "quantity": {
+            "ml": 50000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "diesel": {
+          "segments": [
+            {
+              "from": "b",
+              "to": "c",
+              "distance_m": 600000,
+              "quantity": {
+                "ml": 50000
+              },
+              "partial_count": 0,
+              "l_per_100km": 8.333333,
+              "kwh_per_100km": null
+            }
+          ],
+          "flagged": [],
+          "average": {
+            "l_per_100km": 8.333333,
+            "kwh_per_100km": null
+          }
+        }
+      }
+    },
+    {
+      "id": "missing_odometer_import",
+      "why": "An imported row with no reading is a chain break.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 0,
+          "quantity": {
+            "ml": 40000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "b",
+          "occurred_on": "2026-02-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": null,
+          "quantity": {
+            "ml": 45000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "c",
+          "occurred_on": "2026-03-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 1200000,
+          "quantity": {
+            "ml": 50000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "diesel": {
+          "segments": [],
+          "flagged": [],
+          "average": {
+            "unavailable": "insufficient_data"
+          }
+        }
+      }
+    },
+    {
+      "id": "zero_distance",
+      "why": "Two fills at the same odometer: both flagged, never a 0 L/100 km.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 600000,
+          "quantity": {
+            "ml": 40000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "b",
+          "occurred_on": "2026-02-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 600000,
+          "quantity": {
+            "ml": 45000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "diesel": {
+          "segments": [],
+          "flagged": [
+            "a",
+            "b"
+          ],
+          "average": {
+            "unavailable": "insufficient_data"
+          }
+        }
+      }
+    },
+    {
+      "id": "negative_distance",
+      "why": "A backwards odometer: both flagged, nothing emitted.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 600000,
+          "quantity": {
+            "ml": 40000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "b",
+          "occurred_on": "2026-02-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 500000,
+          "quantity": {
+            "ml": 45000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "diesel": {
+          "segments": [],
+          "flagged": [
+            "a",
+            "b"
+          ],
+          "average": {
+            "unavailable": "insufficient_data"
+          }
+        }
+      }
+    },
+    {
+      "id": "bi_fuel",
+      "why": "Two independent series; an LPG fill is not a petrol chain break.",
+      "fills": [
+        {
+          "id": "p1",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "petrol",
+          "cumulative_m": 0,
+          "quantity": {
+            "ml": 40000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "l1",
+          "occurred_on": "2026-01-15",
+          "fuel_kind": "lpg",
+          "cumulative_m": 300000,
+          "quantity": {
+            "ml": 30000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "p2",
+          "occurred_on": "2026-02-01",
+          "fuel_kind": "petrol",
+          "cumulative_m": 600000,
+          "quantity": {
+            "ml": 45000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "l2",
+          "occurred_on": "2026-02-15",
+          "fuel_kind": "lpg",
+          "cumulative_m": 900000,
+          "quantity": {
+            "ml": 35000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "petrol": {
+          "segments": [
+            {
+              "from": "p1",
+              "to": "p2",
+              "distance_m": 600000,
+              "quantity": {
+                "ml": 45000
+              },
+              "partial_count": 0,
+              "l_per_100km": 7.5,
+              "kwh_per_100km": null
+            }
+          ],
+          "flagged": [],
+          "average": {
+            "l_per_100km": 7.5,
+            "kwh_per_100km": null
+          }
+        },
+        "lpg": {
+          "segments": [
+            {
+              "from": "l1",
+              "to": "l2",
+              "distance_m": 600000,
+              "quantity": {
+                "ml": 35000
+              },
+              "partial_count": 0,
+              "l_per_100km": 5.833333,
+              "kwh_per_100km": null
+            }
+          ],
+          "flagged": [],
+          "average": {
+            "l_per_100km": 5.833333,
+            "kwh_per_100km": null
+          }
+        }
+      }
+    },
+    {
+      "id": "ev_with_full_charges",
+      "why": "Identical rules on watt-hours.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "electric",
+          "cumulative_m": 0,
+          "quantity": {
+            "wh": 50000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "b",
+          "occurred_on": "2026-02-01",
+          "fuel_kind": "electric",
+          "cumulative_m": 300000,
+          "quantity": {
+            "wh": 52000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "electric": {
+          "segments": [
+            {
+              "from": "a",
+              "to": "b",
+              "distance_m": 300000,
+              "quantity": {
+                "wh": 52000
+              },
+              "partial_count": 0,
+              "l_per_100km": null,
+              "kwh_per_100km": 17.333333
+            }
+          ],
+          "flagged": [],
+          "average": {
+            "l_per_100km": null,
+            "kwh_per_100km": 17.333333
+          }
+        }
+      }
+    },
+    {
+      "id": "ev_without_full_charges",
+      "why": "No full charge, so no energy figure is invented from partials.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "electric",
+          "cumulative_m": 0,
+          "quantity": {
+            "wh": 30000
+          },
+          "is_full_tank": false,
+          "chain_broken": false
+        },
+        {
+          "id": "b",
+          "occurred_on": "2026-02-01",
+          "fuel_kind": "electric",
+          "cumulative_m": 300000,
+          "quantity": {
+            "wh": 32000
+          },
+          "is_full_tank": false,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "electric": {
+          "segments": [],
+          "flagged": [],
+          "average": {
+            "unavailable": "insufficient_data"
+          }
+        }
+      }
+    },
+    {
+      "id": "lifetime_total_over_total",
+      "why": "A short thirsty tank and a long lean one. The mean is 9.0; the average is 6.26.",
+      "fills": [
+        {
+          "id": "a",
+          "occurred_on": "2026-01-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 0,
+          "quantity": {
+            "ml": 40000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "b",
+          "occurred_on": "2026-01-05",
+          "fuel_kind": "diesel",
+          "cumulative_m": 40000,
+          "quantity": {
+            "ml": 4800
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        },
+        {
+          "id": "c",
+          "occurred_on": "2026-03-01",
+          "fuel_kind": "diesel",
+          "cumulative_m": 940000,
+          "quantity": {
+            "ml": 54000
+          },
+          "is_full_tank": true,
+          "chain_broken": false
+        }
+      ],
+      "expected": {
+        "diesel": {
+          "segments": [
+            {
+              "from": "a",
+              "to": "b",
+              "distance_m": 40000,
+              "quantity": {
+                "ml": 4800
+              },
+              "partial_count": 0,
+              "l_per_100km": 12.0,
+              "kwh_per_100km": null
+            },
+            {
+              "from": "b",
+              "to": "c",
+              "distance_m": 900000,
+              "quantity": {
+                "ml": 54000
+              },
+              "partial_count": 0,
+              "l_per_100km": 6.0,
+              "kwh_per_100km": null
+            }
+          ],
+          "flagged": [],
+          "average": {
+            "l_per_100km": 6.255319,
+            "kwh_per_100km": null
+          }
+        }
+      }
+    }
+  ]
+}

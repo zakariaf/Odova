@@ -320,6 +320,13 @@ jobs:
       - name: the numeric normaliser has been seen to fail
         run: bash tools/check_numeric_input_selftest.sh
 
+      # Contract: SPEC.md §17's fuel fixture suite was GENERATED, not
+      # hand-edited. A vector edited by hand to match a bug is worse than no
+      # vector at all, because it carries the authority of a golden file — and
+      # the only way to tell is to regenerate and diff.
+      - name: the fuel vectors match their generator
+        run: dart run tools/regen_fuel_vectors.dart --check
+
       # Contract: SPEC.md §17's data-safety gate — a migration loses no record.
       # 12,000 records, with row counts AND a content hash either side. Counts
       # alone would not notice a migration that copied the right NUMBER of rows
