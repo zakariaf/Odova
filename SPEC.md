@@ -4630,7 +4630,9 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 **Cluster swapped to a different unit.** Not a correction and not a scale factor. Storage is canonical metres; the odometer unit is a per-record fact, and the unit label in `log.odometer` is tappable so a km cluster on a miles car can be entered as km from that date on. `unit_mixup` is removed as a correction reason.
 
-**Odometer not updated for months.** `estimateOdometer` extrapolates for at most 60 days past the newest reading. Beyond that the app stops projecting entirely and shows the last entered value with its date. Ten thousand kilometres of invented number, rendered as something the user can act on, is worse than a blank.
+**Odometer not updated for months.** `estimateOdometer` extrapolates for at most **180 days** past the newest reading. Beyond that the app stops projecting entirely and shows the last entered value with its date. Ten thousand kilometres of invented number, rendered as something the user can act on, is worse than a blank.
+
+This said 60 days until EPIC-07. Sixty is the *separate* `needs_odometer` threshold in the row below — the point at which a `due` or `overdue` DISTANCE axis asks for a reading rather than making an accusation — and 180 is where extrapolation stops entirely. Two different thresholds doing two different jobs, and one number written for both.
 
 **Distance axis due, but the odometer is stale (>60 days).** Status becomes `needs_odometer`, and the card asks for a reading instead of making an accusation. `due_soon` still shows normally; the time axis is never downgraded this way.
 
@@ -4660,7 +4662,9 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 ### Time and dates
 
-**Device clock wrong.** If `today` is before the newest `created_at` or more than 24 hours ahead of it, the app enters clock-suspect mode: date fields default to the newest known date instead of `today`, the `occurred_on ≤ today` block is relaxed to `≤ newest_known + 1 day`, rate calculation is suspended (confidence drops to `assumed`), and one line explains that the phone's date looks wrong. New records are never silently written with a 1970 date.
+**Device clock wrong.** Clock-suspect mode has ONE trigger, and it is the window in *Domain model and rules*: `today` outside `[build_date, build_date + 10 years]`. In that mode date fields default to the newest known `occurred_on` instead of `today`, the `occurred_on ≤ today` block is relaxed to `≤ newest_known + 1 day`, **every due state renders `unknown`**, no notification is scheduled, and one line explains that the phone's date looks wrong. New records are never silently written with a 1970 date.
+
+This clause used to give a second trigger — "before the newest `created_at` or more than 24 hours ahead of it" — and a second consequence, that confidence drops to `assumed`. EPIC-07 corrected both. The trigger fired for anyone who opened the app on a Wednesday having last used it on a Monday, which is most users most weeks; and two definitions of one mode is two behaviours depending on which paragraph the engineer read, which §2 forbids.
 
 **Time-zone change or DST.** Fire times are stored as local wall-clock and resolved to an instant at schedule time, so 09:00 stays 09:00 in the new zone. A backwards clock change triggers a full schedule rebuild; a pending notification whose recomputed time is in the past fires at the next delivery slot, never immediately.
 
