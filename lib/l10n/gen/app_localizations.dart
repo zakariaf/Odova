@@ -915,6 +915,18 @@ abstract class AppLocalizations {
   /// **'Couldn\'t work out what\'s due'**
   String get vehicleStatusUnknown;
 
+  /// The status half of the garage row's third line when the last reading is over 60 days old. SPEC.md §8. {age} is a bucketed phrase from relative_past.dart — "4 months ago", never a day count.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer last updated {age}'**
+  String vehicleOdometerStale(String age);
+
+  /// The status half of the garage row's third line past the 180-day projection lifetime, when the figure shown is the ENTERED one and carries no ~. SPEC.md §8: "187,412 km · last entered 12 Jul 2025".
+  ///
+  /// In en, this message translates to:
+  /// **'last entered {date}'**
+  String vehicleOdometerLastEntered(String date);
+
   /// The third line naming the worst item. {item} is an already-localised service name like "Oil and filter".
   ///
   /// In en, this message translates to:
@@ -981,10 +993,10 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get commonDelete;
 
-  /// The second line of a sold vehicle in the garage. {date} is an already-formatted ABSOLUTE date — a relative one would read "Sold Today". Written WITHOUT a plural first, which rendered "1 entries"; two translators caught it independently before any test did.
+  /// The second line of a sold vehicle in the garage. {date} is an already-formatted ABSOLUTE date — a relative one would read "Sold Today". Written WITHOUT a plural first, which rendered "1 entries"; two translators caught it independently before any test did. SPEC.md §8 requires an explicit =0 case, and every locale carries one EXCEPT Arabic: CLDR's Arabic `zero` category is n = 0, so an =0 clause shadows it and the language renders five forms where it has six. Arabic already owns the slot, so the date-only sentence lives in `zero` there. `plurals_test.dart` caught this; it is not a thing a reviewer would see.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, one{Sold {date} · {countText} entry} other{Sold {date} · {countText} entries}}'**
+  /// **'{n, plural, =0{Sold {date}} one{Sold {date} · {countText} entry} other{Sold {date} · {countText} entries}}'**
   String vehicleSoldSummary(int n, String date, String countText);
 
   /// The third line of a garage row when the worst reminder is due soon. {item} is an already-localised service name. Arabic's `one` and `two` branches carry NO {countText}, because Arabic encodes 1 and 2 in the noun itself — printing the numeral there would be the same defect as "1 entries", in Arabic.

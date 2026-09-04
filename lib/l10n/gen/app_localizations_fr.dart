@@ -610,6 +610,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get vehicleStatusUnknown => 'Impossible de déterminer les échéances';
 
   @override
+  String vehicleOdometerStale(String age) {
+    return 'Compteur mis à jour $age';
+  }
+
+  @override
+  String vehicleOdometerLastEntered(String date) {
+    return 'saisi le $date';
+  }
+
+  @override
   String vehicleStatusOverdue(String item) {
     return '$item en retard';
   }
@@ -662,6 +672,7 @@ class AppLocalizationsFr extends AppLocalizations {
       other: 'Vendu le $date · $countText entrées',
       many: 'Vendu le $date · $countText entrées',
       one: 'Vendu le $date · $countText entrée',
+      zero: 'Vendu le $date',
     );
     return '$_temp0';
   }

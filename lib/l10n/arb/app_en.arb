@@ -823,6 +823,24 @@
     "description": "The third line when the last reading is too old to project from. It names the action without commanding it."
   },
   "vehicleStatusUnknown": "Couldn't work out what's due",
+  "vehicleOdometerStale": "Odometer last updated {age}",
+  "@vehicleOdometerStale": {
+    "description": "The status half of the garage row's third line when the last reading is over 60 days old. SPEC.md §8. {age} is a bucketed phrase from relative_past.dart — \"4 months ago\", never a day count.",
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "vehicleOdometerLastEntered": "last entered {date}",
+  "@vehicleOdometerLastEntered": {
+    "description": "The status half of the garage row's third line past the 180-day projection lifetime, when the figure shown is the ENTERED one and carries no ~. SPEC.md §8: \"187,412 km · last entered 12 Jul 2025\".",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "@vehicleStatusUnknown": {
     "description": "The third line when the due engine failed. The row never disappears — SPEC.md §2: the app admits it does not know rather than guessing. An admission, never an apology."
   },
@@ -886,9 +904,9 @@
   "@commonDelete": {
     "description": "A destructive action label. Deliberately the same word as `confirmDeleteDelete`, so a row and the dialog it opens cannot disagree."
   },
-  "vehicleSoldSummary": "{n, plural, one{Sold {date} · {countText} entry} other{Sold {date} · {countText} entries}}",
+  "vehicleSoldSummary": "{n, plural, =0{Sold {date}} one{Sold {date} · {countText} entry} other{Sold {date} · {countText} entries}}",
   "@vehicleSoldSummary": {
-    "description": "The second line of a sold vehicle in the garage. {date} is an already-formatted ABSOLUTE date — a relative one would read \"Sold Today\". Written WITHOUT a plural first, which rendered \"1 entries\"; two translators caught it independently before any test did.",
+    "description": "The second line of a sold vehicle in the garage. {date} is an already-formatted ABSOLUTE date — a relative one would read \"Sold Today\". Written WITHOUT a plural first, which rendered \"1 entries\"; two translators caught it independently before any test did. SPEC.md §8 requires an explicit =0 case, and every locale carries one EXCEPT Arabic: CLDR's Arabic `zero` category is n = 0, so an =0 clause shadows it and the language renders five forms where it has six. Arabic already owns the slot, so the date-only sentence lives in `zero` there. `plurals_test.dart` caught this; it is not a thing a reviewer would see.",
     "placeholders": {
       "n": {
         "type": "int",

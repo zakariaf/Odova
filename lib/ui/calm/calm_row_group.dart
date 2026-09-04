@@ -19,6 +19,7 @@ class CalmRowGroup extends StatelessWidget {
     required this.rows,
     super.key,
     this.header,
+    this.headerHint,
     this.footer,
     this.tinted = false,
     this.flat = false,
@@ -29,6 +30,18 @@ class CalmRowGroup extends StatelessWidget {
 
   /// A caption above the rows, naming what the group is.
   final String? header;
+
+  /// A number or short note at the header's END edge.
+  ///
+  /// `.section__head` is a flex row with `justify-content: space-between`: the
+  /// title at the start and a `.section__hint` at the end. The garage spends it
+  /// on the count of sold vehicles, which SPEC.md §8 collapses the whole group
+  /// to above five.
+  ///
+  /// Caption ink-3, unlike the header's ink-2 — it is a fact ABOUT the group
+  /// rather than the group's name, and giving it the header's weight would make
+  /// the row read as two headings.
+  final String? headerHint;
 
   /// A caption below the rows, explaining a consequence.
   final String? footer;
@@ -90,14 +103,36 @@ class CalmRowGroup extends StatelessWidget {
                   space.s5,
                   space.s2,
                 ),
-                child: Text(
-                  header!,
-                  // ink2, not ink3: the header names the group, so it carries
-                  // meaning, and ink3 is under AA on every light ground.
-                  style: type.caption.copyWith(
-                    color: colors.ink2,
-                    fontWeight: type.semi,
-                  ),
+                child: Row(
+                  // `align-items: baseline` in the CSS. Two type sizes on one
+                  // line sit on their baselines, not on their box centres.
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        header!,
+                        // ink2, not ink3: the header names the group, so it
+                        // carries meaning, and ink3 is under AA on every light
+                        // ground.
+                        style: type.caption.copyWith(
+                          color: colors.ink2,
+                          fontWeight: type.semi,
+                        ),
+                      ),
+                    ),
+                    // No SizedBox standing in for an absent hint: a gap nobody
+                    // can see is still a gap everybody has to lay out around.
+                    if (headerHint != null) ...[
+                      SizedBox(width: space.s3),
+                      Text(
+                        headerHint!,
+                        style: CalmType.tabular(
+                          type.caption.copyWith(color: colors.ink3),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ...divided,

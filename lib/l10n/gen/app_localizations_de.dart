@@ -594,6 +594,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get vehicleStatusUnknown => 'Konnte nicht ermitteln, was fällig ist';
 
   @override
+  String vehicleOdometerStale(String age) {
+    return 'Kilometerstand zuletzt aktualisiert: $age';
+  }
+
+  @override
+  String vehicleOdometerLastEntered(String date) {
+    return 'zuletzt erfasst am $date';
+  }
+
+  @override
   String vehicleStatusOverdue(String item) {
     return '$item überfällig';
   }
@@ -644,6 +654,7 @@ class AppLocalizationsDe extends AppLocalizations {
       locale: localeName,
       other: 'Verkauft am $date · $countText Einträge',
       one: 'Verkauft am $date · $countText Eintrag',
+      zero: 'Verkauft am $date',
     );
     return '$_temp0';
   }

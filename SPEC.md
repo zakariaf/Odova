@@ -2572,6 +2572,8 @@ The name wins the eye; the avatar — a silhouette from `vehicle_type` on the ve
 | all `ok` | small grey | "All good" |
 | any `needs_odometer` | hollow ring | "Odometer needs updating" |
 | all `unknown` / no items | hollow ring | "No reminders yet" |
+| the engine could not answer | hollow ring | "Couldn't work out what's due" |
+| `sold` | no dot — a chevron | *not a status line*: "Sold 12 March 2024 · 1,204 entries" |
 
 **States.**
 
@@ -2581,7 +2583,7 @@ The name wins the eye; the avatar — a silhouette from `vehicle_type` on the ve
 | One vehicle | No drag handles, no section header. The delete row reads "Delete The Golf" and its dialog carries the extra line **"This is your only vehicle. Deleting it starts Odova over."** |
 | Loaded, 2–6 | As drawn. Long-press to drag, writing `sort_order`. |
 | Many (tested to 50) | No cap; a plain scroller. "Sold and archived" collapses to a header with a count above five. |
-| Stale estimate | Latest reading over 60 days old: `~187,400 km` in the estimate treatment, rounded to the nearest 100 km / 50 mi, third line "Odometer last updated 4 months ago". |
+| Stale estimate | Latest reading over 60 days old: the third line reads `~187,400 km · Odometer last updated 4 months ago` — the figure in the estimate treatment, rounded to the nearest 100 km / 50 mi, and the status half replaced by the reading's age. The age is bucketed, not counted: "4 months ago", never "123 days ago" (§5). |
 | Expired estimate | Past 180 days Odova stops guessing: the entered figure and its date, `187,412 km · last entered 12 Jul 2025`, no approximation marker, hollow dot, and every distance axis on that vehicle reporting `needs_odometer`. |
 | Error | None. If a derived summary throws, the row still renders with a hollow dot and "Couldn't work out what's due" — the row never disappears. |
 
@@ -2595,7 +2597,7 @@ The name wins the eye; the avatar — a silhouette from `vehicle_type` on the ve
 | Swipe (end actions) | **Mark as sold** (amber), **Delete** (red). Declared as `endActions`; the physical direction flips in RTL. |
 | Row overflow | Edit · Mark as sold · Archive · Delete |
 
-**Sold and archived.** `sold` means gone; `archived` means off the road — stored, SORN, winter bike. A sold vehicle computes no reminders and its card shows `—`; an archived one still computes them and shows them in-app. Neither ever notifies, odometer nudges included, and neither is counted in the Costs all-vehicles view unless the user turns on **Include sold and archived** there. Both still accept new entries — late invoices arrive — and both are exported in full. An archived vehicle can be active; a sold one only by explicit selection, and Home then shows a banner.
+**Sold and archived.** `sold` means gone; `archived` means off the road — stored, SORN, winter bike. A sold vehicle computes no reminders, and its row says what it is rather than what is due: it drops to the compact height in a tinted group, its name goes to `ink-2`, its one sub-line reads **"Sold 12 March 2024 · 1,204 entries"**, and the status dot is replaced by a chevron. An archived one still computes reminders and shows them in-app. Neither ever notifies, odometer nudges included, and neither is counted in the Costs all-vehicles view unless the user turns on **Include sold and archived** there. Both still accept new entries — late invoices arrive — and both are exported in full. An archived vehicle can be active; a sold one only by explicit selection, and Home then shows a banner.
 
 **Mark as sold** opens a small form: sale date (default today, ≤ today) and sale price (optional). It is offered before Delete everywhere, because "I sold the car" is what people mean most of the time they reach for Delete, and the history they are about to destroy is what made the sale worth more.
 

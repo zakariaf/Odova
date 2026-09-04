@@ -133,6 +133,8 @@
   "vehicleStatusNoReminders": "Aucun rappel pour l’instant",
   "vehicleStatusNeedsOdometer": "Compteur à mettre à jour",
   "vehicleStatusUnknown": "Impossible de déterminer les échéances",
+  "vehicleOdometerStale": "Compteur mis à jour {age}",
+  "vehicleOdometerLastEntered": "saisi le {date}",
   "vehicleStatusOverdue": "{item} en retard",
   "vehiclesOnlyOneWarning": "C’est votre seul véhicule. Le supprimer remet Odova à zéro.",
   "vehicleSwitchToIt": "Passer à ce véhicule",
@@ -144,6 +146,6 @@
   "commonBack": "Retour",
   "commonAdd": "Ajouter",
   "commonDelete": "Supprimer",
-  "vehicleSoldSummary": "{n, plural, one{Vendu le {date} · {countText} entrée} many{Vendu le {date} · {countText} entrées} other{Vendu le {date} · {countText} entrées}}",
+  "vehicleSoldSummary": "{n, plural, =0{Vendu le {date}} one{Vendu le {date} · {countText} entrée} many{Vendu le {date} · {countText} entrées} other{Vendu le {date} · {countText} entrées}}",
   "vehicleStatusDueInDays": "{n, plural, one{{item} à échéance dans {countText} jour} many{{item} à échéance dans {countText} jours} other{{item} à échéance dans {countText} jours}}"
 }

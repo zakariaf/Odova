@@ -589,6 +589,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vehicleStatusUnknown => 'Couldn\'t work out what\'s due';
 
   @override
+  String vehicleOdometerStale(String age) {
+    return 'Odometer last updated $age';
+  }
+
+  @override
+  String vehicleOdometerLastEntered(String date) {
+    return 'last entered $date';
+  }
+
+  @override
   String vehicleStatusOverdue(String item) {
     return '$item overdue';
   }
@@ -639,6 +649,7 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: 'Sold $date · $countText entries',
       one: 'Sold $date · $countText entry',
+      zero: 'Sold $date',
     );
     return '$_temp0';
   }

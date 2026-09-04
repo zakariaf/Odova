@@ -133,6 +133,8 @@
   "vehicleStatusNoReminders": "لا تذكيرات بعد",
   "vehicleStatusNeedsOdometer": "العدّاد يحتاج إلى تحديث",
   "vehicleStatusUnknown": "تعذّر تحديد ما هو مستحق",
+  "vehicleOdometerStale": "آخر تحديث لعداد المسافة {age}",
+  "vehicleOdometerLastEntered": "آخر إدخال في {date}",
   "vehicleStatusOverdue": "فات موعد {item}",
   "vehiclesOnlyOneWarning": "هذه مركبتك الوحيدة. حذفها يعيد أودوفا إلى نقطة البداية.",
   "vehicleSwitchToIt": "التبديل إليها",
@@ -144,6 +146,6 @@
   "commonBack": "رجوع",
   "commonAdd": "إضافة",
   "commonDelete": "حذف",
-  "vehicleSoldSummary": "{n, plural, zero{بِيعت في {date} · {countText} سجل} one{بِيعت في {date} · سجل واحد} two{بِيعت في {date} · سجلان} few{بِيعت في {date} · {countText} سجلات} many{بِيعت في {date} · {countText} سجلاً} other{بِيعت في {date} · {countText} سجل}}",
+  "vehicleSoldSummary": "{n, plural, zero{بِيعت في {date}} one{بِيعت في {date} · سجل واحد} two{بِيعت في {date} · سجلان} few{بِيعت في {date} · {countText} سجلات} many{بِيعت في {date} · {countText} سجلاً} other{بِيعت في {date} · {countText} سجل}}",
   "vehicleStatusDueInDays": "{n, plural, zero{موعد {item} خلال {countText} يوم} one{موعد {item} خلال يوم} two{موعد {item} خلال يومين} few{موعد {item} خلال {countText} أيام} many{موعد {item} خلال {countText} يومًا} other{موعد {item} خلال {countText} يوم}}"
 }

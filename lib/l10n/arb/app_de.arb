@@ -133,6 +133,8 @@
   "vehicleStatusNoReminders": "Noch keine Erinnerungen",
   "vehicleStatusNeedsOdometer": "Kilometerstand aktualisieren",
   "vehicleStatusUnknown": "Konnte nicht ermitteln, was fällig ist",
+  "vehicleOdometerStale": "Kilometerstand zuletzt aktualisiert: {age}",
+  "vehicleOdometerLastEntered": "zuletzt erfasst am {date}",
   "vehicleStatusOverdue": "{item} überfällig",
   "vehiclesOnlyOneWarning": "Das ist Ihr einziges Fahrzeug. Wenn Sie es löschen, beginnt Odova von vorn.",
   "vehicleSwitchToIt": "Wechseln",
@@ -144,6 +146,6 @@
   "commonBack": "Zurück",
   "commonAdd": "Hinzufügen",
   "commonDelete": "Löschen",
-  "vehicleSoldSummary": "{n, plural, one{Verkauft am {date} · {countText} Eintrag} other{Verkauft am {date} · {countText} Einträge}}",
+  "vehicleSoldSummary": "{n, plural, =0{Verkauft am {date}} one{Verkauft am {date} · {countText} Eintrag} other{Verkauft am {date} · {countText} Einträge}}",
   "vehicleStatusDueInDays": "{n, plural, one{{item} in {countText} Tag fällig} other{{item} in {countText} Tagen fällig}}"
 }

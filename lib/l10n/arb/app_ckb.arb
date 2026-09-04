@@ -133,6 +133,8 @@
   "vehicleStatusNoReminders": "هێشتا هیچ بیرخەرەوەیەک نییە",
   "vehicleStatusNeedsOdometer": "ژمارەی کیلۆمێتر پێویستی بە نوێکردنەوەیە",
   "vehicleStatusUnknown": "نەزانرا چی کاتی هاتووە",
+  "vehicleOdometerStale": "کیلۆمەتری {age} نوێکراوەتەوە",
+  "vehicleOdometerLastEntered": "دوایین تۆمار {date}",
   "vehicleStatusOverdue": "{item} دواکەوتووە",
   "vehiclesOnlyOneWarning": "ئەمە تاکە ئۆتۆمبێلتە. ئەگەر بیسڕیتەوە، ئۆدۆڤا لە سەرەتاوە دەست پێدەکاتەوە.",
   "vehicleSwitchToIt": "بۆی بگۆڕە",
@@ -144,6 +146,6 @@
   "commonBack": "گەڕانەوە",
   "commonAdd": "زیادکردن",
   "commonDelete": "سڕینەوە",
-  "vehicleSoldSummary": "{n, plural, one{فرۆشراوە لە {date} · {countText} تۆمار} other{فرۆشراوە لە {date} · {countText} تۆمار}}",
+  "vehicleSoldSummary": "{n, plural, =0{فرۆشراوە {date}} one{فرۆشراوە لە {date} · {countText} تۆمار} other{فرۆشراوە لە {date} · {countText} تۆمار}}",
   "vehicleStatusDueInDays": "{n, plural, one{{item} لە {countText} ڕۆژی دیکەدا پێویستە} other{{item} لە {countText} ڕۆژی دیکەدا پێویستە}}"
 }

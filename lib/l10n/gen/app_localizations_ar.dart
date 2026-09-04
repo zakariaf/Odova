@@ -639,6 +639,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vehicleStatusUnknown => 'تعذّر تحديد ما هو مستحق';
 
   @override
+  String vehicleOdometerStale(String age) {
+    return 'آخر تحديث لعداد المسافة $age';
+  }
+
+  @override
+  String vehicleOdometerLastEntered(String date) {
+    return 'آخر إدخال في $date';
+  }
+
+  @override
   String vehicleStatusOverdue(String item) {
     return 'فات موعد $item';
   }
@@ -696,7 +706,7 @@ class AppLocalizationsAr extends AppLocalizations {
       few: 'بِيعت في $date · $countText سجلات',
       two: 'بِيعت في $date · سجلان',
       one: 'بِيعت في $date · سجل واحد',
-      zero: 'بِيعت في $date · $countText سجل',
+      zero: 'بِيعت في $date',
     );
     return '$_temp0';
   }

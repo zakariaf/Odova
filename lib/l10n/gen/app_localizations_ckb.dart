@@ -593,6 +593,16 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get vehicleStatusUnknown => 'نەزانرا چی کاتی هاتووە';
 
   @override
+  String vehicleOdometerStale(String age) {
+    return 'کیلۆمەتری $age نوێکراوەتەوە';
+  }
+
+  @override
+  String vehicleOdometerLastEntered(String date) {
+    return 'دوایین تۆمار $date';
+  }
+
+  @override
   String vehicleStatusOverdue(String item) {
     return '$item دواکەوتووە';
   }
@@ -643,6 +653,7 @@ class AppLocalizationsCkb extends AppLocalizations {
       locale: localeName,
       other: 'فرۆشراوە لە $date · $countText تۆمار',
       one: 'فرۆشراوە لە $date · $countText تۆمار',
+      zero: 'فرۆشراوە $date',
     );
     return '$_temp0';
   }

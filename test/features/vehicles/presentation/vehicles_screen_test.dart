@@ -22,15 +22,18 @@ import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/due_summary.dart';
+import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
+import 'package:odova/features/vehicles/entry_counts_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
+import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 
 import '../../../parity/support/parity_capture.dart'
     show kReferenceDpr, kReferencePhysical;
@@ -44,19 +47,34 @@ Vehicle _vehicle(
   String name, {
   VehicleStatus status = VehicleStatus.active,
   String? colour,
+  String? make,
+  String? model,
+  int? year,
+  bool business = false,
+  String? soldOn,
+  FuelKind fuel = FuelKind.diesel,
 }) => Vehicle(
   id: id,
   name: name,
   vehicleType: VehicleType.car,
-  fuelKindDefault: FuelKind.diesel,
+  fuelKindDefault: fuel,
   status: status,
   colour: colour,
+  make: make,
+  model: model,
+  year: year,
+  isBusiness: business,
+  soldOn: soldOn,
   createdAtUtcMs: 1000,
   updatedAtUtcMs: 1000,
 );
 
 /// A snapshot whose worst item is in [worst], or one that tracks nothing.
-VehicleDueSnapshot _snapshot(DueState? worst) => VehicleDueSnapshot(
+VehicleDueSnapshot _snapshot(
+  DueState? worst, {
+  OdometerEstimate? estimate,
+}) => VehicleDueSnapshot(
+  estimate: estimate,
   assessments: const [],
   summary: DueSummary(
     counts: worst == null ? const {} : {worst: 1},
@@ -82,6 +100,18 @@ VehicleDueSnapshot _snapshot(DueState? worst) => VehicleDueSnapshot(
   ),
 );
 
+/// A reading taken [daysAgo], projecting to [metres] today.
+OdometerEstimate _estimate({
+  required int metres,
+  required int daysAgo,
+  required OdometerProjection projection,
+}) => OdometerEstimate(
+  metres: metres,
+  asOf: CivilDate.tryParse('2026-11-20')!.addDays(-daysAgo),
+  projection: projection,
+  staleDays: daysAgo,
+);
+
 /// Pumps the garage with [vehicles].
 ///
 /// A vehicle PRESENT in [due] has a snapshot; its value is that snapshot's
@@ -91,6 +121,8 @@ Future<void> _pump(
   WidgetTester tester, {
   required List<Vehicle> vehicles,
   Map<VehicleId, DueState?> due = const {},
+  Map<VehicleId, OdometerEstimate> estimates = const {},
+  Map<VehicleId, DeleteCounts> counts = const {},
 }) async {
   tester.view.physicalSize = kReferencePhysical;
   tester.view.devicePixelRatio = kReferenceDpr;
@@ -104,8 +136,14 @@ Future<void> _pump(
       vehiclesProvider.overrideWith((ref) => Stream.value(vehicles)),
       for (final v in vehicles)
         vehicleDueSnapshotProvider(v.id).overrideWithValue(
-          due.containsKey(v.id) ? _snapshot(due[v.id]) : null,
+          due.containsKey(v.id)
+              ? _snapshot(due[v.id], estimate: estimates[v.id])
+              : null,
         ),
+      for (final v in vehicles)
+        vehicleEntryCountsProvider(
+          v.id,
+        ).overrideWith((ref) async => counts[v.id]),
     ],
   );
   await tester.pumpAndSettle();
@@ -114,10 +152,21 @@ Future<void> _pump(
 AppLocalizations _l10n(WidgetTester tester) =>
     AppLocalizations.of(tester.element(find.byType(VehiclesScreen)));
 
-String? _line(WidgetTester tester, String name) => tester
+CalmListRow _row(WidgetTester tester, String name) => tester
     .widgetList<CalmListRow>(find.byType(CalmListRow))
-    .firstWhere((r) => r.title == name)
-    .subtitle;
+    .firstWhere((r) => r.title == name);
+
+/// The garage row's THIRD line — odometer and status, `.row__sub num`.
+///
+/// Bidi isolates STRIPPED. They are asserted on their own below, and leaving
+/// them in every expectation would make each one a test of the isolate as well
+/// as of the sentence, so a wrong word and a missing isolate would fail
+/// identically.
+String? _line(WidgetTester tester, String name) =>
+    _strip(_row(tester, name).detail);
+
+String? _strip(String? text) =>
+    text?.replaceAll('\u2068', '').replaceAll('\u2069', '');
 
 void main() {
   testWidgets(
@@ -179,25 +228,6 @@ void main() {
     );
     expect(_line(tester, 'The Golf'), _l10n(tester).vehicleStatusNoReminders);
     expect(_line(tester, 'The Polo'), _l10n(tester).vehicleStatusUnknown);
-  });
-
-  testWidgets('a sold vehicle shows a dash and computes nothing', (
-    tester,
-  ) async {
-    // §8: "a sold vehicle computes no reminders and its card shows —". Not
-    // "All good", which would claim an answer about a car the user sold — and
-    // the snapshot here says `ok`, so a screen that ignored the status would
-    // print exactly that.
-    await _pump(
-      tester,
-      vehicles: [
-        _vehicle(_golf, 'The Golf'),
-        _vehicle(_polo, 'The Polo', status: VehicleStatus.sold),
-      ],
-      due: {_golf: DueState.ok, _polo: DueState.ok},
-    );
-    expect(_line(tester, 'The Polo'), '—');
-    expect(_line(tester, 'The Golf'), _l10n(tester).vehicleStatusAllGood);
   });
 
   testWidgets('sold and archived sit under their own header', (tester) async {
@@ -286,5 +316,282 @@ void main() {
     for (final label in ['No vehicles', 'Add your first', 'Nothing here']) {
       expect(find.text(label), findsNothing, reason: label);
     }
+  });
+
+  testWidgets('the second line names the vehicle, not its state', (
+    tester,
+  ) async {
+    // The artboard's `VW Golf VII · 2016 · diesel`. Make, model, year and fuel
+    // are what tell two silver hatchbacks apart in a garage of four, and none
+    // of them is a status.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(_golf, 'The Golf', make: 'VW', model: 'Golf VII', year: 2016),
+      ],
+      due: {_golf: DueState.ok},
+    );
+    expect(
+      _row(tester, 'The Golf').subtitle,
+      'VW · Golf VII · 2016 · Diesel',
+    );
+  });
+
+  testWidgets('a business vehicle says so where the fuel goes', (tester) async {
+    // `Ford Transit · 2019 · business` in the artboard. It replaces the fuel
+    // rather than joining it: SPEC.md §8 gives the line four slots and a fifth
+    // would wrap on a German row.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(
+          _polo,
+          'Transit',
+          make: 'Ford',
+          model: 'Transit',
+          year: 2019,
+          business: true,
+        ),
+      ],
+      due: {_polo: DueState.ok},
+    );
+    expect(
+      _row(tester, 'Transit').subtitle,
+      'Ford · Transit · 2019 · Business',
+    );
+  });
+
+  testWidgets('a vehicle with no facts shows the one fact it must have', (
+    tester,
+  ) async {
+    // Not an empty string and not a lone separator. SPEC.md §8: everything but
+    // the name is nullable and asked later, so a vehicle added in thirty
+    // seconds has only its fuel here — and `· · · Diesel` would be three
+    // absences drawn as punctuation.
+    //
+    // `fuel_kind_default` is the one field on this line that cannot be null:
+    // first run prefills it and the domain has no vehicle without one, which is
+    // why the line never disappears entirely.
+    await _pump(
+      tester,
+      vehicles: [_vehicle(_golf, 'The Golf')],
+      due: {_golf: DueState.ok},
+    );
+    expect(_row(tester, 'The Golf').subtitle, 'Diesel');
+  });
+
+  testWidgets('the third line pairs the odometer with the status', (
+    tester,
+  ) async {
+    // `187,412 km · all good` — SPEC.md §8: "Odometer and one-line status share
+    // the third line because that is the pair people scan for."
+    await _pump(
+      tester,
+      vehicles: [_vehicle(_golf, 'The Golf')],
+      due: {_golf: DueState.ok},
+      estimates: {
+        _golf: _estimate(
+          metres: 187412000,
+          daysAgo: 0,
+          projection: OdometerProjection.entered,
+        ),
+      },
+    );
+    expect(_line(tester, 'The Golf'), '187,412 km · All good');
+  });
+
+  testWidgets('a stale reading is approximate, rounded, and dated', (
+    tester,
+  ) async {
+    // SPEC.md §8's stale row: `~187,400 km · Odometer last updated 4 months
+    // ago`. Three separate rules meet here and each one is a way of not lying —
+    // the `~` says it is a projection, the rounding to 100 km stops it reading
+    // like a measurement, and the bucketed age says "4 months" rather than the
+    // 122 days that would look like precision about a guess.
+    await _pump(
+      tester,
+      vehicles: [_vehicle(_golf, 'The Golf')],
+      due: {_golf: DueState.ok},
+      estimates: {
+        _golf: _estimate(
+          metres: 187412000,
+          daysAgo: 122,
+          projection: OdometerProjection.projected,
+        ),
+      },
+    );
+    final line = _line(tester, 'The Golf')!;
+    expect(line, startsWith('~187,400 km · '));
+    expect(line, contains('about 4 months ago'), reason: 'bucketed');
+    expect(line, isNot(contains('122')), reason: 'never a day count');
+  });
+
+  testWidgets('an expired reading is the entered figure, with no ~', (
+    tester,
+  ) async {
+    // Past 180 days Odova stops guessing entirely: `187,412 km · last entered
+    // 12 Jul 2025`. The figure is EXACT because it is a reading rather than a
+    // projection, and rounding it would make a fact look like an estimate — the
+    // opposite error from the stale row above, and the same rule.
+    await _pump(
+      tester,
+      vehicles: [_vehicle(_golf, 'The Golf')],
+      due: {_golf: DueState.needsOdometer},
+      estimates: {
+        _golf: _estimate(
+          metres: 187412000,
+          daysAgo: 400,
+          projection: OdometerProjection.expired,
+        ),
+      },
+    );
+    final line = _line(tester, 'The Golf')!;
+    expect(line, startsWith('187,412 km · '));
+    expect(line, isNot(contains('~')), reason: 'a reading, not a projection');
+    expect(line, contains('2025'), reason: 'a date, not an age');
+    expect(line, isNot(contains('ago')));
+  });
+
+  testWidgets('a vehicle with no reading shows the status alone', (
+    tester,
+  ) async {
+    // No odometer half, and no placeholder standing in for one. A `— km` would
+    // be a unit attached to nothing.
+    await _pump(
+      tester,
+      vehicles: [_vehicle(_golf, 'The Golf')],
+      due: {_golf: DueState.ok},
+    );
+    expect(_line(tester, 'The Golf'), 'All good');
+  });
+
+  testWidgets('an overdue third line carries the overdue ink', (tester) async {
+    // The artboard sets `color: var(--color-overdue-ink)` on that line alone.
+    // It is the SECOND channel after the words, never the first — the line
+    // already says "overdue" before any colour is applied.
+    await _pump(
+      tester,
+      vehicles: [_vehicle(_golf, 'The Golf')],
+      due: {_golf: DueState.overdue},
+    );
+    expect(_row(tester, 'The Golf').detailState, DueState.overdue);
+  });
+
+  testWidgets('a sold row is compact, chevroned, and says what it is', (
+    tester,
+  ) async {
+    // SPEC.md §8, as the artboard draws it: a sold vehicle's row says what it
+    // IS rather than what is due. No status dot — there is no status — and the
+    // chevron in its place, because the row still opens the vehicle.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(_golf, 'The Golf'),
+        _vehicle(
+          _polo,
+          'Yamaha MT-07',
+          status: VehicleStatus.sold,
+          soldOn: '2024-03-12',
+        ),
+      ],
+      counts: {
+        _polo: (
+          fillUps: 1000,
+          services: 100,
+          costs: 50,
+          trips: 34,
+          reminders: 20,
+        ),
+      },
+    );
+    final sold = _row(tester, 'Yamaha MT-07');
+    expect(sold.size, CalmRowSize.compact);
+    expect(sold.showChevron, isTrue);
+    expect(sold.end, isNull, reason: 'no status dot on a car that is gone');
+    expect(sold.detail, isNull, reason: 'one sub-line, not two');
+    expect(sold.subtitle, contains('1,204'));
+    expect(sold.subtitle, contains('12'), reason: 'the sale date');
+    // The live row still has both its lines and its dot.
+    expect(_row(tester, 'The Golf').showChevron, isFalse);
+    expect(_row(tester, 'The Golf').end, isNotNull);
+  });
+
+  testWidgets('the sold group is tinted and its header carries a count', (
+    tester,
+  ) async {
+    // `.rowgroup--tinted` and `.section__hint`. The count is a hint beside the
+    // title rather than "(1)" inside it, because it is a number and the title
+    // is a heading — and above five SPEC.md §8 collapses the group to exactly
+    // this header.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(_golf, 'The Golf'),
+        _vehicle(_polo, 'Yamaha MT-07', status: VehicleStatus.sold),
+      ],
+    );
+    final groups = tester.widgetList<CalmRowGroup>(find.byType(CalmRowGroup));
+    expect(groups.last.tinted, isTrue);
+    expect(groups.first.tinted, isFalse);
+    expect(find.text('1'), findsOneWidget, reason: 'the section hint');
+  });
+
+  testWidgets('the sold line waits for the count rather than claiming zero', (
+    tester,
+  ) async {
+    // The counts come from a query, and a row that rendered its `=0` case while
+    // that query was in flight would tell the user a car with eight years of
+    // history has no entries. SPEC.md §2: never guess in a way that looks like
+    // fact. Saying nothing for a frame is the honest version.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(_golf, 'The Golf'),
+        _vehicle(
+          _polo,
+          'Yamaha MT-07',
+          status: VehicleStatus.sold,
+          soldOn: '2024-03-12',
+        ),
+      ],
+    );
+    expect(_row(tester, 'Yamaha MT-07').subtitle, isNull);
+  });
+
+  testWidgets('the odometer run is one isolate, marker and unit inside', (
+    tester,
+  ) async {
+    // SPEC.md §8's RTL note: "Odometer and unit are one atomic run at the end
+    // of the third line ... the approximation marker is `~` in every locale and
+    // sits inside that run." Half the shipped locales are right-to-left, and an
+    // un-isolated `187,412 km` next to Arabic text puts the unit on the wrong
+    // side of the digits.
+    //
+    // ONE isolate, not two. `formatWithUnit` isolates already, so a `~`
+    // isolated on top of it nests a second pair that says nothing the outer one
+    // does not.
+    await _pump(
+      tester,
+      vehicles: [_vehicle(_golf, 'The Golf')],
+      due: {_golf: DueState.ok},
+      estimates: {
+        _golf: _estimate(
+          metres: 187412000,
+          daysAgo: 122,
+          projection: OdometerProjection.projected,
+        ),
+      },
+    );
+    final raw = _row(tester, 'The Golf').detail!;
+    expect(
+      raw,
+      startsWith('\u2068~187,400 km\u2069'),
+      reason: 'one FSI, the ~ and the unit inside it, one PDI',
+    );
+    expect('\u2068'.allMatches(raw).length, 1);
+    expect('\u2069'.allMatches(raw).length, 1);
+    // The STATUS half is not isolated: it is ordinary prose in the UI language
+    // and isolating it would cut it off from the sentence it belongs to.
+    expect(raw.split('\u2069').last, startsWith(' · '));
   });
 }

@@ -133,6 +133,8 @@
   "vehicleStatusNoReminders": "[Ǹǿ řḗḿīǹḍḗřŝ ẏḗţ ǃǃǃǃǃǃǃ]",
   "vehicleStatusNeedsOdometer": "[Ǿḍǿḿḗţḗř ǹḗḗḍŝ ǔƥḍáţīǹḡ ǃǃǃǃǃǃǃǃǃǃ]",
   "vehicleStatusUnknown": "[Çǿǔŀḍǹ'ţ ẇǿřķ ǿǔţ ẇħáţ'ŝ ḍǔḗ ǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "vehicleOdometerStale": "[Ǿḍǿḿḗţḗř ŀáŝţ ǔƥḍáţḗḍ {age} ǃǃǃǃǃǃǃǃǃ]",
+  "vehicleOdometerLastEntered": "[ŀáŝţ ḗǹţḗřḗḍ {date} ǃǃǃǃǃǃ]",
   "vehicleStatusOverdue": "[{item} ǿṽḗřḍǔḗ ǃǃǃǃ]",
   "vehiclesOnlyOneWarning": "[Ţħīŝ īŝ ẏǿǔř ǿǹŀẏ ṽḗħīçŀḗ. Ḍḗŀḗţīǹḡ īţ ŝţářţŝ Ǿḍǿṽá ǿṽḗř. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "vehicleSwitchToIt": "[Ŝẇīţçħ ţǿ īţ ǃǃǃǃǃ]",
@@ -144,6 +146,6 @@
   "commonBack": "[Ḅáçķ ǃǃ]",
   "commonAdd": "[Áḍḍ ǃǃ]",
   "commonDelete": "[Ḍḗŀḗţḗ ǃǃǃ]",
-  "vehicleSoldSummary": "[{n, plural, one{Ŝǿŀḍ {date} · {countText} ḗǹţřẏ} other{Ŝǿŀḍ {date} · {countText} ḗǹţřīḗŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "vehicleSoldSummary": "[{n, plural, =0{Ŝǿŀḍ {date}} one{Ŝǿŀḍ {date} · {countText} ḗǹţřẏ} other{Ŝǿŀḍ {date} · {countText} ḗǹţřīḗŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "vehicleStatusDueInDays": "[{n, plural, one{{item} ḍǔḗ īǹ {countText} ḍáẏ} other{{item} ḍǔḗ īǹ {countText} ḍáẏŝ}} ǃǃǃǃǃǃǃǃǃǃ]"
 }

@@ -133,6 +133,8 @@
   "vehicleStatusNoReminders": "هنوز یادآوری ندارد",
   "vehicleStatusNeedsOdometer": "کیلومترشمار نیاز به به‌روزرسانی دارد",
   "vehicleStatusUnknown": "مشخص نشد چه چیزی موعد دارد",
+  "vehicleOdometerStale": "کیلومترشمار {age} به‌روزرسانی شده",
+  "vehicleOdometerLastEntered": "آخرین ثبت {date}",
   "vehicleStatusOverdue": "{item} عقب‌افتاده",
   "vehiclesOnlyOneWarning": "این تنها خودروی شماست. با حذف آن، اودووا از نو شروع می‌شود.",
   "vehicleSwitchToIt": "همین را نشان بده",
@@ -144,6 +146,6 @@
   "commonBack": "بازگشت",
   "commonAdd": "افزودن",
   "commonDelete": "حذف",
-  "vehicleSoldSummary": "{n, plural, one{فروخته‌شده در {date} · {countText} رکورد} other{فروخته‌شده در {date} · {countText} رکورد}}",
+  "vehicleSoldSummary": "{n, plural, =0{فروخته‌شده {date}} one{فروخته‌شده در {date} · {countText} رکورد} other{فروخته‌شده در {date} · {countText} رکورد}}",
   "vehicleStatusDueInDays": "{n, plural, one{{item} تا {countText} روز دیگر موعد دارد} other{{item} تا {countText} روز دیگر موعد دارد}}"
 }

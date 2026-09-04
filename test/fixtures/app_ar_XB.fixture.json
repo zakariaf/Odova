@@ -133,6 +133,8 @@
   "vehicleStatusNoReminders": "‏tey srednimer oN",
   "vehicleStatusNeedsOdometer": "‏gnitadpu sdeen retemodO",
   "vehicleStatusUnknown": "‏eud s'tahw tuo krow t'ndluoC",
+  "vehicleOdometerStale": "‏ detadpu tsal retemodO{age}",
+  "vehicleOdometerLastEntered": "‏ deretne tsal{date}",
   "vehicleStatusOverdue": "‏{item}eudrevo ",
   "vehiclesOnlyOneWarning": "‏.revo avodO strats ti gniteleD .elcihev ylno ruoy si sihT",
   "vehicleSwitchToIt": "‏ti ot hctiwS",
@@ -144,6 +146,6 @@
   "commonBack": "‏kcaB",
   "commonAdd": "‏ddA",
   "commonDelete": "‏eteleD",
-  "vehicleSoldSummary": "‏{n, plural, one{ dloS{date} · {countText}yrtne } other{ dloS{date} · {countText}seirtne }}",
+  "vehicleSoldSummary": "‏{n, plural, =0{ dloS{date}} one{ dloS{date} · {countText}yrtne } other{ dloS{date} · {countText}seirtne }}",
   "vehicleStatusDueInDays": "‏{n, plural, one{{item} ni eud {countText}yad } other{{item} ni eud {countText}syad }}"
 }

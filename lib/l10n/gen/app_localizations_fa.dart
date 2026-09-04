@@ -589,6 +589,16 @@ class AppLocalizationsFa extends AppLocalizations {
   String get vehicleStatusUnknown => 'مشخص نشد چه چیزی موعد دارد';
 
   @override
+  String vehicleOdometerStale(String age) {
+    return 'کیلومترشمار $age به‌روزرسانی شده';
+  }
+
+  @override
+  String vehicleOdometerLastEntered(String date) {
+    return 'آخرین ثبت $date';
+  }
+
+  @override
   String vehicleStatusOverdue(String item) {
     return '$item عقب‌افتاده';
   }
@@ -639,6 +649,7 @@ class AppLocalizationsFa extends AppLocalizations {
       locale: localeName,
       other: 'فروخته‌شده در $date · $countText رکورد',
       one: 'فروخته‌شده در $date · $countText رکورد',
+      zero: 'فروخته‌شده $date',
     );
     return '$_temp0';
   }

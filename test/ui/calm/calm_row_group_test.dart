@@ -769,4 +769,52 @@ void main() {
       expect(detail.top - sub.bottom, closeTo(2, 0.01));
     });
   });
+
+  group('the section hint', () {
+    // `.section__head` is a flex row: the title at the start, a
+    // `.section__hint` at the end. The garage spends it on the number of sold
+    // vehicles, which SPEC.md §8 collapses the whole group to above five.
+    testWidgets('sits at the end of the header, in caption ink-3', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        const CalmRowGroup(
+          header: 'Sold and archived',
+          headerHint: '7',
+          rows: [CalmListRow(title: 'Yamaha MT-07')],
+        ),
+      );
+      final context = tester.element(find.byType(CalmRowGroup));
+      expect(find.text('7'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.text('7')).style!.color,
+        CalmColors.of(context).ink3,
+      );
+      // At the END edge, which is what makes it a hint beside a heading rather
+      // than a second heading.
+      expect(
+        tester.getTopRight(find.text('7')).dx,
+        greaterThan(tester.getTopRight(find.text('Sold and archived')).dx),
+      );
+    });
+
+    testWidgets('a header with no hint draws no empty slot', (tester) async {
+      await pumpApp(
+        tester,
+        const CalmRowGroup(
+          header: 'Sold and archived',
+          rows: [CalmListRow(title: 'Yamaha MT-07')],
+        ),
+      );
+      // The header is still one line high. A `SizedBox` standing in for an
+      // absent hint is a gap nobody can see and everybody has to lay out
+      // around.
+      expect(find.text('Sold and archived'), findsOneWidget);
+      expect(
+        tester.getSize(find.text('Sold and archived')).height,
+        lessThan(40),
+      );
+    });
+  });
 }
