@@ -5,6 +5,8 @@
 // and backup state are global; everything else hangs off a vehicle.
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// The application settings.
@@ -24,7 +26,7 @@ class AppSettings with ValueEquality {
     this.distanceUnit = DistanceUnit.km,
     this.volumeUnit = VolumeUnit.l,
     this.consumptionUnit = ConsumptionUnit.lPer100km,
-    this.noticeDistanceM,
+    this.noticeDistance,
     this.noticeDays,
     this.notificationTimeMinutes = 9 * 60,
     this.quietHoursFromMinutes = 21 * 60,
@@ -64,8 +66,8 @@ class AppSettings with ValueEquality {
   /// `system`, `light` or `dark`.
   final String theme;
 
-  /// The ISO 4217 code new vehicles inherit.
-  final String currencyDefault;
+  /// The currency new vehicles inherit.
+  final Currency currencyDefault;
 
   /// `none` or `toman`. Storage stays IRR either way.
   final String currencyDisplay;
@@ -80,7 +82,7 @@ class AppSettings with ValueEquality {
   final ConsumptionUnit consumptionUnit;
 
   /// Global distance notice window override, in metres.
-  final int? noticeDistanceM;
+  final Distance? noticeDistance;
 
   /// Global time notice window override, in days.
   final int? noticeDays;
@@ -146,7 +148,7 @@ class AppSettings with ValueEquality {
     distanceUnit,
     volumeUnit,
     consumptionUnit,
-    noticeDistanceM,
+    noticeDistance,
     noticeDays,
     notificationTimeMinutes,
     quietHoursFromMinutes,

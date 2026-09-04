@@ -4,12 +4,9 @@
 // `CHECK (id = 'settings')`, so this repository cannot create a second one even
 // by accident — which is the point of putting it there rather than here.
 import 'package:drift/drift.dart';
-import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/settings.dart';
-import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
-import 'package:odova/data/db/mappers/audit_mapper.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
@@ -29,14 +26,14 @@ class SettingsRepository {
   Stream<AppSettings?> watch() => _db
       .select(_db.settingsTable)
       .watchSingleOrNull()
-      .map((row) => row == null ? null : _fromRow(row))
+      .map((row) => row == null ? null : settingsFromRow(row))
       .distinct();
 
   /// Reads the settings.
   Future<Result<AppSettings, PersistFailure>> read() => guardPersist(() async {
     final row = await _db.select(_db.settingsTable).getSingleOrNull();
     if (row == null) return const Err(NotFound(AppSettings.id));
-    return Ok(_fromRow(row));
+    return Ok(settingsFromRow(row));
   });
 
   /// Writes [settings].
@@ -56,12 +53,14 @@ class SettingsRepository {
                   numerals: settings.numerals,
                   firstDayOfWeek: settings.firstDayOfWeek,
                   theme: settings.theme,
-                  currencyDefault: settings.currencyDefault,
+                  currencyDefault: settings.currencyDefault.code,
                   currencyDisplay: settings.currencyDisplay,
                   distanceUnit: settings.distanceUnit.wire,
                   volumeUnit: settings.volumeUnit.wire,
                   consumptionUnit: settings.consumptionUnit.wire,
-                  noticeDistanceM: Value(settings.noticeDistanceM),
+                  noticeDistanceM: Value(
+                    metresColumnOrNull(settings.noticeDistance),
+                  ),
                   noticeDays: Value(settings.noticeDays),
                   notificationTimeMinutes: settings.notificationTimeMinutes,
                   quietHoursFromMinutes: settings.quietHoursFromMinutes,
@@ -81,54 +80,4 @@ class SettingsRepository {
         });
         return Ok(settings);
       });
-
-  AppSettings _fromRow(SettingsRow row) {
-    final times = repairAuditTimes(
-      createdAtUtcMs: row.createdAtUtcMs,
-      updatedAtUtcMs: row.updatedAtUtcMs,
-    );
-
-    return AppSettings(
-      schemaVersion: row.schemaVersion,
-      language: row.language,
-      calendar: row.calendar,
-      numerals: row.numerals,
-      firstDayOfWeek: row.firstDayOfWeek,
-      theme: row.theme,
-      currencyDefault: row.currencyDefault,
-      currencyDisplay: row.currencyDisplay,
-      distanceUnit: enumFromWire(
-        DistanceUnit.values,
-        (v) => v.wire,
-        row.distanceUnit,
-      ),
-      volumeUnit: enumFromWire(
-        VolumeUnit.values,
-        (v) => v.wire,
-        row.volumeUnit,
-      ),
-      consumptionUnit: enumFromWire(
-        ConsumptionUnit.values,
-        (v) => v.wire,
-        row.consumptionUnit,
-      ),
-      noticeDistanceM: row.noticeDistanceM,
-      noticeDays: row.noticeDays,
-      notificationTimeMinutes: row.notificationTimeMinutes,
-      quietHoursFromMinutes: row.quietHoursFromMinutes,
-      quietHoursToMinutes: row.quietHoursToMinutes,
-      weekdaysOnly: row.weekdaysOnly,
-      notifyService: row.notifyService,
-      notifyOdometer: row.notifyOdometer,
-      notifyBackup: row.notifyBackup,
-      activeVehicleId: row.activeVehicleId == null
-          ? null
-          : idFromStored(VehicleId.tryParse, row.activeVehicleId!),
-      onboardingDone: row.onboardingDone,
-      lastBackupAtUtcMs: row.lastBackupAtUtcMs,
-      lastBackupReminderAtUtcMs: row.lastBackupReminderAtUtcMs,
-      createdAtUtcMs: times.createdAtUtcMs,
-      updatedAtUtcMs: times.updatedAtUtcMs,
-    );
-  }
 }

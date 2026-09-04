@@ -43,3 +43,16 @@ Set<String> excludedDirectories({String path = analysisOptionsPath}) => {
     if (RegExp(r'^([^*]+)/\*\*$').firstMatch(glob) case final match?)
       match.group(1)!,
 };
+
+/// The excluded globs that name a FILE SUFFIX, with the `**/*` removed.
+///
+/// `**/*.g.dart` becomes `.g.dart`. The directory form above was the only one
+/// [excludedDirectories] handled, so a walk that claimed to honour the
+/// analyzer's excludes was still visiting every `.g.dart`, `.freezed.dart` and
+/// `.drift.dart` file in the tree — and the grep gates that walk `lib/` were
+/// reading generated code and reporting it as source.
+Set<String> excludedSuffixes({String path = analysisOptionsPath}) => {
+  for (final glob in analyzerExcludes(path: path))
+    if (RegExp(r'^\*\*/\*(\.[\w.]+)$').firstMatch(glob) case final match?)
+      match.group(1)!,
+};

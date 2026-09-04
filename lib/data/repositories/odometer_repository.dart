@@ -11,6 +11,7 @@ import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/odometer/monotonicity.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
@@ -68,11 +69,11 @@ class OdometerRepository {
   /// Computed, never stored. SPEC.md §2: a stored cumulative survives an
   /// import and is then wrong forever, with the corrections applied twice or
   /// not at all and nothing to say which.
-  Future<Result<Map<String, int>, PersistFailure>> cumulativeFor(
+  Future<Result<Map<String, Distance>, PersistFailure>> cumulativeFor(
     VehicleId vehicleId,
   ) => guardPersist(() async {
     final state = await _stateOf(vehicleId);
-    return Ok(cumulativeByReading(state.readings, state.corrections));
+    return Ok(cumulativeBySorted(state.readings, state.corrections));
   });
 
   /// Writes [reading] if the history allows it.
@@ -84,7 +85,7 @@ class OdometerRepository {
   Future<Result<SavedReading, PersistFailure>> saveReading(
     OdometerReading reading, {
     required DistanceUnit vehicleUnit,
-    int? purchaseOdometerM,
+    Distance? purchaseOdometer,
   }) => guardPersist(() async {
     // SPEC.md §3: a derived reading follows its parent and is not directly
     // editable. Editing it here would leave the reading and the record that
@@ -120,16 +121,16 @@ class OdometerRepository {
       existing: existing,
       corrections: state.corrections,
       vehicleUnit: vehicleUnit,
-      purchaseOdometerM: purchaseOdometerM,
+      purchaseOdometer: purchaseOdometer,
     );
 
     final blocked = verdict.blocked;
     if (blocked != null) {
       return Err(
         OdometerWouldGoBackwards(
-          previousCumulativeM: blocked.previousCumulativeM,
+          previousCumulative: blocked.previousCumulative,
           previousOccurredOn: blocked.previousOccurredOn,
-          attemptedCumulativeM: blocked.attemptedCumulativeM,
+          attemptedCumulative: blocked.attemptedCumulative,
         ),
       );
     }
@@ -196,8 +197,9 @@ class OdometerRepository {
     });
 
     final state = await _stateOf(vehicleId);
-    final cumulative = cumulativeByReading(state.readings, state.corrections);
-    final ordered = [...state.readings]..sort(compareReadings);
+    // Already in `compareReadings` order — see `_readingsQuery`'s third key.
+    final ordered = state.readings;
+    final cumulative = cumulativeBySorted(ordered, state.corrections);
 
     final exposed = <OdometerReading>[];
     for (var i = 1; i < ordered.length; i++) {
@@ -218,6 +220,18 @@ class OdometerRepository {
     ..orderBy([
       (r) => OrderingTerm(expression: r.occurredOn),
       (r) => OrderingTerm(expression: r.createdAtUtcMs),
+      // The third key, so the rows arrive in exactly `compareReadings` order
+      // and nothing above has to re-sort them. It matters: `checkReading` runs
+      // on every fill-up, service, expense and trip write, over the vehicle's
+      // whole reading history, on the path a user is standing at a pump
+      // waiting for.
+      //
+      // SQLite compares TEXT with memcmp on UTF-8 and Dart's `compareTo` uses
+      // UTF-16 code units. They agree here because every one of these values
+      // is ASCII — a ULID is Crockford base-32 and a date is digits and
+      // hyphens — and `odometer_repository_test.dart` asserts the two orders
+      // agree rather than leaving that as a comment.
+      (r) => OrderingTerm(expression: r.id),
     ]);
 
   Future<_VehicleOdometerState> _stateOf(VehicleId vehicleId) async {
@@ -236,8 +250,8 @@ class OdometerRepository {
         for (final row in correctionRows)
           (
             fromReadingId: row.fromReadingId,
-            previousM: row.previousM,
-            newM: row.newM,
+            previous: Distance(row.previousM),
+            replacement: Distance(row.newM),
           ),
       ],
       rowsById: {for (final row in readingRows) row.id: row},
@@ -248,14 +262,14 @@ class OdometerRepository {
     id: reading.id.toString(),
     occurredOn: reading.occurredOn,
     createdAtUtcMs: reading.createdAtUtcMs,
-    odometerM: reading.odometerM,
+    odometer: reading.odometer,
   );
 
   ReadingPoint _pointOfRow(OdometerReadingRow row) => (
     id: row.id,
     occurredOn: row.occurredOn,
     createdAtUtcMs: row.createdAtUtcMs,
-    odometerM: row.odometerM,
+    odometer: Distance(row.odometerM),
   );
 
   OdometerReadingsCompanion _readingCompanion(OdometerReading reading) =>
@@ -265,7 +279,7 @@ class OdometerRepository {
         updatedAtUtcMs: reading.updatedAtUtcMs,
         vehicleId: reading.vehicleId.toString(),
         occurredOn: reading.occurredOn,
-        odometerM: reading.odometerM,
+        odometerM: metresColumn(reading.odometer),
         odometerUnit: reading.odometerUnit.wire,
         source: reading.source.wire,
         sourceId: Value(reading.sourceId),
@@ -280,8 +294,8 @@ class OdometerRepository {
     updatedAtUtcMs: correction.updatedAtUtcMs,
     vehicleId: correction.vehicleId.toString(),
     fromReadingId: correction.fromReadingId.toString(),
-    previousM: correction.previousM,
-    newM: correction.newM,
+    previousM: metresColumn(correction.previous),
+    newM: metresColumn(correction.replacement),
     odometerUnit: correction.odometerUnit.wire,
     reason: correction.reason.wire,
   );

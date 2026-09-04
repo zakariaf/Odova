@@ -22,6 +22,7 @@ import 'package:odova/data/repositories/odometer_repository.dart';
 import 'package:odova/data/repositories/service_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
 
+import '../../support/values.dart';
 import '../support/test_ids.dart';
 
 const String _body = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
@@ -63,7 +64,7 @@ void main() {
         rollover: ServiceRollover.fromActual,
         createdAtUtcMs: 1000,
         updatedAtUtcMs: 1000,
-        intervalDistanceM: 15000000,
+        intervalDistance: const Distance(15000000),
       ),
     );
     await services.saveRecord(
@@ -81,8 +82,7 @@ void main() {
             )!,
             serviceRecordId: recordId,
             label: 'Oil and filter',
-            amountMinor: 8900,
-            currency: 'EUR',
+            amount: money(8900, 'EUR'),
           ),
         ],
       ),
@@ -95,9 +95,8 @@ void main() {
         odometerUnit: DistanceUnit.km,
         fuelKind: FuelKind.diesel,
         quantityUnit: VolumeUnit.l,
-        totalCostMinor: 7845,
-        currency: 'EUR',
-        quantityMl: 45200,
+        totalCost: money(7845, 'EUR'),
+        quantity: const LiquidVolume(Volume(45200)),
         createdAtUtcMs: 1000,
         updatedAtUtcMs: 1000,
       ),
@@ -108,8 +107,7 @@ void main() {
         vehicleId: vehicleId,
         occurredOn: '2026-09-03',
         category: ExpenseCategory.insurance,
-        amountMinor: 42000,
-        currency: 'EUR',
+        amount: money(42000, 'EUR'),
         odometerUnit: DistanceUnit.km,
         createdAtUtcMs: 1000,
         updatedAtUtcMs: 1000,
@@ -134,7 +132,7 @@ void main() {
         id: readingId,
         vehicleId: vehicleId,
         occurredOn: '2026-09-03',
-        odometerM: 186512000,
+        odometer: const Distance(186512000),
         odometerUnit: DistanceUnit.km,
         source: OdometerSource.manual,
         createdAtUtcMs: 1000,
@@ -149,8 +147,8 @@ void main() {
         )!,
         vehicleId: vehicleId,
         fromReadingId: readingId,
-        previousM: 186512000,
-        newM: 0,
+        previous: const Distance(186512000),
+        replacement: Distance.zero,
         odometerUnit: DistanceUnit.km,
         reason: OdometerCorrectionReason.clusterReplaced,
         createdAtUtcMs: 1000,
@@ -342,7 +340,7 @@ void main() {
     expect(record.lines, hasLength(1));
     expect(record.lines.single.serviceItemId, isNull);
     expect(record.lines.single.label, 'Oil and filter');
-    expect(record.lines.single.amountMinor, 8900);
+    expect(record.lines.single.amount.amountMinor, 8900);
   });
 
   test(

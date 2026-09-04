@@ -91,4 +91,15 @@ extension ResultX<T, F extends Failure> on Result<T, F> {
     Ok(:final value) => Ok(transform(value)),
     Err(:final failure) => Err(failure),
   };
+
+  /// The value, or null when this is a failure.
+  ///
+  /// For a caller that genuinely has a fallback. A caller that is about to
+  /// SHOW the value should switch instead, so the reason reaches the screen —
+  /// SPEC.md §2: the app never guesses in a way that looks like fact, and a
+  /// `?? 0` at the presentation edge is exactly that guess.
+  T? get valueOrNull => switch (this) {
+    Ok(:final value) => value,
+    Err() => null,
+  };
 }

@@ -1,15 +1,24 @@
 // The things a driver logs, as everything above the data layer sees them.
 //
-// Canonical integers with the unit in the NAME — `odometerM`, `quantityMl`,
-// `totalCostMinor` + `currency`. EPIC-06 swaps these for `Distance`, `Volume`
-// and `Money` value objects at the repository boundary in one pass; until then
-// the suffix is what stops a metre being added to a mile, and it is the only
-// thing that does.
+// Value objects, not raw integers. EPIC-05 carried canonical integers with the
+// unit in the NAME — `odometerM`, `quantityMl`, `totalCostMinor` beside
+// `currency` — and the suffix was the only thing stopping a metre being added
+// to a mile, or an amount being added to one in another currency. EPIC-06
+// swapped them for `Distance`, `FuelQuantity` and `Money` in one pass.
+//
+// The COLUMNS did not change. `lib/data/db/mappers/` is the only layer that
+// knows both shapes: it splits one `FuelQuantity` back into the three quantity
+// columns the schema has, and reunites `(amount_minor, currency)` into one
+// `Money`. Nothing above it can hold half a price.
 //
 // Every one of these is immutable and compares by value, so a watched stream
 // can skip a rebuild when nothing changed.
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/money/money.dart';
+import 'package:odova/core/money/money_total.dart';
+import 'package:odova/core/units/distance.dart';
+import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// The reminder definition: the thing that comes due.
@@ -24,21 +33,21 @@ class ServiceItem with ValueEquality {
     required this.createdAtUtcMs,
     required this.updatedAtUtcMs,
     this.label,
-    this.intervalDistanceM,
+    this.intervalDistance,
     this.intervalDistanceUnit,
     this.intervalMonths,
-    this.targetOdometerM,
+    this.targetOdometer,
     this.targetDate,
     this.baselineDate,
-    this.baselineOdometerM,
-    this.noticeDistanceM,
+    this.baselineOdometer,
+    this.noticeDistance,
     this.noticeDays,
     this.isTracked = false,
     this.isActive = true,
     this.notify = true,
     this.repeats = true,
     this.snoozedUntil,
-    this.snoozeUntilOdometerM,
+    this.snoozeUntilOdometer,
     this.snoozeCount = 0,
     this.notes,
   });
@@ -56,7 +65,7 @@ class ServiceItem with ValueEquality {
   final String? label;
 
   /// Distance interval in metres. Null = not distance-based.
-  final int? intervalDistanceM;
+  final Distance? intervalDistance;
 
   /// The unit the interval was entered in. Display fidelity only.
   final DistanceUnit? intervalDistanceUnit;
@@ -65,7 +74,7 @@ class ServiceItem with ValueEquality {
   final int? intervalMonths;
 
   /// A one-off target odometer, in metres.
-  final int? targetOdometerM;
+  final Distance? targetOdometer;
 
   /// A one-off target date.
   final String? targetDate;
@@ -73,11 +82,11 @@ class ServiceItem with ValueEquality {
   /// "Last done March 2024".
   final String? baselineDate;
 
-  /// The odometer at [baselineDate], in metres.
-  final int? baselineOdometerM;
+  /// The odometer at [baselineDate].
+  final Distance? baselineOdometer;
 
   /// Per-item distance notice window override, in metres.
-  final int? noticeDistanceM;
+  final Distance? noticeDistance;
 
   /// Per-item time notice window override, in days.
   final int? noticeDays;
@@ -103,8 +112,8 @@ class ServiceItem with ValueEquality {
   /// Snoozed until this date.
   final String? snoozedUntil;
 
-  /// Snoozed until this odometer, in metres.
-  final int? snoozeUntilOdometerM;
+  /// Snoozed until this odometer.
+  final Distance? snoozeUntilOdometer;
 
   /// How many times it has been snoozed.
   final int snoozeCount;
@@ -124,7 +133,7 @@ class ServiceItem with ValueEquality {
   /// column, because a stored mode is a second answer to a question the data
   /// already answers.
   bool get hasDistanceAxis =>
-      intervalDistanceM != null || targetOdometerM != null;
+      intervalDistance != null || targetOdometer != null;
 
   /// Whether the time axis applies. Derived, for the same reason.
   bool get hasTimeAxis => intervalMonths != null || targetDate != null;
@@ -135,14 +144,14 @@ class ServiceItem with ValueEquality {
     vehicleId,
     kind,
     label,
-    intervalDistanceM,
+    intervalDistance,
     intervalDistanceUnit,
     intervalMonths,
-    targetOdometerM,
+    targetOdometer,
     targetDate,
     baselineDate,
-    baselineOdometerM,
-    noticeDistanceM,
+    baselineOdometer,
+    noticeDistance,
     noticeDays,
     isTracked,
     isActive,
@@ -151,7 +160,7 @@ class ServiceItem with ValueEquality {
     rollover,
     repeats,
     snoozedUntil,
-    snoozeUntilOdometerM,
+    snoozeUntilOdometer,
     snoozeCount,
     notes,
     createdAtUtcMs,
@@ -169,8 +178,7 @@ class ServiceLine with ValueEquality {
     required this.id,
     required this.serviceRecordId,
     required this.label,
-    required this.amountMinor,
-    required this.currency,
+    required this.amount,
     this.serviceItemId,
     this.partNumber,
     this.notes,
@@ -185,18 +193,15 @@ class ServiceLine with ValueEquality {
   /// Which reminder this line resets, or null.
   ///
   /// Null after the item is deleted — the line keeps its [label] and
-  /// [amountMinor], because SPEC.md §3 says history is never destroyed to tidy
-  /// a reminder list.
+  /// [amount], because SPEC.md §3 says history is never destroyed to tidy a
+  /// reminder list.
   final ServiceItemId? serviceItemId;
 
   /// What it was.
   final String label;
 
-  /// The amount in minor units. Never negative; zero means "not recorded".
-  final int amountMinor;
-
-  /// The currency, ISO 4217.
-  final String currency;
+  /// What it cost. Never negative; zero means "not recorded".
+  final Money amount;
 
   /// The part fitted.
   final String? partNumber;
@@ -210,8 +215,7 @@ class ServiceLine with ValueEquality {
     serviceRecordId,
     serviceItemId,
     label,
-    amountMinor,
-    currency,
+    amount,
     partNumber,
     notes,
   ];
@@ -231,7 +235,7 @@ class ServiceRecord with ValueEquality {
     required this.lines,
     required this.createdAtUtcMs,
     required this.updatedAtUtcMs,
-    this.odometerM,
+    this.odometer,
     this.odometerEstimated = false,
     this.costEstimated = false,
     this.vendor,
@@ -249,8 +253,8 @@ class ServiceRecord with ValueEquality {
   /// The day the work happened.
   final String occurredOn;
 
-  /// The odometer at the time, in metres.
-  final int? odometerM;
+  /// The odometer at the time.
+  final Distance? odometer;
 
   /// The unit it was entered in.
   final DistanceUnit odometerUnit;
@@ -282,18 +286,34 @@ class ServiceRecord with ValueEquality {
   /// When it was last changed.
   final int updatedAtUtcMs;
 
-  /// The cost, in minor units.
+  /// The cost, grouped by currency.
   ///
   /// DERIVED — there is no total column. SPEC.md §3: cost is always the sum of
   /// the lines, and a stored total drifts the first time one is edited.
-  int get totalMinor => lines.fold(0, (sum, line) => sum + line.amountMinor);
+  ///
+  /// **A [MoneyTotal] and not a `Money?`, because this getter must not throw.**
+  /// `Money.+` refuses across currencies, deliberately: a caller asking for one
+  /// number from two is wrong. But this is a plain getter on a domain model
+  /// that a list screen reads for every row, so throwing here means a record
+  /// with a part billed abroad — or any import — crashes the screen instead of
+  /// showing what is known. It used to `reduce` with `+`, and the whole suite
+  /// missed it because every fixture used euros.
+  ///
+  /// Every other total in this app groups rather than sums: `fuelSpend`,
+  /// `avgPricePaid`, `fuelCostPerDistance`. This is the same rule, and
+  /// SPEC.md §12 is explicit that there is no third option that adds them up.
+  ///
+  /// An empty record gives an EMPTY total rather than a zero: summing nothing
+  /// has no currency, and inventing one would put a euro sign on a Japanese
+  /// service.
+  MoneyTotal get total => MoneyTotal(lines.map((l) => l.amount));
 
   @override
   List<Object?> get props => [
     id,
     vehicleId,
     occurredOn,
-    odometerM,
+    odometer,
     odometerUnit,
     odometerEstimated,
     costEstimated,
@@ -320,14 +340,11 @@ class FillUp with ValueEquality {
     required this.odometerUnit,
     required this.fuelKind,
     required this.quantityUnit,
-    required this.totalCostMinor,
-    required this.currency,
+    required this.totalCost,
     required this.createdAtUtcMs,
     required this.updatedAtUtcMs,
-    this.odometerM,
-    this.quantityMl,
-    this.quantityG,
-    this.energyWh,
+    this.odometer,
+    this.quantity,
     this.isFullTank = true,
     this.chainBroken = false,
     this.grade,
@@ -345,8 +362,8 @@ class FillUp with ValueEquality {
   /// The day it happened.
   final String occurredOn;
 
-  /// The odometer, in metres.
-  final int? odometerM;
+  /// The odometer.
+  final Distance? odometer;
 
   /// The unit it was entered in.
   final DistanceUnit odometerUnit;
@@ -354,23 +371,18 @@ class FillUp with ValueEquality {
   /// What went in.
   final FuelKind fuelKind;
 
-  /// Millilitres, for a liquid.
-  final int? quantityMl;
-
-  /// Grams, for CNG.
-  final int? quantityG;
-
-  /// Watt-hours, for electricity.
-  final int? energyWh;
+  /// How much, in whichever form this fuel is sold by.
+  ///
+  /// ONE field where the schema has three columns, because SPEC.md §3 says
+  /// exactly one of them is non-null and a sealed type says that better than a
+  /// comment. The mapper is the only code that knows there are three.
+  final FuelQuantity? quantity;
 
   /// The unit the quantity was entered in.
   final VolumeUnit quantityUnit;
 
-  /// What it cost, in minor units.
-  final int totalCostMinor;
-
-  /// The currency, ISO 4217.
-  final String currency;
+  /// What it cost.
+  final Money totalCost;
 
   /// Whether the tank was filled.
   final bool isFullTank;
@@ -401,15 +413,12 @@ class FillUp with ValueEquality {
     id,
     vehicleId,
     occurredOn,
-    odometerM,
+    odometer,
     odometerUnit,
     fuelKind,
-    quantityMl,
-    quantityG,
-    energyWh,
+    quantity,
     quantityUnit,
-    totalCostMinor,
-    currency,
+    totalCost,
     isFullTank,
     chainBroken,
     grade,
@@ -432,8 +441,7 @@ class Expense with ValueEquality {
     required this.vehicleId,
     required this.occurredOn,
     required this.category,
-    required this.amountMinor,
-    required this.currency,
+    required this.amount,
     required this.odometerUnit,
     required this.createdAtUtcMs,
     required this.updatedAtUtcMs,
@@ -441,7 +449,7 @@ class Expense with ValueEquality {
     this.label,
     this.coversFrom,
     this.coversTo,
-    this.odometerM,
+    this.odometer,
     this.vendor,
     this.notes,
   });
@@ -464,14 +472,11 @@ class Expense with ValueEquality {
   /// Required when [category] is [ExpenseCategory.other].
   final String? label;
 
-  /// The amount in minor units.
+  /// What was paid.
   ///
   /// **May be negative** — a refund, a warranty reimbursement, an insurance
   /// payout. The only money field in the app that may.
-  final int amountMinor;
-
-  /// The currency, ISO 4217.
-  final String currency;
+  final Money amount;
 
   /// The start of an optional coverage window.
   final String? coversFrom;
@@ -479,8 +484,8 @@ class Expense with ValueEquality {
   /// The end of it.
   final String? coversTo;
 
-  /// The odometer, in metres.
-  final int? odometerM;
+  /// The odometer.
+  final Distance? odometer;
 
   /// The unit it was entered in.
   final DistanceUnit odometerUnit;
@@ -505,11 +510,10 @@ class Expense with ValueEquality {
     occurredOn,
     category,
     label,
-    amountMinor,
-    currency,
+    amount,
     coversFrom,
     coversTo,
-    odometerM,
+    odometer,
     odometerUnit,
     vendor,
     notes,
@@ -534,9 +538,9 @@ class Trip with ValueEquality {
     required this.updatedAtUtcMs,
     this.title,
     this.endedOn,
-    this.startOdometerM,
-    this.endOdometerM,
-    this.manualDistanceM,
+    this.startOdometer,
+    this.endOdometer,
+    this.manualDistance,
     this.notes,
   });
 
@@ -558,14 +562,14 @@ class Trip with ValueEquality {
   /// The day it ended, or null for an open trip.
   final String? endedOn;
 
-  /// The odometer at the start, in metres.
-  final int? startOdometerM;
+  /// The odometer at the start.
+  final Distance? startOdometer;
 
-  /// The odometer at the end, in metres.
-  final int? endOdometerM;
+  /// The odometer at the end.
+  final Distance? endOdometer;
 
   /// A distance typed by hand.
-  final int? manualDistanceM;
+  final Distance? manualDistance;
 
   /// The unit the readings were entered in.
   final DistanceUnit odometerUnit;
@@ -579,16 +583,16 @@ class Trip with ValueEquality {
   /// When it was last changed.
   final int updatedAtUtcMs;
 
-  /// The distance, in metres, or null when neither source is available.
+  /// The distance, or null when neither source is available.
   ///
-  /// DERIVED. The odometer endpoints win; [manualDistanceM] is used ONLY when
+  /// DERIVED. The odometer endpoints win; [manualDistance] is used ONLY when
   /// both are absent, per SPEC.md §3 — a trip is never the source of truth for
   /// total distance, because people log some trips and not all.
-  int? get distanceM {
-    final start = startOdometerM;
-    final end = endOdometerM;
+  Distance? get distance {
+    final start = startOdometer;
+    final end = endOdometer;
     if (start != null && end != null) return end - start;
-    return manualDistanceM;
+    return manualDistance;
   }
 
   @override
@@ -599,9 +603,9 @@ class Trip with ValueEquality {
     purpose,
     startedOn,
     endedOn,
-    startOdometerM,
-    endOdometerM,
-    manualDistanceM,
+    startOdometer,
+    endOdometer,
+    manualDistance,
     odometerUnit,
     notes,
     createdAtUtcMs,
@@ -619,7 +623,7 @@ class OdometerReading with ValueEquality {
     required this.id,
     required this.vehicleId,
     required this.occurredOn,
-    required this.odometerM,
+    required this.odometer,
     required this.odometerUnit,
     required this.source,
     required this.createdAtUtcMs,
@@ -637,8 +641,8 @@ class OdometerReading with ValueEquality {
   /// The day the dash showed this.
   final String occurredOn;
 
-  /// The RAW dash number, in metres. The cumulative value is a function.
-  final int odometerM;
+  /// The RAW dash number. The cumulative value is a function.
+  final Distance odometer;
 
   /// The unit it was entered in.
   final DistanceUnit odometerUnit;
@@ -670,7 +674,7 @@ class OdometerReading with ValueEquality {
     id,
     vehicleId,
     occurredOn,
-    odometerM,
+    odometer,
     odometerUnit,
     source,
     sourceId,
@@ -680,7 +684,7 @@ class OdometerReading with ValueEquality {
   ];
 
   @override
-  String toString() => 'OdometerReading($id, $occurredOn, $odometerM m)';
+  String toString() => 'OdometerReading($id, $occurredOn, $odometer)';
 }
 
 /// An odometer correction.
@@ -690,8 +694,8 @@ class OdometerCorrection with ValueEquality {
     required this.id,
     required this.vehicleId,
     required this.fromReadingId,
-    required this.previousM,
-    required this.newM,
+    required this.previous,
+    required this.replacement,
     required this.odometerUnit,
     required this.reason,
     required this.createdAtUtcMs,
@@ -708,11 +712,14 @@ class OdometerCorrection with ValueEquality {
   /// The first reading on the new scale.
   final OdometerReadingId fromReadingId;
 
-  /// What the old cluster last showed, in metres.
-  final int previousM;
+  /// What the old cluster last showed.
+  final Distance previous;
 
-  /// What the new cluster shows, in metres.
-  final int newM;
+  /// What the new cluster shows.
+  ///
+  /// Named `replacement` and not `new`, which is a Dart keyword — the column is
+  /// still `new_m`.
+  final Distance replacement;
 
   /// The unit both sides were entered in.
   final DistanceUnit odometerUnit;
@@ -729,16 +736,16 @@ class OdometerCorrection with ValueEquality {
   /// When it was last changed.
   final int updatedAtUtcMs;
 
-  /// The metres this correction adds to every reading at or after it.
-  int get offsetM => previousM - newM;
+  /// The distance this correction adds to every reading at or after it.
+  Distance get offset => previous - replacement;
 
   @override
   List<Object?> get props => [
     id,
     vehicleId,
     fromReadingId,
-    previousM,
-    newM,
+    previous,
+    replacement,
     odometerUnit,
     reason,
     notes,
@@ -747,5 +754,5 @@ class OdometerCorrection with ValueEquality {
   ];
 
   @override
-  String toString() => 'OdometerCorrection($id, ${reason.wire}, $offsetM m)';
+  String toString() => 'OdometerCorrection($id, ${reason.wire}, $offset)';
 }

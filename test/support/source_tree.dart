@@ -31,14 +31,19 @@ const knownEmptyLibDirectories = {
 
 /// Every hand-written `.dart` file under [path].
 ///
-/// Generated directories are skipped by reading `analyzer: exclude:` from
-/// `analysis_options.yaml`. Fails the test when the walk returns nothing and
-/// [path] is not in [knownEmptyLibDirectories].
+/// Generated code is skipped by reading `analyzer: exclude:` from
+/// `analysis_options.yaml` — BOTH forms of it. The directory globs
+/// (`lib/l10n/gen/**`) and the suffix globs (`**/*.g.dart`) are separate
+/// entries there, and this used to honour only the first: every gate that
+/// walked `lib/` was reading `app_database.g.dart` and reporting generated
+/// code as source. Fails the test when the walk returns nothing and [path] is
+/// not in [knownEmptyLibDirectories].
 List<File> dartFilesUnder(String path) {
   final directory = Directory(path);
   if (!directory.existsSync()) throw StateError('$path does not exist');
 
   final excluded = excludedDirectories();
+  final suffixes = excludedSuffixes();
   final files = directory
       .listSync(recursive: true)
       .whereType<File>()
@@ -48,6 +53,7 @@ List<File> dartFilesUnder(String path) {
           (e) => f.path == e || f.path.startsWith('$e/'),
         ),
       )
+      .where((f) => !suffixes.any(f.path.endsWith))
       .toList();
 
   if (files.isEmpty && !knownEmptyLibDirectories.contains(path)) {

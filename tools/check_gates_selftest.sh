@@ -47,7 +47,18 @@ assert() { # assert <expected 0|1> <label> <command...>
   local want=$1 label=$2; shift 2
   "$@" >/dev/null 2>&1
   local got=$?
-  if [ "$want" = 0 ] && [ "$got" = 0 ]; then echo "ok    $label"
+  # 126/127 are the shell's "not executable" and "not found". They are NOT the
+  # gate saying no, and treating them as a red arm is how a self-test reports
+  # that a gate has been seen to fail when the gate never ran.
+  #
+  # This is not hypothetical: a `dart run` arm was added to this file, which
+  # runs in CI's toolchain-free `repo` lane, and both of its "is red" arms went
+  # green on 127 while the two "is green" arms failed. Half the evidence looked
+  # right.
+  if [ "$got" = 127 ] || [ "$got" = 126 ]; then
+    echo "FAIL  $label (command not runnable here, exit $got — wrong lane?)"
+    rc=1
+  elif [ "$want" = 0 ] && [ "$got" = 0 ]; then echo "ok    $label"
   elif [ "$want" != 0 ] && [ "$got" != 0 ]; then echo "ok    $label"
   else echo "FAIL  $label (wanted exit!=0=$want, got $got)"; rc=1; fi
 }
@@ -526,6 +537,73 @@ assert 1 "check_drift_confinement is red on a sqflite import, even in lib/data/"
 restore_all
 rmdir lib/features 2>/dev/null || true
 assert 0 "check_drift_confinement is green again" bash "$DRIFT"
+
+echo "== check_core_purity =="
+PURITY=tools/check_core_purity.sh
+assert 0 "check_core_purity is green on the real tree" bash "$PURITY"
+
+# All FIVE bans, planted separately, because they fail for different reasons.
+# It was three: `dart:ui` and `package:flutter_` were in the gate and never in
+# the self-test, which by CLAUDE.md §4 makes them comments that run — and
+# `dart:ui` in particular is the ban whose failure mode is least obvious, since
+# it compiles fine and only breaks the plain-VM lane.
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'package:flutter/material.dart';
+
+typedef Leak = Widget;
+DART
+assert 1 "check_core_purity is red on a Flutter import" bash "$PURITY"
+restore_all
+
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'dart:io';
+
+File? probe;
+DART
+assert 1 "check_core_purity is red on dart:io" bash "$PURITY"
+restore_all
+
+# `dart:ui` is not `package:flutter/`: a file can take Offset, Color or
+# TextDirection without importing Flutter at all, and it then compiles under
+# `flutter test` and dies under `dart test test/core` with "Dart library
+# 'dart:ui' is not available on this platform".
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'dart:ui';
+
+Color? probe;
+DART
+assert 1 "check_core_purity is red on dart:ui" bash "$PURITY"
+restore_all
+
+# `package:flutter_` is a SEPARATE pattern from `package:flutter/`, and every
+# package that would drag the framework in sideways matches it and not the
+# other: flutter_riverpod, flutter_localizations, flutter_test.
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Provider<int>? probe;
+DART
+assert 1 "check_core_purity is red on a package:flutter_ import" bash "$PURITY"
+restore_all
+
+# The accidental one: reaching for a NumberFormat while writing a conversion.
+# A domain function that formats has taken a locale as a hidden input.
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'package:intl/intl.dart';
+
+String probe(num v) => NumberFormat.decimalPattern().format(v);
+DART
+assert 1 "check_core_purity is red on package:intl" bash "$PURITY"
+restore_all
+
+# And the grab-bag directory.
+write_scratch lib/core/utils/selftest_probe.dart <<'DART'
+const probe = 1;
+DART
+assert 1 "check_core_purity is red on a utils/ directory" bash "$PURITY"
+restore_all
+rmdir lib/core/utils 2>/dev/null || true
+assert 0 "check_core_purity is green again" bash "$PURITY"
 
 echo "== check_schema_freshness =="
 FRESH=tools/check_schema_freshness.sh

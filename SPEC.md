@@ -501,7 +501,9 @@ averageConsumption(segs)   = Σ volume(segs) / Σ distance_m(segs)
 
 The lifetime average is a **total-over-total**, never the mean of per-segment figures. A mean of means over-weights a 40 km segment against a 900 km one and drifts a few percent high for anyone who tops up in town.
 
-**Trend.** `consumptionTrend` compares the mean of the last 3 segments against the 6 before them and reports `thirstier` / `leaner` / `steady` at a ±8% threshold. Under 9 valid segments it returns `insufficient_data` and the UI shows nothing — three data points is not a trend, and a false "getting thirsty" is an alarm they will remember.
+**Trend.** `consumptionTrend` compares the last 3 segments against the 6 before them, **each window total-over-total like the lifetime average**, and reports `thirstier` / `leaner` / `steady` at a ±8% threshold. Under 9 valid segments it returns `insufficient_data` and the UI shows nothing — three data points is not a trend, and a false "getting thirsty" is an alarm they will remember.
+
+This said "the mean of the last 3 segments" until EPIC-06, which contradicted both the paragraph above it and *§13 The numbers, exactly* ("everything here is total-over-total"). Total-over-total wins for the reason the paragraph above already gives, and it applies **harder** over three segments than over ninety: a 40 km town top-up at 12 L/100 km beside two 900 km runs at 6.0 is a mean of 8.0 and a total-over-total of 6.13. The mean reports a 33% rise and tells the driver their car got thirsty; the truth is a 2.2% rise, inside the band. One short tank must not be a third of the answer.
 
 `unitPrice(fill) = total_cost / quantity` — derived at display time, to 3 decimals.
 

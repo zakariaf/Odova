@@ -8,13 +8,20 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/l10n/bidi.dart';
-import 'package:odova/core/l10n/money_format.dart';
-import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/l10n/unit_format.dart';
-import 'package:odova/core/money.dart';
+import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/money/money.dart';
+import 'package:odova/core/units/consumption.dart';
+import 'package:odova/l10n/money_format.dart';
+import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/unit_format.dart';
 
 import '../support/source_tree.dart';
+
+/// `Money` needs a parsed `Currency`, and a test that writes
+/// `Currency.tryParse('EUR')!` eleven times is testing the reader's patience.
+Money _money(int amountMinor, String code) =>
+    Money(amountMinor, Currency.tryParse(code)!);
 
 String _codepoints(String s) => s.runes
     .map((r) => 'U+${r.toRadixString(16).toUpperCase().padLeft(4, '0')}')
@@ -31,7 +38,7 @@ void main() {
       // RTL, so -1,234.56 reads as 1,234.56- with the sign next to something
       // else entirely.
       final negative = formatMoney(
-        const Money.of(-123456, 'EUR'),
+        _money(-123456, 'EUR'),
         'de-DE',
         numerals: CalmNumerals.auto,
       );
@@ -51,7 +58,7 @@ void main() {
       expect(
         _visible(
           formatMoney(
-            const Money.of(123456, 'USD'),
+            _money(123456, 'USD'),
             'en-US',
             numerals: CalmNumerals.auto,
           ),
@@ -63,7 +70,7 @@ void main() {
     test('de-DE puts it after, separated by a NO-BREAK space', () {
       final actual = _visible(
         formatMoney(
-          const Money.of(123456, 'EUR'),
+          _money(123456, 'EUR'),
           'de-DE',
           numerals: CalmNumerals.auto,
         ),
@@ -86,7 +93,7 @@ void main() {
         // 12345.6 rials, so the rounding is on the toman, not the rial.
         final actual = _visible(
           formatMoney(
-            const Money.of(12345, 'IRR'),
+            _money(12345, 'IRR'),
             'fa-IR',
             numerals: CalmNumerals.auto,
             display: CalmCurrencyDisplay.toman,
@@ -102,11 +109,11 @@ void main() {
 
   group('toman is display only', () {
     test('the stored amount is still IRR minor units', () {
-      const money = Money.of(12345, 'IRR');
+      final money = _money(12345, 'IRR');
       // Whatever the display setting says, the integer does not move.
-      expect(money.minorUnits, 12345);
-      expect(money.currency, 'IRR');
-      expect(formatForExport(money.minorUnits), '12345');
+      expect(money.amountMinor, 12345);
+      expect(money.currency.code, 'IRR');
+      expect(formatForExport(money.amountMinor), '12345');
     });
 
     test('IRT appears nowhere in the tree', () {
@@ -129,17 +136,17 @@ void main() {
   });
 
   test('decimal places come from the ISO minor unit', () {
-    expect(currencyDecimals('JPY'), 0);
+    expect(Currency.tryParse('JPY')!.exponent, 0);
     // Zero, and the toman path depends on it: dividing by ten is only a
     // rial-to-toman conversion if the minor unit IS the rial. At the default
     // exponent of 2 the same stored integer read a hundredfold apart between
     // the two display modes.
-    expect(currencyDecimals('IRR'), 0);
-    expect(currencyDecimals('AFN'), 0);
-    expect(currencyDecimals('KWD'), 3);
-    expect(currencyDecimals('IQD'), 3);
-    expect(currencyDecimals('EUR'), 2);
-    expect(currencyDecimals('USD'), 2);
+    expect(Currency.tryParse('IRR')!.exponent, 0);
+    expect(Currency.tryParse('AFN')!.exponent, 0);
+    expect(Currency.tryParse('KWD')!.exponent, 3);
+    expect(Currency.tryParse('IQD')!.exponent, 3);
+    expect(Currency.tryParse('EUR')!.exponent, 2);
+    expect(Currency.tryParse('USD')!.exponent, 2);
     // A dinar rendered with two decimals is out by a factor of ten. The
     // separators are Arabic here and the digits are Latin, which is exactly
     // what `numerals: latin` on an Arabic locale means: the digit SET is the
@@ -147,7 +154,7 @@ void main() {
     expect(
       _visible(
         formatMoney(
-          const Money.of(1234567, 'IQD'),
+          _money(1234567, 'IQD'),
           'ar-IQ',
           numerals: CalmNumerals.latin,
         ),
@@ -212,17 +219,33 @@ void main() {
       // A US gallon is 3.785 L and an imperial gallon is 4.546. Two enum
       // values rather than one plus a flag, so no arithmetic path can treat
       // them as equal.
+      //
+      // Asserted against `ConsumptionUnit`, the one in `lib/core/units/`.
+      // EPIC-04 wrote a second four-value `CalmConsumptionUnit` here, with
+      // `l_per_100km` and `mpg_imp` where SPEC.md §3 says `l_100km` and
+      // `mpg_uk` — and this test was its only reference, so the wrong
+      // spelling was pinned by the suite while nothing used the right one.
+      expect(ConsumptionUnit.mpgUs, isNot(ConsumptionUnit.mpgUk));
       expect(
-        CalmConsumptionUnit.mpgUs,
-        isNot(CalmConsumptionUnit.mpgImperial),
+        ConsumptionUnit.values.map((u) => u.wire).toSet(),
+        hasLength(ConsumptionUnit.values.length),
       );
-      expect(
-        CalmConsumptionUnit.values.map((u) => u.wire).toSet(),
-        hasLength(CalmConsumptionUnit.values.length),
-      );
-      // Only one of the four counts down.
-      expect(CalmConsumptionUnit.litresPerHundredKm.higherIsBetter, isFalse);
-      expect(CalmConsumptionUnit.mpgUs.higherIsBetter, isTrue);
+      // SPEC.md §3's stored vocabulary, exactly.
+      expect(ConsumptionUnit.values.map((u) => u.wire), [
+        'l_100km',
+        'km_l',
+        'mpg_us',
+        'mpg_uk',
+        'kwh_100km',
+        'mi_kwh',
+      ]);
+      // Two of the six count down, and they are the two per-distance ones —
+      // the Calm copy's `higherIsBetter` had no kWh case at all and would
+      // have put an EV's best tank at the bottom of the axis.
+      expect(ConsumptionUnit.lPer100km.isFuelPerDistance, isTrue);
+      expect(ConsumptionUnit.kwhPer100km.isFuelPerDistance, isTrue);
+      expect(ConsumptionUnit.mpgUs.isFuelPerDistance, isFalse);
+      expect(ConsumptionUnit.miPerKwh.isFuelPerDistance, isFalse);
     });
   });
 }

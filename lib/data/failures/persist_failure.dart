@@ -10,6 +10,7 @@
 // compile error at every call site rather than a case that falls through.
 import 'package:meta/meta.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// Why a write against the local database did not happen.
@@ -79,28 +80,28 @@ final class NotFound extends PersistFailure {
 final class OdometerWouldGoBackwards extends PersistFailure {
   /// Creates the failure.
   const OdometerWouldGoBackwards({
-    required this.previousCumulativeM,
+    required this.previousCumulative,
     required this.previousOccurredOn,
-    required this.attemptedCumulativeM,
+    required this.attemptedCumulative,
   });
 
   /// What the conflicting neighbour reads, cumulatively, in metres.
-  final int previousCumulativeM;
+  final Distance previousCumulative;
 
   /// And when.
   final String previousOccurredOn;
 
   /// What was offered, in metres.
-  final int attemptedCumulativeM;
+  final Distance attemptedCumulative;
 
   @override
   String get code => 'odometer_would_go_backwards';
 
   @override
   List<Object?> get props => [
-    previousCumulativeM,
+    previousCumulative,
     previousOccurredOn,
-    attemptedCumulativeM,
+    attemptedCumulative,
   ];
 }
 

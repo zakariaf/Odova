@@ -4,6 +4,12 @@
 // randomness and get the same id twice. `seeded-determinism-and-golden-vectors`
 // names an ambient `Random()` on a generation path as the thing that turns a
 // failing test into a story about a machine.
+// **Not in `lib/core/`.** It is a Riverpod provider — dependency-injection
+// wiring, which is what `lib/app/` is for. The FACTORY it wires is pure and
+// stays in `lib/core/ids/`; only the wiring moved. A provider in the pure core
+// means the core cannot be tested without a ProviderContainer, which is the
+// opposite of the point.
+
 import 'dart:math';
 
 import 'package:clock/clock.dart';

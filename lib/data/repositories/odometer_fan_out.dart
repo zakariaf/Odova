@@ -17,6 +17,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/odometer/monotonicity.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
@@ -238,7 +239,7 @@ Future<PersistFailure?> checkDerivedReading(
       id: mine?.read<String>('id') ?? '\uffff$parentId',
       occurredOn: occurredOn,
       createdAtUtcMs: mine?.read<int>('created_at_utc_ms') ?? nowUtcMs,
-      odometerM: odometerM,
+      odometer: Distance(odometerM),
     ),
     existing: [
       for (final row in existing)
@@ -246,27 +247,27 @@ Future<PersistFailure?> checkDerivedReading(
           id: row.read<String>('id'),
           occurredOn: row.read<String>('occurred_on'),
           createdAtUtcMs: row.read<int>('created_at_utc_ms'),
-          odometerM: row.read<int>('odometer_m'),
+          odometer: Distance(row.read<int>('odometer_m')),
         ),
     ],
     corrections: [
       for (final row in corrections)
         (
           fromReadingId: row.read<String>('from_reading_id'),
-          previousM: row.read<int>('previous_m'),
-          newM: row.read<int>('new_m'),
+          previous: Distance(row.read<int>('previous_m')),
+          replacement: Distance(row.read<int>('new_m')),
         ),
     ],
     vehicleUnit: vehicleUnit,
-    purchaseOdometerM: purchaseOdometerM,
+    purchaseOdometer: distanceOrNull(purchaseOdometerM),
   );
 
   final blocked = verdict.blocked;
   if (blocked == null) return null;
 
   return OdometerWouldGoBackwards(
-    previousCumulativeM: blocked.previousCumulativeM,
+    previousCumulative: blocked.previousCumulative,
     previousOccurredOn: blocked.previousOccurredOn,
-    attemptedCumulativeM: blocked.attemptedCumulativeM,
+    attemptedCumulative: blocked.attemptedCumulative,
   );
 }

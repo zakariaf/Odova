@@ -7,6 +7,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:test/test.dart';
+import '../../../support/values.dart';
 
 const _id = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
 
@@ -17,14 +18,13 @@ ServiceLine _line(String suffix, int amountMinor) => ServiceLine(
   id: ServiceLineId.tryParse('lin_${_id.substring(0, 25)}$suffix')!,
   serviceRecordId: _record,
   label: 'Line $suffix',
-  amountMinor: amountMinor,
-  currency: 'EUR',
+  amount: money(amountMinor, 'EUR'),
 );
 
 ServiceItem _item({
-  int? intervalDistanceM,
+  Distance? intervalDistance,
   int? intervalMonths,
-  int? targetOdometerM,
+  Distance? targetOdometer,
   String? targetDate,
 }) => ServiceItem(
   id: ServiceItemId.tryParse('rem_$_id')!,
@@ -34,9 +34,9 @@ ServiceItem _item({
   rollover: ServiceRollover.fromActual,
   createdAtUtcMs: 0,
   updatedAtUtcMs: 0,
-  intervalDistanceM: intervalDistanceM,
+  intervalDistance: intervalDistance,
   intervalMonths: intervalMonths,
-  targetOdometerM: targetOdometerM,
+  targetOdometer: targetOdometer,
   targetDate: targetDate,
 );
 
@@ -53,7 +53,8 @@ void main() {
         lines: [_line('A', 8900), _line('B', 4250), _line('C', 0)],
       );
 
-      expect(record.totalMinor, 13150);
+      expect(record.total.byCurrency[isoCurrency('EUR')], 13150);
+      expect(record.total.isMixed, isFalse);
     });
 
     test('a warranty job of one zero line totals zero, not nothing', () {
@@ -70,7 +71,7 @@ void main() {
         lines: [_line('A', 0)],
       );
 
-      expect(record.totalMinor, 0);
+      expect(record.total.byCurrency[isoCurrency('EUR')], 0);
     });
 
     test('two records differing only in a line are not equal', () {
@@ -97,20 +98,32 @@ void main() {
 
   group('which axes a service item has is derived, never stored', () {
     test('an interval or a target turns its axis on', () {
-      expect(_item(intervalDistanceM: 15000000).hasDistanceAxis, isTrue);
-      expect(_item(intervalDistanceM: 15000000).hasTimeAxis, isFalse);
+      expect(
+        _item(intervalDistance: const Distance(15000000)).hasDistanceAxis,
+        isTrue,
+      );
+      expect(
+        _item(intervalDistance: const Distance(15000000)).hasTimeAxis,
+        isFalse,
+      );
 
       expect(_item(intervalMonths: 12).hasTimeAxis, isTrue);
       expect(_item(intervalMonths: 12).hasDistanceAxis, isFalse);
 
       // A one-off carries a target instead of an interval, and it is still
       // that axis.
-      expect(_item(targetOdometerM: 120000000).hasDistanceAxis, isTrue);
+      expect(
+        _item(targetOdometer: const Distance(120000000)).hasDistanceAxis,
+        isTrue,
+      );
       expect(_item(targetDate: '2027-04-01').hasTimeAxis, isTrue);
     });
 
     test('both axes at once is whichever-comes-first, not a third mode', () {
-      final both = _item(intervalDistanceM: 15000000, intervalMonths: 12);
+      final both = _item(
+        intervalDistance: const Distance(15000000),
+        intervalMonths: 12,
+      );
       expect(both.hasDistanceAxis, isTrue);
       expect(both.hasTimeAxis, isTrue);
     });
@@ -125,13 +138,16 @@ void main() {
       odometerUnit: DistanceUnit.km,
       createdAtUtcMs: 0,
       updatedAtUtcMs: 0,
-      startOdometerM: start,
-      endOdometerM: end,
-      manualDistanceM: manual,
+      startOdometer: metres(start),
+      endOdometer: metres(end),
+      manualDistance: metres(manual),
     );
 
     test('the endpoints win when both are present', () {
-      expect(trip(start: 186000000, end: 186512000).distanceM, 512000);
+      expect(
+        trip(start: 186000000, end: 186512000).distance,
+        const Distance(512000),
+      );
     });
 
     test('the manual figure is used ONLY when both endpoints are absent', () {
@@ -139,15 +155,18 @@ void main() {
       // because people log some trips and not all. Preferring a typed number
       // over two real readings would make it one.
       expect(
-        trip(start: 186000000, end: 186512000, manual: 999).distanceM,
-        512000,
+        trip(start: 186000000, end: 186512000, manual: 999).distance,
+        const Distance(512000),
       );
-      expect(trip(manual: 40000).distanceM, 40000);
-      expect(trip(start: 186000000, manual: 40000).distanceM, 40000);
+      expect(trip(manual: 40000).distance, const Distance(40000));
+      expect(
+        trip(start: 186000000, manual: 40000).distance,
+        const Distance(40000),
+      );
     });
 
     test('an open trip with nothing to go on has no distance', () {
-      expect(trip().distanceM, isNull);
+      expect(trip().distance, isNull);
     });
   });
 
@@ -156,7 +175,7 @@ void main() {
       id: OdometerReadingId.tryParse('odo_$_id')!,
       vehicleId: _vehicle,
       occurredOn: '2026-09-03',
-      odometerM: 186512000,
+      odometer: const Distance(186512000),
       odometerUnit: DistanceUnit.km,
       source: source,
       createdAtUtcMs: 0,
@@ -182,14 +201,69 @@ void main() {
       id: OdometerCorrectionId.tryParse('cor_$_id')!,
       vehicleId: _vehicle,
       fromReadingId: OdometerReadingId.tryParse('odo_$_id')!,
-      previousM: 187412000,
-      newM: 0,
+      previous: const Distance(187412000),
+      replacement: Distance.zero,
       odometerUnit: DistanceUnit.km,
       reason: OdometerCorrectionReason.clusterReplaced,
       createdAtUtcMs: 0,
       updatedAtUtcMs: 0,
     );
 
-    expect(correction.offsetM, 187412000);
+    expect(correction.offset, const Distance(187412000));
+  });
+  group('a record whose lines span two currencies', () {
+    test('groups them, and does not throw', () {
+      // `Money.+` throws across currencies, deliberately — a screen that asks
+      // for one number from two is wrong. But `total` is a plain GETTER on a
+      // domain model, so throwing there means a record with a part billed
+      // abroad crashes the screen that lists it rather than showing what is
+      // known. Every other total in this epic groups: `fuelSpend`,
+      // `MoneyTotal`, `fuelCostPerDistance`. This was the one that summed
+      // blind, and the whole suite missed it because every fixture used EUR.
+      final record = ServiceRecord(
+        id: _record,
+        vehicleId: _vehicle,
+        occurredOn: '2026-09-03',
+        odometerUnit: DistanceUnit.km,
+        createdAtUtcMs: 0,
+        updatedAtUtcMs: 0,
+        lines: [
+          ServiceLine(
+            id: ServiceLineId.tryParse('lin_${_id.substring(0, 25)}X')!,
+            serviceRecordId: _record,
+            label: 'Parts, bought abroad',
+            amount: money(4250, 'GBP'),
+          ),
+          ServiceLine(
+            id: ServiceLineId.tryParse('lin_${_id.substring(0, 25)}Y')!,
+            serviceRecordId: _record,
+            label: 'Labour',
+            amount: money(8900, 'EUR'),
+          ),
+        ],
+      );
+
+      expect(record.total.isMixed, isTrue);
+      expect(record.total.byCurrency[isoCurrency('GBP')], 4250);
+      expect(record.total.byCurrency[isoCurrency('EUR')], 8900);
+      // SPEC.md §12: the screen reads this to choose between one figure and a
+      // list. There is no third option that adds them up.
+      expect(record.total.dominantCurrency, isNotNull);
+    });
+
+    test('an empty record totals nothing, and says so without a currency', () {
+      final empty = ServiceRecord(
+        id: _record,
+        vehicleId: _vehicle,
+        occurredOn: '2026-09-03',
+        odometerUnit: DistanceUnit.km,
+        createdAtUtcMs: 0,
+        updatedAtUtcMs: 0,
+        lines: const [],
+      );
+
+      expect(empty.total.isEmpty, isTrue);
+      expect(empty.total.dominantCurrency, isNull);
+    });
   });
 }

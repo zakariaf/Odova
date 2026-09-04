@@ -41,27 +41,11 @@ void main() {
     expect(children.whereType<File>().map(_name).toSet(), {'main.dart'});
   });
 
-  test('lib/core imports no Flutter', () {
-    final offenders = <String>[];
-    for (final file in dartFilesUnder('lib/core')) {
-      for (final uri in importUrisIn(file.readAsStringSync())) {
-        if (uri.startsWith('package:flutter/') ||
-            uri == 'dart:ui' ||
-            uri == 'dart:io') {
-          offenders.add('${file.path} -> $uri');
-        }
-      }
-    }
-
-    expect(
-      offenders,
-      isEmpty,
-      reason:
-          'lib/core is pure Dart. If it needs a BuildContext, a canvas or '
-          'a filesystem, the layering is wrong and the code belongs in '
-          'lib/data or lib/features.',
-    );
-  });
+  // `lib/core imports no Flutter` used to live here, checking three of the
+  // five banned prefixes against UNSTRIPPED source. It is now one rule in one
+  // place: `test/policy/core_is_pure_test.dart` (all five, comments stripped)
+  // and `tools/check_core_purity.sh` (the same five, in the toolchain-free CI
+  // lane). Two statements of a rule are two chances to tighten only one.
 
   test('test/core imports no Flutter, transitively', () {
     // The mirror of the gate above, on the test side, and it is the one that

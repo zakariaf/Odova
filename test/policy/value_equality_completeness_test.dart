@@ -23,9 +23,17 @@ typedef ValueClass = ({String name, Set<String> fields, Set<String> props});
 List<ValueClass> valueClassesIn(String source) {
   final classes = <ValueClass>[];
 
-  // Split on top-level declarations so each chunk is one class body.
+  // Split on every top-level declaration, not only `class`. An `enum` after a
+  // class in the same file was absorbed into the class's chunk, so
+  // `DistanceUnit`'s `final String wire` was read as a field of `Distance` —
+  // and the gate reported a false positive on the first file that put a value
+  // type and its unit enum together, which is every units file.
   final chunks = source.split(
-    RegExp('^(?=(?:final |sealed |abstract )*class )', multiLine: true),
+    RegExp(
+      '^(?=(?:final |sealed |abstract |base |interface )*'
+      '(?:class|enum|mixin|extension|typedef) )',
+      multiLine: true,
+    ),
   );
   for (final chunk in chunks) {
     final header = RegExp(
@@ -65,6 +73,41 @@ List<ValueClass> valueClassesIn(String source) {
 
 void main() {
   test('every field of every value type is in its props', () {
+    // A field whose value is ENCODED into props rather than listed by name.
+    // `MoneyTotal` holds two Maps, and a Map in props compares by identity —
+    // so two totals built from the same amounts would never be equal. It
+    // encodes both as sorted strings instead, which the parser cannot see.
+    //
+    // Named individually with the reason, not waved through by type: the gate
+    // caught a real bug in this very class before the encoding was complete —
+    // the row counts were outside equality while `dominantCurrency` read them,
+    // so two "equal" totals answered differently.
+    const encodedNotListed = {
+      // Two Maps. A Map in props compares by IDENTITY, so two totals built
+      // from the same amounts would never be equal; both are encoded as
+      // sorted strings instead — computed once in the factory and STORED,
+      // because `props` is read by both `==` and `hashCode` and re-sorting
+      // two maps per read made one comparison four sorts. `props` itself is
+      // then a field, which is why it is named here: a field literally called
+      // `props` cannot be listed inside itself.
+      'lib/core/money/money_total.dart': {'byCurrency', '_counts', 'props'},
+      // Same shape, and then some. `props` is computed ONCE in the factory
+      // (see `MoneyTotal` above for why), which makes it a field that cannot
+      // list itself, and `flaggedFillUpIds` is the sorted key set cached
+      // beside it — both are IN the stored encoding rather than named in it.
+      // `segments` is spread into it, and `warnings` and `discarded` are the
+      // two Maps, encoded because a Map in props compares by identity.
+      'lib/core/fuel/fuel_segment.dart': {
+        'segments',
+        'warnings',
+        'discarded',
+        'flaggedFillUpIds',
+        'props',
+      },
+      // And a Map of rates per currency, encoded the same way.
+      'lib/core/fuel/fuel_money.dart': {'minorPerMetre'},
+    };
+
     final offenders = <String>[];
     var checked = 0;
 
@@ -74,7 +117,9 @@ void main() {
     ]) {
       for (final value in valueClassesIn(sourceWithoutLineComments(file))) {
         checked++;
-        final missing = value.fields.difference(value.props);
+        final missing = value.fields
+            .difference(value.props)
+            .difference(encodedNotListed[file.path] ?? const {});
         if (missing.isNotEmpty) {
           offenders.add('${file.path}: ${value.name} omits $missing');
         }
@@ -124,6 +169,13 @@ class Bad with ValueEquality {
 
 class NotAValue {
   final int a = 1;
+}
+
+enum Unit {
+  km('km');
+
+  const Unit(this.wire);
+  final String wire;
 }
 ''';
 

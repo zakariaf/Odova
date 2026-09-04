@@ -7,6 +7,15 @@
 // `intl` exports a TextDirection of its own — a bidi helper, not the layout
 // enum — and it wins the import race. Hidden, so `TextDirection.ltr` below
 // means what every other file in this repo means by it.
+// **Not in `lib/core/`, and the purity gate is why.** This formats a number for a locale, which
+// means it takes `package:intl` — and a domain function that formats has taken
+// a locale as a HIDDEN input: the same computation then answers differently in
+// Tehran and Toronto. Formatting is a presentation act and lives at the edge.
+//
+// EPIC-04 moved these into `lib/core/l10n/` on the reasoning that they import
+// no Flutter, which was true and not the whole rule. EPIC-06's
+// `tools/check_core_purity.sh` caught it on its first run.
+
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:odova/core/l10n/locale_resolution.dart';
 import 'package:odova/core/l10n/numerals.dart';

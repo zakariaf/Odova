@@ -12,12 +12,15 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/odometer/monotonicity.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/odometer_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
+
+import '../../support/values.dart';
 
 const int _km = 1000;
 const String _body = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
@@ -33,7 +36,7 @@ OdometerReading _reading(
   id: OdometerReadingId.tryParse('odo_${_body.substring(0, 25)}$suffix')!,
   vehicleId: _vehicleId,
   occurredOn: occurredOn,
-  odometerM: odometerM,
+  odometer: Distance(odometerM),
   odometerUnit: DistanceUnit.km,
   source: source,
   createdAtUtcMs: createdAtUtcMs,
@@ -64,11 +67,11 @@ void main() {
   Future<Result<SavedReading, PersistFailure>> save(
     OdometerReading reading, {
     DistanceUnit unit = DistanceUnit.km,
-    int? purchaseOdometerM,
+    Distance? purchaseOdometer,
   }) => repository.saveReading(
     reading,
     vehicleUnit: unit,
-    purchaseOdometerM: purchaseOdometerM,
+    purchaseOdometer: purchaseOdometer,
   );
 
   Future<int> countReadings() async =>
@@ -97,9 +100,9 @@ void main() {
     // The three resolutions SPEC.md §3 offers all name the conflicting
     // reading and its date. A failure carrying only a code would leave the
     // user with "that number is wrong" and nothing to act on.
-    expect(failure.previousCumulativeM, 180000 * _km);
+    expect(failure.previousCumulative, const Distance.fromKm(180000));
     expect(failure.previousOccurredOn, '2026-01-01');
-    expect(failure.attemptedCumulativeM, 170000 * _km);
+    expect(failure.attemptedCumulative, const Distance.fromKm(170000));
 
     expect(await countReadings(), 1, reason: 'nothing may be written');
   });
@@ -117,7 +120,7 @@ void main() {
       expect(await save(corrected), isA<Ok<SavedReading, PersistFailure>>());
 
       final stored = await repository.watchReadings(_vehicleId).first;
-      expect(stored.last.odometerM, 185000 * _km);
+      expect(stored.last.odometer, const Distance.fromKm(185000));
       expect(await countReadings(), 2);
     },
   );
@@ -144,13 +147,13 @@ void main() {
     final failure =
         (result as Err<SavedReading, PersistFailure>).failure
             as OdometerWouldGoBackwards;
-    expect(failure.previousCumulativeM, 195000 * _km);
+    expect(failure.previousCumulative, const Distance.fromKm(195000));
     expect(failure.previousOccurredOn, '2026-09-01');
 
     final stored = await repository.watchReadings(_vehicleId).first;
     expect(
-      stored.firstWhere((r) => r.occurredOn == '2026-06-01').odometerM,
-      190000 * _km,
+      stored.firstWhere((r) => r.occurredOn == '2026-06-01').odometer,
+      const Distance.fromKm(190000),
     );
   });
 
@@ -179,8 +182,8 @@ void main() {
           id: OdometerCorrectionId.tryParse('cor_$_body')!,
           vehicleId: _vehicleId,
           fromReadingId: boundary.id,
-          previousM: 187412 * _km,
-          newM: 0,
+          previous: const Distance.fromKm(187412),
+          replacement: Distance.zero,
           odometerUnit: DistanceUnit.km,
           reason: OdometerCorrectionReason.clusterReplaced,
           createdAtUtcMs: 2000,
@@ -199,9 +202,9 @@ void main() {
 
       final cumulative =
           (await repository.cumulativeFor(_vehicleId)
-                  as Ok<Map<String, int>, PersistFailure>)
+                  as Ok<Map<String, Distance>, PersistFailure>)
               .value;
-      expect(cumulative[after.id.toString()], 190412 * _km);
+      expect(cumulative[after.id.toString()], const Distance.fromKm(190412));
     },
   );
 
@@ -243,8 +246,8 @@ void main() {
         id: correctionId,
         vehicleId: _vehicleId,
         fromReadingId: boundary.id,
-        previousM: 187412 * _km,
-        newM: 0,
+        previous: const Distance.fromKm(187412),
+        replacement: Distance.zero,
         odometerUnit: DistanceUnit.km,
         reason: OdometerCorrectionReason.clusterReplaced,
         createdAtUtcMs: 2000,
@@ -296,8 +299,8 @@ void main() {
         id: correctionId,
         vehicleId: _vehicleId,
         fromReadingId: boundary.id,
-        previousM: 187412 * _km,
-        newM: 0,
+        previous: const Distance.fromKm(187412),
+        replacement: Distance.zero,
         odometerUnit: DistanceUnit.km,
         reason: OdometerCorrectionReason.clusterReplaced,
         createdAtUtcMs: 2000,
@@ -350,11 +353,17 @@ void main() {
 
     final cumulative =
         (await repository.cumulativeFor(_vehicleId)
-                as Ok<Map<String, int>, PersistFailure>)
+                as Ok<Map<String, Distance>, PersistFailure>)
             .value;
 
     expect(cumulative, hasLength(2));
-    expect(cumulative.values, containsAll(<int>[180000 * _km, 190000 * _km]));
+    expect(
+      cumulative.values,
+      containsAll(const <Distance>[
+        Distance.fromKm(180000),
+        Distance.fromKm(190000),
+      ]),
+    );
   });
 
   test('a used-car backfill needs no correction', () async {
@@ -427,9 +436,58 @@ void main() {
   test('below the purchase odometer is refused', () async {
     final result = await save(
       _reading('A', '2019-05-01', 50000 * _km),
-      purchaseOdometerM: 96000 * _km,
+      purchaseOdometer: metres(96000 * _km),
     );
     expect(result, isA<Err<SavedReading, PersistFailure>>());
     expect(await countReadings(), 0);
+  });
+  test('SQL returns readings in exactly compareReadings order', () async {
+    // The repository stopped re-sorting what SQL already ordered, which is
+    // only correct while the two orders agree. They agree because every key is
+    // ASCII — SQLite compares TEXT with memcmp on UTF-8 and Dart's
+    // `compareTo` uses UTF-16 code units — and this asserts it rather than
+    // trusting the comment that says so.
+    //
+    // The ids and dates below exercise all three keys: two readings on the
+    // same date with different created-at, and two with the SAME created-at
+    // that can only be separated by id.
+    // Odometers ascend in the SORTED order (B, C, D, A), not the insert
+    // order, so monotonicity accepts all four and the ordering is what is
+    // under test.
+    //
+    // **D is inserted BEFORE C, and that is the point.** They share a date and
+    // a created-at, so only the id separates them — and with D written first,
+    // SQLite's rowid order and `compareReadings` order DISAGREE unless the id
+    // is really the third ORDER BY key. A first version of this test inserted
+    // them in id order, so dropping `r.id` from the query left it green.
+    for (final reading in [
+      _reading('A', '2026-06-01', 190000 * _km, createdAtUtcMs: 2000),
+      _reading('B', '2026-01-01', 180000 * _km),
+      _reading('D', '2026-06-01', 182000 * _km),
+      _reading('C', '2026-06-01', 181000 * _km),
+    ]) {
+      expect(await save(reading), isA<Ok<SavedReading, PersistFailure>>());
+    }
+
+    final fromSql = await repository.watchReadings(_vehicleId).first;
+    final points = fromSql
+        .map<ReadingPoint>(
+          (r) => (
+            id: r.id.toString(),
+            occurredOn: r.occurredOn,
+            createdAtUtcMs: r.createdAtUtcMs,
+            odometer: r.odometer,
+          ),
+        )
+        .toList();
+
+    final sorted = List<ReadingPoint>.from(points)..sort(compareReadings);
+    expect(
+      points,
+      orderedEquals(sorted),
+      reason: 'SQL order and compareReadings disagree',
+    );
+    // And it is not vacuous: the insert order was not the sorted order.
+    expect(points.first.occurredOn, '2026-01-01');
   });
 }

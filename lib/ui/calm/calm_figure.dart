@@ -6,8 +6,8 @@
 // tests in milliseconds without a widget harness.
 
 import 'package:flutter/widgets.dart';
-import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/l10n/number_format.dart';
 
 /// A number on screen, in the active digit block.
 ///
