@@ -63,6 +63,9 @@ class CalmScaffold extends StatelessWidget {
     this.footer,
     this.tight = false,
     this.brand = false,
+    this.bodyGap,
+    this.bodyPadBlock,
+    this.footPadBlock,
   });
 
   /// The bar at the top. An ordinary widget in a Column, never
@@ -99,6 +102,28 @@ class CalmScaffold extends StatelessWidget {
   /// `--tight` is opted into, even though the opt-in is the majority.
   final bool tight;
 
+  /// `.screen__body`'s `gap`, when an artboard overrides it inline.
+  ///
+  /// Null takes [tight]'s answer, which takes the stylesheet's. That is the CSS
+  /// cascade and it is modelled rather than flattened because the artboards use
+  /// all three rungs: 21 of the 28 carry `--tight`, 23 additionally set an
+  /// inline `gap`, and five leave `.screen__body` alone entirely.
+  final double? bodyGap;
+
+  /// `.screen__body`'s `padding-block`, when an artboard overrides it.
+  ///
+  /// The INLINE padding never varies — it is `--screen-pad` on every screen —
+  /// so only the block axis is a parameter. Both values are `CalmSpace` tokens:
+  /// nine artboards override with `var(--space-N)` and the rest with raw pixels
+  /// off Calm's own scale, and only the first kind is a design decision.
+  final ({double top, double bottom})? bodyPadBlock;
+
+  /// `.screen__foot`'s `padding-block`, when an artboard overrides it.
+  ///
+  /// One screen does today — `firstrun.vehicle`, at s3/s4 against the
+  /// stylesheet's s4/s5.
+  final ({double top, double bottom})? footPadBlock;
+
   /// `.screen--brand` — the wash behind `firstrun.language` and
   /// `settings.about`.
   ///
@@ -130,13 +155,14 @@ class CalmScaffold extends StatelessWidget {
                   child: ListView.separated(
                     padding: EdgeInsetsDirectional.fromSTEB(
                       space.screenPad,
-                      space.s5,
+                      bodyPadBlock?.top ?? space.s5,
                       space.screenPad,
-                      space.s6,
+                      bodyPadBlock?.bottom ?? space.s6,
                     ),
                     itemCount: children.length,
-                    separatorBuilder: (_, _) =>
-                        SizedBox(height: tight ? space.s4 : space.s5),
+                    separatorBuilder: (_, _) => SizedBox(
+                      height: bodyGap ?? (tight ? space.s4 : space.s5),
+                    ),
                     itemBuilder: (_, i) => children[i],
                   ),
                 ),
@@ -144,9 +170,9 @@ class CalmScaffold extends StatelessWidget {
                   Padding(
                     padding: EdgeInsetsDirectional.fromSTEB(
                       space.screenPad,
-                      space.s4,
+                      footPadBlock?.top ?? space.s4,
                       space.screenPad,
-                      space.s5,
+                      footPadBlock?.bottom ?? space.s5,
                     ),
                     child: footer,
                   ),

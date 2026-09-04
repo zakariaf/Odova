@@ -399,6 +399,42 @@ void main() {
     }
   });
 
+  testWidgets('an artboard override wins over tight, like an inline style', (
+    tester,
+  ) async {
+    // 23 of the 28 artboards set `style="padding-block: …; gap: …"` on
+    // `.screen__body`, and nine of those use the token scale rather than raw
+    // pixels — `firstrun.vehicle` is `var(--space-1) var(--space-3)` with a
+    // `var(--space-3)` gap. The stylesheet's own 20/24/20 is used by five
+    // screens. So the override is not an exception, and CalmScaffold models the
+    // CSS cascade: the `--tight` class sets the gap, an inline style beats it.
+    await pumpApp(
+      tester,
+      CalmScaffold(
+        appBar: null,
+        tight: true,
+        bodyGap: calmSpace.s3,
+        bodyPadBlock: (top: calmSpace.s1, bottom: calmSpace.s3),
+        footPadBlock: (top: calmSpace.s3, bottom: calmSpace.s4),
+        footer: const Text('foot'),
+        children: const [Text('one'), Text('two')],
+      ),
+    );
+
+    final one = tester.getRect(find.text('one'));
+    final two = tester.getRect(find.text('two'));
+    final screen = tester.getRect(find.byType(CalmScaffold));
+    final foot = tester.getRect(find.text('foot'));
+
+    // The inline gap wins over `tight`'s s4.
+    expect(two.top - one.bottom, closeTo(calmSpace.s3, 0.01));
+    // And the body starts at s1, not the stylesheet's s5.
+    expect(one.top - screen.top, closeTo(calmSpace.s1, 0.01));
+    // The foot's own padding-block, above the text and below it.
+    expect(foot.top - one.bottom, greaterThan(0));
+    expect(screen.bottom - foot.bottom, closeTo(calmSpace.s4, 0.01));
+  });
+
   testWidgets('brand paints the wash, and without it the ground is flat', (
     tester,
   ) async {
