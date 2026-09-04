@@ -169,6 +169,38 @@ void main() {
       expect(minted.toSet(), hasLength(1000));
     });
 
+    test('a long burst inside one millisecond stays sorted and unique', () {
+      // The monotonic increment carries 80 bits, so it does not run out — but
+      // "does not run out" is a claim about an overflow path that wraps to
+      // zero and would silently break sort order if it were ever reached.
+      // Twenty thousand ids in one millisecond is far beyond any real burst
+      // (an import is the worst case) and well within the increment's range.
+      final f = _factory();
+      final minted = [
+        for (var i = 0; i < 20000; i++) VehicleId.mint(f).toString(),
+      ];
+
+      expect(minted, [...minted]..sort());
+      expect(minted.toSet(), hasLength(minted.length));
+    });
+
+    test('the id is a TIEBREAK, never the app clock', () {
+      // A ULID sorts by its timestamp, so a clock that steps backwards mints
+      // an id that sorts before its predecessor. That is inherent and it is
+      // not this app's problem: nothing orders by id alone.
+      // `compareReadings` sorts by `(occurred_on, created_at, id)` — SPEC.md
+      // §3's order — and `created_at` comes from the SAME clock, so the two
+      // move together and the id only ever separates a genuine tie.
+      final earlier = VehicleId.mint(
+        _factory(at: DateTime.utc(2026, 9, 3, 12)),
+      ).toString();
+      final afterStepBack = VehicleId.mint(
+        _factory(at: DateTime.utc(2026, 9, 3, 11)),
+      ).toString();
+
+      expect(afterStepBack.compareTo(earlier), isNegative);
+    });
+
     test('ids are time-sortable across milliseconds, as plain strings', () {
       final early = VehicleId.mint(
         _factory(at: DateTime.utc(2026, 9, 3, 12)),
