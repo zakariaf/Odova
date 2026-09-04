@@ -2113,6 +2113,8 @@ Twenty-three addressable screens, four of which are tab roots, plus three global
 | `dialog.confirmDelete` | Delete? | dialog | Guards every destructive action, naming what dies ("Delete Golf and its 412 entries?"). |
 | `dialog.snooze` | Snooze | dialog | Push one reminder's notifications out by 3 days / 1 week / 1 month / after another 500 km (the distance option only when the item has a distance interval). |
 
+**The two first-run modes have no route id of their own, and two reference filenames.** `settings.language` and `vehicle.edit` each render a `firstRun` mode rather than a separate screen — the route ids above are the whole list, and nothing registers a `firstrun.*` route. But `design/reference/calm/` ships those two modes as `firstrun.language` and `firstrun.vehicle`, because a reference set is indexed by what was drawn and the two modes are drawn differently. So **route ids follow this table and parity capture filenames follow the reference set**: a capture named `settings.language` would have nothing to compare against, and a route named `firstrun.language` would be a screen this section does not list.
+
 **Not screens, deliberately.** OS file pickers, share sheets, date pickers and the notification-permission prompt are system UI; they are never wrapped in a screen of ours.
 
 ### What does not get a screen, and why
@@ -2413,6 +2415,37 @@ Language comes from the tapped row; everything else from the device region, not 
 Six controls, one required entry, nine interactions on a realistic path. Everything else in `Vehicle` is nullable and asked later.
 
 The odometer is required because every projection hangs off the series: with no readings every reminder is `unknown`, and day one is a home screen full of dashes. It is also the one number every driver can read without leaving the car. The annual band is what the projection falls back on until there is enough history to measure — without it a delivery driver and a pensioner get the same guess — and four preselected bands buy `confidence = assumed` instead of `default`. We do not ask "when was the last oil change?": the most valuable question available and the most likely to end the session. Seeded items carry an assumed anchor until a service record or a baseline lands (*Reminders and notifications*).
+
+**The four bands, and what each writes.** The chips are labelled in the user's own unit system
+and are **not converted** — the same rule §4.8 states for the seeded intervals, and the same
+0.6 ratio its table already uses throughout (10,000 km ↔ 6,000 mi, 25,000 ↔ 15,000,
+60,000 ↔ 36,000). A miles user is offered `<6k`, not `<6,214`.
+
+| Band, km vehicle | Band, miles vehicle | `expected_annual_m` written | Daily rate it implies |
+|---|---|---|---|
+| `<10k` | `<6k` | `5000000` (km) · `4828032` (mi) | 13.7 km/day · 13.2 km/day |
+| `10–20k` *(default)* | `6–12k` | `15000000` (km) · `14484096` (mi) | 41.1 km/day · 39.7 km/day |
+| `20–30k` | `12–18k` | `25000000` (km) · `24140160` (mi) | 68.5 km/day · 66.1 km/day |
+| `30k+` | `18k+` | `40000000` (km) · `38624256` (mi) | 109.6 km/day · 105.8 km/day |
+
+A closed band writes its **midpoint**, which is the unbiased reading of "about how far a year?"
+and the only value in the range that cannot be argued to favour one end. The open top band has
+no midpoint, so it writes a stated representative a third above its floor: the population inside
+an open band thins out rather than spreading evenly, and of the two ways to be wrong here only
+one is dangerous. An assumed rate that is too **low** pushes every projected due date further
+out, and the reminder arrives after the service was needed; too **high** merely brings it
+forward. So the open band errs high, and the closed bands — where the user has already told us
+the range — do not, because an app that fires every reminder early is an app whose reminders get
+ignored.
+
+Every value is inside the projection's 5–500 km/day clamp, so no band is silently rewritten by
+it. Mile values are the round mile figure converted **once**, at exactly 1,609.344 m, on the way
+into storage — §2's canonical-units rule, not a second definition of the band.
+
+These four are what the *control* writes. The *field* is a nullable integer and import accepts
+any positive value, which is why §12's worked example carries `18000000`: a restored file may
+have been written by a hand, a future version or a different band table, and rejecting it would
+lose a vehicle to a number the app only ever uses as a fallback.
 
 **States.**
 
@@ -4612,7 +4645,7 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 **Vehicle stored or off the road** (winter bike, van between jobs). `status = archived`: same silence as sold, but it can be reactivated and it keeps earning reminders from the day it returns — intervals are not back-dated to cover the storage period.
 
-**Vehicle deleted by accident.** Delete is immediate behind a typed confirmation naming the vehicle and its entry count. Undo lives in the snackbar for 10 seconds. After that, recovery is Settings → Backup & restore → **Undo last change**, live for 30 days — one row that covers import, delete-all *and* vehicle delete. The last three safety copies are kept, not one, so a second mistake does not overwrite the escape route.
+**Vehicle deleted by accident.** Delete is immediate behind a typed confirmation naming the vehicle and its entry count. Undo lives in the snackbar for 10 seconds, and that is the whole of the recovery path in the app: **a vehicle delete writes no safety copy.** §4.4 keeps one copy per destructive operation kind and there are three kinds — migration, import, wipe — so there is no Undo row on `settings.backup` for this, and §2 has no trash and no 30-day bin. After the snackbar expires, recovery is the user’s own exported backup. *Why not a fourth kind:* a safety copy is a full copy of the store, and writing one every time a user tidies a sold car out of the garage spends the disk and the write budget of the three operations that genuinely replace everything. The typed confirmation naming the vehicle and its entry count is what stands in for it, and it is asked before the delete rather than offered after.
 
 **Last vehicle deleted.** Next launch routes straight to `vehicle.edit` in firstRun mode. The language step is not repeated.
 
@@ -4620,7 +4653,7 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 **Reminder the user wants gone.** An item that has never been referenced by a service line deletes outright. An item that *has* been is never deletable — the destructive control becomes **Turn this off**. Service history is never destroyed to tidy a reminder list, and every `service_item_id` still resolves.
 
-**Restore on a brand-new phone.** First run has an explicit escape: `vehicle.edit` (firstRun) carries a single text link, *I already have an Odova backup*, which opens `settings.import` in firstRun mode. Without it the most important journey in a no-account app requires inventing a fake vehicle and then wiping it. No new screen id.
+**Restore on a brand-new phone.** First run has an explicit escape: `vehicle.edit` (firstRun) carries a single text link — §8 owns the screen and its wording is *Moving from another phone? Restore a backup* — which opens `settings.import` in firstRun mode. Without it the most important journey in a no-account app requires inventing a fake vehicle and then wiping it. No new screen id.
 
 ### Odometer and data integrity
 

@@ -95,7 +95,7 @@ skill bends.
 | [06](EPIC-06-units-money-and-fuel.md) | Units, money and the fuel engine | 05 | none | 14.5 h · ~3–4 months |
 | [07](EPIC-07-the-due-engine.md) | The due engine and projection | 06 | none | 8 h · ~8 weeks |
 | [08](EPIC-08-app-shell-and-navigation.md) | App shell, navigation and the global dialogs | 03, 04, 07 | 3 — `dialog.discard`, `dialog.confirmDelete`, `dialog.snooze`, the three that belong to no feature | 9 h · ~9 weeks |
-| [09](EPIC-09-first-run-and-garage.md) | First run, the garage and vehicles | 03, 04, 05 | 5 — `firstrun.language`, `firstrun.vehicle`, `vehicles`, `vehicle.edit`, `vehicle.switcher` | 11 h · ~11 weeks |
+| [09](EPIC-09-first-run-and-garage.md) | First run, the garage and vehicles | 03, 04, 05, 07, 08 | 5 — `firstrun.language`, `firstrun.vehicle`, `vehicles`, `vehicle.edit`, `vehicle.switcher` | 11 h · ~11 weeks |
 | [10](EPIC-10-home-and-reminders.md) | Home and the reminder screens | 07, 09 | 3 — `home`, `reminders.list`, `reminders.edit` | 11.5 h · ~3 months |
 | [11](EPIC-11-logging.md) | Logging: fill-up, service, expense, odometer | 06, 10 | 4 — `log.fillup`, `log.service`, `log.expense`, `log.odometer` | 13 h · ~3 months |
 | [12](EPIC-12-history-and-report.md) | History, entry detail and the service report | 11 | 2 — `history`, `report.service` | 12 h · ~12 weeks |
