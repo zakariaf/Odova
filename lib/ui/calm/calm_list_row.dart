@@ -68,6 +68,7 @@ class CalmListRow extends StatelessWidget {
     this.danger = false,
     this.standalone = false,
     this.showChevron = false,
+    this.nativeTitle = false,
   }) : _isSwitch = false,
        onToggle = null;
 
@@ -92,7 +93,8 @@ class CalmListRow extends StatelessWidget {
        onTap = null,
        selected = false,
        danger = false,
-       showChevron = false;
+       showChevron = false,
+       nativeTitle = false;
 
   /// The row's label, already formatted — `~` and all.
   final String title;
@@ -136,6 +138,9 @@ class CalmListRow extends StatelessWidget {
   /// mirrors.
   final bool showChevron;
 
+  /// `.row__native` — the title is a language's own name, in its own script.
+  final bool nativeTitle;
+
   final bool _isSwitch;
 
   @override
@@ -149,10 +154,16 @@ class CalmListRow extends StatelessWidget {
     final colors = CalmColors.of(context);
     final shapes = CalmShapes.of(context);
 
-    final minHeight = switch (size) {
-      CalmRowSize.compact => 56.0, // .row--compact
-      CalmRowSize.md => 64.0, //      .row
-      CalmRowSize.lg => 76.0, //      .row--lg
+    final space = CalmSpace.of(context);
+
+    // Height and padding are ONE decision per size, so they cannot drift
+    // apart. The padding used to be a fixed s4 for all three, which made a
+    // compact row 57.5pt in Latin and 61.2 in Arabic against a design that is
+    // 56 in both — the min-height stopped winning.
+    final (minHeight, padBlock) = switch (size) {
+      CalmRowSize.compact => (56.0, space.s3), // .row--compact
+      CalmRowSize.md => (64.0, space.s4), //      .row
+      CalmRowSize.lg => (76.0, space.s5), //      .row--lg
     };
 
     Widget row = _CalmRowBody(
@@ -162,9 +173,11 @@ class CalmListRow extends StatelessWidget {
       lead: lead,
       end: end,
       minHeight: minHeight,
+      padBlock: padBlock,
       selected: selected,
       danger: danger,
       showChevron: showChevron,
+      nativeTitle: nativeTitle,
     );
 
     if (standalone) {
@@ -227,9 +240,11 @@ class _CalmRowBody extends StatelessWidget {
     required this.lead,
     required this.end,
     required this.minHeight,
+    required this.padBlock,
     required this.selected,
     required this.danger,
     required this.showChevron,
+    required this.nativeTitle,
   });
 
   final String title;
@@ -238,9 +253,11 @@ class _CalmRowBody extends StatelessWidget {
   final Widget? lead;
   final Widget? end;
   final double minHeight;
+  final double padBlock;
   final bool selected;
   final bool danger;
   final bool showChevron;
+  final bool nativeTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +282,7 @@ class _CalmRowBody extends StatelessWidget {
       constraints: BoxConstraints(minHeight: minHeight),
       padding: EdgeInsetsDirectional.symmetric(
         horizontal: space.s5,
-        vertical: space.s4,
+        vertical: padBlock,
       ),
       child: Row(
         children: [
@@ -279,7 +296,21 @@ class _CalmRowBody extends StatelessWidget {
                   title,
                   style: type.bodyLg.copyWith(
                     color: danger ? colors.danger : colors.ink,
-                    fontWeight: selected ? type.semi : type.medium,
+                    // `.row--selected .row__title` goes semibold and
+                    // `.row__native` never does. A language list marks its
+                    // choice with the
+                    // ground and the tick; a heavier row in a list of seven
+                    // scripts reads as a different typeface, not a selection.
+                    fontWeight: selected && !nativeTitle
+                        ? type.semi
+                        : type.medium,
+                    // `.row__native { line-height: 1.4 }` overrides
+                    // `--lh-body-lg` in BOTH scripts on purpose: one line per
+                    // row, and the Arabic ascender allowance bodyLg carries
+                    // everywhere else would make the Persian rows taller than
+                    // the Latin ones in a list whose job is to look like one
+                    // list.
+                    height: nativeTitle ? 1.4 : null,
                   ),
                 ),
                 if (subtitle != null)

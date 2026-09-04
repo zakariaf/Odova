@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
@@ -409,5 +410,142 @@ void main() {
     // IgnorePointer would let the tap fall through to whatever is behind the
     // row — on a settings screen that is the row underneath it.
     expect(behind, 0, reason: 'the tap fell through a disabled row');
+  });
+
+  // ---- .row / .row--compact / .row--lg, and .row__native
+
+  testWidgets('each row size takes its own CSS padding, in both scripts', (
+    tester,
+  ) async {
+    // odova.css: `.row { padding: var(--space-4) var(--space-5) }`,
+    // `.row--compact { padding-block: var(--space-3) }`,
+    // `.row--lg { padding-block: var(--space-5) }`. The widget applied s4 to
+    // all three, so a compact row was 17*1.5 + 32 = 57.5 in Latin and
+    // 17*1.72 + 32 = 61.2 in Arabic against a design that is 56 in both —
+    // and over the seven rows of `firstrun.language` that is 10px of drift in
+    // LTR and 37 in RTL, against a parity band tolerance of 4.
+    for (final locale in ['en', 'fa']) {
+      await pumpApp(
+        tester,
+        const CalmRowGroup(
+          rows: [
+            CalmListRow(title: 'C', size: CalmRowSize.compact),
+            CalmListRow(title: 'M'),
+            CalmListRow(title: 'L', size: CalmRowSize.lg),
+          ],
+        ),
+        locale: Locale(locale),
+      );
+
+      for (final (index, height) in [(0, 56.0), (1, 64.0), (2, 76.0)]) {
+        expect(
+          tester.getSize(find.byType(CalmListRow).at(index)).height,
+          height,
+          reason: '$locale row $index — the min-height must still win',
+        );
+      }
+    }
+
+    // The three heights above are all min-heights, so ANY padding at or below
+    // the right one produces them and the assertion cannot see the value. A
+    // row with a lead taller than the floor is where the padding starts
+    // showing — and that is not a contrived case: `vehicles` and
+    // `vehicle.switcher` both draw a silhouette avatar in the lead slot.
+    await pumpApp(
+      tester,
+      const CalmRowGroup(
+        rows: [
+          CalmListRow(
+            title: 'C',
+            size: CalmRowSize.compact,
+            lead: SizedBox.square(dimension: 40),
+          ),
+          CalmListRow(title: 'M', lead: SizedBox.square(dimension: 40)),
+          CalmListRow(
+            title: 'L',
+            size: CalmRowSize.lg,
+            lead: SizedBox.square(dimension: 40),
+          ),
+        ],
+      ),
+    );
+
+    for (final (index, pad) in [
+      (0, calmSpace.s3),
+      (1, calmSpace.s4),
+      (2, calmSpace.s5),
+    ]) {
+      expect(
+        tester.getSize(find.byType(CalmListRow).at(index)).height,
+        40 + 2 * pad,
+        reason: 'row $index takes its own padding-block once the lead is tall',
+      );
+    }
+  });
+
+  testWidgets('a native title is never re-weighted by selection', (
+    tester,
+  ) async {
+    // `.row--selected .row__title { font-weight: var(--fw-semi) }` — but the
+    // language rows are `.row__native`, which odova.css pins to
+    // `var(--fw-medium)` and never restyles on selection. So the chosen
+    // language reads at the same weight as the six below it; only the ground
+    // and the tick say it is chosen.
+    await pumpApp(
+      tester,
+      const CalmRowGroup(
+        rows: [
+          CalmListRow(title: 'plain', selected: true),
+          CalmListRow(title: 'فارسی', selected: true, nativeTitle: true),
+          CalmListRow(title: 'العربية', nativeTitle: true),
+        ],
+      ),
+    );
+
+    expect(
+      tester.widget<Text>(find.text('plain')).style!.fontWeight,
+      CalmType.latin.semi,
+    );
+    expect(
+      tester.widget<Text>(find.text('فارسی')).style!.fontWeight,
+      CalmType.latin.medium,
+      reason: 'a selected native title must stay medium',
+    );
+    expect(
+      tester.widget<Text>(find.text('العربية')).style!.fontWeight,
+      CalmType.latin.medium,
+    );
+  });
+
+  testWidgets('a native title carries the CSS line height, not the '
+      'script one', (tester) async {
+    // `.row__native { line-height: 1.4 }` overrides `--lh-body-lg` on purpose
+    // and does it in BOTH scripts: a language list is one line per row, so the
+    // Arabic ascender allowance that `bodyLg` carries everywhere else would
+    // make the Persian rows taller than the Latin ones in a list whose whole
+    // job is to look like one list.
+    for (final locale in ['en', 'fa']) {
+      await pumpApp(
+        tester,
+        const CalmRowGroup(
+          rows: [
+            CalmListRow(title: 'native', nativeTitle: true),
+            CalmListRow(title: 'ordinary'),
+          ],
+        ),
+        locale: Locale(locale),
+      );
+
+      expect(
+        tester.widget<Text>(find.text('native')).style!.height,
+        1.4,
+        reason: locale,
+      );
+      expect(
+        tester.widget<Text>(find.text('ordinary')).style!.height,
+        isNot(1.4),
+        reason: '$locale — an ordinary title keeps the body-lg leading',
+      );
+    }
   });
 }
