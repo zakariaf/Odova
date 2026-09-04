@@ -419,7 +419,9 @@ COMBINE  ("whichever comes first")
   driver  = the axis that produced the worst status (distance | time | both | none)
 ```
 
-**`from_due` anchoring.** For `rollover = from_due`, the anchor *date* is not the record's date: walk the cycle forward from the item's baseline rung — `anchor.date = addMonths(base.date, interval_months × k)` for the smallest k ≥ 1 whose result is after the newest completing record's `occurred_on`, where `base` is the `baseline_date`, else `purchase_date`, else the earliest reading. The anchor odometer stays the record's. `from_actual` anchors on the record's own date and odometer.
+**`from_due` anchoring.** For `rollover = from_due`, the anchor *date* is not the record's date: it is the cycle date that record **satisfied**. Walk the cycle forward from the item's baseline rung — `anchor.date = addMonths(base.date, interval_months × k)` for the **largest k ≥ 0** whose result is **on or before** the newest completing record's `occurred_on`, where `base` is the `baseline_date`, else `purchase_date`, else the earliest reading. If no cycle date is on or before the record — the job was done before the first cycle opened — or the item has no `interval_months`, the anchor is the record's own date. The anchor odometer stays the record's. `from_actual` anchors on the record's own date and odometer.
+
+This said "the smallest k ≥ 1 whose result is after `occurred_on`" until EPIC-07, which anchored on the NEXT cycle rather than the satisfied one and so put every due date a full period late. Inspection, 12 months, `baseline_date` 2024-06-01, done 2026-07-14 — six weeks late — gave anchor 2027-06-01 and therefore due 2028-06-01, on the class of item whose entire purpose is a legal deadline. The corrected rule gives anchor 2026-06-01 and due 2027-06-01. Done *early* is the case that proves the direction: done 2026-05-20 anchors on 2025-06-01 and is due 2026-06-01 — this June, not next.
 
 `rollover = from_actual` anchors the next cycle on the date and odometer the job was actually done; `from_due` anchors it on the date it *was* due — registration falls in June whenever you paid.
 

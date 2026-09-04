@@ -53,7 +53,7 @@ void main() {
 
     expect(estimate.staleDays, 0);
     expect(estimate.projection, OdometerProjection.entered);
-    expect(estimate.metres, Distance.fromKm(116050).metres);
+    expect(estimate.metres, const Distance.fromKm(116050).metres);
     expect(estimate.asOf, day('2026-08-20'));
   });
 
@@ -67,7 +67,7 @@ void main() {
 
     expect(estimate.staleDays, 13);
     expect(estimate.projection, OdometerProjection.projected);
-    expect(estimate.metres, Distance.fromKm(116050).metres + 41000 * 13);
+    expect(estimate.metres, const Distance.fromKm(116050).metres + 41000 * 13);
     expect(
       estimate.asOf,
       day('2026-09-02'),
@@ -89,7 +89,10 @@ void main() {
 
       expect(estimate.staleDays, 180);
       expect(estimate.projection, OdometerProjection.projected);
-      expect(estimate.metres, Distance.fromKm(100000).metres + 41000 * 180);
+      expect(
+        estimate.metres,
+        const Distance.fromKm(100000).metres + 41000 * 180,
+      );
     });
 
     test('expires at 181, and hands back what the user actually typed', () {
@@ -106,7 +109,7 @@ void main() {
       expect(estimate.projection, OdometerProjection.expired);
       expect(
         estimate.metres,
-        Distance.fromKm(187412).metres,
+        const Distance.fromKm(187412).metres,
         reason: 'the entered figure, NOT extrapolated',
       );
       expect(
@@ -128,7 +131,7 @@ void main() {
       )!;
 
       final projectedIfItHadNotExpired =
-          Distance.fromKm(187412).metres + 41000 * 240;
+          const Distance.fromKm(187412).metres + 41000 * 240;
 
       expect(estimate.projection, OdometerProjection.expired);
       expect(estimate.metres, isNot(projectedIfItHadNotExpired));
@@ -191,7 +194,7 @@ void main() {
 
     expect(estimate.staleDays, 0);
     expect(estimate.projection, OdometerProjection.entered);
-    expect(estimate.metres, Distance.fromKm(116050).metres);
+    expect(estimate.metres, const Distance.fromKm(116050).metres);
   });
 
   test('the expiry threshold is the one SPEC.md §4.1.3 states', () {
