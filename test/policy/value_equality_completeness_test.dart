@@ -23,9 +23,17 @@ typedef ValueClass = ({String name, Set<String> fields, Set<String> props});
 List<ValueClass> valueClassesIn(String source) {
   final classes = <ValueClass>[];
 
-  // Split on top-level declarations so each chunk is one class body.
+  // Split on every top-level declaration, not only `class`. An `enum` after a
+  // class in the same file was absorbed into the class's chunk, so
+  // `DistanceUnit`'s `final String wire` was read as a field of `Distance` —
+  // and the gate reported a false positive on the first file that put a value
+  // type and its unit enum together, which is every units file.
   final chunks = source.split(
-    RegExp('^(?=(?:final |sealed |abstract )*class )', multiLine: true),
+    RegExp(
+      '^(?=(?:final |sealed |abstract |base |interface )*'
+      '(?:class|enum|mixin|extension|typedef) )',
+      multiLine: true,
+    ),
   );
   for (final chunk in chunks) {
     final header = RegExp(
@@ -124,6 +132,13 @@ class Bad with ValueEquality {
 
 class NotAValue {
   final int a = 1;
+}
+
+enum Unit {
+  km('km');
+
+  const Unit(this.wire);
+  final String wire;
 }
 ''';
 
