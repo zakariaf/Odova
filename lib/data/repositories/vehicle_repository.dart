@@ -128,7 +128,7 @@ class VehicleRepository {
               id: 'odo_${_ids.next()}',
               vehicleId: vehicle.id.toString(),
               occurredOn: draft.occurredOn,
-              odometerM: draft.odometer.metres,
+              odometerM: metresColumn(draft.odometer),
               odometerUnit: draft.odometerUnit.wire,
               // `manual`: the user typed it. Not `import`, which would tell a
               // later reader this reading arrived from a backup file.

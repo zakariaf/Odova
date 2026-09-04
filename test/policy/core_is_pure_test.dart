@@ -68,6 +68,7 @@ void main() {
       'l10n', // locale resolution, numerals, dates — no formatting
       'money', // Money, Currency, allocate, MoneyTotal
       'odometer', // the cumulative fold and the monotonicity rules
+      'reminders', // the seeded catalogue a new vehicle is created with
       'rounding', // half away from zero, and SPEC.md §3's decimals table
       'time', // calendar month boundaries — no formatting, no locale
       'units', // Distance, Volume, Mass, Energy, FuelQuantity, Consumption
