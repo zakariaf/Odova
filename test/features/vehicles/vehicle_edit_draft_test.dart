@@ -62,12 +62,12 @@ void main() {
       // passing null means "leave it alone", so without an explicit clear the
       // user could set a plate and never remove one.
       final draft = VehicleEditDraft.of(_golf());
-      // Through a variable, because `copyWith(plate: null)` written literally
-      // is `avoid_redundant_argument_values` — the analyzer is right that it
-      // matches the default, and that IS the claim: null is the default
-      // because null means "leave it alone".
-      const String? nothing = null;
-      expect(draft.copyWith(plate: nothing).isDirty, isFalse);
+      // The lint is RIGHT that this argument matches the default, and that is
+      // precisely the assertion: null is the default because null means "leave
+      // it alone", which is why clearing a field needs its own mechanism.
+      // Removing the argument would delete the test.
+      // ignore: avoid_redundant_argument_values
+      expect(draft.copyWith(plate: null).isDirty, isFalse);
       final cleared = draft.copyWith(clear: {VehicleField.plate});
       expect(cleared.isDirty, isTrue);
       expect(cleared.toVehicle(1000).plate, isNull);
