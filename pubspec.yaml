@@ -35,7 +35,7 @@ dependencies:
   go_router: ^17.5.0
   # Bidi, numeral systems and the CLDR plural categories. SPEC.md §5 needs all
   # three before there is a second string.
-  intl: ^0.20.2
+  intl: ^0.20.3
   # `@immutable` on the Result/Failure spine and on RecordId. A direct import
   # in lib/core/, so a direct dependency — it arrives transitively through
   # flutter either way, and relying on that is how a transitive bump becomes a
