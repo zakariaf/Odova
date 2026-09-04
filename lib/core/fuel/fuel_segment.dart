@@ -75,17 +75,48 @@ enum FuelWarning {
 @immutable
 class FuelSegmentSet with ValueEquality {
   /// Creates a set.
-  const FuelSegmentSet({
+  ///
+  /// The sorted ids and the equality encoding are computed HERE, once, rather
+  /// than in getters — see [flaggedFillUpIds].
+  factory FuelSegmentSet({
+    required List<FuelSegment> segments,
+    required Map<String, ConsumptionUnavailable> discarded,
+    required Map<String, Set<FuelWarning>> warnings,
+  }) {
+    final flagged = discarded.keys.toList()..sort();
+    return FuelSegmentSet._(
+      segments: segments,
+      discarded: discarded,
+      warnings: warnings,
+      flaggedFillUpIds: flagged,
+      // Sorted ids AND the reasons themselves. Encoding only `code` would make
+      // two sets equal whose `NonPositiveDistance` named different conflicting
+      // fills — the `MoneyTotal` bug again, where a field was half-encoded and
+      // two "equal" values answered a question differently.
+      props: List.unmodifiable([
+        ...segments,
+        for (final id in flagged) ...[id, discarded[id]],
+        for (final key in warnings.keys.toList()..sort())
+          '$key:${warnings[key]!.map((w) => w.name).toList()..sort()}',
+      ]),
+    );
+  }
+
+  const FuelSegmentSet._({
     required this.segments,
     required this.discarded,
     required this.warnings,
+    required this.flaggedFillUpIds,
+    required this.props,
   });
 
   /// Nothing at all.
-  static const empty = FuelSegmentSet(
+  static const empty = FuelSegmentSet._(
     segments: [],
     discarded: {},
     warnings: {},
+    flaggedFillUpIds: [],
+    props: [],
   );
 
   /// The measurable stretches, in order.
@@ -109,20 +140,18 @@ class FuelSegmentSet with ValueEquality {
   ///
   /// Sorted so two runs agree; the map's own order follows the fill order,
   /// which is stable but is not what a caller comparing two sets wants.
-  List<String> get flaggedFillUpIds => discarded.keys.toList()..sort();
+  ///
+  /// Computed once in the constructor, like [props]: this is read from inside
+  /// `props`, which `==` and `hashCode` both call, so a getter that sorted on
+  /// every read made one comparison of two sets four sorts. `MoneyTotal` was
+  /// fixed for exactly this and this type got the opposite treatment — and it
+  /// is headed for the same `.distinct(valuesEqual)` on a watched stream, with
+  /// a segment per tank over a ten-year history.
+  final List<String> flaggedFillUpIds;
 
   /// Warnings, by the fill they concern.
   final Map<String, Set<FuelWarning>> warnings;
 
   @override
-  List<Object?> get props => [
-    ...segments,
-    // Sorted ids AND the reasons themselves. Encoding only `code` would make
-    // two sets equal whose `NonPositiveDistance` named different conflicting
-    // fills — the `MoneyTotal` bug again, where a field was half-encoded and
-    // two "equal" values answered a question differently.
-    for (final id in flaggedFillUpIds) ...[id, discarded[id]],
-    for (final entry in warnings.entries)
-      '${entry.key}:${entry.value.map((w) => w.name).toList()..sort()}',
-  ];
+  final List<Object?> props;
 }

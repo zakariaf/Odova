@@ -24,7 +24,13 @@ class MoneyTotal with ValueEquality {
       );
       counts.update(amount.currency, (n) => n + 1, ifAbsent: () => 1);
     }
-    final codes = byCurrency.keys.map((c) => c.code).toList()..sort();
+    // Sort the ENTRIES, rather than sorting the codes and parsing each one
+    // back into a `Currency` to index the maps with. `tryParse` is a regex
+    // match plus an allocation, it ran twice per currency, and it returns a
+    // NULLABLE key — so a failure would have interpolated the string "null"
+    // into the equality encoding instead of failing.
+    final ordered = byCurrency.entries.toList()
+      ..sort((a, b) => a.key.code.compareTo(b.key.code));
     return MoneyTotal._(
       Map.unmodifiable(byCurrency),
       Map.unmodifiable(counts),
@@ -34,9 +40,9 @@ class MoneyTotal with ValueEquality {
       // headed for a `.distinct(valuesEqual)` on a watched stream, where that
       // happens on every emission.
       List.unmodifiable([
-        for (final code in codes) ...[
-          '$code:${byCurrency[Currency.tryParse(code)]}',
-          '${code}x${counts[Currency.tryParse(code)]}',
+        for (final entry in ordered) ...[
+          '${entry.key.code}:${entry.value}',
+          '${entry.key.code}x${counts[entry.key]}',
         ],
       ]),
     );

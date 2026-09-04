@@ -19,6 +19,7 @@ import 'dart:io';
 
 import 'package:odova/core/fuel/build_fuel_segments.dart';
 import 'package:odova/core/fuel/consumption_stats.dart';
+import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/rounding/rounding.dart';
 import 'package:odova/core/units/consumption.dart';
@@ -220,8 +221,8 @@ Map<String, Object?> evaluate(Vector vector) {
   };
 }
 
-Map<String, Object?> _averageJson(List<dynamic> segments) {
-  final average = averageConsumption(segments.cast());
+Map<String, Object?> _averageJson(List<FuelSegment> segments) {
+  final average = averageConsumption(segments);
   return switch (average) {
     Ok(:final value) => {
       'l_per_100km': quantiseForGolden(value.asUnit(ConsumptionUnit.lPer100km)),

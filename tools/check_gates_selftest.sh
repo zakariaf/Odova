@@ -620,4 +620,34 @@ assert 1 "check_schema_freshness is red on a snapshot with no bump" \
 restore_all
 assert 0 "check_schema_freshness is green again" bash "$FRESH"
 
+echo "== regen_fuel_vectors --check =="
+VECTORS=test/fixtures/fuel/fuel_vectors.fixture.json
+VECGATE=(dart run tools/regen_fuel_vectors.dart --check)
+assert 0 "the fuel vectors match their generator" "${VECGATE[@]}"
+
+# A vector edited BY HAND to match a bug is worse than no vector at all: it
+# carries the authority of a golden file, and the only way to tell is to
+# regenerate and diff. One digit is the whole test — if the gate compared
+# anything but the bytes (a length, a key set, a checksum it also recomputed)
+# this would still pass.
+plant "$VECTORS"
+perl -0pi -e 's/"l_per_100km": 7\.5/"l_per_100km": 7.6/' "$VECTORS"
+assert 1 "regen_fuel_vectors --check is red on a hand-edited value" \
+  "${VECGATE[@]}"
+restore_all
+
+# And the shape people actually reach for: deleting the case that started
+# failing. The suite asserts the ids by name so the fixture cannot quietly
+# shrink; this proves the CI gate says so too.
+plant "$VECTORS"
+python3 -c 'import json,sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["vectors"] = [v for v in d["vectors"] if v["id"] != "chain_broken"]
+open(p, "w", encoding="utf-8").write(json.dumps(d, indent=2) + "\n")' "$VECTORS"
+assert 1 "regen_fuel_vectors --check is red on a deleted case" \
+  "${VECGATE[@]}"
+restore_all
+assert 0 "the fuel vectors match their generator again" "${VECGATE[@]}"
+
 exit "$rc"

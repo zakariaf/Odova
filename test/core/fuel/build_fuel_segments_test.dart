@@ -608,4 +608,78 @@ void main() {
       expect(whyNoSegments(fills, buildFuelSegments(fills)), isNull);
     });
   });
+  group('FuelSegmentSet equality covers every field it carries', () {
+    // `props` is computed once in the factory now, which makes five of this
+    // class's fields exempt in `value_equality_completeness_test`'s allowlist —
+    // and an allowlist entry is a promise, not a proof. These are the proof:
+    // change one field, and the two sets must differ.
+
+    FuelSegmentSet setOf(List<FillUpPoint> fills) => buildFuelSegments(fills);
+
+    final base = [
+      fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+      fill('b', km: 600, litres: 45, occurredOn: '2026-02-01'),
+    ];
+
+    test('two identical runs are equal', () {
+      expect(setOf(base), setOf(base));
+      expect(setOf(base).hashCode, setOf(base).hashCode);
+    });
+
+    test('a different SEGMENT makes them unequal', () {
+      final other = [
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill('b', km: 700, litres: 45, occurredOn: '2026-02-01'),
+      ];
+      expect(setOf(base), isNot(setOf(other)));
+    });
+
+    test('the SAME flagged id with a different reason is not equal', () {
+      // The first version of this test compared a zero-quantity run against a
+      // same-odometer run — which flag DIFFERENT id sets, so the ids alone
+      // separated them and dropping the reason objects from the encoding left
+      // it green. A mutation caught that.
+      //
+      // These two both flag exactly {'b'}, and differ only in why: one is a
+      // chain the user marked broken, one is an imported row with no reading.
+      // Two different sentences, two different fixes, and a `distinct` on a
+      // watched stream must not swallow the change between them.
+      final chainBroken = [
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill(
+          'b',
+          km: 600,
+          litres: 45,
+          occurredOn: '2026-02-01',
+          chainBroken: true,
+        ),
+      ];
+      final noReading = [
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill('b', km: null, litres: 45, occurredOn: '2026-02-01'),
+      ];
+
+      expect(
+        setOf(chainBroken).flaggedFillUpIds,
+        setOf(noReading).flaggedFillUpIds,
+        reason: 'the ids must match, or this proves nothing about the reason',
+      );
+      expect(setOf(chainBroken), isNot(setOf(noReading)));
+    });
+
+    test('a different WARNING makes them unequal', () {
+      final overTank = [
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill(
+          'b',
+          km: 600,
+          litres: 45,
+          occurredOn: '2026-02-01',
+          tankCapacityMl: 20000,
+        ),
+      ];
+      expect(setOf(base), isNot(setOf(overTank)));
+      expect(setOf(overTank).warnings, isNotEmpty);
+    });
+  });
 }

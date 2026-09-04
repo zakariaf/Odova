@@ -136,4 +136,34 @@ void main() {
     expect(Money(4599, isoCurrency('JPY')).amountMinor, 4599);
     expect(isoCurrency('JPY').minorPerMajor, 1);
   });
+  group('the exponent table departs from ISO in two places, on purpose', () {
+    test('IQD is 3 — ISO, not CLDR', () {
+      // CLDR says 0 because Iraqi cash does not circulate in fils. SPEC.md §5
+      // states 3 for display, so the stored integer is fils.
+      expect(isoCurrency('IQD').exponent, 3);
+      expect(isoCurrency('IQD').minorPerMajor, 1000);
+    });
+
+    test('AFN is 0 — CLDR, not ISO', () {
+      // ISO assigns the afghani exponent 2 (100 pul) and the pul has not
+      // circulated for decades. SPEC.md §5 ships fa-AF, so this is a locale
+      // the app serves; storing hundredths nobody can spend would put two
+      // meaningless zeroes on every Afghan amount.
+      //
+      // Pinned because the header used to claim IQD was the ONLY disagreement,
+      // which made this row read as an oversight — and "correcting" it to ISO
+      // silently multiplies every stored AFN amount by a hundred.
+      expect(isoCurrency('AFN').exponent, 0);
+      expect(isoCurrency('AFN').minorPerMajor, 1);
+    });
+
+    test('the exponent is what the STORED integer means', () {
+      // The coupling that makes a change here a data migration: one integer,
+      // read three ways.
+      expect(Money(1234, isoCurrency('AFN')).amountMinor, 1234);
+      expect(isoCurrency('JPY').minorPerMajor, 1);
+      expect(isoCurrency('EUR').minorPerMajor, 100);
+      expect(isoCurrency('KWD').minorPerMajor, 1000);
+    });
+  });
 }

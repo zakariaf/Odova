@@ -91,10 +91,19 @@ void main() {
       // then a field, which is why it is named here: a field literally called
       // `props` cannot be listed inside itself.
       'lib/core/money/money_total.dart': {'byCurrency', '_counts', 'props'},
-      // Same shape: two Maps per fill — the warnings with their sorted set,
-      // and the discard reasons with their sorted ids AND the reason objects,
-      // which are themselves ValueEquality and so compare by value.
-      'lib/core/fuel/fuel_segment.dart': {'warnings', 'discarded'},
+      // Same shape, and then some. `props` is computed ONCE in the factory
+      // (see `MoneyTotal` above for why), which makes it a field that cannot
+      // list itself, and `flaggedFillUpIds` is the sorted key set cached
+      // beside it — both are IN the stored encoding rather than named in it.
+      // `segments` is spread into it, and `warnings` and `discarded` are the
+      // two Maps, encoded because a Map in props compares by identity.
+      'lib/core/fuel/fuel_segment.dart': {
+        'segments',
+        'warnings',
+        'discarded',
+        'flaggedFillUpIds',
+        'props',
+      },
       // And a Map of rates per currency, encoded the same way.
       'lib/core/fuel/fuel_money.dart': {'minorPerMetre'},
     };

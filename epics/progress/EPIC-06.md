@@ -41,9 +41,11 @@ correction-aware cumulative distance. The opening fill's volume is excluded from
 own segment; including it was an off-by-one that shifts every figure the app shows,
 and the fixture that catches it is the two-partials case.
 
-**6.6 — the refusals** — sealed `ConsumptionUnavailable` with seven cases, wrapped in
-`FuelValue<T>` (`Computed<T>` / `Unavailable<T>`). Every place SPEC.md refuses a number
-returns a reason, never a zero, a null or a `NaN`.
+**6.6 — the refusals** — sealed `ConsumptionUnavailable`, carried in the app-wide
+`Result<T, F>`. Every place SPEC.md refuses a number returns a reason, never a zero, a
+null or a `NaN`. **Shipped with seven cases of which six could not be produced, and a
+seventh that lied**; `/simplify` and `/code-review` between them found that, and the
+set is now ten reasons that are all reachable and all true. See the handover below.
 
 **6.7 — `segmentConsumption`, `averageConsumption`, best, worst, last** — the lifetime
 average is total-over-total, with a fixture whose mean-of-segments answer differs.
@@ -53,8 +55,10 @@ rounded to six decimals before comparison so a float artefact cannot decide a
 direction. The boundary decision (a change of exactly 8% is *steady*) is written into
 the file rather than left to the reader.
 
-**6.9 — `unitPrice` and the per-currency money figures** — `MixedCurrency` is a refusal,
-not a sum. `completedMonthsBefore` excludes the current month, because a month-to-date
+**6.9 — `unitPrice` and the per-currency money figures** — mixed currency GROUPS rather
+than refusing: `fuelSpend` returns a `MoneyTotal` and `avgPricePaid` a per-currency map,
+so the `MixedCurrency` reason this task originally shipped had no way to arise and was
+deleted. `completedMonthsBefore` excludes the current month, because a month-to-date
 total drawn beside eleven full months is a downward-sloping chart that is not a trend.
 
 **6.10 — the §17 fixture suite** — ten vectors in
@@ -108,31 +112,58 @@ one fuel kind.
 ## Handover — the refusal shape EPIC-07 will want
 
 The due engine needs the same "we do not know" shape for `unknown` and
-`needs_odometer`. It is two types, and the split is deliberate:
+`needs_odometer`. **It is `Result` — the one the whole app already uses — and a
+sealed `Failure` of its own.** There is no fuel-specific wrapper; EPIC-06 wrote
+one (`FuelValue<T>` / `Computed<T>` / `Unavailable<T>`) and deleted it in the
+same branch, because it restated `Result<T, F>` / `Ok` / `Err` and left `fold`
+and `map` on only one of the two.
 
 ```dart
-// lib/core/fuel/fuel_result.dart
-sealed class FuelValue<T> with ValueEquality { const FuelValue(); }
-final class Computed<T>    extends FuelValue<T> { const Computed(this.value);  final T value; }
-final class Unavailable<T> extends FuelValue<T> { const Unavailable(this.reason);
-                                                  final ConsumptionUnavailable reason; }
+// lib/core/result.dart — already there, nothing to add
+sealed class Result<T, F extends Failure> {}
+final class Ok<T, F extends Failure>  extends Result<T, F> { final T value; }
+final class Err<T, F extends Failure> extends Result<T, F> { final F failure; }
+// ResultX adds fold, map and valueOrNull.
 
-// lib/core/fuel/consumption_unavailable.dart
-sealed class ConsumptionUnavailable with ValueEquality { const ConsumptionUnavailable(); }
-final class FirstFill            extends ConsumptionUnavailable { const FirstFill(); }
-final class ChainBroken          extends ConsumptionUnavailable { const ChainBroken(this.atFillUpId); }
-final class MissingOdometer      extends ConsumptionUnavailable { const MissingOdometer(this.atFillUpId); }
-final class NonPositiveDistance  extends ConsumptionUnavailable { const NonPositiveDistance({required this.atFillUpId, required this.distance}); }
-final class NoFullCharge         extends ConsumptionUnavailable { const NoFullCharge(); }
-final class InsufficientData     extends ConsumptionUnavailable { const InsufficientData({required this.have, required this.need}); }
-final class MixedCurrency        extends ConsumptionUnavailable { const MixedCurrency(this.currencyCodes); }
+// lib/core/fuel/consumption_unavailable.dart — the pattern to copy
+sealed class ConsumptionUnavailable extends Failure with ValueEquality {
+  const ConsumptionUnavailable();
+  List<String> get flaggedFillUpIds => const [];   // empty, never null
+}
 ```
 
-`FuelValue` is generic and the reason is a separate sealed hierarchy, so the due engine
-can reuse the wrapper with its own reason type rather than adding due states to a fuel
-enum. Every reason carries WHICH record caused it where one did — a screen that says
-"no consumption" without saying which fill-up broke the chain gives the user nothing to
-fix, and SPEC.md §2 says the app never guesses in a way that looks like fact.
+So the fuel engine returns `Result<Consumption, ConsumptionUnavailable>`, and
+the due engine should return `Result<DueStatus, DueUnavailable>` with its own
+sealed reason type. That is what "reuse the wrapper with its own reason type"
+means, and it works because `Result` is generic in BOTH — the deleted
+`Unavailable<T>` hardcoded its reason, so the earlier draft of this paragraph
+promised something the code could not do.
+
+**Ten reasons, not seven.** The current set, with what each is for:
+
+| Reason | Carries | When |
+|---|---|---|
+| `FirstFill` | — | One full fill so far. The only one that is not a task. |
+| `ChainBroken` | `fillUpId` | The user marked a missed fill. |
+| `MissingOdometer` | `fillUpId` | An imported row with no reading — the user can supply it. |
+| `NonPositiveDistance` | `fromFillUpId`, `toFillUpId` | Two readings the same or backwards. BOTH ids, because only the user knows which is wrong. |
+| `NoFullCharge` | — | An EV whose charges are never marked full. |
+| `InsufficientData` | `have`, `need` | The only one time fixes. Do not use it for anything else. |
+| `MixedFuelForms` | — | Litres beside watt-hours. More fills will not help. |
+| `UnitNotApplicable` | `unit` | A CNG car asked for L/100 km. No number of fills will help. |
+| `NonPositiveQuantity` | `fillUpId` | A fill recording no fuel. Edit the row, do not add another. |
+
+`MixedCurrency` is **not** in the set and should not be added back: the money
+figures GROUP rather than refuse (`fuelSpend` returns a `MoneyTotal`,
+`avgPricePaid` a per-currency map), so nothing could produce it.
+
+**The rule the due engine should inherit, and the reason all of this moved:**
+EPIC-06 shipped seven reasons of which six had no construction site, and used
+`InsufficientData(have: 0, need: 1)` for five distinct causes — including a CNG
+car, whose sentence is "one more full fill" and for which no number of fills
+will ever produce a litre figure. `test/policy/refusals_are_reachable_test.dart`
+now fails if a declared reason has no constructor anywhere under `lib/`. Write
+the due engine's reasons as you wire them, not before.
 
 ## Handover — the §17 phrase-to-case-id table
 
