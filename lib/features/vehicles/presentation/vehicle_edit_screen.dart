@@ -13,6 +13,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/numerals.dart';
@@ -25,11 +26,16 @@ import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/vehicle_swatch.dart';
+import 'package:odova/ui/calm/calm_disclosure.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
+import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
+import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
+import 'package:odova/ui/calm/calm_switch.dart';
+import 'package:odova/ui/dialogs/discard_dialog.dart';
 
 /// The four segments, in the order the artboard draws them.
 ///
@@ -115,6 +121,30 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     final draft = state.draft;
     if (!_seeded) _seed(draft);
 
+    return DirtyModalGuard(
+      // EPIC-08's guard and EPIC-08's dialog, never a copy. This screen
+      // supplies only the SUBJECT and the SUMMARY and owns the draft it drops;
+      // what a dismissal means is one decision made once, for every modal.
+      isDirty: () => draft.isDirty,
+      onDiscard: () => ref.invalidate(vehicleEditProvider(widget.vehicleId)),
+      confirmDiscard: (context) async =>
+          await showDiscardDialog(
+            context,
+            subject: draft.name,
+            summary: l10n.vehicleEditTitle,
+          ) ==
+          DiscardChoice.discard,
+      child: _form(context, l10n, space, state),
+    );
+  }
+
+  Widget _form(
+    BuildContext context,
+    AppLocalizations l10n,
+    CalmSpace space,
+    VehicleEditReady state,
+  ) {
+    final draft = state.draft;
     return CalmScaffold(
       appBar: CalmAppBar.modal(
         title: l10n.vehicleEditTitle,
@@ -228,6 +258,54 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
                 ? d.copyWith(clear: {VehicleField.notes})
                 : d.copyWith(notes: value),
           ),
+        ),
+        CalmRowGroup(
+          rows: [
+            CalmListRow.switchRow(
+              title: l10n.vehicleBusinessLabel,
+              end: CalmSwitch(
+                value: draft.isBusiness,
+                onChanged: (_) {},
+              ),
+              onToggle: () => _notifier.edit(
+                (d) => d.copyWith(isBusiness: !d.isBusiness),
+              ),
+            ),
+            CalmListRow.switchRow(
+              title: l10n.vehicleMuteLabel,
+              end: CalmSwitch(
+                value: draft.notificationsMuted,
+                onChanged: (_) {},
+              ),
+              onToggle: () => _notifier.edit(
+                (d) => d.copyWith(
+                  notificationsMuted: !d.notificationsMuted,
+                ),
+              ),
+            ),
+          ],
+        ),
+        // Collapsed by default, which is what the artboard draws and what
+        // keeps a twenty-field form from being a wall.
+        CalmDisclosure(
+          title: l10n.vehiclePurchaseGroup,
+          children: [
+            CalmRowGroup(
+              rows: [
+                CalmListRow(
+                  title: l10n.vehicleMarkAsSold,
+                  showChevron: true,
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ],
+        ),
+        CalmDisclosure(
+          title: l10n.vehicleUnitsGroup,
+          children: [
+            CalmRowGroup(rows: [CalmListRow(title: l10n.commonAutomatic)]),
+          ],
         ),
       ],
     );

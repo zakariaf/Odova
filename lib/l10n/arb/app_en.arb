@@ -861,5 +861,41 @@
   "commonDelete": "Delete",
   "@commonDelete": {
     "description": "A destructive action label. Deliberately the same word as `confirmDeleteDelete`, so a row and the dialog it opens cannot disagree."
+  },
+  "vehicleSoldSummary": "{n, plural, one{Sold {date} · {countText} entry} other{Sold {date} · {countText} entries}}",
+  "@vehicleSoldSummary": {
+    "description": "The second line of a sold vehicle in the garage. {date} is an already-formatted ABSOLUTE date — a relative one would read \"Sold Today\". Written WITHOUT a plural first, which rendered \"1 entries\"; two translators caught it independently before any test did.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 March 2024"
+      },
+      "countText": {
+        "type": "String",
+        "example": "412"
+      }
+    }
+  },
+  "vehicleStatusDueInDays": "{n, plural, one{{item} due in {countText} day} other{{item} due in {countText} days}}",
+  "@vehicleStatusDueInDays": {
+    "description": "The third line of a garage row when the worst reminder is due soon. {item} is an already-localised service name. Arabic's `one` and `two` branches carry NO {countText}, because Arabic encodes 1 and 2 in the noun itself — printing the numeral there would be the same defect as \"1 entries\", in Arabic.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      },
+      "countText": {
+        "type": "String",
+        "example": "3"
+      }
+    }
   }
 }

@@ -614,4 +614,26 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get commonDelete => 'Löschen';
+
+  @override
+  String vehicleSoldSummary(int n, String date, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Verkauft am $date · $countText Einträge',
+      one: 'Verkauft am $date · $countText Eintrag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vehicleStatusDueInDays(int n, String item, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$item in $countText Tagen fällig',
+      one: '$item in $countText Tag fällig',
+    );
+    return '$_temp0';
+  }
 }

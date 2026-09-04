@@ -141,5 +141,7 @@
   "vehicleBusinessBadge": "Beruflich",
   "commonBack": "Zurück",
   "commonAdd": "Hinzufügen",
-  "commonDelete": "Löschen"
+  "commonDelete": "Löschen",
+  "vehicleSoldSummary": "{n, plural, one{Verkauft am {date} · {countText} Eintrag} other{Verkauft am {date} · {countText} Einträge}}",
+  "vehicleStatusDueInDays": "{n, plural, one{{item} in {countText} Tag fällig} other{{item} in {countText} Tagen fällig}}"
 }

@@ -655,4 +655,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonDelete => 'حذف';
+
+  @override
+  String vehicleSoldSummary(int n, String date, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'بِيعت في $date · $countText سجل',
+      many: 'بِيعت في $date · $countText سجلاً',
+      few: 'بِيعت في $date · $countText سجلات',
+      two: 'بِيعت في $date · سجلان',
+      one: 'بِيعت في $date · سجل واحد',
+      zero: 'بِيعت في $date · $countText سجل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vehicleStatusDueInDays(int n, String item, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'موعد $item خلال $countText يوم',
+      many: 'موعد $item خلال $countText يومًا',
+      few: 'موعد $item خلال $countText أيام',
+      two: 'موعد $item خلال يومين',
+      one: 'موعد $item خلال يوم',
+      zero: 'موعد $item خلال $countText يوم',
+    );
+    return '$_temp0';
+  }
 }

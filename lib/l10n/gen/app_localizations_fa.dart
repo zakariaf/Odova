@@ -609,4 +609,26 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get commonDelete => 'حذف';
+
+  @override
+  String vehicleSoldSummary(int n, String date, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'فروخته‌شده در $date · $countText رکورد',
+      one: 'فروخته‌شده در $date · $countText رکورد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vehicleStatusDueInDays(int n, String item, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$item تا $countText روز دیگر موعد دارد',
+      one: '$item تا $countText روز دیگر موعد دارد',
+    );
+    return '$_temp0';
+  }
 }

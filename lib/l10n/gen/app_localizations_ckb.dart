@@ -613,4 +613,26 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get commonDelete => 'سڕینەوە';
+
+  @override
+  String vehicleSoldSummary(int n, String date, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'فرۆشراوە لە $date · $countText تۆمار',
+      one: 'فرۆشراوە لە $date · $countText تۆمار',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vehicleStatusDueInDays(int n, String item, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$item لە $countText ڕۆژی دیکەدا پێویستە',
+      one: '$item لە $countText ڕۆژی دیکەدا پێویستە',
+    );
+    return '$_temp0';
+  }
 }

@@ -141,5 +141,7 @@
   "vehicleBusinessBadge": "[Ḅǔŝīǹḗŝŝ ǃǃǃǃ]",
   "commonBack": "[Ḅáçķ ǃǃ]",
   "commonAdd": "[Áḍḍ ǃǃ]",
-  "commonDelete": "[Ḍḗŀḗţḗ ǃǃǃ]"
+  "commonDelete": "[Ḍḗŀḗţḗ ǃǃǃ]",
+  "vehicleSoldSummary": "[{n, plural, one{Ŝǿŀḍ {date} · {countText} ḗǹţřẏ} other{Ŝǿŀḍ {date} · {countText} ḗǹţřīḗŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "vehicleStatusDueInDays": "[{n, plural, one{{item} ḍǔḗ īǹ {countText} ḍáẏ} other{{item} ḍǔḗ īǹ {countText} ḍáẏŝ}} ǃǃǃǃǃǃǃǃǃǃ]"
 }

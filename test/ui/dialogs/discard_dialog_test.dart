@@ -146,16 +146,42 @@ void main() {
     expect(find.text('Keep editing'), findsNothing);
   });
 
-  test('it is one shared widget', () {
+  test('it is one shared widget, and only the modals call it', () {
     // A second discard dialog in a feature is a second answer to "what happens
     // to your typing", and the two will disagree.
+    //
+    // **An ALLOW-LIST, because the first version forbade too much.** It banned
+    // the symbols outright, which was right while nothing called them and wrong
+    // the moment a modal did — EPIC-09 task 9.5 says in so many words that
+    // `vehicle.edit`'s dirty dismiss "calls EPIC-08 task 8.8's
+    // `showDiscardDialog` … through EPIC-08's `DirtyModalGuard`". The rule was
+    // never "nobody may call it"; it was "nobody may write a second one", and
+    // the two are only the same test while the caller count is zero.
+    //
+    // Every screen SPEC.md §7 marks `modal` earns a line here, and adding one
+    // is a moment where somebody says why their screen has a draft to lose.
+    const callers = {
+      // §8: the facts form, whose draft is twenty fields deep.
+      'lib/features/vehicles/presentation/vehicle_edit_screen.dart',
+    };
+
     final offenders = <String>[];
     for (final file in dartFilesUnder('lib')) {
       if (file.path == 'lib/ui/dialogs/discard_dialog.dart') continue;
+      final source = sourceWithoutLineComments(file);
+      // DEFINING a second one is still banned outright, from everywhere. A
+      // DECLARATION, not a mention: `DiscardChoice.discard` in a caller is
+      // reading the shared answer, which is the whole point of it being shared.
       if (RegExp(
-        'showDiscardDialog|DiscardChoice',
-      ).hasMatch(sourceWithoutLineComments(file))) {
-        offenders.add(file.path);
+        r'(class|enum)\s+\w*Discard(Dialog|Choice)\b|'
+        r'Future<\w*DiscardChoice\w*>\s+showDiscard',
+      ).hasMatch(source)) {
+        offenders.add('${file.path}: declares a discard dialog of its own');
+        continue;
+      }
+      if (RegExp('showDiscardDialog').hasMatch(source) &&
+          !callers.contains(file.path)) {
+        offenders.add('${file.path}: calls showDiscardDialog, unlisted');
       }
     }
     expect(offenders, isEmpty, reason: offenders.join('\n'));

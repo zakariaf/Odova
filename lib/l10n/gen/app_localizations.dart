@@ -968,6 +968,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get commonDelete;
+
+  /// The second line of a sold vehicle in the garage. {date} is an already-formatted ABSOLUTE date — a relative one would read "Sold Today". Written WITHOUT a plural first, which rendered "1 entries"; two translators caught it independently before any test did.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{Sold {date} · {countText} entry} other{Sold {date} · {countText} entries}}'**
+  String vehicleSoldSummary(int n, String date, String countText);
+
+  /// The third line of a garage row when the worst reminder is due soon. {item} is an already-localised service name. Arabic's `one` and `two` branches carry NO {countText}, because Arabic encodes 1 and 2 in the noun itself — printing the numeral there would be the same defect as "1 entries", in Arabic.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{item} due in {countText} day} other{{item} due in {countText} days}}'**
+  String vehicleStatusDueInDays(int n, String item, String countText);
 }
 
 class _AppLocalizationsDelegate

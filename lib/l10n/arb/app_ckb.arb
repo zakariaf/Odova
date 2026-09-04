@@ -141,5 +141,7 @@
   "vehicleBusinessBadge": "کار",
   "commonBack": "گەڕانەوە",
   "commonAdd": "زیادکردن",
-  "commonDelete": "سڕینەوە"
+  "commonDelete": "سڕینەوە",
+  "vehicleSoldSummary": "{n, plural, one{فرۆشراوە لە {date} · {countText} تۆمار} other{فرۆشراوە لە {date} · {countText} تۆمار}}",
+  "vehicleStatusDueInDays": "{n, plural, one{{item} لە {countText} ڕۆژی دیکەدا پێویستە} other{{item} لە {countText} ڕۆژی دیکەدا پێویستە}}"
 }

@@ -141,5 +141,7 @@
   "vehicleBusinessBadge": "کاری",
   "commonBack": "بازگشت",
   "commonAdd": "افزودن",
-  "commonDelete": "حذف"
+  "commonDelete": "حذف",
+  "vehicleSoldSummary": "{n, plural, one{فروخته‌شده در {date} · {countText} رکورد} other{فروخته‌شده در {date} · {countText} رکورد}}",
+  "vehicleStatusDueInDays": "{n, plural, one{{item} تا {countText} روز دیگر موعد دارد} other{{item} تا {countText} روز دیگر موعد دارد}}"
 }
