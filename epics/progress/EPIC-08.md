@@ -26,3 +26,36 @@
 - `PlaceholderScreen` is deliberately unlocalised — it renders a `data-screen`
   id for a developer, and putting it in the ARBs would make six translators
   translate a screen id. It is deleted a screen at a time by the feature epics.
+
+## Task 8.2 — the shell: four tab roots and the docked central `+` ✅
+
+`lib/app/routing/app_shell.dart`, the `StatefulShellRoute.indexedStack` in
+`app_router.dart`, `MaterialApp.router` in `lib/app/app.dart`,
+`test/app/routing/app_shell_test.dart` (12 tests). Twelve mutations seen red.
+
+- **`OdovaApp.home` is gone, replaced by `OdovaApp.router`.** `MaterialApp.router`
+  has no `home:`. `test/support/pump_app.dart` gained `singleScreenRouter(child)`
+  so every existing component test still pumps one widget inside the real themes
+  and locales. `example/calm_gallery.dart` and
+  `test/l10n/supported_locales_test.dart` were the other two callers.
+- **The widget harness was reusing the first router.** `MaterialApp.router`
+  builds its `RouterDelegate` once and keeps it, so a second `pumpWidget` of
+  `OdovaApp` left the FIRST router driving the tree. Any test in a later epic
+  that pumps the app twice must unmount between pumps — `_pumpApp` in
+  `app_shell_test.dart` shows the shape.
+- **A tap-target test that measured a `CalmPressable` proves nothing.**
+  `CalmTapTarget` sizes to `max(child, 52)` unconditionally, so the assertion
+  passes whatever the control does. Hit area is asserted by tapping the extremes.
+- **FINDING for EPIC-17's design pass — 5pt of inert tab bar.** `CalmTabSlot` is
+  62pt and centres a 52pt target in it, so the outermost 5pt at the top and
+  bottom of every tab slot takes no tap. It meets Calm's own 52 floor, so it is
+  recorded rather than changed here.
+- **FINDING for EPIC-09 — the Costs tab icon is a euro sign.**
+  `design/calm/screens.html` draws it as an arc with two horizontal strokes,
+  which is €, in an app that ships six locales and stores an ISO 4217 code per
+  vehicle. `CalmTabIcons.costs` is `Icons.payments_outlined`, currency-neutral
+  and deliberately NOT the reference's shape. The first parity check on a tab
+  root will fail on all four glyphs; EPIC-09 either re-shoots the artboard with
+  a neutral Costs glyph or the design decides the euro is intended.
+- Tab-root behaviour on a tap of the CURRENT tab is task 8.3's; until then
+  `goBranch` keeps the branch where it is rather than resetting.
