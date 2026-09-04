@@ -306,3 +306,79 @@ EPIC-10's — and **both artboards override `.screen__body`'s spacing inline**
   refuses it.
 - Arabic's six branches must read DISTINCTLY, or they prove nothing.
 - **No literal digit in any ARB value**, including a fixed "3" in "3 days".
+
+---
+
+## Handover — what the next epics inherit
+
+### EPIC-09 (first run, garage, vehicles)
+- **`onboarding_done` must be set explicitly** by first run's Save. The launch
+  gate reads that flag, not "a settings row exists" — first run writes the row
+  on the LANGUAGE step.
+- **Replace `VehiclesBackdrop`** in `test/parity/support/dialog_backdrop.dart`
+  with the real `vehicles` screen and re-run
+  `test/parity/dialog_confirm_delete_parity_test.dart`. Current: 34/81 bands.
+- **The vehicle switcher is `resetAllTabStacks`'s second caller.** Add it to the
+  list in `test/app/routing/stack_reset_test.dart`.
+- Call `showConfirmDeleteDialog` and `showDiscardDialog`; build neither.
+- The `vehicle.switcher` route is already gated by the launch gate: unreachable
+  below two live vehicles.
+
+### EPIC-10 (home, reminders)
+- **`tabReselectedProvider` is the scroll-to-top seam.** Watch it, check
+  `index == 0`, scroll. Nothing listens yet.
+- **`DeepLinkTarget.pinnedReminderId`** is the card to scroll to and highlight
+  for ~2s. The timer is Home's; nothing in routing holds one.
+- **Replace `HomeBackdrop`** and re-run the discard and snooze captures.
+  Current: 53/80 and 34/72 bands.
+- **`home`'s artboard uses spacing `.screen__body` does not** (`padding-block:
+  8 12; gap: 12` against `20 24 / 20`). Decide it deliberately: re-shoot the
+  artboard, or give `CalmScaffold` the density.
+- Call `showSnoozeDialog`; build nothing.
+
+### EPIC-11 (logging)
+- **Every modal wraps in `DirtyModalGuard`** and passes `showDiscardDialog` as
+  its `confirmDiscard`. `onDiscard` is ONE callback for all four segments.
+- A Cancel control calls `DirtyModalGuard.of(context).requestDismiss()`, never
+  `Navigator.pop` — and its `context` must be BELOW the guard.
+- `CalmDialog` scrolls now, so a tall form's dialog will not overflow.
+
+### EPIC-13 (costs, trips)
+- **`costsAllVehiclesProvider` already exists** in `lib/app/active_vehicle.dart`:
+  tab-scoped, never persisted, never the active vehicle.
+
+### EPIC-15 (backup, import)
+- **The importer is `resetAllTabStacks`'s other caller**, with
+  `selectHome: true`. Add it to the list in `stack_reset_test.dart`.
+- Call `showConfirmDeleteDialog` for delete-all.
+
+### EPIC-16 (notifications)
+- **Extend `lib/app/routing/deep_link.dart`; do not write a second
+  `locationFor`.** Own the payload, its JSON and its validation; map onto
+  `DeepLinkRequest`. `DeepLinkKind.wire` already holds §7's six strings.
+- **Nothing calls `handleDeepLink` yet.** Wire the notification tap to it with
+  `setActiveVehicle` and a router `go`/`push`. The order is its contract.
+
+### EPIC-17 (accessibility)
+- **5pt of inert tab bar** at the top and bottom of every tab slot (52 centred
+  in 62). Meets Calm's floor; recorded as a design question.
+- **The delete dialog shows its confirmation sentence twice** — as the field's
+  label and as the disabled button's required explanation.
+- The `ink3` / `focus` contrast findings from EPIC-02 are unchanged.
+
+### EPIC-18 (parity sweep)
+- **`kParityScreens` should read `kScreenRoutes`** in `lib/app/routing/routes.dart`
+  rather than keeping a second list of screens.
+- `test/parity/support/parity_capture.dart` is the capture harness: 390×844 @2x,
+  status-bar and home-bar insets, `loadParityFonts`, a keyed boundary, and the
+  `runAsync` file write. Reuse it; do not write a second one.
+
+### Anyone writing a test
+- `addTearDown` is LIFO: dispose the `ProviderContainer` BEFORE closing the
+  database, or the file times out silently.
+- A drift stream never delivers under `testWidgets` — ask database questions in
+  a plain `test`.
+- `test/data/support/rows.dart` now calls `markTablesUpdated`; a raw
+  `customStatement` never invalidates a watching query.
+- `OdovaRoot` needs a database. `pumpApp`'s `noLaunchGate()` is the escape.
+- Every routing test goes through `test/app/routing/shell_harness.dart`.
