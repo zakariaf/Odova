@@ -51,16 +51,45 @@ void main() {
     expect(offenders, isEmpty);
   });
 
-  test('lib/core has no grab-bag directory', () {
-    // `utils/` is where a pure core stops being one: nothing states what
-    // belongs there, so everything does.
-    for (final junk in ['utils', 'helpers', 'common', 'misc', 'shared']) {
-      expect(
-        Directory('lib/core/$junk').existsSync(),
-        isFalse,
-        reason: 'name the thing lib/core/$junk holds',
-      );
-    }
+  test('every directory under lib/core is a named subject', () {
+    // An ALLOWLIST, not a list of five forbidden names. A blocklist of
+    // `utils/helpers/common/misc/shared` lets `lib/core/util/` — singular —
+    // through, and `lib/core/support/`, and `lib/core/lib/`. The failure it
+    // exists to prevent is not the word "utils"; it is a directory nobody has
+    // to name the subject of, and only an allowlist asks that question.
+    //
+    // Adding one here is the whole cost of the rule, and it is meant to be a
+    // moment where somebody says what the directory holds.
+    const named = {
+      'domain', // the entities a driver logs
+      'due', // when the next service is due
+      'fuel', // segments, consumption, the refusals
+      'ids', // ULIDs and the typed record ids
+      'l10n', // locale resolution, numerals, dates — no formatting
+      'money', // Money, Currency, allocate, MoneyTotal
+      'odometer', // the cumulative fold and the monotonicity rules
+      'rounding', // half away from zero, and SPEC.md §3's decimals table
+      'units', // Distance, Volume, Mass, Energy, FuelQuantity, Consumption
+    };
+
+    final found = Directory('lib/core')
+        .listSync()
+        .whereType<Directory>()
+        .map((d) => d.path.split('/').last)
+        .toSet();
+
+    expect(
+      found.difference(named),
+      isEmpty,
+      reason:
+          'name what this directory holds, here, in one line — or put its '
+          'files in one of the subjects that already has a name',
+    );
+    expect(
+      named.difference(found),
+      isEmpty,
+      reason: 'this subject is gone; take it out of the list',
+    );
   });
 
   test('the walk visited the whole core', () {

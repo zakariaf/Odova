@@ -32,12 +32,10 @@ void main() {
     // Matched as a member access — `.km` on its own would fire on a variable
     // named `km`, and `.litres` would fire on a field. A leading dot and a
     // non-word character after is the shape of a getter call.
-    final conversions = _conversionGetters;
-
     final offenders = <String>[];
     for (final file in dartFilesUnder('lib/data')) {
       final source = sourceWithoutLineComments(file);
-      for (final match in conversions.allMatches(source)) {
+      for (final match in _conversionGetters.allMatches(source)) {
         final line = source.substring(0, match.start).split('\n').length;
         offenders.add('${file.path}:$line ${match.group(0)}');
       }
@@ -56,15 +54,13 @@ void main() {
   test('the matcher recognises the shapes it claims to', () {
     // Guard the guard: this test greps, and a pattern that matches nothing
     // reports a clean tree.
-    final conversions = _conversionGetters;
-
     for (final bad in [
       'odometerM: reading.distance.km,',
       'quantity: fill.volume.litres,',
       'value: energy.kwh,',
       'x: d.inUnit(unit),',
     ]) {
-      expect(conversions.hasMatch(bad), isTrue, reason: bad);
+      expect(_conversionGetters.hasMatch(bad), isTrue, reason: bad);
     }
 
     // And does not fire on a canonical read, which is what the data layer
@@ -80,7 +76,7 @@ void main() {
       'odometerUnit: DistanceUnit.km.wire,',
       'unit: reading.odometerUnit ?? DistanceUnit.km,',
     ]) {
-      expect(conversions.hasMatch(good), isFalse, reason: good);
+      expect(_conversionGetters.hasMatch(good), isFalse, reason: good);
     }
   });
 }

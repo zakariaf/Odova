@@ -29,8 +29,14 @@ if [ ! -d "$CORE" ]; then
   exit 1
 fi
 
-files=$(find "$CORE" -name '*.dart' -not -name '*.g.dart')
-if [ -z "$files" ]; then
+# NUL-delimited, because `for f in $files` splits on whitespace and a path
+# with a space in it then becomes two paths that do not exist — a gate that
+# silently checks nothing.
+files=()
+while IFS= read -r -d '' f; do files+=("$f"); done < <(
+  find "$CORE" -name '*.dart' -not -name '*.g.dart' -print0
+)
+if [ "${#files[@]}" -eq 0 ]; then
   echo "FAIL  $CORE holds no Dart file — this gate asserted nothing"
   exit 1
 fi
@@ -39,17 +45,21 @@ fi
 # `package:intl` in order to explain why the core does not use it is the most
 # valuable line in the file, and a gate that punishes writing it down teaches
 # people not to.
-for pattern in "package:flutter/" "package:flutter_" "dart:io" "dart:ui" "package:intl"; do
-  offenders=$(
-    for f in $files; do
-      grep -v '^[[:space:]]*//' "$f" \
-        | grep -qE "^[[:space:]]*(import|export)[[:space:]]+['\"]${pattern}" \
-        && echo "$f"
-    done
+# One pass per FILE rather than one per (file, pattern): the comments are
+# stripped once and all five patterns are matched against the result, which is
+# 37 subshells instead of 370 and, more to the point, strips each file once
+# instead of five times.
+banned='package:flutter/|package:flutter_|dart:io|dart:ui|package:intl'
+for f in "${files[@]}"; do
+  hits=$(
+    grep -v '^[[:space:]]*//' "$f" \
+      | grep -oE "^[[:space:]]*(import|export)[[:space:]]+['\"](${banned})" \
+      | grep -oE "(${banned})" \
+      | sort -u
   )
-  if [ -n "$offenders" ]; then
-    echo "FAIL  $CORE imports $pattern:"
-    printf '        %s\n' $offenders
+  if [ -n "$hits" ]; then
+    echo "FAIL  $f imports:"
+    printf '        %s\n' $hits
     rc=1
   fi
 done
@@ -63,5 +73,5 @@ for junk in utils helpers common misc shared; do
   fi
 done
 
-[ "$rc" = 0 ] && echo "ok    $CORE is pure Dart ($(echo "$files" | wc -l | tr -d ' ') files)"
+[ "$rc" = 0 ] && echo "ok    $CORE is pure Dart (${#files[@]} files)"
 exit "$rc"

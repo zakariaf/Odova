@@ -531,8 +531,11 @@ echo "== check_core_purity =="
 PURITY=tools/check_core_purity.sh
 assert 0 "check_core_purity is green on the real tree" bash "$PURITY"
 
-# All three bans, planted separately, because they fail for different reasons
-# and the third is the one people add by accident.
+# All FIVE bans, planted separately, because they fail for different reasons.
+# It was three: `dart:ui` and `package:flutter_` were in the gate and never in
+# the self-test, which by CLAUDE.md §4 makes them comments that run — and
+# `dart:ui` in particular is the ban whose failure mode is least obvious, since
+# it compiles fine and only breaks the plain-VM lane.
 write_scratch lib/core/selftest_probe.dart <<'DART'
 import 'package:flutter/material.dart';
 
@@ -547,6 +550,29 @@ import 'dart:io';
 File? probe;
 DART
 assert 1 "check_core_purity is red on dart:io" bash "$PURITY"
+restore_all
+
+# `dart:ui` is not `package:flutter/`: a file can take Offset, Color or
+# TextDirection without importing Flutter at all, and it then compiles under
+# `flutter test` and dies under `dart test test/core` with "Dart library
+# 'dart:ui' is not available on this platform".
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'dart:ui';
+
+Color? probe;
+DART
+assert 1 "check_core_purity is red on dart:ui" bash "$PURITY"
+restore_all
+
+# `package:flutter_` is a SEPARATE pattern from `package:flutter/`, and every
+# package that would drag the framework in sideways matches it and not the
+# other: flutter_riverpod, flutter_localizations, flutter_test.
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Provider<int>? probe;
+DART
+assert 1 "check_core_purity is red on a package:flutter_ import" bash "$PURITY"
 restore_all
 
 # The accidental one: reaching for a NumberFormat while writing a conversion.
