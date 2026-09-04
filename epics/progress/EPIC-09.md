@@ -353,7 +353,53 @@ Chrome distribute three tight 13.5pt line boxes differently.
 achievable — this is the first three-line RTL screen to meet it, and it does
 not. No tolerance was widened and no reference regenerated.
 
-### Still open in 9.6
-Long-press drag reorder. The `+` and the row tap are inert until 9.8 registers
-the routes they need.
+### 9.6 closed
+`2a50731` adds the long-press reorder — live vehicles only, because §8 sinks
+sold ones regardless of `sort_order` and a drag there writes a number the
+screen ignores. `onReorderItem` rather than the deprecated `onReorder`, which
+reports a destination index computed before the removal.
+
+The `+` and the row tap stay inert until 9.8 registers their routes.
+
+## Task 9.7 — `vehicle.switcher`
+
+- **`c75572d`** lifts the odometer-and-status line out of the garage row.
+  Task 9.7 states the requirement before the screen exists: "the same widget
+  `vehicles` uses, parameterised, not a second copy." A pure move — the garage's
+  parity score was 81/103 before and after.
+- **`111cec0`** a defect the switcher's tests found before the switcher: the
+  shared line's unit fallback was a hard-coded `DistanceUnit.km`, so a miles
+  user's vehicle with no override read in kilometres. On the garage that is one
+  wrong row; on the switcher it is the screen's entire reason for existing.
+- **`2593180`** the sheet. It writes ONE field and calls one function —
+  `setActiveVehicle` — and tapping the vehicle that is already active writes
+  nothing, because a no-op write still resets four tab stacks.
+- **`aaded57`** the parity capture, and four component defects only it could
+  find.
+
+### What the switcher's parity gate found
+1. **`MediaQueryData()` carries `Size.zero`.** The harness never gave it one,
+   because no screen before this read `MediaQuery.sizeOf`. `CalmSheet` caps its
+   height at a fraction of the screen, so the first capture photographed a sheet
+   measuring 390x0.
+2. **`.sheet__head` is a flex row and Calm drew a centred column** — and the
+   enclosing `Column` defaulted to `center`, so the head shrink-wrapped and
+   floated in the middle of the sheet.
+3. **A `Row` there clips at 200%.** `calm_overflow_matrix_test` caught the fix
+   for (2) immediately. It is a `Wrap` with `spaceBetween` now, which is the
+   same layout on one line and moves the subtitle to a second when it must.
+4. **The capture composed the tab bar over the overlay.** No dialog capture
+   moved by a single edge when that was corrected, which is the check that it
+   was a fix and not a re-baseline.
+
+**Parity stands at 63/105 LTR, 30/79 RTL — failing.** Part of that is not the
+sheet: `HomeBackdrop` is EPIC-08's stand-in for `home` and its edges are half
+the frame. F-8.2 anticipated exactly this — "if the parity result CHANGES when
+[the real screens] replace them, this stand-in was lying" — and that re-run
+belongs to EPIC-10. This number is the before.
+
+### Still open in EPIC-09
+Task 9.8, the launch-state wiring, which also gives the garage's `+`, its row
+tap and the switcher's two footer rows the routes they are waiting for. Then
+`/simplify`, `/code-review`, the PR and the merge.
 
