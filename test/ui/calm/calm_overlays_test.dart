@@ -495,4 +495,66 @@ void main() {
     expect(find.text('Fill-up saved'), findsNothing);
     expect(find.text('Service saved'), findsOneWidget);
   });
+
+  group('the undo window', () {
+    // SPEC.md §10 gives every logging confirmation 6 seconds. §8 gives a
+    // VEHICLE delete 10 — "longer than the usual 6 because this destroys more
+    // than one row" — and after it expires the only recovery left is the user's
+    // own exported backup.
+    testWidgets('defaults to the 6-second token', (tester) async {
+      await pumpApp(
+        tester,
+        CalmScaffold(
+          appBar: null,
+          children: [
+            Builder(
+              builder: (context) => TextButton(
+                onPressed: () => CalmSnackbar.show(context, message: 'Saved'),
+                child: const Text('go'),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.tap(find.text('go'));
+      await tester.pump();
+      expect(
+        tester.widget<SnackBar>(find.byType(SnackBar)).duration,
+        calmMotion.undoWindow,
+      );
+    });
+
+    testWidgets('a caller can ask for longer, and gets exactly that', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        CalmScaffold(
+          appBar: null,
+          children: [
+            Builder(
+              builder: (context) => TextButton(
+                onPressed: () => CalmSnackbar.show(
+                  context,
+                  message: 'Deleted The Golf',
+                  duration: kCalmDestructiveUndoWindow,
+                ),
+                child: const Text('go'),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.tap(find.text('go'));
+      await tester.pump();
+      expect(
+        tester.widget<SnackBar>(find.byType(SnackBar)).duration,
+        const Duration(seconds: 10),
+      );
+      // Not a reduced-motion casualty. A user who asked for stillness did not
+      // ask for less time to undo, and the existing bar already says so about
+      // the 6-second window.
+      expect(kCalmDestructiveUndoWindow, greaterThan(calmMotion.undoWindow));
+    });
+  });
 }

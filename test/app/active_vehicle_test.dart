@@ -80,7 +80,7 @@ void main() {
     await settle();
 
     final before = await _settingsRow(db);
-    await setActiveVehicle(container, VehicleId.tryParse(_polo)!);
+    await setActiveVehicle(container.read, VehicleId.tryParse(_polo)!);
     final after = await _settingsRow(db);
 
     expect(after['active_vehicle_id'], _polo);
@@ -102,7 +102,7 @@ void main() {
     await settle();
     expect(container.read(tabStackResetProvider), isNull);
 
-    await setActiveVehicle(container, VehicleId.tryParse(_polo)!);
+    await setActiveVehicle(container.read, VehicleId.tryParse(_polo)!);
 
     final request = container.read(tabStackResetProvider);
     expect(request, isNotNull);
@@ -119,7 +119,7 @@ void main() {
     await insertVehicle(db, id: _golf);
     await settle();
 
-    await setActiveVehicle(container, VehicleId.tryParse(_golf)!);
+    await setActiveVehicle(container.read, VehicleId.tryParse(_golf)!);
 
     final rows = await db.customSelect('SELECT * FROM settings;').get();
     expect(rows, isEmpty);
@@ -140,7 +140,7 @@ void main() {
     await db.customStatement('DROP TABLE settings;');
 
     final result = await setActiveVehicle(
-      container,
+      container.read,
       VehicleId.tryParse(_polo)!,
     );
 
@@ -154,7 +154,7 @@ void main() {
     await settle();
 
     final result = await setActiveVehicle(
-      container,
+      container.read,
       VehicleId.tryParse(_polo)!,
     );
 
