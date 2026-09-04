@@ -6,7 +6,6 @@ import 'package:clock/clock.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
@@ -174,7 +173,6 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    final l10n = _l10n(tester);
     final year = find.byType(CalmField).at(3);
 
     await tester.enterText(year, '2016');
