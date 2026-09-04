@@ -252,3 +252,57 @@ Also recorded: the **dark** captures fail the colour check on the scrim
 COMPOSITE — `--scrim` over `--color-bg` is #050403, not a token and unable to
 be, because `compare_to_reference.mjs` cannot see alpha. The scrim values match
 `odova.css` exactly. That is a blind spot in the checker, not a wrong colour.
+
+## Tasks 8.9 and 8.10 — `dialog.confirmDelete` and `dialog.snooze` ✅ (parity blocked)
+
+`lib/ui/dialogs/{confirm_delete_dialog,snooze_dialog}.dart`, their tests
+(16 + 18), `test/parity/support/dialog_overlays.dart` and two more capture
+tests. 13 mutations, all red.
+
+- **F-8.8 is SETTLED, and the epic's premise was wrong.** The reference's
+  snooze sentence is "This quiets the reminder. It does not change when the job
+  is due" — already state-neutral. No ICU `select` over `DueState`, and the
+  dialog takes no `DueState` at all; a test asserts the type never appears in
+  the file.
+- **F-8.9 is raised and not worked around**: `kSnoozeDistanceMetres = 500000`,
+  because §4.7.2 and §7 both write 500 km and name no mile equivalent. §4.8 says
+  defaults are per unit system rather than converted; that is still unsettled.
+- **F-8.6 stands**: the snooze title interpolates the item label AS STORED, so
+  the built screen reads "Snooze Oil and filter" where the reference lower-cases
+  it. One capital letter, recorded rather than chased.
+- **`CalmDialog` now scrolls.** It overflowed by 35px at scale 1 with a field
+  and three actions. EPIC-11's log forms inherit the fix.
+- **A disabled `CalmButton` must carry a `CalmButtonExplain`** — EPIC-03 asserts
+  it. The delete dialog's explanation repeats the field label above it: one
+  sentence twice where the reference draws it once. **For EPIC-17's design pass.**
+- **`AppSettings` still has no `copyWith`** and the dialogs need none — every
+  one of them writes nothing.
+- **Callers must inject their formatters.** `showConfirmDeleteDialog` takes
+  `formatCount`, `showSnoozeDialog` takes `formatDate` and `formatDistance`.
+  SPEC.md §5 has one numbering system app-wide and a dialog that formatted its
+  own would put Latin digits in a Persian sentence.
+
+### ⚠️ Band check, same blocker as 8.8
+
+`confirmDelete` 34/81, `snooze` 34/72 (light LTR), against a 75% floor. Both
+backdrops are stand-ins — `vehicles` is EPIC-09's screen and `home` is
+EPIC-10's — and **both artboards override `.screen__body`'s spacing inline**
+(`vehicles` uses `padding-block: 4 12`). **EPIC-09 and EPIC-10 replace
+`test/parity/support/dialog_backdrop.dart` and re-run all three captures.**
+
+### Two l10n gates were wrong for long messages, and are fixed
+
+- `tool/build_pseudo_locales.dart` padded by 40% of the RAW length **clamped to
+  40 characters**, so a message that is mostly ICU syntax expanded by 28%. Now
+  40% of the LITERAL length, unclamped.
+- `pseudo_locales_test.dart` compared raw string lengths, counting braces and
+  category names as copy. Now measures through the generator's own
+  `transformIcu` callback.
+
+### ARB rules the gates enforce, for every later epic
+
+- Every locale needs CLDR's `one`, not only `=1`.
+- **Arabic's `zero` IS n=0** — an explicit `=0` beside it is dead and gen-l10n
+  refuses it.
+- Arabic's six branches must read DISTINCTLY, or they prove nothing.
+- **No literal digit in any ARB value**, including a fixed "3" in "3 days".
