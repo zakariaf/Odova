@@ -18,9 +18,6 @@ import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/value_equality.dart';
 
-/// One segment's consumption.
-Consumption segmentConsumption(FuelSegment segment) => segment.consumption;
-
 /// The lifetime average over [segments].
 ///
 /// Total volume over total distance. See the file header for why this is not

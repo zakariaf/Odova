@@ -50,11 +50,14 @@ void main() {
       // The UI has to be able to say "Your earliest reading is 180,000 km on
       // 1 January". A bare refusal gives the user nothing to act on, and
       // SPEC.md §3's three resolutions all need the number and the date.
-      expect(verdict.blocked!.previousCumulative, const Distance(180000 * _km));
+      expect(
+        verdict.blocked!.previousCumulative,
+        const Distance.fromKm(180000),
+      );
       expect(verdict.blocked!.previousOccurredOn, '2026-01-01');
       expect(
         verdict.blocked!.attemptedCumulative,
-        const Distance(170000 * _km),
+        const Distance.fromKm(170000),
       );
     });
 
@@ -84,7 +87,10 @@ void main() {
       );
 
       expect(verdict.isAllowed, isFalse);
-      expect(verdict.blocked!.previousCumulative, const Distance(190000 * _km));
+      expect(
+        verdict.blocked!.previousCumulative,
+        const Distance.fromKm(190000),
+      );
       expect(verdict.blocked!.previousOccurredOn, '2026-06-01');
     });
   });
@@ -110,13 +116,16 @@ void main() {
       );
 
       expect(verdict.isAllowed, isFalse);
-      expect(verdict.blocked!.previousCumulative, const Distance(180000 * _km));
+      expect(
+        verdict.blocked!.previousCumulative,
+        const Distance.fromKm(180000),
+      );
     });
 
     test('below the purchase odometer is refused when one is set', () {
       final verdict = check(
         reading('odo_old', '2019-05-01', 50000 * _km),
-        purchaseOdometer: const Distance(96000 * _km),
+        purchaseOdometer: const Distance.fromKm(96000),
       );
       expect(verdict.isAllowed, isFalse);
     });
@@ -143,7 +152,7 @@ void main() {
         corrections: const [
           (
             fromReadingId: 'odo_2',
-            previous: Distance(187412 * _km),
+            previous: Distance.fromKm(187412),
             replacement: Distance.zero,
           ),
         ],

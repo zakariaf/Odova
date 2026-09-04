@@ -7,18 +7,11 @@
 import 'package:odova/core/fuel/consumption_unavailable.dart';
 import 'package:odova/core/fuel/fuel_money.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
-import 'package:odova/core/money/currency.dart';
-import 'package:odova/core/money/money.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/rounding/rounding.dart';
-import 'package:odova/core/units/distance.dart';
-import 'package:odova/core/units/fuel_quantity.dart';
-import 'package:odova/core/units/mass.dart';
-import 'package:odova/core/units/volume.dart';
 import 'package:test/test.dart';
 
-Currency get _eur => Currency.tryParse('EUR')!;
-Currency get _gbp => Currency.tryParse('GBP')!;
+import '../../support/values.dart';
 
 FillUpCost fill(
   String id, {
@@ -27,7 +20,7 @@ FillUpCost fill(
   Currency? currency,
 }) => (
   id: id,
-  cost: Money(cents, currency ?? _eur),
+  cost: Money(cents, currency ?? isoCurrency('EUR')),
   quantity: LiquidVolume(Volume(millilitres)),
 );
 
@@ -76,7 +69,7 @@ void main() {
         fill('supermarket', cents: 9600, millilitres: 60000),
       ]);
 
-      final perLitre = average[_eur]! * 1000 / 100;
+      final perLitre = average[isoCurrency('EUR')]! * 1000 / 100;
       expect(roundHalfAwayFromZero(perLitre, decimals: 3), 1.631);
       expect(perLitre, isNot(closeTo(1.8, 0.05)), reason: 'not the mean');
     });
@@ -90,17 +83,22 @@ void main() {
         fill('broken', cents: 5000, millilitres: 0),
       ]);
 
-      final perLitre = average[_eur]! * 1000 / 100;
+      final perLitre = average[isoCurrency('EUR')]! * 1000 / 100;
       expect(roundHalfAwayFromZero(perLitre, decimals: 3), 1.6);
     });
 
     test('returns one figure per currency, never one blended', () {
       final average = avgPricePaid([
         fill('a', cents: 7845, millilitres: 45200),
-        fill('b', cents: 6000, millilitres: 40000, currency: _gbp),
+        fill(
+          'b',
+          cents: 6000,
+          millilitres: 40000,
+          currency: isoCurrency('GBP'),
+        ),
       ]);
 
-      expect(average.keys.toSet(), {_eur, _gbp});
+      expect(average.keys.toSet(), {isoCurrency('EUR'), isoCurrency('GBP')});
     });
   });
 
@@ -109,17 +107,26 @@ void main() {
       final spend = fuelSpend([
         fill('a', cents: 7845, millilitres: 45200),
         fill('b', cents: 5000, millilitres: 30000),
-        fill('c', cents: 6000, millilitres: 40000, currency: _gbp),
+        fill(
+          'c',
+          cents: 6000,
+          millilitres: 40000,
+          currency: isoCurrency('GBP'),
+        ),
       ]);
 
-      expect(spend.byCurrency[_eur], 12845);
-      expect(spend.byCurrency[_gbp], 6000);
+      expect(spend.byCurrency[isoCurrency('EUR')], 12845);
+      expect(spend.byCurrency[isoCurrency('GBP')], 6000);
       expect(spend.isMixed, isTrue, reason: 'never one blended figure');
       // A `MoneyTotal` and not a bare map, so the caller gets the two things
       // SPEC.md §12's "one figure or a list" decision actually needs. A map
       // makes the screen re-derive both, and `dominantCurrency` in particular
       // is a rule (most ROWS, ties on the code) rather than a `.first`.
-      expect(spend.dominantCurrency, _eur, reason: 'two euro rows, one pound');
+      expect(
+        spend.dominantCurrency,
+        isoCurrency('EUR'),
+        reason: 'two euro rows, one pound',
+      );
     });
 
     test('volume sums the fills', () {
@@ -153,7 +160,11 @@ void main() {
       // this list.
       final mixed = fuelVolume([
         fill('a', cents: 0, millilitres: 45200),
-        (id: 'b', cost: Money(0, _eur), quantity: const GasMass(Mass(4000))),
+        (
+          id: 'b',
+          cost: Money(0, isoCurrency('EUR')),
+          quantity: const GasMass(Mass(4000)),
+        ),
       ]);
 
       expect(mixed, isA<Err<FuelQuantity, ConsumptionUnavailable>>());
@@ -187,7 +198,7 @@ void main() {
       );
 
       // 78.45 EUR over 600 km.
-      final perKm = result.minorPerMetre[_eur]! * 1000 / 100;
+      final perKm = result.minorPerMetre[isoCurrency('EUR')]! * 1000 / 100;
       expect(roundHalfAwayFromZero(perKm, decimals: 3), 0.131);
       expect(result.excludedSegmentCount, 0);
     });
@@ -203,7 +214,12 @@ void main() {
         [segment('b', km: 600), segment('d', km: 500)],
         {
           'b1': fill('b1', cents: 4000, millilitres: 20000),
-          'b': fill('b', cents: 4000, millilitres: 25000, currency: _gbp),
+          'b': fill(
+            'b',
+            cents: 4000,
+            millilitres: 25000,
+            currency: isoCurrency('GBP'),
+          ),
           'd': fill('d', cents: 7000, millilitres: 40000),
         },
         {
@@ -213,7 +229,9 @@ void main() {
       );
 
       expect(result.excludedSegmentCount, 1);
-      expect(result.minorPerMetre.keys, [_eur], reason: 'only the clean one');
+      expect(result.minorPerMetre.keys, [
+        isoCurrency('EUR'),
+      ], reason: 'only the clean one');
     });
 
     test('no figure ever blends two currencies', () {
@@ -221,7 +239,12 @@ void main() {
         [segment('b', km: 600), segment('d', km: 500)],
         {
           'b': fill('b', cents: 7845, millilitres: 45200),
-          'd': fill('d', cents: 6000, millilitres: 40000, currency: _gbp),
+          'd': fill(
+            'd',
+            cents: 6000,
+            millilitres: 40000,
+            currency: isoCurrency('GBP'),
+          ),
         },
         {
           'b': ['b'],
@@ -229,7 +252,10 @@ void main() {
         },
       );
 
-      expect(result.minorPerMetre.keys.toSet(), {_eur, _gbp});
+      expect(result.minorPerMetre.keys.toSet(), {
+        isoCurrency('EUR'),
+        isoCurrency('GBP'),
+      });
       expect(result.minorPerMetre, hasLength(2));
     });
 

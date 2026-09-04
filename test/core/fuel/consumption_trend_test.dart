@@ -14,13 +14,11 @@ import 'package:odova/core/units/mass.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:test/test.dart';
 
-const int _km = 1000;
-
 /// A 500 km segment at [lPer100km].
 FuelSegment segment(String id, double lPer100km) => FuelSegment(
   fromFillUpId: '${id}_from',
   toFillUpId: id,
-  distance: const Distance(500 * _km),
+  distance: const Distance.fromKm(500),
   quantity: LiquidVolume(Volume((lPer100km * 5 * 1000).round())),
   partialCount: 0,
 );
@@ -31,7 +29,7 @@ FuelSegment segment(String id, double lPer100km) => FuelSegment(
 FuelSegment chargeSegment(String id, double kwh) => FuelSegment(
   fromFillUpId: '${id}_from',
   toFillUpId: id,
-  distance: const Distance(500 * _km),
+  distance: const Distance.fromKm(500),
   quantity: ElectricEnergy(Energy((kwh * 1000).round())),
   partialCount: 0,
 );
@@ -40,7 +38,7 @@ FuelSegment chargeSegment(String id, double kwh) => FuelSegment(
 FuelSegment gasSegment(String id, double kg) => FuelSegment(
   fromFillUpId: '${id}_from',
   toFillUpId: id,
-  distance: const Distance(500 * _km),
+  distance: const Distance.fromKm(500),
   quantity: GasMass(Mass((kg * 1000).round())),
   partialCount: 0,
 );
@@ -158,7 +156,7 @@ void main() {
       const FuelSegment(
         fromFillUpId: 'a',
         toFillUpId: 'short',
-        distance: Distance(40 * _km),
+        distance: Distance.fromKm(40),
         quantity: LiquidVolume(Volume(4800)),
         partialCount: 0,
       ),

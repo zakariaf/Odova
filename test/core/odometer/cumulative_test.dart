@@ -35,9 +35,9 @@ void main() {
     ];
 
     expect(cumulativeByReading(readings, const []), {
-      'odo_1': const Distance(180000 * _km),
-      'odo_2': const Distance(185000 * _km),
-      'odo_3': const Distance(190000 * _km),
+      'odo_1': const Distance.fromKm(180000),
+      'odo_2': const Distance.fromKm(185000),
+      'odo_3': const Distance.fromKm(190000),
     });
   });
 
@@ -52,18 +52,18 @@ void main() {
     const corrections = [
       (
         fromReadingId: 'odo_3',
-        previous: Distance(187412 * _km),
+        previous: Distance.fromKm(187412),
         replacement: Distance.zero,
       ),
     ];
 
     final cumulative = cumulativeByReading(readings, corrections);
 
-    expect(cumulative['odo_1'], const Distance(180000 * _km));
-    expect(cumulative['odo_2'], const Distance(187412 * _km));
+    expect(cumulative['odo_1'], const Distance.fromKm(180000));
+    expect(cumulative['odo_2'], const Distance.fromKm(187412));
     // The boundary reading is ITSELF on the new scale, so it is corrected.
-    expect(cumulative['odo_3'], const Distance(187412 * _km));
-    expect(cumulative['odo_4'], const Distance(190412 * _km));
+    expect(cumulative['odo_3'], const Distance.fromKm(187412));
+    expect(cumulative['odo_4'], const Distance.fromKm(190412));
 
     // And the history is still monotonic in cumulative terms, which is the
     // whole point of the offset.
@@ -79,7 +79,7 @@ void main() {
     const corrections = [
       (
         fromReadingId: 'odo_2',
-        previous: Distance(999999 * _km),
+        previous: Distance.fromKm(999999),
         replacement: Distance.zero,
       ),
     ];
@@ -88,7 +88,7 @@ void main() {
     expect(cumulative['odo_2'], const Distance((999999 + 12) * _km));
     expect(
       cumulative['odo_2']! - cumulative['odo_1']!,
-      const Distance(12 * _km),
+      const Distance.fromKm(12),
     );
   });
 
@@ -101,7 +101,7 @@ void main() {
     const corrections = [
       (
         fromReadingId: 'odo_2',
-        previous: Distance(5000 * _km),
+        previous: Distance.fromKm(5000),
         replacement: Distance.zero,
       ),
     ];
@@ -109,7 +109,7 @@ void main() {
     final cumulative = cumulativeByReading(readings, corrections);
     expect(
       cumulative['odo_1'],
-      const Distance(100 * _km),
+      const Distance.fromKm(100),
       reason: 'before the boundary',
     );
     expect(
@@ -135,12 +135,12 @@ void main() {
     const corrections = [
       (
         fromReadingId: 'odo_2',
-        previous: Distance(100 * _km),
+        previous: Distance.fromKm(100),
         replacement: Distance.zero,
       ),
       (
         fromReadingId: 'odo_4',
-        previous: Distance(50 * _km),
+        previous: Distance.fromKm(50),
         replacement: Distance.zero,
       ),
     ];
@@ -160,7 +160,7 @@ void main() {
     const corrections = [
       (
         fromReadingId: 'odo_b',
-        previous: Distance(900 * _km),
+        previous: Distance.fromKm(900),
         replacement: Distance.zero,
       ),
     ];
@@ -168,7 +168,7 @@ void main() {
     final cumulative = cumulativeByReading(readings, corrections);
     expect(
       cumulative['odo_a'],
-      const Distance(100 * _km),
+      const Distance.fromKm(100),
       reason: 'created first',
     );
     expect(
@@ -196,13 +196,13 @@ void main() {
     const corrections = [
       (
         fromReadingId: 'odo_gone',
-        previous: Distance(5000 * _km),
+        previous: Distance.fromKm(5000),
         replacement: Distance.zero,
       ),
     ];
 
     expect(cumulativeByReading(readings, corrections), {
-      'odo_1': const Distance(100 * _km),
+      'odo_1': const Distance.fromKm(100),
     });
   });
 
@@ -215,7 +215,7 @@ void main() {
     const corrections = [
       (
         fromReadingId: 'odo_2',
-        previous: Distance(100 * _km),
+        previous: Distance.fromKm(100),
         replacement: Distance.zero,
       ),
     ];

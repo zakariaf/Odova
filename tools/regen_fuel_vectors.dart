@@ -20,6 +20,7 @@ import 'dart:io';
 import 'package:odova/core/fuel/build_fuel_segments.dart';
 import 'package:odova/core/fuel/consumption_stats.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/rounding/rounding.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -196,10 +197,10 @@ Map<String, Object?> evaluate(Vector vector) {
                 'distance_m': segment.distance.metres,
                 'quantity': _quantityJson(segment.quantity),
                 'partial_count': segment.partialCount,
-                'l_per_100km': _round(
+                'l_per_100km': quantiseForGolden(
                   segment.consumption.asUnit(ConsumptionUnit.lPer100km),
                 ),
-                'kwh_per_100km': _round(
+                'kwh_per_100km': quantiseForGolden(
                   segment.consumption.asUnit(ConsumptionUnit.kwhPer100km),
                 ),
               },
@@ -223,8 +224,10 @@ Map<String, Object?> _averageJson(List<dynamic> segments) {
   final average = averageConsumption(segments.cast());
   return switch (average) {
     Ok(:final value) => {
-      'l_per_100km': _round(value.asUnit(ConsumptionUnit.lPer100km)),
-      'kwh_per_100km': _round(value.asUnit(ConsumptionUnit.kwhPer100km)),
+      'l_per_100km': quantiseForGolden(value.asUnit(ConsumptionUnit.lPer100km)),
+      'kwh_per_100km': quantiseForGolden(
+        value.asUnit(ConsumptionUnit.kwhPer100km),
+      ),
     },
     Err(:final failure) => {'unavailable': failure.code},
   };
@@ -238,10 +241,6 @@ Map<String, Object?> _quantityJson(FuelQuantity quantity) => switch (quantity) {
 
 /// Six decimals, so the file is stable across platforms.
 ///
-/// A raw double's last bits differ between architectures and the `--check`
-/// gate would then fail for the machine rather than for the code.
-double? _round(double? value) =>
-    value == null ? null : double.parse(value.toStringAsFixed(6));
 
 String render() =>
     '${const JsonEncoder.withIndent('  ').convert({

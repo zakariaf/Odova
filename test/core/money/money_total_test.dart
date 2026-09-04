@@ -3,35 +3,37 @@
 // SPEC.md §12 Ground rules. The app has no network, so any exchange rate it
 // used would be invented — and a made-up rate silently rewrites the resale
 // value of somebody's service history.
-import 'package:odova/core/money/currency.dart';
-import 'package:odova/core/money/money.dart';
 import 'package:odova/core/money/money_total.dart';
 import 'package:test/test.dart';
 
-Currency get _eur => Currency.tryParse('EUR')!;
-Currency get _gbp => Currency.tryParse('GBP')!;
-Currency get _usd => Currency.tryParse('USD')!;
+import '../../support/values.dart';
 
 void main() {
   test('two currencies give two entries, never one sum', () {
-    final total = MoneyTotal([Money(124000, _eur), Money(8000, _gbp)]);
+    final total = MoneyTotal([
+      Money(124000, isoCurrency('EUR')),
+      Money(8000, isoCurrency('GBP')),
+    ]);
 
     expect(total.byCurrency, hasLength(2));
-    expect(total.byCurrency[_eur], 124000);
-    expect(total.byCurrency[_gbp], 8000);
+    expect(total.byCurrency[isoCurrency('EUR')], 124000);
+    expect(total.byCurrency[isoCurrency('GBP')], 8000);
     expect(total.isMixed, isTrue);
   });
 
   test('amounts in one currency add up', () {
     final total = MoneyTotal([
-      Money(1050, _eur),
-      Money(295, _eur),
-      Money(-100, _eur),
+      Money(1050, isoCurrency('EUR')),
+      Money(295, isoCurrency('EUR')),
+      Money(-100, isoCurrency('EUR')),
     ]);
 
-    expect(total.byCurrency, {_eur: 1245});
+    expect(total.byCurrency, {isoCurrency('EUR'): 1245});
     expect(total.isMixed, isFalse);
-    expect(total.inCurrency(_eur), Money(1245, _eur));
+    expect(
+      total.inCurrency(isoCurrency('EUR')),
+      Money(1245, isoCurrency('EUR')),
+    );
   });
 
   test('the dominant currency is the one with the most ROWS', () {
@@ -39,13 +41,14 @@ void main() {
     // fill-ups in euros and one 8,000-euro-equivalent repair in pounds is a
     // euro household. Sorting by magnitude would call it a sterling one.
     final total = MoneyTotal([
-      for (var i = 0; i < 400; i++) Money(6000, _eur),
-      Money(800000, _gbp),
+      for (var i = 0; i < 400; i++) Money(6000, isoCurrency('EUR')),
+      Money(800000, isoCurrency('GBP')),
     ]);
 
-    expect(total.dominantCurrency, _eur);
+    expect(total.dominantCurrency, isoCurrency('EUR'));
     expect(
-      total.byCurrency[_gbp]! > total.byCurrency[_eur]! ~/ 400,
+      total.byCurrency[isoCurrency('GBP')]! >
+          total.byCurrency[isoCurrency('EUR')]! ~/ 400,
       isTrue,
       reason: 'the pound row is individually the largest, and still loses',
     );
@@ -54,13 +57,19 @@ void main() {
   test('a tie on row count breaks on the code, deterministically', () {
     // Otherwise the answer depends on map iteration order, and the screen
     // picks a different primary currency between two launches.
-    final total = MoneyTotal([Money(100, _usd), Money(100, _eur)]);
-    expect(total.dominantCurrency, _eur);
+    final total = MoneyTotal([
+      Money(100, isoCurrency('USD')),
+      Money(100, isoCurrency('EUR')),
+    ]);
+    expect(total.dominantCurrency, isoCurrency('EUR'));
 
     // Same input, other order.
     expect(
-      MoneyTotal([Money(100, _eur), Money(100, _usd)]).dominantCurrency,
-      _eur,
+      MoneyTotal([
+        Money(100, isoCurrency('EUR')),
+        Money(100, isoCurrency('USD')),
+      ]).dominantCurrency,
+      isoCurrency('EUR'),
     );
   });
 
@@ -69,13 +78,19 @@ void main() {
     expect(total.isEmpty, isTrue);
     expect(total.isMixed, isFalse);
     expect(total.dominantCurrency, isNull);
-    expect(total.inCurrency(_eur), Money(0, _eur));
+    expect(total.inCurrency(isoCurrency('EUR')), Money(0, isoCurrency('EUR')));
   });
 
   test('two totals with the same content are equal, whatever the order', () {
     expect(
-      MoneyTotal([Money(100, _eur), Money(50, _gbp)]),
-      MoneyTotal([Money(50, _gbp), Money(100, _eur)]),
+      MoneyTotal([
+        Money(100, isoCurrency('EUR')),
+        Money(50, isoCurrency('GBP')),
+      ]),
+      MoneyTotal([
+        Money(50, isoCurrency('GBP')),
+        Money(100, isoCurrency('EUR')),
+      ]),
     );
   });
 
@@ -86,25 +101,28 @@ void main() {
     // have swallowed the change, leaving the screen on the old primary
     // currency.
     final euroLed = MoneyTotal([
-      Money(50, _eur),
-      Money(50, _eur),
-      Money(100, _gbp),
+      Money(50, isoCurrency('EUR')),
+      Money(50, isoCurrency('EUR')),
+      Money(100, isoCurrency('GBP')),
     ]);
     final poundLed = MoneyTotal([
-      Money(100, _eur),
-      Money(50, _gbp),
-      Money(50, _gbp),
+      Money(100, isoCurrency('EUR')),
+      Money(50, isoCurrency('GBP')),
+      Money(50, isoCurrency('GBP')),
     ]);
 
     expect(euroLed.byCurrency, poundLed.byCurrency, reason: 'same sums');
-    expect(euroLed.dominantCurrency, _eur);
-    expect(poundLed.dominantCurrency, _gbp);
+    expect(euroLed.dominantCurrency, isoCurrency('EUR'));
+    expect(poundLed.dominantCurrency, isoCurrency('GBP'));
     expect(euroLed, isNot(poundLed), reason: 'so they must not be equal');
   });
 
   test('the grouping is not writable through byCurrency', () {
     // A caller that mutated the map would change a value nothing recomputed.
-    final total = MoneyTotal([Money(100, _eur)]);
-    expect(() => total.byCurrency[_gbp] = 1, throwsUnsupportedError);
+    final total = MoneyTotal([Money(100, isoCurrency('EUR'))]);
+    expect(
+      () => total.byCurrency[isoCurrency('GBP')] = 1,
+      throwsUnsupportedError,
+    );
   });
 }

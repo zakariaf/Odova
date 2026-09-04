@@ -15,23 +15,21 @@ import 'package:odova/core/units/mass.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:test/test.dart';
 
-const int _km = 1000;
-
 FuelSegment segment(String id, {required int km, required int millilitres}) =>
     FuelSegment(
       fromFillUpId: '${id}_from',
       toFillUpId: id,
-      distance: Distance(km * _km),
+      distance: Distance.fromKm(km),
       quantity: LiquidVolume(Volume(millilitres)),
       partialCount: 0,
     );
 
 void main() {
-  test('segmentConsumption is volume over distance, canonically', () {
+  test('a segment knows its own consumption, canonically', () {
     // 41.2 L over 640 km.
     final one = segment('a', km: 640, millilitres: 41200);
     expect(
-      segmentConsumption(one).asUnit(ConsumptionUnit.lPer100km),
+      one.consumption.asUnit(ConsumptionUnit.lPer100km),
       closeTo(6.4375, 1e-9),
     );
   });
@@ -216,7 +214,7 @@ void main() {
         FuelSegment(
           fromFillUpId: '${id}_from',
           toFillUpId: id,
-          distance: Distance(km * _km),
+          distance: Distance.fromKm(km),
           quantity: GasMass(Mass(grams)),
           partialCount: 0,
         );

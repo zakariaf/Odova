@@ -81,3 +81,22 @@ abstract final class Decimals {
   static int forSegmentDistance(double value) =>
       value.abs() >= 100 ? segmentDistanceLarge : segmentDistanceSmall;
 }
+
+/// Quantises [value] for a golden file. **Not the display rule.**
+///
+/// A raw `double`'s last bits differ between architectures, so a committed
+/// vector generated on one machine fails `--check` on another for the machine
+/// rather than for the code. Six places is well past any figure this app
+/// shows and far short of a double's precision.
+///
+/// **Deliberately NOT [roundHalfAwayFromZero], and they are not
+/// interchangeable.** They disagree at an exact decimal tie: `0.1234565`
+/// quantises to `0.123456` here and rounds to `0.123457` there, because this
+/// follows the underlying binary value and the display rule follows SPEC.md
+/// §3. Swapping one for the other silently rewrites every golden vector, so
+/// `test/core/rounding/rounding_test.dart` pins the difference.
+///
+/// Use [roundHalfAwayFromZero] for anything a user reads. Use this only for a
+/// number being written to or compared against a committed fixture.
+double? quantiseForGolden(double? value) =>
+    value == null ? null : double.parse(value.toStringAsFixed(6));

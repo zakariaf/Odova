@@ -5,11 +5,9 @@
 import 'dart:math';
 
 import 'package:odova/core/money/allocate.dart';
-import 'package:odova/core/money/currency.dart';
-import 'package:odova/core/money/money.dart';
 import 'package:test/test.dart';
 
-Currency get _eur => Currency.tryParse('EUR')!;
+import '../../support/values.dart';
 
 int _sum(List<Money> parts) =>
     parts.fold(0, (total, part) => total + part.amountMinor);
@@ -19,7 +17,10 @@ void main() {
     // 1200.00 / 365 is 3.287671… per day. 365 x 3.29 is 1,200.85 and
     // 365 x 3.28 is 1,197.20. Neither is the amount the user paid, and the
     // monthly cost view has to add back up to the premium.
-    final parts = allocate(Money(120000, _eur), List.filled(365, 1));
+    final parts = allocate(
+      Money(120000, isoCurrency('EUR')),
+      List.filled(365, 1),
+    );
 
     expect(parts, hasLength(365));
     expect(_sum(parts), 120000);
@@ -36,7 +37,7 @@ void main() {
       if (weights.every((w) => w == 0)) weights[0] = 1;
       final total = random.nextInt(1000000) - 200000;
 
-      final parts = allocate(Money(total, _eur), weights);
+      final parts = allocate(Money(total, isoCurrency('EUR')), weights);
       expect(
         _sum(parts),
         total,
@@ -50,11 +51,11 @@ void main() {
     // stated tie-break, which part gets it depends on sort stability — which
     // is not a promise any language makes, and a golden vector would then be
     // valid on one run and not the next.
-    final parts = allocate(Money(100, _eur), [1, 1, 1]);
+    final parts = allocate(Money(100, isoCurrency('EUR')), [1, 1, 1]);
     expect(parts.map((p) => p.amountMinor), [34, 33, 33]);
 
     // Two runs agree.
-    expect(allocate(Money(100, _eur), [1, 1, 1]), parts);
+    expect(allocate(Money(100, isoCurrency('EUR')), [1, 1, 1]), parts);
   });
 
   test('a genuinely larger remainder wins over an earlier index', () {
@@ -62,34 +63,43 @@ void main() {
     // and takes the cent. If the tie-break were index-first this would be
     // [4, 6] and the split would drift away from the ratio.
     expect(
-      allocate(Money(1000, _eur), [1, 2]).map((p) => p.amountMinor),
+      allocate(Money(1000, isoCurrency('EUR')), [
+        1,
+        2,
+      ]).map((p) => p.amountMinor),
       [333, 667],
     );
   });
 
   test('a weight of zero gets nothing', () {
-    final parts = allocate(Money(1000, _eur), [1, 0, 1]);
+    final parts = allocate(Money(1000, isoCurrency('EUR')), [1, 0, 1]);
     expect(parts.map((p) => p.amountMinor), [500, 0, 500]);
   });
 
   test('a negative total allocates with the sign carried through', () {
     // A refund spread over a coverage window is the same arithmetic. Refusing
     // it here would push a special case into every caller.
-    final parts = allocate(Money(-100, _eur), [1, 1, 1]);
+    final parts = allocate(Money(-100, isoCurrency('EUR')), [1, 1, 1]);
     expect(_sum(parts), -100);
     expect(parts.map((p) => p.amountMinor), [-34, -33, -33]);
   });
 
   test('every part carries the total currency', () {
-    for (final part in allocate(Money(100, _eur), [1, 1])) {
-      expect(part.currency, _eur);
+    for (final part in allocate(Money(100, isoCurrency('EUR')), [1, 1])) {
+      expect(part.currency, isoCurrency('EUR'));
     }
   });
 
   test('an impossible weight list is a programmer error', () {
-    expect(() => allocate(Money(100, _eur), [1, -1]), throwsArgumentError);
-    expect(() => allocate(Money(100, _eur), [0, 0]), throwsArgumentError);
-    expect(allocate(Money(100, _eur), const []), isEmpty);
+    expect(
+      () => allocate(Money(100, isoCurrency('EUR')), [1, -1]),
+      throwsArgumentError,
+    );
+    expect(
+      () => allocate(Money(100, isoCurrency('EUR')), [0, 0]),
+      throwsArgumentError,
+    );
+    expect(allocate(Money(100, isoCurrency('EUR')), const []), isEmpty);
   });
 
   test('a percentage is rounded to minor units ONCE, before allocate', () {
@@ -108,7 +118,7 @@ void main() {
     // 21,604.975 truncates to 21,604 — deliberately down rather than to
     // nearest, because a share that rounds UP can exceed the total it came
     // from and the remainder then has to be negative.
-    final share = Money((totalMinor * percent) ~/ 1000, _eur);
+    final share = Money((totalMinor * percent) ~/ 1000, isoCurrency('EUR'));
     expect(share.amountMinor, 21604);
 
     final parts = allocate(share, List.filled(12, 1));

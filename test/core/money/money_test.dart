@@ -1,13 +1,9 @@
 // Money: exact, single-currency, never converted.
 //
 // SPEC.md §3 Canonical units (Money), §3 Currency, §12 Ground rules.
-import 'package:odova/core/money/currency.dart';
-import 'package:odova/core/money/money.dart';
 import 'package:test/test.dart';
 
-Currency get _eur => Currency.tryParse('EUR')!;
-Currency get _gbp => Currency.tryParse('GBP')!;
-Currency get _jpy => Currency.tryParse('JPY')!;
+import '../../support/values.dart';
 
 void main() {
   group('the exponent comes from ISO 4217, never a hardcoded 100', () {
@@ -65,18 +61,35 @@ void main() {
 
   group('arithmetic', () {
     test('same-currency addition and subtraction are exact', () {
-      expect((Money(1050, _eur) + Money(295, _eur)).amountMinor, 1345);
-      expect((Money(1050, _eur) - Money(295, _eur)).amountMinor, 755);
+      expect(
+        (Money(1050, isoCurrency('EUR')) + Money(295, isoCurrency('EUR')))
+            .amountMinor,
+        1345,
+      );
+      expect(
+        (Money(1050, isoCurrency('EUR')) - Money(295, isoCurrency('EUR')))
+            .amountMinor,
+        755,
+      );
     });
 
     test('adding two currencies is a programmer error, not a failure', () {
       // A screen that adds euros to pounds is wrong in its own logic, not
       // handling a runtime condition. `error-handling-typed-results` rule 8: a
       // bug is thrown, a recoverable failure is returned.
-      expect(() => Money(100, _eur) + Money(100, _gbp), throwsArgumentError);
-      expect(() => Money(100, _eur) - Money(100, _gbp), throwsArgumentError);
       expect(
-        () => Money(100, _eur).compareTo(Money(100, _gbp)),
+        () => Money(100, isoCurrency('EUR')) + Money(100, isoCurrency('GBP')),
+        throwsArgumentError,
+      );
+      expect(
+        () => Money(100, isoCurrency('EUR')) - Money(100, isoCurrency('GBP')),
+        throwsArgumentError,
+      );
+      expect(
+        () => Money(
+          100,
+          isoCurrency('EUR'),
+        ).compareTo(Money(100, isoCurrency('GBP'))),
         throwsArgumentError,
       );
     });
@@ -84,9 +97,9 @@ void main() {
     test('a hundred amounts sum exactly', () {
       // The reason the canonical value is an int: 0.1 + 0.2 is not 0.3, and a
       // fuel log adds hundreds of amounts.
-      var total = Money.zero(_eur);
+      var total = Money.zero(isoCurrency('EUR'));
       for (var i = 0; i < 100; i++) {
-        total += Money(1010, _eur); // €10.10
+        total += Money(1010, isoCurrency('EUR')); // €10.10
       }
       expect(total.amountMinor, 101000);
     });
@@ -94,27 +107,33 @@ void main() {
     test('a negative amount is representable and recognised', () {
       // Only an Expense may be negative — a refund, a reimbursement, a payout
       // — and this is how a caller asks without reaching for the raw integer.
-      expect(Money(-1250, _eur).isNegative, isTrue);
-      expect(Money(0, _eur).isZero, isTrue);
-      expect(Money(1, _eur).isNegative, isFalse);
+      expect(Money(-1250, isoCurrency('EUR')).isNegative, isTrue);
+      expect(Money(0, isoCurrency('EUR')).isZero, isTrue);
+      expect(Money(1, isoCurrency('EUR')).isNegative, isFalse);
     });
 
     test('money scales by a whole number only', () {
       // Multiplying money by a double is how a percentage becomes a fraction
       // of a cent that then rounds twice. Division goes through `allocate`.
-      expect((Money(1050, _eur) * 3).amountMinor, 3150);
+      expect((Money(1050, isoCurrency('EUR')) * 3).amountMinor, 3150);
     });
   });
 
   test('two amounts of the same value and currency are equal', () {
-    expect(Money(1050, _eur), Money(1050, _eur));
-    expect(Money(1050, _eur), isNot(Money(1050, _gbp)));
-    expect({Money(1050, _eur), Money(1050, _eur)}, hasLength(1));
+    expect(Money(1050, isoCurrency('EUR')), Money(1050, isoCurrency('EUR')));
+    expect(
+      Money(1050, isoCurrency('EUR')),
+      isNot(Money(1050, isoCurrency('GBP'))),
+    );
+    expect({
+      Money(1050, isoCurrency('EUR')),
+      Money(1050, isoCurrency('EUR')),
+    }, hasLength(1));
   });
 
   test('a yen amount has no subunit', () {
     // ¥4599 is four thousand five hundred and ninety-nine yen, not ¥45.99.
-    expect(Money(4599, _jpy).amountMinor, 4599);
-    expect(_jpy.minorPerMajor, 1);
+    expect(Money(4599, isoCurrency('JPY')).amountMinor, 4599);
+    expect(isoCurrency('JPY').minorPerMajor, 1);
   });
 }

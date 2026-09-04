@@ -20,6 +20,7 @@ import 'dart:io';
 import 'package:odova/core/fuel/build_fuel_segments.dart';
 import 'package:odova/core/fuel/consumption_stats.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/rounding/rounding.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -69,9 +70,6 @@ FillUpPoint _fill(Map<String, Object?> json) => (
   chainBroken: json['chain_broken']! as bool,
   tankCapacityMl: null,
 );
-
-double? _round(double? value) =>
-    value == null ? null : double.parse(value.toStringAsFixed(6));
 
 void main() {
   final file = _readVectorFile();
@@ -142,12 +140,16 @@ void main() {
             reason: '$id/$kind[$i] partials',
           );
           expect(
-            _round(got.consumption.asUnit(ConsumptionUnit.lPer100km)),
+            quantiseForGolden(
+              got.consumption.asUnit(ConsumptionUnit.lPer100km),
+            ),
             want['l_per_100km'],
             reason: '$id/$kind[$i] L/100km',
           );
           expect(
-            _round(got.consumption.asUnit(ConsumptionUnit.kwhPer100km)),
+            quantiseForGolden(
+              got.consumption.asUnit(ConsumptionUnit.kwhPer100km),
+            ),
             want['kwh_per_100km'],
             reason: '$id/$kind[$i] kWh/100km',
           );
@@ -177,7 +179,7 @@ void main() {
               reason: '$id/$kind: expected a refusal, got a number',
             );
             expect(
-              _round(value.asUnit(ConsumptionUnit.lPer100km)),
+              quantiseForGolden(value.asUnit(ConsumptionUnit.lPer100km)),
               wantAverage['l_per_100km'],
               reason: '$id/$kind: average L/100km',
             );

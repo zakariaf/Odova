@@ -4,6 +4,14 @@
 import 'package:odova/core/rounding/rounding.dart';
 import 'package:test/test.dart';
 
+double _pow10(int exponent) {
+  var result = 1.0;
+  for (var i = 0; i < exponent; i++) {
+    result *= 10;
+  }
+  return result;
+}
+
 void main() {
   group('half away from zero, never half-even', () {
     test('the four cases SPEC.md names', () {
@@ -121,6 +129,48 @@ void main() {
     test('a percentage is whole', () {
       expect(Decimals.percentage, 0);
       expect(roundHalfAwayFromZero(17.5), 18.0);
+    });
+  });
+  group('quantiseForGolden is not the display rule', () {
+    test('they disagree at an exact decimal tie', () {
+      // Pinned, because the two look interchangeable and are not. A reviewer
+      // reasonably proposed collapsing them; swapping one for the other
+      // silently rewrites every committed vector, and a golden file edited by
+      // a refactor is worse than no golden file — it carries authority.
+      for (final tie in [0.1234565, 1.0000015, 2.0000025, 0.0000005]) {
+        expect(
+          quantiseForGolden(tie),
+          isNot(roundHalfAwayFromZero(tie, decimals: 6)),
+          reason: '$tie',
+        );
+      }
+    });
+
+    test('and agree everywhere else, which is why the trap exists', () {
+      // 200,000 seeded values across seven magnitudes: they agree on all but
+      // the ties. A test written against ordinary values would find them
+      // identical and conclude they are the same function.
+      var state = 20260904;
+      int next() => state = (state * 1103515245 + 12345) & 0x7FFFFFFF;
+
+      var disagreements = 0;
+      for (var i = 0; i < 200000; i++) {
+        final value = (next() / 0x7FFFFFFF - 0.5) * _pow10(next() % 7);
+        if (quantiseForGolden(value) !=
+            roundHalfAwayFromZero(value, decimals: 6)) {
+          disagreements++;
+        }
+      }
+
+      expect(
+        disagreements,
+        lessThan(10),
+        reason: 'they agree on ordinary values; the difference is at ties',
+      );
+    });
+
+    test('null passes through, because a refusal is not a zero', () {
+      expect(quantiseForGolden(null), isNull);
     });
   });
 }
