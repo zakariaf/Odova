@@ -496,6 +496,61 @@ assert 1 "check_golden_lane is red on a skill script that rebaselines" \
 restore_all
 rmdir .claude/skills/selftest-probe/scripts .claude/skills/selftest-probe 2>/dev/null || true
 assert 0 "check_golden_lane is green again" bash "$GOLDEN"
-assert 0 "check_golden_lane is green again" bash "$GOLDEN"
+
+echo "== check_drift_confinement =="
+DRIFT=tools/check_drift_confinement.sh
+assert 0 "check_drift_confinement is green on the real tree" bash "$DRIFT"
+
+# A Drift import above the data layer. This is the shape it really takes: a
+# feature file that wants one row type and imports the package to name it,
+# after which nothing above lib/data/ can be tested without a database.
+write_scratch lib/features/selftest_probe.dart <<'DART'
+import 'package:drift/drift.dart';
+
+typedef Leak = TableInfo<Table, dynamic>;
+DART
+assert 1 "check_drift_confinement is red on a Drift import outside lib/data/" \
+  bash "$DRIFT"
+restore_all
+
+# The other half of the contract, and it is a different failure: sqflite is
+# confined nowhere, because it is refused everywhere. NativeDatabase is the FFI
+# backend the migration ladder and the WAL-safe backup primitive both need.
+write_scratch lib/data/selftest_probe.dart <<'DART'
+import 'package:sqflite/sqflite.dart';
+
+typedef Leak = Database;
+DART
+assert 1 "check_drift_confinement is red on a sqflite import, even in lib/data/" \
+  bash "$DRIFT"
+restore_all
+rmdir lib/features 2>/dev/null || true
+assert 0 "check_drift_confinement is green again" bash "$DRIFT"
+
+echo "== check_schema_freshness =="
+FRESH=tools/check_schema_freshness.sh
+assert 0 "check_schema_freshness is green on the real tree" bash "$FRESH"
+
+# The version bumped with no snapshot behind it. This is the shape the mistake
+# actually takes: somebody adds a column, bumps the number, and ships — and
+# `stepByStep` throws "Unknown migration from 1" on the device of every user who
+# had the old version.
+plant lib/data/db/schema_version.dart
+perl -0pi -e 's/kLatestSchemaVersion = 1/kLatestSchemaVersion = 2/' \
+  lib/data/db/schema_version.dart
+assert 1 "check_schema_freshness is red on a bump with no snapshot" \
+  bash "$FRESH"
+restore_all
+
+# The other direction, which is just as silent: a snapshot exported and the
+# constant left alone, so the migration never runs and the app reads columns
+# that are not there.
+write_scratch drift_schemas/odova/drift_schema_v2.json <<'JSON'
+{"_meta": {"description": "selftest plant"}, "options": {}, "entities": []}
+JSON
+assert 1 "check_schema_freshness is red on a snapshot with no bump" \
+  bash "$FRESH"
+restore_all
+assert 0 "check_schema_freshness is green again" bash "$FRESH"
 
 exit "$rc"

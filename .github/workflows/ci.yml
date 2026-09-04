@@ -77,6 +77,15 @@ jobs:
           python3 -m pip install --quiet pyyaml
           python3 tools/check_skill_frontmatter.py
 
+      # Contract: the schema version the app claims, the committed snapshots,
+      # the generated ladder and the era-correct classes all agree. Bumping the
+      # constant without a snapshot makes stepByStep throw on a user's device;
+      # adding a snapshot without bumping it means the migration never runs.
+      # Both ship silently and surface as data loss on an update. In the repo
+      # job because it needs no toolchain and every push should see it.
+      - name: the schema version and its snapshots agree
+        run: bash tools/check_schema_freshness.sh
+
       # Contract: the pub ecosystem block in .github/dependabot.yml is live
       # and grouped. It shipped commented out because Dependabot aborts on a
       # missing pubspec.yaml; pubspec.yaml exists now, and this is what stops
@@ -236,6 +245,25 @@ jobs:
       # Contract: an info is a warning that will be ignored next week.
       - run: flutter analyze --fatal-infos --fatal-warnings
 
+      # Contract: package:drift and package:sqlite3 are imported ONLY under
+      # lib/data/. A Drift symbol above the data layer means a row shape has
+      # leaked past the repository boundary, and everything above it then needs
+      # a database to be tested at all. An import is legal Dart wherever it
+      # sits, so the compiler cannot see this one.
+      - name: Drift stays inside the data layer
+        run: bash tools/check_drift_confinement.sh
+
+      # Contract: the committed .g.dart IS the schema. A stale generated file
+      # compiles and runs against yesterday's tables, and for a migration
+      # ladder that is not something review catches — it is a column that
+      # exists in the class and not in the database. Same shape as the l10n
+      # gate below: regenerate, then diff. The diff is the gate.
+      - run: dart run build_runner build --delete-conflicting-outputs
+      # Contract: the diff, not the regeneration, is the gate. Regenerating is
+      # a setup step; this is the step that can fail.
+      - name: generated Drift code is up to date
+        run: git diff --exit-code -- '*.g.dart'
+
       # Contract: the committed generated localizations ARE the ARB files. A
       # stale lib/l10n/gen/ compiles and runs, serving yesterday's strings — and
       # with six locales that is not something review catches. Regenerate, then
@@ -282,6 +310,15 @@ jobs:
       # notice.
       - name: the numeric normaliser has been seen to fail
         run: bash tools/check_numeric_input_selftest.sh
+
+      # Contract: SPEC.md §17's data-safety gate — a migration loses no record.
+      # 12,000 records, with row counts AND a content hash either side. Counts
+      # alone would not notice a migration that copied the right NUMBER of rows
+      # with the wrong values in them, which is what a mis-mapped column does
+      # and is the failure that survives review, because everything still looks
+      # populated. Its own step so the failure has its own name in the log.
+      - name: a migration loses no record
+        run: flutter test test/migration/
 
       # Contract: lib/core/ really does run with no widget binding. The
       # structure test proves it imports no Flutter; this proves the tests

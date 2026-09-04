@@ -1,0 +1,2187 @@
+{
+  "_meta": {
+    "description": "This file contains a serialized version of schema entities for drift.",
+    "version": "1.3.0"
+  },
+  "options": {
+    "store_date_time_values_as_text": false
+  },
+  "entities": [
+    {
+      "id": 0,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "vehicles",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name",
+            "getter_name": "name",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "make",
+            "getter_name": "make",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "model",
+            "getter_name": "model",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "year",
+            "getter_name": "year",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "plate",
+            "getter_name": "plate",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vin",
+            "getter_name": "vin",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vehicle_type",
+            "getter_name": "vehicleType",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (vehicle_type IN ('car', 'van', 'motorcycle', 'truck', 'other'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "is_business",
+            "getter_name": "isBusiness",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"is_business\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"is_business\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "fuel_kind_default",
+            "getter_name": "fuelKindDefault",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (fuel_kind_default IN ('petrol', 'diesel', 'lpg', 'cng', 'electric', 'hybrid', 'other'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "tank_capacity_ml",
+            "getter_name": "tankCapacityMl",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (tank_capacity_ml IS NULL OR tank_capacity_ml > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "purchase_date",
+            "getter_name": "purchaseDate",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "purchase_odometer_m",
+            "getter_name": "purchaseOdometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "purchase_price_minor",
+            "getter_name": "purchasePriceMinor",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "purchase_price_currency",
+            "getter_name": "purchasePriceCurrency",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "CHECK (purchase_price_currency IS NULL OR length(purchase_price_currency) = 3)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (status IN ('active', 'archived', 'sold'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sold_on",
+            "getter_name": "soldOn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sold_price_minor",
+            "getter_name": "soldPriceMinor",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sold_price_currency",
+            "getter_name": "soldPriceCurrency",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "CHECK (sold_price_currency IS NULL OR length(sold_price_currency) = 3)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "expected_annual_m",
+            "getter_name": "expectedAnnualM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "colour",
+            "getter_name": "colour",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sort_order",
+            "getter_name": "sortOrder",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notifications_muted",
+            "getter_name": "notificationsMuted",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"notifications_muted\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"notifications_muted\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "currency",
+            "getter_name": "currency",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "CHECK (currency IS NULL OR length(currency) = 3)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "distance_unit",
+            "getter_name": "distanceUnit",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "CHECK (distance_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "volume_unit",
+            "getter_name": "volumeUnit",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "CHECK (volume_unit IN ('l', 'gal_us', 'gal_uk'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "consumption_unit",
+            "getter_name": "consumptionUnit",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "CHECK (consumption_unit IN ('l_100km', 'km_l', 'mpg_us', 'mpg_uk', 'kwh_100km', 'mi_kwh'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notice_distance_m",
+            "getter_name": "noticeDistanceM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notice_days",
+            "getter_name": "noticeDays",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "service_items",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vehicle_id",
+            "getter_name": "vehicleId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "kind",
+            "getter_name": "kind",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (kind IN ('oil_and_filter', 'air_filter', 'cabin_filter', 'fuel_filter', 'spark_plugs', 'timing_belt', 'brake_pads_check', 'brake_pads_front', 'brake_pads_rear', 'brake_fluid', 'coolant', 'transmission_fluid', 'wheel_alignment', 'tyre_rotate', 'tyre_replace', 'battery', 'wipers', 'inspection', 'registration', 'insurance_renewal', 'ac_service', 'chain_lube', 'chain_and_sprockets', 'valve_clearance', 'fork_oil', 'reduction_gearbox_oil', 'battery_12v', 'custom'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "label",
+            "getter_name": "label",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "interval_distance_m",
+            "getter_name": "intervalDistanceM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (interval_distance_m IS NULL OR interval_distance_m > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "interval_distance_unit",
+            "getter_name": "intervalDistanceUnit",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "CHECK (interval_distance_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "interval_months",
+            "getter_name": "intervalMonths",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (interval_months IS NULL OR interval_months > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "target_odometer_m",
+            "getter_name": "targetOdometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "target_date",
+            "getter_name": "targetDate",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "baseline_date",
+            "getter_name": "baselineDate",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "baseline_odometer_m",
+            "getter_name": "baselineOdometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notice_distance_m",
+            "getter_name": "noticeDistanceM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notice_days",
+            "getter_name": "noticeDays",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "is_tracked",
+            "getter_name": "isTracked",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"is_tracked\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"is_tracked\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "is_active",
+            "getter_name": "isActive",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"is_active\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"is_active\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notify",
+            "getter_name": "notify",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"notify\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"notify\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "priority",
+            "getter_name": "priority",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (priority IN ('safety', 'normal', 'low'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "rollover",
+            "getter_name": "rollover",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (rollover IN ('from_actual', 'from_due'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "repeats",
+            "getter_name": "repeats",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"repeats\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"repeats\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "snoozed_until",
+            "getter_name": "snoozedUntil",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "snooze_until_odometer_m",
+            "getter_name": "snoozeUntilOdometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "snooze_count",
+            "getter_name": "snoozeCount",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "settings",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (id = 'settings')",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "schema_version",
+            "getter_name": "schemaVersion",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "language",
+            "getter_name": "language",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (language IN ('system', 'en', 'de', 'fr', 'fa', 'ar', 'ckb'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "calendar",
+            "getter_name": "calendar",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (calendar IN ('gregorian', 'persian'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "numerals",
+            "getter_name": "numerals",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (numerals IN ('auto', 'latin', 'arabic_indic', 'extended_arabic_indic'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "first_day_of_week",
+            "getter_name": "firstDayOfWeek",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (first_day_of_week BETWEEN 1 AND 7)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "theme",
+            "getter_name": "theme",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (theme IN ('system', 'light', 'dark'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "currency_default",
+            "getter_name": "currencyDefault",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(currency_default) = 3)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "currency_display",
+            "getter_name": "currencyDisplay",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (currency_display IN ('none', 'toman'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "distance_unit",
+            "getter_name": "distanceUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (distance_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "volume_unit",
+            "getter_name": "volumeUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (volume_unit IN ('l', 'gal_us', 'gal_uk'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "consumption_unit",
+            "getter_name": "consumptionUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (consumption_unit IN ('l_100km', 'km_l', 'mpg_us', 'mpg_uk', 'kwh_100km', 'mi_kwh'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notice_distance_m",
+            "getter_name": "noticeDistanceM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notice_days",
+            "getter_name": "noticeDays",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notification_time_minutes",
+            "getter_name": "notificationTimeMinutes",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (notification_time_minutes BETWEEN 0 AND 1439)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "quiet_hours_from_minutes",
+            "getter_name": "quietHoursFromMinutes",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (quiet_hours_from_minutes BETWEEN 0 AND 1439)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "quiet_hours_to_minutes",
+            "getter_name": "quietHoursToMinutes",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (quiet_hours_to_minutes BETWEEN 0 AND 1439)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "weekdays_only",
+            "getter_name": "weekdaysOnly",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"weekdays_only\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"weekdays_only\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notify_service",
+            "getter_name": "notifyService",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"notify_service\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"notify_service\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notify_odometer",
+            "getter_name": "notifyOdometer",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"notify_odometer\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"notify_odometer\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notify_backup",
+            "getter_name": "notifyBackup",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"notify_backup\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"notify_backup\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "active_vehicle_id",
+            "getter_name": "activeVehicleId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "onboarding_done",
+            "getter_name": "onboardingDone",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"onboarding_done\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"onboarding_done\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "last_backup_at_utc_ms",
+            "getter_name": "lastBackupAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "last_backup_reminder_at_utc_ms",
+            "getter_name": "lastBackupReminderAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "service_records",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vehicle_id",
+            "getter_name": "vehicleId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "occurred_on",
+            "getter_name": "occurredOn",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (occurred_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_m",
+            "getter_name": "odometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (odometer_m IS NULL OR odometer_m >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_unit",
+            "getter_name": "odometerUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (odometer_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_estimated",
+            "getter_name": "odometerEstimated",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"odometer_estimated\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"odometer_estimated\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "cost_estimated",
+            "getter_name": "costEstimated",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"cost_estimated\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"cost_estimated\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vendor",
+            "getter_name": "vendor",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "invoice_ref",
+            "getter_name": "invoiceRef",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "warranty_until",
+            "getter_name": "warrantyUntil",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "references": [
+        3
+      ],
+      "type": "table",
+      "data": {
+        "name": "service_lines",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "service_record_id",
+            "getter_name": "serviceRecordId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES service_records (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "service_records",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "service_item_id",
+            "getter_name": "serviceItemId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "REFERENCES service_items (id) ON DELETE SET NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "label",
+            "getter_name": "label",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "amount_minor",
+            "getter_name": "amountMinor",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (amount_minor >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "currency",
+            "getter_name": "currency",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(currency) = 3)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "part_number",
+            "getter_name": "partNumber",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "trips",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vehicle_id",
+            "getter_name": "vehicleId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "title",
+            "getter_name": "title",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "purpose",
+            "getter_name": "purpose",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (purpose IN ('business', 'commute', 'personal', 'other'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "started_on",
+            "getter_name": "startedOn",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (started_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ended_on",
+            "getter_name": "endedOn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "start_odometer_m",
+            "getter_name": "startOdometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "end_odometer_m",
+            "getter_name": "endOdometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "manual_distance_m",
+            "getter_name": "manualDistanceM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (manual_distance_m IS NULL OR manual_distance_m >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_unit",
+            "getter_name": "odometerUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (odometer_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "fill_ups",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vehicle_id",
+            "getter_name": "vehicleId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "occurred_on",
+            "getter_name": "occurredOn",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (occurred_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_m",
+            "getter_name": "odometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (odometer_m IS NULL OR odometer_m >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_unit",
+            "getter_name": "odometerUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (odometer_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "fuel_kind",
+            "getter_name": "fuelKind",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (fuel_kind IN ('petrol', 'diesel', 'lpg', 'cng', 'electric', 'hybrid', 'other'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "quantity_ml",
+            "getter_name": "quantityMl",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (quantity_ml IS NULL OR quantity_ml > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "quantity_g",
+            "getter_name": "quantityG",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (quantity_g IS NULL OR quantity_g > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "energy_wh",
+            "getter_name": "energyWh",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (energy_wh IS NULL OR energy_wh > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "quantity_unit",
+            "getter_name": "quantityUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (quantity_unit IN ('l', 'gal_us', 'gal_uk'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "total_cost_minor",
+            "getter_name": "totalCostMinor",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (total_cost_minor >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "currency",
+            "getter_name": "currency",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(currency) = 3)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "is_full_tank",
+            "getter_name": "isFullTank",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"is_full_tank\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"is_full_tank\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "chain_broken",
+            "getter_name": "chainBroken",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"chain_broken\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"chain_broken\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "grade",
+            "getter_name": "grade",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "station",
+            "getter_name": "station",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "trip_id",
+            "getter_name": "tripId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "REFERENCES trips (id) ON DELETE SET NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "expenses",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vehicle_id",
+            "getter_name": "vehicleId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "trip_id",
+            "getter_name": "tripId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "REFERENCES trips (id) ON DELETE SET NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "occurred_on",
+            "getter_name": "occurredOn",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (occurred_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "category",
+            "getter_name": "category",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (category IN ('insurance', 'tax_registration', 'parking', 'toll', 'fine', 'wash', 'tyre_storage', 'accessories', 'finance', 'other'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "label",
+            "getter_name": "label",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "amount_minor",
+            "getter_name": "amountMinor",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "currency",
+            "getter_name": "currency",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(currency) = 3)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "covers_from",
+            "getter_name": "coversFrom",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "covers_to",
+            "getter_name": "coversTo",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_m",
+            "getter_name": "odometerM",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (odometer_m IS NULL OR odometer_m >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_unit",
+            "getter_name": "odometerUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (odometer_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vendor",
+            "getter_name": "vendor",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "odometer_readings",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vehicle_id",
+            "getter_name": "vehicleId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "occurred_on",
+            "getter_name": "occurredOn",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (occurred_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_m",
+            "getter_name": "odometerM",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (odometer_m >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_unit",
+            "getter_name": "odometerUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (odometer_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "source",
+            "getter_name": "source",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (source IN ('manual', 'fillup', 'service', 'expense', 'trip_start', 'trip_end', 'import'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "source_id",
+            "getter_name": "sourceId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "odometer_corrections",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_utc_ms",
+            "getter_name": "createdAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at_utc_ms",
+            "getter_name": "updatedAtUtcMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at_utc_ms",
+            "getter_name": "deletedAtUtcMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "vehicle_id",
+            "getter_name": "vehicleId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "from_reading_id",
+            "getter_name": "fromReadingId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES odometer_readings (id) ON DELETE CASCADE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "previous_m",
+            "getter_name": "previousM",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (previous_m >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "new_m",
+            "getter_name": "newM",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (new_m >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "odometer_unit",
+            "getter_name": "odometerUnit",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (odometer_unit IN ('km', 'mi'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "reason",
+            "getter_name": "reason",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (reason IN ('cluster_replaced', 'rollover', 'typo_fix'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "notes",
+            "getter_name": "notes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "strict": true,
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    }
+  ],
+  "fixed_sql": [
+    {
+      "name": "vehicles",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"vehicles\" (\"id\" TEXT NOT NULL, \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"name\" TEXT NOT NULL, \"make\" TEXT NULL, \"model\" TEXT NULL, \"year\" INTEGER NULL, \"plate\" TEXT NULL, \"vin\" TEXT NULL, \"vehicle_type\" TEXT NOT NULL CHECK (vehicle_type IN ('car', 'van', 'motorcycle', 'truck', 'other')), \"is_business\" INTEGER NOT NULL DEFAULT 0 CHECK (\"is_business\" IN (0, 1)), \"fuel_kind_default\" TEXT NOT NULL CHECK (fuel_kind_default IN ('petrol', 'diesel', 'lpg', 'cng', 'electric', 'hybrid', 'other')), \"tank_capacity_ml\" INTEGER CHECK (tank_capacity_ml IS NULL OR tank_capacity_ml > 0), \"purchase_date\" TEXT NULL, \"purchase_odometer_m\" INTEGER NULL, \"purchase_price_minor\" INTEGER NULL, \"purchase_price_currency\" TEXT CHECK (purchase_price_currency IS NULL OR length(purchase_price_currency) = 3), \"status\" TEXT NOT NULL CHECK (status IN ('active', 'archived', 'sold')), \"sold_on\" TEXT NULL, \"sold_price_minor\" INTEGER NULL, \"sold_price_currency\" TEXT CHECK (sold_price_currency IS NULL OR length(sold_price_currency) = 3), \"expected_annual_m\" INTEGER NULL, \"colour\" TEXT NULL, \"notes\" TEXT NULL, \"sort_order\" INTEGER NOT NULL DEFAULT 0, \"notifications_muted\" INTEGER NOT NULL DEFAULT 0 CHECK (\"notifications_muted\" IN (0, 1)), \"currency\" TEXT CHECK (currency IS NULL OR length(currency) = 3), \"distance_unit\" TEXT CHECK (distance_unit IN ('km', 'mi')), \"volume_unit\" TEXT CHECK (volume_unit IN ('l', 'gal_us', 'gal_uk')), \"consumption_unit\" TEXT CHECK (consumption_unit IN ('l_100km', 'km_l', 'mpg_us', 'mpg_uk', 'kwh_100km', 'mi_kwh')), \"notice_distance_m\" INTEGER NULL, \"notice_days\" INTEGER NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "service_items",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"service_items\" (\"id\" TEXT NOT NULL, \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"vehicle_id\" TEXT NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE, \"kind\" TEXT NOT NULL CHECK (kind IN ('oil_and_filter', 'air_filter', 'cabin_filter', 'fuel_filter', 'spark_plugs', 'timing_belt', 'brake_pads_check', 'brake_pads_front', 'brake_pads_rear', 'brake_fluid', 'coolant', 'transmission_fluid', 'wheel_alignment', 'tyre_rotate', 'tyre_replace', 'battery', 'wipers', 'inspection', 'registration', 'insurance_renewal', 'ac_service', 'chain_lube', 'chain_and_sprockets', 'valve_clearance', 'fork_oil', 'reduction_gearbox_oil', 'battery_12v', 'custom')), \"label\" TEXT NULL, \"interval_distance_m\" INTEGER CHECK (interval_distance_m IS NULL OR interval_distance_m > 0), \"interval_distance_unit\" TEXT CHECK (interval_distance_unit IN ('km', 'mi')), \"interval_months\" INTEGER CHECK (interval_months IS NULL OR interval_months > 0), \"target_odometer_m\" INTEGER NULL, \"target_date\" TEXT NULL, \"baseline_date\" TEXT NULL, \"baseline_odometer_m\" INTEGER NULL, \"notice_distance_m\" INTEGER NULL, \"notice_days\" INTEGER NULL, \"is_tracked\" INTEGER NOT NULL DEFAULT 0 CHECK (\"is_tracked\" IN (0, 1)), \"is_active\" INTEGER NOT NULL DEFAULT 1 CHECK (\"is_active\" IN (0, 1)), \"notify\" INTEGER NOT NULL DEFAULT 1 CHECK (\"notify\" IN (0, 1)), \"priority\" TEXT NOT NULL CHECK (priority IN ('safety', 'normal', 'low')), \"rollover\" TEXT NOT NULL CHECK (rollover IN ('from_actual', 'from_due')), \"repeats\" INTEGER NOT NULL DEFAULT 1 CHECK (\"repeats\" IN (0, 1)), \"snoozed_until\" TEXT NULL, \"snooze_until_odometer_m\" INTEGER NULL, \"snooze_count\" INTEGER NOT NULL DEFAULT 0, \"notes\" TEXT NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"settings\" (\"id\" TEXT NOT NULL CHECK (id = 'settings'), \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"schema_version\" INTEGER NOT NULL, \"language\" TEXT NOT NULL CHECK (language IN ('system', 'en', 'de', 'fr', 'fa', 'ar', 'ckb')), \"calendar\" TEXT NOT NULL CHECK (calendar IN ('gregorian', 'persian')), \"numerals\" TEXT NOT NULL CHECK (numerals IN ('auto', 'latin', 'arabic_indic', 'extended_arabic_indic')), \"first_day_of_week\" INTEGER NOT NULL CHECK (first_day_of_week BETWEEN 1 AND 7), \"theme\" TEXT NOT NULL CHECK (theme IN ('system', 'light', 'dark')), \"currency_default\" TEXT NOT NULL CHECK (length(currency_default) = 3), \"currency_display\" TEXT NOT NULL CHECK (currency_display IN ('none', 'toman')), \"distance_unit\" TEXT NOT NULL CHECK (distance_unit IN ('km', 'mi')), \"volume_unit\" TEXT NOT NULL CHECK (volume_unit IN ('l', 'gal_us', 'gal_uk')), \"consumption_unit\" TEXT NOT NULL CHECK (consumption_unit IN ('l_100km', 'km_l', 'mpg_us', 'mpg_uk', 'kwh_100km', 'mi_kwh')), \"notice_distance_m\" INTEGER NULL, \"notice_days\" INTEGER NULL, \"notification_time_minutes\" INTEGER NOT NULL CHECK (notification_time_minutes BETWEEN 0 AND 1439), \"quiet_hours_from_minutes\" INTEGER NOT NULL CHECK (quiet_hours_from_minutes BETWEEN 0 AND 1439), \"quiet_hours_to_minutes\" INTEGER NOT NULL CHECK (quiet_hours_to_minutes BETWEEN 0 AND 1439), \"weekdays_only\" INTEGER NOT NULL DEFAULT 0 CHECK (\"weekdays_only\" IN (0, 1)), \"notify_service\" INTEGER NOT NULL DEFAULT 1 CHECK (\"notify_service\" IN (0, 1)), \"notify_odometer\" INTEGER NOT NULL DEFAULT 1 CHECK (\"notify_odometer\" IN (0, 1)), \"notify_backup\" INTEGER NOT NULL DEFAULT 1 CHECK (\"notify_backup\" IN (0, 1)), \"active_vehicle_id\" TEXT NULL, \"onboarding_done\" INTEGER NOT NULL DEFAULT 0 CHECK (\"onboarding_done\" IN (0, 1)), \"last_backup_at_utc_ms\" INTEGER NULL, \"last_backup_reminder_at_utc_ms\" INTEGER NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "service_records",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"service_records\" (\"id\" TEXT NOT NULL, \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"vehicle_id\" TEXT NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE, \"occurred_on\" TEXT NOT NULL CHECK (occurred_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'), \"odometer_m\" INTEGER CHECK (odometer_m IS NULL OR odometer_m >= 0), \"odometer_unit\" TEXT NOT NULL CHECK (odometer_unit IN ('km', 'mi')), \"odometer_estimated\" INTEGER NOT NULL DEFAULT 0 CHECK (\"odometer_estimated\" IN (0, 1)), \"cost_estimated\" INTEGER NOT NULL DEFAULT 0 CHECK (\"cost_estimated\" IN (0, 1)), \"vendor\" TEXT NULL, \"invoice_ref\" TEXT NULL, \"warranty_until\" TEXT NULL, \"notes\" TEXT NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "service_lines",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"service_lines\" (\"id\" TEXT NOT NULL, \"service_record_id\" TEXT NOT NULL REFERENCES service_records (id) ON DELETE CASCADE, \"service_item_id\" TEXT REFERENCES service_items (id) ON DELETE SET NULL, \"label\" TEXT NOT NULL, \"amount_minor\" INTEGER NOT NULL CHECK (amount_minor >= 0), \"currency\" TEXT NOT NULL CHECK (length(currency) = 3), \"part_number\" TEXT NULL, \"notes\" TEXT NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "trips",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"trips\" (\"id\" TEXT NOT NULL, \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"vehicle_id\" TEXT NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE, \"title\" TEXT NULL, \"purpose\" TEXT NOT NULL CHECK (purpose IN ('business', 'commute', 'personal', 'other')), \"started_on\" TEXT NOT NULL CHECK (started_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'), \"ended_on\" TEXT NULL, \"start_odometer_m\" INTEGER NULL, \"end_odometer_m\" INTEGER NULL, \"manual_distance_m\" INTEGER CHECK (manual_distance_m IS NULL OR manual_distance_m >= 0), \"odometer_unit\" TEXT NOT NULL CHECK (odometer_unit IN ('km', 'mi')), \"notes\" TEXT NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "fill_ups",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"fill_ups\" (\"id\" TEXT NOT NULL, \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"vehicle_id\" TEXT NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE, \"occurred_on\" TEXT NOT NULL CHECK (occurred_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'), \"odometer_m\" INTEGER CHECK (odometer_m IS NULL OR odometer_m >= 0), \"odometer_unit\" TEXT NOT NULL CHECK (odometer_unit IN ('km', 'mi')), \"fuel_kind\" TEXT NOT NULL CHECK (fuel_kind IN ('petrol', 'diesel', 'lpg', 'cng', 'electric', 'hybrid', 'other')), \"quantity_ml\" INTEGER CHECK (quantity_ml IS NULL OR quantity_ml > 0), \"quantity_g\" INTEGER CHECK (quantity_g IS NULL OR quantity_g > 0), \"energy_wh\" INTEGER CHECK (energy_wh IS NULL OR energy_wh > 0), \"quantity_unit\" TEXT NOT NULL CHECK (quantity_unit IN ('l', 'gal_us', 'gal_uk')), \"total_cost_minor\" INTEGER NOT NULL CHECK (total_cost_minor >= 0), \"currency\" TEXT NOT NULL CHECK (length(currency) = 3), \"is_full_tank\" INTEGER NOT NULL DEFAULT 1 CHECK (\"is_full_tank\" IN (0, 1)), \"chain_broken\" INTEGER NOT NULL DEFAULT 0 CHECK (\"chain_broken\" IN (0, 1)), \"grade\" TEXT NULL, \"station\" TEXT NULL, \"trip_id\" TEXT REFERENCES trips (id) ON DELETE SET NULL, \"notes\" TEXT NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "expenses",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"expenses\" (\"id\" TEXT NOT NULL, \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"vehicle_id\" TEXT NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE, \"trip_id\" TEXT REFERENCES trips (id) ON DELETE SET NULL, \"occurred_on\" TEXT NOT NULL CHECK (occurred_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'), \"category\" TEXT NOT NULL CHECK (category IN ('insurance', 'tax_registration', 'parking', 'toll', 'fine', 'wash', 'tyre_storage', 'accessories', 'finance', 'other')), \"label\" TEXT NULL, \"amount_minor\" INTEGER NOT NULL, \"currency\" TEXT NOT NULL CHECK (length(currency) = 3), \"covers_from\" TEXT NULL, \"covers_to\" TEXT NULL, \"odometer_m\" INTEGER CHECK (odometer_m IS NULL OR odometer_m >= 0), \"odometer_unit\" TEXT NOT NULL CHECK (odometer_unit IN ('km', 'mi')), \"vendor\" TEXT NULL, \"notes\" TEXT NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "odometer_readings",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"odometer_readings\" (\"id\" TEXT NOT NULL, \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"vehicle_id\" TEXT NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE, \"occurred_on\" TEXT NOT NULL CHECK (occurred_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'), \"odometer_m\" INTEGER NOT NULL CHECK (odometer_m >= 0), \"odometer_unit\" TEXT NOT NULL CHECK (odometer_unit IN ('km', 'mi')), \"source\" TEXT NOT NULL CHECK (source IN ('manual', 'fillup', 'service', 'expense', 'trip_start', 'trip_end', 'import')), \"source_id\" TEXT NULL, \"notes\" TEXT NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    },
+    {
+      "name": "odometer_corrections",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"odometer_corrections\" (\"id\" TEXT NOT NULL, \"created_at_utc_ms\" INTEGER NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, \"deleted_at_utc_ms\" INTEGER NULL, \"vehicle_id\" TEXT NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE, \"from_reading_id\" TEXT NOT NULL REFERENCES odometer_readings (id) ON DELETE CASCADE, \"previous_m\" INTEGER NOT NULL CHECK (previous_m >= 0), \"new_m\" INTEGER NOT NULL CHECK (new_m >= 0), \"odometer_unit\" TEXT NOT NULL CHECK (odometer_unit IN ('km', 'mi')), \"reason\" TEXT NOT NULL CHECK (reason IN ('cluster_replaced', 'rollover', 'typo_fix')), \"notes\" TEXT NULL, PRIMARY KEY (\"id\")) STRICT;"
+        }
+      ]
+    }
+  ]
+}

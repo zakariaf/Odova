@@ -10,6 +10,13 @@ dependencies:
   # An injectable now(). SPEC.md §3's due engine is a pure function of the
   # date, so the date has to be an argument and never a global.
   clock: ^1.1.2
+  # SQLite with a typed Dart API and real migrations. Chosen over sqflite for
+  # the migration ladder specifically: SPEC.md §6.3.3 requires a step-by-step
+  # migration whose every from->to pair is tested against a committed schema
+  # snapshot, and drift_dev generates those snapshots. Losing eight years of
+  # service history is the worst bug this app can have (SPEC.md §2), so the
+  # migration machinery is the reason for the dependency, not a side effect.
+  drift: ^2.28.2
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -20,8 +27,36 @@ dependencies:
   # Bidi, numeral systems and the CLDR plural categories. SPEC.md §5 needs all
   # three before there is a second string.
   intl: ^0.20.2
+  # `@immutable` on the Result/Failure spine and on RecordId. A direct import
+  # in lib/core/, so a direct dependency — it arrives transitively through
+  # flutter either way, and relying on that is how a transitive bump becomes a
+  # compile error in a file that never mentioned the package.
+  meta: ^1.18.0
+  # Where the database file goes. The application SUPPORT directory, not
+  # Documents: on iOS, Documents is user-visible and iCloud-backed, and a
+  # half-written WAL syncing to iCloud is a corruption vector for a file the
+  # user cannot regenerate.
+  path_provider: ^2.1.5
+  # `applyPragmas` takes a raw `sqlite3` Database, so the package is a DIRECT
+  # dependency and is declared as one. It arrives transitively through drift
+  # either way; relying on that is how a transitive bump becomes a compile
+  # error in a file that never mentioned it.
+  sqlite3: ^2.9.1
+  # The SQLite binary itself, bundled. Without it the app uses whatever SQLite
+  # the OS shipped, which on older Android is too old for STRICT tables — and
+  # STRICT is what makes a wrong column type impossible rather than unlikely.
+  sqlite3_flutter_libs: ^0.5.42
 
 dev_dependencies:
+  # Drift's code generator and the schema-snapshot tooling. Dev-only: the
+  # generated .g.dart is committed, so no generator ships.
+  build_runner: ^2.10.1
+  # SHA-256 for the migration test's content hash. DEV-ONLY: it never ships,
+  # and it is not a security boundary — it is how the zero-record-loss oracle
+  # notices a migration that copied the right NUMBER of rows with the wrong
+  # values in them, which counts alone cannot see.
+  crypto: ^3.0.7
+  drift_dev: ^2.28.3
   flutter_test:
     sdk: flutter
   # The Flutter-free test tier. lib/core/ imports no Flutter by construction
