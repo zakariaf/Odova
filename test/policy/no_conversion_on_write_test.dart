@@ -79,4 +79,37 @@ void main() {
       expect(_conversionGetters.hasMatch(good), isFalse, reason: good);
     }
   });
+  test('only the mapper unwraps a value object into a column', () {
+    // The read direction had an invariant and the write direction had nothing.
+    // `moneyOrNull` refuses to build half a price — an amount without its
+    // currency is not a smaller amount, it is an unknown one — and then forty
+    // sites across five repositories unwrapped `.amountMinor` and
+    // `.currency.code` straight into companions, where writing one without the
+    // other compiles and produces a row nothing above the mapper can read.
+    //
+    // So the unwrap lives in one file, next to the function that does the
+    // reverse, and this says so. `lib/data/db/mappers/` is exempt because it
+    // IS the layer that knows both shapes; everything else asks it.
+    final offenders = <String>[];
+    for (final file in dartFilesUnder('lib/data')) {
+      if (file.path.startsWith('lib/data/db/mappers/')) continue;
+      final source = sourceWithoutLineComments(file);
+      for (final match in RegExp(
+        r'\.(amountMinor|metres|millilitres|grams|wattHours)\b'
+        r'|\.currency\.code\b',
+      ).allMatches(source)) {
+        final line = source.substring(0, match.start).split('\n').length;
+        offenders.add('${file.path}:$line ${match.group(0)}');
+      }
+    }
+
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          'unwrap through lib/data/db/mappers/ — amountMinorColumn, '
+          'currencyColumn, metresColumn and the three quantity writers — so '
+          'a pair is always written as a pair',
+    );
+  });
 }

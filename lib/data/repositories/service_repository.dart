@@ -12,7 +12,6 @@ import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/app_database.dart';
-import 'package:odova/data/db/mappers/audit_mapper.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
@@ -46,7 +45,7 @@ class ServiceRepository {
             i.deletedAtUtcMs.isNull(),
       )
       ..orderBy([(i) => OrderingTerm(expression: i.id)]),
-    _itemFromRow,
+    serviceItemFromRow,
   );
 
   /// Every live service record for one vehicle, newest first, with its lines.
@@ -95,7 +94,8 @@ class ServiceRepository {
     }
 
     return [
-      for (final row in rows) _recordFrom(row, byRecord[row.id] ?? const []),
+      for (final row in rows)
+        serviceRecordFromRow(row, byRecord[row.id] ?? const []),
     ];
   }
 
@@ -124,7 +124,7 @@ class ServiceRepository {
       vehicleId: record.vehicleId,
       source: OdometerSource.service,
       occurredOn: record.occurredOn,
-      odometerM: record.odometer?.metres,
+      odometerM: metresColumnOrNull(record.odometer),
       nowUtcMs: record.updatedAtUtcMs,
     );
     if (refusal != null) return Err(refusal);
@@ -151,7 +151,7 @@ class ServiceRepository {
         source: OdometerSource.service,
         occurredOn: record.occurredOn,
         odometerUnit: record.odometerUnit,
-        odometerM: record.odometer?.metres,
+        odometerM: metresColumnOrNull(record.odometer),
         nowUtcMs: record.updatedAtUtcMs,
       );
     });
@@ -189,98 +189,7 @@ class ServiceRepository {
               ..where((l) => l.serviceRecordId.equals(row.id))
               ..orderBy([(l) => OrderingTerm(expression: l.id)]))
             .get();
-    return _recordFrom(row, lines);
-  }
-
-  /// One record and the lines already fetched for it.
-  ServiceRecord _recordFrom(ServiceRecordRow row, List<ServiceLineRow> lines) {
-    final times = repairAuditTimes(
-      createdAtUtcMs: row.createdAtUtcMs,
-      updatedAtUtcMs: row.updatedAtUtcMs,
-    );
-
-    return ServiceRecord(
-      id: idFromStored(ServiceRecordId.tryParse, row.id),
-      vehicleId: idFromStored(VehicleId.tryParse, row.vehicleId),
-      occurredOn: row.occurredOn,
-      odometer: distanceOrNull(row.odometerM),
-      odometerUnit: enumFromWire(
-        DistanceUnit.values,
-        (v) => v.wire,
-        row.odometerUnit,
-      ),
-      odometerEstimated: row.odometerEstimated,
-      costEstimated: row.costEstimated,
-      vendor: row.vendor,
-      invoiceRef: row.invoiceRef,
-      warrantyUntil: row.warrantyUntil,
-      notes: row.notes,
-      lines: lines.map(_lineFromRow).toList(),
-      createdAtUtcMs: times.createdAtUtcMs,
-      updatedAtUtcMs: times.updatedAtUtcMs,
-    );
-  }
-
-  ServiceLine _lineFromRow(ServiceLineRow row) => ServiceLine(
-    id: idFromStored(ServiceLineId.tryParse, row.id),
-    serviceRecordId: idFromStored(
-      ServiceRecordId.tryParse,
-      row.serviceRecordId,
-    ),
-    serviceItemId: row.serviceItemId == null
-        ? null
-        : idFromStored(ServiceItemId.tryParse, row.serviceItemId!),
-    label: row.label,
-    amount: moneyOf(row.amountMinor, row.currency),
-    partNumber: row.partNumber,
-    notes: row.notes,
-  );
-
-  ServiceItem _itemFromRow(ServiceItemRow row) {
-    final times = repairAuditTimes(
-      createdAtUtcMs: row.createdAtUtcMs,
-      updatedAtUtcMs: row.updatedAtUtcMs,
-    );
-
-    return ServiceItem(
-      id: idFromStored(ServiceItemId.tryParse, row.id),
-      vehicleId: idFromStored(VehicleId.tryParse, row.vehicleId),
-      kind: enumFromWire(ServiceKind.values, (v) => v.wire, row.kind),
-      label: row.label,
-      intervalDistance: distanceOrNull(row.intervalDistanceM),
-      intervalDistanceUnit: optionalEnumFromWire(
-        DistanceUnit.values,
-        (v) => v.wire,
-        row.intervalDistanceUnit,
-      ),
-      intervalMonths: row.intervalMonths,
-      targetOdometer: distanceOrNull(row.targetOdometerM),
-      targetDate: row.targetDate,
-      baselineDate: row.baselineDate,
-      baselineOdometer: distanceOrNull(row.baselineOdometerM),
-      noticeDistance: distanceOrNull(row.noticeDistanceM),
-      noticeDays: row.noticeDays,
-      isTracked: row.isTracked,
-      isActive: row.isActive,
-      notify: row.notify,
-      priority: enumFromWire(
-        ServicePriority.values,
-        (v) => v.wire,
-        row.priority,
-      ),
-      rollover: enumFromWire(
-        ServiceRollover.values,
-        (v) => v.wire,
-        row.rollover,
-      ),
-      repeats: row.repeats,
-      snoozedUntil: row.snoozedUntil,
-      snoozeUntilOdometer: distanceOrNull(row.snoozeUntilOdometerM),
-      snoozeCount: row.snoozeCount,
-      notes: row.notes,
-      createdAtUtcMs: times.createdAtUtcMs,
-      updatedAtUtcMs: times.updatedAtUtcMs,
-    );
+    return serviceRecordFromRow(row, lines);
   }
 
   ServiceRecordsCompanion _recordCompanion(ServiceRecord record) =>
@@ -290,7 +199,7 @@ class ServiceRepository {
         updatedAtUtcMs: record.updatedAtUtcMs,
         vehicleId: record.vehicleId.toString(),
         occurredOn: record.occurredOn,
-        odometerM: Value(record.odometer?.metres),
+        odometerM: Value(metresColumnOrNull(record.odometer)),
         odometerUnit: record.odometerUnit.wire,
         odometerEstimated: Value(record.odometerEstimated),
         costEstimated: Value(record.costEstimated),
@@ -306,8 +215,8 @@ class ServiceRepository {
         serviceRecordId: line.serviceRecordId.toString(),
         serviceItemId: Value(line.serviceItemId?.toString()),
         label: line.label,
-        amountMinor: line.amount.amountMinor,
-        currency: line.amount.currency.code,
+        amountMinor: amountMinorColumn(line.amount),
+        currency: currencyColumn(line.amount),
         partNumber: Value(line.partNumber),
         notes: Value(line.notes),
       );
@@ -320,14 +229,14 @@ class ServiceRepository {
         vehicleId: item.vehicleId.toString(),
         kind: item.kind.wire,
         label: Value(item.label),
-        intervalDistanceM: Value(item.intervalDistance?.metres),
+        intervalDistanceM: Value(metresColumnOrNull(item.intervalDistance)),
         intervalDistanceUnit: Value(item.intervalDistanceUnit?.wire),
         intervalMonths: Value(item.intervalMonths),
-        targetOdometerM: Value(item.targetOdometer?.metres),
+        targetOdometerM: Value(metresColumnOrNull(item.targetOdometer)),
         targetDate: Value(item.targetDate),
         baselineDate: Value(item.baselineDate),
-        baselineOdometerM: Value(item.baselineOdometer?.metres),
-        noticeDistanceM: Value(item.noticeDistance?.metres),
+        baselineOdometerM: Value(metresColumnOrNull(item.baselineOdometer)),
+        noticeDistanceM: Value(metresColumnOrNull(item.noticeDistance)),
         noticeDays: Value(item.noticeDays),
         isTracked: Value(item.isTracked),
         isActive: Value(item.isActive),
@@ -336,7 +245,9 @@ class ServiceRepository {
         rollover: item.rollover.wire,
         repeats: Value(item.repeats),
         snoozedUntil: Value(item.snoozedUntil),
-        snoozeUntilOdometerM: Value(item.snoozeUntilOdometer?.metres),
+        snoozeUntilOdometerM: Value(
+          metresColumnOrNull(item.snoozeUntilOdometer),
+        ),
         snoozeCount: Value(item.snoozeCount),
         notes: Value(item.notes),
       );

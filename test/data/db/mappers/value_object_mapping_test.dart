@@ -16,10 +16,16 @@
 // So every field here holds a DIFFERENT value from every other field of its
 // type, and no currency is the fixture default. A mapper that reads the wrong
 // column, or invents a constant, cannot produce these numbers.
+//
+// It originally covered four of the nine mappers, because the other five were
+// private methods on the repositories and unreachable from here — including
+// `serviceLineFromRow`, which carries the price of a service line. They are all
+// in `row_mappers.dart` now and all of them are below.
 @TestOn('vm')
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 
@@ -219,6 +225,151 @@ void main() {
       expect(correction.previous, const Distance(187412000));
       expect(correction.replacement, const Distance(12000));
       expect(correction.offset, const Distance(187400000));
+    });
+  });
+  group('an expense', () {
+    test('keeps its amount with its own currency', () {
+      final expense = expenseFromRow(
+        const ExpenseRow(
+          id: 'exp_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+          vehicleId: 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+          occurredOn: '2026-02-01',
+          category: 'insurance',
+          amountMinor: 42000,
+          currency: 'ISK',
+          odometerM: 187000000,
+          odometerUnit: 'mi',
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+        ),
+      );
+
+      expect(expense.amount, money(42000, 'ISK'));
+      expect(expense.odometer, const Distance(187000000));
+    });
+  });
+
+  group('a trip', () {
+    test('keeps its three distances apart', () {
+      // Start, end and the manual override are three independent columns, and
+      // `Trip.distance` prefers the endpoints. A mapper that crossed two of
+      // them would produce a plausible trip length.
+      final trip = tripFromRow(
+        const TripRow(
+          id: 'trp_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+          vehicleId: 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+          purpose: 'business',
+          startedOn: '2026-03-01',
+          endedOn: '2026-03-05',
+          startOdometerM: 187100000,
+          endOdometerM: 187900000,
+          manualDistanceM: 12345,
+          odometerUnit: 'mi',
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+        ),
+      );
+
+      expect(trip.startOdometer, const Distance(187100000));
+      expect(trip.endOdometer, const Distance(187900000));
+      expect(trip.manualDistance, const Distance(12345));
+      expect(
+        trip.distance,
+        const Distance(800000),
+        reason: 'the endpoints win; the manual figure is not 12345 here',
+      );
+    });
+  });
+
+  group('a service line', () {
+    test('is priced in the currency the row stored', () {
+      // The mapper that was on the untested side of the public/private split,
+      // carrying the price of a service line — the number a used-car buyer
+      // reads off eight years of history.
+      final line = serviceLineFromRow(
+        const ServiceLineRow(
+          id: 'lin_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+          serviceRecordId: 'srv_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+          label: 'Oil and filter',
+          amountMinor: 89000,
+          currency: 'KWD',
+        ),
+      );
+
+      expect(line.amount, money(89000, 'KWD'));
+    });
+  });
+
+  group('a service item', () {
+    test('keeps its four distances apart', () {
+      // Interval, target, baseline and notice window: four metre columns on
+      // one row, and the due engine reads all four. Crossing any two produces
+      // a due date that is wrong in a way nothing downstream can detect.
+      final item = serviceItemFromRow(
+        const ServiceItemRow(
+          id: 'rem_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+          vehicleId: 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+          kind: 'oil_and_filter',
+          intervalDistanceM: 15000000,
+          targetOdometerM: 195000000,
+          baselineOdometerM: 180000000,
+          noticeDistanceM: 500000,
+          isTracked: true,
+          isActive: true,
+          notify: true,
+          priority: 'normal',
+          rollover: 'from_actual',
+          repeats: true,
+          snoozeUntilOdometerM: 191000000,
+          snoozeCount: 0,
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+        ),
+      );
+
+      expect(item.intervalDistance, const Distance(15000000));
+      expect(item.targetOdometer, const Distance(195000000));
+      expect(item.baselineOdometer, const Distance(180000000));
+      expect(item.noticeDistance, const Distance(500000));
+      expect(item.snoozeUntilOdometer, const Distance(191000000));
+    });
+  });
+
+  group('the settings row', () {
+    test('reads its currency and its notice window', () {
+      final settings = settingsFromRow(
+        const SettingsRow(
+          id: AppSettings.id,
+          schemaVersion: 1,
+          language: 'system',
+          calendar: 'gregorian',
+          numerals: 'auto',
+          firstDayOfWeek: 1,
+          theme: 'system',
+          currencyDefault: 'KWD',
+          currencyDisplay: 'none',
+          distanceUnit: 'mi',
+          volumeUnit: 'gal_uk',
+          consumptionUnit: 'mpg_uk',
+          noticeDistanceM: 500000,
+          notificationTimeMinutes: 540,
+          quietHoursFromMinutes: 1260,
+          quietHoursToMinutes: 480,
+          weekdaysOnly: false,
+          notifyService: true,
+          notifyOdometer: true,
+          notifyBackup: true,
+          onboardingDone: false,
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+        ),
+      );
+
+      expect(settings.currencyDefault, isoCurrency('KWD'));
+      expect(settings.noticeDistance, const Distance(500000));
+      // The units are a PREFERENCE and not a scale: they come back as read.
+      expect(settings.distanceUnit.wire, 'mi');
+      expect(settings.consumptionUnit.wire, 'mpg_uk');
     });
   });
 }
