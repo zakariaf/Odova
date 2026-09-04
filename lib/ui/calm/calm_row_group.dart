@@ -46,15 +46,31 @@ class CalmRowGroup extends StatelessWidget {
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
 
-    final divided = <Widget>[];
-    for (var i = 0; i < rows.length; i++) {
-      if (i > 0) {
-        divided.add(
-          SizedBox(height: 1, child: ColoredBox(color: colors.divider)),
-        );
-      }
-      divided.add(rows[i]);
-    }
+    // `.rowgroup .row + .row { box-shadow: 0 -1px 0 var(--color-divider) }` —
+    // an outset shadow, which takes ZERO height. A laid-out `SizedBox(height:
+    // 1)` between rows looks identical in a screenshot of three rows and adds
+    // one logical pixel per boundary; on `firstrun.language`'s seven that is
+    // six pixels of cumulative drift against a parity band tolerance of four,
+    // and it shows in the side-by-side as hairlines that double and separate
+    // further down the list.
+    //
+    // `DecoratedBox` is the Flutter equivalent because it PAINTS a decoration
+    // without sizing to it — unlike `Container(decoration:)`, whose border
+    // insets the child. Foreground, so the hairline sits over the row's own
+    // background rather than under it, which is what an outset shadow does.
+    final divided = <Widget>[
+      for (final (i, row) in rows.indexed)
+        if (i == 0)
+          row
+        else
+          DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: colors.divider)),
+            ),
+            child: row,
+          ),
+    ];
 
     return CalmSurface(
       color: tinted ? colors.surface2 : colors.surface,

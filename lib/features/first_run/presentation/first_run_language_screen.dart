@@ -150,9 +150,11 @@ class LanguageRowList extends ConsumerWidget {
                 // translator to translate it.
                 : localeEndonym(value),
             size: CalmRowSize.compact,
-            // `.row__native`: medium weight even when selected, and the CSS's
-            // 1.4 leading in both scripts.
-            nativeTitle: true,
+            // `.row__native`, with the artboard's `lang` attribute: medium
+            // weight even when selected, the CSS's 1.4 leading in both scripts,
+            // and — for فارسی, العربية and کوردیی ناوەندی under a Latin UI —
+            // the bundled family, without which they are three empty boxes.
+            nativeTitleLanguage: value == systemLanguage ? resolved : value,
             selected: value == selected,
             end: value == selected
                 // `.row__check`. Not a CalmDirectionalIcon — a tick is not one

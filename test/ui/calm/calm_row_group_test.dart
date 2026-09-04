@@ -26,12 +26,25 @@ Finder _groupSurface() => find.descendant(
 BoxDecoration _decorationOf(WidgetTester tester, Finder surface) =>
     calmDecorationOf<BoxDecoration>(tester, surface);
 
-/// Divider hairlines, found by their token colour rather than by their type:
-/// `CalmSurface` paints the sheen with a `ColoredBox` too.
+/// Divider hairlines: a FOREGROUND top border in the divider token.
+///
+/// Found by colour and edge rather than by type, and both halves earn their
+/// keep. `CalmSurface` paints its sheen with a decoration too, so the colour
+/// separates them; and the border has to be `top` and `foreground`, because a
+/// bottom border would put the hairline under the last row and a background one
+/// would paint it beneath the row's own ground, where a selected row hides it.
+///
+/// This used to look for a `ColoredBox` in the divider colour, which is what
+/// the dividers were before they had to stop taking layout space.
 Finder _dividers() => find.descendant(
   of: find.byType(CalmRowGroup),
   matching: find.byWidgetPredicate(
-    (w) => w is ColoredBox && w.color == calmColorsLight.divider,
+    (w) =>
+        w is DecoratedBox &&
+        w.position == DecorationPosition.foreground &&
+        w.decoration is BoxDecoration &&
+        (w.decoration as BoxDecoration).border?.top.color ==
+            calmColorsLight.divider,
   ),
 );
 
@@ -83,19 +96,27 @@ void main() {
       for (var i = 0; i < 3; i++)
         tester.getRect(find.byType(CalmListRow).at(i)),
     ];
-    final lines = [
-      for (var i = 0; i < 2; i++) tester.getRect(_dividers().at(i)),
-    ];
 
+    // A hairline ON the boundary between row i and row i+1. It used to be a
+    // laid-out 1pt box whose own rect could be measured; it is now a foreground
+    // top border on the row below, so the assertion moved from the box's height
+    // to the border's width and from the box's position to the row's top edge.
+    // The claim is the same one: a line between adjacent rows, none above the
+    // first, and no trailing line under the last that would close the list like
+    // a box.
     for (var i = 0; i < 2; i++) {
-      expect(lines[i].height, 1, reason: 'divider $i is not a hairline');
-      // Strictly between row i and row i+1 — never above the first, and never
-      // the trailing line under the last that closes the list like a box.
-      expect(lines[i].top, greaterThanOrEqualTo(rows[i].top));
-      expect(lines[i].bottom, lessThanOrEqualTo(rows[i + 1].bottom));
+      final box = tester.widget<DecoratedBox>(_dividers().at(i));
+      final border = (box.decoration as BoxDecoration).border!;
+      expect(border.top.width, 1, reason: 'divider $i is not a hairline');
+      expect(border.bottom, BorderSide.none, reason: 'no line under a row');
+      expect(
+        tester.getRect(_dividers().at(i)).top,
+        rows[i + 1].top,
+        reason: 'divider $i is not on the boundary below row $i',
+      );
     }
-    expect(lines.first.top, greaterThan(rows.first.top));
-    expect(lines.last.bottom, lessThan(rows.last.bottom));
+    // The first row carries none, so the group's top edge is the surface's own.
+    expect(tester.getRect(_dividers().first).top, greaterThan(rows.first.top));
   });
 
   testWidgets('the group clips its children so the first and last rows inherit '
@@ -496,8 +517,12 @@ void main() {
       const CalmRowGroup(
         rows: [
           CalmListRow(title: 'plain', selected: true),
-          CalmListRow(title: 'فارسی', selected: true, nativeTitle: true),
-          CalmListRow(title: 'العربية', nativeTitle: true),
+          CalmListRow(
+            title: 'فارسی',
+            selected: true,
+            nativeTitleLanguage: 'fa',
+          ),
+          CalmListRow(title: 'العربية', nativeTitleLanguage: 'ar'),
         ],
       ),
     );
@@ -517,6 +542,93 @@ void main() {
     );
   });
 
+  testWidgets('the dividers paint over the rows and take no height', (
+    tester,
+  ) async {
+    // `.rowgroup .row + .row { box-shadow: 0 -1px 0 var(--color-divider) }` —
+    // an outset shadow, which occupies ZERO height in CSS. A laid-out 1px box
+    // per divider adds one logical pixel per boundary, and on
+    // `firstrun.language`'s seven rows that is six pixels of cumulative drift
+    // against a parity band tolerance of four. It shows in the side-by-side as
+    // hairlines that double and separate further down the list.
+    await pumpApp(
+      tester,
+      const Center(
+        child: CalmRowGroup(
+          rows: [
+            CalmListRow(title: 'A'),
+            CalmListRow(title: 'B'),
+            CalmListRow(title: 'C'),
+          ],
+        ),
+      ),
+    );
+
+    // Three 64pt rows and nothing else. The group's own surface adds no
+    // padding either.
+    expect(tester.getSize(find.byType(CalmRowGroup)).height, 3 * 64.0);
+
+    // And the hairlines are still drawn — a divider that takes no space and
+    // paints nothing is just a deletion.
+    expect(_dividers(), findsNWidgets(2));
+  });
+
+  testWidgets("a native title renders in ITS OWN script, not the UI's", (
+    tester,
+  ) async {
+    // The artboard tags each language row `lang="fa"` / `lang="ar"` /
+    // `lang="ckb"`, and the tag is load-bearing: under an ENGLISH UI the Latin
+    // type names no family, so it takes the platform font — which in a test
+    // harness, where only Roboto and Vazirmatn are registered, renders فارسی
+    // as three empty boxes. The parity capture found it as tofu.
+    //
+    // The rule is not "always Vazirmatn": SPEC.md §5 says the bundled family
+    // renders the WHOLE UI under fa/ar/ckb, Latin runs included, so a Persian
+    // UI keeps its own type for every row. Only an Arabic-script row under a
+    // Latin UI reaches across.
+    await pumpApp(
+      tester,
+      const CalmRowGroup(
+        rows: [
+          CalmListRow(title: 'English', nativeTitleLanguage: 'en'),
+          CalmListRow(title: 'فارسی', nativeTitleLanguage: 'fa'),
+          CalmListRow(title: 'کوردیی ناوەندی', nativeTitleLanguage: 'ckb'),
+        ],
+      ),
+      locale: const Locale('en'),
+    );
+
+    expect(tester.widget<Text>(find.text('English')).style!.fontFamily, isNull);
+    for (final title in ['فارسی', 'کوردیی ناوەندی']) {
+      expect(
+        tester.widget<Text>(find.text(title)).style!.fontFamily,
+        'Vazirmatn',
+        reason: '$title rendered in the Latin stack is tofu',
+      );
+    }
+
+    // Under a Persian UI every row is Vazirmatn, including the Latin ones —
+    // a vehicle name in Latin letters inside a Persian sentence is one line in
+    // one font, and the same holds for a list of language names.
+    await pumpApp(
+      tester,
+      const CalmRowGroup(
+        rows: [
+          CalmListRow(title: 'English', nativeTitleLanguage: 'en'),
+          CalmListRow(title: 'فارسی', nativeTitleLanguage: 'fa'),
+        ],
+      ),
+      locale: const Locale('fa'),
+    );
+    for (final title in ['English', 'فارسی']) {
+      expect(
+        tester.widget<Text>(find.text(title)).style!.fontFamily,
+        'Vazirmatn',
+        reason: title,
+      );
+    }
+  });
+
   testWidgets('a native title carries the CSS line height, not the '
       'script one', (tester) async {
     // `.row__native { line-height: 1.4 }` overrides `--lh-body-lg` on purpose
@@ -529,7 +641,7 @@ void main() {
         tester,
         const CalmRowGroup(
           rows: [
-            CalmListRow(title: 'native', nativeTitle: true),
+            CalmListRow(title: 'native', nativeTitleLanguage: 'en'),
             CalmListRow(title: 'ordinary'),
           ],
         ),

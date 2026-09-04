@@ -68,7 +68,7 @@ class CalmListRow extends StatelessWidget {
     this.danger = false,
     this.standalone = false,
     this.showChevron = false,
-    this.nativeTitle = false,
+    this.nativeTitleLanguage,
   }) : _isSwitch = false,
        onToggle = null;
 
@@ -94,7 +94,7 @@ class CalmListRow extends StatelessWidget {
        selected = false,
        danger = false,
        showChevron = false,
-       nativeTitle = false;
+       nativeTitleLanguage = null;
 
   /// The row's label, already formatted — `~` and all.
   final String title;
@@ -139,7 +139,18 @@ class CalmListRow extends StatelessWidget {
   final bool showChevron;
 
   /// `.row__native` — the title is a language's own name, in its own script.
-  final bool nativeTitle;
+  ///
+  /// The value is that language's subtag, which the artboard carries as
+  /// `lang="fa"` and which is load-bearing rather than decorative: SPEC.md §5
+  /// gives the Latin type NO font family so it takes the platform's, and a
+  /// platform font has no Persian glyphs. The parity capture rendered all
+  /// three Arabic-script endonyms as empty boxes.
+  ///
+  /// It does NOT mean "always Vazirmatn". Under fa, ar or ckb the bundled
+  /// family already renders the whole UI, Latin runs included, so those rows
+  /// keep the ambient type; only an Arabic-script name under a Latin UI reaches
+  /// across for its own.
+  final String? nativeTitleLanguage;
 
   final bool _isSwitch;
 
@@ -177,7 +188,7 @@ class CalmListRow extends StatelessWidget {
       selected: selected,
       danger: danger,
       showChevron: showChevron,
-      nativeTitle: nativeTitle,
+      nativeTitleLanguage: nativeTitleLanguage,
     );
 
     if (standalone) {
@@ -244,7 +255,7 @@ class _CalmRowBody extends StatelessWidget {
     required this.selected,
     required this.danger,
     required this.showChevron,
-    required this.nativeTitle,
+    required this.nativeTitleLanguage,
   });
 
   final String title;
@@ -257,7 +268,18 @@ class _CalmRowBody extends StatelessWidget {
   final bool selected;
   final bool danger;
   final bool showChevron;
-  final bool nativeTitle;
+  final String? nativeTitleLanguage;
+
+  /// The type this row's TITLE is set in.
+  ///
+  /// The ambient one, unless the row names an Arabic-script language that the
+  /// ambient type cannot draw. `CalmType.forLocale` is the same table the app
+  /// uses to pick a script variant, asked about the ROW rather than the UI.
+  CalmType _titleType(CalmType ambient) {
+    if (nativeTitleLanguage == null) return ambient;
+    final own = CalmType.forLocale(Locale(nativeTitleLanguage!));
+    return identical(own, CalmType.arabicScript) ? own : ambient;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -294,14 +316,14 @@ class _CalmRowBody extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: type.bodyLg.copyWith(
+                  style: _titleType(type).bodyLg.copyWith(
                     color: danger ? colors.danger : colors.ink,
                     // `.row--selected .row__title` goes semibold and
                     // `.row__native` never does. A language list marks its
                     // choice with the
                     // ground and the tick; a heavier row in a list of seven
                     // scripts reads as a different typeface, not a selection.
-                    fontWeight: selected && !nativeTitle
+                    fontWeight: selected && nativeTitleLanguage == null
                         ? type.semi
                         : type.medium,
                     // `.row__native { line-height: 1.4 }` overrides
@@ -310,7 +332,7 @@ class _CalmRowBody extends StatelessWidget {
                     // everywhere else would make the Persian rows taller than
                     // the Latin ones in a list whose job is to look like one
                     // list.
-                    height: nativeTitle ? 1.4 : null,
+                    height: nativeTitleLanguage == null ? null : 1.4,
                   ),
                 ),
                 if (subtitle != null)
