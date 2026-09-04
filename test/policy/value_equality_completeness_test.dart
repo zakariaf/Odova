@@ -83,10 +83,12 @@ void main() {
     // the row counts were outside equality while `dominantCurrency` read them,
     // so two "equal" totals answered differently.
     const encodedNotListed = {
-      'lib/core/money/money_total.dart': {
-        'byCurrency',
-        '_counts',
-      },
+      // Two Maps. A Map in props compares by IDENTITY, so two totals built
+      // from the same amounts would never be equal; both are encoded as
+      // sorted strings instead.
+      'lib/core/money/money_total.dart': {'byCurrency', '_counts'},
+      // Same shape: a Map of warnings per fill, encoded with its sorted set.
+      'lib/core/fuel/fuel_segment.dart': {'warnings'},
     };
 
     final offenders = <String>[];
