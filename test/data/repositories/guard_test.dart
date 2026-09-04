@@ -134,6 +134,51 @@ void main() {
     }
   });
 
+  test(
+    'the isolate arm reads the code out of the text, not the words',
+    () async {
+      // THIS is the arm the app uses. `NativeDatabase.createInBackground` means
+      // every real-device error crosses an isolate boundary, and drift's
+      // protocol serialises it as `toString()` — the exception object does not
+      // survive, so there is no `resultCode` left.
+      //
+      // And `SqliteException.toString()` appends the failing statement AND ITS
+      // BOUND PARAMETERS, which are the user's own typed values. Grepping that
+      // for "unique" told anybody whose fuel station is called "Unique Fuel"
+      // that their entry broke a rule, when their disk was full — the
+      // difference between a fix they can make and one they cannot.
+      final userText = await _throwing(
+        const _RemoteLike(
+          'SqliteException(13): while executing statement, database or disk is '
+          'full, parameters: fil_01J…, Unique Fuel Station, diesel',
+        ),
+      );
+      expect(
+        (userText as Err<int, PersistFailure>).failure,
+        isA<WriteFailed>(),
+        reason: "the user's own station name must not reclassify a disk error",
+      );
+
+      // And a real constraint failure across the same boundary is still one.
+      final constraint = await _throwing(
+        const _RemoteLike('SqliteException(19): rejected by a rule'),
+      );
+      expect(
+        (constraint as Err<int, PersistFailure>).failure,
+        isA<ConstraintViolated>(),
+      );
+
+      // Something that is not a SQLite error at all is a write failure, not a
+      // constraint — guessing "constraint" for an unknown is the wrong default,
+      // because it blames the user for something they did not do.
+      final unknown = await _throwing(const _RemoteLike('the isolate died'));
+      expect(
+        (unknown as Err<int, PersistFailure>).failure,
+        isA<WriteFailed>(),
+      );
+    },
+  );
+
   test('an isolate-wrapped exception is classified, not swallowed', () async {
     // The arm that carries every constraint failure on a real device. Without
     // it a user's "that plate is already taken" would arrive as an

@@ -223,6 +223,94 @@ void main() {
     },
   );
 
+  test(
+    'a copy that cannot be READ refuses the migration, and does not throw',
+    () async {
+      // `SELECT *` throws `SqliteException` for a missing table and
+      // `JsonEncoder.convert` throws an ERROR, not an Exception — so both
+      // escaped a function whose doc says "it is never a throw", straight out
+      // through `openMigratedDatabase` into the app's entry point. That is the
+      // crash loop SPEC.md §14 names as the worst possible outcome: the user
+      // cannot open the app to export their data, and the only remedy left is
+      // uninstalling, which deletes it.
+      //
+      // A database with `user_version = 1` and a missing table — a process
+      // killed during first-run schema creation — reaches it on every launch.
+      await seedV1();
+      sqlite3.open(dbFile.path)
+        ..execute('DROP TABLE settings;')
+        ..dispose();
+
+      final outcome = await openMigratedDatabase(
+        dbFile,
+        safetyDirectory: dir,
+        openDatabase: _CommittingThenThrowingDatabase.new,
+      );
+
+      expect(outcome, isA<MigrationRefused>());
+      expect(
+        (outcome as MigrationRefused).reason,
+        SafetyCopyFailure.readFailed,
+      );
+
+      // And nothing was touched: the refusal happens before the snapshot.
+      expect(readVehicles(), hasLength(1));
+    },
+  );
+
+  test('a copy that cannot be WRITTEN refuses the migration', () async {
+    // SPEC.md §6.4.4: "Any operation that destroys data writes its file first
+    // — import, Delete all data, every schema migration. No exceptions." A
+    // migration that runs without an escape route is how a
+    // semantically-wrong-but-successful one becomes unrecoverable, because the
+    // byte snapshot is deleted on the way out.
+    await seedV1();
+    final unwritable = Directory('${dir.path}/gone');
+
+    final outcome = await openMigratedDatabase(
+      dbFile,
+      safetyDirectory: unwritable,
+      openDatabase: _CommittingThenThrowingDatabase.new,
+    );
+
+    expect(outcome, isA<MigrationRefused>());
+    expect(
+      (outcome as MigrationRefused).reason,
+      SafetyCopyFailure.writeFailed,
+    );
+    expect(readVehicles(), hasLength(1));
+  });
+
+  test('a half-written copy never replaces a good one', () async {
+    // `writeAsString` opens with truncate, so a second attempt at the same
+    // migration destroyed the first attempt's copy before producing a
+    // replacement — and a disk that filled partway left a truncated file under
+    // the canonical name that is not valid JSON and no longer holds the user's
+    // history. The good copy was destroyed by the attempt to refresh it.
+    await seedV1();
+    await openMigratedDatabase(
+      dbFile,
+      safetyDirectory: dir,
+      openDatabase: _CommittingThenThrowingDatabase.new,
+    );
+
+    final copy = File('${dir.path}/${migrationSafetyCopyName(1)}');
+    final first = await copy.readAsString();
+    expect(jsonDecode(first), isA<Map<String, Object?>>());
+
+    // A second attempt writes through a temp file and renames, so at no point
+    // is the canonical name a partial file.
+    await openMigratedDatabase(
+      dbFile,
+      safetyDirectory: dir,
+      openDatabase: _CommittingThenThrowingDatabase.new,
+    );
+
+    expect(jsonDecode(await copy.readAsString()), isA<Map<String, Object?>>());
+    // And the temp file does not survive.
+    expect(File('${copy.path}.writing').existsSync(), isFalse);
+  });
+
   test('the copy does not disturb the import or wipe copies', () async {
     // SPEC.md §6.4.4: one file per destructive operation KIND, three at most,
     // each overwritten only by the next operation of the same kind — so an
@@ -266,19 +354,33 @@ void main() {
   });
 
   test('the restore leaves no sidecar holding the failed attempt', () async {
-    // The end state, asserted rather than the mechanism. Four of the opener's
-    // defences — closing before restoring, deleting the failed attempt's files
-    // before copying back, the WAL checkpoint, and copying the `-wal`/`-shm`
-    // sidecars — CANNOT be made to fail on this platform: closing the
-    // connection checkpoints the WAL into the main file, so the restore
-    // overwrites a file that is already complete and every one of those
-    // mutations stays green.
+    // The end state, asserted rather than the mechanism. SIX of the opener's
+    // defences cannot be made to fail on this platform, and they are listed
+    // here rather than implied to be proven:
+    //
+    //   closing the connection before restoring;
+    //   deleting the failed attempt's files before putting the snapshot back;
+    //   the WAL checkpoint;
+    //   copying the `-wal`/`-shm` sidecars;
+    //   restoring by RENAME rather than delete-then-copy;
+    //   holding the snapshot until the restore has completed.
+    //
+    // The first four are masked because closing the connection checkpoints the
+    // WAL into the main file, so the restore overwrites a file that is already
+    // complete. The last two only differ when the disk is FULL — a copy throws
+    // ENOSPC after the delete and the user is left with neither the database
+    // nor the snapshot — and a full disk is not producible from a test.
     //
     // They stay, because each covers a case this test cannot produce — a
     // checkpoint that fails because a reader holds the WAL, a process killed
     // between the commit and the close, a platform where deleting an open file
-    // is not benign. But they are NOT proven, and saying so here is better
-    // than a comment claiming they are.
+    // is not benign, a disk with no room for a second copy. But they are NOT
+    // proven, and saying so here is better than a comment claiming they are.
+    //
+    // The last two were found by a review that reproduced the consequence:
+    // delete-then-copy plus an unconditional snapshot delete meant the next
+    // launch created a brand-new empty database that looked like a fresh
+    // install.
     //
     // What is proven is the result: after a rolled-back migration the file is
     // the old one, and nothing beside it holds the new one.
@@ -301,6 +403,41 @@ void main() {
             'attempt waiting to be replayed',
       );
     }
+  });
+
+  test('the restore never leaves the user with neither copy', () async {
+    // The failure this ordering exists for. `_restore` used to DELETE the live
+    // database and then copy each snapshot file back — and on a device that is
+    // nearly full, which is exactly when a migration fails, the copy throws
+    // ENOSPC after the delete. The database was gone, a `finally` deleted the
+    // snapshot regardless, and the next launch created a brand-new empty
+    // database that looked like a fresh install.
+    //
+    // It renames now, which is atomic within a filesystem and needs no free
+    // space; and the snapshot is only deleted once the restore has completed.
+    // Asserted as an invariant over the end state, because ENOSPC cannot be
+    // produced here: after ANY outcome, the database exists and holds the
+    // user's rows.
+    await seedV1();
+    final before = readVehicles();
+
+    await openMigratedDatabase(
+      dbFile,
+      safetyDirectory: dir,
+      openDatabase: _CommittingThenThrowingDatabase.new,
+    );
+
+    expect(dbFile.existsSync(), isTrue);
+    expect(readVehicles(), before);
+
+    // And the restore used the snapshot rather than copying it, so nothing is
+    // left behind to occupy a second copy of the database's footprint.
+    expect(
+      dir.listSync().whereType<File>().where(
+        (f) => f.path.endsWith('.premigration'),
+      ),
+      isEmpty,
+    );
   });
 
   test('the snapshot leaves no .premigration files behind', () async {

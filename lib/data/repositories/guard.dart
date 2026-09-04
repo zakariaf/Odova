@@ -80,16 +80,27 @@ const _sqliteConstraint = 19;
 /// Classifies from a MESSAGE, for the case where the exception itself did not
 /// survive.
 ///
-/// Only the isolate arm reaches this: a `DriftRemoteException` carries its
-/// cause as text across the boundary, so there is no result code left to read.
-/// Grepping English prose is a worse test than a number and it is used only
-/// where the number is gone.
+/// **This is the arm the app actually uses.** `lib/data/db/connection.dart`
+/// opens with `NativeDatabase.createInBackground`, and drift's isolate
+/// protocol serialises an error as `error.toString()` — the `SqliteException`
+/// object does not cross the boundary, so on a real device there is no
+/// `resultCode` left to read.
+///
+/// It reads the CODE out of the text rather than grepping the prose.
+/// `SqliteException.toString()` starts `SqliteException(8):` and then appends
+/// the failing statement AND ITS BOUND PARAMETERS — which are the user's own
+/// typed values. Searching that for the word "unique" classified a disk
+/// failure as a constraint violation for anybody whose fuel station is called
+/// "Unique Fuel", and put their free text into a field documented as "which
+/// invariant, in this app's words".
 PersistFailure _classify(String message) {
-  final lower = message.toLowerCase();
-  if (lower.contains('constraint failed') ||
-      lower.contains('foreign key') ||
-      lower.contains('unique')) {
-    return ConstraintViolated(message);
+  final code = RegExp(r'SqliteException\((\d+)\)').firstMatch(message);
+  if (code != null) {
+    return int.parse(code.group(1)!) == _sqliteConstraint
+        ? ConstraintViolated(message)
+        : WriteFailed(message);
   }
+
+  // No code in the text at all: not a SQLite error, so not a constraint.
   return WriteFailed(message);
 }

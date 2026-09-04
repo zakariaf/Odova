@@ -163,14 +163,36 @@ class OdometerRepository {
   /// entered — and the caller is told which ones now conflict so it can offer
   /// the same three resolutions rather than silently keeping numbers that no
   /// longer add up.
+  ///
+  /// [deletedAtUtcMs] is the Undo key, as everywhere else: the delete is soft
+  /// for the length of the snackbar and the purge removes it afterwards.
   Future<Result<List<OdometerReading>, PersistFailure>> deleteCorrection(
     OdometerCorrectionId id,
-    VehicleId vehicleId,
-  ) => guardPersist(() async {
+    VehicleId vehicleId, {
+    required int deletedAtUtcMs,
+  }) => guardPersist(() async {
     await _db.transaction(() async {
-      await (_db.delete(
-        _db.odometerCorrections,
-      )..where((c) => c.id.equals(id.toString()))).go();
+      // SOFT-deleted and scoped by VEHICLE, both of which were wrong.
+      //
+      // A hard delete here bypassed the entire Undo machinery — the table
+      // carries `deleted_at_utc_ms`, `watchCorrections` and `_stateOf` both
+      // filter on it, and `deletion.dart` lists it first in the cascade — for
+      // the single highest-leverage row in the odometer history. Deleting one
+      // `cluster_replaced` correction drops every later reading by 187,412 km,
+      // and there was no Undo to offer beside the exposures this returns.
+      //
+      // And the `WHERE` was `id` alone: `vehicleId` was used only for the
+      // recompute, so a mismatched pair deleted ANOTHER vehicle's correction
+      // and reported the exposures for the wrong car.
+      await (_db.update(_db.odometerCorrections)..where(
+            (c) =>
+                c.id.equals(id.toString()) &
+                c.vehicleId.equals(vehicleId.toString()) &
+                c.deletedAtUtcMs.isNull(),
+          ))
+          .write(
+            OdometerCorrectionsCompanion(deletedAtUtcMs: Value(deletedAtUtcMs)),
+          );
     });
 
     final state = await _stateOf(vehicleId);

@@ -253,7 +253,11 @@ void main() {
     );
 
     final exposed =
-        (await repository.deleteCorrection(correctionId, _vehicleId)
+        (await repository.deleteCorrection(
+                  correctionId,
+                  _vehicleId,
+                  deletedAtUtcMs: 5000,
+                )
                 as Ok<List<OdometerReading>, PersistFailure>)
             .value;
 
@@ -263,6 +267,81 @@ void main() {
       2,
       reason: 'the readings are facts and must survive',
     );
+  });
+
+  test('deleting a correction is soft, and scoped to its vehicle', () async {
+    // Two things were wrong, and both are the kind that only show up later.
+    //
+    // The delete was HARD, bypassing the whole Undo machinery for the single
+    // highest-leverage row in the odometer history: one `cluster_replaced`
+    // correction drops every later reading by 187,412 km, and there was no
+    // Undo to offer beside the exposures the method returns.
+    //
+    // And the WHERE was `id` alone — `vehicleId` was used only for the
+    // recompute — so a mismatched pair deleted ANOTHER vehicle's correction
+    // and reported the exposures for the wrong car.
+    final correctionId = OdometerCorrectionId.tryParse('cor_$_body')!;
+    final boundary = _reading('B', '2026-06-02', 0, createdAtUtcMs: 2000);
+
+    await save(_reading('A', '2026-06-01', 187412 * _km));
+    await db.customStatement(
+      'INSERT INTO odometer_readings '
+      '(id, vehicle_id, occurred_on, odometer_m, odometer_unit, source, '
+      'created_at_utc_ms, updated_at_utc_ms) '
+      "VALUES (?, ?, '2026-06-02', 0, 'km', 'manual', 2000, 2000);",
+      [boundary.id.toString(), _vehicleId.toString()],
+    );
+    await repository.saveCorrection(
+      OdometerCorrection(
+        id: correctionId,
+        vehicleId: _vehicleId,
+        fromReadingId: boundary.id,
+        previousM: 187412 * _km,
+        newM: 0,
+        odometerUnit: DistanceUnit.km,
+        reason: OdometerCorrectionReason.clusterReplaced,
+        createdAtUtcMs: 2000,
+        updatedAtUtcMs: 2000,
+      ),
+    );
+
+    // Another vehicle must not be able to delete it.
+    final other = VehicleId.tryParse('veh_01JV7B5X4G2K9M6P0S3D8FNRTC')!;
+    await VehicleRepository(db).save(
+      Vehicle(
+        id: other,
+        name: 'Van',
+        vehicleType: VehicleType.van,
+        fuelKindDefault: FuelKind.diesel,
+        status: VehicleStatus.active,
+        createdAtUtcMs: 1000,
+        updatedAtUtcMs: 1000,
+      ),
+    );
+    await repository.deleteCorrection(
+      correctionId,
+      other,
+      deletedAtUtcMs: 5000,
+    );
+    expect(
+      await repository.watchCorrections(_vehicleId).first,
+      hasLength(1),
+      reason: "another vehicle's delete must not reach this correction",
+    );
+
+    // The right vehicle's delete is soft: invisible to every query, and the
+    // row is still there for Undo.
+    await repository.deleteCorrection(
+      correctionId,
+      _vehicleId,
+      deletedAtUtcMs: 5000,
+    );
+    expect(await repository.watchCorrections(_vehicleId).first, isEmpty);
+
+    final raw = await db
+        .customSelect('SELECT COUNT(*) AS n FROM odometer_corrections;')
+        .getSingle();
+    expect(raw.read<int>('n'), 1, reason: 'soft, so Undo has something to do');
   });
 
   test('the cumulative map is computed, and matches the fold', () async {

@@ -27,7 +27,14 @@ enum SafetyCopyFailure {
   /// the copy is refused and the caller must not migrate.
   unknownSchemaVersion,
 
-  /// The file could not be written.
+  /// The database could not be read.
+  ///
+  /// A missing table, a corrupt page, a value the encoder cannot represent.
+  /// Distinct from [writeFailed] because it means the file on disk is already
+  /// damaged, and the caller has more to worry about than the copy.
+  readFailed,
+
+  /// The file could not be written. Usually a full disk.
   writeFailed,
 }
 
@@ -49,15 +56,43 @@ Future<(File?, SafetyCopyFailure?)> writeMigrationSafetyCopy({
   final reader = readerForVersion(fromVersion);
   if (reader == null) return (null, SafetyCopyFailure.unknownSchemaVersion);
 
+  final String encoded;
   try {
-    final content = reader.read(database);
-    final file = File(
-      '${directory.path}/${migrationSafetyCopyName(fromVersion)}',
-    );
-    await file.writeAsString(
-      const JsonEncoder.withIndent('  ').convert(content),
-      flush: true,
-    );
+    encoded = const JsonEncoder.withIndent('  ').convert(reader.read(database));
+  } on Object {
+    // `on Object`, not `on FileSystemException`. `SELECT *` throws
+    // `SqliteException` for a missing table or a corrupt page, and
+    // `JsonEncoder.convert` throws `JsonUnsupportedObjectError`, which is an
+    // ERROR and not an Exception — so both escaped a function whose doc says
+    // "it is never a throw", straight out through `openMigratedDatabase` into
+    // the app's entry point.
+    //
+    // That is the crash loop SPEC.md §14 names as the worst possible outcome:
+    // the user cannot open the app to export their data, and the only remedy
+    // left is uninstalling, which deletes it. A database with `user_version =
+    // 1` and a missing table — a process killed during first-run schema
+    // creation — reaches it on every launch.
+    return (null, SafetyCopyFailure.readFailed);
+  }
+
+  final file = File(
+    '${directory.path}/${migrationSafetyCopyName(fromVersion)}',
+  );
+
+  try {
+    // Written to a temp file and RENAMED, never straight to the canonical
+    // path. `writeAsString` opens with truncate, so a second attempt at the
+    // same migration destroys the first attempt's copy before it has produced
+    // a replacement — and if the disk fills partway, what is left under the
+    // canonical name is a truncated file that is not valid JSON and no longer
+    // holds the user's history. The good copy would have been destroyed by the
+    // attempt to refresh it.
+    //
+    // `rename` is atomic within a filesystem, and app-private storage is one
+    // filesystem.
+    final temporary = File('${file.path}.writing');
+    await temporary.writeAsString(encoded, flush: true);
+    await temporary.rename(file.path);
     return (file, null);
   } on FileSystemException {
     return (null, SafetyCopyFailure.writeFailed);

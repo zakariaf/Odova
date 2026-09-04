@@ -53,10 +53,17 @@ void main() {
   });
   tearDown(() => db.close());
 
-  /// Every reading, as `(source, source_id, odometer_m, occurred_on)`.
+  /// Every LIVE reading, as `(source, source_id, odometer_m, occurred_on)`.
+  ///
+  /// Filtered on `deleted_at_utc_ms IS NULL`, as every real query is: clearing
+  /// a parent's odometer SOFT-deletes its reading rather than removing it, so
+  /// a helper that read the raw table would report a row the app cannot see.
   Future<List<(String, String?, int, String)>> readings() async {
     final rows = await db
-        .customSelect('SELECT * FROM odometer_readings ORDER BY source;')
+        .customSelect(
+          'SELECT * FROM odometer_readings WHERE deleted_at_utc_ms IS NULL '
+          'ORDER BY source;',
+        )
         .get();
     return [
       for (final row in rows)
@@ -356,6 +363,166 @@ void main() {
 
     expect(backwards, isA<Err<Trip, PersistFailure>>());
     expect(await readings(), hasLength(1), reason: 'only the fill-up survives');
+  });
+
+  test('a whole trip can be corrected upward', () async {
+    // A trip owns TWO readings and saving it rewrites both, so the check for
+    // its new START must not measure against its own stale END. It did: a user
+    // who mistyped both endpoints and corrected them upward was told the
+    // odometer went backwards — 300,000 measured against the old 200,000 — and
+    // could not fix their own typo.
+    //
+    // Nothing is lost by excluding the sibling. The two endpoints are checked
+    // against each other by the SCHEMA, which is stronger: `trips` carries
+    // a CHECK that the end is not below the start, and that holds for every
+    // writer, an import included.
+    Trip trip(int start, int end) => Trip(
+      id: TripId.tryParse('trp_$_b')!,
+      vehicleId: _vehicleId,
+      purpose: TripPurpose.business,
+      startedOn: '2026-09-01',
+      endedOn: '2026-09-03',
+      startOdometerM: start,
+      endOdometerM: end,
+      odometerUnit: DistanceUnit.km,
+      createdAtUtcMs: 1000,
+      updatedAtUtcMs: 1000,
+    );
+
+    expect(
+      await trips.save(trip(100000, 200000)),
+      isA<Ok<Trip, PersistFailure>>(),
+    );
+    expect(
+      await trips.save(trip(300000, 400000)),
+      isA<Ok<Trip, PersistFailure>>(),
+      reason: 'correcting both endpoints upward is a typo fix, not a violation',
+    );
+
+    expect(await readings(), [
+      ('trip_end', 'trp_$_b', 400000, '2026-09-03'),
+      ('trip_start', 'trp_$_b', 300000, '2026-09-01'),
+    ]);
+  });
+
+  test('the schema still refuses a trip that runs backwards', () async {
+    // The guarantee the exclusion leans on. If this ever stopped holding, the
+    // fan-out would no longer be covering the pair at all.
+    await expectLater(
+      trips.save(
+        Trip(
+          id: TripId.tryParse('trp_01JV7B5X4G2K9M6P0S3D8FNRTC')!,
+          vehicleId: _vehicleId,
+          purpose: TripPurpose.business,
+          startedOn: '2026-09-01',
+          endedOn: '2026-09-03',
+          startOdometerM: 200000,
+          endOdometerM: 100000,
+          odometerUnit: DistanceUnit.km,
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+        ),
+      ),
+      completion(isA<Err<Trip, PersistFailure>>()),
+    );
+  });
+
+  test('clearing an odometer does not destroy a correction', () async {
+    // `odometer_corrections.from_reading_id` is ON DELETE CASCADE, and the
+    // reading a correction is anchored to is very often a DERIVED one — a
+    // fill-up is the commonest reading source, and a cluster gets swapped
+    // between fill-ups. A hard delete here silently took the correction with
+    // it: every later reading lost +187,412 km of cumulative offset, the save
+    // returned success, and nothing on screen explained why the lifetime
+    // distance had changed. That is the "losing eight years of history" class
+    // from CLAUDE.md rule 3, reached by clearing one field.
+    await fillUps.save(fillUp());
+
+    final readingId =
+        (await db.customSelect('SELECT id FROM odometer_readings;').getSingle())
+            .read<String>('id');
+
+    await db.customStatement(
+      '''
+        INSERT INTO odometer_corrections (
+          id, vehicle_id, from_reading_id, previous_m, new_m, odometer_unit,
+          reason, created_at_utc_ms, updated_at_utc_ms
+        ) VALUES ('cor_01JQ8ZK3M7F0R6XN2E9TB4HCVD', ?, ?, 187412000, 0, 'km',
+                  'cluster_replaced', 1000, 1000);
+      ''',
+      [_vehicleId.toString(), readingId],
+    );
+
+    // Clear the fill-up's odometer.
+    await fillUps.save(fillUp(odometerM: null));
+
+    final corrections = await db
+        .customSelect('SELECT COUNT(*) AS n FROM odometer_corrections;')
+        .getSingle();
+    expect(
+      corrections.read<int>('n'),
+      1,
+      reason:
+          'the correction must survive — it carries the offset for every '
+          'later reading',
+    );
+
+    // The reading is invisible to the app but still there for the foreign key.
+    expect(await readings(), isEmpty);
+    final raw = await db
+        .customSelect('SELECT COUNT(*) AS n FROM odometer_readings;')
+        .getSingle();
+    expect(raw.read<int>('n'), 1);
+  });
+
+  test('re-parenting a record moves its reading to the new vehicle', () async {
+    // The conflict key `(source_id, source)` is vehicle-INDEPENDENT, so
+    // leaving `vehicle_id` out of the DO UPDATE list updated the row in place:
+    // it stayed on the OLD vehicle and took the NEW vehicle's odometer. The
+    // old car's history then carried a 5,000 km reading among its 100,000 km
+    // ones — non-monotonic at a point no guard had looked at, because the
+    // guard validated against the new vehicle — and the new car's fill-up had
+    // no reading at all.
+    final other = VehicleId.tryParse('veh_01JV7B5X4G2K9M6P0S3D8FNRTC')!;
+    await VehicleRepository(db).save(
+      Vehicle(
+        id: other,
+        name: 'Van',
+        vehicleType: VehicleType.van,
+        fuelKindDefault: FuelKind.diesel,
+        status: VehicleStatus.active,
+        createdAtUtcMs: 1000,
+        updatedAtUtcMs: 1000,
+      ),
+    );
+
+    await fillUps.save(fillUp());
+    await fillUps.save(
+      FillUp(
+        id: FillUpId.tryParse('fil_$_b')!,
+        vehicleId: other,
+        occurredOn: '2026-09-03',
+        odometerM: 5000000,
+        odometerUnit: DistanceUnit.km,
+        fuelKind: FuelKind.diesel,
+        quantityMl: 45200,
+        quantityUnit: VolumeUnit.l,
+        totalCostMinor: 7845,
+        currency: 'EUR',
+        createdAtUtcMs: 1000,
+        updatedAtUtcMs: 2000,
+      ),
+    );
+
+    final row = await db
+        .customSelect(
+          'SELECT vehicle_id, odometer_m FROM odometer_readings '
+          'WHERE deleted_at_utc_ms IS NULL;',
+        )
+        .getSingle();
+
+    expect(row.read<String>('vehicle_id'), other.toString());
+    expect(row.read<int>('odometer_m'), 5000000);
   });
 
   test('a derived reading knows it is derived', () async {

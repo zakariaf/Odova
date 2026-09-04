@@ -10,6 +10,7 @@
 //   3. After the window, the row is PURGED. A settled database has
 //      `deleted_at IS NULL` on every row that exists: no bin, no tombstones,
 //      nothing deleted in the export.
+import 'package:drift/drift.dart' show Variable;
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
@@ -114,8 +115,20 @@ Future<Result<void, PersistFailure>> eraseVehiclePermanently(
 /// layer: a timer here would fire on a schedule nothing in a test can control,
 /// and the purge is the one operation in this file that cannot be undone.
 ///
-/// Returns how many rows went, per table, so the caller can say so in a log
-/// rather than guessing.
+/// Returns how many rows this statement removed, per table.
+///
+/// **Not how many rows left the database.** `vehicles` is purged first and its
+/// `ON DELETE CASCADE` takes the children with it, so a child table's own
+/// DELETE then finds nothing and reports zero — even though its rows are gone.
+/// One vehicle with three fill-ups and three derived readings reports
+/// `{vehicles: 1}` while seven rows leave, and `service_lines` never appears at
+/// all because it has no `deleted_at` of its own.
+///
+/// That is the correct number for what it is used for — "how many rows did I
+/// delete on their own" — and the wrong one for "how much went". The name and
+/// this comment are the fix; counting the cascade would mean reading every
+/// child table before the parent DELETE, which is the two extra scans per
+/// table that this rewrite removed.
 Future<Result<Map<String, int>, PersistFailure>> purgeDeleted(
   AppDatabase db,
   int purgeBeforeUtcMs,
@@ -124,22 +137,20 @@ Future<Result<Map<String, int>, PersistFailure>> purgeDeleted(
 
   await db.transaction(() async {
     // Vehicles first: the cascade takes their children, so a per-table pass
-    // afterwards counts only rows deleted on their own.
+    // afterwards touches only rows deleted on their own.
     for (final table in ['vehicles', ...vehicleChildTables]) {
-      final before = await _countIn(db, table);
-      await db.customStatement(
+      // `customUpdate` returns the statement's own affected-row count, which
+      // is what the two `SELECT COUNT(*)` scans per table were computing the
+      // hard way — sixteen full-table scans per purge, on eight tables.
+      final count = await db.customUpdate(
         'DELETE FROM $table '
         'WHERE deleted_at_utc_ms IS NOT NULL AND deleted_at_utc_ms <= ?;',
-        [purgeBeforeUtcMs],
+        variables: [Variable.withInt(purgeBeforeUtcMs)],
+        updates: {},
       );
-      final after = await _countIn(db, table);
-      if (before != after) removed[table] = before - after;
+      if (count > 0) removed[table] = count;
     }
   });
 
   return Ok(removed);
 });
-
-Future<int> _countIn(AppDatabase db, String table) async =>
-    (await db.customSelect('SELECT COUNT(*) AS n FROM $table;').getSingle())
-        .read<int>('n');

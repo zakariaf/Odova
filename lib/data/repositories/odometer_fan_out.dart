@@ -50,9 +50,23 @@ Future<void> syncDerivedReading(
   required int nowUtcMs,
 }) async {
   if (odometerM == null) {
+    // SOFT-deleted, never hard-deleted, and that is not tidiness.
+    // `odometer_corrections.from_reading_id` is `ON DELETE CASCADE`, and the
+    // reading a correction is anchored to is very often a derived one — a
+    // fill-up is the commonest reading source, and a cluster gets swapped
+    // between fill-ups. A hard delete here silently took the correction with
+    // it: clearing one fill-up's odometer removed +187,412 km of offset from
+    // every later reading, the save returned success, and nothing on screen
+    // explained why the lifetime distance had changed.
+    //
+    // A soft delete leaves the row for the foreign key to point at, and the
+    // purge that eventually removes it is the same one that removes the
+    // correction — together, after the Undo window, rather than silently on an
+    // edit.
     await db.customStatement(
-      'DELETE FROM odometer_readings WHERE source_id = ? AND source = ?;',
-      [parentId, source.wire],
+      'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
+      'WHERE source_id = ? AND source = ? AND deleted_at_utc_ms IS NULL;',
+      [nowUtcMs, parentId, source.wire],
     );
     return;
   }
@@ -82,6 +96,15 @@ Future<void> syncDerivedReading(
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT (source_id, source) WHERE source_id IS NOT NULL
       DO UPDATE SET
+        -- `vehicle_id` is in the SET list, and leaving it out was a silent
+        -- corruption. The conflict key is `(source_id, source)`, which is
+        -- vehicle-INDEPENDENT, so re-parenting a fill-up to another car
+        -- updated its reading in place: the row stayed on the OLD vehicle and
+        -- took the NEW vehicle's odometer. The old car's history then carried
+        -- a 5,000 km reading among its 100,000 km ones — non-monotonic at a
+        -- point no guard had looked at, because the guard validated against
+        -- the new vehicle — and the new car's fill-up had no reading at all.
+        vehicle_id = excluded.vehicle_id,
         occurred_on = excluded.occurred_on,
         odometer_m = excluded.odometer_m,
         odometer_unit = excluded.odometer_unit,
@@ -183,9 +206,20 @@ Future<PersistFailure?> checkDerivedReading(
       )
       .firstOrNull;
 
-  final existing = all.where(
-    (row) => row.read<String>('id') != mine?.read<String>('id'),
-  );
+  // EVERY reading this parent owns is excluded, not just the one for this
+  // source. A trip owns two, and saving it rewrites BOTH — so checking its new
+  // start against its own stale end compares the new value to one that is
+  // about to stop existing. The symptom is that correcting a whole trip's
+  // odometer UPWARD is refused: the new start (300,000) is measured against the
+  // old end (200,000) and reported as going backwards, and the user who
+  // mistyped both endpoints cannot fix them.
+  //
+  // Nothing is lost by excluding the sibling. The two endpoints are checked
+  // against each other by the schema — `trips` carries
+  // `CHECK (end_odometer_m >= start_odometer_m)` — which is a stronger
+  // guarantee than this function could give, because it holds for every writer
+  // including an import.
+  final existing = all.where((row) => row.data['source_id'] != parentId);
 
   final corrections = await db
       .customSelect(

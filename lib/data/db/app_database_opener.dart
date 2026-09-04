@@ -54,6 +54,37 @@ final class OpenedCleanly extends OpenOutcome {
   final File? safetyCopy;
 }
 
+/// The migration was not attempted, because the safety copy could not be
+/// written.
+///
+/// SPEC.md §6.4.4: "Any operation that destroys data writes its file first —
+/// import, Delete all data, every schema migration. **No exceptions.**" So a
+/// copy that could not be written is a migration that does not run.
+///
+/// The two cases are different and both are real. `unknownSchemaVersion` means
+/// a database written by a NEWER build — a sideload or a rollback — and the
+/// only honest answer is to refuse rather than hand it to a migrator that does
+/// not understand it. `writeFailed` or `readFailed` means the disk is full or
+/// the file is already damaged, and migrating without an escape route is how a
+/// semantically-wrong-but-successful migration becomes unrecoverable.
+final class MigrationRefused extends OpenOutcome {
+  /// Creates the outcome.
+  const MigrationRefused({
+    required this.atVersion,
+    required this.expectedVersion,
+    required this.reason,
+  });
+
+  /// The version the file is on.
+  final int atVersion;
+
+  /// The version this build wanted.
+  final int expectedVersion;
+
+  /// Why the copy could not be written.
+  final SafetyCopyFailure reason;
+}
+
 /// The migration threw, and the snapshot was restored.
 ///
 /// The file is back on [atVersion] byte for byte. The caller brings the app up
@@ -107,29 +138,53 @@ Future<OpenOutcome> openMigratedDatabase(
   }
 
   // 2. The JSON copy, through the reader for the version ON DISK.
-  final safetyCopy = await _writeSafetyCopy(
+  //
+  // Its failure is HONOURED, not discarded. The first version dropped it on
+  // the floor with `final (file, _) = …`, so the app migrated in exactly the
+  // two cases the failure exists to prevent: a database from a newer build
+  // that this binary has no reader for, and a disk too full to write an escape
+  // route. SPEC.md §6.4.4 says "no exceptions" and means it.
+  final (safetyCopy, copyFailure) = await _writeSafetyCopy(
     dbFile,
     fromVersion,
     safetyDirectory,
   );
+  if (copyFailure != null) {
+    return MigrationRefused(
+      atVersion: fromVersion,
+      expectedVersion: expected,
+      reason: copyFailure,
+    );
+  }
 
   // 3. The byte snapshot, with nothing open.
   final snapshot = await _snapshot(dbFile);
 
   // 4. Open and migrate.
   final database = build(NativeDatabase(dbFile, setup: applyPragmas));
+  var restored = false;
   try {
     // `customStatement` forces the connection to open, which is what runs the
     // migration. Without it the failure would surface at the first query,
     // long after this function returned an "open" database.
     await database.customStatement('SELECT 1;');
+    restored = true; // nothing to restore; the snapshot may go
     return OpenedCleanly(database, safetyCopy: safetyCopy);
   } on Object catch (error) {
     // 5. CLOSE FIRST. Restoring under an open connection leaves SQLite holding
     // page cache for a file that no longer exists, and the next write corrupts
     // the restored copy.
-    await database.close();
+    // Closing can itself throw on a dead connection, and if it does the
+    // restore must still run — otherwise the half-migrated file stays and the
+    // snapshot is deleted on the way out.
+    try {
+      await database.close();
+    } on Object {
+      // Nothing to do about it; the restore below is what matters.
+    }
+
     await _restore(dbFile, snapshot);
+    restored = true;
 
     return MigrationRolledBack(
       atVersion: fromVersion,
@@ -138,8 +193,13 @@ Future<OpenOutcome> openMigratedDatabase(
       safetyCopy: safetyCopy,
     );
   } finally {
-    for (final file in snapshot.values) {
-      if (file.existsSync()) await file.delete();
+    // Only once the database is known good. The first version deleted the
+    // snapshot on EVERY path, so a restore that threw left the user with
+    // neither the original nor the copy.
+    if (restored) {
+      for (final file in snapshot.values) {
+        if (file.existsSync()) await file.delete();
+      }
     }
   }
 }
@@ -159,19 +219,18 @@ int _readUserVersion(File dbFile) {
   }
 }
 
-Future<File?> _writeSafetyCopy(
+Future<(File?, SafetyCopyFailure?)> _writeSafetyCopy(
   File dbFile,
   int fromVersion,
   Directory directory,
 ) async {
   final database = sqlite3.open(dbFile.path);
   try {
-    final (file, _) = await writeMigrationSafetyCopy(
+    return await writeMigrationSafetyCopy(
       database: database,
       fromVersion: fromVersion,
       directory: directory,
     );
-    return file;
   } finally {
     database.dispose();
   }
@@ -198,15 +257,25 @@ Future<Map<File, File>> _snapshot(File dbFile) async {
   return snapshot;
 }
 
+/// Puts [snapshot] back, by RENAME.
+///
+/// Rename, not delete-then-copy. The first version deleted the live database
+/// and then copied each snapshot file back — and on a device that is nearly
+/// full, which is exactly when a migration fails, the copy can throw `ENOSPC`
+/// after the delete. The user's database was then gone, the snapshot was
+/// deleted by a `finally` that ran regardless, and the next launch created a
+/// brand-new empty database that looked like a fresh install.
+///
+/// A rename inside one filesystem is atomic and needs no free space, and
+/// app-private storage is one filesystem. Files the failed migration created
+/// that the snapshot does not have are still deleted first, so a `-wal` from
+/// the attempt cannot be read alongside a restored `.sqlite`.
 Future<void> _restore(File dbFile, Map<File, File> snapshot) async {
-  // Every file the database occupies goes, including any the migration
-  // created. Restoring only what was snapshotted would leave a `-wal` from the
-  // failed attempt beside a restored `.sqlite`, and SQLite would read the two
-  // together.
   for (final file in databaseFiles(dbFile)) {
+    if (snapshot.containsKey(file)) continue;
     if (file.existsSync()) await file.delete();
   }
   for (final MapEntry(key: original, value: copy) in snapshot.entries) {
-    await copy.copy(original.path);
+    await copy.rename(original.path);
   }
 }
