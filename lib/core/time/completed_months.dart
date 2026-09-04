@@ -1,4 +1,11 @@
-// Completed calendar months, from an injected today.
+// Calendar month boundaries.
+//
+// `lib/core/time/` and not `lib/core/money/`, where this started: there is no
+// money type anywhere in the file. It landed under money because its first
+// caller was a cost figure, and EPIC-07's due engine needs the same
+// month-boundary arithmetic for `interval_months` — two implementations of
+// "when does a month end" in an app with an OPEN QUESTION about the Jalali
+// calendar (SPEC.md §18) is a bug waiting for a Persian user.
 //
 // SPEC.md §12 Ground rules: a per-month figure divides by COMPLETED months. On
 // 2 September 2026, "Last 12 months" is 1 September 2025 to 31 August 2026 —

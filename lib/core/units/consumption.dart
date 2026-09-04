@@ -52,15 +52,6 @@ enum ConsumptionUnit {
     ConsumptionUnit.mpgUk ||
     ConsumptionUnit.miPerKwh => false,
   };
-
-  /// Whether this unit is for electricity.
-  ///
-  /// A litre figure on an EV and a kWh figure on a diesel are both nonsense,
-  /// and the pairing is checked rather than assumed.
-  bool get isElectric => switch (this) {
-    ConsumptionUnit.kwhPer100km || ConsumptionUnit.miPerKwh => true,
-    _ => false,
-  };
 }
 
 /// A distance and the fuel it took.
@@ -104,7 +95,14 @@ class Consumption with ValueEquality {
       ElectricEnergy(:final energy) => switch (unit) {
         ConsumptionUnit.kwhPer100km => energy.kwh / distance.km * 100,
         ConsumptionUnit.miPerKwh => distance.miles / energy.kwh,
-        _ => null,
+        // An energy quantity has no litre or gallon figure, for the same
+        // reason a litre has no kWh one. Listed rather than caught by a
+        // wildcard, so a seventh unit is a COMPILE error here and not a silent
+        // null on a screen.
+        ConsumptionUnit.lPer100km ||
+        ConsumptionUnit.kmPerL ||
+        ConsumptionUnit.mpgUs ||
+        ConsumptionUnit.mpgUk => null,
       },
       // CNG is sold by mass and SPEC.md §3 offers no mass-based consumption
       // unit. Returning a litre figure would mean inventing a density.

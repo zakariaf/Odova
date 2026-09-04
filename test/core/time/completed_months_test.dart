@@ -3,7 +3,7 @@
 // SPEC.md §12 Ground rules. Including a part-month always reads the same way:
 // on the 2nd the figure looks great, and by the 28th it has "risen" — because
 // two days of spending were being divided by a whole month.
-import 'package:odova/core/money/completed_months.dart';
+import 'package:odova/core/time/completed_months.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -179,10 +179,28 @@ void main() {
       expect(ConsumptionUnit.miPerKwh.isFuelPerDistance, isFalse);
     });
 
-    test('two are electric', () {
-      expect(ConsumptionUnit.kwhPer100km.isElectric, isTrue);
-      expect(ConsumptionUnit.miPerKwh.isElectric, isTrue);
-      expect(ConsumptionUnit.lPer100km.isElectric, isFalse);
+    test('a litre unit on an EV is null, and a kWh unit on a diesel', () {
+      // `ConsumptionUnit.isElectric` used to encode this pairing as a
+      // predicate, with no production caller — while `asUnit` enforced the
+      // same rule in an exhaustive switch, which is strictly stronger: a
+      // seventh unit is a compile error there and a silent `false` in a
+      // predicate. The predicate is gone; this is the rule it described.
+      const litres = Consumption(
+        distance: Distance.fromKm(500),
+        quantity: LiquidVolume(Volume(40000)),
+      );
+      const charge = Consumption(
+        distance: Distance.fromKm(500),
+        quantity: ElectricEnergy(Energy(90000)),
+      );
+
+      expect(litres.asUnit(ConsumptionUnit.kwhPer100km), isNull);
+      expect(litres.asUnit(ConsumptionUnit.miPerKwh), isNull);
+      expect(charge.asUnit(ConsumptionUnit.lPer100km), isNull);
+      expect(charge.asUnit(ConsumptionUnit.mpgUs), isNull);
+      // And each is computable in its own units.
+      expect(litres.asUnit(ConsumptionUnit.lPer100km), closeTo(8, 1e-9));
+      expect(charge.asUnit(ConsumptionUnit.kwhPer100km), closeTo(18, 1e-9));
     });
 
     test('the six wire values match SPEC.md §3 Enums', () {
