@@ -19,6 +19,7 @@
 // `lib/core/l10n/jalali.dart` already converts. What must not happen is two
 // calendars inside the domain.
 import 'package:meta/meta.dart';
+import 'package:odova/core/time/julian_day.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// A calendar date: a year, a month and a day, and nothing else.
@@ -92,7 +93,10 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
   int daysUntil(CivilDate other) => other._epochDay - _epochDay;
 
   /// This date [days] later; negative goes back.
-  CivilDate addDays(int days) => _civilFromEpochDay(_epochDay + days);
+  CivilDate addDays(int days) {
+    final civil = jdnToGregorian(_epochDay + days + kUnixEpochJdn);
+    return CivilDate._(civil.year, civil.month, civil.day);
+  }
 
   /// This date [months] later, CLAMPED to the last day of the target month.
   ///
@@ -116,21 +120,15 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
     );
   }
 
-  /// Days since 1970-01-01, by Howard Hinnant's `days_from_civil`.
+  /// Days since 1970-01-01.
   ///
-  /// Exact integer arithmetic over the proleptic Gregorian calendar, valid for
-  /// every year this app will ever see. `civil_date_test.dart` cross-checks it
-  /// against `DateTime.utc` differences across 4,749 consecutive days — a
-  /// genuinely different mechanism, so a typo here cannot agree with itself.
-  int get _epochDay {
-    final y = month <= 2 ? year - 1 : year;
-    final era = (y >= 0 ? y : y - 399) ~/ 400;
-    final yearOfEra = y - era * 400;
-    final dayOfYear = (153 * (month + (month > 2 ? -3 : 9)) + 2) ~/ 5 + day - 1;
-    final dayOfEra =
-        yearOfEra * 365 + yearOfEra ~/ 4 - yearOfEra ~/ 100 + dayOfYear;
-    return era * 146097 + dayOfEra - 719468;
-  }
+  /// Through `lib/core/time/julian_day.dart`, which `lib/core/l10n/jalali.dart`
+  /// has used since EPIC-04. This file first wrote its OWN integer day count —
+  /// Hinnant's `days_from_civil` against the other's Fliegel-Van Flandern — and
+  /// they agree over 100,000 consecutive days with zero mismatches, which is
+  /// the good outcome. The bad one is a repo where two day counts disagree
+  /// somewhere nobody looked, and there is no reason to keep two.
+  int get _epochDay => gregorianToJdn(year, month, day) - kUnixEpochJdn;
 
   @override
   int compareTo(CivilDate other) {
@@ -161,27 +159,4 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
       '${year.toString().padLeft(4, '0')}-'
       '${month.toString().padLeft(2, '0')}-'
       '${day.toString().padLeft(2, '0')}';
-}
-
-/// The inverse of `CivilDate._epochDay` — `civil_from_days`.
-///
-/// Top level rather than a static on the class: the lint
-/// `prefer_constructors_over_static_methods` wants a static factory to be a
-/// constructor, and a constructor here would have to sit above every other
-/// member to satisfy `sort_constructors_first`,
-/// putting the least interesting arithmetic in the file first.
-CivilDate _civilFromEpochDay(int epochDay) {
-  final z = epochDay + 719468;
-  final era = (z >= 0 ? z : z - 146096) ~/ 146097;
-  final dayOfEra = z - era * 146097;
-  final yearOfEra =
-      (dayOfEra - dayOfEra ~/ 1460 + dayOfEra ~/ 36524 - dayOfEra ~/ 146096) ~/
-      365;
-  final y = yearOfEra + era * 400;
-  final dayOfYear =
-      dayOfEra - (365 * yearOfEra + yearOfEra ~/ 4 - yearOfEra ~/ 100);
-  final mp = (5 * dayOfYear + 2) ~/ 153;
-  final d = dayOfYear - (153 * mp + 2) ~/ 5 + 1;
-  final m = mp + (mp < 10 ? 3 : -9);
-  return CivilDate._(m <= 2 ? y + 1 : y, m, d);
 }
