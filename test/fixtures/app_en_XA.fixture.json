@@ -34,7 +34,6 @@
   "confirmDeleteBody": "[{fillUps, plural, =0{Ǹǿ ƒīŀŀ-ǔƥŝ} one{{fillUpsText} ƒīŀŀ-ǔƥ} other{{fillUpsText} ƒīŀŀ-ǔƥŝ}}, {services, plural, =0{ǹǿ ŝḗřṽīçḗŝ} one{{servicesText} ŝḗřṽīçḗ} other{{servicesText} ŝḗřṽīçḗŝ}}, {costs, plural, =0{ǹǿ çǿŝţŝ} one{{costsText} çǿŝţ} other{{costsText} çǿŝţŝ}}, {trips, plural, =0{ǹǿ ţřīƥŝ} one{{tripsText} ţřīƥ} other{{tripsText} ţřīƥŝ}} áǹḍ {reminders, plural, =0{ǹǿ řḗḿīǹḍḗřŝ} one{{remindersText} řḗḿīǹḍḗř} other{{remindersText} řḗḿīǹḍḗřŝ}} ḡǿ ƥḗřḿáǹḗǹţŀẏ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "confirmDeleteTypeToConfirm": "[Ţẏƥḗ {subject} ţǿ çǿǹƒīřḿ ǃǃǃǃǃǃǃ]",
   "confirmDeleteDelete": "[Ḍḗŀḗţḗ ǃǃǃ]",
-  "confirmDeleteCancel": "[Çáǹçḗŀ ǃǃǃ]",
   "snoozeTitle": "[Ŝǹǿǿżḗ {item} ǃǃǃ]",
   "snoozeBody": "[Ţħīŝ ʠǔīḗţŝ ţħḗ řḗḿīǹḍḗř. Īţ ḍǿḗŝ ǹǿţ çħáǹḡḗ ẇħḗǹ ţħḗ ĵǿḅ īŝ ḍǔḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "snoozeThreeDays": "[{count} ḍáẏŝ ǃǃ]",
@@ -43,5 +42,5 @@
   "snoozeDistance": "[Áƒţḗř áǹǿţħḗř {distance} ǃǃǃǃǃǃ]",
   "snoozeUntil": "[ǔǹţīŀ {date} ǃǃǃ]",
   "snoozeAtOdometer": "[áţ {odometer} ǃǃ]",
-  "snoozeCancel": "[Çáǹçḗŀ ǃǃǃ]"
+  "commonCancel": "[Çáǹçḗŀ ǃǃǃ]"
 }

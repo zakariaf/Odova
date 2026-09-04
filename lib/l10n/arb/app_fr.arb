@@ -34,7 +34,6 @@
   "confirmDeleteBody": "{fillUps, plural, =0{Aucun plein} one{{fillUpsText} plein} many{{fillUpsText} pleins} other{{fillUpsText} pleins}}, {services, plural, =0{aucun entretien} one{{servicesText} entretien} many{{servicesText} entretiens} other{{servicesText} entretiens}}, {costs, plural, =0{aucun frais} one{{costsText} frais} many{{costsText} frais} other{{costsText} frais}}, {trips, plural, =0{aucun trajet} one{{tripsText} trajet} many{{tripsText} trajets} other{{tripsText} trajets}} et {reminders, plural, =0{aucun rappel} one{{remindersText} rappel} many{{remindersText} rappels} other{{remindersText} rappels}} disparaissent définitivement.",
   "confirmDeleteTypeToConfirm": "Saisissez {subject} pour confirmer",
   "confirmDeleteDelete": "Supprimer",
-  "confirmDeleteCancel": "Annuler",
   "snoozeTitle": "Reporter {item}",
   "snoozeBody": "Cela met le rappel en sourdine. L'échéance ne change pas.",
   "snoozeThreeDays": "{count} jours",
@@ -43,5 +42,5 @@
   "snoozeDistance": "Après {distance} de plus",
   "snoozeUntil": "jusqu'au {date}",
   "snoozeAtOdometer": "à {odometer}",
-  "snoozeCancel": "Annuler"
+  "commonCancel": "Annuler"
 }

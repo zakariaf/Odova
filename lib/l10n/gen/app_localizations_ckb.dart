@@ -220,9 +220,6 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get confirmDeleteDelete => 'سڕینەوە';
 
   @override
-  String get confirmDeleteCancel => 'پاشگەزبوونەوە';
-
-  @override
   String snoozeTitle(String item) {
     return 'دواخستنی $item';
   }
@@ -262,5 +259,5 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
-  String get snoozeCancel => 'پاشگەزبوونەوە';
+  String get commonCancel => 'پاشگەزبوونەوە';
 }

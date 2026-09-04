@@ -17,18 +17,25 @@ import 'package:odova/ui/calm/calm_scaffold.dart';
 
 /// The 404.
 class RouteNotFoundScreen extends StatelessWidget {
-  /// Creates the screen.
-  const RouteNotFoundScreen({super.key, this.location});
+  /// Creates the screen for [location].
+  const RouteNotFoundScreen({required this.location, super.key});
 
   /// The location that did not resolve.
   ///
-  /// Not shown. Kept so a `debugPrint` in a manual run and a widget test can
-  /// both say WHICH link failed — putting a raw URL on screen would be handing
-  /// the user a string they cannot act on, in a language they did not choose.
-  final String? location;
+  /// Never SHOWN — putting a raw URL on screen hands the user a string they
+  /// cannot act on, in a language they did not choose — but reported in debug,
+  /// which is the only reason to carry it. It was a field nothing read at all
+  /// until a review pass said so; a parameter that looks load-bearing and is
+  /// not is worse than no parameter.
+  final String location;
 
   @override
   Widget build(BuildContext context) {
+    assert(() {
+      debugPrint('Odova: no route for "$location"');
+      return true;
+    }(), '');
+
     final l10n = AppLocalizations.of(context);
     final colors = CalmColors.of(context);
     final space = CalmSpace.of(context);

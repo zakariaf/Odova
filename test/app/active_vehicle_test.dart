@@ -7,7 +7,6 @@
 // tax on them.
 import 'package:clock/clock.dart';
 import 'package:drift/drift.dart' show Variable;
-import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/active_vehicle.dart';
@@ -15,10 +14,10 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/tab_stack_reset.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/data/db/app_database.dart';
-import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/providers.dart';
 
 import '../data/support/rows.dart';
+import '../support/provider_harness.dart';
 import '../support/source_tree.dart';
 
 /// Two vehicles, neither of them `insertVehicle`'s default.
@@ -35,38 +34,17 @@ void main() {
   late ProviderContainer container;
 
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
-    container = ProviderContainer(
-      retry: noProviderRetry,
+    final harness = containerWithDatabase(
       overrides: [
-        appDatabaseProvider.overrideWithValue(db),
         clockProvider.overrideWithValue(Clock.fixed(DateTime.utc(2026, 9, 4))),
       ],
     );
-    // One tear-down, in this order. `addTearDown` runs LIFO, so registering
-    // the two separately closed the DATABASE first and left Riverpod holding
-    // live drift streams over a closed connection — every test in this file
-    // then timed out in its tear-down, reporting nothing, while the code under
-    // test was fine.
-    addTearDown(() async {
-      container.dispose();
-      await db.close();
-    });
+    container = harness.container;
+    db = harness.db;
   });
 
-  /// Subscribes to the two streams this file reads, and waits for them.
-  ///
-  /// A subscription, not `container.read(provider.future)`. With nothing
-  /// listening, Riverpod keeps a StreamProvider in its loading state and the
-  /// `.future` never completes — the test hangs rather than failing.
-  /// `providers_test.dart` records the same trap; the subscription is also how
-  /// the app itself uses these, so the test exercises the real path.
-  Future<void> settle() async {
-    for (final provider in [settingsProvider, vehiclesProvider]) {
-      addTearDown(container.listen(provider, (_, _) {}).close);
-    }
-    await pumpEventQueue();
-  }
+  Future<void> settle() =>
+      settleProviders(container, [settingsProvider, vehiclesProvider]);
 
   test('activeVehicleId is read from Settings, never re-derived', () async {
     // One persisted field. Deriving it — "the only vehicle", "the most recently

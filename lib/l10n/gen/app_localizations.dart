@@ -321,12 +321,6 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get confirmDeleteDelete;
 
-  /// The way out. Tap-out and system back both return this — no dialog is ever dismissed into a destructive outcome.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get confirmDeleteCancel;
-
   /// Title of the snooze dialog. The item label is interpolated AS STORED: the reference lower-cases it inside the sentence, and an ICU message cannot case-fold a placeholder — German capitalises every noun (EPIC-08 finding F-8.6).
   ///
   /// In en, this message translates to:
@@ -375,11 +369,11 @@ abstract class AppLocalizations {
   /// **'at {odometer}'**
   String snoozeAtOdometer(String odometer);
 
-  /// The single quiet action.
+  /// The way out of any dialog. ONE key, not one per dialog: it was the same word in all six locales twice over, which is two chances for a translator to make two dialogs in the same app disagree about "Cancel". Tap-out and system back both mean this, and SPEC.md §7 says no dialog is ever dismissed into a destructive outcome.
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
-  String get snoozeCancel;
+  String get commonCancel;
 }
 
 class _AppLocalizationsDelegate

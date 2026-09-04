@@ -24,9 +24,16 @@ class CalmDialog extends StatelessWidget {
   /// Creates a two-action dialog: the confirming action, then the way out.
   ///
   /// The order is the widget's, not the caller's, so a user who has learned
-  /// where the way out is on one dialog has learned it on all of them. A dialog
-  /// that offers a safe ALTERNATIVE — something that does a different thing
-  /// rather than nothing — needs three actions and uses [CalmDialog.actions].
+  /// where the way out is on one dialog has learned it on all of them — and it
+  /// is the SAME rule [CalmDialog.actions] documents, applied to a dialog with
+  /// nothing to put first: safe alternative, then destructive, then the way
+  /// out. With no alternative that reads confirm-then-cancel. (This doc said
+  /// "destructive first, Cancel last" until EPIC-08's finding F-8.4; the two
+  /// constructors now state one rule rather than two.)
+  ///
+  /// A dialog that offers a real safe ALTERNATIVE — something that does a
+  /// different thing rather than nothing — needs three actions and uses
+  /// [CalmDialog.actions]. All three of Odova's own do.
   const CalmDialog({
     required this.title,
     required this.body,

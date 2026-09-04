@@ -231,9 +231,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirmDeleteDelete => 'Supprimer';
 
   @override
-  String get confirmDeleteCancel => 'Annuler';
-
-  @override
   String snoozeTitle(String item) {
     return 'Reporter $item';
   }
@@ -273,5 +270,5 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get snoozeCancel => 'Annuler';
+  String get commonCancel => 'Annuler';
 }

@@ -12,6 +12,7 @@ import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 
+import '../../support/device.dart';
 import '../../support/pump_app.dart';
 import '../../support/source_tree.dart';
 
@@ -245,9 +246,10 @@ void main() {
     // safe alternative, a typed-confirmation field, its explanation, Delete and
     // Cancel. `CalmDialog` scrolls rather than clipping — the version before
     // this test overflowed by 35 pixels at scale 1.
-    tester.view.physicalSize = const Size(750, 1334); // the smallest phone
-    tester.view.devicePixelRatio = 2;
-    addTearDown(tester.view.reset);
+    // `Device.compact` — the tightest surface Odova supports, per
+    // `test/support/device.dart`. Written by hand it said "the smallest phone"
+    // beside 750x1334, which is not the smallest phone the preset names.
+    tester.useDevice(Device.compact);
 
     for (final locale in [const Locale('de'), const Locale('ckb')]) {
       final probe = _Probe(
@@ -292,7 +294,6 @@ void main() {
         'confirmDeleteBody',
         'confirmDeleteTypeToConfirm',
         'confirmDeleteDelete',
-        'confirmDeleteCancel',
       ]),
       isEmpty,
     );

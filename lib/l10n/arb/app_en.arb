@@ -287,10 +287,6 @@
   "@confirmDeleteDelete": {
     "description": "The destructive action. Disabled until the typed name matches."
   },
-  "confirmDeleteCancel": "Cancel",
-  "@confirmDeleteCancel": {
-    "description": "The way out. Tap-out and system back both return this — no dialog is ever dismissed into a destructive outcome."
-  },
   "snoozeTitle": "Snooze {item}",
   "@snoozeTitle": {
     "description": "Title of the snooze dialog. The item label is interpolated AS STORED: the reference lower-cases it inside the sentence, and an ICU message cannot case-fold a placeholder — German capitalises every noun (EPIC-08 finding F-8.6).",
@@ -368,8 +364,8 @@
       }
     }
   },
-  "snoozeCancel": "Cancel",
-  "@snoozeCancel": {
-    "description": "The single quiet action."
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "The way out of any dialog. ONE key, not one per dialog: it was the same word in all six locales twice over, which is two chances for a translator to make two dialogs in the same app disagree about \"Cancel\". Tap-out and system back both mean this, and SPEC.md §7 says no dialog is ever dismissed into a destructive outcome."
   }
 }

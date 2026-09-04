@@ -9,6 +9,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/tab_stack_reset.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
@@ -40,9 +41,13 @@ final liveVehicleCountProvider = Provider<int>(
 /// Whether the multi-vehicle interface exists at all.
 ///
 /// SPEC.md §7: with one vehicle the app-bar title is plain text — no chevron,
-/// no tap target, no "1 of 1" — and `vehicle.switcher` is unreachable.
+/// no tap target, no "1 of 1". The THRESHOLD lives on
+/// `LaunchFacts.showsVehicleSwitcher` and is read from there, because the
+/// launch gate uses the same rule to make
+/// `vehicle.switcher` unreachable: two encodings of one product rule is one
+/// that can be changed without effect.
 final showsVehicleSwitcherProvider = Provider<bool>(
-  (ref) => ref.watch(liveVehicleCountProvider) >= 2,
+  (ref) => ref.watch(launchFactsProvider).showsVehicleSwitcher,
 );
 
 /// Whether the Costs tab is showing every vehicle.

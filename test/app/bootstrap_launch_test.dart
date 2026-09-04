@@ -12,7 +12,6 @@
 // rather than one that fails. What the app DOES with the facts is a widget
 // question and is asked with the facts injected.
 import 'package:drift/drift.dart' show Variable;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,11 +22,11 @@ import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/data/db/app_database.dart';
-import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/db/degraded_mode.dart';
 import 'package:odova/data/repositories/providers.dart';
 
 import '../data/support/rows.dart';
+import '../support/provider_harness.dart';
 
 const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 const _polo = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVB';
@@ -54,25 +53,13 @@ void main() {
     late ProviderContainer container;
 
     setUp(() {
-      db = AppDatabase.forTesting(NativeDatabase.memory());
-      container = ProviderContainer(
-        retry: noProviderRetry,
-        overrides: [appDatabaseProvider.overrideWithValue(db)],
-      );
-      // LIFO: the container disposes BEFORE the database closes, or Riverpod
-      // is left holding live drift streams over a closed connection and every
-      // test in the file times out in its tear-down.
-      addTearDown(() async {
-        container.dispose();
-        await db.close();
-      });
+      final harness = containerWithDatabase();
+      container = harness.container;
+      db = harness.db;
     });
 
     Future<LaunchFacts> facts() async {
-      for (final provider in [settingsProvider, vehiclesProvider]) {
-        addTearDown(container.listen(provider, (_, _) {}).close);
-      }
-      await pumpEventQueue();
+      await settleProviders(container, [settingsProvider, vehiclesProvider]);
       return container.read(launchFactsProvider);
     }
 

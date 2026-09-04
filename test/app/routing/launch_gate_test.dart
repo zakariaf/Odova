@@ -223,6 +223,28 @@ void main() {
       }
     });
 
+    test('identical facts are EQUAL, not merely equivalent', () {
+      // Load-bearing rather than tidy. `launchFactsProvider` watches two drift
+      // streams, which re-emit on any write to `settings` or `vehicles` — a
+      // theme change, a units change, an active-vehicle write. Without `==`,
+      // every one of those produced a new identity, the `refreshListenable`
+      // fired, and go_router re-ran the redirect chain and rebuilt the shell
+      // and its four branch navigators for three fields that had not moved.
+      for (final facts in _allFacts) {
+        final same = LaunchFacts(
+          onboardingDone: facts.onboardingDone,
+          liveVehicleCount: facts.liveVehicleCount,
+          migrationFailed: facts.migrationFailed,
+        );
+        expect(same, facts);
+        expect(same.hashCode, facts.hashCode);
+      }
+      // And genuinely different facts are not equal, or the dedupe would
+      // swallow the change it exists to let through.
+      expect(_returning, isNot(_fresh));
+      expect(_returning, isNot(_emptyGarage));
+    });
+
     test('it is pure: same facts, same answer, no reads', () {
       // A `LaunchFacts` record and a String go in; a String? comes out. There
       // is no repository to touch, which is the strongest form this assertion

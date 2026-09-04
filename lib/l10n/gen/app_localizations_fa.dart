@@ -220,9 +220,6 @@ class AppLocalizationsFa extends AppLocalizations {
   String get confirmDeleteDelete => 'حذف';
 
   @override
-  String get confirmDeleteCancel => 'انصراف';
-
-  @override
   String snoozeTitle(String item) {
     return 'به تعویق انداختن $item';
   }
@@ -262,5 +259,5 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get snoozeCancel => 'انصراف';
+  String get commonCancel => 'انصراف';
 }

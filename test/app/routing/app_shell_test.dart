@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/app_router.dart';
-import 'package:odova/app/routing/app_shell.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
@@ -60,9 +59,6 @@ List<String> _paintedOrder(WidgetTester tester, AppLocalizations l10n) {
   ]..sort((a, b) => a.$2.compareTo(b.$2));
   return [for (final entry in placed) entry.$1];
 }
-
-AppLocalizations _l10n(WidgetTester tester) =>
-    AppLocalizations.of(tester.element(find.byType(AppShell)));
 
 void main() {
   testWidgets('the shell has four branches, rooted at the four tab roots', (
@@ -137,18 +133,18 @@ void main() {
     // rebuilt from its root on the way back and the user loses their place.
     await pumpShell(tester, Routes.settingsUnits);
 
-    final l10n = _l10n(tester);
+    final l10n = l10nOf(tester);
     await tester.tap(find.text(l10n.tabHistory));
     await tester.pumpAndSettle();
     expect(
-      GoRouter.of(tester.element(find.byType(AppShell))).state.uri.toString(),
+      locationOf(tester),
       Routes.history,
     );
 
     await tester.tap(find.text(l10n.tabSettings));
     await tester.pumpAndSettle();
     expect(
-      GoRouter.of(tester.element(find.byType(AppShell))).state.uri.toString(),
+      locationOf(tester),
       Routes.settingsUnits,
     );
   });
@@ -158,13 +154,8 @@ void main() {
   ) async {
     await pumpShell(tester, Routes.home);
 
-    final l10n = _l10n(tester);
-    expect(_paintedOrder(tester, l10n), [
-      l10n.tabHome,
-      l10n.tabHistory,
-      l10n.tabCosts,
-      l10n.tabSettings,
-    ]);
+    final l10n = l10nOf(tester);
+    expect(_paintedOrder(tester, l10n), tabLabels(l10n));
     // The + sits between History and Costs, in the centre slot.
     final fab = _centreX(tester, find.byType(CalmTabFab));
     expect(fab, greaterThan(_centreX(tester, find.text(l10n.tabHistory))));
@@ -179,7 +170,7 @@ void main() {
     // rather than in the bar drifts when the slots are unequal.
     await pumpShell(tester, Routes.home, locale: const Locale('fa'));
 
-    final l10n = _l10n(tester);
+    final l10n = l10nOf(tester);
     expect(_paintedOrder(tester, l10n), [
       l10n.tabSettings,
       l10n.tabCosts,
@@ -198,13 +189,8 @@ void main() {
     // No icon-only mode exists to fall into.
     await pumpShell(tester, Routes.home);
 
-    final l10n = _l10n(tester);
-    for (final label in [
-      l10n.tabHome,
-      l10n.tabHistory,
-      l10n.tabCosts,
-      l10n.tabSettings,
-    ]) {
+    final l10n = l10nOf(tester);
+    for (final label in tabLabels(l10n)) {
       expect(find.text(label), findsOneWidget, reason: label);
     }
   });
@@ -229,13 +215,8 @@ void main() {
         ),
       );
 
-      final l10n = _l10n(tester);
-      for (final label in [
-        l10n.tabHome,
-        l10n.tabHistory,
-        l10n.tabCosts,
-        l10n.tabSettings,
-      ]) {
+      final l10n = l10nOf(tester);
+      for (final label in tabLabels(l10n)) {
         final text = tester.widget<Text>(find.text(label));
         expect(
           text.overflow,
@@ -258,7 +239,7 @@ void main() {
     // and nothing to a user who cannot separate the two hues.
     await pumpShell(tester, Routes.home);
 
-    final l10n = _l10n(tester);
+    final l10n = l10nOf(tester);
     final active = tester.widget<Text>(find.text(l10n.tabHome)).style!;
     final idle = tester.widget<Text>(find.text(l10n.tabCosts)).style!;
 
@@ -282,7 +263,7 @@ void main() {
     // dead.
     await pumpShell(tester, Routes.home);
 
-    final l10n = _l10n(tester);
+    final l10n = l10nOf(tester);
     final circle = tester.getRect(
       find.descendant(
         of: find.byType(CalmTabFab),
@@ -337,7 +318,7 @@ void main() {
       await tester.tapAt(Offset(target.center.dx, dy));
       await tester.pumpAndSettle();
       expect(
-        GoRouter.of(tester.element(find.byType(AppShell))).state.uri.toString(),
+        locationOf(tester),
         Routes.settings,
         reason: 'the Settings tab is dead at y=$dy',
       );

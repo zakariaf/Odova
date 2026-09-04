@@ -1,27 +1,34 @@
-/// The three global dialogs, composed inline for a capture.
+/// The three global dialogs, over their scrim, for a capture.
 ///
-/// **Not opened through `showDiscardDialog` and friends.** A route-based dialog
-/// paints into an `Overlay` that the `RepaintBoundary` above `home:` does not
-/// contain, so the capture would be the backdrop with no dialog on it — and
-/// every mechanical check would pass. Composing the same widget tree the
-/// builders compose keeps the capture honest about what is being shot.
+/// **The SHIPPED widget, not a copy of it.** These compose
+/// `DiscardDialogBody`, `ConfirmDeleteDialogBody` and `SnoozeDialogBody` — the
+/// same widgets `showDiscardDialog` and friends put on a route. An earlier
+/// version hand-rebuilt each dialog inline, and three independent review passes
+/// found the same hazard: a parity gate that photographs the test's own
+/// composition stays green while the real dialog reorders its actions, changes
+/// a variant or drops the safe alternative, which is the one thing the gate
+/// exists to catch.
 ///
-/// The strings come from the ARB through `AppLocalizations`, so a capture and
-/// the app cannot drift; the DATA is transcribed from the artboards, because
-/// the picture is of one particular vehicle on one particular day. The snooze
-/// dates are transcribed rather than computed for the same reason — the
-/// dialog's own arithmetic is tested in
-/// `test/ui/dialogs/snooze_dialog_test.dart`, and a capture that recomputed it
-/// would be asserting it twice while proving nothing about the picture.
+/// They are composed rather than OPENED because a route-based dialog paints
+/// into an `Overlay` the capture's `RepaintBoundary` does not contain — the
+/// capture would be the backdrop with no dialog on it, and every mechanical
+/// check would pass.
+///
+/// The DATA is transcribed from the artboards, because the picture is of one
+/// particular vehicle on one particular day. The snooze dates are transcribed
+/// rather than computed for the same reason: the dialog's own arithmetic is
+/// tested in `test/ui/dialogs/snooze_dialog_test.dart`, and recomputing it here
+/// would assert it twice while proving nothing about the picture.
 library;
 
 import 'package:flutter/material.dart';
-import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
-import 'package:odova/ui/calm/calm_button.dart';
-import 'package:odova/ui/calm/calm_dialog.dart';
-import 'package:odova/ui/calm/calm_list_row.dart';
-import 'package:odova/ui/calm/calm_row_group.dart';
+import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
+import 'package:odova/ui/dialogs/discard_dialog.dart';
+import 'package:odova/ui/dialogs/snooze_dialog.dart';
+
+import 'dialog_backdrop.dart';
 
 /// The scrim the three dialogs sit on.
 ///
@@ -43,34 +50,15 @@ class DiscardOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final rtl = Directionality.of(context) == TextDirection.rtl;
-
-    final subject = rtl ? 'روغن و فیلتر' : 'Oil and filter';
-    final summary = rtl
-        ? 'بازه ۱۵٬۰۰۰ کیلومتری و مبنای جدید'
-        : 'a 15,000 km interval and a new baseline';
+    final copy = ParityCopy.of(context);
 
     return Stack(
       children: [
         const _Scrim(),
-        CalmDialog.actions(
-          icon: Icons.edit_note_outlined,
-          title: l10n.discardTitle,
-          body: l10n.discardBody(subject, summary),
-          actions: [
-            CalmButton(
-              label: l10n.discardKeepEditing,
-              onPressed: _inert,
-              block: true,
-            ),
-            CalmButton(
-              label: l10n.discardDiscard,
-              onPressed: _inert,
-              variant: CalmButtonVariant.danger,
-              block: true,
-            ),
-          ],
+        DiscardDialogBody(
+          subject: copy.oil,
+          summary: copy.discardSummary,
+          onChoice: (_) {},
         ),
       ],
     );
@@ -80,67 +68,31 @@ class DiscardOverlay extends StatelessWidget {
 /// `dialog.confirmDelete`, as the artboard draws it.
 ///
 /// The artboard shows Delete DISABLED with the field empty, which is the state
-/// this captures. Calm requires a disabled control to say why, so the built
-/// screen carries one line the reference does not — see
-/// `lib/ui/dialogs/confirm_delete_dialog.dart`.
+/// an untouched `ConfirmDeleteDialogBody` produces on its own — the capture
+/// does not have to arrange it.
 class ConfirmDeleteOverlay extends StatelessWidget {
   /// Creates the overlay.
   const ConfirmDeleteOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final rtl = Directionality.of(context) == TextDirection.rtl;
-    final subject = rtl ? 'گلف' : 'The Golf';
-    String n(String latin, String persian) => rtl ? persian : latin;
+    final copy = ParityCopy.of(context);
 
     return Stack(
       children: [
         const _Scrim(),
-        CalmDialog.actions(
-          icon: Icons.delete_outline,
-          danger: true,
-          title: l10n.confirmDeleteTitle(subject, 412, n('412', '۴۱۲')),
-          body: l10n.confirmDeleteBody(
-            96,
-            n('96', '۹۶'),
-            14,
-            n('14', '۱۴'),
-            22,
-            n('22', '۲۲'),
-            8,
-            n('8', '۸'),
-            16,
-            n('16', '۱۶'),
+        ConfirmDeleteDialogBody(
+          subject: copy.vehicle,
+          counts: const (
+            fillUps: 96,
+            services: 14,
+            costs: 22,
+            trips: 8,
+            reminders: 16,
           ),
-          actions: [
-            CalmButton(
-              label: n(
-                'Keep it — mark it sold',
-                'نگهش دار — فروخته‌شده علامت بزن',
-              ),
-              onPressed: _inert,
-              variant: CalmButtonVariant.secondary,
-              block: true,
-            ),
-            // Disabled, which is the state the artboard draws: the field is
-            // empty, so the name has not been typed.
-            CalmButton(
-              label: l10n.confirmDeleteDelete,
-              onPressed: null,
-              variant: CalmButtonVariant.dangerSolid,
-              block: true,
-            ),
-            CalmButtonExplain(
-              reason: l10n.confirmDeleteTypeToConfirm(subject),
-            ),
-            CalmButton(
-              label: l10n.confirmDeleteCancel,
-              onPressed: _inert,
-              variant: CalmButtonVariant.quiet,
-              block: true,
-            ),
-          ],
+          formatCount: copy.number,
+          safeAlternativeLabel: copy.keepItMarkSold,
+          onChoice: (_) {},
         ),
       ],
     );
@@ -154,60 +106,24 @@ class SnoozeOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final rtl = Directionality.of(context) == TextDirection.rtl;
-    String n(String latin, String persian) => rtl ? persian : latin;
+    final copy = ParityCopy.of(context);
 
     return Stack(
       children: [
         const _Scrim(),
-        CalmDialog.actions(
-          icon: Icons.notifications_paused_outlined,
-          title: l10n.snoozeTitle(n('Oil and filter', 'روغن و فیلتر')),
-          body: l10n.snoozeBody,
-          actions: [
-            CalmRowGroup(
-              flat: true,
-              rows: [
-                _row(
-                  l10n.snoozeThreeDays(n('3', '۳')),
-                  l10n.snoozeUntil(n('6 Sep', '۱۵ شهریور')),
-                ),
-                _row(
-                  l10n.snoozeOneWeek(n('1', '۱')),
-                  l10n.snoozeUntil(n('10 Sep', '۱۹ شهریور')),
-                ),
-                _row(
-                  l10n.snoozeOneMonth(n('1', '۱')),
-                  l10n.snoozeUntil(n('3 Oct', '۱۱ مهر')),
-                ),
-                _row(
-                  l10n.snoozeDistance(n('500 km', '۵۰۰ کیلومتر')),
-                  l10n.snoozeAtOdometer(
-                    n('187,912 km', '۱۸۷٬۹۱۲ کیلومتر'),
-                  ),
-                ),
-              ],
-            ),
-            CalmButton(
-              label: l10n.snoozeCancel,
-              onPressed: _inert,
-              variant: CalmButtonVariant.quiet,
-              block: true,
-            ),
-          ],
+        SnoozeDialogBody(
+          itemLabel: copy.oil,
+          today: _artboardToday,
+          hasDistanceInterval: true,
+          currentOdometerMetres: 187412000,
+          formatDate: copy.artboardDate,
+          formatDistance: copy.artboardDistance,
+          onChoice: (_) {},
         ),
       ],
     );
   }
-
-  Widget _row(String title, String value) => CalmListRow(
-    title: title,
-    value: value,
-    size: CalmRowSize.compact,
-    onTap: _inert,
-  );
 }
 
-/// A captured dialog does nothing when tapped: it is a picture.
-void _inert() {}
+/// 3 September 2026 — the date every artboard in the set is drawn on.
+final CivilDate _artboardToday = CivilDate.tryParse('2026-09-03')!;

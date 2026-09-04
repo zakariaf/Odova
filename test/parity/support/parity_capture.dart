@@ -60,42 +60,16 @@ const List<ParityCase> kParityCases = [
 
 /// Registers the fonts a capture needs, once per file.
 ///
-/// **Three of them, and each is load-bearing.**
-///
-/// `Vazirmatn` is the app's own bundled face and what the RTL captures render
-/// in. `MaterialIcons` is the SDK's, and without it every `Icon` on the screen
-/// draws a missing-glyph box — invisible in an overflow matrix, where a box is
-/// the same width as a glyph, and very visible here, where a screen with eleven
-/// small squares on it has a different band profile from the screen that was
-/// designed.
-///
-/// `Roboto` is the SDK's too, and this is where a parity capture differs from a
-/// golden. `loadAppFonts` deliberately registers VAZIRMATN under the name
-/// Roboto: the app bundles no Latin face — SPEC.md §5 puts `en`, `de` and `fr`
-/// on the platform font — and a golden needs a deterministic one. But Vazirmatn
-/// renders Latin roughly twice as wide as the platform faces do: "in about
-/// 1,800 km" measured 254 of a row's 306 available points and squeezed its
-/// title to ZERO width, which the framework reported as a `CalmListRow`
-/// overflow. On a real phone that row fits. A capture in a face nobody ships
-/// has the wrong band profile in every row of every screen, so the parity lane
-/// loads the real Roboto and the golden lane keeps its deterministic
-/// substitute.
+/// `loadAppFonts` now loads all three — the SDK's Roboto for Latin, the
+/// bundled Vazirmatn for Arabic script, and MaterialIcons — so the golden lane
+/// and the parity lane measure the same faces. This wrapper adds the one thing
+/// a capture cannot tolerate that a golden can: a MISSING font is fatal here.
+/// A capture shot without the real Latin face or the icon font looks plausible
+/// and compares against the reference as if it were the screen.
 Future<void> loadParityFonts() async {
-  // ORDER MATTERS, and this is the whole trick. Calm's Latin styles set no
-  // `fontFamily` — SPEC.md §5 puts `en`, `de` and `fr` on the platform font —
-  // so in a test they resolve through the FALLBACK, which is the first family
-  // registered in the process. Registering Vazirmatn first (what `loadAppFonts`
-  // does, deliberately, for deterministic goldens) therefore renders every
-  // Latin string in a Persian face about twice as wide as the platform's, and
-  // re-registering Roboto afterwards changes nothing at all.
+  await loadAppFonts();
   final latin = await loadSdkFont('Roboto', 'Roboto-Regular.ttf');
-  final icons = await loadSdkFont(
-    'MaterialIcons',
-    'MaterialIcons-Regular.otf',
-  );
-  await loadVazirmatn();
-  // Loud rather than silent. A capture shot without these looks plausible and
-  // compares against the reference as if it were the screen.
+  final icons = await loadSdkFont('MaterialIcons', 'MaterialIcons-Regular.otf');
   if (!latin || !icons) {
     throw StateError(
       'The Flutter SDK material_fonts cache is missing. Run '
@@ -163,12 +137,17 @@ Future<void> captureParity(
         // The script variant follows the resolved locale, exactly as
         // `OdovaApp` does it — an Arabic-script capture with Latin line
         // heights has clipped descenders the band check cannot see and a human
-        // can.
+        // can. Read from a table rather than built here, also exactly as
+        // `OdovaApp` does it: `builder` runs on every rebuild below the app,
+        // and a `ThemeData` is a hand-authored `ColorScheme` plus five
+        // `ThemeExtension`s. EPIC-09 onwards copies this harness for 28 screens
+        // × 4 combinations.
         builder: (context, inner) => Theme(
-          data: buildCalmTheme(
-            Theme.of(context).brightness,
-            type: CalmType.forLocale(Localizations.localeOf(context)),
-          ),
+          data:
+              _themes[(
+                Theme.of(context).brightness,
+                CalmType.forLocale(Localizations.localeOf(context)),
+              )]!,
           child: inner!,
         ),
         home: RepaintBoundary(
@@ -197,6 +176,23 @@ Future<void> captureParity(
     await file.writeAsBytes(bytes);
   });
 }
+
+/// The four themes, built once per test isolate.
+///
+/// Two brightnesses × two script variants, the same table `OdovaApp` keeps and
+/// for the same reason.
+final _themes = <(Brightness, CalmType), ThemeData>{
+  (Brightness.light, CalmType.latin): buildCalmTheme(Brightness.light),
+  (Brightness.dark, CalmType.latin): buildCalmTheme(Brightness.dark),
+  (Brightness.light, CalmType.arabicScript): buildCalmTheme(
+    Brightness.light,
+    type: CalmType.arabicScript,
+  ),
+  (Brightness.dark, CalmType.arabicScript): buildCalmTheme(
+    Brightness.dark,
+    type: CalmType.arabicScript,
+  ),
+};
 
 /// The boundary the capture is taken from.
 const _boundaryKey = ValueKey<String>('parity-capture');

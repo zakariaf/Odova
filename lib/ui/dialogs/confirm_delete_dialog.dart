@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_dialog.dart';
 import 'package:odova/ui/calm/calm_field.dart';
@@ -73,25 +74,37 @@ Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
 }) async {
   final choice = await CalmDialog.show<ConfirmDeleteChoice>(
     context,
-    builder: (context) => _ConfirmDeleteBody(
+    builder: (context) => ConfirmDeleteDialogBody(
       subject: subject,
       counts: counts,
       formatCount: formatCount,
       safeAlternativeLabel: safeAlternativeLabel,
+      onChoice: (choice) => Navigator.of(context).pop(choice),
     ),
   );
   return choice ?? ConfirmDeleteChoice.cancel;
 }
 
-class _ConfirmDeleteBody extends StatefulWidget {
-  const _ConfirmDeleteBody({
+/// The dialog itself, without the route.
+///
+/// Public so `test/parity/` can capture the SHIPPED widget rather than a
+/// hand-built copy of it — a gate that photographs the test's own composition
+/// stays green while the real dialog reorders its actions.
+class ConfirmDeleteDialogBody extends StatefulWidget {
+  /// Creates the body.
+  const ConfirmDeleteDialogBody({
     required this.subject,
     required this.counts,
     required this.formatCount,
-    required this.safeAlternativeLabel,
+    required this.onChoice,
+    super.key,
+    this.safeAlternativeLabel,
   });
 
+  /// What is being deleted.
   final String subject;
+
+  /// What goes with it.
   final DeleteCounts counts;
 
   /// Formats a count in the active numbering system.
@@ -102,14 +115,27 @@ class _ConfirmDeleteBody extends StatefulWidget {
   /// was shaped.
   final String Function(int) formatCount;
 
+  /// The safe alternative's label, or null when the caller has none.
   final String? safeAlternativeLabel;
 
+  /// Reports the decision. `showConfirmDeleteDialog` pops the route with it.
+  final ValueChanged<ConfirmDeleteChoice> onChoice;
+
   @override
-  State<_ConfirmDeleteBody> createState() => _ConfirmDeleteBodyState();
+  State<ConfirmDeleteDialogBody> createState() =>
+      _ConfirmDeleteDialogBodyState();
 }
 
-class _ConfirmDeleteBodyState extends State<_ConfirmDeleteBody> {
+class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
   final _typed = TextEditingController();
+
+  /// The subject, folded and isolated once.
+  ///
+  /// Neither can change for the life of the dialog, and `onChanged` rebuilds
+  /// the body on every keystroke — so without these, each keystroke folded the
+  /// subject twice and built three bidi-wrapped copies of it.
+  late final String _foldedSubject = foldDigitsToAscii(widget.subject.trim());
+  late final String _isolatedSubject = isolate(widget.subject);
 
   /// Whether the typed confirmation is required at all.
   ///
@@ -128,9 +154,7 @@ class _ConfirmDeleteBodyState extends State<_ConfirmDeleteBody> {
   /// Digits are folded to ASCII on both sides before comparing, so a
   /// Persian-keyboard user typing a name that contains a number is not locked
   /// out of deleting their own car by a numbering system they did not choose.
-  bool get _matches =>
-      foldDigitsToAscii(_typed.text.trim()) ==
-      foldDigitsToAscii(widget.subject.trim());
+  bool get _matches => foldDigitsToAscii(_typed.text.trim()) == _foldedSubject;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +162,9 @@ class _ConfirmDeleteBodyState extends State<_ConfirmDeleteBody> {
     final counts = widget.counts;
     final format = widget.formatCount;
     final alternative = widget.safeAlternativeLabel;
+    // Once per build: `_matches` folds a string, and the button and its
+    // explanation both ask.
+    final locked = _needsTyping && !_matches;
 
     return CalmDialog.actions(
       icon: Icons.delete_outline,
@@ -148,7 +175,7 @@ class _ConfirmDeleteBodyState extends State<_ConfirmDeleteBody> {
       // first because it is the one line that mixes a user's own words with
       // ours.
       title: l10n.confirmDeleteTitle(
-        isolate(widget.subject),
+        _isolatedSubject,
         counts.total,
         format(counts.total),
       ),
@@ -171,17 +198,25 @@ class _ConfirmDeleteBodyState extends State<_ConfirmDeleteBody> {
         if (alternative != null)
           CalmButton(
             label: alternative,
-            onPressed: () => Navigator.of(
-              context,
-            ).pop(ConfirmDeleteChoice.safeAlternative),
+            onPressed: () =>
+                widget.onChoice(ConfirmDeleteChoice.safeAlternative),
             variant: CalmButtonVariant.secondary,
             block: true,
           ),
         if (_needsTyping)
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            // `s1`, not a bare 4. `CalmDialog` puts a uniform `s3` before every
+            // element of `actions`, and this caller passes a non-action through
+            // that slot — the field is content, not a button. The nudge closes
+            // the gap the uniform rule leaves; the RIGHT fix is a `content`
+            // slot on `CalmDialog` with its own spacing, recorded for the
+            // design pass rather than done here, where it would be a
+            // design-system change inside a dialog task.
+            padding: EdgeInsetsDirectional.only(
+              bottom: CalmSpace.of(context).s1,
+            ),
             child: CalmField(
-              label: l10n.confirmDeleteTypeToConfirm(isolate(widget.subject)),
+              label: l10n.confirmDeleteTypeToConfirm(_isolatedSubject),
               controller: _typed,
               placeholder: widget.subject,
               onChanged: (_) => setState(() {}),
@@ -193,9 +228,9 @@ class _ConfirmDeleteBodyState extends State<_ConfirmDeleteBody> {
           // with the field empty. This is the one place in the app where a
           // disabled action is right: SPEC.md §10's "Save is never disabled" is
           // about a form the user is filling in, and this is a lock.
-          onPressed: _needsTyping && !_matches
+          onPressed: locked
               ? null
-              : () => Navigator.of(context).pop(ConfirmDeleteChoice.delete),
+              : () => widget.onChoice(ConfirmDeleteChoice.delete),
           variant: CalmButtonVariant.dangerSolid,
           block: true,
         ),
@@ -205,12 +240,12 @@ class _ConfirmDeleteBodyState extends State<_ConfirmDeleteBody> {
         // directly above it, which is one sentence twice where the reference
         // draws it once; recorded for EPIC-17's design pass rather than
         // resolved by weakening an assertion that catches a real class of bug.
-        if (_needsTyping && !_matches)
+        if (locked)
           CalmButtonExplain(
-            reason: l10n.confirmDeleteTypeToConfirm(isolate(widget.subject)),
+            reason: l10n.confirmDeleteTypeToConfirm(_isolatedSubject),
           ),
         CalmButton(
-          label: l10n.confirmDeleteCancel,
+          label: l10n.commonCancel,
           onPressed: () =>
               Navigator.of(context).pop(ConfirmDeleteChoice.cancel),
           variant: CalmButtonVariant.quiet,

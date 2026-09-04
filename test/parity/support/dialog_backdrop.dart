@@ -18,6 +18,8 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:odova/app/routing/app_shell.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
@@ -36,12 +38,56 @@ import 'package:odova/ui/calm/calm_status_dot.dart';
 /// attributes rather than pulled from the ARB files, and deliberately so: this
 /// fixture must reproduce the REFERENCE, and a string that has since been
 /// reworded in the ARB would silently change the band profile.
-class _Copy {
-  const _Copy({required this.rtl});
+class ParityCopy {
+  /// Creates the transcription for a direction.
+  const ParityCopy({required this.rtl});
 
+  /// Reads the direction from [context].
+  ///
+  /// One authority for both parity files: the backdrop and the dialog on top of
+  /// it must name the same car, and two transcriptions would let them disagree
+  /// without anything failing.
+  factory ParityCopy.of(BuildContext context) =>
+      ParityCopy(rtl: Directionality.of(context) == TextDirection.rtl);
+
+  /// Whether the capture is right-to-left.
   final bool rtl;
 
   String _t(String latin, String persian) => rtl ? persian : latin;
+
+  /// A number, in the artboard's numerals.
+  ///
+  /// A lookup rather than a formatter: these are the exact figures the pictures
+  /// carry, and EPIC-04's formatters have their own tests.
+  String number(int n) =>
+      rtl ? '$n'.split('').map((d) => '۰۱۲۳۴۵۶۷۸۹'[int.parse(d)]).join() : '$n';
+
+  /// A snooze date, exactly as the artboard writes it.
+  String artboardDate(CivilDate date) => switch ((date.month, date.day)) {
+    (9, 6) => _t('6 Sep', '۱۵ شهریور'),
+    (9, 10) => _t('10 Sep', '۱۹ شهریور'),
+    (10, 3) => _t('3 Oct', '۱۱ مهر'),
+    _ => _t('${date.day}/${date.month}', '${date.day}/${date.month}'),
+  };
+
+  /// A distance, exactly as the artboard writes it.
+  String artboardDistance(int metres) => switch (metres) {
+    500000 => _t('500 km', '۵۰۰ کیلومتر'),
+    187912000 => _t('187,912 km', '۱۸۷٬۹۱۲ کیلومتر'),
+    _ => _t('${metres ~/ 1000} km', '${metres ~/ 1000} کیلومتر'),
+  };
+
+  /// The discard dialog's summary half.
+  String get discardSummary => _t(
+    'a 15,000 km interval and a new baseline',
+    'بازه ۱۵٬۰۰۰ کیلومتری و مبنای جدید',
+  );
+
+  /// The confirm-delete dialog's safe alternative.
+  String get keepItMarkSold => _t(
+    'Keep it — mark it sold',
+    'نگهش دار — فروخته‌شده علامت بزن',
+  );
 
   String get vehicle => _t('The Golf', 'گلف');
   String get overdueBadge => _t('1 overdue', '۱ عقب‌افتاده');
@@ -114,7 +160,7 @@ class HomeBackdrop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rtl = Directionality.of(context) == TextDirection.rtl;
-    final copy = _Copy(rtl: rtl);
+    final copy = ParityCopy(rtl: rtl);
 
     // `Material`, because a screen has one and this stand-in replaced the
     // `CalmScaffold` that used to provide it. Without one, every `Text` here
@@ -147,11 +193,16 @@ class HomeBackdrop extends StatelessWidget {
               onAdd: _inert,
               addLabel: copy.log,
               labels: [copy.home, copy.history, copy.costs, copy.settings],
+              // `CalmTabIcons`, not a second list. `app_shell.dart` records
+              // that the Costs glyph is expected to change in EPIC-09; a copy
+              // here would keep the old one and shift the parity result for a
+              // reason unrelated to the dialog — the one signal this fixture
+              // exists to keep meaningful.
               icons: const [
-                Icons.home_outlined,
-                Icons.schedule_outlined,
-                Icons.payments_outlined,
-                Icons.tune,
+                CalmTabIcons.home,
+                CalmTabIcons.history,
+                CalmTabIcons.costs,
+                CalmTabIcons.settings,
               ],
             ),
           ],
@@ -181,22 +232,31 @@ class HomeBackdrop extends StatelessWidget {
 class _Body extends StatelessWidget {
   const _Body({required this.copy});
 
-  final _Copy copy;
+  final ParityCopy copy;
 
   @override
   Widget build(BuildContext context) {
     final space = CalmSpace.of(context);
 
-    return ListView.separated(
+    // Four fixed children, so a plain `ListView` rather than `.separated` with
+    // a builder: the builder form called `_rows(context)` once for `itemCount`
+    // and again for every index — five constructions of the same list, fifteen
+    // status-style resolutions where three would do, and all of it re-run on
+    // every relayout.
+    final rows = _rows(context);
+    return ListView(
       padding: EdgeInsetsDirectional.fromSTEB(
         space.screenPad,
         space.s2,
         space.screenPad,
         space.s3,
       ),
-      itemCount: _rows(context).length,
-      separatorBuilder: (_, _) => SizedBox(height: space.s3),
-      itemBuilder: (_, index) => _rows(context)[index],
+      children: [
+        for (final (index, row) in rows.indexed) ...[
+          if (index > 0) SizedBox(height: space.s3),
+          row,
+        ],
+      ],
     );
   }
 
@@ -327,7 +387,7 @@ class VehiclesBackdrop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rtl = Directionality.of(context) == TextDirection.rtl;
-    final copy = _Copy(rtl: rtl);
+    final copy = ParityCopy(rtl: rtl);
     final colors = CalmColors.of(context);
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);

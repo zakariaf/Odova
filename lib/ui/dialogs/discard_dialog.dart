@@ -46,33 +46,12 @@ Future<DiscardChoice> showDiscardDialog(
   required String subject,
   required String summary,
 }) async {
-  final l10n = AppLocalizations.of(context);
-
   final choice = await CalmDialog.show<DiscardChoice>(
     context,
-    builder: (context) => CalmDialog.actions(
-      icon: Icons.edit_note_outlined,
-      title: l10n.discardTitle,
-      body: l10n.discardBody(subject, summary),
-      // Safe first: the reference orders them this way, and §7's "no dialog is
-      // ever dismissed into a destructive outcome" points the same way.
-      actions: [
-        CalmButton(
-          label: l10n.discardKeepEditing,
-          onPressed: () => Navigator.of(context).pop(DiscardChoice.keep),
-          block: true,
-        ),
-        CalmButton(
-          label: l10n.discardDiscard,
-          onPressed: () => Navigator.of(context).pop(DiscardChoice.discard),
-          // `danger`, not `dangerSolid`. The reference draws `.btn--danger`:
-          // the destructive action stated SOFTLY, on a tint, because it is not
-          // the recommended one here — the safe action above it is, and it is
-          // the solid one.
-          variant: CalmButtonVariant.danger,
-          block: true,
-        ),
-      ],
+    builder: (context) => DiscardDialogBody(
+      subject: subject,
+      summary: summary,
+      onChoice: (choice) => Navigator.of(context).pop(choice),
     ),
   );
 
@@ -81,4 +60,60 @@ Future<DiscardChoice> showDiscardDialog(
   // the enum's first member happens to be is how a dialog gets dismissed into
   // a destructive outcome by accident.
   return choice ?? DiscardChoice.keep;
+}
+
+/// The dialog itself, without the route.
+///
+/// Public so `test/parity/` can capture the SHIPPED widget rather than a
+/// hand-built copy of it. Three review passes independently found the same
+/// hazard: a parity gate that photographs the test's own composition stays
+/// green while the real dialog reorders its actions or changes a variant, which
+/// is the one thing the gate exists to catch.
+class DiscardDialogBody extends StatelessWidget {
+  /// Creates the body.
+  const DiscardDialogBody({
+    required this.subject,
+    required this.summary,
+    required this.onChoice,
+    super.key,
+  });
+
+  /// What is being edited.
+  final String subject;
+
+  /// The edits themselves.
+  final String summary;
+
+  /// Reports the decision. `showDiscardDialog` pops the route with it.
+  final ValueChanged<DiscardChoice> onChoice;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return CalmDialog.actions(
+      icon: Icons.edit_note_outlined,
+      title: l10n.discardTitle,
+      body: l10n.discardBody(subject, summary),
+      // Safe first: the reference orders them this way, and §7's "no dialog is
+      // ever dismissed into a destructive outcome" points the same way.
+      actions: [
+        CalmButton(
+          label: l10n.discardKeepEditing,
+          onPressed: () => onChoice(DiscardChoice.keep),
+          block: true,
+        ),
+        CalmButton(
+          label: l10n.discardDiscard,
+          onPressed: () => onChoice(DiscardChoice.discard),
+          // `danger`, not `dangerSolid`. The reference draws `.btn--danger`:
+          // the destructive action stated SOFTLY, on a tint, because it is not
+          // the recommended one here — the safe action above it is, and it is
+          // the solid one.
+          variant: CalmButtonVariant.danger,
+          block: true,
+        ),
+      ],
+    );
+  }
 }

@@ -132,10 +132,8 @@ void main() {
     );
   });
 
-  testWidgets('tapping the scrim dismisses a sheet and a dialog', (
-    tester,
-  ) async {
-    for (final kind in [PageKind.sheet, PageKind.dialog]) {
+  testWidgets('tapping the scrim dismisses a sheet', (tester) async {
+    for (final kind in [PageKind.sheet]) {
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpWidget(
         _TransitionProbe(kind: kind, disableAnimations: true),
@@ -152,6 +150,20 @@ void main() {
 
       expect(find.text('arrived'), findsNothing, reason: kind.name);
     }
+  });
+
+  test('there is no PageKind.dialog', () {
+    // SPEC.md §7 makes the three global dialogs belong to no feature and gives
+    // them no URL — `kScreenRoutes` puts all three on the `ScreenDialog` side,
+    // because a dialog returns a DECISION and a URL cannot carry one back. So
+    // no route ever presents one, and a `PageKind.dialog` would be a second
+    // copy of the scrim, the duration and the transition `CalmDialog.show`
+    // already owns, with no caller to keep the two honest.
+    expect(PageKind.values.map((k) => k.name), [
+      'push',
+      'modal',
+      'sheet',
+    ]);
   });
 
   testWidgets('an opaque kind has no scrim to tap through', (tester) async {
@@ -265,18 +277,6 @@ void main() {
 
       expect(probe.discarded, 1);
       expect(probe.popped, isTrue);
-    });
-
-    test('lib/features/ contains no PopScope', () {
-      // The guard owns it. A second `PopScope` in a feature is a second answer
-      // to "what happens on back", and the two will disagree.
-      final offenders = <String>[];
-      for (final file in dartFilesUnder('lib/features')) {
-        if (RegExp(r'\bPopScope\b').hasMatch(sourceWithoutLineComments(file))) {
-          offenders.add(file.path);
-        }
-      }
-      expect(offenders, isEmpty);
     });
 
     test('DirtyModalGuard is the only PopScope outside the shell', () {

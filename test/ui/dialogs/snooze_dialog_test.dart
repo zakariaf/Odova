@@ -244,7 +244,6 @@ void main() {
         'snoozeDistance',
         'snoozeUntil',
         'snoozeAtOdometer',
-        'snoozeCancel',
       ]),
       isEmpty,
     );

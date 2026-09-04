@@ -68,33 +68,56 @@ Future<SnoozeChoice?> showSnoozeDialog(
 }) {
   return CalmDialog.show<SnoozeChoice>(
     context,
-    builder: (context) => _SnoozeBody(
+    builder: (context) => SnoozeDialogBody(
       itemLabel: itemLabel,
       today: today,
       hasDistanceInterval: hasDistanceInterval,
       formatDate: formatDate,
       formatDistance: formatDistance,
       currentOdometerMetres: currentOdometerMetres,
+      onChoice: (choice) => Navigator.of(context).pop(choice),
     ),
   );
 }
 
-class _SnoozeBody extends StatelessWidget {
-  const _SnoozeBody({
+/// The dialog itself, without the route.
+///
+/// Public so `test/parity/` can capture the SHIPPED widget rather than a
+/// hand-built copy of it — a gate that photographs the test's own composition
+/// stays green while the real dialog reorders its actions.
+class SnoozeDialogBody extends StatelessWidget {
+  /// Creates the body.
+  const SnoozeDialogBody({
     required this.itemLabel,
     required this.today,
     required this.hasDistanceInterval,
     required this.formatDate,
     required this.formatDistance,
-    required this.currentOdometerMetres,
+    required this.onChoice,
+    super.key,
+    this.currentOdometerMetres,
   });
 
+  /// The item being quieted.
   final String itemLabel;
+
+  /// The date to reckon from.
   final CivilDate today;
+
+  /// Whether the item has a distance interval at all.
   final bool hasDistanceInterval;
+
+  /// Formats a date in the active calendar and numerals.
   final String Function(CivilDate) formatDate;
+
+  /// Formats a distance in the user's unit.
   final String Function(int metres) formatDistance;
+
+  /// The last entered reading, or null.
   final int? currentOdometerMetres;
+
+  /// Reports the decision, or null for Cancel. `showSnoozeDialog` pops with it.
+  final ValueChanged<SnoozeChoice?> onChoice;
 
   /// Whether the distance row can be offered at all.
   ///
@@ -155,8 +178,8 @@ class _SnoozeBody extends StatelessWidget {
           ],
         ),
         CalmButton(
-          label: l10n.snoozeCancel,
-          onPressed: () => Navigator.of(context).pop(),
+          label: l10n.commonCancel,
+          onPressed: () => onChoice(null),
           variant: CalmButtonVariant.quiet,
           block: true,
         ),
@@ -173,6 +196,6 @@ class _SnoozeBody extends StatelessWidget {
     title: title,
     value: value,
     size: CalmRowSize.compact,
-    onTap: () => Navigator.of(context).pop(choice),
+    onTap: () => onChoice(choice),
   );
 }

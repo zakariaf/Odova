@@ -11,8 +11,34 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
-import 'package:odova/ui/calm/calm_dialog.dart';
-import 'package:odova/ui/calm/calm_overlay_transition.dart';
+
+/// The two slides, built once per motion rather than once per frame.
+///
+/// `transitionsBuilder` runs every frame of every push. Building the `Tween`
+/// and its `CurveTween` there hands `SlideTransition` a DIFFERENT `Animation`
+/// object each time, so it detaches and reattaches its listener per frame on
+/// top of the allocations — on the one code path where jank is visible.
+///
+/// Keyed by the curve rather than held as a top-level constant, because the
+/// curve is a theme value and a second theme could carry a different one.
+final _horizontal = <Curve, Animatable<Offset>>{};
+final _vertical = <Curve, Animatable<Offset>>{};
+
+Animatable<Offset> _fromEnd(CalmMotion motion) => _horizontal.putIfAbsent(
+  motion.easeStandard,
+  () => Tween(
+    begin: const Offset(1, 0),
+    end: Offset.zero,
+  ).chain(CurveTween(curve: motion.easeStandard)),
+);
+
+Animatable<Offset> _fromBottom(CalmMotion motion) => _vertical.putIfAbsent(
+  motion.easeStandard,
+  () => Tween(
+    begin: const Offset(0, 1),
+    end: Offset.zero,
+  ).chain(CurveTween(curve: motion.easeStandard)),
+);
 
 /// How a destination arrives and how it leaves.
 enum PageKind {
@@ -32,21 +58,24 @@ enum PageKind {
   modal,
 
   /// A partial-height surface over the screen it came from.
-  sheet,
+  sheet;
 
-  /// A blocking decision.
-  ///
-  /// The barrier dismisses, and the caller maps the null result to its own
-  /// NEGATIVE outcome explicitly. SPEC.md §7: no dialog is ever dismissed into
-  /// a destructive outcome, and a null falling through to a default is exactly
-  /// how one would be.
-  dialog;
+  // There is deliberately no `dialog` member.
+  //
+  // SPEC.md §7 makes the three global dialogs belong to no feature and gives
+  // them no URL — a dialog returns a DECISION and a URL cannot carry one back
+  // (`kScreenRoutes` puts all three on the `ScreenDialog` side). So no route
+  // ever presents one, and a `PageKind.dialog` would be a second copy of the
+  // scrim, the duration and the `CalmOverlayTransition` that `CalmDialog.show`
+  // already owns — two definitions of one thing, with no caller to keep them
+  // honest.
 
   /// Whether the surface behind stays visible.
-  bool get _translucent => this == sheet || this == dialog;
+  bool get _translucent => this == sheet;
 
   /// Builds the page.
   Page<T> page<T>(BuildContext context, GoRouterState state, Widget body) {
+    final motion = CalmMotion.of(context);
     return CustomTransitionPage<T>(
       key: state.pageKey,
       name: state.name ?? state.uri.path,
@@ -58,8 +87,8 @@ enum PageKind {
       // number from creation and there is a context, but the transition itself
       // is where a user sees movement — so the collapse happens in the builder
       // below, which runs per frame and can ask the CURRENT MediaQuery.
-      transitionDuration: CalmMotion.of(context).base,
-      reverseTransitionDuration: CalmMotion.of(context).base,
+      transitionDuration: motion.base,
+      reverseTransitionDuration: motion.base,
       transitionsBuilder: (context, animation, secondary, child) =>
           _transition(context, animation, child),
     );
@@ -77,27 +106,13 @@ enum PageKind {
 
     final motion = CalmMotion.of(context);
     return switch (this) {
-      PageKind.dialog => CalmOverlayTransition(
-        rise: 0,
-        fadeFrom: 0,
-        scaleFrom: kCalmDialogScaleFrom,
-        curve: motion.easeSettle,
-        reverseCurve: motion.easeIn,
-        child: child,
-      ),
-      PageKind.push => _slide(
-        animation,
-        const Offset(1, 0),
-        motion.easeStandard,
-        child,
-      ),
+      PageKind.push => _slide(animation, _fromEnd(motion), child),
       // A sheet leaves faster than it arrives, which is what makes a dismissal
       // feel like a dismissal rather than a rewind. `CalmSheet.show` makes the
       // same choice; this is the routed version of it.
       PageKind.modal || PageKind.sheet => _slide(
         animation,
-        const Offset(0, 1),
-        motion.easeStandard,
+        _fromBottom(motion),
         child,
       ),
     };
@@ -105,13 +120,7 @@ enum PageKind {
 
   Widget _slide(
     Animation<double> animation,
-    Offset from,
-    Curve curve,
+    Animatable<Offset> tween,
     Widget child,
-  ) => SlideTransition(
-    position: animation.drive(
-      Tween(begin: from, end: Offset.zero).chain(CurveTween(curve: curve)),
-    ),
-    child: child,
-  );
+  ) => SlideTransition(position: animation.drive(tween), child: child);
 }

@@ -74,13 +74,30 @@ String locationOf(WidgetTester tester) =>
 StatefulNavigationShell shellOf(WidgetTester tester) =>
     (_shellElement(tester).widget as AppShell).navigationShell;
 
+/// The localisations the mounted app resolved.
+///
+/// Through `_shellElement` like everything else here, so it carries the
+/// `skipOffstage: false` fix — a copy that used a bare `find.byType(AppShell)`
+/// reports "no shell" the first time a test opens a modal.
+AppLocalizations l10nOf(WidgetTester tester) =>
+    AppLocalizations.of(_shellElement(tester));
+
+/// The four tab labels, in tab order.
+///
+/// Spelled out five times in one test file before this existed.
+List<String> tabLabels(AppLocalizations l10n) => [
+  l10n.tabHome,
+  l10n.tabHistory,
+  l10n.tabCosts,
+  l10n.tabSettings,
+];
+
 /// Taps a tab by the label [pick] names, in whatever locale is mounted.
 Future<void> tapTab(
   WidgetTester tester,
   String Function(AppLocalizations) pick,
 ) async {
-  final l10n = AppLocalizations.of(_shellElement(tester));
-  await tester.tap(find.text(pick(l10n)));
+  await tester.tap(find.text(pick(l10nOf(tester))));
   await tester.pumpAndSettle();
 }
 

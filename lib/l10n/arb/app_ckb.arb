@@ -34,7 +34,6 @@
   "confirmDeleteBody": "{fillUps, plural, =0{هیچ سووتەمەنیەک} one{یەک سووتەمەنی} other{{fillUpsText} سووتەمەنی}}، {services, plural, =0{هیچ خزمەتگوزارییەک} one{یەک خزمەتگوزاری} other{{servicesText} خزمەتگوزاری}}، {costs, plural, =0{هیچ تێچوویەک} one{یەک تێچوو} other{{costsText} تێچوو}}، {trips, plural, =0{هیچ گەشتێک} one{یەک گەشت} other{{tripsText} گەشت}} و {reminders, plural, =0{هیچ بیرخەرەوەیەک} one{یەک بیرخەرەوە} other{{remindersText} بیرخەرەوە}} بۆ هەمیشە دەسڕدرێنەوە.",
   "confirmDeleteTypeToConfirm": "بۆ پشتڕاستکردنەوە {subject} بنووسە",
   "confirmDeleteDelete": "سڕینەوە",
-  "confirmDeleteCancel": "پاشگەزبوونەوە",
   "snoozeTitle": "دواخستنی {item}",
   "snoozeBody": "ئەمە تەنها بیرخەرەوەکە بێدەنگ دەکات و کاتی پێویستی کارەکە ناگۆڕێت.",
   "snoozeThreeDays": "{count} ڕۆژ",
@@ -43,5 +42,5 @@
   "snoozeDistance": "دوای {distance}ی دیکە",
   "snoozeUntil": "تا {date}",
   "snoozeAtOdometer": "لە {odometer}",
-  "snoozeCancel": "پاشگەزبوونەوە"
+  "commonCancel": "پاشگەزبوونەوە"
 }

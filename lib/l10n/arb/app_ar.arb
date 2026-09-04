@@ -34,7 +34,6 @@
   "confirmDeleteBody": "{fillUps, plural, zero{لا تعبئات} one{تعبئة واحدة} two{تعبئتان} few{{fillUpsText} تعبئات} many{{fillUpsText} تعبئةً} other{{fillUpsText} تعبئة}}، و{services, plural, zero{لا صيانات} one{صيانة واحدة} two{صيانتان} few{{servicesText} صيانات} many{{servicesText} صيانةً} other{{servicesText} صيانة}}، و{costs, plural, zero{لا تكاليف} one{تكلفة واحدة} two{تكلفتان} few{{costsText} تكاليف} many{{costsText} تكلفةً} other{{costsText} تكلفة}}، و{trips, plural, zero{لا رحلات} one{رحلة واحدة} two{رحلتان} few{{tripsText} رحلات} many{{tripsText} رحلةً} other{{tripsText} رحلة}} و{reminders, plural, zero{لا تذكيرات} one{تذكير واحد} two{تذكيران} few{{remindersText} تذكيرات} many{{remindersText} تذكيرًا} other{{remindersText} تذكير}} تُحذف نهائيًا.",
   "confirmDeleteTypeToConfirm": "اكتب {subject} للتأكيد",
   "confirmDeleteDelete": "حذف",
-  "confirmDeleteCancel": "إلغاء",
   "snoozeTitle": "تأجيل {item}",
   "snoozeBody": "هذا يُسكت التذكير فقط. ولا يغيّر موعد استحقاق العمل.",
   "snoozeThreeDays": "{count} أيام",
@@ -43,5 +42,5 @@
   "snoozeDistance": "بعد {distance} أخرى",
   "snoozeUntil": "حتى {date}",
   "snoozeAtOdometer": "عند {odometer}",
-  "snoozeCancel": "إلغاء"
+  "commonCancel": "إلغاء"
 }

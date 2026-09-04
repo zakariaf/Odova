@@ -15,6 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/degraded_mode.dart';
 import 'package:odova/data/repositories/providers.dart';
 
@@ -23,7 +24,7 @@ import 'package:odova/data/repositories/providers.dart';
 /// A record-shaped class rather than three loose parameters, so a caller cannot
 /// swap `onboardingDone` for `migrationFailed` at a call site and get a
 /// plausible wrong answer.
-class LaunchFacts {
+class LaunchFacts with ValueEquality {
   /// Creates the facts.
   const LaunchFacts({
     required this.onboardingDone,
@@ -44,6 +45,32 @@ class LaunchFacts {
 
   /// Whether a migration failed on this launch.
   final bool migrationFailed;
+
+  /// Whether the multi-vehicle interface exists at all.
+  ///
+  /// SPEC.md §7: with one vehicle there is no switcher — no chevron, no tap
+  /// target, no "1 of 1". The rule lives HERE and both readers take it from
+  /// here: the redirect below, which makes the route unreachable, and
+  /// `showsVehicleSwitcherProvider`, which hides the chevron. It was written
+  /// twice, and only the redirect was load-bearing — changing the provider's
+  /// copy would have silently changed nothing.
+  bool get showsVehicleSwitcher => liveVehicleCount >= 2;
+
+  /// Value equality, and it is load-bearing rather than tidy.
+  ///
+  /// `launchFactsProvider` watches two drift streams, which re-emit on ANY
+  /// write to `settings` or `vehicles` — a theme change, a units change, an
+  /// active-vehicle write. Without `==`, every one of those produced a new
+  /// identity, Riverpod's `previous != next` said "changed", the
+  /// `refreshListenable` fired, and go_router re-ran the redirect chain,
+  /// re-matched the route table and rebuilt the shell and its four branch
+  /// navigators — for three fields that had not moved.
+  @override
+  List<Object?> get props => [
+    onboardingDone,
+    liveVehicleCount,
+    migrationFailed,
+  ];
 
   @override
   String toString() =>
@@ -97,7 +124,7 @@ String? appRedirect(LaunchFacts facts, String location) {
   // 6. SPEC.md §7: with one vehicle there is no switcher. Enforced here rather
   //    than inside the sheet, because a check inside the sheet means the sheet
   //    has already opened.
-  if (location == Routes.vehicleSwitcher && facts.liveVehicleCount < 2) {
+  if (location == Routes.vehicleSwitcher && !facts.showsVehicleSwitcher) {
     return Routes.home;
   }
 

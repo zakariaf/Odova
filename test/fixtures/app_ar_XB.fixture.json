@@ -34,7 +34,6 @@
   "confirmDeleteBody": "‏{fillUps, plural, =0{spu-llif oN} one{{fillUpsText}pu-llif } other{{fillUpsText}spu-llif }} ,{services, plural, =0{secivres on} one{{servicesText}ecivres } other{{servicesText}secivres }} ,{costs, plural, =0{stsoc on} one{{costsText}tsoc } other{{costsText}stsoc }} ,{trips, plural, =0{spirt on} one{{tripsText}pirt } other{{tripsText}spirt }} dna {reminders, plural, =0{srednimer on} one{{remindersText}rednimer } other{{remindersText}srednimer }}.yltnenamrep og ",
   "confirmDeleteTypeToConfirm": "‏ epyT{subject}mrifnoc ot ",
   "confirmDeleteDelete": "‏eteleD",
-  "confirmDeleteCancel": "‏lecnaC",
   "snoozeTitle": "‏ ezoonS{item}",
   "snoozeBody": "‏.eud si boj eht nehw egnahc ton seod tI .rednimer eht steiuq sihT",
   "snoozeThreeDays": "‏{count}syad ",
@@ -43,5 +42,5 @@
   "snoozeDistance": "‏ rehtona retfA{distance}",
   "snoozeUntil": "‏ litnu{date}",
   "snoozeAtOdometer": "‏ ta{odometer}",
-  "snoozeCancel": "‏lecnaC"
+  "commonCancel": "‏lecnaC"
 }
