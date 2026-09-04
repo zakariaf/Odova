@@ -13,6 +13,7 @@
 // **One pump per test, never two.** Riverpod asserts the number of overrides is
 // constant across a rebuild, so a test that pumps one vehicle and then two
 // dies inside `ProviderScope.updateOverrides` rather than in an expectation.
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/domain/enums.dart';
@@ -31,6 +32,7 @@ import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/entry_counts_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_swipe_actions.dart';
@@ -121,6 +123,7 @@ OdometerEstimate _estimate({
 Future<void> _pump(
   WidgetTester tester, {
   required List<Vehicle> vehicles,
+  Locale? locale,
   Map<VehicleId, DueState?> due = const {},
   Map<VehicleId, OdometerEstimate> estimates = const {},
   Map<VehicleId, DeleteCounts> counts = const {},
@@ -133,7 +136,12 @@ Future<void> _pump(
   await pumpApp(
     tester,
     const VehiclesScreen(),
+    locale: locale,
     overrides: <Override>[
+      // The FORMATS tag follows the device region, not the UI language —
+      // SPEC.md §5, and the reason `pumpApp(locale:)` alone left the year in
+      // Latin digits while the strings were Persian. Both have to move.
+      if (locale != null) deviceLocalesProvider.overrideWithValue([locale]),
       vehiclesProvider.overrideWith((ref) => Stream.value(vehicles)),
       for (final v in vehicles)
         vehicleDueSnapshotProvider(v.id).overrideWithValue(
@@ -244,8 +252,19 @@ void main() {
     );
     final groups = tester.widgetList<CalmRowGroup>(find.byType(CalmRowGroup));
     expect(groups, hasLength(2));
-    expect(groups.first.header, isNull);
-    expect(groups.last.header, _l10n(tester).vehiclesSoldArchived);
+    // The head is a SIBLING of the tinted group, on the page above it — nine
+    // artboards draw it that way and none draws a title inside a group.
+    expect(
+      tester.widget<CalmSectionHead>(find.byType(CalmSectionHead)).title,
+      _l10n(tester).vehiclesSoldArchived,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(CalmRowGroup),
+        matching: find.byType(CalmSectionHead),
+      ),
+      findsNothing,
+    );
     for (final (group, name) in [
       (groups.first, 'The Golf'),
       (groups.last, 'The Polo'),
@@ -534,7 +553,10 @@ void main() {
     final groups = tester.widgetList<CalmRowGroup>(find.byType(CalmRowGroup));
     expect(groups.last.tinted, isTrue);
     expect(groups.first.tinted, isFalse);
-    expect(find.text('1'), findsOneWidget, reason: 'the section hint');
+    expect(
+      tester.widget<CalmSectionHead>(find.byType(CalmSectionHead)).hint,
+      '1',
+    );
   });
 
   testWidgets('the sold line waits for the count rather than claiming zero', (
@@ -645,5 +667,27 @@ void main() {
         [_l10n(tester).commonDelete],
       );
     });
+  });
+
+  testWidgets('the year is shaped like every other number on the row', (
+    tester,
+  ) async {
+    // SPEC.md §5: one numbering system, app-wide. `year.toString()` is a raw
+    // Dart string and it rendered "2016" in Latin digits beside a Persian
+    // odometer — the parity capture is what showed it, because the number is
+    // right and only its digits are wrong.
+    //
+    // UNGROUPED, for the same reason `formatLongDate` is: "۱٬۹۰۰" is a
+    // thousand nine hundred, which is not a year anybody has driven a car in.
+    await _pump(
+      tester,
+      locale: const Locale('fa'),
+      vehicles: [_vehicle(_golf, 'گلف', year: 2016)],
+      due: {_golf: DueState.ok},
+    );
+    final facts = _row(tester, 'گلف').subtitle!;
+    expect(facts, contains('۲۰۱۶'));
+    expect(facts, isNot(contains('2016')));
+    expect(facts, isNot(contains('۲٬۰۱۶')), reason: 'a year is not grouped');
   });
 }

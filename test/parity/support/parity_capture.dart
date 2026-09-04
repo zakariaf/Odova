@@ -17,9 +17,15 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+// `CalmTabIcons` lives here rather than in `calm_scaffold.dart`. Importing
+// `app_shell.dart` costs nothing at build time: the shell needs a router, this
+// needs its icon table, and only the second is touched.
+import 'package:odova/app/routing/app_shell.dart';
+import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/supported_locales.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/ui/calm/calm_scaffold.dart';
 
 import '../../support/fonts.dart';
 
@@ -89,6 +95,7 @@ Future<void> captureParity(
   required ParityCase config,
   required Widget child,
   Widget? overlay,
+  int? tab,
 }) async {
   // Pin the surface. Without the tear-down the next test in the file inherits
   // this phone, which is a confusing way to fail an unrelated assertion.
@@ -157,7 +164,7 @@ Future<void> captureParity(
           // never been painted never completes. Inside `runAsync` that is not a
           // test timeout; it is a hang with no output at all.
           key: _boundaryKey,
-          child: overlay == null ? child : Stack(children: [child, overlay]),
+          child: _framed(child, overlay: overlay, tab: tab),
         ),
       ),
     ),
@@ -212,4 +219,64 @@ Future<Uint8List> _pngOf(WidgetTester tester) async {
   );
   image!.dispose();
   return data!.buffer.asUint8List();
+}
+
+/// [child] under the chrome the artboards draw around it.
+///
+/// The reference for every screen inside the four tabs includes the TAB BAR,
+/// so a capture of the body alone is a capture of a screen nobody sees — and
+/// the band profile reads the bar's ten icons and labels as edges that are
+/// simply absent. `AppShell` cannot be used here: it takes a
+/// `StatefulNavigationShell`, which needs the real router, which needs the
+/// launch gate and a database. `CalmTabBar` is the same widget the shell
+/// mounts, and the shell "adds nothing to its geometry" by its own account —
+/// so supplying it directly is the chrome without the graph.
+///
+/// [tab] is null for a screen that has none: a modal, a sheet, or first run.
+Widget _framed(Widget child, {required Widget? overlay, required int? tab}) {
+  final body = overlay == null ? child : Stack(children: [child, overlay]);
+  if (tab == null) return body;
+  return Builder(
+    builder: (context) {
+      final l10n = AppLocalizations.of(context);
+      return Stack(
+        children: [
+          Positioned.fill(child: body),
+          PositionedDirectional(
+            start: 0,
+            end: 0,
+            bottom: 0,
+            // TRANSPARENT Material, and it is not decoration. The bar is a
+            // SIBLING of the screen's `CalmScaffold` rather than a child, so it
+            // inherits no `Material` — and a `Text` with no Material ancestor
+            // renders in Flutter's missing-style treatment: a filled box with a
+            // yellow underline. On device the route's own `MaterialPage`
+            // supplies one; here nothing does, and the first capture drew four
+            // solid blocks where the tab labels belong.
+            child: Material(
+              type: MaterialType.transparency,
+              child: CalmTabBar(
+                index: tab,
+                labels: [
+                  l10n.tabHome,
+                  l10n.tabHistory,
+                  l10n.tabCosts,
+                  l10n.tabSettings,
+                ],
+                icons: const [
+                  CalmTabIcons.home,
+                  CalmTabIcons.history,
+                  CalmTabIcons.costs,
+                  CalmTabIcons.settings,
+                ],
+                addLabel: l10n.tabLogA11y,
+                onChanged: (_) {},
+                onAdd: () {},
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }

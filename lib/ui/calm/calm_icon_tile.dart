@@ -17,11 +17,18 @@ class CalmIconTile extends StatelessWidget {
     this.state,
     this.round = false,
     this.brand = false,
+    this.business = false,
   }) : assert(
          !brand || state == null,
          'CalmIconTile was asked for both the brand tint and a status tint. '
          'Two tints is one too many, and the second is whichever the reader '
          'did not expect.',
+       ),
+       assert(
+         !business || (state == null && !brand),
+         'CalmIconTile was asked for the business tint and another one. Two '
+         'tints is one too many, and a van that is overdue reports OVERDUE — '
+         'the business fact is on its second line.',
        );
 
   /// The glyph. Never a directional one — a tile is not a disclosure.
@@ -46,6 +53,15 @@ class CalmIconTile extends StatelessWidget {
   /// to look like one saying "this is overdue".
   final bool brand;
 
+  /// `.icon-tile--business` — `business.tint` under `business.ink`.
+  ///
+  /// The garage's van wears it, which is how a work vehicle reads at a glance
+  /// without spending the third line's fourth slot twice. The `business` ramp
+  /// is deliberately NOT a due state — `calm-due-state-and-status` forbids
+  /// borrowing a status colour for a non-status meaning, and "this one is for
+  /// work" is not a status.
+  final bool business;
+
   /// The tile's fixed size. It is a lead slot in a row of a known height, so
   /// it does not grow with text scale — the row does.
   static const double dimension = 44;
@@ -63,7 +79,12 @@ class CalmIconTile extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color:
-                style?.tint ?? (brand ? colours.brandSoft : colours.surface2),
+                style?.tint ??
+                (brand
+                    ? colours.brandSoft
+                    : business
+                    ? colours.business.tint
+                    : colours.surface2),
             // radiusPill only ever reaches a StadiumBorder; a circle here is
             // an explicit shape rather than a 999 radius.
             shape: round ? BoxShape.circle : BoxShape.rectangle,
@@ -74,7 +95,12 @@ class CalmIconTile extends StatelessWidget {
               icon,
               size: 22,
               color:
-                  style?.ink ?? (brand ? colours.brandSoftInk : colours.ink2),
+                  style?.ink ??
+                  (brand
+                      ? colours.brandSoftInk
+                      : business
+                      ? colours.business.ink
+                      : colours.ink2),
             ),
           ),
         ),

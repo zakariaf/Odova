@@ -357,10 +357,14 @@ class _CalmRowBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
-              // `.row__main { gap: 2px }` — a literal, not a token. Calm's
-              // space scale starts at 4 and this is half of it: the hairline
-              // that keeps three stacked lines from reading as a paragraph.
-              spacing: 2,
+              // NO gap between the stacked lines, though
+              // `.row__main { gap: 2px }` is in `odova.css`. The 112 reference
+              // PNGs are the authority (CLAUDE.md §7) and they do not have it:
+              // a three-line garage row measures 103-106pt there and 104 here
+              // without the gap, against 108 with it. Added on the CSS's word
+              // in one commit and removed on the drawing's in the next, after
+              // the parity band profile went from 59/103 to 81/103 the moment
+              // it came out. Do not re-add it from the stylesheet.
               children: [
                 Text(
                   title,

@@ -608,6 +608,9 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String get vehicleStatusItemGeneric => 'خزمەتگوزاری';
+
+  @override
   String get vehiclesOnlyOneWarning =>
       'ئەمە تاکە ئۆتۆمبێلتە. ئەگەر بیسڕیتەوە، ئۆدۆڤا لە سەرەتاوە دەست پێدەکاتەوە.';
 

@@ -604,6 +604,9 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get vehicleStatusItemGeneric => 'سرویس';
+
+  @override
   String get vehiclesOnlyOneWarning =>
       'این تنها خودروی شماست. با حذف آن، اودووا از نو شروع می‌شود.';
 

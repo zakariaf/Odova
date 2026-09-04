@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
@@ -75,7 +76,21 @@ class VehiclesScreen extends ConsumerWidget {
     final gone = all.where((v) => v.status != VehicleStatus.active).toList();
 
     return CalmScaffold(
-      appBar: CalmAppBar(title: l10n.vehiclesTitle),
+      appBar: CalmAppBar(
+        title: l10n.vehiclesTitle,
+        actions: [
+          // §8: "**+** in the app bar → `vehicle.edit`, create mode. On Save
+          // the vehicle is appended, does **not** become active, and a
+          // snackbar offers **Switch to it**." EPIC-09 task 9.8 registers that
+          // route; the action is here because the artboard draws it and a
+          // garage you cannot add to is not a garage.
+          CalmAppBarAction(
+            label: l10n.commonAdd,
+            icon: Icons.add,
+            onTap: () {},
+          ),
+        ],
+      ),
       tight: true,
       // The artboard's inline `padding-block: var(--space-1) var(--space-3)`.
       bodyPadBlock: (top: space.s1, bottom: space.s3),
@@ -85,24 +100,28 @@ class VehiclesScreen extends ConsumerWidget {
           style: type.caption.copyWith(color: colors.ink3),
         ),
         CalmRowGroup(rows: [for (final v in live) _GarageRow(vehicle: v)]),
-        if (gone.isNotEmpty)
-          CalmRowGroup(
-            header: l10n.vehiclesSoldArchived,
-            // `.section__hint` — the count sits BESIDE the title rather than as
-            // "(1)" inside it, because it is a number and the title is a
-            // heading. Above five SPEC.md §8 collapses the group to exactly
-            // this header.
-            headerHint: formatForDisplay(
+        if (gone.isNotEmpty) ...[
+          // `.section__head`, a SIBLING of the group it names — that is how all
+          // nine of the artboards that have one draw it. The count sits beside
+          // the title rather than as "(1)" inside it, because it is a number
+          // and the title is a heading; above five SPEC.md §8 collapses the
+          // group to exactly this line.
+          CalmSectionHead(
+            title: l10n.vehiclesSoldArchived,
+            hint: formatForDisplay(
               gone.length,
               tag,
               numerals: CalmNumerals.auto,
               decimalDigits: 0,
             ),
-            // `.rowgroup--tinted`: surface-2 and no shadow. A sold car is still
-            // in the garage and is no longer part of the list that matters.
+          ),
+          // `.rowgroup--tinted`: surface-2 and no shadow. A sold car is still
+          // in the garage and is no longer part of the list that matters.
+          CalmRowGroup(
             tinted: true,
             rows: [for (final v in gone) _GarageRow(vehicle: v)],
           ),
+        ],
         // Hidden with one vehicle, because neither gesture applies to a list
         // of one and a hint for something impossible is noise.
         if (live.length > 1)
@@ -129,7 +148,7 @@ class _GarageRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final tag = ref.watch(resolvedLocaleTagsProvider).formats;
-    final lead = _Silhouette(colour: VehicleColour.tryParse(vehicle.colour));
+    final lead = _Silhouette(vehicle: vehicle);
 
     // A SOLD row is a different row, not a live one with a field blanked.
     // SPEC.md §8: it says what it IS rather than what is due — compact height,
@@ -177,7 +196,7 @@ class _GarageRow extends ConsumerWidget {
         title: vehicle.name,
         // `VW Golf VII · 2016 · diesel` — what tells two silver hatchbacks
         // apart in a garage of four. None of it is a status.
-        subtitle: _facts(l10n),
+        subtitle: _facts(l10n, tag),
         // `187,412 km · all good`. SPEC.md §8: "Odometer and one-line status
         // share the third line because that is the pair people scan for."
         detail: _odometerAndStatus(context, l10n, tag, snapshot, status),
@@ -351,11 +370,22 @@ class _GarageRow extends ConsumerWidget {
   /// `is_business` replaces the fuel rather than joining it. §8 gives the line
   /// four slots and the artboard spends the fourth on `business`; a fifth wraps
   /// on a German row.
-  String? _facts(AppLocalizations l10n) {
+  String? _facts(AppLocalizations l10n, String tag) {
     final parts = [
       vehicle.make,
       vehicle.model,
-      vehicle.year?.toString(),
+      // Through `formatForDisplay`, never `toString()`. SPEC.md §5 has one
+      // numbering system active app-wide, and a raw Dart string rendered
+      // "2016" in Latin digits beside a Persian odometer on the same line.
+      // UNGROUPED: "۱٬۹۰۰" is a thousand nine hundred, not a year.
+      if (vehicle.year case final year?)
+        formatForDisplay(
+          year,
+          tag,
+          numerals: CalmNumerals.auto,
+          decimalDigits: 0,
+          grouped: false,
+        ),
       if (vehicle.isBusiness)
         l10n.vehicleBusinessBadge
       else
@@ -388,7 +418,12 @@ class _GarageRow extends ConsumerWidget {
       ),
       _ when (estimate?.staleDays ?? 0) > kStaleOdometerDays =>
         l10n.vehicleOdometerStale(_age(l10n, tag, estimate!.staleDays)),
-      _ => _statusLine(l10n, status, snapshot?.summary.worstItem?.kind),
+      _ => _statusLine(
+        l10n,
+        status,
+        snapshot?.summary.worstItem,
+        snapshot?.summary.worst?.remainingDays,
+      ),
     };
     if (estimate == null) return words;
 
@@ -461,7 +496,8 @@ class _GarageRow extends ConsumerWidget {
   String _statusLine(
     AppLocalizations l10n,
     GarageStatus status,
-    ServiceKind? worst,
+    ServiceItem? worst,
+    int? days,
   ) => switch (status) {
     // The em dash, alone. §8: "a sold vehicle computes no reminders and its
     // card shows —".
@@ -470,11 +506,21 @@ class _GarageRow extends ConsumerWidget {
     GarageStatus.noReminders => l10n.vehicleStatusNoReminders,
     GarageStatus.needsOdometer => l10n.vehicleStatusNeedsOdometer,
     GarageStatus.unknown => l10n.vehicleStatusUnknown,
-    // EPIC-10 owns the service-kind labels — `reminders.list` needs all 28 of
-    // them and this screen needs one. Until they exist the line names the
-    // state without pretending to know the item, which is the honest half of
-    // the sentence rather than an invented noun.
-    GarageStatus.overdue || GarageStatus.dueInDays => l10n.vehicleStatusUnknown,
+    // A CUSTOM item carries its own label; a catalogue one's name is among the
+    // 28 kind strings EPIC-10 owns. Until those exist the sentence takes a
+    // generic noun rather than the state's own "Couldn't work out what's due",
+    // which paired a red dot with an admission of ignorance — two
+    // contradictory statements about the same row. Something tracked really is
+    // overdue; only its name is missing, and a generic noun says exactly that
+    // much and no more.
+    GarageStatus.overdue => l10n.vehicleStatusOverdue(
+      worst?.label ?? l10n.vehicleStatusItemGeneric,
+    ),
+    GarageStatus.dueInDays => l10n.vehicleStatusDueInDays(
+      days ?? 0,
+      worst?.label ?? l10n.vehicleStatusItemGeneric,
+      '${days ?? 0}',
+    ),
   };
 }
 
@@ -483,23 +529,46 @@ class _GarageRow extends ConsumerWidget {
 /// The silhouette never mirrors — a car facing the other way is a different
 /// drawing, not a mirrored layout.
 class _Silhouette extends StatelessWidget {
-  const _Silhouette({required this.colour});
+  const _Silhouette({required this.vehicle});
 
-  final VehicleColour? colour;
+  final Vehicle vehicle;
+
+  /// The glyph for a [VehicleType].
+  ///
+  /// SPEC.md §8: "the avatar — a silhouette from `vehicle_type` on the
+  /// vehicle's colour". The TYPE, not one car for everything: a motorbike
+  /// drawn as a car is the app telling a rider it does not know what they own,
+  /// which is the same failure §8 names about offering a motorbike a cabin
+  /// filter.
+  ///
+  /// `truck` and `other` take the van and the car glyph. §8 says both take the
+  /// car's seeded reminder set; here the van is nearer a truck's shape, and a
+  /// vehicle of unknown type has no honest silhouette but has to have one.
+  IconData get _glyph => switch (vehicle.vehicleType) {
+    VehicleType.car => Icons.directions_car_outlined,
+    VehicleType.van => Icons.local_shipping_outlined,
+    VehicleType.motorcycle => Icons.two_wheeler_outlined,
+    VehicleType.truck => Icons.local_shipping_outlined,
+    VehicleType.other => Icons.directions_car_outlined,
+  };
 
   @override
   Widget build(BuildContext context) {
-    final paint = colour == null ? null : calmVehicleSwatch(colour!);
+    final colour = VehicleColour.tryParse(vehicle.colour);
+    final paint = colour == null ? null : calmVehicleSwatch(colour);
     if (paint == null) {
       // No colour chosen, or `other`, which has no paint by design (F-9.18).
-      return const CalmIconTile(icon: Icons.directions_car_outlined);
+      // The BUSINESS tint stands in — `icon-tile--business` in the artboard,
+      // which is how the Transit reads as a work vehicle at a glance without
+      // spending the third line's fourth slot twice.
+      return CalmIconTile(icon: _glyph, business: vehicle.isBusiness);
     }
     return DecoratedBox(
       decoration: BoxDecoration(color: paint, shape: BoxShape.circle),
       child: SizedBox.square(
         dimension: CalmIconTile.dimension,
         child: Icon(
-          Icons.directions_car_outlined,
+          _glyph,
           size: 22,
           // Readable on both a white car and a black one, decided by the
           // paint's own luminance rather than by the theme — the ink on a

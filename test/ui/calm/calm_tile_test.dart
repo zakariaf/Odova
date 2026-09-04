@@ -243,4 +243,57 @@ void main() {
       throwsAssertionError,
     );
   });
+
+  group('the business tile', () {
+    // `.icon-tile--business` — `--color-business-tint` under
+    // `--color-business-ink`. The garage's van wears it, which is how a work
+    // vehicle reads at a glance without spending the third line's fourth slot
+    // twice.
+    testWidgets('takes the business tint and ink, not the neutral pair', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        const CalmIconTile(
+          icon: Icons.local_shipping_outlined,
+          business: true,
+        ),
+      );
+      expect(
+        calmDecorationOf<BoxDecoration>(
+          tester,
+          find.byType(CalmIconTile),
+        ).color,
+        calmColorsLight.business.tint,
+      );
+      expect(
+        tester.widget<Icon>(find.byType(Icon)).color,
+        calmColorsLight.business.ink,
+      );
+    });
+
+    testWidgets('business and a status are refused together', (tester) async {
+      // The same rule `brand` already carries: two tints is one too many, and
+      // the second is whichever the reader did not expect. A van that is
+      // overdue reports OVERDUE — the business fact is on its second line.
+      expect(
+        () => CalmIconTile(
+          icon: Icons.local_shipping_outlined,
+          business: true,
+          state: DueState.overdue,
+        ),
+        throwsAssertionError,
+      );
+      // Not `const`: a const constructor's assertion fails at COMPILE time,
+      // and a compile error is not something `throwsAssertionError` can catch.
+      expect(
+        () => CalmIconTile(
+          icon: Icons.local_shipping_outlined,
+          business: true,
+          brand: true,
+        ),
+        throwsAssertionError,
+      );
+    });
+  });
 }

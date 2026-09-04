@@ -933,6 +933,12 @@ abstract class AppLocalizations {
   /// **'{item} overdue'**
   String vehicleStatusOverdue(String item);
 
+  /// The {item} in vehicleStatusOverdue and vehicleStatusDueInDays when the app cannot name the item. A catalogue ServiceItem's label comes from the 28 kind strings EPIC-10 owns, and until they exist the garage would otherwise pair a red dot with "Couldn't work out what's due" — two contradictory statements. This is a generic noun, not a guess: something tracked really is overdue, and only its name is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get vehicleStatusItemGeneric;
+
   /// Added to the delete confirmation when the garage holds one vehicle. It warns without forbidding — the user may still delete it.
   ///
   /// In en, this message translates to:

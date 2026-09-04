@@ -845,6 +845,10 @@
     "description": "The third line when the due engine failed. The row never disappears — SPEC.md §2: the app admits it does not know rather than guessing. An admission, never an apology."
   },
   "vehicleStatusOverdue": "{item} overdue",
+  "vehicleStatusItemGeneric": "Service",
+  "@vehicleStatusItemGeneric": {
+    "description": "The {item} in vehicleStatusOverdue and vehicleStatusDueInDays when the app cannot name the item. A catalogue ServiceItem's label comes from the 28 kind strings EPIC-10 owns, and until they exist the garage would otherwise pair a red dot with \"Couldn't work out what's due\" — two contradictory statements. This is a generic noun, not a guess: something tracked really is overdue, and only its name is missing."
+  },
   "@vehicleStatusOverdue": {
     "description": "The third line naming the worst item. {item} is an already-localised service name like \"Oil and filter\".",
     "placeholders": {

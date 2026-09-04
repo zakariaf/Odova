@@ -609,6 +609,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get vehicleStatusItemGeneric => 'Wartung';
+
+  @override
   String get vehiclesOnlyOneWarning =>
       'Das ist Ihr einziges Fahrzeug. Wenn Sie es löschen, beginnt Odova von vorn.';
 

@@ -755,37 +755,79 @@ void main() {
       expect(styleOf(tester, 'VW Golf VII · 2016 · diesel').color, ink3);
     });
 
-    testWidgets('2px separates the title from its sub-lines', (tester) async {
-      // `.row__main { gap: 2px }`. Two sub-lines make it two gaps, and a row
-      // that stacked them flush is 4pt shorter than a 76pt design row — which
-      // the parity band profile reads as a shifted edge on every row below it.
+    testWidgets('the stacked lines sit flush, as the REFERENCE draws them', (
+      tester,
+    ) async {
+      // `odova.css` says `.row__main { gap: 2px }` and the 112 reference PNGs
+      // do not have it. CLAUDE.md §7 makes the drawing the authority: a
+      // three-line garage row measures 103-106pt there, 104 here flush, and
+      // 108 with the gap. The parity band profile went from 59/103 to 81/103
+      // the moment it came out — a whole screen's worth of edges, from 2pt.
+      //
+      // This assertion is the record of that, so the next reader of the
+      // stylesheet does not add it back.
       await pumpDetail(tester);
       final title = tester.getRect(find.text('The Golf'));
       final sub = tester.getRect(find.text('VW Golf VII · 2016 · diesel'));
       final detail = tester.getRect(
         find.text('187,412 km · oil and filter overdue'),
       );
-      expect(sub.top - title.bottom, closeTo(2, 0.01));
-      expect(detail.top - sub.bottom, closeTo(2, 0.01));
+      expect(sub.top - title.bottom, closeTo(0, 0.01));
+      expect(detail.top - sub.bottom, closeTo(0, 0.01));
+      expect(
+        tester.getSize(find.byType(CalmListRow)).height,
+        104,
+        reason: 'the reference row is 103-106',
+      );
     });
   });
 
-  group('the section hint', () {
+  group('the section head', () {
+    testWidgets('is outside the group, not inside its surface', (tester) async {
+      // The failure this replaced: `CalmRowGroup.header` drew the title INSIDE
+      // the group's own ground, which put the garage's "Sold and archived"
+      // inside the tinted card instead of on the page above it. The parity band
+      // profile found it as 48 pixels of drift and everything below it missing.
+      await pumpApp(
+        tester,
+        const Column(
+          children: [
+            CalmSectionHead(title: 'Sold and archived', hint: '1'),
+            CalmRowGroup(
+              tinted: true,
+              rows: [CalmListRow(title: 'Yamaha MT-07')],
+            ),
+          ],
+        ),
+      );
+      expect(
+        find.descendant(
+          of: find.byType(CalmRowGroup),
+          matching: find.text('Sold and archived'),
+        ),
+        findsNothing,
+      );
+      expect(
+        tester.getBottomLeft(find.text('Sold and archived')).dy,
+        lessThanOrEqualTo(tester.getTopLeft(find.byType(CalmRowGroup)).dy),
+      );
+    });
+
     // `.section__head` is a flex row: the title at the start, a
-    // `.section__hint` at the end. The garage spends it on the number of sold
-    // vehicles, which SPEC.md §8 collapses the whole group to above five.
-    testWidgets('sits at the end of the header, in caption ink-3', (
+    // `.section__hint` at the end. The garage spends the hint on the number of
+    // sold vehicles, which SPEC.md §8 collapses the whole group to above five.
+    //
+    // A SIBLING of the group, never inside it. Nine artboards put a
+    // `.section__head` immediately before a `.rowgroup` and none puts a title
+    // inside a group's surface.
+    testWidgets('sits at the end of the title, in caption ink-3', (
       tester,
     ) async {
       await pumpApp(
         tester,
-        const CalmRowGroup(
-          header: 'Sold and archived',
-          headerHint: '7',
-          rows: [CalmListRow(title: 'Yamaha MT-07')],
-        ),
+        const CalmSectionHead(title: 'Sold and archived', hint: '7'),
       );
-      final context = tester.element(find.byType(CalmRowGroup));
+      final context = tester.element(find.byType(CalmSectionHead));
       expect(find.text('7'), findsOneWidget);
       expect(
         tester.widget<Text>(find.text('7')).style!.color,
@@ -799,17 +841,13 @@ void main() {
       );
     });
 
-    testWidgets('a header with no hint draws no empty slot', (tester) async {
+    testWidgets('a head with no hint draws no empty slot', (tester) async {
       await pumpApp(
         tester,
-        const CalmRowGroup(
-          header: 'Sold and archived',
-          rows: [CalmListRow(title: 'Yamaha MT-07')],
-        ),
+        const CalmSectionHead(title: 'Sold and archived'),
       );
-      // The header is still one line high. A `SizedBox` standing in for an
-      // absent hint is a gap nobody can see and everybody has to lay out
-      // around.
+      // Still one line high. A `SizedBox` standing in for an absent hint is a
+      // gap nobody can see and everybody has to lay out around.
       expect(find.text('Sold and archived'), findsOneWidget);
       expect(
         tester.getSize(find.text('Sold and archived')).height,

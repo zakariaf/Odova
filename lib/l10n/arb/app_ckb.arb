@@ -136,6 +136,7 @@
   "vehicleOdometerStale": "کیلۆمەتری {age} نوێکراوەتەوە",
   "vehicleOdometerLastEntered": "دوایین تۆمار {date}",
   "vehicleStatusOverdue": "{item} دواکەوتووە",
+  "vehicleStatusItemGeneric": "خزمەتگوزاری",
   "vehiclesOnlyOneWarning": "ئەمە تاکە ئۆتۆمبێلتە. ئەگەر بیسڕیتەوە، ئۆدۆڤا لە سەرەتاوە دەست پێدەکاتەوە.",
   "vehicleSwitchToIt": "بۆی بگۆڕە",
   "switcherTitle": "گۆڕینی ئۆتۆمبێل",

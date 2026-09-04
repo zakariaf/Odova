@@ -654,6 +654,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get vehicleStatusItemGeneric => 'صيانة';
+
+  @override
   String get vehiclesOnlyOneWarning =>
       'هذه مركبتك الوحيدة. حذفها يعيد أودوفا إلى نقطة البداية.';
 

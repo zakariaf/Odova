@@ -136,6 +136,7 @@
   "vehicleOdometerStale": "Compteur mis à jour {age}",
   "vehicleOdometerLastEntered": "saisi le {date}",
   "vehicleStatusOverdue": "{item} en retard",
+  "vehicleStatusItemGeneric": "Entretien",
   "vehiclesOnlyOneWarning": "C’est votre seul véhicule. Le supprimer remet Odova à zéro.",
   "vehicleSwitchToIt": "Passer à ce véhicule",
   "switcherTitle": "Changer de véhicule",

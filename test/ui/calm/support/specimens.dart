@@ -148,8 +148,12 @@ List<CalmSpecimen> calmSpecimens() => [
   CalmSpecimen(
     'rows',
     ({required rtl}) => [
+      // The head is a SIBLING now — `CalmRowGroup.header` drew it inside the
+      // group's surface, which no artboard does.
+      CalmSectionHead(
+        title: _t(rtl: rtl, latin: 'Reminders', persian: 'یادآورها'),
+      ),
       CalmRowGroup(
-        header: _t(rtl: rtl, latin: 'Reminders', persian: 'یادآورها'),
         footer: _t(
           rtl: rtl,
           latin: 'Odova checks both.',

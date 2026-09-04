@@ -18,8 +18,6 @@ class CalmRowGroup extends StatelessWidget {
   const CalmRowGroup({
     required this.rows,
     super.key,
-    this.header,
-    this.headerHint,
     this.footer,
     this.tinted = false,
     this.flat = false,
@@ -27,21 +25,6 @@ class CalmRowGroup extends StatelessWidget {
 
   /// The rows, in order. Dividers are drawn between them, by the group.
   final List<Widget> rows;
-
-  /// A caption above the rows, naming what the group is.
-  final String? header;
-
-  /// A number or short note at the header's END edge.
-  ///
-  /// `.section__head` is a flex row with `justify-content: space-between`: the
-  /// title at the start and a `.section__hint` at the end. The garage spends it
-  /// on the count of sold vehicles, which SPEC.md §8 collapses the whole group
-  /// to above five.
-  ///
-  /// Caption ink-3, unlike the header's ink-2 — it is a fact ABOUT the group
-  /// rather than the group's name, and giving it the header's weight would make
-  /// the row read as two headings.
-  final String? headerHint;
 
   /// A caption below the rows, explaining a consequence.
   final String? footer;
@@ -95,46 +78,6 @@ class CalmRowGroup extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (header != null)
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(
-                  space.s5,
-                  space.s4,
-                  space.s5,
-                  space.s2,
-                ),
-                child: Row(
-                  // `align-items: baseline` in the CSS. Two type sizes on one
-                  // line sit on their baselines, not on their box centres.
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        header!,
-                        // ink2, not ink3: the header names the group, so it
-                        // carries meaning, and ink3 is under AA on every light
-                        // ground.
-                        style: type.caption.copyWith(
-                          color: colors.ink2,
-                          fontWeight: type.semi,
-                        ),
-                      ),
-                    ),
-                    // No SizedBox standing in for an absent hint: a gap nobody
-                    // can see is still a gap everybody has to lay out around.
-                    if (headerHint != null) ...[
-                      SizedBox(width: space.s3),
-                      Text(
-                        headerHint!,
-                        style: CalmType.tabular(
-                          type.caption.copyWith(color: colors.ink3),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
             ...divided,
             if (footer != null)
               Padding(
@@ -151,6 +94,75 @@ class CalmRowGroup extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// `.section__head` — a title at the start edge and a hint at the end.
+///
+/// A SIBLING of the group it names, never inside it. Nine artboards draw a
+/// `.section__head` immediately before a `.rowgroup` and not one draws a title
+/// inside a group's surface — `CalmRowGroup.header` did the latter, was used by
+/// exactly one screen, and put the garage's "Sold and archived" inside the
+/// tinted card instead of on the page above it. The parity band profile is what
+/// found it: 48 pixels of drift below the header, and everything after it
+/// missed by more than the 4px tolerance.
+class CalmSectionHead extends StatelessWidget {
+  /// Creates a section head.
+  const CalmSectionHead({required this.title, super.key, this.hint});
+
+  /// What the group below is, already localised.
+  final String title;
+
+  /// A number or short note at the END edge.
+  ///
+  /// Caption ink-3 against the title's ink-2 — it is a fact ABOUT the group
+  /// rather than the group's name, and giving it the title's weight would make
+  /// the line read as two headings. SPEC.md §8 spends it on the count of sold
+  /// vehicles, which the garage collapses the whole group to above five.
+  final String? hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
+    final type = CalmType.of(context);
+
+    return Padding(
+      // `padding-inline: var(--space-1)`. The head is nearly flush with the
+      // page rather than inset to the group's own s5, which is what makes it
+      // read as a label ON the list instead of a row IN it.
+      padding: EdgeInsetsDirectional.symmetric(horizontal: space.s1),
+      child: Row(
+        // `align-items: baseline`. Two type sizes on one line sit on their
+        // baselines, not on their box centres.
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              // `--fs-label`, semibold, ink2 — not the caption the group's own
+              // header used. A section title is a heading.
+              style: type.label.copyWith(
+                color: colors.ink2,
+                fontWeight: type.semi,
+              ),
+            ),
+          ),
+          // No SizedBox standing in for an absent hint: a gap nobody can see is
+          // still a gap everybody has to lay out around.
+          if (hint != null) ...[
+            SizedBox(width: space.s3),
+            Text(
+              hint!,
+              style: CalmType.tabular(
+                type.caption.copyWith(color: colors.ink3),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
