@@ -26,7 +26,6 @@ import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/vehicle_swatch.dart';
-import 'package:odova/ui/calm/calm_disclosure.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
@@ -285,28 +284,15 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
             ),
           ],
         ),
-        // Collapsed by default, which is what the artboard draws and what
-        // keeps a twenty-field form from being a wall.
-        CalmDisclosure(
-          title: l10n.vehiclePurchaseGroup,
-          children: [
-            CalmRowGroup(
-              rows: [
-                CalmListRow(
-                  title: l10n.vehicleMarkAsSold,
-                  showChevron: true,
-                  onTap: () {},
-                ),
-              ],
-            ),
-          ],
-        ),
-        CalmDisclosure(
-          title: l10n.vehicleUnitsGroup,
-          children: [
-            CalmRowGroup(rows: [CalmListRow(title: l10n.commonAutomatic)]),
-          ],
-        ),
+        // NOT YET: SPEC.md §8's two disclosure groups — `Purchase and sale`
+        // and `This vehicle's units & currency`. `CalmDisclosure` is built and
+        // tested; what is missing is their CONTENTS, which need a date picker,
+        // a money field and six override controls that do not exist yet.
+        //
+        // They are absent rather than stubbed. A collapsed group that opens on
+        // nothing, or a `Mark as sold` row whose tap does nothing, is a control
+        // that lies — and a user who taps it learns the app is unfinished in a
+        // way an absent row never teaches them.
       ],
     );
   }

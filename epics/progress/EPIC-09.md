@@ -188,7 +188,59 @@ import screen and the package that opens a real dialog.
   To test state restoration, change the widget's KEY so the State is rebuilt
   under the same container.
 
+## Task 9.5 — `vehicle.edit` 🟡 PART BUILT
+
+**Not complete, and the parts that are missing are named below rather than
+stubbed.** What exists is tested and green: 11 screen tests, 7 notifier tests,
+11 draft tests, 4 for the disclosure, 4 for the swatches.
+
+**Five design questions settled first** (F-9.18–F-9.22), one of them an
+admission: brown leaves the swatch row because the eight paints are hand-tuned
+against each other and a ninth hex is design work rather than engineering.
+`other` ships as an outlined swatch that invents no colour, and the row scrolls
+rather than wraps so the screen's height stops depending on the palette.
+
+**Four component gaps closed.** A modal that closes with a glyph and keeps its
+accessible name; a brand icon tile that cannot borrow a status colour; a field
+that will not reorder an Iranian plate; and `CalmDisclosure`, composed from a
+row because `odova.css` has no `.disclosure` to match.
+
+**`VehicleEditDraft` exists because a `copyWith` cannot clear a field.** Passing
+null means "leave it alone", so "delete what is in the box" and "do not touch
+it" become the same call. Dirty is `Vehicle == Vehicle` rather than a field
+list, so a twenty-first field is tracked the day it is added.
+
+**The notifier reads its row ONCE.** A form that re-read itself would discard a
+half-typed plate whenever anything else touched the vehicle — and its own Save
+is one of those things.
+
+### Still owed by task 9.5
+
+- **The two disclosure groups' CONTENTS.** `Purchase and sale` and `This
+  vehicle's units & currency` need a date picker, a money field and six override
+  controls that do not exist. The groups are ABSENT from the screen rather than
+  stubbed: a collapsed group that opens on nothing is a control that lies.
+- **The odometer read-only row**, which needs the latest reading and its age
+  wired through. `dateDaysAgo` is in the ARB and ready for it.
+- **Mark as sold** and its sale form; **Delete**, which wants task 9.6's
+  `showConfirmDeleteDialog`.
+- **The parity capture.** It will fail F-9.16 like `firstrun.vehicle` — the
+  screen carries a flat segmented control.
+
+### Two findings worth carrying
+
+- **Two translators reviewed my English before any test did.** I wrote
+  `{countText} entries` and `{item} due in {countText} days` without plurals,
+  which render "1 entries" and "in 1 days"; the German and French agents
+  translated them faithfully and then said the source was wrong. Both are fixed
+  and both now carry every category their locale needs.
+- **A gate forbade the call this task mandates.** `discard_dialog_test.dart`
+  banned `showDiscardDialog` from every file but its own, which was right while
+  the caller count was zero and wrong the moment a modal called it. It is an
+  allow-list now, with an outright ban on DECLARING a second dialog — and the
+  declaration check matches a declaration rather than a mention.
+
 ### Still to do in this epic
-Tasks 9.5–9.8: `vehicle.edit`, `vehicles`, `vehicle.switcher`, and the
-launch-state wiring. Three screens, 12 reference images — plus F-9.16, which
-`vehicles` and `vehicle.switcher` will hit too if they carry a chipbar.
+Task 9.5's remainder (listed above), then 9.6 `vehicles`, 9.7
+`vehicle.switcher` and 9.8's launch-state wiring. Plus F-9.16, which every
+screen with a chipbar or a flat segmented control will hit.
