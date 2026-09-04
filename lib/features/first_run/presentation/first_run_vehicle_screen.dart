@@ -79,8 +79,15 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
   @override
   void initState() {
     super.initState();
-    _name = TextEditingController();
-    _odometer = TextEditingController();
+    // Seeded FROM THE DRAFT, not empty. SPEC.md §8: "Backgrounded mid-entry —
+    // form state survives in memory; nothing is written." The draft outlives
+    // this State, so a rebuild that started from two empty controllers would
+    // lose six digits somebody typed at a pump, and lose them in a way that
+    // looks like the app forgetting rather than failing.
+    final draft = ref.read(firstRunVehicleProvider);
+    _name = TextEditingController(text: draft.name ?? '');
+    _odometer = TextEditingController(text: draft.odometerText);
+    if (draft.name != null) _followingTile = null;
     _name.addListener(_onNameEdited);
   }
 

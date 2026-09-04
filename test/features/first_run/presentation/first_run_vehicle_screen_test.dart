@@ -52,6 +52,7 @@ Future<void> _pump(
   WidgetTester tester, {
   List<Override> overrides = const [],
   Locale? locale,
+  Key? key,
 }) async {
   tester.view.physicalSize = kReferencePhysical;
   tester.view.devicePixelRatio = kReferenceDpr;
@@ -59,7 +60,7 @@ Future<void> _pump(
   addTearDown(tester.view.resetDevicePixelRatio);
   await pumpApp(
     tester,
-    const FirstRunVehicleScreen(),
+    FirstRunVehicleScreen(key: key),
     overrides: overrides.isEmpty ? _device('de-DE') : overrides,
     locale: locale,
   );
@@ -371,5 +372,35 @@ void main() {
 
     final container = ProviderScope.containerOf(_ctx(tester));
     expect(container.read(firstRunVehicleProvider).fuel, FuelKind.hybrid);
+  });
+
+  testWidgets('a rebuild keeps the form and writes no draft row', (
+    tester,
+  ) async {
+    // SPEC.md §8: "Backgrounded mid-entry — form state survives in memory;
+    // nothing is written. A cold kill loses it and replays this screen — six
+    // digits is an acceptable loss, a draft row for a vehicle that does not
+    // exist is not."
+    // The "writes no draft row" half is asserted in
+    // `first_run_vehicle_notifier_test.dart`, from a plain `test`. A drift
+    // future never completes under `testWidgets` — the widget binding's fake
+    // async does not run its timers — and the symptom is a ten-minute hang with
+    // no output rather than a failure. `provider_harness.dart` says so; this
+    // test learned it the expensive way.
+    await _pump(tester);
+    await tester.enterText(find.byType(CalmField).first, 'The Golf');
+    await _type(tester, '187412');
+
+    // A NEW KEY, not a new pump of nothing. Changing the key throws the State
+    // away and builds a fresh one — which is what coming back from the
+    // background does — while the `ProviderScope` above it is reused, so the
+    // draft survives exactly as it would on a device. Unmounting the whole tree
+    // instead destroys the container too, and then the test proves only that a
+    // cold start is a cold start.
+    await _pump(tester, key: const ValueKey('rebuilt'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('The Golf'), findsOneWidget);
+    expect(find.text('187412'), findsOneWidget);
   });
 }

@@ -217,4 +217,22 @@ void main() {
       expect(await h.db.select(h.db.vehicles).get(), isEmpty);
     });
   });
+
+  test('nothing is written until Save', () async {
+    // SPEC.md §8: "Backgrounded mid-entry — form state survives in memory;
+    // nothing is written. A cold kill loses it and replays this screen — six
+    // digits is an acceptable loss, a draft row for a vehicle that does not
+    // exist is not."
+    final h = _harness();
+    _notifier(h)
+      ..chooseType(VehicleType.van)
+      ..chooseFuel(FuelKind.electric)
+      ..chooseBand(AnnualBand.highest)
+      ..rename('The Golf')
+      ..typeOdometer('187412');
+
+    expect(await h.db.select(h.db.vehicles).get(), isEmpty);
+    expect(await h.db.select(h.db.odometerReadings).get(), isEmpty);
+    expect(await h.db.select(h.db.serviceItems).get(), isEmpty);
+  });
 }
