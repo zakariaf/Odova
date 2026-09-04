@@ -304,7 +304,7 @@ exactly that class of thing** — a refusal that is typed and substantively wron
 |---|---|---|
 | 7 | `consumptionTrend` diverged from SPEC.md §3's "the mean of the last 3 segments" | Fixed by changing the SPEC — see below |
 | 8 | The exponent table's header claimed IQD was its only departure from ISO 4217; AFN is a second, in the opposite direction, and EPIC-04's rationale for it was deleted with that file | Fixed — both departures named, both pinned, with the migration hazard stated |
-| 6 | The new `regen_fuel_vectors --check` CI gate had no self-test arm | Fixed — two arms, both seen to fail |
+| 6 | The new `regen_fuel_vectors --check` CI gate had no self-test arm | Fixed — two arms in `tools/check_vectors_selftest.sh`, in the `app` lane. See below: the first attempt put them in the wrong lane and CI caught it |
 | 9 | This progress file's handover prescribed `FuelValue`/`Computed`/`Unavailable`, `MixedCurrency` and a two-field `NonPositiveDistance` — all deleted in this same branch | Fixed — rewritten to describe what exists, with all ten reasons and what each is for |
 
 **Finding 7 is a spec change, and it is the one to read.** SPEC.md said "the
@@ -337,6 +337,24 @@ changing it touches `FillUpPoint`, the vector generator and the golden file for
 no behavioural gain. **Two independent reviews naming it is a stronger signal
 than one**, so it is written into the deferred list below rather than left in a
 table: the fuel screen epic should take it, starting at that comparison.
+
+### The fix for finding 6 was wrong the first time, and CI caught it
+
+The two arms went into `tools/check_gates_selftest.sh`, which runs in CI's
+**toolchain-free `repo` job**. `dart` is not on that PATH. Both arms expecting a
+RED exit passed — on 127, "command not found" — while the two expecting green
+failed. The gate had never run, and half the output said it had.
+
+So two things changed. The arms moved to `tools/check_vectors_selftest.sh`, run
+in the `app` job beside the gate itself, the way `check_numeric_input_selftest.sh`
+already was. And `assert` in `check_gates_selftest.sh` now treats **126 and 127 as
+a failure whatever the expectation**, because "not runnable" is not "the gate said
+no" — which is how a self-test comes to report that a gate has been seen to fail
+when it never ran. That guard was itself verified against a missing command.
+
+Worth stating plainly: this is the failure mode the whole self-test apparatus
+exists to prevent, reproduced inside the apparatus, and it was caught by the
+pipeline rather than by me.
 
 ### What this pass says about the suite
 
