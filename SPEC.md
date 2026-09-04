@@ -425,6 +425,8 @@ This said "the smallest k ≥ 1 whose result is after `occurred_on`" until EPIC-
 
 `rollover = from_actual` anchors the next cycle on the date and odometer the job was actually done; `from_due` anchors it on the date it *was* due — registration falls in June whenever you paid.
 
+**`progress`, defined.** Each axis's fraction is `(now − anchor) / (due − anchor)` on that axis — `(odo_now − anchor.odometer) / (due_at_odo − anchor.odometer)` for distance, `(today − anchor.date) / (due_on − anchor.date)` for time — and `progress` is the greater of the two. Floored at 0, so a reading that predates the anchor does not read as negative progress, and **deliberately not capped above 1**: a bar that stops at full cannot show that an item is 60% past due, which is exactly the case a driver most needs to see. An axis that cannot be assessed contributes nothing rather than zero. Added in EPIC-07, which found the field specified as "the max of the two axes' fractions" with neither fraction defined.
+
 **Grace exists on purpose.** Nobody books a garage the afternoon the counter ticks over. `due` is amber and actionable; `overdue` is red and means you have been ignoring it. Shouting "overdue" on day zero teaches people to ignore the app, and then the timing belt goes.
 
 **Stale odometer.** If `stale_days > 60`, the distance axis is the driver, and its status would be `due` or `overdue`, the status becomes **`needs_odometer`** — ask for a reading rather than make an accusation supportable only by arithmetic. `due_soon` still shows normally. If the time axis independently reaches `due` or `overdue`, that wins and shows as itself; time never needs an odometer.
