@@ -41,11 +41,21 @@ At the moment this epic starts:
 - The §3 entities are modelled and persisted behind repositories that are the single write
   path (EPIC-05): `Vehicle`, `ServiceItem`, `ServiceRecord` + `ServiceLine`, `FillUp`,
   `Expense`, `OdometerReading`, `OdometerCorrection`, `Trip`, `Settings`.
-- **EPIC-06 delivered the pure core this epic stands on**: canonical integer units in
-  `lib/core/units/`, `Money`, the zoneless `CivilDate` with calendar-month `addMonths`
-  clamping to the last day of the target month, the injected `Clock` from `package:clock`,
-  the `Result`/`Failure` spine, and `cumulative(reading)` with `OdometerCorrection` offsets
-  applied.
+- **EPIC-06 delivered most of the pure core this epic stands on**: canonical integer
+  units in `lib/core/units/` (`Distance`, `Volume`, `Mass`, `Energy`, the sealed
+  `FuelQuantity`), `Money`/`Currency`/`MoneyTotal`, the `Result`/`Failure` spine, and
+  `cumulativeByReading` with `OdometerCorrection` offsets applied. The injected `Clock`
+  from `package:clock` is there too — EPIC-05 built it (`lib/app/providers.dart`'s
+  `clockProvider`), not EPIC-06.
+- **`CivilDate` is NOT there, and this line used to say it was.** EPIC-06's ten tasks
+  never named it and it was never built; the claim was corrected in this epic's first
+  commit, and `epics/progress/EPIC-06.md`'s handover section says what is needed. It is
+  **task 7.0 below**, before anything else, because `OdometerPoint`, `DueAnchor`,
+  `dailyDistance` and `DueStatus` all take one.
+- `lib/core/time/` exists and holds `completed_months.dart` (`MonthRange`,
+  `completedMonthsBefore`), which EPIC-06 moved there out of `lib/core/money/` precisely
+  so this epic's month arithmetic would have somewhere obvious to live. It is already a
+  named subject in `test/policy/core_is_pure_test.dart`'s allowlist.
 
 Deliberately still missing when this epic starts, and still missing when it ends:
 
@@ -91,6 +101,49 @@ Deliberately still missing when this epic starts, and still missing when it ends
 ---
 
 ## Tasks
+
+### Task 7.0 — `CivilDate`: a date with no time and no zone
+
+- **Goal** — the type every other task in this epic takes, so that "what day is it" is
+  never a `DateTime` and never depends on where the phone is.
+- **Why it is here and not in EPIC-06** — it was not in EPIC-06's task list and was not
+  built; this epic's *Where we are now* claimed otherwise and has been corrected. The
+  tests that justify its shape are all here.
+- **Spec** — §3 *Entities* (`occurred_on` is `YYYY-MM-DD` text, not a timestamp); §4.1
+  *Projecting distance into a date*; §18 q. 7 (the Jalali calendar question, which this
+  type must not foreclose).
+- **Skills** — `value-objects-money-and-units`, `dart3-idioms-and-coding-standards`.
+- **Write these tests first** — `test/core/time/civil_date_test.dart`:
+  - `parses and re-renders YYYY-MM-DD exactly` — round-trip, including a leap day.
+  - `refuses anything that is not a calendar date` — `2026-13-01`, `2026-02-30`,
+    `2026-2-3`, `26-02-03`, an empty string: `tryParse` returns null, never a guess.
+  - `has no time and no zone` — the type holds three ints; there is no `DateTime` field
+    and no `toLocal`.
+  - `daysUntil counts CIVIL days across a daylight-saving boundary` — the bug this type
+    exists to prevent. `DateTime.parse('2026-03-29')` is a LOCAL time and two dates two
+    calendar days apart differ by 47 hours across a European spring-forward, which
+    `inDays` truncates to 1. Asserted at a real transition, in both hemispheres.
+  - `addDays crosses a month and a year boundary`.
+  - `addMonths clamps to the last day of the target month` — 31 January + 1 month is
+    28 February in 2026 and 29 February in 2028, never 3 March. This is SPEC.md §3's
+    `interval_months` rule and the reason `addMonths` is not "add 30.44 days".
+  - `addMonths is not reversible, and the test says so` — 31 Jan + 1 month − 1 month is
+    28 Feb, not 31 Jan. A caller who assumes otherwise gets a drifting service date.
+  - `compares and sorts by calendar order` — `Comparable`, with `==` and `hashCode`.
+- **Then build** — `lib/core/time/civil_date.dart`, beside `completed_months.dart`.
+  Three `int` fields, `tryParse`, `toString()`, `daysUntil`, `addDays`, `addMonths`,
+  `Comparable<CivilDate>`, value equality. Gregorian only: §18 q. 7 is open, and a
+  Jalali rendering is a PRESENTATION concern that reads this type rather than replacing
+  it — `lib/core/l10n/jalali.dart` already converts.
+- **Verify** — `dart test test/core/time/`; `bash tools/check_core_purity.sh`.
+- **Done when**
+  - [ ] No `DateTime` field on the type; `dart test test/core` still green on the plain VM.
+  - [ ] `addMonths` clamps, with the February cases pinned in both a leap and a common year.
+  - [ ] `daysUntil` is asserted across a real DST transition and disagrees with a naive
+        `DateTime` difference there.
+- **Estimate** — 0.5 h (CC) · ~1 week (human)
+
+---
 
 ### Task 7.1 — Normalise the reading series into rate endpoints
 
