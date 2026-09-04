@@ -254,7 +254,7 @@ Deliberately still missing when this epic starts:
   - `the name field is pre-selected so the first keystroke replaces the prefill`.
   - `Extended Arabic-Indic digits in the odometer normalise to a canonical value on blur`.
   - `an ambiguous "1,234" is rejected inline rather than guessed`.
-  - `each annual band writes the expected_annual_m value SPEC.md §8 assigns it` — **blocked until F-9.1 is settled**; §8 gives four band labels and no metre values, and this task does not invent them.
+  - `each annual band writes the expected_annual_m value SPEC.md §8 assigns it` — F-9.1 is settled: §8 now carries the table, closed bands write their midpoint and the open band a third above its floor, per unit system and not converted.
   - `Save writes Vehicle, OdometerReading, the seeded items and Settings in one transaction`.
   - `the unit chip writes Settings.distance_unit and no per-vehicle override` — with exactly one vehicle, a global is the honest place for it.
   - `a disk failure keeps the screen and shows "Couldn't save. Your phone may be out of space." with Retry`.
@@ -263,11 +263,12 @@ Deliberately still missing when this epic starts:
   - `cancelling the picker returns here with nothing written`.
   - `backgrounding mid-entry keeps the form in memory and writes no draft row`.
 - **Then build** — `lib/features/first_run/presentation/first_run_vehicle_screen.dart` and
-  `first_run_vehicle_notifier.dart`. Six controls: three type tiles plus Other in the
-  overflow, a `CalmField` for the name, three fuel `CalmChip`s plus More…, the odometer
-  `CalmField` with its end-edge unit chip, four annual-band chips, one `CalmSwitch`. Save
-  calls `VehicleRepository.create` once. The odometer and its unit are one atomic run in both
-  directions.
+  `first_run_vehicle_notifier.dart`. **Five** controls: three type tiles (no overflow — F-9.11),
+  a `CalmField` for the name, three fuel `CalmChip`s plus a More… sheet, the odometer
+  `CalmField` with its end-edge unit chip, and four annual-band chips. **No `CalmSwitch`** —
+  F-9.9: the artboard and all four references have none, and `vehicle_type = van` still turns
+  `is_business` on. Save calls `VehicleRepository.create` once. The odometer and its unit are
+  one atomic run in both directions.
   Then `test/parity/firstrun_vehicle_parity_test.dart`, capturing to
   `build/parity/firstrun.vehicle-<theme>-<dir>.png`.
 - **Verify**
@@ -280,9 +281,10 @@ Deliberately still missing when this epic starts:
   bash .claude/skills/calm-visual-parity/scripts/check_parity.sh
   open design/reference/_parity/firstrun.vehicle-light-ltr.png    # look at the side-by-side
   ```
-  Then run the German and Sorani locales at 200% text scale and confirm the band chips read
-  "<10 Tsd." rather than truncating, and that nothing clips — that is §14's text-scale rule
-  and the parity tool shoots at scale 1, so it cannot see it.
+  Then run the German and Sorani locales at 200% text scale and confirm nothing clips — that
+  is §14's text-scale rule and the parity tool shoots at scale 1, so it cannot see it. The
+  band chips no longer need a truncation budget: F-9.12 moved the unit off the chips and into
+  the label, so they read `under 10` / `10–20` / `20–30` / `over 30` in every locale.
 - **Done when**
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type weight, icon shape or optical alignment.
@@ -496,6 +498,12 @@ Deliberately still missing when this epic starts:
 | F-9.5 | §8's garage third line needs the worst item's label ("Oil and filter overdue"), but §3 defines `dueSummary(vehicle)` only as "status counts for Home". | Covered by EPIC-07's F-7.8, which adds `worst` and `worstItem` to `DueSummary`. Task 9.6 consumes it. |
 | F-9.6 | This epic's declared dependencies are EPIC-03, 04 and 05, but `vehicles` and `vehicle.switcher` read `dueSummary` and `estimateOdometer`, which EPIC-07 delivers. | The recommended order puts EPIC-07 first, so this is a documentation gap rather than a build order problem. The §8 fallback — hollow dot, "Couldn't work out what's due" — is a required test in task 9.6 regardless, so the screens render either way. Add EPIC-07 to this epic's dependency row in `epics/README.md`. |
 | F-9.8 | §8 and §5 both wrote the not-translated line as *"Odova isn't translated into {device_language} yet…"* — §5 spelling the placeholder `device_language` and §8 `deviceLanguage` — and called it "an ICU message with the language name in its own language". Nothing in the dependency set can fill it: `intl` carries no locale display names and `flutter_localizations` ships translations, not language names. | **Settled in `SPEC.md` §5 and §8 in this PR: the placeholder is removed** and the line reads "…into your device's language yet". A hand-written endonym table is unbounded — the line fires for any language that is not one of the six — and every row is a factual datum in a script its author cannot check, which §2 forbids. A misspelling of somebody's own language, in their own script, on the app's first screen is the most expensive place to be wrong, and the sentence does its whole job without the name. If a bundled CLDR endonym source is ever added deliberately, the placeholder returns with it. |
+| F-9.9 | §8's field table lists `is_business` as a switch on the first-run screen and its ASCII sketch draws *Do you drive this for work?*. The artboard has no such control and neither do the four reference PNGs. | **The reference is the authority (CLAUDE.md §7), so the switch is dropped from first run** and §8's table and sketch are corrected in this PR. `is_business` is still SET here — `vehicle_type = van` turns it on, unchanged — and `vehicle.edit` carries the switch one screen later. The question is what goes: nine users in ten answer no to it, on the screen with the least room, and the van tile has already answered it for the tenth. Five controls, not six. |
+| F-9.10 | §8 wants Start "visibly disabled" AND wants a tap on it to flash the odometer hint. `CalmButton` asserts that a disabled button has a `CalmButtonExplain` beneath it, and `CalmPressable` wraps a disabled button in an `IgnorePointer`, so neither half is buildable as the widgets stand. | Both halves are kept, because SPEC's reasoning holds — one required field, hint always visible. `CalmButton` gains a way to NAME the always-visible explanation that stands in for the printed one, so the assertion is satisfied by a sentence a reviewer reads rather than by an `// ignore:`; and the tap is caught by the region around the button, since a disabled control cannot receive one. Recorded in §8's *Save disabled* row. |
+| F-9.11 | §8's field table says the type control is "3 icon tiles + Other in the overflow"; the artboard draws three options and no overflow, leaving `truck` and `other` unreachable at first run. | **Three tiles, and nothing is lost.** §4.8's seeded set has three distinct outcomes and `truck` and `other` both "take the car set unchanged" — so a truck owner tapping **Car** gets exactly the right rows and corrects the label in `vehicle.edit`. An overflow here would buy a more accurate word and not one different reminder. §8 corrected in this PR. |
+| F-9.12 | §8's RTL paragraph says band chips "carry a `maxChars` budget and read '<10 Tsd.' rather than truncating", and supplies no budget. | Moot, and the artboard is why: the unit moved off the chips and into the label — "About how far a year? (thousand km)" over `under 10` / `10–20` / `20–30` / `over 30`. Two words at most, in every locale, with nothing to truncate. The `maxChars` sentence is replaced in this PR. |
+| F-9.13 | §8 specifies the **More…** fuel overflow only by its contents (LPG, CNG, Hybrid, Other) — sheet, menu or dialog is undefined, and there is no artboard for it. | **A sheet.** Four values, picked one at a time, nothing to type — the same shape as every other pick-one list in the app, including `vehicle.switcher` and `settings.units`' currency picker. A menu would be a fourth overlay kind for four items. Stated in §8 in this PR. |
+| F-9.14 | The `firstrun.vehicle` artboard draws a FILLED form — name "The Golf", Diesel selected, odometer 187,412 — where §8's Loaded state is prefilled "My car", petrol, and an EMPTY odometer. The reference therefore pins a state the app never opens in. | Not a contradiction to fix: an artboard shows a screen doing its job, and an empty form shows nothing. The parity harness seeds exactly the artboard's three values, so the capture is the shipped widget in a state it can really hold, and the screen test asserts the real Loaded state separately. |
 | F-9.7 | §8 says a `unit_mixup` correction is the arithmetic for a swapped cluster, and §3's `OdometerCorrection.reason` enum includes `unit_mixup`; §14 says "`unit_mixup` is removed as a correction reason". | Not blocking here — no screen in this epic writes a correction — but EPIC-05's enum and EPIC-11's `log.odometer` both depend on the answer. Raised for the reminders and logging epics. |
 
 ## Definition of done

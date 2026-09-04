@@ -2390,11 +2390,10 @@ Language comes from the tapped row; everything else from the device region, not 
 │  └────────────────────┴─────────┘  │
 │  Read it off the dash.             │
 │                                    │
-│  About how far a year?             │
-│  [<10k][10–20k][20–30k][30k+]      │
-│         ▔▔▔▔▔▔▔                    │
-│                                    │
-│  Do you drive this for work?  ( ○) │
+│  About how far a year? (thousand   │
+│  km)                               │
+│  [under 10][10–20][20–30][over 30] │
+│            ▔▔▔▔▔                   │
 │                                    │
 │           [      Start      ]      │
 │                                    │
@@ -2404,14 +2403,17 @@ Language comes from the tapped row; everything else from the device region, not 
 
 | Field | Control | Prefilled with |
 |---|---|---|
-| `vehicle_type` | 3 icon tiles + "Other" in the overflow | `car` |
+| `vehicle_type` | 3 tiles: car, motorbike, van | `car` |
 | `name` | text, pre-selected so typing replaces it | "My car" / "My motorbike" / "My van", following the type tile |
-| `fuel_kind_default` | 3 chips + **More…** (LPG, CNG, Hybrid, Other) | `petrol` |
+| `fuel_kind_default` | 3 chips + **More…**, which opens a sheet of LPG, CNG, Hybrid, Other | `petrol` |
 | `odometer_m` | numeric keypad + unit chip | empty — the whole tax, about six digits |
-| `expected_annual_m` | 4 bands | 10–20k |
-| `is_business` | switch | off; **on** when type = van |
+| `expected_annual_m` | 4 bands, the unit in the label | 10–20 |
 
-Six controls, one required entry, nine interactions on a realistic path. Everything else in `Vehicle` is nullable and asked later.
+**Five controls, one required entry, eight interactions on a realistic path.** Everything else in `Vehicle` is nullable and asked later — including `is_business`, which has no control here at all. It is still SET here: `vehicle_type = van` turns it on, exactly as before. What is gone is the question, and two things pay for it. A switch labelled *Do you drive this for work?* is a question nine users in ten answer no to, on the screen with the least room to spend; and the van tile has already answered it for the tenth, who is the plumber this app was written for. `vehicle.edit` carries the switch for everybody else, one screen later.
+
+**More… is a sheet.** Four values, picked one at a time, with nothing to type — which is what every other pick-one list in the app uses a sheet for, including `vehicle.switcher` and the currency list on `settings.units`. A menu would be a fourth overlay kind for four items, and §7 keeps no branch three deep.
+
+**Only three tiles, and `truck` and `other` lose nothing by their absence.** §4.8's seeded set is where the choice actually lands, and it has three distinct outcomes: the car set, the car set plus the van extras, and the motorcycle set. `truck` and `other` "take the car set unchanged", so a truck owner who taps **Car** gets precisely the rows a truck owner should get, and then corrects the type in `vehicle.edit` if the label matters to them. An overflow on this screen would buy a more accurate word and not one different reminder.
 
 The odometer is required because every projection hangs off the series: with no readings every reminder is `unknown`, and day one is a home screen full of dashes. It is also the one number every driver can read without leaving the car. The annual band is what the projection falls back on until there is enough history to measure — without it a delivery driver and a pensioner get the same guess — and four preselected bands buy `confidence = assumed` instead of `default`. We do not ask "when was the last oil change?": the most valuable question available and the most likely to end the session. Seeded items carry an assumed anchor until a service record or a baseline lands (*Reminders and notifications*).
 
@@ -2451,7 +2453,7 @@ lose a vehicle to a number the app only ever uses as a fallback.
 | State | Behaviour |
 |---|---|
 | Loaded (the only entry state) | As drawn. Focus is **not** auto-placed in the odometer field — a keyboard over two thirds of the screen reads as a form to fill, not a question to answer. |
-| Save disabled | Until the odometer parses to a positive integer; visibly disabled, and tapping it flashes the odometer hint. The deliberate exception to "Save is never disabled", which scopes to the four `log.*` segments: one required field, hint always visible. |
+| Save disabled | Until the odometer parses to a positive integer; visibly disabled, and tapping it flashes the odometer hint. The deliberate exception to "Save is never disabled", which scopes to the four `log.*` segments: one required field, hint always visible. **Two mechanics follow from wanting both halves.** A disabled button normally owes the user an explanation printed beneath it; here the explanation is the field hint above, which is on screen whether or not the button is disabled, so the button DECLARES what stands in for that line rather than repeating it — a second copy of "Read it off the dash" under the button would be the same sentence twice on a screen with no room for it. And a disabled control cannot receive a tap, so the tap that flashes the hint is caught by the region AROUND the button, not by the button. |
 | Invalid odometer | Inline under the field. Empty on Save: **"Enter the number on your dash."** Unparseable: **"That doesn't look like a number. Digits only."** Zero: allowed — new cars exist. Above 3,000,000 km: **"That's higher than any car has driven. Check the number."** — a warning with a "Use it anyway" affordance, never a block. |
 | Backgrounded mid-entry | Form state survives in memory; nothing is written. A cold kill loses it and replays this screen — six digits is an acceptable loss, a draft row for a vehicle that does not exist is not. |
 | Error | Only a disk write can fail: **"Couldn't save. Your phone may be out of space."** with Retry. The screen never advances. |
@@ -2473,7 +2475,7 @@ All or nothing: a crash between the vehicle row and the reading row leaves a veh
 
 **Navigation.** In: `settings.language` (firstRun) via Continue; cold start with zero vehicles; deleting the last vehicle. Out: `home`, only via Start; `settings.import` via Restore a backup. No Cancel, no back, no swipe-to-dismiss, and Android system back is swallowed — a modal you can dismiss into an app with no data is a bug with a nice animation.
 
-**RTL and l10n.** The type tiles mirror; the silhouettes inside them never do. The odometer keeps its unit affix on the **end** edge in both directions, and number plus unit is one atomic run — `۱۸۷٬۴۱۲ کیلومتر` never splits. The field accepts every numbering system the app supports and normalises on blur. German is the long case: "Ungefähre Jahresfahrleistung" and "Fahren Sie damit beruflich?" sit above their controls and wrap to two lines; band chips carry a `maxChars` budget and read "<10 Tsd." rather than truncating.
+**RTL and l10n.** The type tiles mirror; the silhouettes inside them never do. The odometer keeps its unit affix on the **end** edge in both directions, and number plus unit is one atomic run — `۱۸۷٬۴۱۲ کیلومتر` never splits. The field accepts every numbering system the app supports and normalises on blur. German is the long case: "Ungefähre Jahresfahrleistung" sits above its control and wraps to two lines. The band chips need no truncation budget, because the unit is not on them — it is in the label, as "(thousand km)" / "(Tausend km)", and the chips themselves are two words at most: `under 10`, `10–20`, `20–30`, `over 30`. That is the fix for the problem an earlier draft answered with a `maxChars` number it never supplied.
 
 ---
 
