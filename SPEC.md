@@ -2286,7 +2286,7 @@ Routing reads three payload fields — `kind` (`reminder.due` / `reminder.overdu
 - A cold start from a notification **never** shows onboarding — a notification cannot exist unless a vehicle exists.
 - The back stack under any deep link is synthesised as `[home]`. Back from a deep-linked modal lands on Home, never straight out of the app.
 - A link naming a vehicle or reminder that no longer exists (deleted, or wiped by an import) lands on plain `home` for the current active vehicle and shows nothing — no error toast for something the user already dealt with.
-- Tapping the body never opens a form, because a lock-screen tap is often exploratory and a prefilled form one thumb-slip from Save is a data-integrity hazard. **Done** exists for people who mean it, and it records without opening a form at all.
+- Tapping the body of a **reminder** notification never opens a form, because a lock-screen tap is often exploratory and a prefilled form one thumb-slip from Save is a data-integrity hazard. **Done** exists for people who mean it, and it records without opening a form at all. `odometer.nudge` is the one kind that does open one, and for the opposite reason: it is asking for a reading, so the form *is* the action, and there is nothing there to save by accident that the user did not type.
 
 ### After an import
 

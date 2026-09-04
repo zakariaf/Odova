@@ -24,6 +24,15 @@ dependencies:
   # State AND dependency injection. Deciding that here is what stops get_it
   # arriving in epic seven.
   flutter_riverpod: ^3.0.0
+  # The router. SPEC.md §7 needs one navigation graph with typed locations,
+  # a real `errorBuilder` and a shell whose four tabs each keep their own
+  # stack — `StatefulShellRoute.indexedStack` is the reason for the package
+  # rather than Navigator 1.0, because "the app never switches tabs under the
+  # user's finger" is a per-branch history and not a page swap.
+  #
+  # Opens no socket: `tools/audit_deps.sh` walks its transitive tree and it
+  # reaches nothing banned.
+  go_router: ^17.5.0
   # Bidi, numeral systems and the CLDR plural categories. SPEC.md §5 needs all
   # three before there is a second string.
   intl: ^0.20.2

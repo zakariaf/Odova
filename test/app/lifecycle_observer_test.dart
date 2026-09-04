@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 
+import '../support/pump_app.dart';
+
 void main() {
   /// Pumps the root with a counting flush and returns a reader for the count.
   Future<int Function()> pumpCountingRoot(WidgetTester tester) async {
@@ -18,6 +20,7 @@ void main() {
       OdovaRoot(
         overrides: [
           durableFlushProvider.overrideWithValue(() async => flushes++),
+          ...noLaunchGate(),
         ],
       ),
     );

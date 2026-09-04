@@ -114,4 +114,166 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get routeNotFoundTitle => 'Introuvable';
+
+  @override
+  String get routeNotFoundBody => 'Ce lien ne mène nulle part.';
+
+  @override
+  String get routeNotFoundGoHome => 'Aller à l\'accueil';
+
+  @override
+  String get tabHome => 'Accueil';
+
+  @override
+  String get tabHistory => 'Historique';
+
+  @override
+  String get tabCosts => 'Coûts';
+
+  @override
+  String get tabSettings => 'Réglages';
+
+  @override
+  String get tabLogA11y => 'Enregistrer';
+
+  @override
+  String get discardTitle => 'Abandonner les modifications ?';
+
+  @override
+  String discardBody(String subject, String summary) {
+    return 'Vos modifications de $subject — $summary — n’ont pas été enregistrées.';
+  }
+
+  @override
+  String get discardKeepEditing => 'Continuer à modifier';
+
+  @override
+  String get discardDiscard => 'Abandonner';
+
+  @override
+  String confirmDeleteTitle(String subject, int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ses $countText entrées',
+      many: 'ses $countText entrées',
+      one: 'son entrée',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Supprimer $subject et $_temp0 ?',
+      zero: 'Supprimer $subject ?',
+    );
+    return '$_temp1';
+  }
+
+  @override
+  String confirmDeleteBody(
+    int fillUps,
+    String fillUpsText,
+    int services,
+    String servicesText,
+    int costs,
+    String costsText,
+    int trips,
+    String tripsText,
+    int reminders,
+    String remindersText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      fillUps,
+      locale: localeName,
+      other: '$fillUpsText pleins',
+      many: '$fillUpsText pleins',
+      one: '$fillUpsText plein',
+      zero: 'Aucun plein',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      services,
+      locale: localeName,
+      other: '$servicesText entretiens',
+      many: '$servicesText entretiens',
+      one: '$servicesText entretien',
+      zero: 'aucun entretien',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      costs,
+      locale: localeName,
+      other: '$costsText frais',
+      many: '$costsText frais',
+      one: '$costsText frais',
+      zero: 'aucun frais',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      trips,
+      locale: localeName,
+      other: '$tripsText trajets',
+      many: '$tripsText trajets',
+      one: '$tripsText trajet',
+      zero: 'aucun trajet',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
+      reminders,
+      locale: localeName,
+      other: '$remindersText rappels',
+      many: '$remindersText rappels',
+      one: '$remindersText rappel',
+      zero: 'aucun rappel',
+    );
+    return '$_temp0, $_temp1, $_temp2, $_temp3 et $_temp4 disparaissent définitivement.';
+  }
+
+  @override
+  String confirmDeleteTypeToConfirm(String subject) {
+    return 'Saisissez $subject pour confirmer';
+  }
+
+  @override
+  String get confirmDeleteDelete => 'Supprimer';
+
+  @override
+  String snoozeTitle(String item) {
+    return 'Reporter $item';
+  }
+
+  @override
+  String get snoozeBody =>
+      'Cela met le rappel en sourdine. L\'échéance ne change pas.';
+
+  @override
+  String snoozeThreeDays(String count) {
+    return '$count jours';
+  }
+
+  @override
+  String snoozeOneWeek(String count) {
+    return '$count semaine';
+  }
+
+  @override
+  String snoozeOneMonth(String count) {
+    return '$count mois';
+  }
+
+  @override
+  String snoozeDistance(String distance) {
+    return 'Après $distance de plus';
+  }
+
+  @override
+  String snoozeUntil(String date) {
+    return 'jusqu\'au $date';
+  }
+
+  @override
+  String snoozeAtOdometer(String odometer) {
+    return 'à $odometer';
+  }
+
+  @override
+  String get commonCancel => 'Annuler';
 }

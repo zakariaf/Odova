@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,11 +20,66 @@ import 'package:flutter_test/flutter_test.dart';
 /// against it is measuring a font nobody ships. It reports failures the design
 /// does not have and would force the layout to be redrawn around them.
 Future<void> loadAppFonts() async {
+  // The REAL Latin face, registered first so it is the fallback a null
+  // `fontFamily` resolves to.
+  //
+  // This used to register Vazirmatn under the name Roboto, on the reasoning
+  // that a golden needs a deterministic face and the app bundles no Latin one.
+  // The determinism was real and the consequence was not noticed: Vazirmatn
+  // renders Latin about TWICE as wide as the platform faces, so every Latin
+  // golden, every overflow-matrix case and every touch-target measurement was
+  // taken against a font nobody ships. It can invent an overflow that does not
+  // exist on a phone and hide one that does — EPIC-08's parity work found the
+  // first kind, on a `CalmListRow` that fits.
+  //
+  // The SDK's Roboto is pinned by the pinned Flutter version, which the goldens
+  // already depend on through Skia. Falling back to the substitution when the
+  // cache is missing keeps a fresh clone able to run the suite.
+  if (!await loadSdkFont('Roboto', 'Roboto-Regular.ttf')) {
+    await loadVazirmatn(alsoAs: const ['Roboto']);
+    return;
+  }
+  await loadVazirmatn();
+  await loadSdkFont('MaterialIcons', 'MaterialIcons-Regular.otf');
+}
+
+/// Registers the app's one bundled face, and optionally under other names.
+///
+/// [alsoAs] exists for the golden lane's Vazirmatn-as-Roboto substitution; the
+/// parity lane wants the real Roboto and so passes nothing.
+Future<void> loadVazirmatn({List<String> alsoAs = const []}) async {
   TestWidgetsFlutterBinding.ensureInitialized();
   final bytes = await File('assets/fonts/Vazirmatn[wght].ttf').readAsBytes();
-  for (final family in ['Vazirmatn', 'Roboto']) {
+  for (final family in ['Vazirmatn', ...alsoAs]) {
     await (FontLoader(
       family,
     )..addFont(Future.value(ByteData.sublistView(bytes)))).load();
   }
+}
+
+/// Registers a font family from the Flutter SDK's own cache.
+///
+/// Returns false when the file is not there, which is a real possibility on a
+/// machine that has never run `flutter precache`. The caller decides whether
+/// that is fatal.
+Future<bool> loadSdkFont(String family, String fileName) async {
+  final file = File(
+    '${flutterRoot()}/bin/cache/artifacts/material_fonts/$fileName',
+  );
+  if (!file.existsSync()) return false;
+  final bytes = await file.readAsBytes();
+  await (FontLoader(
+    family,
+  )..addFont(Future.value(ByteData.sublistView(bytes)))).load();
+  return true;
+}
+
+/// Where the Flutter SDK is installed.
+///
+/// `FLUTTER_ROOT` first, because that is what CI sets; otherwise four
+/// directories up from the Dart binary, which lives in the SDK's own cache.
+String flutterRoot() {
+  final env = Platform.environment['FLUTTER_ROOT'];
+  if (env != null && env.isNotEmpty) return env;
+  return File(Platform.resolvedExecutable).parent.parent.parent.parent.path;
 }

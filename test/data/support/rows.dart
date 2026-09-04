@@ -5,9 +5,29 @@
 /// enum value in Dart before SQLite ever saw it — which would make every
 /// rejection test pass while proving nothing about the database. A row written
 /// by an import, a migration or a future repository arrives as SQL.
+///
+/// **Every helper announces its table.** `customStatement` does not tell drift
+/// which tables it touched, so a query somebody is already WATCHING is never
+/// invalidated and keeps the answer it had before the insert. That is invisible
+/// in a test that inserts first and subscribes afterwards, and it silently
+/// breaks any test that subscribes first — which is every test about a stream
+/// reacting to a write. `markTablesUpdated` is what a real insert does for
+/// itself.
 library;
 
+import 'package:drift/drift.dart' show Table, TableInfo;
 import 'package:odova/data/db/app_database.dart';
+
+/// Runs [sql] and tells drift which tables it touched.
+Future<void> _write(
+  AppDatabase db,
+  String sql,
+  List<Object?> variables,
+  Iterable<TableInfo<Table, dynamic>> tables,
+) async {
+  await db.customStatement(sql, variables);
+  db.markTablesUpdated(tables);
+}
 
 /// Inserts a vehicle, defaulting everything the table does not require.
 Future<void> insertVehicle(
@@ -20,7 +40,8 @@ Future<void> insertVehicle(
   int? tankCapacityMl,
   int createdAtUtcMs = 1000,
   int? updatedAtUtcMs,
-}) => db.customStatement(
+}) => _write(
+  db,
   '''
     INSERT INTO vehicles (
       id, name, vehicle_type, is_business, fuel_kind_default, status,
@@ -38,6 +59,7 @@ Future<void> insertVehicle(
     createdAtUtcMs,
     updatedAtUtcMs ?? createdAtUtcMs,
   ],
+  {db.vehicles},
 );
 
 /// Inserts a service item against [vehicleId].
@@ -54,7 +76,8 @@ Future<void> insertServiceItem(
   String priority = 'normal',
   String rollover = 'from_actual',
   int createdAtUtcMs = 1000,
-}) => db.customStatement(
+}) => _write(
+  db,
   '''
     INSERT INTO service_items (
       id, vehicle_id, kind, label,
@@ -77,6 +100,7 @@ Future<void> insertServiceItem(
     createdAtUtcMs,
     createdAtUtcMs,
   ],
+  {db.serviceItems},
 );
 
 /// Inserts the settings singleton.
@@ -93,16 +117,20 @@ Future<void> insertSettings(
   String volumeUnit = 'l',
   String consumptionUnit = 'l_100km',
   int schemaVersion = 1,
-}) => db.customStatement(
+  String? activeVehicleId,
+  bool onboardingDone = false,
+}) => _write(
+  db,
   '''
     INSERT INTO settings (
       id, schema_version, language, calendar, numerals, first_day_of_week,
       theme, currency_default, currency_display, distance_unit, volume_unit,
       consumption_unit, notification_time_minutes, quiet_hours_from_minutes,
       quiet_hours_to_minutes, weekdays_only, notify_service, notify_odometer,
-      notify_backup, onboarding_done, created_at_utc_ms, updated_at_utc_ms
+      notify_backup, onboarding_done, active_vehicle_id,
+      created_at_utc_ms, updated_at_utc_ms
     ) VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, 540, 1260, 480, 0, 1, 1, 1,
-              0, 1000, 1000);
+              ?, ?, 1000, 1000);
   ''',
   [
     id,
@@ -116,7 +144,10 @@ Future<void> insertSettings(
     distanceUnit,
     volumeUnit,
     consumptionUnit,
+    if (onboardingDone) 1 else 0,
+    activeVehicleId,
   ],
+  {db.settingsTable},
 );
 
 /// Inserts a service record.
@@ -126,7 +157,8 @@ Future<void> insertServiceRecord(
   String vehicleId = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
   String occurredOn = '2026-09-03',
   int? odometerM = 186512000,
-}) => db.customStatement(
+}) => _write(
+  db,
   '''
     INSERT INTO service_records (
       id, vehicle_id, occurred_on, odometer_m, odometer_unit,
@@ -134,6 +166,7 @@ Future<void> insertServiceRecord(
     ) VALUES (?, ?, ?, ?, 'km', 0, 0, 1000, 1000);
   ''',
   [id, vehicleId, occurredOn, odometerM],
+  {db.serviceRecords},
 );
 
 /// Inserts one line of a service record.
@@ -145,13 +178,15 @@ Future<void> insertServiceLine(
   String label = 'Oil and filter',
   int amountMinor = 8900,
   String currency = 'EUR',
-}) => db.customStatement(
+}) => _write(
+  db,
   '''
     INSERT INTO service_lines (
       id, service_record_id, service_item_id, label, amount_minor, currency
     ) VALUES (?, ?, ?, ?, ?, ?);
   ''',
   [id, serviceRecordId, serviceItemId, label, amountMinor, currency],
+  {db.serviceLines},
 );
 
 /// Inserts a fill-up.
@@ -167,7 +202,8 @@ Future<void> insertFillUp(
   int totalCostMinor = 7845,
   String currency = 'EUR',
   String? tripId,
-}) => db.customStatement(
+}) => _write(
+  db,
   '''
     INSERT INTO fill_ups (
       id, vehicle_id, occurred_on, odometer_m, odometer_unit, fuel_kind,
@@ -189,6 +225,7 @@ Future<void> insertFillUp(
     currency,
     tripId,
   ],
+  {db.fillUps},
 );
 
 /// Inserts an expense.
@@ -204,7 +241,8 @@ Future<void> insertExpense(
   String? coversFrom,
   String? coversTo,
   String? tripId,
-}) => db.customStatement(
+}) => _write(
+  db,
   '''
     INSERT INTO expenses (
       id, vehicle_id, trip_id, occurred_on, category, label, amount_minor,
@@ -224,6 +262,7 @@ Future<void> insertExpense(
     coversFrom,
     coversTo,
   ],
+  {db.expenses},
 );
 
 /// Inserts a trip.
@@ -237,7 +276,8 @@ Future<void> insertTrip(
   int? startOdometerM = 186000000,
   int? endOdometerM = 186512000,
   int? manualDistanceM,
-}) => db.customStatement(
+}) => _write(
+  db,
   '''
     INSERT INTO trips (
       id, vehicle_id, purpose, started_on, ended_on, start_odometer_m,
@@ -255,4 +295,5 @@ Future<void> insertTrip(
     endOdometerM,
     manualDistanceM,
   ],
+  {db.trips},
 );

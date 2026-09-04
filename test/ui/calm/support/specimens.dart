@@ -662,10 +662,20 @@ class CalmSpecimenFont extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => DefaultTextStyle.merge(
-    style: const TextStyle(fontFamily: 'Vazirmatn'),
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      // A `Material`, not a `DefaultTextStyle.merge` of a font family.
+      //
+      // A specimen sheet has no Material of its own, and `WidgetsApp`'s
+      // fallback `DefaultTextStyle` for that case is 48pt bold red monospace
+      // with a DOUBLE YELLOW UNDERLINE — an error style meant to be
+      // unmissable. Merging a family into it fixed the one part that was
+      // obviously wrong and inherited the rest: every Calm string that does not
+      // set its own `decoration` was underlined in yellow, in all 88 committed
+      // goldens, for the life of the suite. The goldens were regression-proof
+      // against a picture that was never the app.
+      //
+      // `transparency`, because the sheet paints its own ground.
+      Material(type: MaterialType.transparency, child: child);
 }
 
 /// The sheet every specimen matrix pumps.

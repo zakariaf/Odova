@@ -1,10 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/routing/app_router.dart';
+import 'package:odova/app/routing/launch_gate.dart';
 
 /// Pumps [child] inside everything a real Odova screen sits in.
 ///
@@ -69,7 +76,11 @@ Future<void> pumpApp(
             boldText: boldText,
             accessibleNavigation: accessibleNavigation,
           ),
-          child: OdovaApp(locale: locale, themeMode: themeMode, home: child),
+          child: OdovaApp(
+            locale: locale,
+            themeMode: themeMode,
+            router: singleScreenRouter(child),
+          ),
         ),
       ),
     ),
@@ -92,3 +103,80 @@ Future<void> pumpApp(
     const Duration(seconds: 5),
   );
 }
+
+/// A router that shows [child] at `/` and nothing else.
+///
+/// EPIC-08 replaced `OdovaApp.home` with a router, because
+/// `MaterialApp.router` has no `home:`. A component test still wants to pump
+/// one widget inside the real app's themes, locales and text scaler, so it
+/// pumps it as the only screen of a one-route graph rather than losing that
+/// wrapping.
+///
+/// It deliberately does NOT set `navigatorKey`. `rootNavigatorKey` belongs to
+/// the app's own router, and two routers claiming one GlobalKey is a duplicate
+/// key crash the moment both are mounted.
+GoRouter singleScreenRouter(Widget child) => GoRouter(
+  routes: [GoRoute(path: '/', builder: (context, state) => child)],
+);
+
+/// A router with no launch gate, for a test that is not about routing.
+///
+/// EPIC-08 wired `routerProvider` to the launch gate, which reads
+/// `Settings.onboarding_done` and the live vehicle count — so from that point
+/// on, building the real router opens the DATABASE. A test about the lifecycle
+/// observer or the retry policy that pumps `OdovaRoot` therefore opened a real
+/// database on disk and left drift's stream timers pending after the tree was
+/// torn down, which `flutter_test` fails on and which took ten minutes per
+/// test to do it.
+///
+/// The fix is an override rather than a launch gate that tolerates a missing
+/// database: "no database" and "no vehicles" are different conditions, and
+/// SPEC.md §7 sends them to different screens.
+List<Override> noLaunchGate() => [
+  routerProvider.overrideWithValue(buildRouter()),
+  initialLaunchFactsProvider.overrideWithValue(
+    const LaunchFacts(
+      onboardingDone: true,
+      liveVehicleCount: 1,
+      migrationFailed: false,
+    ),
+  ),
+];
+
+/// The ARB files that are missing any of [keys].
+///
+/// SPEC.md §2: every user-visible string lands in all six ARB files in the same
+/// commit. `arb_parity_test.dart` already asserts the six agree with each
+/// other;
+/// this is for a feature test that wants to name ITS keys, so the failure says
+/// which screen lost a translation rather than only that the files disagree.
+List<String> missingArbKeys(List<String> keys) {
+  final missing = <String>[];
+  for (final locale in ['en', 'de', 'fr', 'fa', 'ar', 'ckb']) {
+    final arb =
+        jsonDecode(File('lib/l10n/arb/app_$locale.arb').readAsStringSync())
+            as Map<String, dynamic>;
+    for (final key in keys) {
+      if (!arb.containsKey(key)) missing.add('$locale: $key');
+    }
+  }
+  return missing;
+}
+
+/// Sends the platform message the engine sends on an Android system back.
+///
+/// The Flutter SDK has this as `simulateSystemBack` in
+/// `packages/flutter/test/cupertino/navigator_utils.dart`, which
+/// `flutter_test` does not export. Not approximated with `Navigator.pop`: the
+/// two are not the same event, and a `Navigator.pop` bypasses every `PopScope`
+/// in the tree.
+Future<void> systemBack() => TestDefaultBinaryMessengerBinding
+    .instance
+    .defaultBinaryMessenger
+    .handlePlatformMessage(
+      SystemChannels.navigation.name,
+      const JSONMessageCodec().encodeMessage(<String, dynamic>{
+        'method': 'popRoute',
+      }),
+      (_) {},
+    );

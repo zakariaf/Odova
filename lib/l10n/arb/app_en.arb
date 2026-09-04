@@ -144,5 +144,228 @@
         "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
       }
     }
+  },
+  "routeNotFoundTitle": "Not found",
+  "@routeNotFoundTitle": {
+    "description": "App bar title on the 404 screen. SPEC.md §7: an unknown link lands somewhere designed rather than on a red error box."
+  },
+  "routeNotFoundBody": "That link doesn't lead anywhere.",
+  "@routeNotFoundBody": {
+    "description": "The one sentence on the 404 screen. Deliberately does not name the app or the link — a dead end is worse than a wrong turn, and the sentence exists only to hand the user the button below it."
+  },
+  "routeNotFoundGoHome": "Go to Home",
+  "@routeNotFoundGoHome": {
+    "description": "The single action on the 404 screen. Home is the one screen that always exists and always has something to say."
+  },
+  "tabHome": "Home",
+  "@tabHome": {
+    "description": "Tab 1. SPEC.md §7: the tab labels are always visible under their icons — there is no icon-only mode to fall into. German and Sorani both run long here and wrap to two lines rather than truncating."
+  },
+  "tabHistory": "History",
+  "@tabHistory": {
+    "description": "Tab 2."
+  },
+  "tabCosts": "Costs",
+  "@tabCosts": {
+    "description": "Tab 3."
+  },
+  "tabSettings": "Settings",
+  "@tabSettings": {
+    "description": "Tab 4."
+  },
+  "tabLogA11y": "Log",
+  "@tabLogA11y": {
+    "description": "Spoken label for the central + . It carries no visible text, so this is the only name a screen reader has for the app's most-pressed control. SPEC.md §7: logging is an act that finishes and returns you, which is why it is a button and not a fifth tab."
+  },
+  "discardTitle": "Discard changes?",
+  "@discardTitle": {
+    "description": "Title of the global discard dialog. SPEC.md §7: dismissing a dirty modal opens this; dismissing a clean one is silent."
+  },
+  "discardBody": "Your edits to {subject} — {summary} — have not been saved.",
+  "@discardBody": {
+    "description": "The body of the discard dialog. It names what would be lost, because a generic \"you have unsaved changes\" is not a question the user can answer — {subject} is what is being edited and {summary} is the edits themselves, both supplied by the caller and both already localised.",
+    "placeholders": {
+      "subject": {
+        "type": "String",
+        "example": "Oil and filter"
+      },
+      "summary": {
+        "type": "String",
+        "example": "a 15,000 km interval and a new baseline"
+      }
+    }
+  },
+  "discardKeepEditing": "Keep editing",
+  "@discardKeepEditing": {
+    "description": "The safe action, and the one the reference puts FIRST. SPEC.md §7: no dialog is ever dismissed into a destructive outcome, so tap-out and system back both return this."
+  },
+  "discardDiscard": "Discard",
+  "@discardDiscard": {
+    "description": "The destructive action. SPEC.md §10: it drops every segment draft, not only the visible one."
+  },
+  "confirmDeleteTitle": "{count, plural, =0{Delete {subject}?} other{Delete {subject} and {count, plural, one{its {countText} entry} other{its {countText} entries}}?}}",
+  "@confirmDeleteTitle": {
+    "description": "Title of the global delete confirmation. Names the subject and its total entry count so the user is agreeing to a size, not a word. SPEC.md §2: delete is immediate, with Undo in the moment — there is no trash to recover from, which is why the count is in the title.",
+    "placeholders": {
+      "subject": {
+        "type": "String",
+        "example": "The Golf"
+      },
+      "count": {
+        "type": "int",
+        "example": "412"
+      },
+      "countText": {
+        "type": "String",
+        "example": "412",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: the int selects the CLDR category and an int interpolated by gen-l10n renders in Latin digits, which would put \"412\" inside a Persian sentence while every other number on screen is shaped."
+      }
+    }
+  },
+  "confirmDeleteBody": "{fillUps, plural, =0{No fill-ups} one{{fillUpsText} fill-up} other{{fillUpsText} fill-ups}}, {services, plural, =0{no services} one{{servicesText} service} other{{servicesText} services}}, {costs, plural, =0{no costs} one{{costsText} cost} other{{costsText} costs}}, {trips, plural, =0{no trips} one{{tripsText} trip} other{{tripsText} trips}} and {reminders, plural, =0{no reminders} one{{remindersText} reminder} other{{remindersText} reminders}} go permanently.",
+  "@confirmDeleteBody": {
+    "description": "The five per-type counts, as ONE ICU message. SPEC.md §2 forbids assembling a sentence from parts: five plurals in one message is legal ICU and translatable, and a sentence built in Dart is a sentence no translator can reorder. Every count has an explicit =0 because a vehicle with no trips must not read '0 trips'.",
+    "placeholders": {
+      "fillUps": {
+        "type": "int",
+        "example": "96"
+      },
+      "fillUpsText": {
+        "type": "String",
+        "example": "96",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: the int selects the CLDR category and an int interpolated by gen-l10n renders in Latin digits, which would put \"412\" inside a Persian sentence while every other number on screen is shaped."
+      },
+      "services": {
+        "type": "int",
+        "example": "14"
+      },
+      "servicesText": {
+        "type": "String",
+        "example": "14",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: the int selects the CLDR category and an int interpolated by gen-l10n renders in Latin digits, which would put \"412\" inside a Persian sentence while every other number on screen is shaped."
+      },
+      "costs": {
+        "type": "int",
+        "example": "22"
+      },
+      "costsText": {
+        "type": "String",
+        "example": "22",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: the int selects the CLDR category and an int interpolated by gen-l10n renders in Latin digits, which would put \"412\" inside a Persian sentence while every other number on screen is shaped."
+      },
+      "trips": {
+        "type": "int",
+        "example": "8"
+      },
+      "tripsText": {
+        "type": "String",
+        "example": "8",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: the int selects the CLDR category and an int interpolated by gen-l10n renders in Latin digits, which would put \"412\" inside a Persian sentence while every other number on screen is shaped."
+      },
+      "reminders": {
+        "type": "int",
+        "example": "16"
+      },
+      "remindersText": {
+        "type": "String",
+        "example": "16",
+        "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: the int selects the CLDR category and an int interpolated by gen-l10n renders in Latin digits, which would put \"412\" inside a Persian sentence while every other number on screen is shaped."
+      }
+    }
+  },
+  "confirmDeleteTypeToConfirm": "Type {subject} to confirm",
+  "@confirmDeleteTypeToConfirm": {
+    "description": "Label above the typed-confirmation field. SPEC.md §8: required exactly when the entry count is non-zero.",
+    "placeholders": {
+      "subject": {
+        "type": "String",
+        "example": "The Golf"
+      }
+    }
+  },
+  "confirmDeleteDelete": "Delete",
+  "@confirmDeleteDelete": {
+    "description": "The destructive action. Disabled until the typed name matches."
+  },
+  "snoozeTitle": "Snooze {item}",
+  "@snoozeTitle": {
+    "description": "Title of the snooze dialog. The item label is interpolated AS STORED: the reference lower-cases it inside the sentence, and an ICU message cannot case-fold a placeholder — German capitalises every noun (EPIC-08 finding F-8.6).",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      }
+    }
+  },
+  "snoozeBody": "This quiets the reminder. It does not change when the job is due.",
+  "@snoozeBody": {
+    "description": "The reference's sentence, verbatim. It is deliberately state-neutral: it says what snoozing does and does not do, which is true for a due, due-soon or overdue item alike, so no ICU select over DueState is needed (EPIC-08 finding F-8.8)."
+  },
+  "snoozeThreeDays": "{count} days",
+  "@snoozeThreeDays": {
+    "description": "The first snooze option.",
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "3",
+        "description": "The number, already formatted and shaped. A String rather than an int: SPEC.md §5 has one numbering system active app-wide, and an int interpolated by gen-l10n renders in Latin digits. The count is FIXED — three days, one week, one month — so it takes no plural."
+      }
+    }
+  },
+  "snoozeOneWeek": "{count} week",
+  "@snoozeOneWeek": {
+    "description": "The second.",
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1",
+        "description": "The number, already formatted and shaped. A String rather than an int: SPEC.md §5 has one numbering system active app-wide, and an int interpolated by gen-l10n renders in Latin digits. The count is FIXED — three days, one week, one month — so it takes no plural."
+      }
+    }
+  },
+  "snoozeOneMonth": "{count} month",
+  "@snoozeOneMonth": {
+    "description": "The third. A calendar month, clamped to the last day of the target month.",
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1",
+        "description": "The number, already formatted and shaped. A String rather than an int: SPEC.md §5 has one numbering system active app-wide, and an int interpolated by gen-l10n renders in Latin digits. The count is FIXED — three days, one week, one month — so it takes no plural."
+      }
+    }
+  },
+  "snoozeDistance": "After another {distance}",
+  "@snoozeDistance": {
+    "description": "The fourth, shown only when the item has a distance interval. SPEC.md §4.7.2 writes it as 500 km with no mile equivalent; §4.8 says defaults are defined per unit system rather than converted, and that is unsettled (EPIC-08 finding F-8.9).",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "500 km"
+      }
+    }
+  },
+  "snoozeUntil": "until {date}",
+  "@snoozeUntil": {
+    "description": "The resolved date on a time option. {date} is already formatted in the active calendar and numerals.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "6 Sep"
+      }
+    }
+  },
+  "snoozeAtOdometer": "at {odometer}",
+  "@snoozeAtOdometer": {
+    "description": "The resolved reading on the distance option. {odometer} is the entered cumulative reading plus 500 km, already formatted — never a projection, which would move every time the estimate did.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "187,912 km"
+      }
+    }
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "The way out of any dialog. ONE key, not one per dialog: it was the same word in all six locales twice over, which is two chances for a translator to make two dialogs in the same app disagree about \"Cancel\". Tap-out and system back both mean this, and SPEC.md §7 says no dialog is ever dismissed into a destructive outcome."
   }
 }

@@ -213,6 +213,167 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, =0{Nothing due} one{{nText} reminder due} other{{nText} reminders due}}'**
   String remindersDueCount(int n, String nText);
+
+  /// App bar title on the 404 screen. SPEC.md §7: an unknown link lands somewhere designed rather than on a red error box.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found'**
+  String get routeNotFoundTitle;
+
+  /// The one sentence on the 404 screen. Deliberately does not name the app or the link — a dead end is worse than a wrong turn, and the sentence exists only to hand the user the button below it.
+  ///
+  /// In en, this message translates to:
+  /// **'That link doesn\'t lead anywhere.'**
+  String get routeNotFoundBody;
+
+  /// The single action on the 404 screen. Home is the one screen that always exists and always has something to say.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Home'**
+  String get routeNotFoundGoHome;
+
+  /// Tab 1. SPEC.md §7: the tab labels are always visible under their icons — there is no icon-only mode to fall into. German and Sorani both run long here and wrap to two lines rather than truncating.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get tabHome;
+
+  /// Tab 2.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get tabHistory;
+
+  /// Tab 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Costs'**
+  String get tabCosts;
+
+  /// Tab 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get tabSettings;
+
+  /// Spoken label for the central + . It carries no visible text, so this is the only name a screen reader has for the app's most-pressed control. SPEC.md §7: logging is an act that finishes and returns you, which is why it is a button and not a fifth tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Log'**
+  String get tabLogA11y;
+
+  /// Title of the global discard dialog. SPEC.md §7: dismissing a dirty modal opens this; dismissing a clean one is silent.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get discardTitle;
+
+  /// The body of the discard dialog. It names what would be lost, because a generic "you have unsaved changes" is not a question the user can answer — {subject} is what is being edited and {summary} is the edits themselves, both supplied by the caller and both already localised.
+  ///
+  /// In en, this message translates to:
+  /// **'Your edits to {subject} — {summary} — have not been saved.'**
+  String discardBody(String subject, String summary);
+
+  /// The safe action, and the one the reference puts FIRST. SPEC.md §7: no dialog is ever dismissed into a destructive outcome, so tap-out and system back both return this.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get discardKeepEditing;
+
+  /// The destructive action. SPEC.md §10: it drops every segment draft, not only the visible one.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discardDiscard;
+
+  /// Title of the global delete confirmation. Names the subject and its total entry count so the user is agreeing to a size, not a word. SPEC.md §2: delete is immediate, with Undo in the moment — there is no trash to recover from, which is why the count is in the title.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Delete {subject}?} other{Delete {subject} and {count, plural, one{its {countText} entry} other{its {countText} entries}}?}}'**
+  String confirmDeleteTitle(String subject, int count, String countText);
+
+  /// The five per-type counts, as ONE ICU message. SPEC.md §2 forbids assembling a sentence from parts: five plurals in one message is legal ICU and translatable, and a sentence built in Dart is a sentence no translator can reorder. Every count has an explicit =0 because a vehicle with no trips must not read '0 trips'.
+  ///
+  /// In en, this message translates to:
+  /// **'{fillUps, plural, =0{No fill-ups} one{{fillUpsText} fill-up} other{{fillUpsText} fill-ups}}, {services, plural, =0{no services} one{{servicesText} service} other{{servicesText} services}}, {costs, plural, =0{no costs} one{{costsText} cost} other{{costsText} costs}}, {trips, plural, =0{no trips} one{{tripsText} trip} other{{tripsText} trips}} and {reminders, plural, =0{no reminders} one{{remindersText} reminder} other{{remindersText} reminders}} go permanently.'**
+  String confirmDeleteBody(
+    int fillUps,
+    String fillUpsText,
+    int services,
+    String servicesText,
+    int costs,
+    String costsText,
+    int trips,
+    String tripsText,
+    int reminders,
+    String remindersText,
+  );
+
+  /// Label above the typed-confirmation field. SPEC.md §8: required exactly when the entry count is non-zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {subject} to confirm'**
+  String confirmDeleteTypeToConfirm(String subject);
+
+  /// The destructive action. Disabled until the typed name matches.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get confirmDeleteDelete;
+
+  /// Title of the snooze dialog. The item label is interpolated AS STORED: the reference lower-cases it inside the sentence, and an ICU message cannot case-fold a placeholder — German capitalises every noun (EPIC-08 finding F-8.6).
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze {item}'**
+  String snoozeTitle(String item);
+
+  /// The reference's sentence, verbatim. It is deliberately state-neutral: it says what snoozing does and does not do, which is true for a due, due-soon or overdue item alike, so no ICU select over DueState is needed (EPIC-08 finding F-8.8).
+  ///
+  /// In en, this message translates to:
+  /// **'This quiets the reminder. It does not change when the job is due.'**
+  String get snoozeBody;
+
+  /// The first snooze option.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String snoozeThreeDays(String count);
+
+  /// The second.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} week'**
+  String snoozeOneWeek(String count);
+
+  /// The third. A calendar month, clamped to the last day of the target month.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} month'**
+  String snoozeOneMonth(String count);
+
+  /// The fourth, shown only when the item has a distance interval. SPEC.md §4.7.2 writes it as 500 km with no mile equivalent; §4.8 says defaults are defined per unit system rather than converted, and that is unsettled (EPIC-08 finding F-8.9).
+  ///
+  /// In en, this message translates to:
+  /// **'After another {distance}'**
+  String snoozeDistance(String distance);
+
+  /// The resolved date on a time option. {date} is already formatted in the active calendar and numerals.
+  ///
+  /// In en, this message translates to:
+  /// **'until {date}'**
+  String snoozeUntil(String date);
+
+  /// The resolved reading on the distance option. {odometer} is the entered cumulative reading plus 500 km, already formatted — never a projection, which would move every time the estimate did.
+  ///
+  /// In en, this message translates to:
+  /// **'at {odometer}'**
+  String snoozeAtOdometer(String odometer);
+
+  /// The way out of any dialog. ONE key, not one per dialog: it was the same word in all six locales twice over, which is two chances for a translator to make two dialogs in the same app disagree about "Cancel". Tap-out and system back both mean this, and SPEC.md §7 says no dialog is ever dismissed into a destructive outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
 }
 
 class _AppLocalizationsDelegate

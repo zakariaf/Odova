@@ -23,6 +23,24 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'dateInAboutMonths' => l10n.dateInAboutMonths(n, nText),
       'dateDaysOverdue' => l10n.dateDaysOverdue(n, nText),
       'remindersDueCount' => l10n.remindersDueCount(n, nText),
+      // The delete dialog's two. `confirmDeleteBody` carries FIVE plurals in
+      // one message — SPEC.md §2 forbids assembling a sentence from parts, and
+      // five is legal ICU. The matrix drives one of them at a time and pins the
+      // other four at 2, which is the category most likely to be forgotten in
+      // Arabic and the one a `few`/`many` mistake shows up against.
+      'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
+      'confirmDeleteBody' => l10n.confirmDeleteBody(
+        n,
+        nText,
+        2,
+        '2',
+        2,
+        '2',
+        2,
+        '2',
+        2,
+        '2',
+      ),
       _ => throw StateError(
         'plural key "$key" is in the ARB but not in this matrix — add it',
       ),

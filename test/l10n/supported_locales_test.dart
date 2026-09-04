@@ -15,12 +15,18 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 
 import '../support/capture_context.dart';
+import '../support/pump_app.dart';
 
 void main() {
   testWidgets('supportedLocales is exactly en de fr fa ar ckb', (tester) async {
-    // A scope, because OdovaApp reads the resolved locale from a provider.
+    // A scope, because OdovaApp reads the resolved locale from a provider —
+    // and its own router, because the real one reads the launch gate, which
+    // reads the database. This test is about the six locales.
     await tester.pumpWidget(
-      const ProviderScope(retry: noProviderRetry, child: OdovaApp()),
+      ProviderScope(
+        retry: noProviderRetry,
+        child: OdovaApp(router: singleScreenRouter(const SizedBox.shrink())),
+      ),
     );
 
     final app = tester.widget<WidgetsApp>(find.byType(WidgetsApp));
@@ -48,8 +54,10 @@ void main() {
           retry: noProviderRetry,
           child: OdovaApp(
             locale: Locale(locale),
-            home: captureContext(
-              (context) => resolved = Directionality.of(context),
+            router: singleScreenRouter(
+              captureContext(
+                (context) => resolved = Directionality.of(context),
+              ),
             ),
           ),
         ),
@@ -69,8 +77,8 @@ void main() {
       ProviderScope(
         retry: noProviderRetry,
         child: OdovaApp(
-          home: captureContext(
-            (context) => l10n = AppLocalizations.of(context),
+          router: singleScreenRouter(
+            captureContext((context) => l10n = AppLocalizations.of(context)),
           ),
         ),
       ),
