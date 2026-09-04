@@ -1,0 +1,880 @@
+{
+  "_source": "Hand-authored from SPEC.md 3 and 4.1 via an independent oracle, NOT dumped from lib/core/due/. See the header of due_matrix_test.dart.",
+  "_rows": 29,
+  "cases": [
+    {
+      "name": "distance-only x ok",
+      "item": {
+        "interval_m": 10000000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 108000000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "ok",
+        "driver": "distance",
+        "remaining_m": 2000000,
+        "remaining_days": null,
+        "due_at_odometer_m": 110000000,
+        "due_on": null,
+        "projected_due_date": "2026-07-09",
+        "confidence": "measured",
+        "progress": 0.8
+      }
+    },
+    {
+      "name": "distance-only x due_soon",
+      "item": {
+        "interval_m": 10000000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 109500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "due_soon",
+        "driver": "distance",
+        "remaining_m": 500000,
+        "remaining_days": null,
+        "due_at_odometer_m": 110000000,
+        "due_on": null,
+        "projected_due_date": "2026-06-09",
+        "confidence": "measured",
+        "progress": 0.95
+      }
+    },
+    {
+      "name": "distance-only x due",
+      "item": {
+        "interval_m": 10000000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 110500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "due",
+        "driver": "distance",
+        "remaining_m": -500000,
+        "remaining_days": null,
+        "due_at_odometer_m": 110000000,
+        "due_on": null,
+        "projected_due_date": "2026-05-25",
+        "confidence": "measured",
+        "progress": 1.05
+      }
+    },
+    {
+      "name": "distance-only x overdue",
+      "item": {
+        "interval_m": 10000000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 111500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "overdue",
+        "driver": "distance",
+        "remaining_m": -1500000,
+        "remaining_days": null,
+        "due_at_odometer_m": 110000000,
+        "due_on": null,
+        "projected_due_date": "2026-05-13",
+        "confidence": "measured",
+        "progress": 1.15
+      }
+    },
+    {
+      "name": "distance-only x unknown",
+      "item": {
+        "interval_m": 10000000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": null
+      },
+      "readings": [],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "unknown",
+        "driver": "none",
+        "remaining_m": null,
+        "remaining_days": null,
+        "due_at_odometer_m": null,
+        "due_on": null,
+        "projected_due_date": null,
+        "confidence": "default",
+        "progress": 0.0
+      }
+    },
+    {
+      "name": "distance-only x needs_odometer",
+      "item": {
+        "interval_m": 10000000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-03-01",
+          "odometer_m": 110500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "needs_odometer",
+        "driver": "distance",
+        "remaining_m": -16872872,
+        "remaining_days": null,
+        "due_at_odometer_m": 110000000,
+        "due_on": null,
+        "projected_due_date": "2026-02-27",
+        "confidence": "measured",
+        "progress": 2.687287
+      }
+    },
+    {
+      "name": "time-only x ok",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": null
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 108000000
+        }
+      ],
+      "today": "2026-11-01",
+      "expect": {
+        "status": "ok",
+        "driver": "time",
+        "remaining_m": null,
+        "remaining_days": 61,
+        "due_at_odometer_m": null,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2027-01-01",
+        "confidence": "measured",
+        "progress": 0.832877
+      }
+    },
+    {
+      "name": "time-only x due_soon",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": null
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 108000000
+        }
+      ],
+      "today": "2026-12-15",
+      "expect": {
+        "status": "due_soon",
+        "driver": "time",
+        "remaining_m": null,
+        "remaining_days": 17,
+        "due_at_odometer_m": null,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2027-01-01",
+        "confidence": "measured",
+        "progress": 0.953425
+      }
+    },
+    {
+      "name": "time-only x due",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": null
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 108000000
+        }
+      ],
+      "today": "2027-01-15",
+      "expect": {
+        "status": "due",
+        "driver": "time",
+        "remaining_m": null,
+        "remaining_days": -14,
+        "due_at_odometer_m": null,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2027-01-01",
+        "confidence": "measured",
+        "progress": 1.038356
+      }
+    },
+    {
+      "name": "time-only x overdue",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": null
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 108000000
+        }
+      ],
+      "today": "2027-03-01",
+      "expect": {
+        "status": "overdue",
+        "driver": "time",
+        "remaining_m": null,
+        "remaining_days": -59,
+        "due_at_odometer_m": null,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2027-01-01",
+        "confidence": "measured",
+        "progress": 1.161644
+      }
+    },
+    {
+      "name": "time-only x unknown",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": null
+      },
+      "readings": [],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "unknown",
+        "driver": "none",
+        "remaining_m": null,
+        "remaining_days": null,
+        "due_at_odometer_m": null,
+        "due_on": null,
+        "projected_due_date": null,
+        "confidence": "default",
+        "progress": 0.0
+      }
+    },
+    {
+      "name": "time-only x needs_odometer is impossible, and reports its real status",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": null
+      },
+      "readings": [
+        {
+          "date": "2025-01-01",
+          "odometer_m": 90000000
+        },
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        }
+      ],
+      "today": "2027-03-01",
+      "expect": {
+        "status": "overdue",
+        "driver": "time",
+        "remaining_m": null,
+        "remaining_days": -59,
+        "due_at_odometer_m": null,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2027-01-01",
+        "confidence": "measured",
+        "progress": 1.161644
+      }
+    },
+    {
+      "name": "both x ok",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 108000000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "ok",
+        "driver": "both",
+        "remaining_m": 2000000,
+        "remaining_days": 214,
+        "due_at_odometer_m": 110000000,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2026-07-09",
+        "confidence": "measured",
+        "progress": 0.8
+      }
+    },
+    {
+      "name": "both x due_soon",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 109500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "due_soon",
+        "driver": "distance",
+        "remaining_m": 500000,
+        "remaining_days": 214,
+        "due_at_odometer_m": 110000000,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2026-06-09",
+        "confidence": "measured",
+        "progress": 0.95
+      }
+    },
+    {
+      "name": "both x due",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 110500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "due",
+        "driver": "distance",
+        "remaining_m": -500000,
+        "remaining_days": 214,
+        "due_at_odometer_m": 110000000,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2026-05-25",
+        "confidence": "measured",
+        "progress": 1.05
+      }
+    },
+    {
+      "name": "both x overdue",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 111500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "overdue",
+        "driver": "distance",
+        "remaining_m": -1500000,
+        "remaining_days": 214,
+        "due_at_odometer_m": 110000000,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2026-05-13",
+        "confidence": "measured",
+        "progress": 1.15
+      }
+    },
+    {
+      "name": "both x unknown",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": null
+      },
+      "readings": [],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "unknown",
+        "driver": "none",
+        "remaining_m": null,
+        "remaining_days": null,
+        "due_at_odometer_m": null,
+        "due_on": null,
+        "projected_due_date": null,
+        "confidence": "default",
+        "progress": 0.0
+      }
+    },
+    {
+      "name": "both x needs_odometer",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-03-01",
+          "odometer_m": 110500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "needs_odometer",
+        "driver": "distance",
+        "remaining_m": -16872872,
+        "remaining_days": 214,
+        "due_at_odometer_m": 110000000,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2026-02-27",
+        "confidence": "measured",
+        "progress": 2.687287
+      }
+    },
+    {
+      "name": "distance-only x paused",
+      "item": {
+        "interval_m": 10000000
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 111500000
+        }
+      ],
+      "today": "2026-06-01",
+      "is_active": false,
+      "expect": null
+    },
+    {
+      "name": "time-only x paused",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 111500000
+        }
+      ],
+      "today": "2026-06-01",
+      "is_active": false,
+      "expect": null
+    },
+    {
+      "name": "both x paused",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 111500000
+        }
+      ],
+      "today": "2026-06-01",
+      "is_active": false,
+      "expect": null
+    },
+    {
+      "name": "passat - the SPEC.md 4.1.3 worked example",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-02-10",
+        "odometer_m": 108200000
+      },
+      "readings": [
+        {
+          "date": "2026-02-10",
+          "odometer_m": 108200000
+        },
+        {
+          "date": "2026-08-20",
+          "odometer_m": 116050000
+        }
+      ],
+      "today": "2026-09-02",
+      "expect": {
+        "status": "ok",
+        "driver": "both",
+        "remaining_m": 1615713,
+        "remaining_days": 161,
+        "due_at_odometer_m": 118200000,
+        "due_on": "2027-02-10",
+        "projected_due_date": "2026-10-12",
+        "confidence": "measured",
+        "progress": 0.838429
+      }
+    },
+    {
+      "name": "second-hand car with a service book reports unknown, never overdue",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": null
+      },
+      "readings": [],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "unknown",
+        "driver": "none",
+        "remaining_m": null,
+        "remaining_days": null,
+        "due_at_odometer_m": null,
+        "due_on": null,
+        "projected_due_date": null,
+        "confidence": "default",
+        "progress": 0.0
+      }
+    },
+    {
+      "name": "time-only x one day OUTSIDE the notice window is still ok",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": null
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 108000000
+        }
+      ],
+      "today": "2026-12-01",
+      "expect": {
+        "status": "ok",
+        "driver": "time",
+        "remaining_m": null,
+        "remaining_days": 31,
+        "due_at_odometer_m": null,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2027-01-01",
+        "confidence": "measured",
+        "progress": 0.915068
+      }
+    },
+    {
+      "name": "time-only x one day PAST grace is overdue",
+      "item": {
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": null
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 108000000
+        }
+      ],
+      "today": "2027-02-01",
+      "expect": {
+        "status": "overdue",
+        "driver": "time",
+        "remaining_m": null,
+        "remaining_days": -31,
+        "due_at_odometer_m": null,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2027-01-01",
+        "confidence": "measured",
+        "progress": 1.084932
+      }
+    },
+    {
+      "name": "distance-only x one metre outside a CEILING-clamped notice is ok",
+      "item": {
+        "interval_m": 20000000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 118999999
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "ok",
+        "driver": "distance",
+        "remaining_m": 1000001,
+        "remaining_days": null,
+        "due_at_odometer_m": 120000000,
+        "due_on": null,
+        "projected_due_date": "2026-06-09",
+        "confidence": "measured",
+        "progress": 0.95
+      }
+    },
+    {
+      "name": "distance-only x one metre past a CEILING-clamped grace is overdue",
+      "item": {
+        "interval_m": 20000000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 121000001
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "overdue",
+        "driver": "distance",
+        "remaining_m": -1000001,
+        "remaining_days": null,
+        "due_at_odometer_m": 120000000,
+        "due_on": null,
+        "projected_due_date": "2026-05-25",
+        "confidence": "measured",
+        "progress": 1.05
+      }
+    },
+    {
+      "name": "distance-only x one metre outside a FLOOR-clamped notice is ok",
+      "item": {
+        "interval_m": 800000
+      },
+      "anchor": {
+        "date": null,
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 100599999
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "ok",
+        "driver": "distance",
+        "remaining_m": 200001,
+        "remaining_days": null,
+        "due_at_odometer_m": 100800000,
+        "due_on": null,
+        "projected_due_date": "2026-07-12",
+        "confidence": "measured",
+        "progress": 0.749999
+      }
+    },
+    {
+      "name": "time-only x one day outside a FLOOR-clamped notice is ok",
+      "item": {
+        "interval_months": 1
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": null
+      },
+      "readings": [
+        {
+          "date": "2026-01-01",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-01-20",
+          "odometer_m": 101000000
+        }
+      ],
+      "today": "2026-01-24",
+      "expect": {
+        "status": "ok",
+        "driver": "time",
+        "remaining_m": null,
+        "remaining_days": 8,
+        "due_at_odometer_m": null,
+        "due_on": "2026-02-01",
+        "projected_due_date": "2026-02-01",
+        "confidence": "measured",
+        "progress": 0.741935
+      }
+    }
+  ]
+}
