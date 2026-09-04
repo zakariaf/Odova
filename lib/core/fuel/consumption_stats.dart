@@ -15,10 +15,7 @@ import 'package:odova/core/fuel/fuel_result.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
-import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
-import 'package:odova/core/units/mass.dart';
-import 'package:odova/core/units/volume.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// One segment's consumption.
@@ -37,7 +34,7 @@ FuelValue<Consumption> averageConsumption(Iterable<FuelSegment> segments) {
   final distance = Distance(
     list.fold(0, (sum, s) => sum + s.distance.metres),
   );
-  final quantity = _sumQuantities(list.map((s) => s.quantity));
+  final quantity = FuelQuantity.sumOf(list.map((s) => s.quantity));
   if (quantity == null) {
     // Segments of different fuel FORMS in one list — litres beside watt-hours.
     // The caller split by fuel kind wrongly, and a total across them would be
@@ -128,39 +125,4 @@ FuelValue<RankedSegment> _rank(
   });
 
   return Computed(ranked.first);
-}
-
-/// Adds quantities of the same form, or null.
-FuelQuantity? _sumQuantities(Iterable<FuelQuantity> quantities) {
-  final list = quantities.toList();
-  if (list.isEmpty) return null;
-
-  return switch (list.first) {
-    LiquidVolume() =>
-      list.every((q) => q is LiquidVolume)
-          ? LiquidVolume(
-              Volume(
-                list.fold(
-                  0,
-                  (sum, q) => sum + (q as LiquidVolume).volume.millilitres,
-                ),
-              ),
-            )
-          : null,
-    GasMass() =>
-      list.every((q) => q is GasMass)
-          ? GasMass(Mass(list.fold(0, (s, q) => s + (q as GasMass).mass.grams)))
-          : null,
-    ElectricEnergy() =>
-      list.every((q) => q is ElectricEnergy)
-          ? ElectricEnergy(
-              Energy(
-                list.fold(
-                  0,
-                  (sum, q) => sum + (q as ElectricEnergy).energy.wattHours,
-                ),
-              ),
-            )
-          : null,
-  };
 }

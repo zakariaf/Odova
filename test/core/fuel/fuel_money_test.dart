@@ -12,6 +12,7 @@ import 'package:odova/core/money/money.dart';
 import 'package:odova/core/rounding/rounding.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
+import 'package:odova/core/units/mass.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:test/test.dart';
 
@@ -110,9 +111,14 @@ void main() {
         fill('c', cents: 6000, millilitres: 40000, currency: _gbp),
       ]);
 
-      expect(spend[_eur], Money(12845, _eur));
-      expect(spend[_gbp], Money(6000, _gbp));
-      expect(spend.keys, hasLength(2), reason: 'never one blended figure');
+      expect(spend.byCurrency[_eur], 12845);
+      expect(spend.byCurrency[_gbp], 6000);
+      expect(spend.isMixed, isTrue, reason: 'never one blended figure');
+      // A `MoneyTotal` and not a bare map, so the caller gets the two things
+      // SPEC.md §12's "one figure or a list" decision actually needs. A map
+      // makes the screen re-derive both, and `dominantCurrency` in particular
+      // is a rule (most ROWS, ties on the code) rather than a `.first`.
+      expect(spend.dominantCurrency, _eur, reason: 'two euro rows, one pound');
     });
 
     test('volume sums the fills', () {
@@ -131,6 +137,21 @@ void main() {
 
     test('volume over nothing is Unavailable, not zero', () {
       expect(fuelVolume(const []), isA<Unavailable<FuelQuantity>>());
+    });
+
+    test('volume across two FORMS is Unavailable, not a coerced total', () {
+      // This used to sum the canonical integers and rebuild in the FIRST
+      // fill's form, so 45.2 L of diesel plus 4,000 g of CNG came back as
+      // 49.2 litres — a number with no physical meaning, presented as a fact
+      // and indistinguishable from a correct one. It can arise: an importer
+      // landing a bi-fuel car's fills under one `fuel_kind` produces exactly
+      // this list.
+      final mixed = fuelVolume([
+        fill('a', cents: 0, millilitres: 45200),
+        (id: 'b', cost: Money(0, _eur), quantity: const GasMass(Mass(4000))),
+      ]);
+
+      expect(mixed, isA<Unavailable<FuelQuantity>>());
     });
   });
 

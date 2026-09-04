@@ -8,10 +8,7 @@
 // looks entirely plausible.
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/units/distance.dart';
-import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
-import 'package:odova/core/units/mass.dart';
-import 'package:odova/core/units/volume.dart';
 
 /// One fill-up, reduced to what the segment builder needs.
 ///
@@ -95,7 +92,7 @@ FuelSegmentSet buildFuelSegments(Iterable<FillUpPoint> fills) {
     if (!fill.isFullTank) continue;
 
     final distance = Distance(fill.cumulativeM! - open.cumulativeM!);
-    final quantity = _sum(pending.map((f) => f.quantity));
+    final quantity = FuelQuantity.sumOf(pending.map((f) => f.quantity));
 
     if (distance.metres > 0 && quantity != null && !quantity.isZero) {
       segments.add(
@@ -143,50 +140,6 @@ Map<String, FuelSegmentSet> buildFuelSegmentsByKind(
   return {
     for (final entry in byKind.entries)
       entry.key: buildFuelSegments(entry.value),
-  };
-}
-
-/// Adds every quantity, or null when they are not the same KIND.
-///
-/// Null rather than a coerced total: litres plus grams is not a quantity, and a
-/// segment mixing them would produce a consumption figure from two different
-/// physical things. It cannot arise within one fuel kind, and returning null
-/// rather than asserting keeps the builder total.
-FuelQuantity? _sum(Iterable<FuelQuantity> quantities) {
-  if (quantities.isEmpty) return null;
-  final first = quantities.first;
-
-  return switch (first) {
-    LiquidVolume() =>
-      quantities.every((q) => q is LiquidVolume)
-          ? LiquidVolume(
-              Volume(
-                quantities.fold(
-                  0,
-                  (sum, q) => sum + (q as LiquidVolume).volume.millilitres,
-                ),
-              ),
-            )
-          : null,
-    GasMass() =>
-      quantities.every((q) => q is GasMass)
-          ? GasMass(
-              Mass(
-                quantities.fold(0, (sum, q) => sum + (q as GasMass).mass.grams),
-              ),
-            )
-          : null,
-    ElectricEnergy() =>
-      quantities.every((q) => q is ElectricEnergy)
-          ? ElectricEnergy(
-              Energy(
-                quantities.fold(
-                  0,
-                  (sum, q) => sum + (q as ElectricEnergy).energy.wattHours,
-                ),
-              ),
-            )
-          : null,
   };
 }
 

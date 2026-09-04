@@ -111,4 +111,112 @@ void main() {
       );
     });
   });
+  group('FuelQuantity arithmetic', () {
+    // The same three-arm switch was written FOUR times before this existed —
+    // `_sum` in build_fuel_segments, `_sumQuantities` in consumption_stats,
+    // `_ratio`/`_totalOverTotal` in consumption_trend and `_amountOf`/`_rebuild`
+    // in fuel_money — and two of the copies disagreed with the other two. The
+    // rule "same form or nothing" belongs on the type, once.
+
+    test('the canonical amount is readable without a switch', () {
+      // Every other value object in this epic exposes its canonical integer.
+      // FuelQuantity was the one that did not, which is why every caller
+      // destructured it by hand.
+      expect(const LiquidVolume(Volume(45200)).amount, 45200);
+      expect(const GasMass(Mass(4520)).amount, 4520);
+      expect(const ElectricEnergy(Energy(52000)).amount, 52000);
+    });
+
+    test('withAmount keeps the form and changes only the number', () {
+      expect(
+        const LiquidVolume(Volume(1)).withAmount(45200),
+        const LiquidVolume(Volume(45200)),
+      );
+      expect(
+        const GasMass(Mass(1)).withAmount(4520),
+        const GasMass(Mass(4520)),
+      );
+      expect(
+        const ElectricEnergy(Energy(1)).withAmount(52000),
+        const ElectricEnergy(Energy(52000)),
+      );
+    });
+
+    test('adding two of the same form adds their amounts', () {
+      expect(
+        const LiquidVolume(Volume(40000)) + const LiquidVolume(Volume(5200)),
+        const LiquidVolume(Volume(45200)),
+      );
+      expect(
+        const GasMass(Mass(4000)) + const GasMass(Mass(520)),
+        const GasMass(Mass(4520)),
+      );
+    });
+
+    test('adding two DIFFERENT forms is a programmer error, not a total', () {
+      // Litres plus grams is not a quantity. `Money.+` refuses across
+      // currencies for the same reason and in the same way: a screen that
+      // tries it is wrong, so it throws rather than returning a plausible
+      // number nobody can tell is wrong.
+      expect(
+        () => const LiquidVolume(Volume(1)) + const GasMass(Mass(1)),
+        throwsArgumentError,
+      );
+      expect(
+        () => const ElectricEnergy(Energy(1)) + const LiquidVolume(Volume(1)),
+        throwsArgumentError,
+      );
+    });
+
+    group('sumOf', () {
+      test('adds a run of one form', () {
+        expect(
+          FuelQuantity.sumOf(const [
+            LiquidVolume(Volume(40000)),
+            LiquidVolume(Volume(15000)),
+            LiquidVolume(Volume(20000)),
+          ]),
+          const LiquidVolume(Volume(75000)),
+        );
+      });
+
+      test('works for every form, not just litres', () {
+        // The copy in consumption_trend handled ONLY LiquidVolume, so
+        // consumptionTrend refused every EV history — a car with 40 charges
+        // logged was told there was not enough data.
+        expect(
+          FuelQuantity.sumOf(const [
+            ElectricEnergy(Energy(52000)),
+            ElectricEnergy(Energy(48000)),
+          ]),
+          const ElectricEnergy(Energy(100000)),
+        );
+        expect(
+          FuelQuantity.sumOf(const [GasMass(Mass(4000)), GasMass(Mass(520))]),
+          const GasMass(Mass(4520)),
+        );
+      });
+
+      test('a mixed run is null, never a coerced total', () {
+        // Returning null rather than throwing, because a MIXED SEGMENT is data
+        // and not a bug: a bi-fuel car logged under one fuel_kind by an
+        // importer produces one. The engine discards it; it must not average
+        // it. `+` throws because a single addition of two forms is a caller
+        // mistake; `sumOf` refuses because a list of them is an input.
+        expect(
+          FuelQuantity.sumOf(const [
+            LiquidVolume(Volume(40000)),
+            GasMass(Mass(4000)),
+          ]),
+          isNull,
+        );
+      });
+
+      test('an empty run is null, not a zero of some form', () {
+        // Summing nothing has no form. Inventing one would report zero litres
+        // for a car that runs on electricity.
+        expect(FuelQuantity.sumOf(const []), isNull);
+      });
+    });
+  });
 }

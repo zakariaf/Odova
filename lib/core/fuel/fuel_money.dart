@@ -13,10 +13,8 @@ import 'package:odova/core/fuel/fuel_result.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
-import 'package:odova/core/units/energy.dart';
+import 'package:odova/core/money/money_total.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
-import 'package:odova/core/units/mass.dart';
-import 'package:odova/core/units/volume.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// A fill-up, reduced to what the money figures need.
@@ -34,7 +32,7 @@ typedef FillUpCost = ({String id, Money cost, FuelQuantity quantity});
 /// presentation edge multiplies up to a litre or a gallon and rounds to three
 /// decimals, per SPEC.md §3's table.
 FuelValue<double> unitPrice(FillUpCost fill) {
-  final amount = _amountOf(fill.quantity);
+  final amount = fill.quantity.amount;
   if (amount <= 0) {
     return const Unavailable(InsufficientData(have: 0, need: 1));
   }
@@ -52,18 +50,11 @@ Map<Currency, double> avgPricePaid(Iterable<FillUpCost> fills) {
   final quantity = <Currency, int>{};
 
   for (final fill in fills) {
-    final amount = _amountOf(fill.quantity);
+    final amount = fill.quantity.amount;
     if (amount <= 0) continue;
-    cost.update(
-      fill.cost.currency,
-      (c) => c + fill.cost.amountMinor,
-      ifAbsent: () => fill.cost.amountMinor,
-    );
-    quantity.update(
-      fill.cost.currency,
-      (q) => q + amount,
-      ifAbsent: () => amount,
-    );
+    final currency = fill.cost.currency;
+    cost[currency] = (cost[currency] ?? 0) + fill.cost.amountMinor;
+    quantity[currency] = (quantity[currency] ?? 0) + amount;
   }
 
   return {
@@ -73,21 +64,15 @@ Map<Currency, double> avgPricePaid(Iterable<FillUpCost> fills) {
   };
 }
 
-/// What was spent on fuel, per currency.
-Map<Currency, Money> fuelSpend(Iterable<FillUpCost> fills) {
-  final byCurrency = <Currency, int>{};
-  for (final fill in fills) {
-    byCurrency.update(
-      fill.cost.currency,
-      (sum) => sum + fill.cost.amountMinor,
-      ifAbsent: () => fill.cost.amountMinor,
-    );
-  }
-  return {
-    for (final entry in byCurrency.entries)
-      entry.key: Money(entry.value, entry.key),
-  };
-}
+/// Total fuel spend, grouped by currency.
+///
+/// A [MoneyTotal] rather than a `Map<Currency, Money>`, because that is the
+/// type that already answers the two questions SPEC.md §12's "one figure or a
+/// list" decision asks — `isMixed` and `dominantCurrency` — and because
+/// re-implementing the grouping here made a second place where money could be
+/// summed across currencies by mistake.
+MoneyTotal fuelSpend(Iterable<FillUpCost> fills) =>
+    MoneyTotal(fills.map((f) => f.cost));
 
 /// The cost of a distance, per currency, and what had to be left out.
 @immutable
@@ -178,23 +163,17 @@ FuelCostPerDistance fuelCostPerDistance(
 }
 
 /// The total fuel volume across [fills], where they share a form.
+///
+/// `Unavailable` for a mixed run rather than a total. This used to sum the
+/// canonical integers and rebuild in the FIRST fill's form, so 45.2 L of diesel
+/// plus 4,000 g of CNG came back as 49.2 litres — a number with no physical
+/// meaning, presented as a fact and indistinguishable from a correct one. A
+/// bi-fuel car whose fills an importer landed under one `fuel_kind` produces
+/// exactly that list.
 FuelValue<FuelQuantity> fuelVolume(Iterable<FillUpCost> fills) {
-  final list = fills.toList();
-  if (list.isEmpty) {
+  final total = FuelQuantity.sumOf(fills.map((f) => f.quantity));
+  if (total == null) {
     return const Unavailable(InsufficientData(have: 0, need: 1));
   }
-  final total = list.fold(0, (sum, f) => sum + _amountOf(f.quantity));
-  return Computed(_rebuild(list.first.quantity, total));
+  return Computed(total);
 }
-
-int _amountOf(FuelQuantity quantity) => switch (quantity) {
-  LiquidVolume(:final volume) => volume.millilitres,
-  GasMass(:final mass) => mass.grams,
-  ElectricEnergy(:final energy) => energy.wattHours,
-};
-
-FuelQuantity _rebuild(FuelQuantity like, int amount) => switch (like) {
-  LiquidVolume() => LiquidVolume(Volume(amount)),
-  GasMass() => GasMass(Mass(amount)),
-  ElectricEnergy() => ElectricEnergy(Energy(amount)),
-};

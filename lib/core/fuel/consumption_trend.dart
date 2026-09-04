@@ -15,7 +15,6 @@ import 'package:odova/core/rounding/rounding.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
-import 'package:odova/core/units/volume.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// How many segments a verdict needs: the last 3 against the 6 before.
@@ -131,45 +130,32 @@ FuelValue<ConsumptionTrend> consumptionTrend(List<FuelSegment> segments) {
   );
 }
 
-/// Fuel per metre, the canonical ratio. Null when the forms differ.
+/// Fuel per metre, the canonical ratio.
+///
+/// Null when the segment is not computable.
+///
+/// The unit of the numerator is whatever [Consumption.quantity]'s form is —
+/// millilitres, grams or watt-hours — and that is fine here because the ratio
+/// is only ever COMPARED against another ratio from the same run of segments,
+/// which [_totalOverTotal] has already proved share a form.
 double? _ratio(Consumption consumption) {
   if (!consumption.isComputable) return null;
-  final quantity = consumption.quantity;
-  final amount = switch (quantity) {
-    LiquidVolume(:final volume) => volume.millilitres,
-    GasMass(:final mass) => mass.grams,
-    ElectricEnergy(:final energy) => energy.wattHours,
-  };
-  return amount / consumption.distance.metres;
+  return consumption.quantity.amount / consumption.distance.metres;
 }
 
 /// The combined consumption of [segments], total over total.
+///
+/// Null when the segments do not share a fuel form. This used to be null for
+/// every form EXCEPT litres, which meant `consumptionTrend` refused an
+/// electric or CNG history no matter how many segments it had — the app
+/// claiming not to know something it did know, which SPEC.md §2 forbids more
+/// strongly than it forbids being wrong.
 Consumption? _totalOverTotal(List<FuelSegment> segments) {
-  if (segments.isEmpty) return null;
-  if (segments.any((s) => s.quantity is! LiquidVolume)) {
-    // The non-liquid forms are handled by the same shape; kept narrow here
-    // because a mixed list is a caller error rather than a case to support.
-    final first = segments.first.quantity.runtimeType;
-    if (segments.any((s) => s.quantity.runtimeType != first)) return null;
-  }
+  final quantity = FuelQuantity.sumOf(segments.map((s) => s.quantity));
+  if (quantity == null) return null;
 
-  final distance = Distance(
-    segments.fold(0, (sum, s) => sum + s.distance.metres),
+  return Consumption(
+    distance: Distance(segments.fold(0, (sum, s) => sum + s.distance.metres)),
+    quantity: quantity,
   );
-
-  final quantities = segments.map((s) => s.quantity).toList();
-  if (quantities.every((q) => q is LiquidVolume)) {
-    return Consumption(
-      distance: distance,
-      quantity: LiquidVolume(
-        Volume(
-          quantities.fold(
-            0,
-            (sum, q) => sum + (q as LiquidVolume).volume.millilitres,
-          ),
-        ),
-      ),
-    );
-  }
-  return null;
 }

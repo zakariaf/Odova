@@ -7,7 +7,9 @@ import 'package:odova/core/fuel/fuel_result.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
+import 'package:odova/core/units/mass.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:test/test.dart';
 
@@ -19,6 +21,26 @@ FuelSegment segment(String id, double lPer100km) => FuelSegment(
   toFillUpId: id,
   distance: const Distance(500 * _km),
   quantity: LiquidVolume(Volume((lPer100km * 5 * 1000).round())),
+  partialCount: 0,
+);
+
+/// A 500 km segment consuming [kwh] kilowatt-hours.
+///
+/// An EV history: the same shape, a different `FuelQuantity` form.
+FuelSegment chargeSegment(String id, double kwh) => FuelSegment(
+  fromFillUpId: '${id}_from',
+  toFillUpId: id,
+  distance: const Distance(500 * _km),
+  quantity: ElectricEnergy(Energy((kwh * 1000).round())),
+  partialCount: 0,
+);
+
+/// A 500 km segment consuming [kg] kilograms of compressed gas.
+FuelSegment gasSegment(String id, double kg) => FuelSegment(
+  fromFillUpId: '${id}_from',
+  toFillUpId: id,
+  distance: const Distance(500 * _km),
+  quantity: GasMass(Mass((kg * 1000).round())),
   partialCount: 0,
 );
 
@@ -169,5 +191,46 @@ void main() {
       isA<Unavailable<ConsumptionTrend>>(),
       reason: 'eight is eight, whatever was discarded',
     );
+  });
+  group('an EV history is a history', () {
+    test('nine charge segments produce a verdict, not a refusal', () {
+      // `_totalOverTotal` handled ONLY LiquidVolume, so every electric
+      // vehicle was told there was not enough data no matter how many charges
+      // it had logged. SPEC.md §3 lists kWh/100 km as a shipped consumption
+      // unit; a trend that silently excludes it is the app claiming not to
+      // know something it does know.
+      final rising = [
+        for (var i = 0; i < 6; i++) chargeSegment('old$i', 80),
+        for (var i = 0; i < 3; i++) chargeSegment('new$i', 100),
+      ];
+
+      final verdict = consumptionTrend(rising);
+      expect(verdict, isA<Computed<ConsumptionTrend>>());
+      expect(
+        (verdict as Computed<ConsumptionTrend>).value.direction,
+        TrendDirection.thirstier,
+      );
+    });
+
+    test('a CNG history too', () {
+      final steady = [for (var i = 0; i < 9; i++) gasSegment('s$i', 5)];
+      final verdict = consumptionTrend(steady);
+      expect(verdict, isA<Computed<ConsumptionTrend>>());
+      expect(
+        (verdict as Computed<ConsumptionTrend>).value.direction,
+        TrendDirection.steady,
+      );
+    });
+
+    test('a run mixing two forms still produces nothing', () {
+      // Mixing is DATA, not a bug — an importer can land a bi-fuel car's
+      // fills under one fuel_kind — and adding kilowatt-hours to litres would
+      // be a number with no physical meaning presented as a trend.
+      final mixed = [
+        for (var i = 0; i < 5; i++) segment('l$i', 6),
+        for (var i = 0; i < 4; i++) chargeSegment('e$i', 80),
+      ];
+      expect(consumptionTrend(mixed), isA<Unavailable<ConsumptionTrend>>());
+    });
   });
 }
