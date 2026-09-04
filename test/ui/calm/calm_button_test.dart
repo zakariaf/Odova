@@ -372,4 +372,55 @@ void main() {
 
     handle.dispose();
   });
+
+  testWidgets('a disabled button may name an explanation that is elsewhere', (
+    tester,
+  ) async {
+    // SPEC.md §8's `firstrun.vehicle`: Start is visibly disabled until the
+    // odometer parses, and "the hint is always visible" IS the explanation —
+    // it sits under the field whether the button is disabled or not. Printing
+    // "Read it off the dash" a second time under the button would be the same
+    // sentence twice on the screen with the least room for it.
+    //
+    // So the button may point at that line instead of repeating it. The
+    // parameter takes a sentence rather than a bool because the assertion it
+    // satisfies exists to make somebody articulate the answer, and a `true`
+    // articulates nothing.
+    await pumpApp(
+      tester,
+      const Center(
+        child: CalmButton(
+          label: 'Start',
+          onPressed: null,
+          disabledBecause: 'the odometer hint, always visible under the field',
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+
+    // It is not a way to say nothing: an empty sentence is the `// ignore:`
+    // this parameter exists to prevent.
+    expect(
+      () => CalmButton(
+        label: 'Start',
+        onPressed: null,
+        disabledBecause: '',
+        key: UniqueKey(),
+      ),
+      throwsAssertionError,
+    );
+  });
+
+  testWidgets('a disabled button with neither an explain nor a reason still '
+      'fails', (tester) async {
+    // The original contract, unweakened. `disabledBecause` is a second way to
+    // satisfy the assertion, not a way around it.
+    await pumpApp(
+      tester,
+      const Center(child: CalmButton(label: 'Start', onPressed: null)),
+    );
+    await tester.pump();
+    expect(tester.takeException(), isAssertionError);
+  });
 }

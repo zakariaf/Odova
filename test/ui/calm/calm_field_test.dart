@@ -4,11 +4,13 @@
 // The ring is painted INSIDE the box, so the 56pt height must not move when
 // the field gains focus. That is the whole reason a transparent 1.5 ring
 // exists at rest, and it is invisible in a code review.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 
 import '../../support/calm_finders.dart';
@@ -322,5 +324,51 @@ void main() {
     expect(decoration.filled, isFalse);
     expect(decoration.isDense, isTrue);
     expect(decoration.contentPadding, EdgeInsets.zero);
+  });
+
+  testWidgets('the field label is one widget, and CalmField uses it', (
+    tester,
+  ) async {
+    // `.field__label` sits above every control on `firstrun.vehicle`, and two
+    // of them are not fields: the Fuel chipbar and the annual-band segmented.
+    // Feature code cannot draw it — `lib/features/` may not reach for a raw
+    // weight or colour — and a second copy inside the screen would be a second
+    // place for the label style to be right.
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    await pumpApp(
+      tester,
+      Center(
+        child: Column(
+          children: [
+            const CalmFieldLabel('Fuel'),
+            CalmField(
+              label: 'Odometer now',
+              hint: 'Read it off the dash.',
+              controller: controller,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    // Two labels: the standalone one, and the one CalmField draws with the
+    // SAME widget rather than a copy of its style.
+    expect(find.byType(CalmFieldLabel), findsNWidgets(2));
+
+    final standalone = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(CalmFieldLabel).first,
+        matching: find.byType(Text),
+      ),
+    );
+    final inField = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(CalmFieldLabel).last,
+        matching: find.byType(Text),
+      ),
+    );
+    expect(standalone.style, inField.style);
+    expect(standalone.style!.fontWeight, CalmType.latin.semi);
   });
 }

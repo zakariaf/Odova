@@ -272,26 +272,9 @@ class _CalmFieldState extends State<CalmField> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ExcludeSemantics(
-              child: Padding(
-                padding: EdgeInsetsDirectional.only(start: space.s1),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.label,
-                        style: type.label.copyWith(
-                          color: colors.ink2,
-                          fontWeight: type.semi,
-                        ),
-                      ),
-                    ),
-                    if (widget.computed) ...[
-                      SizedBox(width: space.s1),
-                      const _CalmComputedBadge(),
-                    ],
-                  ],
-                ),
+              child: CalmFieldLabel(
+                widget.label,
+                computed: widget.computed,
               ),
             ),
             SizedBox(height: space.s2),
@@ -486,6 +469,54 @@ class _CalmFieldMessage extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// `.field__label` — the line above a control.
+///
+/// Public because two of `firstrun.vehicle`'s controls are not fields: the Fuel
+/// chipbar and the annual-band segmented both carry one. Feature code cannot
+/// draw it — `lib/features/` may not reach for a raw weight or colour — and a
+/// copy inside a screen would be a second place for the label style to be
+/// right. [CalmField] renders THIS widget rather than its own copy, so the two
+/// cannot drift.
+class CalmFieldLabel extends StatelessWidget {
+  /// Creates a label.
+  const CalmFieldLabel(this.label, {super.key, this.computed = false});
+
+  /// The text, already localised.
+  final String label;
+
+  /// Adds the `ƒ` badge — "Odova worked this one out".
+  final bool computed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
+    final type = CalmType.of(context);
+
+    return Padding(
+      padding: EdgeInsetsDirectional.only(start: space.s1),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              label,
+              style: type.label.copyWith(
+                color: colors.ink2,
+                fontWeight: type.semi,
+              ),
+            ),
+          ),
+          if (computed) ...[
+            SizedBox(width: space.s1),
+            const _CalmComputedBadge(),
+          ],
         ],
       ),
     );
