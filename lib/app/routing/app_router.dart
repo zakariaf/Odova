@@ -51,10 +51,16 @@ GoRouter buildRouter({String initialLocation = Routes.home}) {
 
 /// Every route in the app.
 ///
-/// Two levels, and the level a route is declared at is the whole difference
-/// between a modal and a screen: the shell's branches sit under the tab bar,
-/// and everything carrying [rootNavigatorKey] covers it. Decided here rather
-/// than at the call site, so `context.push` cannot get it wrong.
+/// Two levels, and the LEVEL is the whole difference between a modal and a
+/// screen: a route inside a branch sits under the tab bar, and a route out here
+/// covers it. Decided by the shape of this list rather than at the call site,
+/// so `context.push` cannot get it wrong.
+///
+/// These five carried `parentNavigatorKey: rootNavigatorKey` until a mutation
+/// proved it changed nothing — a route declared outside the shell is already on
+/// the root navigator, so the argument was a comment wearing the costume of
+/// code. [rootNavigatorKey] earns its keep on the router itself and on any
+/// future route that has to live INSIDE a branch and still cover the bar.
 final List<RouteBase> _routes = [
   StatefulShellRoute.indexedStack(
     builder: (context, state, navigationShell) =>
@@ -63,18 +69,15 @@ final List<RouteBase> _routes = [
   ),
   GoRoute(
     path: Routes.vehicleSwitcher,
-    parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) =>
         const PlaceholderScreen(screenId: 'vehicle.switcher'),
   ),
   GoRoute(
     path: '/log/:type',
-    parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) => _logScreen(state),
     routes: [
       GoRoute(
         path: ':entryId',
-        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => _logScreen(state),
       ),
     ],
@@ -84,13 +87,11 @@ final List<RouteBase> _routes = [
   // destinations that all refuse.
   GoRoute(
     path: Routes.firstRunLanguage,
-    parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) =>
         const PlaceholderScreen(screenId: 'firstrun.language'),
   ),
   GoRoute(
     path: Routes.firstRunVehicle,
-    parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) =>
         const PlaceholderScreen(screenId: 'firstrun.vehicle'),
   ),

@@ -55,27 +55,35 @@ Future<ProviderContainer> pumpShell(
   return container;
 }
 
+/// The shell's element, offstage or not.
+///
+/// `skipOffstage: false` because an opaque modal puts the whole shell offstage,
+/// and every question a test asks after opening one — where am I, which tab,
+/// pop me back — is still asked of the shell underneath it.
+Element _shellElement(WidgetTester tester) =>
+    tester.element(find.byType(AppShell, skipOffstage: false));
+
 /// Where the app currently is.
 String locationOf(WidgetTester tester) =>
-    GoRouter.of(tester.element(find.byType(AppShell))).state.uri.toString();
+    GoRouter.of(_shellElement(tester)).state.uri.toString();
 
 /// The shell, for its branch index.
 StatefulNavigationShell shellOf(WidgetTester tester) =>
-    tester.widget<AppShell>(find.byType(AppShell)).navigationShell;
+    (_shellElement(tester).widget as AppShell).navigationShell;
 
 /// Taps a tab by the label [pick] names, in whatever locale is mounted.
 Future<void> tapTab(
   WidgetTester tester,
   String Function(AppLocalizations) pick,
 ) async {
-  final l10n = AppLocalizations.of(tester.element(find.byType(AppShell)));
+  final l10n = AppLocalizations.of(_shellElement(tester));
   await tester.tap(find.text(pick(l10n)));
   await tester.pumpAndSettle();
 }
 
 /// Navigates without a tap, for the pushes a test needs but is not asserting.
 void goTo(WidgetTester tester, String location) =>
-    GoRouter.of(tester.element(find.byType(AppShell))).go(location);
+    GoRouter.of(_shellElement(tester)).go(location);
 
 /// Changes `Settings.language` the way the settings screen will.
 ///
@@ -95,7 +103,7 @@ Future<void> setLocale(
 
 /// The direction the app resolved.
 TextDirection directionOf(WidgetTester tester) =>
-    Directionality.of(tester.element(find.byType(AppShell)));
+    Directionality.of(_shellElement(tester));
 
 /// Sends the platform message the engine sends on an Android system back.
 ///
@@ -133,3 +141,6 @@ PopScope<Object?> shellGuard(WidgetTester tester) =>
             )
             .first
         as PopScope<Object?>;
+
+/// Pops the top route, the way a modal's Save does.
+void goBack(WidgetTester tester) => GoRouter.of(_shellElement(tester)).pop();
