@@ -307,7 +307,53 @@ with no code change at all: they are the cross-machine rasterisation noise
 doing so writes this host's rendering into the repo. Worth knowing before the
 next person reaches for the flag and commits ten files.
 
+### 9.6 continued — six more commits
+
+- **`5051530`** the notifier: reorder, sell, delete, undo. `active_vehicle_test`'s
+  "written in exactly one place" gate refused it, exactly as designed — the first
+  version called `SettingsRepository.setActiveVehicle` directly and skipped the
+  tab-stack reset SPEC.md §8 requires on promotion, leaving four stacks pointing
+  at a deleted car. `setActiveVehicle` now takes a `ProviderReader` rather than a
+  `ProviderContainer`, because a `Notifier` cannot produce one (Riverpod marks
+  that accessor `@internal`) and the one sanctioned way to switch vehicles was
+  locked out of the layer that decides to switch.
+- **`55e4633`** `CalmSwipeActions`. `endActions`, never `rightActions` — half the
+  locales are RTL. Custom semantics actions, because TalkBack and VoiceOver both
+  spend horizontal swipes on navigation and Delete would be unreachable.
+- **`114e14b`** the sale form and the delete flow. `confirm_delete_dialog_test`'s
+  "one shared widget" gate refused this one, the same correction
+  `discard_dialog_test` already carried in 9.5: an outright ban is right at zero
+  callers and wrong at one.
+- **`09c989c`** the parity capture.
+
+### What the parity gate found
+Four real defects, three of them invisible to every other test:
+
+1. **`CalmRowGroup.header` drew the title inside the group's surface.** Nine
+   artboards draw `.section__head` as a SIBLING and none draws a title inside a
+   group. 48px of drift. It is `CalmSectionHead` now.
+2. **`.row__main { gap: 2px }` is in the stylesheet and not in the drawing.** I
+   added it on the CSS's word in `e0fcf6a`, with a golden re-baseline. The
+   reference PNGs are the authority and a three-line row measures 103-106pt
+   there, 104 flush, 108 with the gap. Removing it took LTR from 59/103 to
+   81/103.
+3. **The year rendered in Latin digits** beside a Persian odometer —
+   `year.toString()` rather than `formatForDisplay`.
+4. **Every silhouette was a car**, including the motorbikes.
+
+Plus the harness now captures the tab bar, which every in-shell screen's
+reference includes — and needs a transparent `Material` above it, or a `Text`
+with no Material ancestor renders as a filled box with a yellow underline.
+
+**Parity stands at: LTR ok (81%, 81%), RTL FAILING (55/100, 51/95).** The cause
+is measured, not guessed: the row boundaries match within ±2pt, so the heights
+are right, and the misses are intra-row Persian glyph edges where Skia and
+Chrome distribute three tight 13.5pt line boxes differently.
+`firstrun.language` reaches 84% in RTL with single-line rows, so the gate is
+achievable — this is the first three-line RTL screen to meet it, and it does
+not. No tolerance was widened and no reference regenerated.
+
 ### Still open in 9.6
-Swipe end actions, long-press reorder, the sell form, the delete wiring onto
-EPIC-08's `showConfirmDeleteDialog`, and the parity capture.
+Long-press drag reorder. The `+` and the row tap are inert until 9.8 registers
+the routes they need.
 
