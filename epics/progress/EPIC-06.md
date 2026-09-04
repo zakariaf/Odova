@@ -275,6 +275,77 @@ inheritance that is not there. What it needs, from EPIC-07's own usage:
 `lib/core/time/` is already in `core_is_pure_test.dart`'s allowlist of named core
 subjects, so adding a file there costs nothing.
 
+## /code-review — every finding, applied or answered
+
+Fifteen findings. **Applied: 14. Answered without applying: 1.** Four were
+verified by running the code before anything was changed; the pass is worth its
+cost for the first five alone, all of which are wrong answers a user would have
+believed.
+
+### Behavioural defects
+
+| # | Finding | Status |
+|---|---|---|
+| 1 | `consumptionTrend` proved the fuel forms matched WITHIN each window and never across them: 6 charge segments then 3 petrol ones returned `leaner, -40%`, comparing watt-hours/metre against millilitres/metre | Fixed — the whole nine-segment window is checked once, before it is cut |
+| 2 | `ServiceRecord.total` `reduce`d with `Money.+`, which throws across currencies — a plain getter a list screen reads for every row, crashing on a job part-billed abroad | Fixed — returns a `MoneyTotal`, like every other total in the app |
+| 3 | The discard branch built `NonPositiveDistance` for three causes, so a 0 mL fill between two correct readings told the user those readings were the same number | Fixed — three branches; a zero-quantity fill names itself |
+| 4 | `roundHalfAwayFromZero` used add-half-then-floor: `0.49999999999999994` → `1.0`, where Dart's own `round()` gives `0` | Fixed — uses `round()`, which is already half-away-from-zero |
+| 5 | `fuelCostPerDistance` kept the whole segment distance while dropping fills with no cost row — a 600 km tank read ~40% cheaper per km | Fixed — an incomplete segment is excluded AND counted |
+| 10 | `_rank` reported `UnitNotApplicable` when every segment was unmeasurable, telling a diesel driver that L/100 km does not apply to their car | Fixed — three cases, distinguished |
+| 12 | `roundHalfAwayFromZero(-0.4)` returned `-0.0`, which ICU renders as "-0" | Fixed — zero has no sign to carry away from it |
+
+Findings 1, 4, 5 and 12 were confirmed by executing the code, not by reading it.
+Findings 3 and 10 are in code **this epic added two commits earlier to fix
+exactly that class of thing** — a refusal that is typed and substantively wrong.
+
+### Correctness of the record
+
+| # | Finding | Status |
+|---|---|---|
+| 7 | `consumptionTrend` diverged from SPEC.md §3's "the mean of the last 3 segments" | Fixed by changing the SPEC — see below |
+| 8 | The exponent table's header claimed IQD was its only departure from ISO 4217; AFN is a second, in the opposite direction, and EPIC-04's rationale for it was deleted with that file | Fixed — both departures named, both pinned, with the migration hazard stated |
+| 6 | The new `regen_fuel_vectors --check` CI gate had no self-test arm | Fixed — two arms, both seen to fail |
+| 9 | This progress file's handover prescribed `FuelValue`/`Computed`/`Unavailable`, `MixedCurrency` and a two-field `NonPositiveDistance` — all deleted in this same branch | Fixed — rewritten to describe what exists, with all ten reasons and what each is for |
+
+**Finding 7 is a spec change, and it is the one to read.** SPEC.md said "the
+mean of the last 3 segments" in §3 line 504, "never the mean of per-segment
+figures" two lines above, and "everything here is total-over-total" in §13 —
+about the same function. Two of the three already agreed with the code. The
+contradiction is resolved in favour of total-over-total, in `SPEC.md` itself,
+with the paragraph saying what it used to say and why: a 40 km town top-up at
+12 L/100 km beside two 900 km runs at 6.0 is a mean of 8.0 and a total-over-total
+of 6.13 — the mean reports a 33% rise and tells the driver their car got thirsty.
+The implementation was mutated to the literal "mean" to confirm the new test
+distinguishes the two rules.
+
+### Structural
+
+| # | Finding | Status |
+|---|---|---|
+| 11 | `FuelSegmentSet.props` rebuilt and re-sorted on every read — the cost `MoneyTotal` was refactored away from four commits earlier | Fixed — computed once in a factory, with four tests proving the encoding rather than trusting the allowlist |
+| 13 | The `MoneyTotal` factory re-parsed each code back into a `Currency` to index the maps it had just built, with a nullable key | Fixed — sorts the entries directly |
+| 15 | The vector generator's `_averageJson` took `List<dynamic>` and cast | Fixed — typed |
+
+### Answered, not applied
+
+**14 — `Vehicle.tankCapacityMl` should become a `Volume`.** The same finding
+`/simplify` raised, reached independently. The answer is unchanged and is
+recorded above: the finding is right — `build_fuel_segments.dart` compares a
+`Volume` against a bare int, which is the mixing this epic set out to make
+impossible — but the column feeds a heuristic rather than a stored quantity, and
+changing it touches `FillUpPoint`, the vector generator and the golden file for
+no behavioural gain. **Two independent reviews naming it is a stronger signal
+than one**, so it is written into the deferred list below rather than left in a
+table: the fuel screen epic should take it, starting at that comparison.
+
+### What this pass says about the suite
+
+Findings 2 and 8 have the same root as the mapper hole `/simplify` found: **a
+fixture suite where every amount is in euros proves nothing about currency, and
+one where every number is round proves nothing about rounding.** `rounding_test`
+pinned 2.5, -2.5, 0.05 and 6.449 and never a value in the band where the bug
+lived. The screen epics should read that twice.
+
 ## Deferred
 
 - **Nothing from the epic's task list.** All ten tasks are built and their tests pass.
