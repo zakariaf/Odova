@@ -113,3 +113,28 @@ a `PopScope` on `AppShell`, `test/app/routing/{tab_behaviour,stack_reset}_test.d
   save` (needs `vehicle.switcher`, EPIC-09).
 - `shell_harness.dart` now resolves the shell with `skipOffstage: false`, because
   an opaque modal puts the whole shell offstage.
+
+## Task 8.5 — the active vehicle, and never taxing the one-car user ✅
+
+`lib/app/active_vehicle.dart`, `SettingsRepository.setActiveVehicle`,
+`test/app/active_vehicle_test.dart` (11 tests). 12 mutations, all red.
+
+- **`liveVehicleCountProvider` lives here, over `vehiclesProvider`** — not the
+  direct query task 8.6 planned. EPIC-09 has nothing to re-point: it already
+  reads the repository's own stream, which filters tombstones.
+- **`resetAllTabStacks` now has one caller** (`lib/app/active_vehicle.dart`) and
+  `stack_reset_test.dart` names it. **EPIC-13's importer is the second and must
+  add itself to that list.**
+- **`costsAllVehiclesProvider` is declared here for EPIC-13 to inherit**: a
+  tab-scoped view flag, never persisted, never the active vehicle.
+- **Deferred to task 8.6**: the `vehicle.switcher` redirect that makes the route
+  unreachable with one vehicle. `showsVehicleSwitcherProvider` is the predicate;
+  the redirect clause belongs with the launch gate.
+- **`AppSettings` has no `copyWith`.** EPIC-14's settings screens will want one;
+  until then every partial write is a targeted repository method like
+  `setActiveVehicle`, which is the safer shape anyway.
+- **Two test-infrastructure traps, both worth knowing before writing any
+  data-layer test**: `addTearDown` is LIFO, so dispose the `ProviderContainer`
+  BEFORE closing the database or every test in the file times out silently in
+  tear-down; and `customStatement` does not invalidate a drift stream — use
+  `customUpdate(..., updates: {table})` or the watcher keeps the stale answer.
