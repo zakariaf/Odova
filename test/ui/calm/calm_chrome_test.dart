@@ -351,4 +351,95 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  // ---- three things the artboards need and CalmScaffold could not say
+
+  testWidgets('a screen can have no app bar at all', (tester) async {
+    // `firstrun.language` draws no app bar: SPEC.md §8 says "No app-bar, no
+    // back, no skip". `appBar` was `required` and non-nullable, so the only way
+    // to build this screen was to stop using the app's one screen skeleton —
+    // which is how a second, subtly different frame gets into a codebase.
+    await pumpApp(
+      tester,
+      const CalmScaffold(appBar: null, children: [Text('body')]),
+    );
+
+    expect(find.byType(CalmAppBar), findsNothing);
+
+    // And the body still starts where the scaffold's own top padding puts it,
+    // not 56pt further down behind an app bar that is not there.
+    final screen = tester.getRect(find.byType(CalmScaffold));
+    final body = tester.getRect(find.text('body'));
+    expect(body.top - screen.top, closeTo(calmSpace.s5, 0.01));
+  });
+
+  testWidgets('tight is the body gap 21 of the 28 artboards actually use', (
+    tester,
+  ) async {
+    // `.screen__body` is `gap: var(--space-5)` and `.screen__body--tight`
+    // overrides it to `var(--space-4)`. Every artboard except the seven forms
+    // (log.*, trips.edit, vehicle.edit, settings.import) carries `--tight`, and
+    // CalmScaffold hard-coded the default that only those seven use.
+    for (final (tight, gap) in [(false, calmSpace.s5), (true, calmSpace.s4)]) {
+      await pumpApp(
+        tester,
+        CalmScaffold(
+          appBar: null,
+          tight: tight,
+          children: const [Text('one'), Text('two')],
+        ),
+      );
+
+      expect(
+        tester.getRect(find.text('two')).top -
+            tester.getRect(find.text('one')).bottom,
+        closeTo(gap, 0.01),
+        reason: 'tight: $tight',
+      );
+    }
+  });
+
+  testWidgets('brand paints the wash, and without it the ground is flat', (
+    tester,
+  ) async {
+    // `.screen--brand` is
+    // `radial-gradient(120% 70% at 50% 0%, brand-soft 0%, transparent 70%)`
+    // over `--color-bg`, on `firstrun.language` and `settings.about`. Asserted
+    // on the gradient rather than a screenshot because a flat `brandSoft`
+    // ground would also look "warm at the top" in a heatmap and is a different
+    // screen.
+    for (final brand in [true, false]) {
+      await pumpApp(
+        tester,
+        CalmScaffold(
+          appBar: null,
+          brand: brand,
+          children: const [Text('body')],
+        ),
+      );
+
+      final washes = tester
+          .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+          .map((d) => d.decoration)
+          .whereType<BoxDecoration>()
+          .map((d) => d.gradient)
+          .whereType<RadialGradient>()
+          .where((g) => g.center == Alignment.topCenter)
+          .toList();
+
+      if (!brand) {
+        expect(washes, isEmpty, reason: 'no wash without brand: true');
+        continue;
+      }
+
+      expect(washes, hasLength(1));
+      final wash = washes.single;
+      // Starts at brand-soft and fades to NOTHING — a transparent brand-soft,
+      // not a transparent black. Lerping to Colors.transparent walks the RGB
+      // through grey and greys the middle of the wash.
+      expect(wash.colors.first, calmColorsLight.brandSoft);
+      expect(wash.colors.last, calmColorsLight.brandSoft.withAlpha(0));
+      expect(wash.stops, [0.0, 0.7]); // 70%, per the CSS
+    }
+  });
 }
