@@ -10,14 +10,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
 import 'package:odova/features/vehicles/vehicle_edit_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/ui/calm/calm_field.dart';
+import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 
@@ -34,8 +39,15 @@ Future<AppDatabase> _pump(
   WidgetTester tester, {
   String name = 'The Golf',
   Locale? locale,
+  List<OdometerReading> readings = const [],
+  bool tall = false,
 }) async {
-  tester.view.physicalSize = kReferencePhysical;
+  tester.view.physicalSize = tall
+      // Tall enough that the lazy ListView builds every child. Not a device
+      // anyone owns — it is a way of asking "is the row there at all", which is
+      // a different question from "does it fit".
+      ? const Size(780, 2600)
+      : kReferencePhysical;
   tester.view.devicePixelRatio = kReferenceDpr;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -51,6 +63,18 @@ Future<AppDatabase> _pump(
     overrides: [
       appDatabaseProvider.overrideWithValue(db),
       clockProvider.overrideWithValue(Clock.fixed(DateTime.utc(2026, 9, 4))),
+      // PINNED, or the vehicle's units follow whatever locale the machine
+      // running the test is set to — and a British CI box would render the
+      // odometer in miles while a German one renders kilometres.
+      deviceLocalesProvider.overrideWithValue(const [Locale('de', 'DE')]),
+      // The READINGS are supplied, not written. `provider_harness.dart` says
+      // why: a drift stream never delivers under `testWidgets`, because the
+      // widget binding's fake async does not run its timers — and the symptom
+      // is a ten-minute hang with no output rather than a failure. This test is
+      // about the ROW, so the row gets its data and drift stays out of it.
+      odometerReadingsProvider(
+        _id,
+      ).overrideWith((ref) => Stream.value(readings)),
     ],
   );
   // The notifier loads asynchronously; let it land.
@@ -63,6 +87,44 @@ BuildContext _ctx(WidgetTester tester) =>
 
 AppLocalizations _l10n(WidgetTester tester) =>
     AppLocalizations.of(_ctx(tester));
+
+/// A reading taken on [occurredOn].
+OdometerReading _reading(
+  String occurredOn, {
+  int km = 187412,
+  String id = 'odo_01K1C4V2H9B8N3Q7ZE5RY6TMWY',
+}) => OdometerReading(
+  id: OdometerReadingId.tryParse(id)!,
+  vehicleId: _id,
+  occurredOn: occurredOn,
+  odometer: Distance.fromKm(km),
+  odometerUnit: DistanceUnit.km,
+  source: OdometerSource.manual,
+  createdAtUtcMs: 1000,
+  updatedAtUtcMs: 1000,
+);
+
+/// A history, oldest first — which is `watchReadings`' own order.
+///
+/// TWO readings, not one. With a single reading the first and the last are the
+/// same row, and a screen showing the OLDEST one passes every assertion while
+/// telling the user their car has not moved since they bought it.
+List<OdometerReading> _history(String latestOn) => [
+  _reading('2024-01-05', km: 96400, id: 'odo_01K1C4V2H9B8N3Q7ZE5RY6TMWZ'),
+  _reading(latestOn),
+];
+
+/// The row titled [title].
+///
+/// The caller pumps with `tall: true`, because `CalmScaffold`'s body is a lazy
+/// `ListView`: everything below the fold is NOT BUILT rather than merely
+/// off-screen, so `skipOffstage: false` finds nothing because there is nothing.
+/// A taller viewport rather than a scroll — `scrollUntilVisible` never
+/// converges here, since the multiline notes field grows as the list is dragged
+/// and the target stays just out of reach.
+CalmListRow _row(WidgetTester tester, String title) => tester
+    .widgetList<CalmListRow>(find.byType(CalmListRow))
+    .firstWhere((r) => r.title == title);
 
 VehicleEditDraftReader _draft(WidgetTester tester) => VehicleEditDraftReader(
   ProviderScope.containerOf(_ctx(tester)).read(vehicleEditProvider(_id)),
@@ -273,5 +335,60 @@ void main() {
     // the guard the screen mounts is the shared one.
     await _pump(tester);
     expect(find.byType(DirtyModalGuard), findsOneWidget);
+  });
+
+  testWidgets('the odometer is a read-only row with the reading and its age', (
+    tester,
+  ) async {
+    // SPEC.md §8: "in create mode it is an input; in edit mode a row showing
+    // the latest reading and its age". A facts form that wrote a dated reading
+    // would stamp today on a number last checked in March.
+    await _pump(tester, readings: _history('2026-09-01'), tall: true);
+    final l10n = _l10n(tester);
+
+    final row = _row(tester, l10n.vehicleOdometerRow);
+
+    // The number and its unit are ONE run, so a Persian screen never splits
+    // them across the mirror.
+    // A FULL STOP, because the device is pinned to de-DE and German groups
+    // with one. Asserting "187,412" here would be asserting that the row
+    // ignores the locale.
+    expect(row.value, contains('187.412'));
+    expect(row.value, contains(l10n.unitDistanceKm));
+    // And the two are inside one bidi isolate, so a Persian screen cannot
+    // split the number from its unit across the mirror — SPEC.md §5.
+    expect(row.value!.codeUnitAt(0), 0x2068);
+    expect(row.value!.codeUnitAt(row.value!.length - 1), 0x2069);
+
+    // Three days before the pinned clock, and phrased as a PAST age — not
+    // `dateDaysOverdue`, which would say the reading itself was late.
+    expect(row.subtitle, l10n.vehicleOdometerRowHint(l10n.dateDaysAgo(3, '3')));
+
+    // Read-only: no field for it anywhere on the screen.
+    expect(
+      tester
+          .widgetList<CalmField>(find.byType(CalmField))
+          .where((f) => f.label == l10n.vehicleOdometerRow),
+      isEmpty,
+    );
+  });
+
+  testWidgets("today's reading says today, not zero days ago", (tester) async {
+    await _pump(tester, readings: _history('2026-09-04'), tall: true);
+    final l10n = _l10n(tester);
+    final row = _row(tester, l10n.vehicleOdometerRow);
+    expect(row.subtitle, l10n.vehicleOdometerRowHint(l10n.dateToday));
+  });
+
+  testWidgets('a vehicle with no readings shows the row and no number', (
+    tester,
+  ) async {
+    // The row never disappears. A missing odometer is a fact worth drawing,
+    // and a row that vanishes is a screen the user cannot ask about it from.
+    await _pump(tester, tall: true);
+    final l10n = _l10n(tester);
+    final row = _row(tester, l10n.vehicleOdometerRow);
+    expect(row.value, isNull);
+    expect(row.subtitle, isNull);
   });
 }

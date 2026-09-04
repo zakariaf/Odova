@@ -228,6 +228,27 @@ Future<void> insertFillUp(
   {db.fillUps},
 );
 
+/// Inserts an odometer reading.
+Future<void> insertReading(
+  AppDatabase db, {
+  String id = 'odo_01K1C4V2H9B8N3Q7ZE5RY6TMWY',
+  String vehicleId = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+  String occurredOn = '2026-09-03',
+  int odometerM = 187412000,
+  String odometerUnit = 'km',
+  String source = 'manual',
+}) => _write(
+  db,
+  '''
+    INSERT INTO odometer_readings (
+      id, vehicle_id, occurred_on, odometer_m, odometer_unit, source,
+      created_at_utc_ms, updated_at_utc_ms
+    ) VALUES (?, ?, ?, ?, ?, ?, 1000, 1000);
+  ''',
+  [id, vehicleId, occurredOn, odometerM, odometerUnit, source],
+  {db.odometerReadings},
+);
+
 /// Inserts an expense.
 Future<void> insertExpense(
   AppDatabase db, {

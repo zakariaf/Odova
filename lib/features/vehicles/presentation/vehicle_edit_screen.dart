@@ -15,14 +15,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/l10n/relative_date.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/vehicle_edit_draft.dart';
 import 'package:odova/features/vehicles/vehicle_edit_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/vehicle_swatch.dart';
@@ -284,6 +289,12 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
             ),
           ],
         ),
+        // READ-ONLY here and an input only in create mode. SPEC.md §8: a facts
+        // form is the wrong place to write a dated reading — someone
+        // correcting the plate would stamp today's date on a number they last
+        // checked in March, and that corrupts the series the whole app depends
+        // on. Tapping it goes to `log.odometer`, where a reading has a date.
+        _OdometerRow(vehicleId: widget.vehicleId, unit: draft.distanceUnit),
         // NOT YET: SPEC.md §8's two disclosure groups — `Purchase and sale`
         // and `This vehicle's units & currency`. `CalmDisclosure` is built and
         // tested; what is missing is their CONTENTS, which need a date picker,
@@ -438,4 +449,92 @@ class _Swatch extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The latest reading and how old it is, as a row that opens `log.odometer`.
+class _OdometerRow extends ConsumerWidget {
+  const _OdometerRow({required this.vehicleId, required this.unit});
+
+  final VehicleId vehicleId;
+
+  /// The vehicle's own override, or null to follow the app's setting.
+  final DistanceUnit? unit;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final tag = ref.watch(resolvedLocaleTagsProvider).formats;
+    final readings = ref.watch(odometerReadingsProvider(vehicleId)).value;
+    final shown = unit ?? formatDefaultsFor(tag).distance;
+
+    // The LAST of the query's order, which SPEC.md §3 sorts oldest first.
+    final latest = (readings == null || readings.isEmpty)
+        ? null
+        : readings.last;
+
+    return CalmRowGroup(
+      rows: [
+        CalmListRow(
+          title: l10n.vehicleOdometerRow,
+          // The reading and its unit are ONE run — SPEC.md §5 — so a Persian
+          // screen never splits `۱۸۷٬۴۱۲ کیلومتر` across the mirror.
+          value: latest == null
+              ? null
+              : formatWithUnit(
+                  latest.odometer.inUnit(shown),
+                  shown == DistanceUnit.mi
+                      ? l10n.unitDistanceMi
+                      : l10n.unitDistanceKm,
+                  tag,
+                  numerals: CalmNumerals.auto,
+                  decimalDigits: 0,
+                ),
+          subtitle: latest == null
+              ? null
+              : l10n.vehicleOdometerRowHint(_age(context, l10n, latest)),
+          showChevron: true,
+          // EPIC-11 owns `log.odometer`. Until it exists the row is INERT —
+          // `CalmListRow` draws an inert row without a tap target, so this is
+          // an absent control rather than a chevron that navigates nowhere.
+        ),
+      ],
+    );
+  }
+
+  /// How long ago the reading was taken, as a phrase.
+  String _age(
+    BuildContext context,
+    AppLocalizations l10n,
+    OdometerReading reading,
+  ) {
+    final today = DateUtils.dateOnly(
+      ProviderScope.containerOf(context).read(clockProvider).now(),
+    );
+    final taken = DateTime.tryParse(reading.occurredOn);
+    if (taken == null) return l10n.dateToday;
+
+    final days = DateUtils.dateOnly(taken).difference(today).inDays;
+    final relative = bucketRelativeDays(days);
+    return switch (relative.bucket) {
+      RelativeDateBucket.today => l10n.dateToday,
+      RelativeDateBucket.yesterday => l10n.dateYesterday,
+      // `overdue` is the PAST bucket, and its own string is about a missed due
+      // date — "3 days overdue" on an odometer reading would say the reading
+      // was late. `dateDaysAgo` exists for exactly this.
+      RelativeDateBucket.overdue => l10n.dateDaysAgo(
+        relative.count,
+        _plain(relative.count),
+      ),
+      // A reading dated in the FUTURE is not a thing the app writes, and the
+      // honest answer is not to invent a phrase for it.
+      _ => l10n.dateToday,
+    };
+  }
+
+  String _plain(int value) => formatForDisplay(
+    value.toDouble(),
+    'en',
+    numerals: CalmNumerals.latin,
+    grouped: false,
+  );
 }
