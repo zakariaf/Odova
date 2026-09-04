@@ -36,7 +36,13 @@ if [ ! -d "$TARGET" ]; then echo "note: '$TARGET' not found."; exit 0; fi
 # Generated code and the generated localisations legitimately carry both the
 # enum arms and the translated sentence.
 SKIP_RE='\.g\.dart$|\.freezed\.dart$|\.gr\.dart$|/l10n/|_localizations.*\.dart$'
-SWITCH_RE='(case[[:space:]]+DueState\.|DueState\.[A-Za-z]+[[:space:]]*(\|\|[[:space:]]*DueState\.[A-Za-z]+[[:space:]]*)*=>)'
+# A `switch`, a pattern arm — OR an equality test. All three resolve a state,
+# and the last one was the hole: `state == DueState.overdue ? red : green` in a
+# widget is exactly what this gate exists to prevent, and it matched nothing.
+# EPIC-07 planted that as a self-test probe, labelled it "a planted violation",
+# and asserted the gate stays GREEN on it — blessing the bypass in the same
+# commit that claimed to close a different one.
+SWITCH_RE='(case[[:space:]]+DueState\.|DueState\.[A-Za-z]+[[:space:]]*(\|\|[[:space:]]*DueState\.[A-Za-z]+[[:space:]]*)*=>|[!=]=[[:space:]]*DueState\.|DueState\.[A-Za-z]+[[:space:]]*[!=]=)'
 # CalmColors exposes each state as a CalmRamp, so a direct read reads
 # `.overdue.tint`, not `.overdueTint` (see `calm-tokens`).
 SLOT_RE='\.(overdue|due|dueSoon|ok|unknown|needsOdometer)\.(base|ink|tint|edge)\b'

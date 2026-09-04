@@ -181,7 +181,11 @@ void main() {
     final manyReadings = ReadingSeries.from([
       for (var i = 0; i < 1000; i++)
         reading(
-          i % 900,
+          // NOT `i % 900`. `_suffix` is unique to 1,023, and the modulo made
+          // readings 900-999 reuse the ids of 0-99 — `cumulativeBySorted` keys
+          // by id, so those hundred entries overwrote each other and the
+          // benchmark measured a series whose values were not what it claimed.
+          i,
           CivilDate.tryParse('2016-01-01')!.addDays(i * 4).toString(),
           100000 + i * 40,
         ),

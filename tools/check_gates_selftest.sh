@@ -488,6 +488,12 @@ restore_all
 
 # And a widget is still a widget, even one that lives beside the engine's
 # vocabulary: the exemption is by DIRECTORY, and `lib/ui/` is not in it.
+#
+# This arm asserted GREEN when it was first written, on a probe whose own
+# docstring says "a planted violation" — blessing a real bypass in the same
+# commit that claimed to close one. `==` resolves a state exactly as a `switch`
+# does; the gate's pattern simply did not match it, and asserting the gate's
+# current behaviour is not the same as asserting its contract.
 write_scratch lib/ui/selftest_probe2.dart <<'PROBE'
 import 'package:flutter/material.dart';
 import 'package:odova/core/due/due_state.dart';
@@ -496,7 +502,7 @@ import 'package:odova/core/due/due_state.dart';
 Color probe(DueState state) =>
     state == DueState.overdue ? const Color(0xFFFF0000) : const Color(0xFF00FF00);
 PROBE
-assert 0 "an equality comparison is not a switch, and is allowed" \
+assert 1 "check_status_encoding is red on an == comparison in a widget" \
   bash "$STATUS" lib
 restore_all
 assert 0 "check_status_encoding is green on the real tree once more" \

@@ -349,6 +349,13 @@ jobs:
       - name: the due matrix still describes the engine
         run: dart run tool/regenerate_due_vectors.dart
 
+      # Contract: the gate above has been SEEN TO FAIL. It changes a status, a
+      # single metre, and a paused row's eligibility, and asserts red for each.
+      # CLAUDE.md §4 — new gate, new self-test. This one shipped without one for
+      # a commit, which is exactly how a gate becomes a comment that runs.
+      - name: the due-matrix gate has been seen to fail
+        run: bash tools/check_due_matrix_selftest.sh
+
       # Contract: SPEC.md §17's data-safety gate — a migration loses no record.
       # 12,000 records, with row counts AND a content hash either side. Counts
       # alone would not notice a migration that copied the right NUMBER of rows

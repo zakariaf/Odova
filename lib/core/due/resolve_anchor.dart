@@ -182,14 +182,25 @@ CivilDate? _anchorDate(
   // Walked rather than divided, because `addMonths` clamps to the last day of
   // the target month: a base on the 31st does not advance by a fixed number of
   // days and `(done - base) / interval` would drift.
+  // BOUNDED. The loop steps one interval at a time from the base to the
+  // record, so a corrupt `baseline_date` of `0001-01-01` with a one-month
+  // interval is ~24,000 iterations — each doing two calendar conversions — per
+  // item, per recompute, sixteen items per vehicle on every app foreground.
+  //
+  // The bound is not a tolerance: a base more than a thousand cycles before the
+  // record is not a baseline anybody typed, and anchoring on the record's own
+  // date is the same answer the pre-first-cycle guard below already gives for
+  // an unusable base.
+  const maxCycles = 1000;
   var k = 0;
   var candidate = base;
-  while (true) {
+  while (k < maxCycles) {
     final next = base.addMonths(months * (k + 1));
     if (next > done) break;
     candidate = next;
     k++;
   }
+  if (k >= maxCycles) return done;
 
   // The base itself is later than the record — the job was done before the
   // first cycle even opened. Nothing has been satisfied, so the record's own

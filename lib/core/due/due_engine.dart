@@ -198,40 +198,35 @@ DueAssessment computeDueState(
       ? distanceState
       : worseOf(distanceState, time.state!);
 
-  final assessment = DueAssessment(
+  // Built ONCE. This used to construct a `DueAssessment`, then construct a
+  // second one reading all nine fields back off the first solely to attach
+  // `projectedDueDate` — the same shape `vehicle_due_snapshot.dart` was changed
+  // to stop doing two commits ago, reintroduced here while fixing that. The
+  // projection needs only the two axis results, both of which are in scope.
+  //
+  // NO distance projection past the expiry. §4.1.3: "the window is empty and
+  // `odo_now` is invention", which is why the axis is downgraded to
+  // `needsOdometer` above. Extrapolating from the same too-old reading produced
+  // a firm date anyway, and that date became `nextDueOn` and would have been
+  // the notification scheduler's anchor.
+  final expired = estimate?.projection == OdometerProjection.expired;
+
+  return DueAssessment(
     state: state,
     driver: _driver(distanceState, time.state, state),
     remainingMetres: distance.remaining,
     remainingDays: time.remaining,
     dueAtOdometerMetres: distance.dueAt,
     dueOn: time.dueOn,
-    confidence: rate.confidence,
-    progress: _progress(distance, time, anchor, estimate, today),
-  );
-
-  return DueAssessment(
-    state: assessment.state,
-    driver: assessment.driver,
-    remainingMetres: assessment.remainingMetres,
-    remainingDays: assessment.remainingDays,
-    dueAtOdometerMetres: assessment.dueAtOdometerMetres,
-    dueOn: assessment.dueOn,
     projectedDueDate: projectDueDate(
-      dueOn: assessment.dueOn,
-      // NO distance projection past the expiry. §4.1.3: "the window is empty
-      // and `odo_now` is invention" — which is why the axis is downgraded to
-      // `needsOdometer` above. Extrapolating from the same too-old reading
-      // produced a firm date anyway, and that date became `nextDueOn` and
-      // would have been the notification scheduler's anchor.
-      dueAtOdometerMetres: estimate?.projection == OdometerProjection.expired
-          ? null
-          : assessment.dueAtOdometerMetres,
+      dueOn: time.dueOn,
+      dueAtOdometerMetres: expired ? null : distance.dueAt,
       series: series,
       rate: rate,
       today: today,
     ),
-    confidence: assessment.confidence,
-    progress: assessment.progress,
+    confidence: rate.confidence,
+    progress: _progress(distance, time, anchor, estimate, today),
   );
 }
 
@@ -268,11 +263,15 @@ _Axis _distanceAxis(
   OdometerEstimate? estimate,
   NoticeWindow window,
 ) {
-  final target = item.targetOdometer?.metres;
-  final interval = item.intervalDistance?.metres;
-  if (target == null && interval == null) {
+  // `hasDistanceAxis` and not a second spelling of it. The model declares
+  // both predicates as "DERIVED from the fields, never stored" for exactly
+  // this consumer, and two definitions of one rule is how a `targetDate`-like
+  // field added later gets into only one of them.
+  if (!item.hasDistanceAxis) {
     return (state: null, remaining: null, dueAt: null, dueOn: null);
   }
+  final target = item.targetOdometer?.metres;
+  final interval = item.intervalDistance?.metres;
 
   final base = anchor.odometerMetres;
   final dueAt = target ?? (base == null ? null : base + interval!);
@@ -300,11 +299,11 @@ _Axis _timeAxis(
   NoticeWindow window,
   CivilDate today,
 ) {
-  final target = CivilDate.tryParseOrNull(item.targetDate);
-  final months = item.intervalMonths;
-  if (target == null && months == null) {
+  if (!item.hasTimeAxis) {
     return (state: null, remaining: null, dueAt: null, dueOn: null);
   }
+  final target = CivilDate.tryParseOrNull(item.targetDate);
+  final months = item.intervalMonths;
 
   final base = anchor.date;
   final dueOn = target ?? base?.addMonths(months!);

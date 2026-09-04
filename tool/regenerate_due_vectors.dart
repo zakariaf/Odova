@@ -34,23 +34,30 @@ void main(List<String> args) {
   final cases = (doc['cases']! as List).cast<Map<String, dynamic>>();
 
   final drifted = <String>[];
+  // ROWS, not fields. `drifted` gains one entry per mismatched field, so a
+  // single row differing in five of them reported as "5 rows changed".
+  var changedRows = 0;
   for (final fixture in cases) {
     final expected = fixture['expect'] as Map<String, dynamic>?;
     final actual = runDueCase(fixture);
 
-    if (expected == null) {
-      // An absence row: the fixture says the item is not eligible, so the
-      // engine must decline to assess it.
-      if (actual != null) {
-        drifted.add('${fixture['name']}: expected no assessment, got one');
+    // `--bless` writes whatever the engine now says, INCLUDING a row that has
+    // become eligible or stopped being so. The first version returned early on
+    // both mismatches, so blessing an eligibility change left the stale
+    // `expect` block behind and the next unblessed run failed again.
+    if (expected == null || actual == null) {
+      if (expected != actual) {
+        final what = expected == null
+            ? 'expected no assessment, got one'
+            : 'expected an assessment, got none';
+        drifted.add('${fixture['name']}: $what');
+        changedRows++;
       }
-      continue;
-    }
-    if (actual == null) {
-      drifted.add('${fixture['name']}: expected an assessment, got none');
+      if (bless) fixture['expect'] = actual;
       continue;
     }
 
+    var rowChanged = false;
     for (final key in expected.keys) {
       final want = expected[key];
       final got = actual[key];
@@ -59,8 +66,10 @@ void main(List<String> args) {
           : want == got;
       if (!same) {
         drifted.add('${fixture['name']}: $key want $want, got $got');
+        rowChanged = true;
       }
     }
+    if (rowChanged) changedRows++;
     if (bless) fixture['expect'] = actual;
   }
 
@@ -68,7 +77,7 @@ void main(List<String> args) {
     file.writeAsStringSync(
       '${const JsonEncoder.withIndent('  ').convert(doc)}\n',
     );
-    stdout.writeln('blessed $_path (${drifted.length} rows changed)');
+    stdout.writeln('blessed $_path ($changedRows rows changed)');
     return;
   }
 
