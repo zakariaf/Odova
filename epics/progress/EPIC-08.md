@@ -138,3 +138,34 @@ a `PopScope` on `AppShell`, `test/app/routing/{tab_behaviour,stack_reset}_test.d
   BEFORE closing the database or every test in the file times out silently in
   tear-down; and `customStatement` does not invalidate a drift stream — use
   `customUpdate(..., updates: {table})` or the watcher keeps the stale answer.
+
+## Task 8.6 — the launch-state gate ✅
+
+`lib/app/routing/launch_gate.dart` (`LaunchFacts`, `appRedirect`,
+`initialLocationFor`, `launchFactsProvider`, `launchFactsListenable`), wired into
+`routerProvider`. `test/app/routing/launch_gate_test.dart` (15) and
+`test/app/bootstrap_launch_test.dart` (14). 16 mutations, all red.
+
+- **`appRedirect` takes a `String`, not a `GoRouterState`.** A `GoRouterState`
+  cannot be constructed in a test, and the loop-freedom property has to run over
+  the whole route table. The router passes `state.matchedLocation`.
+- **`onboardingDone` is NOT "a settings row exists".** First run writes the row
+  on the language step and sets the flag on the vehicle step's Save. EPIC-09
+  must set `onboarding_done` explicitly; writing the settings row is not enough.
+- **`liveVehicleCountProvider` was task 8.5's and needs no EPIC-09 rework** —
+  it already reads `vehiclesProvider`, which filters tombstones. The epic's note
+  to re-point it at `VehicleRepository.watchGarage()` is obsolete.
+- **The `vehicle.switcher` redirect deferred from 8.5 landed here**, as one
+  clause in the gate.
+- **`bootstrap()` is unchanged.** It returns overrides and does not read the
+  facts: `routerProvider` reads them itself on first build, which is before the
+  first frame and is the same guarantee with one fewer moving part. If EPIC-16
+  needs facts earlier (a notification cold start), that is where to add it.
+- **Three test-infrastructure repairs that every later epic inherits:**
+  - `test/data/support/rows.dart` now calls `markTablesUpdated` — raw
+    `customStatement` never invalidates a watching drift query.
+  - **A drift stream does not deliver under `testWidgets`** (fake async, real
+    timers); it hangs for ten minutes rather than failing. Ask database
+    questions in a plain `test`, widget questions with data injected.
+  - `OdovaRoot` needs a database now. `pumpApp`'s `noLaunchGate()` is the escape
+    for tests that are not about routing.
