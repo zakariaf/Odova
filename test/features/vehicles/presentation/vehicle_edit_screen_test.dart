@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
@@ -238,5 +239,39 @@ void main() {
     await tester.enterText(find.byType(CalmField).at(1), 'VW');
     await tester.pumpAndSettle();
     expect(_draft(tester).isDirty, isTrue);
+  });
+
+  testWidgets('a dirty dismiss asks, and a clean one does not', (
+    tester,
+  ) async {
+    // SPEC.md §10 through EPIC-08's `DirtyModalGuard` and EPIC-08's dialog —
+    // this screen supplies only the subject and the summary. A clean form
+    // dismisses silently, because a discard dialog that appears when nothing is
+    // pending teaches the user to dismiss it unread, and then it is worth
+    // nothing on the day something IS pending.
+    await _pump(tester);
+
+    final guard = tester.widget<DirtyModalGuard>(find.byType(DirtyModalGuard));
+    expect(guard.isDirty(), isFalse);
+
+    await tester.enterText(find.byType(CalmField).first, 'The Polo');
+    await tester.pumpAndSettle();
+    // A CALLBACK, not a bool: the answer changes with every keystroke and the
+    // guard is not rebuilt for any of them.
+    expect(
+      tester.widget<DirtyModalGuard>(find.byType(DirtyModalGuard)).isDirty(),
+      isTrue,
+    );
+  });
+
+  testWidgets('the screen writes no discard dialog of its own', (
+    tester,
+  ) async {
+    // The structural half of the same rule lives in
+    // `test/ui/dialogs/discard_dialog_test.dart`, which allow-lists this file
+    // as a CALLER and bans every declaration. This is the behavioural half:
+    // the guard the screen mounts is the shared one.
+    await _pump(tester);
+    expect(find.byType(DirtyModalGuard), findsOneWidget);
   });
 }
