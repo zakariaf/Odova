@@ -149,8 +149,15 @@ class _SwitcherRow extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final space = CalmSpace.of(context);
     final tag = ref.watch(resolvedLocaleTagsProvider).formats;
-    final globalUnit =
-        ref.watch(settingsProvider).value?.distanceUnit ?? DistanceUnit.km;
+    // SELECTED, not the whole row. `settingsProvider` is `.distinct()` over
+    // the entire `AppSettings`, so an unselected watch rebuilds every vehicle
+    // row when the ACTIVE VEHICLE changes — which is exactly what tapping a row
+    // in the switcher does.
+    final globalUnit = ref.watch(
+      settingsProvider.select(
+        (settings) => settings.value?.distanceUnit ?? DistanceUnit.km,
+      ),
+    );
     final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicle.id));
     final sold = vehicle.status != VehicleStatus.active;
     final status = garageStatusOf(snapshot?.summary, sold: sold);

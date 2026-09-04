@@ -38,10 +38,15 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
   //
   // It is awaited but not slow: `date_symbol_data_local` is a compiled Dart
   // table, not a file read, so nothing here touches the disk or a socket.
-  await initializeDateFormatting();
-
+  // Started FIRST, and awaited last. `readLaunchFacts` spawns drift's
+  // background isolate and opens the file; `initializeDateFormatting` is
+  // synchronous main-isolate CPU that builds ICU's symbol tables. Sequenced the
+  // other way they add up; overlapped they cost whichever is slower, and the
+  // 2.0s cold-launch budget in SPEC.md §17 is the reason to care.
   final database = AppDatabase();
-  final facts = await readLaunchFacts(database);
+  final facts = readLaunchFacts(database);
+
+  await initializeDateFormatting();
 
   return [
     crashSinkProvider.overrideWithValue(crashSink),
@@ -51,7 +56,7 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     // connections to one file is how a WAL ends up with a reader that cannot
     // see a writer's committed row.
     appDatabaseProvider.overrideWithValue(database),
-    initialLaunchFactsProvider.overrideWithValue(facts),
+    initialLaunchFactsProvider.overrideWithValue(await facts),
   ];
 }
 
