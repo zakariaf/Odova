@@ -13,6 +13,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/file_picker.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/result.dart';
+import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/data/repositories/vehicle_repository.dart';
 import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
@@ -25,6 +30,25 @@ import 'package:odova/ui/calm/calm_segmented.dart';
 import '../../../parity/support/parity_capture.dart'
     show kReferenceDpr, kReferencePhysical;
 import '../../../support/pump_app.dart';
+
+/// A repository whose disk is full.
+class _FailingVehicles implements VehicleRepository {
+  int attempts = 0;
+
+  @override
+  Future<Result<Vehicle, PersistFailure>> create(
+    VehicleDraft draft, {
+    required int nowUtcMs,
+    bool asFirstVehicle = false,
+  }) async {
+    attempts++;
+    return const Err(WriteFailed('disk full'));
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError(invocation.memberName.toString());
+}
 
 /// A picker that records what was asked of it, and always cancels.
 class _FakePicker {
@@ -402,5 +426,41 @@ void main() {
 
     expect(find.text('The Golf'), findsOneWidget);
     expect(find.text('187412'), findsOneWidget);
+  });
+
+  testWidgets('a disk failure keeps the screen and offers Retry', (
+    tester,
+  ) async {
+    // SPEC.md §8's Error state, which is the only one this screen has: "Only a
+    // disk write can fail: 'Couldn\'t save. Your phone may be out of space.'
+    // with Retry. The screen never advances."
+    final repository = _FailingVehicles();
+    await _pump(
+      tester,
+      overrides: [
+        ..._device('de-DE', picker: _FakePicker()),
+        vehicleRepositoryProvider.overrideWithValue(repository),
+      ],
+    );
+    final l10n = _l10n(tester);
+
+    await _type(tester, '187412');
+    expect(find.text(l10n.saveDiskFullError), findsNothing);
+
+    await tester.tap(find.byWidget(_start(tester)));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.saveDiskFullError), findsOneWidget);
+    expect(find.text(l10n.commonRetry), findsOneWidget);
+    // The screen never advances — the user still has their six digits.
+    expect(find.byType(FirstRunVehicleScreen), findsOneWidget);
+    expect(find.text('187412'), findsOneWidget);
+
+    // No scrolling: the message sits in the foot, above Start, where the user
+    // just pressed. At the end of the body it would be under the fold, so a
+    // failed save would look like nothing happening at all.
+    await tester.tap(find.text(l10n.commonRetry));
+    await tester.pumpAndSettle();
+    expect(repository.attempts, 2, reason: 'Retry retries');
   });
 }

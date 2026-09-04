@@ -21,7 +21,9 @@ import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_chip.dart';
 import 'package:odova/ui/calm/calm_field.dart';
@@ -170,6 +172,14 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: space.s3,
           children: [
+            // In the FOOT, above Start, rather than at the end of the body.
+            // SPEC.md §8 says the screen never advances; it does not say where
+            // the message goes, and the body's end is under the fold on a
+            // 390x844 phone with five controls above it — so the user would
+            // press Start, see nothing move, and have to scroll to find out
+            // why. The message belongs where the action was.
+            if (draft.saveFailed)
+              _SaveFailure(onRetry: () => unawaited(_save())),
             _StartButton(
               enabled: draft.canStart,
               label: l10n.commonStart,
@@ -256,19 +266,6 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
               onChanged: (i) => notifier.chooseBand(AnnualBand.values[i]),
             ),
           ),
-          if (draft.saveFailed)
-            _Labelled(
-              label: l10n.saveDiskFullError,
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: CalmButton(
-                  label: l10n.commonRetry,
-                  variant: CalmButtonVariant.quiet,
-                  size: CalmButtonSize.sm,
-                  onPressed: () => unawaited(_save()),
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -433,6 +430,41 @@ class _StartButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onBlockedTap,
       child: button,
+    );
+  }
+}
+
+/// SPEC.md §8's Error state: the message, and one way out of it.
+class _SaveFailure extends StatelessWidget {
+  const _SaveFailure({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
+    final type = CalmType.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      spacing: space.s2,
+      children: [
+        Text(
+          l10n.saveDiskFullError,
+          textAlign: TextAlign.center,
+          style: type.caption.copyWith(color: colors.danger),
+        ),
+        CalmButton(
+          label: l10n.commonRetry,
+          variant: CalmButtonVariant.tonal,
+          size: CalmButtonSize.sm,
+          block: true,
+          onPressed: onRetry,
+        ),
+      ],
     );
   }
 }

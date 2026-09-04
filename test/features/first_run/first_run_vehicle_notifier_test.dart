@@ -265,4 +265,40 @@ void main() {
     expect(settings.onboardingDone, isTrue);
     expect(settings.activeVehicleId, vehicle.id);
   });
+
+  test('an accepted implausible reading is saved exactly as typed', () async {
+    // SPEC.md §8: the warning is "a warning with a Use it anyway affordance,
+    // never a block". Warning and then refusing to store it would be the worst
+    // of both — the app doubts the number AND will not take it.
+    final h = await _seeded();
+    final n = _notifier(h)
+      ..rename('The Truck')
+      ..typeOdometer('3000001')
+      ..useItAnyway();
+
+    expect(await n.save(), isTrue);
+    final reading = await h.db.select(h.db.odometerReadings).getSingle();
+    expect(reading.odometerM, const Distance.fromMiles(3000001).metres);
+  });
+
+  test('no per-vehicle distance override is written', () async {
+    // SPEC.md §8: "The unit chip writes `Settings.distance_unit` rather than a
+    // per-vehicle override — with exactly one vehicle, a global is the honest
+    // place for it." A materialised override here would pin the first car to
+    // whatever the device region happened to be, and then survive every later
+    // change to the global.
+    final h = await _seeded();
+    final n = _notifier(h)
+      ..rename('The Golf')
+      ..typeOdometer('1000');
+    expect(await n.save(), isTrue);
+
+    final vehicle = await h.db.select(h.db.vehicles).getSingle();
+    expect(vehicle.distanceUnit, isNull);
+    // The READING still records the unit it was typed in, which is a different
+    // fact: SPEC.md §3 keeps the unit with the number rather than converting on
+    // the way in.
+    final reading = await h.db.select(h.db.odometerReadings).getSingle();
+    expect(reading.odometerUnit, DistanceUnit.mi.wire);
+  });
 }
