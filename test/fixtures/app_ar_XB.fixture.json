@@ -42,5 +42,11 @@
   "snoozeDistance": "‏ rehtona retfA{distance}",
   "snoozeUntil": "‏ litnu{date}",
   "snoozeAtOdometer": "‏ ta{odometer}",
-  "commonCancel": "‏lecnaC"
+  "commonCancel": "‏lecnaC",
+  "commonContinue": "‏eunitnoC",
+  "commonRestoreBackup": "‏pukcab a erotseR",
+  "settingsLanguageSystem": "‏( metsyS{language})",
+  "settingsLanguageNotTranslated": "‏.noiger ruoy wollof llits lliw yenom dna stinu ,setad ,srebmuN .tey egaugnal s’ecived ruoy otni detalsnart t’nsi avodO",
+  "firstRunLanguageTagline": "‏.tseb daer uoy eno eht kciP",
+  "firstRunRestorePrompt": "‏?enohp rehtona morf gnivoM"
 }

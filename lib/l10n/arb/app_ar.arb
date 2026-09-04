@@ -42,5 +42,11 @@
   "snoozeDistance": "بعد {distance} أخرى",
   "snoozeUntil": "حتى {date}",
   "snoozeAtOdometer": "عند {odometer}",
-  "commonCancel": "إلغاء"
+  "commonCancel": "إلغاء",
+  "commonContinue": "متابعة",
+  "commonRestoreBackup": "استعادة نسخة احتياطية",
+  "settingsLanguageSystem": "النظام ({language})",
+  "settingsLanguageNotTranslated": "لم تُترجم أودوفا بعد إلى لغة جهازك. ستظل الأرقام والتواريخ والوحدات والمبالغ تتبع منطقتك.",
+  "firstRunLanguageTagline": "اختر اللغة التي تقرأها بشكل أفضل.",
+  "firstRunRestorePrompt": "هل انتقلت من هاتف آخر؟"
 }

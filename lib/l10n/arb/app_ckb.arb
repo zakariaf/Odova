@@ -42,5 +42,11 @@
   "snoozeDistance": "دوای {distance}ی دیکە",
   "snoozeUntil": "تا {date}",
   "snoozeAtOdometer": "لە {odometer}",
-  "commonCancel": "پاشگەزبوونەوە"
+  "commonCancel": "پاشگەزبوونەوە",
+  "commonContinue": "بەردەوام بە",
+  "commonRestoreBackup": "پاشەکەوتیک بگەڕێنەوە",
+  "settingsLanguageSystem": "سیستەم ({language})",
+  "settingsLanguageNotTranslated": "ئۆدۆڤا هێشتا بۆ زمانی ئامێرەکەت وەرنەگێڕدراوە. ژمارە، بەروار، یەکە و بڕی پارە هێشتا بەپێی هەرێمەکەت دەبن.",
+  "firstRunLanguageTagline": "ئەو زمانە هەڵبژێرە کە باشتر دەیخوێنیتەوە.",
+  "firstRunRestorePrompt": "لە مۆبایلێکی تر هاتوویت؟"
 }

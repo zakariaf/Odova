@@ -42,5 +42,11 @@
   "snoozeDistance": "[Áƒţḗř áǹǿţħḗř {distance} ǃǃǃǃǃǃ]",
   "snoozeUntil": "[ǔǹţīŀ {date} ǃǃǃ]",
   "snoozeAtOdometer": "[áţ {odometer} ǃǃ]",
-  "commonCancel": "[Çáǹçḗŀ ǃǃǃ]"
+  "commonCancel": "[Çáǹçḗŀ ǃǃǃ]",
+  "commonContinue": "[Çǿǹţīǹǔḗ ǃǃǃǃ]",
+  "commonRestoreBackup": "[Řḗŝţǿřḗ á ḅáçķǔƥ ǃǃǃǃǃǃǃ]",
+  "settingsLanguageSystem": "[Ŝẏŝţḗḿ ({language}) ǃǃǃǃ]",
+  "settingsLanguageNotTranslated": "[Ǿḍǿṽá īŝǹ’ţ ţřáǹŝŀáţḗḍ īǹţǿ ẏǿǔř ḍḗṽīçḗ’ŝ ŀáǹḡǔáḡḗ ẏḗţ. Ǹǔḿḅḗřŝ, ḍáţḗŝ, ǔǹīţŝ áǹḍ ḿǿǹḗẏ ẇīŀŀ ŝţīŀŀ ƒǿŀŀǿẇ ẏǿǔř řḗḡīǿǹ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "firstRunLanguageTagline": "[Ƥīçķ ţħḗ ǿǹḗ ẏǿǔ řḗáḍ ḅḗŝţ. ǃǃǃǃǃǃǃǃǃǃǃ]",
+  "firstRunRestorePrompt": "[Ḿǿṽīǹḡ ƒřǿḿ áǹǿţħḗř ƥħǿǹḗ? ǃǃǃǃǃǃǃǃǃǃǃ]"
 }

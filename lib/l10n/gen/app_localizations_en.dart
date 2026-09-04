@@ -264,4 +264,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonCancel => 'Cancel';
+
+  @override
+  String get commonContinue => 'Continue';
+
+  @override
+  String get commonRestoreBackup => 'Restore a backup';
+
+  @override
+  String settingsLanguageSystem(String language) {
+    return 'System ($language)';
+  }
+
+  @override
+  String get settingsLanguageNotTranslated =>
+      'Odova isn’t translated into your device’s language yet. Numbers, dates, units and money will still follow your region.';
+
+  @override
+  String get firstRunLanguageTagline => 'Pick the one you read best.';
+
+  @override
+  String get firstRunRestorePrompt => 'Moving from another phone?';
 }

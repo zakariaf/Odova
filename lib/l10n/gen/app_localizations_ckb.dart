@@ -265,4 +265,26 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get commonCancel => 'پاشگەزبوونەوە';
+
+  @override
+  String get commonContinue => 'بەردەوام بە';
+
+  @override
+  String get commonRestoreBackup => 'پاشەکەوتیک بگەڕێنەوە';
+
+  @override
+  String settingsLanguageSystem(String language) {
+    return 'سیستەم ($language)';
+  }
+
+  @override
+  String get settingsLanguageNotTranslated =>
+      'ئۆدۆڤا هێشتا بۆ زمانی ئامێرەکەت وەرنەگێڕدراوە. ژمارە، بەروار، یەکە و بڕی پارە هێشتا بەپێی هەرێمەکەت دەبن.';
+
+  @override
+  String get firstRunLanguageTagline =>
+      'ئەو زمانە هەڵبژێرە کە باشتر دەیخوێنیتەوە.';
+
+  @override
+  String get firstRunRestorePrompt => 'لە مۆبایلێکی تر هاتوویت؟';
 }

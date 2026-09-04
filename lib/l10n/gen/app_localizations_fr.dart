@@ -276,4 +276,26 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonCancel => 'Annuler';
+
+  @override
+  String get commonContinue => 'Continuer';
+
+  @override
+  String get commonRestoreBackup => 'Restaurer une sauvegarde';
+
+  @override
+  String settingsLanguageSystem(String language) {
+    return 'Système ($language)';
+  }
+
+  @override
+  String get settingsLanguageNotTranslated =>
+      'Odova n’est pas encore traduit dans la langue de votre appareil. Les nombres, les dates, les unités et les montants suivront toujours votre région.';
+
+  @override
+  String get firstRunLanguageTagline =>
+      'Choisissez celle que vous lisez le mieux.';
+
+  @override
+  String get firstRunRestorePrompt => 'Vous changez de téléphone ?';
 }

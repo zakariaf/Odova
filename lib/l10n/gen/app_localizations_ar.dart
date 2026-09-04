@@ -302,4 +302,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonCancel => 'إلغاء';
+
+  @override
+  String get commonContinue => 'متابعة';
+
+  @override
+  String get commonRestoreBackup => 'استعادة نسخة احتياطية';
+
+  @override
+  String settingsLanguageSystem(String language) {
+    return 'النظام ($language)';
+  }
+
+  @override
+  String get settingsLanguageNotTranslated =>
+      'لم تُترجم أودوفا بعد إلى لغة جهازك. ستظل الأرقام والتواريخ والوحدات والمبالغ تتبع منطقتك.';
+
+  @override
+  String get firstRunLanguageTagline => 'اختر اللغة التي تقرأها بشكل أفضل.';
+
+  @override
+  String get firstRunRestorePrompt => 'هل انتقلت من هاتف آخر؟';
 }

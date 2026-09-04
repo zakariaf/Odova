@@ -374,6 +374,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get commonCancel;
+
+  /// Moves to the next step of first run. SPEC.md §8 gives the label in all six: Continue / Weiter / Continuer / ادامه / متابعة / بەردەوام بە. It is rendered in the language the user has just tapped, not the device's, so it wraps to two lines rather than shrinking — "Weiter" and "بەردەوام بە" are very different widths.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get commonContinue;
+
+  /// Opens the OS document picker on the way to settings.import. Offered on both first-run screens because the second-most-likely reason a stranger is on them is a new phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a backup'**
+  String get commonRestoreBackup;
+
+  /// The first row of the seven-row language list. The parenthesis names what `system` resolves to RIGHT NOW and updates live, so a de-DE device reads "System (Deutsch)". SPEC.md §5 Override.
+  ///
+  /// In en, this message translates to:
+  /// **'System ({language})'**
+  String settingsLanguageSystem(String language);
+
+  /// Sits under the language list when the device language is none of the six. SPEC.md §5 and §8. It deliberately takes NO placeholder — EPIC-09 F-9.8: nothing in the dependency set supplies a language's own name for an arbitrary tag, and a hand-written endonym table would put a misspelling of somebody's own language, in their own script, on the app's first screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova isn’t translated into your device’s language yet. Numbers, dates, units and money will still follow your region.'**
+  String get settingsLanguageNotTranslated;
+
+  /// One line under the wordmark on firstrun.language. It is in the artboard rather than in SPEC's prose, and CLAUDE.md §7 makes the reference the authority for what the screen says.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the one you read best.'**
+  String get firstRunLanguageTagline;
+
+  /// The caption between Continue and Restore a backup on firstrun.language. SPEC.md §8's wording wins over §14's — EPIC-09 F-9.3.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving from another phone?'**
+  String get firstRunRestorePrompt;
 }
 
 class _AppLocalizationsDelegate

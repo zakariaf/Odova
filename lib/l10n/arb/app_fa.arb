@@ -42,5 +42,11 @@
   "snoozeDistance": "پس از {distance} دیگر",
   "snoozeUntil": "تا {date}",
   "snoozeAtOdometer": "در {odometer}",
-  "commonCancel": "انصراف"
+  "commonCancel": "انصراف",
+  "commonContinue": "ادامه",
+  "commonRestoreBackup": "بازیابی از پشتیبان",
+  "settingsLanguageSystem": "سیستم ({language})",
+  "settingsLanguageNotTranslated": "اودووا هنوز به زبان دستگاه شما ترجمه نشده است. اعداد، تاریخ‌ها، یکاها و مبالغ همچنان از منطقهٔ شما پیروی می‌کنند.",
+  "firstRunLanguageTagline": "زبانی را انتخاب کنید که بهتر می‌خوانید.",
+  "firstRunRestorePrompt": "از گوشی دیگری آمده‌اید؟"
 }

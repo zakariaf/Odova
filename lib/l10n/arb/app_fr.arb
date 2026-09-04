@@ -42,5 +42,11 @@
   "snoozeDistance": "Après {distance} de plus",
   "snoozeUntil": "jusqu'au {date}",
   "snoozeAtOdometer": "à {odometer}",
-  "commonCancel": "Annuler"
+  "commonCancel": "Annuler",
+  "commonContinue": "Continuer",
+  "commonRestoreBackup": "Restaurer une sauvegarde",
+  "settingsLanguageSystem": "Système ({language})",
+  "settingsLanguageNotTranslated": "Odova n’est pas encore traduit dans la langue de votre appareil. Les nombres, les dates, les unités et les montants suivront toujours votre région.",
+  "firstRunLanguageTagline": "Choisissez celle que vous lisez le mieux.",
+  "firstRunRestorePrompt": "Vous changez de téléphone ?"
 }

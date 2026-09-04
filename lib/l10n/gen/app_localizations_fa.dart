@@ -265,4 +265,26 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get commonCancel => 'انصراف';
+
+  @override
+  String get commonContinue => 'ادامه';
+
+  @override
+  String get commonRestoreBackup => 'بازیابی از پشتیبان';
+
+  @override
+  String settingsLanguageSystem(String language) {
+    return 'سیستم ($language)';
+  }
+
+  @override
+  String get settingsLanguageNotTranslated =>
+      'اودووا هنوز به زبان دستگاه شما ترجمه نشده است. اعداد، تاریخ‌ها، یکاها و مبالغ همچنان از منطقهٔ شما پیروی می‌کنند.';
+
+  @override
+  String get firstRunLanguageTagline =>
+      'زبانی را انتخاب کنید که بهتر می‌خوانید.';
+
+  @override
+  String get firstRunRestorePrompt => 'از گوشی دیگری آمده‌اید؟';
 }
