@@ -285,4 +285,113 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firstRunRestorePrompt => 'Moving from another phone?';
+
+  @override
+  String get firstRunVehicleTitle => 'Your vehicle';
+
+  @override
+  String get firstRunVehicleSubtitle =>
+      'One vehicle and one number. That is the whole setup.';
+
+  @override
+  String get vehicleTypeCar => 'Car';
+
+  @override
+  String get vehicleTypeMotorcycle => 'Motorbike';
+
+  @override
+  String get vehicleTypeVan => 'Van';
+
+  @override
+  String get vehicleNameLabel => 'Name';
+
+  @override
+  String get vehicleNameDefaultCar => 'My car';
+
+  @override
+  String get vehicleNameDefaultMotorcycle => 'My motorbike';
+
+  @override
+  String get vehicleNameDefaultVan => 'My van';
+
+  @override
+  String get vehicleFuelLabel => 'Fuel';
+
+  @override
+  String get fuelPetrol => 'Petrol';
+
+  @override
+  String get fuelDiesel => 'Diesel';
+
+  @override
+  String get fuelElectric => 'Electric';
+
+  @override
+  String get fuelLpg => 'LPG';
+
+  @override
+  String get fuelCng => 'CNG';
+
+  @override
+  String get fuelHybrid => 'Hybrid';
+
+  @override
+  String get fuelOther => 'Other';
+
+  @override
+  String get commonMore => 'More…';
+
+  @override
+  String get odometerNowLabel => 'Odometer now';
+
+  @override
+  String get odometerFirstRunHint => 'Read it off the dash.';
+
+  @override
+  String get odometerEmptyError => 'Enter the number on your dash.';
+
+  @override
+  String get odometerNotANumberError =>
+      'That doesn\'t look like a number. Digits only.';
+
+  @override
+  String get odometerImplausibleWarning =>
+      'That\'s higher than any car has driven. Check the number.';
+
+  @override
+  String get commonUseItAnyway => 'Use it anyway';
+
+  @override
+  String get annualBandLabelKm => 'About how far a year? (thousand km)';
+
+  @override
+  String get annualBandLabelMi => 'About how far a year? (thousand miles)';
+
+  @override
+  String annualBandUnder(String max) {
+    return 'under $max';
+  }
+
+  @override
+  String annualBandRange(String min, String max) {
+    return '$min–$max';
+  }
+
+  @override
+  String annualBandOver(String min) {
+    return 'over $min';
+  }
+
+  @override
+  String get commonStart => 'Start';
+
+  @override
+  String get firstRunHaveBackup => 'I already have an Odova backup';
+
+  @override
+  String get saveDiskFullError =>
+      'Couldn\'t save. Your phone may be out of space.';
+
+  @override
+  String get commonRetry => 'Retry';
 }

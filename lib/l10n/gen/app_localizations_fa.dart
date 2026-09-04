@@ -287,4 +287,110 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get firstRunRestorePrompt => 'از گوشی دیگری آمده‌اید؟';
+
+  @override
+  String get firstRunVehicleTitle => 'خودروی شما';
+
+  @override
+  String get firstRunVehicleSubtitle => 'یک خودرو و یک عدد. کل کار همین است.';
+
+  @override
+  String get vehicleTypeCar => 'سواری';
+
+  @override
+  String get vehicleTypeMotorcycle => 'موتور';
+
+  @override
+  String get vehicleTypeVan => 'ون';
+
+  @override
+  String get vehicleNameLabel => 'نام';
+
+  @override
+  String get vehicleNameDefaultCar => 'خودروی من';
+
+  @override
+  String get vehicleNameDefaultMotorcycle => 'موتور من';
+
+  @override
+  String get vehicleNameDefaultVan => 'ون من';
+
+  @override
+  String get vehicleFuelLabel => 'سوخت';
+
+  @override
+  String get fuelPetrol => 'بنزین';
+
+  @override
+  String get fuelDiesel => 'دیزل';
+
+  @override
+  String get fuelElectric => 'برقی';
+
+  @override
+  String get fuelLpg => 'ال‌پی‌جی';
+
+  @override
+  String get fuelCng => 'سی‌ان‌جی';
+
+  @override
+  String get fuelHybrid => 'هیبریدی';
+
+  @override
+  String get fuelOther => 'سایر';
+
+  @override
+  String get commonMore => 'بیشتر…';
+
+  @override
+  String get odometerNowLabel => 'کیلومتر فعلی';
+
+  @override
+  String get odometerFirstRunHint => 'از روی داشبورد بخوانید.';
+
+  @override
+  String get odometerEmptyError => 'عدد روی داشبورد را وارد کنید.';
+
+  @override
+  String get odometerNotANumberError => 'این شبیه عدد نیست. فقط رقم وارد کنید.';
+
+  @override
+  String get odometerImplausibleWarning =>
+      'این از کارکرد هر خودرویی بیشتر است. عدد را بررسی کنید.';
+
+  @override
+  String get commonUseItAnyway => 'به هر حال استفاده کن';
+
+  @override
+  String get annualBandLabelKm => 'سالانه چند هزار کیلومتر؟';
+
+  @override
+  String get annualBandLabelMi => 'سالانه چند هزار مایل؟';
+
+  @override
+  String annualBandUnder(String max) {
+    return 'زیر $max';
+  }
+
+  @override
+  String annualBandRange(String min, String max) {
+    return '$min–$max';
+  }
+
+  @override
+  String annualBandOver(String min) {
+    return 'بالای $min';
+  }
+
+  @override
+  String get commonStart => 'شروع';
+
+  @override
+  String get firstRunHaveBackup => 'از قبل پشتیبان اودووا دارم';
+
+  @override
+  String get saveDiskFullError => 'ذخیره نشد. شاید حافظهٔ گوشی پر باشد.';
+
+  @override
+  String get commonRetry => 'تلاش دوباره';
 }

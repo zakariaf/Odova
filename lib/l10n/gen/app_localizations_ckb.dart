@@ -287,4 +287,114 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get firstRunRestorePrompt => 'لە مۆبایلێکی تر هاتوویت؟';
+
+  @override
+  String get firstRunVehicleTitle => 'ئۆتۆمبێلەکەت';
+
+  @override
+  String get firstRunVehicleSubtitle =>
+      'یەک ئۆتۆمبێل و یەک ژمارە. هەموو ئامادەکارییەکە هەر ئەوەیە.';
+
+  @override
+  String get vehicleTypeCar => 'ئۆتۆمبێل';
+
+  @override
+  String get vehicleTypeMotorcycle => 'مۆتۆرسیکل';
+
+  @override
+  String get vehicleTypeVan => 'ڤان';
+
+  @override
+  String get vehicleNameLabel => 'ناو';
+
+  @override
+  String get vehicleNameDefaultCar => 'ئۆتۆمبێلەکەم';
+
+  @override
+  String get vehicleNameDefaultMotorcycle => 'مۆتۆرسیکلەکەم';
+
+  @override
+  String get vehicleNameDefaultVan => 'ڤانەکەم';
+
+  @override
+  String get vehicleFuelLabel => 'سووتەمەنی';
+
+  @override
+  String get fuelPetrol => 'بەنزین';
+
+  @override
+  String get fuelDiesel => 'دیزل';
+
+  @override
+  String get fuelElectric => 'کارەبایی';
+
+  @override
+  String get fuelLpg => 'LPG';
+
+  @override
+  String get fuelCng => 'CNG';
+
+  @override
+  String get fuelHybrid => 'هایبرید';
+
+  @override
+  String get fuelOther => 'هیتر';
+
+  @override
+  String get commonMore => 'زیاتر…';
+
+  @override
+  String get odometerNowLabel => 'ژمارەی ئێستای کیلۆمێتر';
+
+  @override
+  String get odometerFirstRunHint => 'لە داشبۆردەکەوە بیخوێنەوە.';
+
+  @override
+  String get odometerEmptyError => 'ئەو ژمارەیە بنووسە کە لەسەر داشبۆردەکەتە.';
+
+  @override
+  String get odometerNotANumberError =>
+      'ئەمە لە ژمارە ناچێت. تەنها ڕەقەم بنووسە.';
+
+  @override
+  String get odometerImplausibleWarning =>
+      'ئەمە لەو مەودایە زیاترە کە هیچ ئۆتۆمبێلێک بڕیبێتی. ژمارەکە بپشکنە.';
+
+  @override
+  String get commonUseItAnyway => 'هەر بەکاری بهێنە';
+
+  @override
+  String get annualBandLabelKm => 'ساڵانە نزیکەی چەند ڕێگا دەبڕیت؟ (هەزار کم)';
+
+  @override
+  String get annualBandLabelMi =>
+      'ساڵانە نزیکەی چەند ڕێگا دەبڕیت؟ (هەزار مایل)';
+
+  @override
+  String annualBandUnder(String max) {
+    return 'کەمتر لە $max';
+  }
+
+  @override
+  String annualBandRange(String min, String max) {
+    return '$min–$max';
+  }
+
+  @override
+  String annualBandOver(String min) {
+    return 'زیاتر لە $min';
+  }
+
+  @override
+  String get commonStart => 'دەستپێبکە';
+
+  @override
+  String get firstRunHaveBackup => 'پێشتر پاشەکەوتێکی ئۆدۆڤام هەیە';
+
+  @override
+  String get saveDiskFullError =>
+      'پاشەکەوت نەکرا. لەوانەیە بۆشایی مۆبایلەکەت نەمابێت.';
+
+  @override
+  String get commonRetry => 'دووبارە هەوڵبدە';
 }

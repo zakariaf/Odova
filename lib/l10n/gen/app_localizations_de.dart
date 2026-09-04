@@ -139,7 +139,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String discardBody(String subject, String summary) {
-    return 'Deine Änderungen an $subject — $summary — wurden nicht gespeichert.';
+    return 'Ihre Änderungen an $subject — $summary — wurden nicht gespeichert.';
   }
 
   @override
@@ -287,4 +287,115 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get firstRunRestorePrompt => 'Wechseln Sie von einem anderen Telefon?';
+
+  @override
+  String get firstRunVehicleTitle => 'Ihr Fahrzeug';
+
+  @override
+  String get firstRunVehicleSubtitle =>
+      'Ein Fahrzeug und eine Zahl. Das ist schon die ganze Einrichtung.';
+
+  @override
+  String get vehicleTypeCar => 'Auto';
+
+  @override
+  String get vehicleTypeMotorcycle => 'Motorrad';
+
+  @override
+  String get vehicleTypeVan => 'Transporter';
+
+  @override
+  String get vehicleNameLabel => 'Name';
+
+  @override
+  String get vehicleNameDefaultCar => 'Mein Auto';
+
+  @override
+  String get vehicleNameDefaultMotorcycle => 'Mein Motorrad';
+
+  @override
+  String get vehicleNameDefaultVan => 'Mein Transporter';
+
+  @override
+  String get vehicleFuelLabel => 'Kraftstoff';
+
+  @override
+  String get fuelPetrol => 'Benzin';
+
+  @override
+  String get fuelDiesel => 'Diesel';
+
+  @override
+  String get fuelElectric => 'Elektro';
+
+  @override
+  String get fuelLpg => 'Autogas';
+
+  @override
+  String get fuelCng => 'Erdgas';
+
+  @override
+  String get fuelHybrid => 'Hybrid';
+
+  @override
+  String get fuelOther => 'Sonstiges';
+
+  @override
+  String get commonMore => 'Mehr…';
+
+  @override
+  String get odometerNowLabel => 'Aktueller Kilometerstand';
+
+  @override
+  String get odometerFirstRunHint => 'Lesen Sie ihn vom Tacho ab.';
+
+  @override
+  String get odometerEmptyError => 'Geben Sie die Zahl vom Tacho ein.';
+
+  @override
+  String get odometerNotANumberError =>
+      'Das sieht nicht nach einer Zahl aus. Nur Ziffern.';
+
+  @override
+  String get odometerImplausibleWarning =>
+      'So weit ist noch kein Auto gefahren. Prüfen Sie die Zahl.';
+
+  @override
+  String get commonUseItAnyway => 'Trotzdem verwenden';
+
+  @override
+  String get annualBandLabelKm =>
+      'Wie weit fahren Sie etwa im Jahr? (in Tausend km)';
+
+  @override
+  String get annualBandLabelMi =>
+      'Wie weit fahren Sie etwa im Jahr? (in Tausend Meilen)';
+
+  @override
+  String annualBandUnder(String max) {
+    return 'unter $max';
+  }
+
+  @override
+  String annualBandRange(String min, String max) {
+    return '$min–$max';
+  }
+
+  @override
+  String annualBandOver(String min) {
+    return 'über $min';
+  }
+
+  @override
+  String get commonStart => 'Starten';
+
+  @override
+  String get firstRunHaveBackup => 'Ich habe schon ein Odova-Backup';
+
+  @override
+  String get saveDiskFullError =>
+      'Speichern fehlgeschlagen. Vielleicht ist der Speicher Ihres Telefons voll.';
+
+  @override
+  String get commonRetry => 'Erneut versuchen';
 }

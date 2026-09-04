@@ -410,6 +410,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Moving from another phone?'**
   String get firstRunRestorePrompt;
+
+  /// App bar title on `firstrun.vehicle`, the second and last screen of first run.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vehicle'**
+  String get firstRunVehicleTitle;
+
+  /// App bar subtitle. It promises how short the setup is, which is the screen's whole job — SPEC.md §8: one vehicle and one odometer reading in under thirty seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'One vehicle and one number. That is the whole setup.'**
+  String get firstRunVehicleSubtitle;
+
+  /// Vehicle type tile. The stored value is `car`; this is only the label. EPIC-09 F-9.11: three tiles, because §4.8's seeded set has three distinct outcomes and `truck` and `other` both take the car set.
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get vehicleTypeCar;
+
+  /// Vehicle type tile. The STORED value is `motorcycle` even though the English label is "Motorbike" — a UI label must never leak into the wire value.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorbike'**
+  String get vehicleTypeMotorcycle;
+
+  /// Vehicle type tile. A small COMMERCIAL van — the plumber's Transit, not a people carrier. German must not borrow "Van", which means an MPV there.
+  ///
+  /// In en, this message translates to:
+  /// **'Van'**
+  String get vehicleTypeVan;
+
+  /// Field label above the vehicle name input.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get vehicleNameLabel;
+
+  /// Prefilled vehicle name when the type is car. Pre-selected, so the first keystroke replaces it — SPEC.md §8.
+  ///
+  /// In en, this message translates to:
+  /// **'My car'**
+  String get vehicleNameDefaultCar;
+
+  /// Prefilled vehicle name when the type is motorbike. Follows the type tile.
+  ///
+  /// In en, this message translates to:
+  /// **'My motorbike'**
+  String get vehicleNameDefaultMotorcycle;
+
+  /// Prefilled vehicle name when the type is van. Follows the type tile.
+  ///
+  /// In en, this message translates to:
+  /// **'My van'**
+  String get vehicleNameDefaultVan;
+
+  /// Field label above the fuel chips. It covers electric too, which the English word strictly does not; the translations follow the English rather than repairing it.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get vehicleFuelLabel;
+
+  /// Fuel kind chip. Gasoline.
+  ///
+  /// In en, this message translates to:
+  /// **'Petrol'**
+  String get fuelPetrol;
+
+  /// Fuel kind chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Diesel'**
+  String get fuelDiesel;
+
+  /// Fuel kind chip. A battery electric vehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Electric'**
+  String get fuelElectric;
+
+  /// Fuel kind, in the More… sheet. Liquefied petroleum gas / autogas.
+  ///
+  /// In en, this message translates to:
+  /// **'LPG'**
+  String get fuelLpg;
+
+  /// Fuel kind, in the More… sheet. Compressed natural gas.
+  ///
+  /// In en, this message translates to:
+  /// **'CNG'**
+  String get fuelCng;
+
+  /// Fuel kind, in the More… sheet. Petrol-electric hybrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Hybrid'**
+  String get fuelHybrid;
+
+  /// Fuel kind, in the More… sheet. Anything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get fuelOther;
+
+  /// Opens a sheet with the remaining options. The ellipsis is ONE character, U+2026 — three full stops are three characters a screen reader reads out.
+  ///
+  /// In en, this message translates to:
+  /// **'More…'**
+  String get commonMore;
+
+  /// Field label above the odometer input. "Now" means the reading as of today, which is what makes this an observation rather than a vehicle fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer now'**
+  String get odometerNowLabel;
+
+  /// Hint under the odometer field. It is ALWAYS visible, and it is what stands in for the explanation a disabled button would otherwise owe the user — EPIC-09 F-9.10.
+  ///
+  /// In en, this message translates to:
+  /// **'Read it off the dash.'**
+  String get odometerFirstRunHint;
+
+  /// Inline error when Start is pressed with an empty odometer.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the number on your dash.'**
+  String get odometerEmptyError;
+
+  /// Inline error when the odometer cannot be parsed at all.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t look like a number. Digits only.'**
+  String get odometerNotANumberError;
+
+  /// A WARNING and never a block, shown above 3,000,000 km. SPEC.md §8 pairs it with "Use it anyway": the app doubts the number, it does not refuse it.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s higher than any car has driven. Check the number.'**
+  String get odometerImplausibleWarning;
+
+  /// Dismisses a warning and accepts the value exactly as typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it anyway'**
+  String get commonUseItAnyway;
+
+  /// Label above the four annual-distance bands, kilometre version. The unit lives in the LABEL so the chips carry none — EPIC-09 F-9.12, which is why they need no truncation budget in German.
+  ///
+  /// In en, this message translates to:
+  /// **'About how far a year? (thousand km)'**
+  String get annualBandLabelKm;
+
+  /// The same label for a miles vehicle. The bands are defined per unit system and are not converted (SPEC.md §4.8).
+  ///
+  /// In en, this message translates to:
+  /// **'About how far a year? (thousand miles)'**
+  String get annualBandLabelMi;
+
+  /// The lowest annual band. {max} is a number the app has already formatted in the active numbering system — never write a digit into this string, and never add a unit.
+  ///
+  /// In en, this message translates to:
+  /// **'under {max}'**
+  String annualBandUnder(String max);
+
+  /// A middle annual band. The separator is U+2013 EN DASH, not a hyphen and not an em dash. Both values arrive already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{min}–{max}'**
+  String annualBandRange(String min, String max);
+
+  /// The highest annual band, which is open-ended.
+  ///
+  /// In en, this message translates to:
+  /// **'over {min}'**
+  String annualBandOver(String min);
+
+  /// The primary button that finishes first-run setup and opens the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get commonStart;
+
+  /// Quiet button under Start, opening the OS document picker. Deliberately SHORTER than `firstrun.language`'s two-line offer: by this screen the user has already declined it once. Odova is the app name.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an Odova backup'**
+  String get firstRunHaveBackup;
+
+  /// Shown when the create transaction fails. SPEC.md §8: a disk write is the only thing that can fail on this screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Your phone may be out of space.'**
+  String get saveDiskFullError;
+
+  /// Tries the failed save again.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get commonRetry;
 }
 
 class _AppLocalizationsDelegate

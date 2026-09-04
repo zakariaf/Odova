@@ -323,4 +323,114 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get firstRunRestorePrompt => 'هل انتقلت من هاتف آخر؟';
+
+  @override
+  String get firstRunVehicleTitle => 'مركبتك';
+
+  @override
+  String get firstRunVehicleSubtitle =>
+      'مركبة واحدة ورقم واحد. هذا هو الإعداد كله.';
+
+  @override
+  String get vehicleTypeCar => 'سيارة';
+
+  @override
+  String get vehicleTypeMotorcycle => 'دراجة نارية';
+
+  @override
+  String get vehicleTypeVan => 'شاحنة صغيرة';
+
+  @override
+  String get vehicleNameLabel => 'الاسم';
+
+  @override
+  String get vehicleNameDefaultCar => 'سيارتي';
+
+  @override
+  String get vehicleNameDefaultMotorcycle => 'دراجتي النارية';
+
+  @override
+  String get vehicleNameDefaultVan => 'شاحنتي';
+
+  @override
+  String get vehicleFuelLabel => 'الوقود';
+
+  @override
+  String get fuelPetrol => 'بنزين';
+
+  @override
+  String get fuelDiesel => 'ديزل';
+
+  @override
+  String get fuelElectric => 'كهربائي';
+
+  @override
+  String get fuelLpg => 'غاز مسال';
+
+  @override
+  String get fuelCng => 'غاز طبيعي';
+
+  @override
+  String get fuelHybrid => 'هجين';
+
+  @override
+  String get fuelOther => 'أخرى';
+
+  @override
+  String get commonMore => 'المزيد…';
+
+  @override
+  String get odometerNowLabel => 'العدّاد الآن';
+
+  @override
+  String get odometerFirstRunHint => 'اقرأه من لوحة العدّادات.';
+
+  @override
+  String get odometerEmptyError => 'أدخل الرقم الظاهر على لوحة العدّادات.';
+
+  @override
+  String get odometerNotANumberError => 'هذا لا يبدو رقمًا. أرقام فقط.';
+
+  @override
+  String get odometerImplausibleWarning =>
+      'هذا أكبر مما قطعته أي سيارة. تحقّق من الرقم.';
+
+  @override
+  String get commonUseItAnyway => 'استخدمه على أي حال';
+
+  @override
+  String get annualBandLabelKm =>
+      'ما المسافة التقريبية في السنة؟ (بآلاف الكيلومترات)';
+
+  @override
+  String get annualBandLabelMi =>
+      'ما المسافة التقريبية في السنة؟ (بآلاف الأميال)';
+
+  @override
+  String annualBandUnder(String max) {
+    return 'أقل من $max';
+  }
+
+  @override
+  String annualBandRange(String min, String max) {
+    return '$min–$max';
+  }
+
+  @override
+  String annualBandOver(String min) {
+    return 'أكثر من $min';
+  }
+
+  @override
+  String get commonStart => 'ابدأ';
+
+  @override
+  String get firstRunHaveBackup => 'لديّ بالفعل نسخة احتياطية من أودوفا';
+
+  @override
+  String get saveDiskFullError =>
+      'تعذّر الحفظ. ربما لا توجد مساحة كافية في هاتفك.';
+
+  @override
+  String get commonRetry => 'إعادة المحاولة';
 }

@@ -298,4 +298,116 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get firstRunRestorePrompt => 'Vous changez de téléphone ?';
+
+  @override
+  String get firstRunVehicleTitle => 'Votre véhicule';
+
+  @override
+  String get firstRunVehicleSubtitle =>
+      'Un véhicule et un nombre. C’est tout ce qu’il faut.';
+
+  @override
+  String get vehicleTypeCar => 'Voiture';
+
+  @override
+  String get vehicleTypeMotorcycle => 'Moto';
+
+  @override
+  String get vehicleTypeVan => 'Utilitaire';
+
+  @override
+  String get vehicleNameLabel => 'Nom';
+
+  @override
+  String get vehicleNameDefaultCar => 'Ma voiture';
+
+  @override
+  String get vehicleNameDefaultMotorcycle => 'Ma moto';
+
+  @override
+  String get vehicleNameDefaultVan => 'Mon utilitaire';
+
+  @override
+  String get vehicleFuelLabel => 'Carburant';
+
+  @override
+  String get fuelPetrol => 'Essence';
+
+  @override
+  String get fuelDiesel => 'Diesel';
+
+  @override
+  String get fuelElectric => 'Électrique';
+
+  @override
+  String get fuelLpg => 'GPL';
+
+  @override
+  String get fuelCng => 'GNV';
+
+  @override
+  String get fuelHybrid => 'Hybride';
+
+  @override
+  String get fuelOther => 'Autre';
+
+  @override
+  String get commonMore => 'Plus…';
+
+  @override
+  String get odometerNowLabel => 'Compteur actuel';
+
+  @override
+  String get odometerFirstRunHint => 'Lisez-le sur votre tableau de bord.';
+
+  @override
+  String get odometerEmptyError =>
+      'Saisissez le nombre affiché sur votre tableau de bord.';
+
+  @override
+  String get odometerNotANumberError =>
+      'Cela ne ressemble pas à un nombre. Chiffres uniquement.';
+
+  @override
+  String get odometerImplausibleWarning =>
+      'Aucune voiture n’a jamais roulé autant. Vérifiez le nombre.';
+
+  @override
+  String get commonUseItAnyway => 'Utiliser quand même';
+
+  @override
+  String get annualBandLabelKm =>
+      'Quelle distance environ par an ? (en milliers de km)';
+
+  @override
+  String get annualBandLabelMi =>
+      'Quelle distance environ par an ? (en milliers de miles)';
+
+  @override
+  String annualBandUnder(String max) {
+    return 'moins de $max';
+  }
+
+  @override
+  String annualBandRange(String min, String max) {
+    return '$min–$max';
+  }
+
+  @override
+  String annualBandOver(String min) {
+    return 'plus de $min';
+  }
+
+  @override
+  String get commonStart => 'Commencer';
+
+  @override
+  String get firstRunHaveBackup => 'J’ai déjà une sauvegarde Odova';
+
+  @override
+  String get saveDiskFullError =>
+      'Impossible d’enregistrer. Votre téléphone manque peut-être d’espace.';
+
+  @override
+  String get commonRetry => 'Réessayer';
 }
