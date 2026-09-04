@@ -121,21 +121,32 @@ void main() {
     final byMembers = <String, List<String>>{};
     for (final file in dartFilesUnder('lib')) {
       final source = sourceWithoutLineComments(file);
+      // `\}` at the end of a LINE or of the file, not `^\}` — a short enum
+      // that `dart format` leaves on one line closes on the same line it
+      // opens, and the first version of this pattern missed every one of
+      // them. It reported a planted single-line duplicate as clean, which is
+      // the failure mode this whole file exists to prevent, inside the file
+      // that prevents it.
       for (final match in RegExp(
-        r'^enum (\w+) \{(.*?)^\}',
+        r'^enum (\w+)\s*\{(.*?)\}',
         multiLine: true,
         dotAll: true,
       ).allMatches(source)) {
         final name = match.group(1)!;
         final body = match.group(2)!;
-        // Members are the identifiers before the first `;` (which starts the
-        // constructor and fields, if any).
+        // Members are the identifiers before the first `;`, which is where the
+        // constructor and fields start if the enum has any.
+        //
+        // Split on COMMAS rather than on line starts. A short enum lives on
+        // one line, and a pattern anchored to `^` found only its first member
+        // — which made the member set look like one element, skipped it as
+        // too short, and reported a planted single-line duplicate as clean.
         final head = body.split(';').first;
         final members =
-            RegExp(r'^\s*(\w+)\s*(?:\(|,|$)', multiLine: true)
-                .allMatches(head)
-                .map((m) => m.group(1)!)
-                .where((m) => m != 'const')
+            head
+                .split(',')
+                .map((part) => RegExp(r'\w+').firstMatch(part)?.group(0))
+                .whereType<String>()
                 .toList()
               ..sort();
         if (members.length < 2) continue;
