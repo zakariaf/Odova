@@ -20,12 +20,14 @@ import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
+import '../../support/values.dart';
 
 Vehicle _vehicle({
   String id = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
   String name = 'The Golf',
   int sortOrder = 0,
-  String? currency,
+  Currency? currency,
+  int? tankCapacityMl,
 }) => Vehicle(
   id: VehicleId.tryParse(id)!,
   name: name,
@@ -36,6 +38,7 @@ Vehicle _vehicle({
   updatedAtUtcMs: 1000,
   sortOrder: sortOrder,
   currency: currency,
+  tankCapacityMl: tankCapacityMl,
 );
 
 void main() {
@@ -49,7 +52,7 @@ void main() {
   tearDown(() => db.close());
 
   test('a save round-trips every field', () async {
-    final saved = _vehicle(currency: 'EUR');
+    final saved = _vehicle(currency: isoCurrency('EUR'));
     expect(await repository.save(saved), isA<Ok<Vehicle, PersistFailure>>());
 
     final found = await repository.findById(saved.id);
@@ -112,7 +115,10 @@ void main() {
     expect(emissions, hasLength(1));
 
     final result = await repository.save(
-      _vehicle(id: 'veh_01JV7B5X4G2K9M6P0S3D8FNRTC', currency: 'EU'),
+      _vehicle(
+        id: 'veh_01JV7B5X4G2K9M6P0S3D8FNRTC',
+        tankCapacityMl: 0,
+      ),
     );
     await pumpEventQueue();
     await subscription.cancel();
@@ -130,7 +136,14 @@ void main() {
     () async {
       // The classification is what lets a caller tell "your data is wrong" from
       // "the disk is full". Both are failures; only one is the user's to fix.
-      final result = await repository.save(_vehicle(currency: 'EU'));
+      //
+      // The violation used to be a two-letter currency code. EPIC-06 typed
+      // `Vehicle.currency` as `Currency`, whose only constructor is
+      // `tryParse`, so `'EU'` can no longer be built — the invalid state
+      // became unrepresentable and the test could not be written any more.
+      // A zero tank capacity is the same shape of CHECK and still reachable,
+      // because a tank capacity is an `int` and always will be.
+      final result = await repository.save(_vehicle(tankCapacityMl: 0));
       final failure = (result as Err<Vehicle, PersistFailure>).failure;
 
       expect(failure, isA<ConstraintViolated>());

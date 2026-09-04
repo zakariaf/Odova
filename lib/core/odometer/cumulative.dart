@@ -11,6 +11,7 @@
 // survives an import and is then wrong forever — the corrections would be
 // applied twice, or not at all, and nothing would say which.
 import 'package:meta/meta.dart';
+import 'package:odova/core/units/distance.dart';
 
 /// One reading, reduced to what the arithmetic needs.
 ///
@@ -21,14 +22,14 @@ typedef ReadingPoint = ({
   String id,
   String occurredOn,
   int createdAtUtcMs,
-  int odometerM,
+  Distance odometer,
 });
 
 /// One correction, reduced the same way.
 typedef CorrectionPoint = ({
   String fromReadingId,
-  int previousM,
-  int newM,
+  Distance previous,
+  Distance replacement,
 });
 
 /// Orders readings the way SPEC.md §3 does: `(occurred_on, created_at)`.
@@ -53,7 +54,7 @@ int compareReadings(ReadingPoint a, ReadingPoint b) {
 /// another vehicle, and applying its offset to everything would silently move
 /// a whole history.
 @useResult
-Map<String, int> cumulativeByReading(
+Map<String, Distance> cumulativeByReading(
   Iterable<ReadingPoint> readings,
   Iterable<CorrectionPoint> corrections,
 ) {
@@ -61,22 +62,23 @@ Map<String, int> cumulativeByReading(
   final byId = {for (final r in sorted) r.id: r};
 
   // Each correction's offset, placed at its boundary reading's position.
-  final offsetAt = <String, int>{};
+  final offsetAt = <String, Distance>{};
   for (final correction in corrections) {
     final boundary = byId[correction.fromReadingId];
     if (boundary == null) continue;
     offsetAt[boundary.id] =
-        (offsetAt[boundary.id] ?? 0) + (correction.previousM - correction.newM);
+        (offsetAt[boundary.id] ?? Distance.zero) +
+        (correction.previous - correction.replacement);
   }
 
   // One pass forward, accumulating. "At or after" means the offset is added
   // when the boundary reading itself is reached — the boundary is the FIRST
   // reading on the new scale, so it is corrected too.
-  final result = <String, int>{};
-  var running = 0;
+  final result = <String, Distance>{};
+  var running = Distance.zero;
   for (final reading in sorted) {
-    running += offsetAt[reading.id] ?? 0;
-    result[reading.id] = reading.odometerM + running;
+    running += offsetAt[reading.id] ?? Distance.zero;
+    result[reading.id] = reading.odometer + running;
   }
   return result;
 }

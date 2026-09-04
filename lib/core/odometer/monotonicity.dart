@@ -10,9 +10,9 @@
 // really did do 900 km yesterday; a violation that writes corrupts the
 // distance history for everything downstream.
 import 'package:meta/meta.dart';
-import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/l10n/relative_date.dart';
 import 'package:odova/core/odometer/cumulative.dart';
+import 'package:odova/core/units/distance.dart';
 
 /// Something worth telling the user, that does not stop the write.
 enum OdometerWarning {
@@ -38,20 +38,20 @@ enum OdometerWarning {
 class OdometerBlocked {
   /// Creates a block.
   const OdometerBlocked({
-    required this.previousCumulativeM,
+    required this.previousCumulative,
     required this.previousOccurredOn,
-    required this.attemptedCumulativeM,
+    required this.attemptedCumulative,
   });
 
   /// What the neighbour it must not go below reads, cumulatively.
-  final int previousCumulativeM;
+  final Distance previousCumulative;
 
   /// And when. The UI names both — "Your earliest reading is 140,000 km on
   /// 2 September" — because a bare refusal gives the user nothing to act on.
   final String previousOccurredOn;
 
   /// What was offered.
-  final int attemptedCumulativeM;
+  final Distance attemptedCumulative;
 }
 
 /// The verdict on one proposed reading.
@@ -74,7 +74,7 @@ class OdometerVerdict {
 const int _maxPlausibleMetresPerDay = 2000 * 1000;
 
 /// 100,000 km, in metres.
-const int _maxPlausibleJumpM = 100000 * 1000;
+const _maxPlausibleJump = Distance(100000 * 1000);
 
 /// Decides whether [proposed] may join [existing].
 ///
@@ -92,7 +92,7 @@ OdometerVerdict checkReading({
   required List<ReadingPoint> existing,
   required List<CorrectionPoint> corrections,
   required DistanceUnit vehicleUnit,
-  int? purchaseOdometerM,
+  Distance? purchaseOdometer,
 }) {
   // The proposed reading is folded IN, so its own cumulative value accounts
   // for every correction at or before it. Checking the raw dash number against
@@ -103,7 +103,7 @@ OdometerVerdict checkReading({
   final ordered = [...all]..sort(compareReadings);
   final index = ordered.indexWhere((r) => r.id == proposed.id);
 
-  final proposedM = cumulative[proposed.id]!;
+  final proposedDistance = cumulative[proposed.id]!;
   final before = index > 0 ? ordered[index - 1] : null;
   final after = index < ordered.length - 1 ? ordered[index + 1] : null;
 
@@ -111,31 +111,31 @@ OdometerVerdict checkReading({
   OdometerBlocked? blocked;
 
   if (before != null) {
-    final beforeM = cumulative[before.id]!;
-    if (proposedM < beforeM) {
+    final beforeDistance = cumulative[before.id]!;
+    if (proposedDistance < beforeDistance) {
       blocked = OdometerBlocked(
-        previousCumulativeM: beforeM,
+        previousCumulative: beforeDistance,
         previousOccurredOn: before.occurredOn,
-        attemptedCumulativeM: proposedM,
+        attemptedCumulative: proposedDistance,
       );
     } else {
       warnings.addAll(
         _softWarnings(
-          fromM: beforeM,
-          toM: proposedM,
+          from: beforeDistance,
+          to: proposedDistance,
           fromDate: before.occurredOn,
           toDate: proposed.occurredOn,
           vehicleUnit: vehicleUnit,
         ),
       );
     }
-  } else if (purchaseOdometerM != null && proposedM < purchaseOdometerM) {
+  } else if (purchaseOdometer != null && proposedDistance < purchaseOdometer) {
     // The new earliest reading, below what the car read when it was bought.
     // SPEC.md §3: allowed if `>= purchase_odometer_m` when set.
     blocked = OdometerBlocked(
-      previousCumulativeM: purchaseOdometerM,
+      previousCumulative: purchaseOdometer,
       previousOccurredOn: proposed.occurredOn,
-      attemptedCumulativeM: proposedM,
+      attemptedCumulative: proposedDistance,
     );
   }
 
@@ -143,12 +143,12 @@ OdometerVerdict checkReading({
   // reading slotted between two others could exceed the one after it, and the
   // history would be non-monotonic at a point nobody looked at.
   if (blocked == null && after != null) {
-    final afterM = cumulative[after.id]!;
-    if (proposedM > afterM) {
+    final afterDistance = cumulative[after.id]!;
+    if (proposedDistance > afterDistance) {
       blocked = OdometerBlocked(
-        previousCumulativeM: afterM,
+        previousCumulative: afterDistance,
         previousOccurredOn: after.occurredOn,
-        attemptedCumulativeM: proposedM,
+        attemptedCumulative: proposedDistance,
       );
     }
   }
@@ -158,14 +158,14 @@ OdometerVerdict checkReading({
 
 /// The three warnings, evaluated on a pair of cumulative metres.
 List<OdometerWarning> _softWarnings({
-  required int fromM,
-  required int toM,
+  required Distance from,
+  required Distance to,
   required String fromDate,
   required String toDate,
   required DistanceUnit vehicleUnit,
 }) {
   final warnings = <OdometerWarning>[];
-  final jump = toM - fromM;
+  final jump = to - from;
 
   // Counted as CIVIL days, through the same UTC anchoring `wholeDaysBetween`
   // uses. `DateTime.parse('2026-03-28')` returns a LOCAL time, and across a
@@ -182,17 +182,17 @@ List<OdometerWarning> _softWarnings({
   );
   // Same-day readings have no rate to imply — dividing by zero days would
   // make every second entry of the day look impossible.
-  if (days > 0 && jump ~/ days > _maxPlausibleMetresPerDay) {
+  if (days > 0 && jump.metres ~/ days > _maxPlausibleMetresPerDay) {
     warnings.add(OdometerWarning.impliedRateHigh);
   }
 
-  if (jump > _maxPlausibleJumpM) warnings.add(OdometerWarning.jumpVeryLarge);
+  if (jump > _maxPlausibleJump) warnings.add(OdometerWarning.jumpVeryLarge);
 
   // Only on a miles vehicle, and only against a non-zero predecessor. The
   // ratio is 1.609; the band is around it because a real jump lands there
   // sometimes, which is exactly why this warns instead of blocking.
-  if (vehicleUnit == DistanceUnit.mi && fromM > 0) {
-    final ratio = toM / fromM;
+  if (vehicleUnit == DistanceUnit.mi && from.metres > 0) {
+    final ratio = to.metres / from.metres;
     if (ratio >= 1.5 && ratio <= 1.7) {
       warnings.add(OdometerWarning.probableUnitMixUp);
     }

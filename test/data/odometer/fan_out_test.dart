@@ -20,6 +20,7 @@ import 'package:odova/data/repositories/log_repositories.dart';
 import 'package:odova/data/repositories/service_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
 
+import '../../support/values.dart';
 import '../support/test_ids.dart';
 
 const String _b = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
@@ -77,19 +78,18 @@ void main() {
   }
 
   FillUp fillUp({
-    int? odometerM = 186512000,
+    Distance? odometer = const Distance(186512000),
     String occurredOn = '2026-09-03',
   }) => FillUp(
     id: FillUpId.tryParse('fil_$_b')!,
     vehicleId: _vehicleId,
     occurredOn: occurredOn,
-    odometerM: odometerM,
+    odometer: odometer,
     odometerUnit: DistanceUnit.km,
     fuelKind: FuelKind.diesel,
-    quantityMl: 45200,
+    quantity: const LiquidVolume(Volume(45200)),
     quantityUnit: VolumeUnit.l,
-    totalCostMinor: 7845,
-    currency: 'EUR',
+    totalCost: money(7845, 'EUR'),
     createdAtUtcMs: 1000,
     updatedAtUtcMs: 1000,
   );
@@ -109,7 +109,7 @@ void main() {
         id: recordId,
         vehicleId: _vehicleId,
         occurredOn: '2026-09-03',
-        odometerM: 186512000,
+        odometer: const Distance(186512000),
         odometerUnit: DistanceUnit.km,
         createdAtUtcMs: 1000,
         updatedAtUtcMs: 1000,
@@ -118,8 +118,7 @@ void main() {
             id: ServiceLineId.tryParse('lin_$_b')!,
             serviceRecordId: recordId,
             label: 'Oil and filter',
-            amountMinor: 8900,
-            currency: 'EUR',
+            amount: money(8900, 'EUR'),
           ),
         ],
       ),
@@ -131,15 +130,14 @@ void main() {
   });
 
   test('an expense WITH an odometer emits one, without emits none', () async {
-    Expense expense({int? odometerM}) => Expense(
+    Expense expense({Distance? odometer}) => Expense(
       id: ExpenseId.tryParse('exp_$_b')!,
       vehicleId: _vehicleId,
       occurredOn: '2026-09-03',
       category: ExpenseCategory.insurance,
-      amountMinor: 42000,
-      currency: 'EUR',
+      amount: money(42000, 'EUR'),
       odometerUnit: DistanceUnit.km,
-      odometerM: odometerM,
+      odometer: odometer,
       createdAtUtcMs: 1000,
       updatedAtUtcMs: 1000,
     );
@@ -148,7 +146,7 @@ void main() {
     await expenses.save(expense());
     expect(await readings(), isEmpty);
 
-    await expenses.save(expense(odometerM: 186512000));
+    await expenses.save(expense(odometer: const Distance(186512000)));
     expect(await readings(), hasLength(1));
 
     // And clearing it REMOVES the reading rather than leaving a stale one. A
@@ -159,14 +157,14 @@ void main() {
   });
 
   test('a trip emits two readings, or one while it is open', () async {
-    Trip trip({String? endedOn, int? endOdometerM}) => Trip(
+    Trip trip({String? endedOn, Distance? endOdometer}) => Trip(
       id: TripId.tryParse('trp_$_b')!,
       vehicleId: _vehicleId,
       purpose: TripPurpose.business,
       startedOn: '2026-09-01',
       endedOn: endedOn,
-      startOdometerM: 186000000,
-      endOdometerM: endOdometerM,
+      startOdometer: const Distance(186000000),
+      endOdometer: endOdometer,
       odometerUnit: DistanceUnit.km,
       createdAtUtcMs: 1000,
       updatedAtUtcMs: 1000,
@@ -177,7 +175,9 @@ void main() {
       ('trip_start', 'trp_$_b', 186000000, '2026-09-01'),
     ]);
 
-    await trips.save(trip(endedOn: '2026-09-03', endOdometerM: 186512000));
+    await trips.save(
+      trip(endedOn: '2026-09-03', endOdometer: const Distance(186512000)),
+    );
     expect(await readings(), [
       ('trip_end', 'trp_$_b', 186512000, '2026-09-03'),
       ('trip_start', 'trp_$_b', 186000000, '2026-09-01'),
@@ -189,7 +189,9 @@ void main() {
     // fresh reading each time would leave a distance history that grows a
     // phantom entry every time somebody fixes a typo.
     await fillUps.save(fillUp());
-    await fillUps.save(fillUp(odometerM: 186600000, occurredOn: '2026-09-04'));
+    await fillUps.save(
+      fillUp(odometer: const Distance(186600000), occurredOn: '2026-09-04'),
+    );
 
     expect(await readings(), [
       ('fillup', 'fil_$_b', 186600000, '2026-09-04'),
@@ -220,7 +222,7 @@ void main() {
         id: recordId,
         vehicleId: _vehicleId,
         occurredOn: '2026-09-03',
-        odometerM: 186512000,
+        odometer: const Distance(186512000),
         odometerUnit: DistanceUnit.km,
         createdAtUtcMs: 1000,
         updatedAtUtcMs: 1000,
@@ -229,8 +231,7 @@ void main() {
             id: ServiceLineId.tryParse('lin_$_b')!,
             serviceRecordId: recordId,
             label: 'Bad',
-            amountMinor: -1,
-            currency: 'EUR',
+            amount: money(-1, 'EUR'),
           ),
         ],
       ),
@@ -258,13 +259,12 @@ void main() {
         id: FillUpId.tryParse('fil_01JV7B5X4G2K9M6P0S3D8FNRTC')!,
         vehicleId: _vehicleId,
         occurredOn: '2026-09-04',
-        odometerM: 100000,
+        odometer: const Distance(100000),
         odometerUnit: DistanceUnit.km,
         fuelKind: FuelKind.diesel,
-        quantityMl: 45200,
+        quantity: const LiquidVolume(Volume(45200)),
         quantityUnit: VolumeUnit.l,
-        totalCostMinor: 7845,
-        currency: 'EUR',
+        totalCost: money(7845, 'EUR'),
         createdAtUtcMs: 2000,
         updatedAtUtcMs: 2000,
       ),
@@ -274,7 +274,7 @@ void main() {
     final failure =
         (backwards as Err<FillUp, PersistFailure>).failure
             as OdometerWouldGoBackwards;
-    expect(failure.previousCumulativeM, 186512000);
+    expect(failure.previousCumulative, const Distance(186512000));
     expect(failure.previousOccurredOn, '2026-09-03');
 
     // Neither the fill-up nor a reading, which is the half of task 5.9's
@@ -295,7 +295,7 @@ void main() {
       // the edit that lowers it.
       await fillUps.save(fillUp());
       expect(
-        await fillUps.save(fillUp(odometerM: 186000000)),
+        await fillUps.save(fillUp(odometer: const Distance(186000000))),
         isA<Ok<FillUp, PersistFailure>>(),
       );
 
@@ -319,25 +319,26 @@ void main() {
         id: FillUpId.tryParse('fil_01JV7B5X4G2K9M6P0S3D8FNRTC')!,
         vehicleId: _vehicleId,
         occurredOn: '2026-09-10',
-        odometerM: 186600000,
+        odometer: const Distance(186600000),
         odometerUnit: DistanceUnit.km,
         fuelKind: FuelKind.diesel,
-        quantityMl: 45200,
+        quantity: const LiquidVolume(Volume(45200)),
         quantityUnit: VolumeUnit.l,
-        totalCostMinor: 7845,
-        currency: 'EUR',
+        totalCost: money(7845, 'EUR'),
         createdAtUtcMs: 2000,
         updatedAtUtcMs: 2000,
       ),
     );
 
-    final result = await fillUps.save(fillUp(odometerM: 187000000));
+    final result = await fillUps.save(
+      fillUp(odometer: const Distance(187000000)),
+    );
 
     expect(result, isA<Err<FillUp, PersistFailure>>());
     final failure =
         (result as Err<FillUp, PersistFailure>).failure
             as OdometerWouldGoBackwards;
-    expect(failure.previousCumulativeM, 186600000);
+    expect(failure.previousCumulative, const Distance(186600000));
     expect(failure.previousOccurredOn, '2026-09-10');
   });
 
@@ -353,8 +354,8 @@ void main() {
         purpose: TripPurpose.business,
         startedOn: '2026-09-04',
         endedOn: '2026-09-05',
-        startOdometerM: 186600000,
-        endOdometerM: 100000,
+        startOdometer: const Distance(186600000),
+        endOdometer: const Distance(100000),
         odometerUnit: DistanceUnit.km,
         createdAtUtcMs: 2000,
         updatedAtUtcMs: 2000,
@@ -382,8 +383,8 @@ void main() {
       purpose: TripPurpose.business,
       startedOn: '2026-09-01',
       endedOn: '2026-09-03',
-      startOdometerM: start,
-      endOdometerM: end,
+      startOdometer: metres(start),
+      endOdometer: metres(end),
       odometerUnit: DistanceUnit.km,
       createdAtUtcMs: 1000,
       updatedAtUtcMs: 1000,
@@ -416,8 +417,8 @@ void main() {
           purpose: TripPurpose.business,
           startedOn: '2026-09-01',
           endedOn: '2026-09-03',
-          startOdometerM: 200000,
-          endOdometerM: 100000,
+          startOdometer: const Distance(200000),
+          endOdometer: const Distance(100000),
           odometerUnit: DistanceUnit.km,
           createdAtUtcMs: 1000,
           updatedAtUtcMs: 1000,
@@ -454,7 +455,7 @@ void main() {
     );
 
     // Clear the fill-up's odometer.
-    await fillUps.save(fillUp(odometerM: null));
+    await fillUps.save(fillUp(odometer: null));
 
     final corrections = await db
         .customSelect('SELECT COUNT(*) AS n FROM odometer_corrections;')
@@ -502,13 +503,12 @@ void main() {
         id: FillUpId.tryParse('fil_$_b')!,
         vehicleId: other,
         occurredOn: '2026-09-03',
-        odometerM: 5000000,
+        odometer: const Distance(5000000),
         odometerUnit: DistanceUnit.km,
         fuelKind: FuelKind.diesel,
-        quantityMl: 45200,
+        quantity: const LiquidVolume(Volume(45200)),
         quantityUnit: VolumeUnit.l,
-        totalCostMinor: 7845,
-        currency: 'EUR',
+        totalCost: money(7845, 'EUR'),
         createdAtUtcMs: 1000,
         updatedAtUtcMs: 2000,
       ),

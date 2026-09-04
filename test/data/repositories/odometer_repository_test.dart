@@ -18,6 +18,7 @@ import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/odometer_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
+import '../../support/values.dart';
 
 const int _km = 1000;
 const String _body = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
@@ -33,7 +34,7 @@ OdometerReading _reading(
   id: OdometerReadingId.tryParse('odo_${_body.substring(0, 25)}$suffix')!,
   vehicleId: _vehicleId,
   occurredOn: occurredOn,
-  odometerM: odometerM,
+  odometer: Distance(odometerM),
   odometerUnit: DistanceUnit.km,
   source: source,
   createdAtUtcMs: createdAtUtcMs,
@@ -64,11 +65,11 @@ void main() {
   Future<Result<SavedReading, PersistFailure>> save(
     OdometerReading reading, {
     DistanceUnit unit = DistanceUnit.km,
-    int? purchaseOdometerM,
+    Distance? purchaseOdometer,
   }) => repository.saveReading(
     reading,
     vehicleUnit: unit,
-    purchaseOdometerM: purchaseOdometerM,
+    purchaseOdometer: purchaseOdometer,
   );
 
   Future<int> countReadings() async =>
@@ -97,9 +98,9 @@ void main() {
     // The three resolutions SPEC.md §3 offers all name the conflicting
     // reading and its date. A failure carrying only a code would leave the
     // user with "that number is wrong" and nothing to act on.
-    expect(failure.previousCumulativeM, 180000 * _km);
+    expect(failure.previousCumulative, const Distance(180000 * _km));
     expect(failure.previousOccurredOn, '2026-01-01');
-    expect(failure.attemptedCumulativeM, 170000 * _km);
+    expect(failure.attemptedCumulative, const Distance(170000 * _km));
 
     expect(await countReadings(), 1, reason: 'nothing may be written');
   });
@@ -117,7 +118,7 @@ void main() {
       expect(await save(corrected), isA<Ok<SavedReading, PersistFailure>>());
 
       final stored = await repository.watchReadings(_vehicleId).first;
-      expect(stored.last.odometerM, 185000 * _km);
+      expect(stored.last.odometer, const Distance(185000 * _km));
       expect(await countReadings(), 2);
     },
   );
@@ -144,13 +145,13 @@ void main() {
     final failure =
         (result as Err<SavedReading, PersistFailure>).failure
             as OdometerWouldGoBackwards;
-    expect(failure.previousCumulativeM, 195000 * _km);
+    expect(failure.previousCumulative, const Distance(195000 * _km));
     expect(failure.previousOccurredOn, '2026-09-01');
 
     final stored = await repository.watchReadings(_vehicleId).first;
     expect(
-      stored.firstWhere((r) => r.occurredOn == '2026-06-01').odometerM,
-      190000 * _km,
+      stored.firstWhere((r) => r.occurredOn == '2026-06-01').odometer,
+      const Distance(190000 * _km),
     );
   });
 
@@ -179,8 +180,8 @@ void main() {
           id: OdometerCorrectionId.tryParse('cor_$_body')!,
           vehicleId: _vehicleId,
           fromReadingId: boundary.id,
-          previousM: 187412 * _km,
-          newM: 0,
+          previous: const Distance(187412 * _km),
+          replacement: Distance.zero,
           odometerUnit: DistanceUnit.km,
           reason: OdometerCorrectionReason.clusterReplaced,
           createdAtUtcMs: 2000,
@@ -199,9 +200,9 @@ void main() {
 
       final cumulative =
           (await repository.cumulativeFor(_vehicleId)
-                  as Ok<Map<String, int>, PersistFailure>)
+                  as Ok<Map<String, Distance>, PersistFailure>)
               .value;
-      expect(cumulative[after.id.toString()], 190412 * _km);
+      expect(cumulative[after.id.toString()], const Distance(190412 * _km));
     },
   );
 
@@ -243,8 +244,8 @@ void main() {
         id: correctionId,
         vehicleId: _vehicleId,
         fromReadingId: boundary.id,
-        previousM: 187412 * _km,
-        newM: 0,
+        previous: const Distance(187412 * _km),
+        replacement: Distance.zero,
         odometerUnit: DistanceUnit.km,
         reason: OdometerCorrectionReason.clusterReplaced,
         createdAtUtcMs: 2000,
@@ -296,8 +297,8 @@ void main() {
         id: correctionId,
         vehicleId: _vehicleId,
         fromReadingId: boundary.id,
-        previousM: 187412 * _km,
-        newM: 0,
+        previous: const Distance(187412 * _km),
+        replacement: Distance.zero,
         odometerUnit: DistanceUnit.km,
         reason: OdometerCorrectionReason.clusterReplaced,
         createdAtUtcMs: 2000,
@@ -350,11 +351,17 @@ void main() {
 
     final cumulative =
         (await repository.cumulativeFor(_vehicleId)
-                as Ok<Map<String, int>, PersistFailure>)
+                as Ok<Map<String, Distance>, PersistFailure>)
             .value;
 
     expect(cumulative, hasLength(2));
-    expect(cumulative.values, containsAll(<int>[180000 * _km, 190000 * _km]));
+    expect(
+      cumulative.values,
+      containsAll(const <Distance>[
+        Distance(180000 * _km),
+        Distance(190000 * _km),
+      ]),
+    );
   });
 
   test('a used-car backfill needs no correction', () async {
@@ -427,7 +434,7 @@ void main() {
   test('below the purchase odometer is refused', () async {
     final result = await save(
       _reading('A', '2019-05-01', 50000 * _km),
-      purchaseOdometerM: 96000 * _km,
+      purchaseOdometer: metres(96000 * _km),
     );
     expect(result, isA<Err<SavedReading, PersistFailure>>());
     expect(await countReadings(), 0);

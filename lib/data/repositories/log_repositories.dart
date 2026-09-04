@@ -62,7 +62,7 @@ class FillUpRepository {
           vehicleId: fillUp.vehicleId,
           source: OdometerSource.fillUp,
           occurredOn: fillUp.occurredOn,
-          odometerM: fillUp.odometerM,
+          odometerM: fillUp.odometer?.metres,
           nowUtcMs: fillUp.updatedAtUtcMs,
         );
         if (refusal != null) return Err(refusal);
@@ -77,15 +77,15 @@ class FillUpRepository {
                   updatedAtUtcMs: fillUp.updatedAtUtcMs,
                   vehicleId: fillUp.vehicleId.toString(),
                   occurredOn: fillUp.occurredOn,
-                  odometerM: Value(fillUp.odometerM),
+                  odometerM: Value(fillUp.odometer?.metres),
                   odometerUnit: fillUp.odometerUnit.wire,
                   fuelKind: fillUp.fuelKind.wire,
-                  quantityMl: Value(fillUp.quantityMl),
-                  quantityG: Value(fillUp.quantityG),
-                  energyWh: Value(fillUp.energyWh),
+                  quantityMl: Value(millilitresColumn(fillUp.quantity)),
+                  quantityG: Value(gramsColumn(fillUp.quantity)),
+                  energyWh: Value(wattHoursColumn(fillUp.quantity)),
                   quantityUnit: fillUp.quantityUnit.wire,
-                  totalCostMinor: fillUp.totalCostMinor,
-                  currency: fillUp.currency,
+                  totalCostMinor: fillUp.totalCost.amountMinor,
+                  currency: fillUp.totalCost.currency.code,
                   isFullTank: Value(fillUp.isFullTank),
                   chainBroken: Value(fillUp.chainBroken),
                   grade: Value(fillUp.grade),
@@ -102,7 +102,7 @@ class FillUpRepository {
             source: OdometerSource.fillUp,
             occurredOn: fillUp.occurredOn,
             odometerUnit: fillUp.odometerUnit,
-            odometerM: fillUp.odometerM,
+            odometerM: fillUp.odometer?.metres,
             nowUtcMs: fillUp.updatedAtUtcMs,
           );
         });
@@ -146,7 +146,7 @@ class ExpenseRepository {
       vehicleId: expense.vehicleId,
       source: OdometerSource.expense,
       occurredOn: expense.occurredOn,
-      odometerM: expense.odometerM,
+      odometerM: expense.odometer?.metres,
       nowUtcMs: expense.updatedAtUtcMs,
     );
     if (refusal != null) return Err(refusal);
@@ -164,11 +164,11 @@ class ExpenseRepository {
               occurredOn: expense.occurredOn,
               category: expense.category.wire,
               label: Value(expense.label),
-              amountMinor: expense.amountMinor,
-              currency: expense.currency,
+              amountMinor: expense.amount.amountMinor,
+              currency: expense.amount.currency.code,
               coversFrom: Value(expense.coversFrom),
               coversTo: Value(expense.coversTo),
-              odometerM: Value(expense.odometerM),
+              odometerM: Value(expense.odometer?.metres),
               odometerUnit: expense.odometerUnit.wire,
               vendor: Value(expense.vendor),
               notes: Value(expense.notes),
@@ -185,7 +185,7 @@ class ExpenseRepository {
         source: OdometerSource.expense,
         occurredOn: expense.occurredOn,
         odometerUnit: expense.odometerUnit,
-        odometerM: expense.odometerM,
+        odometerM: expense.odometer?.metres,
         nowUtcMs: expense.updatedAtUtcMs,
       );
     });
@@ -211,11 +211,10 @@ class ExpenseRepository {
         row.category,
       ),
       label: row.label,
-      amountMinor: row.amountMinor,
-      currency: row.currency,
+      amount: moneyOf(row.amountMinor, row.currency),
       coversFrom: row.coversFrom,
       coversTo: row.coversTo,
-      odometerM: row.odometerM,
+      odometer: distanceOrNull(row.odometerM),
       odometerUnit: enumFromWire(
         DistanceUnit.values,
         (v) => v.wire,
@@ -261,11 +260,11 @@ class TripRepository {
   ) => guardPersist(() async {
     // Both endpoints, because either can be the one that goes backwards.
     for (final (source, occurredOn, odometerM) in [
-      (OdometerSource.tripStart, trip.startedOn, trip.startOdometerM),
+      (OdometerSource.tripStart, trip.startedOn, trip.startOdometer?.metres),
       (
         OdometerSource.tripEnd,
         trip.endedOn ?? trip.startedOn,
-        trip.endedOn == null ? null : trip.endOdometerM,
+        trip.endedOn == null ? null : trip.endOdometer?.metres,
       ),
     ]) {
       final refusal = await checkDerivedReading(
@@ -293,9 +292,9 @@ class TripRepository {
               purpose: trip.purpose.wire,
               startedOn: trip.startedOn,
               endedOn: Value(trip.endedOn),
-              startOdometerM: Value(trip.startOdometerM),
-              endOdometerM: Value(trip.endOdometerM),
-              manualDistanceM: Value(trip.manualDistanceM),
+              startOdometerM: Value(trip.startOdometer?.metres),
+              endOdometerM: Value(trip.endOdometer?.metres),
+              manualDistanceM: Value(trip.manualDistance?.metres),
               odometerUnit: trip.odometerUnit.wire,
               notes: Value(trip.notes),
             ),
@@ -312,7 +311,7 @@ class TripRepository {
         source: OdometerSource.tripStart,
         occurredOn: trip.startedOn,
         odometerUnit: trip.odometerUnit,
-        odometerM: trip.startOdometerM,
+        odometerM: trip.startOdometer?.metres,
         nowUtcMs: trip.updatedAtUtcMs,
       );
       await syncDerivedReading(
@@ -323,7 +322,7 @@ class TripRepository {
         source: OdometerSource.tripEnd,
         occurredOn: trip.endedOn ?? trip.startedOn,
         odometerUnit: trip.odometerUnit,
-        odometerM: trip.endedOn == null ? null : trip.endOdometerM,
+        odometerM: trip.endedOn == null ? null : trip.endOdometer?.metres,
         nowUtcMs: trip.updatedAtUtcMs,
       );
     });
@@ -343,9 +342,9 @@ class TripRepository {
       purpose: enumFromWire(TripPurpose.values, (v) => v.wire, row.purpose),
       startedOn: row.startedOn,
       endedOn: row.endedOn,
-      startOdometerM: row.startOdometerM,
-      endOdometerM: row.endOdometerM,
-      manualDistanceM: row.manualDistanceM,
+      startOdometer: distanceOrNull(row.startOdometerM),
+      endOdometer: distanceOrNull(row.endOdometerM),
+      manualDistance: distanceOrNull(row.manualDistanceM),
       odometerUnit: enumFromWire(
         DistanceUnit.values,
         (v) => v.wire,

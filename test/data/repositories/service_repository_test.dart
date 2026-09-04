@@ -19,6 +19,7 @@ import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/service_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
 
+import '../../support/values.dart';
 import '../support/test_ids.dart';
 
 const String _body = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
@@ -29,8 +30,7 @@ ServiceLine _line(String suffix, int amountMinor) => ServiceLine(
   id: ServiceLineId.tryParse('lin_${_body.substring(0, 25)}$suffix')!,
   serviceRecordId: _recordId,
   label: 'Line $suffix',
-  amountMinor: amountMinor,
-  currency: 'EUR',
+  amount: money(amountMinor, 'EUR'),
 );
 
 ServiceRecord _record(List<ServiceLine> lines) => ServiceRecord(
@@ -88,7 +88,7 @@ void main() {
     final found = await repository.findRecordById(_recordId);
     final record = (found as Ok<ServiceRecord, PersistFailure>).value;
     expect(record.lines, hasLength(2));
-    expect(record.totalMinor, 13150);
+    expect(record.total, money(13150, 'EUR'));
     expect(record, saved);
   });
 
@@ -139,7 +139,11 @@ void main() {
                 as Ok<ServiceRecord, PersistFailure>)
             .value;
     expect(found.lines, hasLength(2));
-    expect(found.totalMinor, 13150, reason: 'the old values must survive');
+    expect(
+      found.total,
+      money(13150, 'EUR'),
+      reason: 'the old values must survive',
+    );
   });
 
   test('re-saving replaces the lines rather than merging them', () async {
@@ -154,7 +158,7 @@ void main() {
                 as Ok<ServiceRecord, PersistFailure>)
             .value;
     expect(found.lines, hasLength(1));
-    expect(found.totalMinor, 8900);
+    expect(found.total, money(8900, 'EUR'));
     expect(await countLines(), 1);
   });
 
@@ -206,7 +210,7 @@ void main() {
         rollover: ServiceRollover.fromActual,
         createdAtUtcMs: 1000,
         updatedAtUtcMs: 1000,
-        intervalDistanceM: 15000000,
+        intervalDistance: const Distance(15000000),
       ),
     );
 
@@ -215,8 +219,7 @@ void main() {
       serviceRecordId: _recordId,
       serviceItemId: itemId,
       label: 'Oil and filter',
-      amountMinor: 8900,
-      currency: 'EUR',
+      amount: money(8900, 'EUR'),
     );
     await repository.saveRecord(_record([line]));
 
@@ -228,6 +231,6 @@ void main() {
             .value;
     expect(found.lines.single.serviceItemId, isNull);
     expect(found.lines.single.label, 'Oil and filter');
-    expect(found.lines.single.amountMinor, 8900);
+    expect(found.lines.single.amount.amountMinor, 8900);
   });
 }

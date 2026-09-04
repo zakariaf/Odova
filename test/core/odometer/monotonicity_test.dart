@@ -5,9 +5,9 @@
 // driver who really did do 900 km yesterday; a violation that writes corrupts
 // the distance history for the consumption figures, the projection and the
 // cost per km all at once.
-import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/odometer/monotonicity.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:test/test.dart';
 
 const _km = 1000;
@@ -21,7 +21,7 @@ ReadingPoint reading(
   id: id,
   occurredOn: occurredOn,
   createdAtUtcMs: createdAtUtcMs,
-  odometerM: odometerM,
+  odometer: Distance(odometerM),
 );
 
 OdometerVerdict check(
@@ -29,13 +29,13 @@ OdometerVerdict check(
   List<ReadingPoint> existing = const [],
   List<CorrectionPoint> corrections = const [],
   DistanceUnit unit = DistanceUnit.km,
-  int? purchaseOdometerM,
+  Distance? purchaseOdometer,
 }) => checkReading(
   proposed: proposed,
   existing: existing,
   corrections: corrections,
   vehicleUnit: unit,
-  purchaseOdometerM: purchaseOdometerM,
+  purchaseOdometer: purchaseOdometer,
 );
 
 void main() {
@@ -50,9 +50,12 @@ void main() {
       // The UI has to be able to say "Your earliest reading is 180,000 km on
       // 1 January". A bare refusal gives the user nothing to act on, and
       // SPEC.md §3's three resolutions all need the number and the date.
-      expect(verdict.blocked!.previousCumulativeM, 180000 * _km);
+      expect(verdict.blocked!.previousCumulative, const Distance(180000 * _km));
       expect(verdict.blocked!.previousOccurredOn, '2026-01-01');
-      expect(verdict.blocked!.attemptedCumulativeM, 170000 * _km);
+      expect(
+        verdict.blocked!.attemptedCumulative,
+        const Distance(170000 * _km),
+      );
     });
 
     test('a backdated entry that FITS between two readings is silent', () {
@@ -81,7 +84,7 @@ void main() {
       );
 
       expect(verdict.isAllowed, isFalse);
-      expect(verdict.blocked!.previousCumulativeM, 190000 * _km);
+      expect(verdict.blocked!.previousCumulative, const Distance(190000 * _km));
       expect(verdict.blocked!.previousOccurredOn, '2026-06-01');
     });
   });
@@ -107,13 +110,13 @@ void main() {
       );
 
       expect(verdict.isAllowed, isFalse);
-      expect(verdict.blocked!.previousCumulativeM, 180000 * _km);
+      expect(verdict.blocked!.previousCumulative, const Distance(180000 * _km));
     });
 
     test('below the purchase odometer is refused when one is set', () {
       final verdict = check(
         reading('odo_old', '2019-05-01', 50000 * _km),
-        purchaseOdometerM: 96000 * _km,
+        purchaseOdometer: const Distance(96000 * _km),
       );
       expect(verdict.isAllowed, isFalse);
     });
@@ -138,7 +141,11 @@ void main() {
           reading('odo_2', '2026-06-02', 0),
         ],
         corrections: const [
-          (fromReadingId: 'odo_2', previousM: 187412 * _km, newM: 0),
+          (
+            fromReadingId: 'odo_2',
+            previous: Distance(187412 * _km),
+            replacement: Distance.zero,
+          ),
         ],
       );
 

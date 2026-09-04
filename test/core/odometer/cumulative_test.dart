@@ -6,6 +6,7 @@
 import 'dart:io';
 
 import 'package:odova/core/odometer/cumulative.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:test/test.dart';
 
 import '../../support/source_tree.dart';
@@ -20,7 +21,7 @@ ReadingPoint reading(
   id: id,
   occurredOn: occurredOn,
   createdAtUtcMs: createdAtUtcMs,
-  odometerM: odometerM,
+  odometer: Distance(odometerM),
 );
 
 const _km = 1000;
@@ -34,9 +35,9 @@ void main() {
     ];
 
     expect(cumulativeByReading(readings, const []), {
-      'odo_1': 180000 * _km,
-      'odo_2': 185000 * _km,
-      'odo_3': 190000 * _km,
+      'odo_1': const Distance(180000 * _km),
+      'odo_2': const Distance(185000 * _km),
+      'odo_3': const Distance(190000 * _km),
     });
   });
 
@@ -49,21 +50,25 @@ void main() {
       reading('odo_4', '2026-09-01', 3000 * _km),
     ];
     const corrections = [
-      (fromReadingId: 'odo_3', previousM: 187412 * _km, newM: 0),
+      (
+        fromReadingId: 'odo_3',
+        previous: Distance(187412 * _km),
+        replacement: Distance.zero,
+      ),
     ];
 
     final cumulative = cumulativeByReading(readings, corrections);
 
-    expect(cumulative['odo_1'], 180000 * _km);
-    expect(cumulative['odo_2'], 187412 * _km);
+    expect(cumulative['odo_1'], const Distance(180000 * _km));
+    expect(cumulative['odo_2'], const Distance(187412 * _km));
     // The boundary reading is ITSELF on the new scale, so it is corrected.
-    expect(cumulative['odo_3'], 187412 * _km);
-    expect(cumulative['odo_4'], 190412 * _km);
+    expect(cumulative['odo_3'], const Distance(187412 * _km));
+    expect(cumulative['odo_4'], const Distance(190412 * _km));
 
     // And the history is still monotonic in cumulative terms, which is the
     // whole point of the offset.
     final values = readings.map((r) => cumulative[r.id]!).toList();
-    expect(values, orderedEquals(<int>[...values]..sort()));
+    expect(values, orderedEquals(<Distance>[...values]..sort()));
   });
 
   test('a 999,999 rollover adds +1,000,000 km', () {
@@ -72,12 +77,19 @@ void main() {
       reading('odo_2', '2026-01-02', 12 * _km),
     ];
     const corrections = [
-      (fromReadingId: 'odo_2', previousM: 999999 * _km, newM: 0),
+      (
+        fromReadingId: 'odo_2',
+        previous: Distance(999999 * _km),
+        replacement: Distance.zero,
+      ),
     ];
 
     final cumulative = cumulativeByReading(readings, corrections);
-    expect(cumulative['odo_2'], (999999 + 12) * _km);
-    expect(cumulative['odo_2']! - cumulative['odo_1']!, 12 * _km);
+    expect(cumulative['odo_2'], const Distance((999999 + 12) * _km));
+    expect(
+      cumulative['odo_2']! - cumulative['odo_1']!,
+      const Distance(12 * _km),
+    );
   });
 
   test('a correction applies at or after its reading, never before', () {
@@ -87,13 +99,29 @@ void main() {
       reading('odo_3', '2026-03-01', 300 * _km),
     ];
     const corrections = [
-      (fromReadingId: 'odo_2', previousM: 5000 * _km, newM: 0),
+      (
+        fromReadingId: 'odo_2',
+        previous: Distance(5000 * _km),
+        replacement: Distance.zero,
+      ),
     ];
 
     final cumulative = cumulativeByReading(readings, corrections);
-    expect(cumulative['odo_1'], 100 * _km, reason: 'before the boundary');
-    expect(cumulative['odo_2'], (200 + 5000) * _km, reason: 'the boundary');
-    expect(cumulative['odo_3'], (300 + 5000) * _km, reason: 'after it');
+    expect(
+      cumulative['odo_1'],
+      const Distance(100 * _km),
+      reason: 'before the boundary',
+    );
+    expect(
+      cumulative['odo_2'],
+      const Distance((200 + 5000) * _km),
+      reason: 'the boundary',
+    );
+    expect(
+      cumulative['odo_3'],
+      const Distance((300 + 5000) * _km),
+      reason: 'after it',
+    );
   });
 
   test('two corrections both carry forward, in order', () {
@@ -105,12 +133,20 @@ void main() {
       reading('odo_5', '2026-05-01', 10 * _km),
     ];
     const corrections = [
-      (fromReadingId: 'odo_2', previousM: 100 * _km, newM: 0),
-      (fromReadingId: 'odo_4', previousM: 50 * _km, newM: 0),
+      (
+        fromReadingId: 'odo_2',
+        previous: Distance(100 * _km),
+        replacement: Distance.zero,
+      ),
+      (
+        fromReadingId: 'odo_4',
+        previous: Distance(50 * _km),
+        replacement: Distance.zero,
+      ),
     ];
 
     final cumulative = cumulativeByReading(readings, corrections);
-    expect(cumulative['odo_5'], (100 + 50 + 10) * _km);
+    expect(cumulative['odo_5'], const Distance((100 + 50 + 10) * _km));
   });
 
   test('readings sort by (occurred_on, created_at)', () {
@@ -122,12 +158,24 @@ void main() {
       reading('odo_a', '2026-01-01', 100 * _km, createdAtUtcMs: 1000),
     ];
     const corrections = [
-      (fromReadingId: 'odo_b', previousM: 900 * _km, newM: 0),
+      (
+        fromReadingId: 'odo_b',
+        previous: Distance(900 * _km),
+        replacement: Distance.zero,
+      ),
     ];
 
     final cumulative = cumulativeByReading(readings, corrections);
-    expect(cumulative['odo_a'], 100 * _km, reason: 'created first');
-    expect(cumulative['odo_b'], (200 + 900) * _km, reason: 'created second');
+    expect(
+      cumulative['odo_a'],
+      const Distance(100 * _km),
+      reason: 'created first',
+    );
+    expect(
+      cumulative['odo_b'],
+      const Distance((200 + 900) * _km),
+      reason: 'created second',
+    );
   });
 
   test('the id breaks a tie in created_at', () {
@@ -146,10 +194,16 @@ void main() {
     // mode SPEC.md §2 puts above every feature.
     final readings = [reading('odo_1', '2026-01-01', 100 * _km)];
     const corrections = [
-      (fromReadingId: 'odo_gone', previousM: 5000 * _km, newM: 0),
+      (
+        fromReadingId: 'odo_gone',
+        previous: Distance(5000 * _km),
+        replacement: Distance.zero,
+      ),
     ];
 
-    expect(cumulativeByReading(readings, corrections), {'odo_1': 100 * _km});
+    expect(cumulativeByReading(readings, corrections), {
+      'odo_1': const Distance(100 * _km),
+    });
   });
 
   test('an unsorted input gives the same answer as a sorted one', () {
@@ -159,7 +213,11 @@ void main() {
       reading('odo_3', '2026-03-01', 50 * _km),
     ];
     const corrections = [
-      (fromReadingId: 'odo_2', previousM: 100 * _km, newM: 0),
+      (
+        fromReadingId: 'odo_2',
+        previous: Distance(100 * _km),
+        replacement: Distance.zero,
+      ),
     ];
 
     expect(

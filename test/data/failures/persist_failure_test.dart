@@ -6,6 +6,7 @@
 // every call site, instead of a case that falls silently into a generic
 // "something went wrong" that no user can act on.
 import 'package:odova/core/result.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:test/test.dart';
 
@@ -17,8 +18,8 @@ String describe(PersistFailure failure) => switch (failure) {
   WriteFailed(:final detail) => 'write:$detail',
   ConstraintViolated(:final constraint) => 'constraint:$constraint',
   NotFound(:final id) => 'not_found:$id',
-  OdometerWouldGoBackwards(:final previousCumulativeM) =>
-    'backwards:$previousCumulativeM',
+  OdometerWouldGoBackwards(:final previousCumulative) =>
+    'backwards:${previousCumulative.metres}',
   DerivedReadingNotEditable(:final source) => 'derived:$source',
   OrphanReference(:final field) => 'orphan:$field',
   // Added in task 5.11, and the analyzer refused to compile this file until it
@@ -34,9 +35,9 @@ void main() {
     ConstraintViolated('currency length'),
     NotFound('veh_1'),
     OdometerWouldGoBackwards(
-      previousCumulativeM: 180000000,
+      previousCumulative: Distance(180000000),
       previousOccurredOn: '2026-01-01',
-      attemptedCumulativeM: 170000000,
+      attemptedCumulative: Distance(170000000),
     ),
     DerivedReadingNotEditable(readingId: 'odo_1', source: 'fillup'),
     OrphanReference(field: 'vehicle_id', target: 'veh_gone'),
@@ -68,14 +69,14 @@ void main() {
     expect(const NotFound('veh_1'), isNot(const NotFound('veh_2')));
     expect(
       const OdometerWouldGoBackwards(
-        previousCumulativeM: 1,
+        previousCumulative: Distance(1),
         previousOccurredOn: '2026-01-01',
-        attemptedCumulativeM: 0,
+        attemptedCumulative: Distance.zero,
       ),
       const OdometerWouldGoBackwards(
-        previousCumulativeM: 1,
+        previousCumulative: Distance(1),
         previousOccurredOn: '2026-01-01',
-        attemptedCumulativeM: 0,
+        attemptedCumulative: Distance.zero,
       ),
     );
   });
@@ -86,14 +87,14 @@ void main() {
     // the conflicting reading AND its date. A failure that carried only a code
     // would leave the user with "that number is wrong" and nothing else.
     const failure = OdometerWouldGoBackwards(
-      previousCumulativeM: 180000000,
+      previousCumulative: Distance(180000000),
       previousOccurredOn: '2026-01-01',
-      attemptedCumulativeM: 170000000,
+      attemptedCumulative: Distance(170000000),
     );
 
-    expect(failure.previousCumulativeM, 180000000);
+    expect(failure.previousCumulative, const Distance(180000000));
     expect(failure.previousOccurredOn, '2026-01-01');
-    expect(failure.attemptedCumulativeM, 170000000);
+    expect(failure.attemptedCumulative, const Distance(170000000));
   });
 
   test('every variant is a Failure and therefore usable in a Result', () {

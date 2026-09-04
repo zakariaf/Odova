@@ -1,11 +1,15 @@
 // The vehicle, as everything above the data layer sees it.
 //
-// Canonical integers with the unit in the NAME — `purchaseOdometerM`, not
-// `purchaseOdometer`. EPIC-06 swaps these for `Distance` and `Money` value
-// objects at the repository boundary in one pass; until then the name is what
-// stops a metre being added to a mile, and it is the only thing that does.
+// Value objects, not raw integers — `Distance purchaseOdometer`, not
+// `int purchaseOdometerM`, and one `Money purchasePrice` rather than a minor
+// amount beside a currency code that a caller could read without. See the
+// header of `records.dart`: the columns are unchanged and the mappers are the
+// only layer that knows both shapes.
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/money/money.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// A vehicle.
@@ -27,13 +31,11 @@ class Vehicle with ValueEquality {
     this.isBusiness = false,
     this.tankCapacityMl,
     this.purchaseDate,
-    this.purchaseOdometerM,
-    this.purchasePriceMinor,
-    this.purchasePriceCurrency,
+    this.purchaseOdometer,
+    this.purchasePrice,
     this.soldOn,
-    this.soldPriceMinor,
-    this.soldPriceCurrency,
-    this.expectedAnnualM,
+    this.soldPrice,
+    this.expectedAnnual,
     this.colour,
     this.notes,
     this.sortOrder = 0,
@@ -42,7 +44,7 @@ class Vehicle with ValueEquality {
     this.distanceUnit,
     this.volumeUnit,
     this.consumptionUnit,
-    this.noticeDistanceM,
+    this.noticeDistance,
     this.noticeDays,
   });
 
@@ -82,14 +84,11 @@ class Vehicle with ValueEquality {
   /// When it was bought, `YYYY-MM-DD`.
   final String? purchaseDate;
 
-  /// The odometer at purchase, in metres.
-  final int? purchaseOdometerM;
+  /// The odometer at purchase.
+  final Distance? purchaseOdometer;
 
-  /// What it cost, in minor units.
-  final int? purchasePriceMinor;
-
-  /// The currency of [purchasePriceMinor].
-  final String? purchasePriceCurrency;
+  /// What it cost.
+  final Money? purchasePrice;
 
   /// Where it is in its life with the user.
   final VehicleStatus status;
@@ -97,14 +96,11 @@ class Vehicle with ValueEquality {
   /// When it was sold, `YYYY-MM-DD`.
   final String? soldOn;
 
-  /// What it sold for, in minor units.
-  final int? soldPriceMinor;
+  /// What it sold for.
+  final Money? soldPrice;
 
-  /// The currency of [soldPriceMinor].
-  final String? soldPriceCurrency;
-
-  /// Expected annual distance in metres. Feeds the rate fallback.
-  final int? expectedAnnualM;
+  /// Expected annual distance. Feeds the rate fallback.
+  final Distance? expectedAnnual;
 
   /// A swatch key.
   final String? colour;
@@ -119,7 +115,7 @@ class Vehicle with ValueEquality {
   final bool notificationsMuted;
 
   /// Overrides `Settings.currencyDefault`. **Null means inherit.**
-  final String? currency;
+  final Currency? currency;
 
   /// Overrides `Settings.distanceUnit`. Null means inherit.
   final DistanceUnit? distanceUnit;
@@ -130,8 +126,8 @@ class Vehicle with ValueEquality {
   /// Overrides `Settings.consumptionUnit`. Null means inherit.
   final ConsumptionUnit? consumptionUnit;
 
-  /// Overrides the computed distance notice window, in metres.
-  final int? noticeDistanceM;
+  /// Overrides the computed distance notice window.
+  final Distance? noticeDistance;
 
   /// Overrides the computed time notice window, in days.
   final int? noticeDays;
@@ -156,14 +152,12 @@ class Vehicle with ValueEquality {
     fuelKindDefault,
     tankCapacityMl,
     purchaseDate,
-    purchaseOdometerM,
-    purchasePriceMinor,
-    purchasePriceCurrency,
+    purchaseOdometer,
+    purchasePrice,
     status,
     soldOn,
-    soldPriceMinor,
-    soldPriceCurrency,
-    expectedAnnualM,
+    soldPrice,
+    expectedAnnual,
     colour,
     notes,
     sortOrder,
@@ -172,7 +166,7 @@ class Vehicle with ValueEquality {
     distanceUnit,
     volumeUnit,
     consumptionUnit,
-    noticeDistanceM,
+    noticeDistance,
     noticeDays,
     createdAtUtcMs,
     updatedAtUtcMs,

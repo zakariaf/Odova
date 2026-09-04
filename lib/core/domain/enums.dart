@@ -7,67 +7,16 @@
 //
 // Flutter-free, in lib/core/, because the due engine and the fuel maths switch
 // on these and neither has a BuildContext.
-
-/// How distance is shown. Storage is always metres.
-enum DistanceUnit {
-  /// Kilometres.
-  km('km'),
-
-  /// Miles.
-  mi('mi');
-
-  const DistanceUnit(this.wire);
-
-  /// The value as stored and exported.
-  final String wire;
-}
-
-/// How a volume is shown. Storage is always millilitres.
-enum VolumeUnit {
-  /// Litres.
-  l('l'),
-
-  /// US gallons — 3.785 L.
-  galUs('gal_us'),
-
-  /// Imperial gallons — 4.546 L.
-  galUk('gal_uk');
-
-  const VolumeUnit(this.wire);
-
-  /// The value as stored and exported.
-  final String wire;
-}
-
-/// How fuel consumption is shown.
-///
-/// `mpgUs` and `mpgUk` are DIFFERENT units, not one unit with a flag: a US
-/// gallon is 3.785 L and an imperial gallon is 4.546, and SPEC.md §5 forbids
-/// conflating them in storage or on a chart axis.
-enum ConsumptionUnit {
-  /// Litres per 100 km.
-  lPer100km('l_100km'),
-
-  /// Kilometres per litre.
-  kmPerL('km_l'),
-
-  /// Miles per US gallon.
-  mpgUs('mpg_us'),
-
-  /// Miles per imperial gallon.
-  mpgUk('mpg_uk'),
-
-  /// Kilowatt-hours per 100 km.
-  kwhPer100km('kwh_100km'),
-
-  /// Miles per kilowatt-hour.
-  miPerKwh('mi_kwh');
-
-  const ConsumptionUnit(this.wire);
-
-  /// The value as stored and exported.
-  final String wire;
-}
+//
+// `DistanceUnit`, `VolumeUnit` and `ConsumptionUnit` are NOT declared here.
+// They belong with the quantities they measure — a unit and its conversions are
+// one idea — so they live in `lib/core/units/` and are re-exported from here,
+// which keeps this file the single import for a domain enum while there is one
+// definition of each. Declaring them twice compiled until the day a file needed
+// both, and then every reference was ambiguous.
+export 'package:odova/core/units/consumption.dart' show ConsumptionUnit;
+export 'package:odova/core/units/distance.dart' show DistanceUnit;
+export 'package:odova/core/units/volume.dart' show VolumeUnit;
 
 /// What a vehicle burns.
 ///
