@@ -93,6 +93,8 @@ Future<void> insertSettings(
   String volumeUnit = 'l',
   String consumptionUnit = 'l_100km',
   int schemaVersion = 1,
+  String? activeVehicleId,
+  bool onboardingDone = false,
 }) => db.customStatement(
   '''
     INSERT INTO settings (
@@ -100,9 +102,10 @@ Future<void> insertSettings(
       theme, currency_default, currency_display, distance_unit, volume_unit,
       consumption_unit, notification_time_minutes, quiet_hours_from_minutes,
       quiet_hours_to_minutes, weekdays_only, notify_service, notify_odometer,
-      notify_backup, onboarding_done, created_at_utc_ms, updated_at_utc_ms
+      notify_backup, onboarding_done, active_vehicle_id,
+      created_at_utc_ms, updated_at_utc_ms
     ) VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, 540, 1260, 480, 0, 1, 1, 1,
-              0, 1000, 1000);
+              ?, ?, 1000, 1000);
   ''',
   [
     id,
@@ -116,6 +119,8 @@ Future<void> insertSettings(
     distanceUnit,
     volumeUnit,
     consumptionUnit,
+    if (onboardingDone) 1 else 0,
+    activeVehicleId,
   ],
 );
 

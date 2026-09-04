@@ -5,6 +5,7 @@
 // by accident — which is the point of putting it there rather than here.
 import 'package:drift/drift.dart';
 import 'package:odova/core/domain/models/settings.dart';
+import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
@@ -34,6 +35,34 @@ class SettingsRepository {
     final row = await _db.select(_db.settingsTable).getSingleOrNull();
     if (row == null) return const Err(NotFound(AppSettings.id));
     return Ok(settingsFromRow(row));
+  });
+
+  /// Points `active_vehicle_id` at [id], and touches nothing else.
+  ///
+  /// A targeted UPDATE rather than a read-modify-write of the whole row.
+  /// SPEC.md §7 says switching the active vehicle writes ONE field, and a
+  /// round-trip through the full companion makes that a promise the code keeps
+  /// by accident: every default on `AppSettings` becomes a value this statement
+  /// would write back, so a field added later and not yet read would be reset
+  /// to its default on the next vehicle switch.
+  ///
+  /// [updatedAtUtcMs] is passed in rather than read from `DateTime.now()` —
+  /// SPEC.md §3's rule that time is an argument holds in the data layer too.
+  Future<Result<void, PersistFailure>> setActiveVehicle(
+    VehicleId? id, {
+    required int updatedAtUtcMs,
+  }) => guardPersist(() async {
+    final rows =
+        await (_db.update(
+          _db.settingsTable,
+        )..where((s) => s.id.equals(AppSettings.id))).write(
+          SettingsTableCompanion(
+            activeVehicleId: Value(id?.toString()),
+            updatedAtUtcMs: Value(updatedAtUtcMs),
+          ),
+        );
+    if (rows == 0) return const Err(NotFound(AppSettings.id));
+    return const Ok(null);
   });
 
   /// Writes [settings].

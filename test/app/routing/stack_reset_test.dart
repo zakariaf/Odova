@@ -191,14 +191,12 @@ void main() {
     }
 
     expect(implementations, 1);
-    expect(
-      callers,
-      isEmpty,
-      reason:
-          'SPEC.md §7 gives this two callers — the vehicle switcher and the '
-          'importer — and neither epic has landed. When one does, name it '
-          'here. Today a third caller is any caller at all:\n'
-          '${callers.join('\n')}',
-    );
+    // SPEC.md §7 gives this exactly two events. The vehicle switcher's half
+    // landed with EPIC-08 task 8.5; the importer's is EPIC-13's, and when it
+    // lands it is named HERE. Any other caller is a third event nobody argued
+    // for, and this line is where the argument has to happen.
+    expect(callers..sort(), [
+      'lib/app/active_vehicle.dart',
+    ], reason: callers.join('\n'));
   });
 }
