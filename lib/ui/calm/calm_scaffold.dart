@@ -271,6 +271,7 @@ class CalmAppBar extends StatelessWidget {
            : CalmAppBarShape.standard,
        subtitle = null,
        startLabel = null,
+       startIcon = null,
        onStart = null,
        endLabel = null,
        onEnd = null;
@@ -284,6 +285,7 @@ class CalmAppBar extends StatelessWidget {
   }) : shape = CalmAppBarShape.large,
        onTapVehicle = null,
        startLabel = null,
+       startIcon = null,
        onStart = null,
        endLabel = null,
        onEnd = null;
@@ -298,6 +300,7 @@ class CalmAppBar extends StatelessWidget {
   }) : shape = CalmAppBarShape.vehicle,
        subtitle = null,
        startLabel = null,
+       startIcon = null,
        onStart = null,
        endLabel = null,
        onEnd = null;
@@ -314,6 +317,7 @@ class CalmAppBar extends StatelessWidget {
     required String this.endLabel,
     required this.onEnd,
     super.key,
+    this.startIcon,
   }) : shape = CalmAppBarShape.modal,
        onTapVehicle = null,
        subtitle = null,
@@ -327,6 +331,15 @@ class CalmAppBar extends StatelessWidget {
 
   /// The caption under a [CalmAppBarShape.large] title.
   final String? subtitle;
+
+  /// Draws the start action as a GLYPH instead of a word.
+  ///
+  /// `vehicle.edit` closes with an ✕ where `log.fillup` closes with the word
+  /// Cancel — the artboard's `.modal-head__action--start` wraps an SVG. The
+  /// label stays required and becomes the accessible NAME: a bare glyph with no
+  /// name is the defect that required parameter exists to prevent, and this
+  /// changes how the action is drawn rather than whether it is named.
+  final IconData? startIcon;
 
   /// True only on the vehicle shape.
   ///
@@ -417,6 +430,7 @@ class CalmAppBar extends StatelessWidget {
                 child: CalmAppBarAction(
                   label: startLabel!,
                   onTap: onStart,
+                  icon: startIcon,
                 ),
               ),
             ),
@@ -540,10 +554,14 @@ class CalmAppBarAction extends StatelessWidget {
     required this.onTap,
     super.key,
     this.primary = false,
+    this.icon,
   });
 
-  /// The word, already localised.
+  /// The word, already localised — or, when [icon] is set, the glyph's name.
   final String label;
+
+  /// Drawn instead of [label], which then becomes the accessible name.
+  final IconData? icon;
 
   /// Null draws it disabled.
   final VoidCallback? onTap;
@@ -557,10 +575,18 @@ class CalmAppBarAction extends StatelessWidget {
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
 
+    final foreground = onTap == null
+        ? colors.ink4
+        : (primary ? colors.brand : colors.ink2);
+
     return CalmPressable(
       onTap: onTap,
       enabled: onTap != null,
       borderRadius: kCalmAppBarActionHeight / 2,
+      // The glyph carries no text, so the NAME has to come from here. A bare ✕
+      // announced as "button" leaves the only way out of a full-screen modal
+      // unlabelled.
+      semanticLabel: icon == null ? null : label,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           minHeight: kCalmAppBarActionHeight,
@@ -569,18 +595,18 @@ class CalmAppBarAction extends StatelessWidget {
           padding: EdgeInsetsDirectional.symmetric(horizontal: space.s2),
           child: Align(
             widthFactor: 1,
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              // No maxLines: "Abbrechen" at 200% is wider than a third of a
-              // 320pt modal head.
-              style: type.bodyLg.copyWith(
-                color: onTap == null
-                    ? colors.ink4
-                    : (primary ? colors.brand : colors.ink2),
-                fontWeight: primary ? type.semi : type.medium,
-              ),
-            ),
+            child: icon != null
+                ? Icon(icon, size: space.iconMd, color: foreground)
+                : Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    // No maxLines: "Abbrechen" at 200% is wider than a
+                    // third of a 320pt modal head.
+                    style: type.bodyLg.copyWith(
+                      color: foreground,
+                      fontWeight: primary ? type.semi : type.medium,
+                    ),
+                  ),
           ),
         ),
       ),

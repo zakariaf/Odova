@@ -478,4 +478,60 @@ void main() {
       expect(wash.stops, [0.0, 0.7]); // 70%, per the CSS
     }
   });
+
+  testWidgets('a modal start action can be a glyph, and is still named', (
+    tester,
+  ) async {
+    // `vehicle.edit`'s close is an ✕, not the word Cancel — the artboard's
+    // `.modal-head__action--start` wraps an SVG with `aria-label="Close"`. The
+    // label stays REQUIRED and becomes the accessible name: a bare glyph with
+    // no name is the defect the required parameter was there to prevent, and
+    // what changes here is how it is drawn, not whether it is named.
+    await pumpApp(
+      tester,
+      CalmScaffold(
+        appBar: CalmAppBar.modal(
+          title: 'Vehicle',
+          startLabel: 'Close',
+          startIcon: Icons.close,
+          onStart: () {},
+          endLabel: 'Save',
+          onEnd: () {},
+        ),
+        children: const [Text('body')],
+      ),
+    );
+
+    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.text('Close'), findsNothing, reason: 'the glyph replaces it');
+    // Named all the same. Without this a screen reader announces "button" and
+    // the only way out of a full-screen modal is unlabelled.
+    expect(
+      tester.getSemantics(find.byIcon(Icons.close)).label,
+      'Close',
+    );
+
+    // The end action is still a word, and still primary.
+    expect(find.text('Save'), findsOneWidget);
+  });
+
+  testWidgets('a word start action is unchanged when no glyph is given', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      CalmScaffold(
+        appBar: CalmAppBar.modal(
+          title: 'Fill-up',
+          startLabel: 'Cancel',
+          onStart: () {},
+          endLabel: 'Save',
+          onEnd: () {},
+        ),
+        children: const [Text('body')],
+      ),
+    );
+    expect(find.text('Cancel'), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsNothing);
+  });
 }

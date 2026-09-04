@@ -16,7 +16,13 @@ class CalmIconTile extends StatelessWidget {
     super.key,
     this.state,
     this.round = false,
-  });
+    this.brand = false,
+  }) : assert(
+         !brand || state == null,
+         'CalmIconTile was asked for both the brand tint and a status tint. '
+         'Two tints is one too many, and the second is whichever the reader '
+         'did not expect.',
+       );
 
   /// The glyph. Never a directional one — a tile is not a disclosure.
   final IconData icon;
@@ -30,6 +36,15 @@ class CalmIconTile extends StatelessWidget {
 
   /// Whether the silhouette is a circle rather than a rounded square.
   final bool round;
+
+  /// `.icon-tile--brand` — `brandSoft` under `brandSoftInk`.
+  ///
+  /// For a tile that identifies rather than reports: `vehicle.edit` leads its
+  /// colour row with one. It is a separate flag rather than a `DueState` value
+  /// because `calm-due-state-and-status` forbids borrowing a status colour for
+  /// a non-status meaning — a tile saying "this is your car" must not be able
+  /// to look like one saying "this is overdue".
+  final bool brand;
 
   /// The tile's fixed size. It is a lead slot in a row of a known height, so
   /// it does not grow with text scale — the row does.
@@ -47,14 +62,20 @@ class CalmIconTile extends StatelessWidget {
         dimension: dimension,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: style?.tint ?? colours.surface2,
+            color:
+                style?.tint ?? (brand ? colours.brandSoft : colours.surface2),
             // radiusPill only ever reaches a StadiumBorder; a circle here is
             // an explicit shape rather than a 999 radius.
             shape: round ? BoxShape.circle : BoxShape.rectangle,
             borderRadius: round ? null : BorderRadius.circular(shapes.radiusMd),
           ),
           child: Center(
-            child: Icon(icon, size: 22, color: style?.ink ?? colours.ink2),
+            child: Icon(
+              icon,
+              size: 22,
+              color:
+                  style?.ink ?? (brand ? colours.brandSoftInk : colours.ink2),
+            ),
           ),
         ),
       ),

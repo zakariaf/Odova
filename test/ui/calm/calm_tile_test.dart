@@ -12,6 +12,7 @@ import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_tile.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 TextStyle _styleOf(WidgetTester tester, String text) =>
@@ -199,5 +200,47 @@ void main() {
     );
 
     handle.dispose();
+  });
+
+  testWidgets('a brand tile is brand-soft, and borrows no status colour', (
+    tester,
+  ) async {
+    // `.icon-tile--brand` — `background: var(--color-brand-soft); color:
+    // var(--color-brand-soft-ink)`. `vehicle.edit` leads its colour row with
+    // one, and there was no way to ask for it: the only tint knob was
+    // `DueState?`, where null gives the neutral surface2 pair and any non-null
+    // value borrows a STATUS colour. `calm-due-state-and-status` forbids that
+    // exactly — a tile that means "this is your car" must not be able to look
+    // like a tile that means "this is overdue".
+    await pumpApp(
+      tester,
+      const Center(
+        child: CalmIconTile(icon: Icons.directions_car_outlined, brand: true),
+      ),
+    );
+
+    final decoration = calmDecorationOf<BoxDecoration>(
+      tester,
+      find.byType(CalmIconTile),
+    );
+    expect(decoration.color, calmColorsLight.brandSoft);
+    expect(
+      tester.widget<Icon>(find.byType(Icon)).color,
+      calmColorsLight.brandSoftInk,
+    );
+  });
+
+  testWidgets('brand and a status are not both askable', (tester) async {
+    // Two tints is one too many, and the second is whichever the reader did not
+    // expect. An assertion rather than a precedence rule, because a precedence
+    // rule is a silent answer to a question somebody got wrong.
+    expect(
+      () => CalmIconTile(
+        icon: Icons.directions_car_outlined,
+        brand: true,
+        state: DueState.overdue,
+      ),
+      throwsAssertionError,
+    );
   });
 }

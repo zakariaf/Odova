@@ -62,6 +62,7 @@ class CalmField extends StatefulWidget {
     this.lead,
     this.size = CalmFieldSize.md,
     this.numeric = false,
+    this.code = false,
     this.computed = false,
     this.computedHint,
     this.enabled = true,
@@ -103,6 +104,17 @@ class CalmField extends StatefulWidget {
   /// Tabular lining figures, semibold — a column of readings that does not
   /// reflow as a digit changes.
   final bool numeric;
+
+  /// `.code` — forced LTR and start-aligned, whatever the screen's direction.
+  ///
+  /// SPEC.md §8: "Plate and VIN are forced LTR and start-aligned inside their
+  /// own fields even on an RTL screen." A VIN is a fixed seventeen characters
+  /// read left to right by every authority on earth, and a plate is stored
+  /// VERBATIM — an Iranian plate legitimately contains Persian digits AND a
+  /// Persian letter, and reordering it is rewriting somebody's own characters.
+  ///
+  /// The LABEL is unaffected: it is a word in the user's language, not a code.
+  final bool code;
 
   /// A value Odova worked out from two others.
   ///
@@ -318,6 +330,12 @@ class _CalmFieldState extends State<CalmField> {
                       minLines: widget.size == CalmFieldSize.multiline ? 4 : 1,
                       style: textStyle,
                       cursorColor: colors.brand,
+                      // `.code { direction: ltr; text-align: start }`. Left
+                      // rather than start, because `start` inside a forced-LTR
+                      // run resolves against the AMBIENT direction and would
+                      // push a plate to the right edge of a Persian form.
+                      textDirection: widget.code ? TextDirection.ltr : null,
+                      textAlign: widget.code ? TextAlign.left : TextAlign.start,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         isDense: true,

@@ -371,4 +371,58 @@ void main() {
     expect(standalone.style, inField.style);
     expect(standalone.style!.fontWeight, CalmType.latin.semi);
   });
+
+  testWidgets('a code field is forced LTR and start-aligned inside an RTL '
+      'screen', (tester) async {
+    // SPEC.md §8: "Plate and VIN are forced LTR and start-aligned inside their
+    // own fields even on an RTL screen", and `.code` in odova.css is
+    // `direction: ltr; unicode-bidi: isolate; text-align: start`.
+    //
+    // A VIN is a fixed 17-character sequence read left to right by every
+    // authority on earth, and a plate is stored VERBATIM — an Iranian plate
+    // legitimately contains Persian digits AND a Persian letter, and reordering
+    // it is rewriting somebody's own characters.
+    final controller = TextEditingController(text: 'WVWZZZ1KZAW123456');
+    addTearDown(controller.dispose);
+    await pumpApp(
+      tester,
+      Center(
+        child: CalmField(label: 'VIN', controller: controller, code: true),
+      ),
+      locale: const Locale('fa'),
+    );
+
+    final field = tester.widget<EditableText>(find.byType(EditableText));
+    expect(field.textDirection, TextDirection.ltr);
+    expect(field.textAlign, TextAlign.left);
+
+    // The LABEL still follows the screen, because it is a word in the user's
+    // language and not a code.
+    expect(
+      Directionality.of(
+        tester.element(find.byType(CalmFieldLabel)),
+      ),
+      TextDirection.rtl,
+    );
+  });
+
+  testWidgets('an ordinary field takes its direction from the screen', (
+    tester,
+  ) async {
+    // The mirror of the test above. SPEC.md §8: "name and notes take direction
+    // from their content" — which starts from the screen's, not from a forced
+    // one.
+    final controller = TextEditingController(text: 'The Golf');
+    addTearDown(controller.dispose);
+    await pumpApp(
+      tester,
+      Center(
+        child: CalmField(label: 'Name', controller: controller),
+      ),
+      locale: const Locale('fa'),
+    );
+
+    final field = tester.widget<EditableText>(find.byType(EditableText));
+    expect(field.textDirection, isNot(TextDirection.ltr));
+  });
 }
