@@ -114,6 +114,7 @@ class VehicleRepository {
       status: VehicleStatus.active,
       isBusiness: draft.isBusiness,
       distanceUnit: draft.distanceUnit,
+      expectedAnnual: draft.expectedAnnual,
       createdAtUtcMs: nowUtcMs,
       updatedAtUtcMs: nowUtcMs,
     );
@@ -328,6 +329,7 @@ class VehicleDraft {
     this.isBusiness = false,
     this.distanceUnit,
     this.liquidCooled = false,
+    this.expectedAnnual,
   });
 
   /// What the user calls it.
@@ -357,6 +359,14 @@ class VehicleDraft {
 
   /// This vehicle's distance unit, when it differs from the app's.
   final DistanceUnit? distanceUnit;
+
+  /// Roughly how far this vehicle goes in a year — `AnnualBand`'s answer.
+  ///
+  /// The projection's fallback until there is enough odometer history to
+  /// measure, which is SPEC.md §5's `assumed` rung. Null leaves the vehicle on
+  /// the global 12,000 km/yr default, so a null here is not a neutral choice:
+  /// it is a delivery driver and a pensioner getting the same guess.
+  final Distance? expectedAnnual;
 
   /// Motorcycles only: whether it is liquid-cooled.
   ///

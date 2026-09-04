@@ -72,6 +72,7 @@ void main() {
       'rounding', // half away from zero, and SPEC.md §3's decimals table
       'time', // calendar month boundaries — no formatting, no locale
       'units', // Distance, Volume, Mass, Energy, FuelQuantity, Consumption
+      'vehicles', // the facts a vehicle is created with, and the annual bands
     };
 
     final found = Directory('lib/core')

@@ -17,6 +17,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
@@ -35,6 +36,7 @@ VehicleDraft _draft({
   bool isBusiness = false,
   int odometerMetres = 187412000,
   DistanceUnit unit = DistanceUnit.km,
+  AnnualBand band = AnnualBand.defaultBand,
 }) => VehicleDraft(
   name: name,
   vehicleType: type,
@@ -44,6 +46,7 @@ VehicleDraft _draft({
   odometerUnit: unit,
   occurredOn: '2026-09-04',
   distanceUnit: unit,
+  expectedAnnual: Distance(band.metresFor(unit)),
 );
 
 Future<int> _count(AppDatabase db, String table) async {
@@ -347,4 +350,52 @@ void main() {
       isA<Err<void, PersistFailure>>(),
     );
   });
+
+  test('create stores the annual band the first-run screen chose', () async {
+    // `expected_annual_m` is the projection's fallback until there is enough
+    // odometer history to measure — SPEC.md §5's `assumed` rung. The draft
+    // carried everything else first run collects and dropped this one on the
+    // floor, so every vehicle was created with a null and every new car
+    // projected at the global 12,000 km/yr default.
+    final created = await repository.create(
+      _draft(band: AnnualBand.higher),
+      nowUtcMs: 1757000000000,
+    );
+    expect(created, isA<Ok<Vehicle, PersistFailure>>());
+
+    final row =
+        await (db.select(
+              db.vehicles,
+            )..where(
+              (v) => v.id.equals(
+                (created as Ok<Vehicle, PersistFailure>).value.id.toString(),
+              ),
+            ))
+            .getSingle();
+    expect(row.expectedAnnualM, AnnualBand.higher.metresFor(DistanceUnit.km));
+  });
+
+  test(
+    'the band is read in the vehicle own unit, not the app default',
+    () async {
+      // A miles user picking "12–18" stores 24,140,160 m — the round MILE
+      // number converted once — and not the kilometre band's 25,000,000. §4.8:
+      // defined per unit system, not converted.
+      final created =
+          await repository.create(
+                _draft(band: AnnualBand.higher, unit: DistanceUnit.mi),
+                nowUtcMs: 1757000000000,
+              )
+              as Ok<Vehicle, PersistFailure>;
+
+      final row = await (db.select(
+        db.vehicles,
+      )..where((v) => v.id.equals(created.value.id.toString()))).getSingle();
+      expect(row.expectedAnnualM, AnnualBand.higher.metresFor(DistanceUnit.mi));
+      expect(
+        row.expectedAnnualM,
+        isNot(AnnualBand.higher.metresFor(DistanceUnit.km)),
+      );
+    },
+  );
 }
