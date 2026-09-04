@@ -152,6 +152,66 @@ asserted by name in `test/core/fuel/fuel_vectors_test.dart`.
 | `ev_without_full_charges` | `NoFullCharge`, not an average of partial charges. |
 | `lifetime_total_over_total` | Total volume over total distance, not a mean of segments. |
 
+## /simplify — every finding, applied or answered
+
+Four agents (reuse, simplification, efficiency, altitude) over
+`git diff main...HEAD`. They converged hard: three of the four independently
+found the `FuelQuantity` duplication and the dead refusal taxonomy, which is
+usually the sign that a thing is actually wrong. **Applied: 21. Answered
+without applying: 2.**
+
+### Applied
+
+| # | Finding | What was done |
+|---|---|---|
+| 1 | The same three-arm `FuelQuantity` switch written four times, and two copies disagreed | `amount`/`withAmount`/`operator +`/`sumOf` on the sealed type. Fixed two real bugs: `consumptionTrend` refused every EV and CNG history, and `fuelVolume` added grams into millilitres |
+| 2 | Six of seven `ConsumptionUnavailable` cases unconstructed; the seventh stood in for five causes | Builder records WHY each fill was discarded; `whyNoSegments` answers the screen's question; `MixedFuelForms`/`UnitNotApplicable`/`NonPositiveQuantity` added; `MixedCurrency` deleted; reachability gate added |
+| 3 | `FuelValue<T>` duplicates `Result<T, F>`; `ConsumptionUnavailable` declares `Failure`'s contract without implementing it | `fuel_result.dart` deleted; `ConsumptionUnavailable extends Failure`; `valueOrNull` moved onto `ResultX` |
+| 4 | `CalmConsumptionUnit` is a second `ConsumptionUnit` with two wrong wire values | Deleted; `one_money_type_test.dart` generalised to catch any wire value declared twice |
+| 5 | Dead branch in `_totalOverTotal` | Gone with finding 1 |
+| 6 | `fuelSpend` re-implements `MoneyTotal` | Returns a `MoneyTotal`, which also hands the caller `isMixed` and `dominantCurrency` |
+| 7 | The mapper owns read-side pairing; 40 sites unwrap on the write side | `amountMinorColumn`/`currencyColumn`/`metresColumn` + `OrNull` pairs, and a gate |
+| 8 | Five private `_xxxFromRow` on the untested side of the public/private split | All nine mappers in `row_mappers.dart`; the mapping test covers all nine |
+| 9 | `check_core_purity.sh` bans five prefixes, the self-test planted three | `dart:ui` and `package:flutter_` planted; both verified to bind |
+| 10 | `no_currency_conversion_test`'s guard-the-guard checked a retyped copy | One top-level map read by both |
+| 11 | The core-purity rule stated three times, the copies disagreeing | `structure_test.dart`'s weaker clause deleted |
+| 12 | The grab-bag check is a blocklist; `lib/core/util/` walks through it | An allowlist of named subjects, both directions checked |
+| 13 | A RegExp compiled on every `Currency.tryParse` | Hoisted — it is the hottest read path there is |
+| 14 | `checkReading` sorts the same list twice, per write | `cumulativeBySorted` split out; sorted once |
+| 15 | `OdometerRepository` sorts a third time over rows SQL ordered | `id` added as the third ORDER BY key, with a test asserting the two orders agree |
+| 16 | `_rank` sorts everything to take one element | A `reduce` with the same comparator |
+| 17 | `MoneyTotal.props` sorts two maps on every access | Computed once in the factory |
+| 18 | Four test files re-declare `Currency get _eur` | They use `test/support/values.dart`, which this epic added for it |
+| 19 | `const int _km = 1000` where `Distance.fromKm` exists | Replaced where a `Distance` was being built |
+| 20 | `segmentConsumption` is a wrapper around a getter | Deleted |
+| 21 | `ConsumptionUnit.isElectric` has no caller; `asUnit` enforces the rule already | Deleted; the `ElectricEnergy` arm made exhaustive |
+
+Two moves came out of the same pass: `completedMonthsBefore` to `lib/core/time/`
+(no money type in the file; EPIC-07 needs the same arithmetic), and
+`test/support/source_tree.dart` taught to honour the analyzer's SUFFIX excludes
+— it had honoured only the directory ones, so every grep gate was reading
+`app_database.g.dart` and reporting generated code as source.
+
+### Answered, not applied
+
+**`_round` should become `roundHalfAwayFromZero`.** No. They are not
+equivalent: `0.1234565` quantises to `0.123456` through `toStringAsFixed` and
+rounds to `0.123457` through the display rule, and across 200,000 seeded values
+they disagree only at exact ties. The swap would have silently rewritten every
+committed vector at exactly the values nobody checks. What WAS applied is the
+one-definition half: `quantiseForGolden` in `lib/core/rounding/`, named so it
+cannot be mistaken for the display rule, with `rounding_test.dart` pinning the
+difference so the next person who notices the resemblance finds an explanation
+instead of a green suite.
+
+**`Vehicle.tankCapacityMl` should become a `Volume`.** Not in this epic. The
+finding is right — `build_fuel_segments.dart` compares a `Volume` against a bare
+int, which is the mixing this epic set out to make impossible — but the column
+feeds a heuristic (the 15%-over-tank warning), not a stored quantity, and
+changing it touches `FillUpPoint`, the vector generator and the golden file for
+no behavioural gain. **EPIC-07 or the fuel screen epic should take it**, and the
+comparison at `build_fuel_segments.dart` is the place to start.
+
 ## Deferred
 
 - **Nothing from the epic's task list.** All ten tasks are built and their tests pass.
