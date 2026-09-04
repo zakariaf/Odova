@@ -5,6 +5,8 @@
 // changes which vehicle the app is showing, and the caption at the top says so
 // out loud, because a list of cars is exactly where somebody looks for a
 // switcher.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -99,7 +101,61 @@ class VehiclesScreen extends ConsumerWidget {
           l10n.vehiclesIntro,
           style: type.caption.copyWith(color: colors.ink3),
         ),
-        CalmRowGroup(rows: [for (final v in live) _GarageRow(vehicle: v)]),
+        if (live.length > 1)
+          // §8: "Long-press drag — Reorders, writes `sort_order`." A
+          // `ReorderableListView` inside the screen's own scroller, so it never
+          // scrolls independently of the sold group beneath it — the garage is
+          // one list to the user, whatever it is to the widget tree.
+          //
+          // Only the LIVE vehicles. Sold ones sink to the bottom regardless of
+          // `sort_order` (§8), so a drag there would write a number the screen
+          // then ignores: a gesture that appears to work and does nothing.
+          CalmRowGroup(
+            rows: [
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                buildDefaultDragHandles: false,
+                itemCount: live.length,
+                itemBuilder: (context, index) =>
+                    ReorderableDelayedDragStartListener(
+                      key: ValueKey(live[index].id),
+                      index: index,
+                      child: _GarageRow(vehicle: live[index]),
+                    ),
+                // A LIFTED row is built in an OVERLAY, which is outside the
+                // group — so it loses `CalmRowGroupScope` and `CalmListRow`
+                // asserts. Re-providing it is not a workaround: the row really
+                // is still the group's row, it is simply being painted
+                // somewhere else for the length of a drag.
+                //
+                // Transparent Material for the same reason: the default proxy
+                // is a Material elevation, which paints a white slab over the
+                // card the row was lifted out of.
+                proxyDecorator: (child, index, animation) => Material(
+                  type: MaterialType.transparency,
+                  child: CalmRowGroupScope(child: child),
+                ),
+                // `onReorderItem`, not the deprecated `onReorder`. The old
+                // one reports the destination as an index in the list BEFORE
+                // the removal, so a downward move is one too far and every
+                // caller writes the same `to > from ? to - 1 : to` adjustment —
+                // which is exactly why the framework now does it. The LIVE
+                // list, never the whole garage: §8 sinks sold vehicles
+                // regardless of `sort_order`, so writing them one would be a
+                // number the screen then ignores.
+                onReorderItem: (from, to) {
+                  final ids = [for (final v in live) v.id];
+                  ids.insert(to, ids.removeAt(from));
+                  unawaited(
+                    ref.read(vehiclesNotifierProvider.notifier).reorder(ids),
+                  );
+                },
+              ),
+            ],
+          )
+        else
+          CalmRowGroup(rows: [for (final v in live) _GarageRow(vehicle: v)]),
         if (gone.isNotEmpty) ...[
           // `.section__head`, a SIBLING of the group it names — that is how all
           // nine of the artboards that have one draw it. The count sits beside

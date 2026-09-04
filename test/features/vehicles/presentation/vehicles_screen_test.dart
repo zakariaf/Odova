@@ -13,7 +13,8 @@
 // **One pump per test, never two.** Riverpod asserts the number of overrides is
 // constant across a rebuild, so a test that pumps one vehicle and then two
 // dies inside `ProviderScope.updateOverrides` rather than in an expectation.
-import 'package:flutter/widgets.dart';
+import 'package:flutter/gestures.dart' show kLongPressTimeout;
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/domain/enums.dart';
@@ -26,11 +27,14 @@ import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/entry_counts_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
+import 'package:odova/features/vehicles/vehicles_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
@@ -44,6 +48,9 @@ import '../../../support/pump_app.dart';
 
 final VehicleId _golf = VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA')!;
 final VehicleId _polo = VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVB')!;
+final VehicleId _transit = VehicleId.tryParse(
+  'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVC',
+)!;
 
 Vehicle _vehicle(
   VehicleId id,
@@ -127,6 +134,7 @@ Future<void> _pump(
   Map<VehicleId, DueState?> due = const {},
   Map<VehicleId, OdometerEstimate> estimates = const {},
   Map<VehicleId, DeleteCounts> counts = const {},
+  void Function(List<VehicleId>)? onReorder,
 }) async {
   tester.view.physicalSize = kReferencePhysical;
   tester.view.devicePixelRatio = kReferenceDpr;
@@ -153,6 +161,10 @@ Future<void> _pump(
         vehicleEntryCountsProvider(
           v.id,
         ).overrideWith((ref) async => counts[v.id]),
+      if (onReorder != null)
+        vehiclesNotifierProvider.overrideWith(
+          () => _RecordingReorder(onReorder),
+        ),
     ],
   );
   await tester.pumpAndSettle();
@@ -176,6 +188,19 @@ String? _line(WidgetTester tester, String name) =>
 
 String? _strip(String? text) =>
     text?.replaceAll('\u2068', '').replaceAll('\u2069', '');
+
+/// Records the ids the screen asks the repository to reorder.
+class _RecordingReorder extends VehiclesNotifier {
+  _RecordingReorder(this.onReorder);
+
+  final void Function(List<VehicleId>) onReorder;
+
+  @override
+  Future<Result<void, PersistFailure>> reorder(List<VehicleId> ids) async {
+    onReorder(ids);
+    return const Ok(null);
+  }
+}
 
 void main() {
   testWidgets(
@@ -689,5 +714,127 @@ void main() {
     expect(facts, contains('۲۰۱۶'));
     expect(facts, isNot(contains('2016')));
     expect(facts, isNot(contains('۲٬۰۱۶')), reason: 'a year is not grouped');
+  });
+
+  group('long-press drag', () {
+    // SPEC.md §8: "Long-press drag — Reorders, writes `sort_order`. Sold and
+    // archived sort to the bottom regardless."
+    testWidgets('the LIVE group is reorderable and the sold one is not', (
+      tester,
+    ) async {
+      // Sold vehicles have no `sort_order` that means anything: §8 sinks them
+      // regardless of it, so a drag there would write a number the screen then
+      // ignores — a gesture that appears to work and does nothing.
+      await _pump(
+        tester,
+        vehicles: [
+          _vehicle(_golf, 'The Golf'),
+          _vehicle(_polo, 'The Polo'),
+          _vehicle(
+            _transit,
+            'Yamaha MT-07',
+            status: VehicleStatus.sold,
+            soldOn: '2024-03-12',
+          ),
+        ],
+      );
+      expect(find.byType(ReorderableListView), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ReorderableListView),
+          matching: find.text('Yamaha MT-07'),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('one live vehicle gets no reorderable list at all', (
+      tester,
+    ) async {
+      // Neither the gesture nor the hint applies to a list of one, and a
+      // reorderable list of one is a long-press that lifts a row and puts it
+      // back.
+      await _pump(tester, vehicles: [_vehicle(_golf, 'The Golf')]);
+      expect(find.byType(ReorderableListView), findsNothing);
+      expect(find.text('The Golf'), findsOneWidget);
+    });
+
+    testWidgets('a drag writes the new order, ids in their new positions', (
+      tester,
+    ) async {
+      // The repository takes the ids in order and writes each one's index. The
+      // screen's job is to hand it the LIVE list in its new order — not the
+      // whole garage, whose sold rows are not in this list and whose
+      // `sort_order` §8 ignores.
+      final reordered = <List<VehicleId>>[];
+      await _pump(
+        tester,
+        vehicles: [
+          _vehicle(_golf, 'The Golf'),
+          _vehicle(_polo, 'The Polo'),
+          // A SOLD vehicle in the garage, so "the live list" and "the whole
+          // list" are different things. Without it the two are identical and a
+          // reorder that sent every vehicle to the repository passed.
+          _vehicle(
+            _transit,
+            'Yamaha MT-07',
+            status: VehicleStatus.sold,
+            soldOn: '2024-03-12',
+          ),
+        ],
+        onReorder: reordered.add,
+      );
+
+      // A LONG PRESS, then the move. `timedDrag` starts moving immediately and
+      // `ReorderableDelayedDragStartListener` never arms — the row does not
+      // lift and the test reads as "nothing was reordered", which is also what
+      // a broken `onReorder` looks like.
+      final drag = await tester.startGesture(
+        tester.getCenter(find.text('The Golf')),
+      );
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 100));
+      // In STEPS, with a pump between them. `ReorderableListView` recomputes
+      // the drop index as the pointer moves, and one jump to the destination
+      // leaves it reporting a half-travelled index — which comes back as "the
+      // order did not change" and reads exactly like a broken callback.
+      for (var i = 0; i < 8; i++) {
+        await drag.moveBy(const Offset(0, 30));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await drag.up();
+      await tester.pumpAndSettle();
+
+      expect(reordered, hasLength(1));
+      expect(
+        reordered.single,
+        [_polo, _golf],
+        reason: 'the LIVE list, in its new order — the sold one is not in it',
+      );
+    });
+
+    testWidgets('a drag with no long press reorders nothing', (tester) async {
+      // §8 says LONG-PRESS drag, and the row already has a horizontal swipe on
+      // it. A plain drag listener would let a scroll that starts on a row pick
+      // the row up instead — and the delayed listener is the only thing
+      // between the two gestures.
+      final reordered = <List<VehicleId>>[];
+      await _pump(
+        tester,
+        vehicles: [_vehicle(_golf, 'The Golf'), _vehicle(_polo, 'The Polo')],
+        onReorder: reordered.add,
+      );
+
+      final drag = await tester.startGesture(
+        tester.getCenter(find.text('The Golf')),
+      );
+      for (var i = 0; i < 8; i++) {
+        await drag.moveBy(const Offset(0, 30));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await drag.up();
+      await tester.pumpAndSettle();
+
+      expect(reordered, isEmpty);
+    });
   });
 }
