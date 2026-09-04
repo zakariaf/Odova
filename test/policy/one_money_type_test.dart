@@ -103,4 +103,71 @@ void main() {
     }
     expect(tables, ['lib/core/money/currency.dart'], reason: tables.join('\n'));
   });
+  test('no two enums declare the same set of members', () {
+    // The third instance of one idea with two types, after the two `Money`s
+    // and the two `ConsumptionUnit`s — and the first that the wire-value check
+    // above could not see, because `RateConfidence` had no wire strings at all.
+    //
+    // EPIC-02 wrote `RateConfidence { measured, assumed, defaulted }` for the
+    // due card; EPIC-07 wrote `RateConfidence { measured, assumed, defaulted }`
+    // for the rate. The value flows from one to the other — the rate's
+    // confidence IS what the card renders — so two types means a conversion
+    // function sitting between them, and a conversion function between two
+    // enums that are supposed to be identical is a place they stop being
+    // identical.
+    //
+    // Matched on the MEMBER SET, because that is what a duplicate shares: a
+    // second spelling never shares the type name.
+    final byMembers = <String, List<String>>{};
+    for (final file in dartFilesUnder('lib')) {
+      final source = sourceWithoutLineComments(file);
+      // `\}` at the end of a LINE or of the file, not `^\}` — a short enum
+      // that `dart format` leaves on one line closes on the same line it
+      // opens, and the first version of this pattern missed every one of
+      // them. It reported a planted single-line duplicate as clean, which is
+      // the failure mode this whole file exists to prevent, inside the file
+      // that prevents it.
+      for (final match in RegExp(
+        r'^enum (\w+)\s*\{(.*?)\}',
+        multiLine: true,
+        dotAll: true,
+      ).allMatches(source)) {
+        final name = match.group(1)!;
+        final body = match.group(2)!;
+        // Members are the identifiers before the first `;`, which is where the
+        // constructor and fields start if the enum has any.
+        //
+        // Split on COMMAS rather than on line starts. A short enum lives on
+        // one line, and a pattern anchored to `^` found only its first member
+        // — which made the member set look like one element, skipped it as
+        // too short, and reported a planted single-line duplicate as clean.
+        final head = body.split(';').first;
+        final members =
+            head
+                .split(',')
+                .map((part) => RegExp(r'\w+').firstMatch(part)?.group(0))
+                .whereType<String>()
+                .toList()
+              ..sort();
+        if (members.length < 2) continue;
+        byMembers
+            .putIfAbsent(members.join(','), () => [])
+            .add('${file.path}: $name');
+      }
+    }
+
+    final duplicated = {
+      for (final entry in byMembers.entries)
+        if (entry.value.length > 1) entry.key: entry.value,
+    };
+
+    expect(
+      duplicated,
+      isEmpty,
+      reason:
+          'these enums have identical members, so they are one idea with two '
+          'names and something will have to convert between them:\n'
+          '${duplicated.entries.map(_describe).join('\n')}',
+    );
+  });
 }

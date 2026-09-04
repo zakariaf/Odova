@@ -468,6 +468,46 @@ assert 1 "check_status_encoding is red on a widget switching on DueState" \
 restore_all
 assert 0 "check_status_encoding is green again once removed" bash "$STATUS" lib
 
+# EPIC-07 exempted `lib/core/` from the SWITCH rule, because the due engine
+# answers domain questions by switching on a DueState and the gate's contract is
+# about widgets. These two arms are what stop that exemption becoming a hole.
+#
+# It must NOT exempt a colour read. `lib/core/` cannot import Flutter — two
+# other gates prove it — so this probe could not compile there, and that is
+# exactly the point: the exemption is safe BECAUSE of the purity gate, and if
+# the purity gate ever went away this arm is where it would show.
+write_scratch lib/core/selftest_probe.dart <<'PROBE'
+import 'package:odova/theme/calm/calm_colors.dart';
+
+/// A planted violation: a status colour slot read outside the theme.
+Object? probe(CalmColors colors) => colors.overdue.tint;
+PROBE
+assert 1 "check_status_encoding is red on a colour slot read in lib/core" \
+  bash "$STATUS" lib
+restore_all
+
+# And a widget is still a widget, even one that lives beside the engine's
+# vocabulary: the exemption is by DIRECTORY, and `lib/ui/` is not in it.
+#
+# This arm asserted GREEN when it was first written, on a probe whose own
+# docstring says "a planted violation" — blessing a real bypass in the same
+# commit that claimed to close one. `==` resolves a state exactly as a `switch`
+# does; the gate's pattern simply did not match it, and asserting the gate's
+# current behaviour is not the same as asserting its contract.
+write_scratch lib/ui/selftest_probe2.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/core/due/due_state.dart';
+
+/// A planted violation: presentation resolving a state itself.
+Color probe(DueState state) =>
+    state == DueState.overdue ? const Color(0xFFFF0000) : const Color(0xFF00FF00);
+PROBE
+assert 1 "check_status_encoding is red on an == comparison in a widget" \
+  bash "$STATUS" lib
+restore_all
+assert 0 "check_status_encoding is green on the real tree once more" \
+  bash "$STATUS" lib
+
 echo "== check_golden_lane =="
 GOLDEN=tools/check_golden_lane.sh
 assert 0 "check_golden_lane is green on the real workflow" bash "$GOLDEN"

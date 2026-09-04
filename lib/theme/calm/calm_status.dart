@@ -157,8 +157,11 @@ class CalmStatusStyle {
 
   /// The two states that mean "we do not know". Neither may carry a figure and
   /// neither may borrow the ok or overdue palette (SPEC §1).
-  bool get isUncertain =>
-      state == DueState.unknown || state == DueState.needsOdometer;
+  ///
+  /// Through `isUncertainState` in `lib/core/due/`, because the due engine
+  /// needs the same pair to resolve a severity tie between its two axes — and
+  /// two spellings of "we do not know" is how one of them gains a third member.
+  bool get isUncertain => isUncertainState(state);
 
   /// `ok` is rendered as CalmAllClear instead of a card; see
   /// calm-layout-and-motion.
@@ -166,7 +169,7 @@ class CalmStatusStyle {
 
   /// Signal 4: the one action this card offers.
   ///
-  /// Takes the [DueConfidence] because the state alone does not decide it.
+  /// Takes the [RateConfidence] because the state alone does not decide it.
   /// SPEC.md §9's estimate table: *"Date from the distance axis,
   /// `confidence = default` → **No date and no figure.** The card reads
   /// `Odova needs a reading to say when` and its action is **Update
@@ -178,8 +181,8 @@ class CalmStatusStyle {
   /// `calm-due-state-and-status`' own examples switch on the state alone;
   /// where a skill and the spec disagree, CLAUDE.md §3 says the spec is the
   /// product decision.
-  String actionKey(DueConfidence confidence) =>
-      isUncertain || confidence == DueConfidence.defaulted
+  String actionKey(RateConfidence confidence) =>
+      isUncertain || confidence == RateConfidence.defaulted
       ? 'action.updateOdometer'
       : 'action.logIt';
 
@@ -236,7 +239,7 @@ class CalmStatusStyle {
 /// At `defaulted` the surface reads `home.dueSoonNoConfidence` and nothing
 /// else —
 /// no date, no distance, in the app or in a notification (SPEC §1.4).
-bool mayShowFigure(DueState state, DueConfidence confidence) =>
-    confidence != DueConfidence.defaulted &&
+bool mayShowFigure(DueState state, RateConfidence confidence) =>
+    confidence != RateConfidence.defaulted &&
     state != DueState.unknown &&
     state != DueState.needsOdometer;

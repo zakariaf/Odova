@@ -12,6 +12,11 @@
 //
 // Valid for Jalali years -61 to 3177. Odova's own range is 1300-1500 AP and
 // the round-trip test walks every day of it.
+//
+// The Gregorian <-> Julian Day Number half moved to `lib/core/time/` in
+// EPIC-07: `CivilDate` had written a second implementation of it, and one
+// integer day count is one integer day count whatever calendar is asking.
+import 'package:odova/core/time/julian_day.dart';
 
 /// Truncating division, JavaScript's `~~(a / b)`.
 ///
@@ -83,46 +88,6 @@ _JalaliYear _jalaliCal(int jy) {
   if (leap == -1) leap = 4;
 
   return (leap: leap, gy: gy, march: march);
-}
-
-/// Gregorian civil date to Julian Day Number.
-///
-/// The standard Fliegel-Van Flandern formula rather than the compact one
-/// jalaali-js carries. They agree — 2024-03-20 is 2460390 in both — and this
-/// one INVERTS, which the transcription I wrote first did not: it returned
-/// 1921-04-31 for a day in the middle of the range, an impossible date that
-/// only showed up because the round-trip test walks every day of two
-/// centuries rather than spot-checking anchors.
-///
-/// [month] is always 3 in this file's Jalali path and [day] may exceed 31 —
-/// the algorithm addresses Nowruz as "the Nth of March" for N up to 32. Both
-/// formulas are linear in the day, so that is well-defined.
-int gregorianToJdn(int year, int month, int day) {
-  final a = (14 - month) ~/ 12;
-  final y = year + 4800 - a;
-  final m = month + 12 * a - 3;
-  return day +
-      (153 * m + 2) ~/ 5 +
-      365 * y +
-      y ~/ 4 -
-      y ~/ 100 +
-      y ~/ 400 -
-      32045;
-}
-
-/// Julian Day Number to Gregorian civil date.
-({int year, int month, int day}) jdnToGregorian(int jdn) {
-  final a = jdn + 32044;
-  final b = (4 * a + 3) ~/ 146097;
-  final c = a - (146097 * b) ~/ 4;
-  final d = (4 * c + 3) ~/ 1461;
-  final e = c - (1461 * d) ~/ 4;
-  final m = (5 * e + 2) ~/ 153;
-  return (
-    year: 100 * b + d - 4800 + m ~/ 10,
-    month: m + 3 - 12 * (m ~/ 10),
-    day: e - (153 * m + 2) ~/ 5 + 1,
-  );
 }
 
 /// A Jalali civil date.

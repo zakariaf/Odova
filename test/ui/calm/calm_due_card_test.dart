@@ -20,7 +20,7 @@ import '../../support/pump_app.dart';
 
 CalmDueView _view({
   DueState state = DueState.due,
-  DueConfidence confidence = DueConfidence.measured,
+  RateConfidence confidence = RateConfidence.measured,
   String title = 'Oil change',
   String statusLine = 'Due now',
   String? anchorLine = 'Was due at 186,512 km',
@@ -123,7 +123,7 @@ void main() {
     }
   });
 
-  testWidgets('DueConfidence.defaulted renders no date and no figure', (
+  testWidgets('RateConfidence.defaulted renders no date and no figure', (
     tester,
   ) async {
     await pumpApp(
@@ -131,7 +131,7 @@ void main() {
       _card(
         view: _view(
           state: DueState.unknown,
-          confidence: DueConfidence.defaulted,
+          confidence: RateConfidence.defaulted,
           statusLine: 'Odova needs a reading to work this out',
           anchorLine: null,
           progress: null,

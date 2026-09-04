@@ -56,12 +56,12 @@ class CalmDueView {
   final DueDriver driver;
 
   /// How much the engine actually knew.
-  final DueConfidence confidence;
+  final RateConfidence confidence;
 
   /// The item's name.
   final String title;
 
-  /// `Overdue by 900 km`, `Due now`, or — at [DueConfidence.defaulted] — the
+  /// `Overdue by 900 km`, `Due now`, or — at [RateConfidence.defaulted] — the
   /// no-confidence sentence and nothing else.
   final String statusLine;
 

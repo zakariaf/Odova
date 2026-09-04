@@ -21,7 +21,7 @@ void main() {
     ]);
   });
 
-  test('DueDriver and DueConfidence carry their spec spellings', () {
+  test('DueDriver and RateConfidence carry their spec spellings', () {
     expect(DueDriver.values.map((d) => d.name).toList(), [
       'distance',
       'time',
@@ -30,7 +30,7 @@ void main() {
     ]);
     // `default` is a reserved word; §4.1's `default` is `defaulted` here and
     // serialises as "default" in any payload.
-    expect(DueConfidence.values.map((c) => c.name).toList(), [
+    expect(RateConfidence.values.map((c) => c.name).toList(), [
       'measured',
       'assumed',
       'defaulted',

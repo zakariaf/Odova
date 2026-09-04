@@ -419,9 +419,13 @@ COMBINE  ("whichever comes first")
   driver  = the axis that produced the worst status (distance | time | both | none)
 ```
 
-**`from_due` anchoring.** For `rollover = from_due`, the anchor *date* is not the record's date: walk the cycle forward from the item's baseline rung — `anchor.date = addMonths(base.date, interval_months × k)` for the smallest k ≥ 1 whose result is after the newest completing record's `occurred_on`, where `base` is the `baseline_date`, else `purchase_date`, else the earliest reading. The anchor odometer stays the record's. `from_actual` anchors on the record's own date and odometer.
+**`from_due` anchoring.** For `rollover = from_due`, the anchor *date* is not the record's date: it is the cycle date that record **satisfied**. Walk the cycle forward from the item's baseline rung — `anchor.date = addMonths(base.date, interval_months × k)` for the **largest k ≥ 0** whose result is **on or before** the newest completing record's `occurred_on`, where `base` is the `baseline_date`, else `purchase_date`, else the earliest reading. If no cycle date is on or before the record — the job was done before the first cycle opened — or the item has no `interval_months`, the anchor is the record's own date. The anchor odometer stays the record's. `from_actual` anchors on the record's own date and odometer.
+
+This said "the smallest k ≥ 1 whose result is after `occurred_on`" until EPIC-07, which anchored on the NEXT cycle rather than the satisfied one and so put every due date a full period late. Inspection, 12 months, `baseline_date` 2024-06-01, done 2026-07-14 — six weeks late — gave anchor 2027-06-01 and therefore due 2028-06-01, on the class of item whose entire purpose is a legal deadline. The corrected rule gives anchor 2026-06-01 and due 2027-06-01. Done *early* is the case that proves the direction: done 2026-05-20 anchors on 2025-06-01 and is due 2026-06-01 — this June, not next.
 
 `rollover = from_actual` anchors the next cycle on the date and odometer the job was actually done; `from_due` anchors it on the date it *was* due — registration falls in June whenever you paid.
+
+**`progress`, defined.** Each axis's fraction is `(now − anchor) / (due − anchor)` on that axis — `(odo_now − anchor.odometer) / (due_at_odo − anchor.odometer)` for distance, `(today − anchor.date) / (due_on − anchor.date)` for time — and `progress` is the greater of the two. Floored at 0, so a reading that predates the anchor does not read as negative progress, and **deliberately not capped above 1**: a bar that stops at full cannot show that an item is 60% past due, which is exactly the case a driver most needs to see. An axis that cannot be assessed contributes nothing rather than zero. Added in EPIC-07, which found the field specified as "the max of the two axes' fractions" with neither fraction defined.
 
 **Grace exists on purpose.** Nobody books a garage the afternoon the counter ticks over. `due` is amber and actionable; `overdue` is red and means you have been ignoring it. Shouting "overdue" on day zero teaches people to ignore the app, and then the timing belt goes.
 
@@ -574,7 +578,7 @@ Every derived value is a pure function: deterministic, no I/O, no clock except a
 | Derived value | Function |
 |---|---|
 | Next thing due, per vehicle | `nextDue(vehicle)` = min `projected_due_date` over tracked, active items |
-| Status counts for Home | `dueSummary(vehicle)` |
+| Status counts for Home | `dueSummary(vehicle)` → `{counts: Map<DueState,int>, worst: DueAssessment?, worstItem: ServiceItem?}` |
 | Fuel cost per distance | `fuelCostPerDistance(segments)` → per currency |
 | Lifetime distance | `lifetimeDistance(vehicle)` = max cumulative − purchase odometer |
 | Distance in a period | `distanceBetween(vehicle, from, to)` |
@@ -2829,6 +2833,8 @@ Every control here, the card `⋯` and the strip `✕` included, has a 48 × 48 
 
 Reads: `Settings` (`active_vehicle_id`, language, calendar, numerals, units, `currency_default`, notification permission state) · `Vehicle` (`name`, `vehicle_type`, `status`, `sold_on`, `purchase_date`, `purchase_odometer_m`, unit and currency overrides, `colour`) · `ServiceItem` (`is_tracked = true` and `is_active = true`) · `ServiceRecord` + lines · `OdometerReading` + `OdometerCorrection` · `FillUp` (latest, plus segments) · `Expense`.
 
+`dueSummary` carries the **worst item** as well as the counts. *The garage* (§8) renders "Oil and filter overdue" on a vehicle row's third line, and a `Map<DueState,int>` cannot say "Oil and filter" — the field was added in EPIC-07 because §8's stated shape could not be built from §3's stated one. Ties are broken by the earlier `projected_due_date`, then by priority (safety, normal, low). `needs_odometer` ranks BELOW `due` and `overdue` for this choice only: an accusation the app can support beats one it cannot, and a hollow ring where a red dot belongs understates the one item the user needs to act on.
+
 Derived at read time: `estimateOdometer`, `dailyDistance`, `resolveAnchor`, `computeDueState`, `projectDueDate`, `nextDue`, `dueSummary`, `averageConsumption`, `costPerDistance`, `monthlyCost`, `unitPrice`.
 
 Writes: `OdometerReading` (strip Save) · `ServiceItem.is_active` · `ServiceItem` snooze fields (via `dialog.snooze`) · `ServiceRecord.odometer_estimated` and `cost_estimated` cleared (confirmation strip) · `Settings.active_vehicle_id` (via the switcher). Nothing derived is persisted.
@@ -4624,7 +4630,9 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 **Cluster swapped to a different unit.** Not a correction and not a scale factor. Storage is canonical metres; the odometer unit is a per-record fact, and the unit label in `log.odometer` is tappable so a km cluster on a miles car can be entered as km from that date on. `unit_mixup` is removed as a correction reason.
 
-**Odometer not updated for months.** `estimateOdometer` extrapolates for at most 60 days past the newest reading. Beyond that the app stops projecting entirely and shows the last entered value with its date. Ten thousand kilometres of invented number, rendered as something the user can act on, is worse than a blank.
+**Odometer not updated for months.** `estimateOdometer` extrapolates for at most **180 days** past the newest reading. Beyond that the app stops projecting entirely and shows the last entered value with its date. Ten thousand kilometres of invented number, rendered as something the user can act on, is worse than a blank.
+
+This said 60 days until EPIC-07. Sixty is the *separate* `needs_odometer` threshold in the row below — the point at which a `due` or `overdue` DISTANCE axis asks for a reading rather than making an accusation — and 180 is where extrapolation stops entirely. Two different thresholds doing two different jobs, and one number written for both.
 
 **Distance axis due, but the odometer is stale (>60 days).** Status becomes `needs_odometer`, and the card asks for a reading instead of making an accusation. `due_soon` still shows normally; the time axis is never downgraded this way.
 
@@ -4654,7 +4662,9 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 ### Time and dates
 
-**Device clock wrong.** If `today` is before the newest `created_at` or more than 24 hours ahead of it, the app enters clock-suspect mode: date fields default to the newest known date instead of `today`, the `occurred_on ≤ today` block is relaxed to `≤ newest_known + 1 day`, rate calculation is suspended (confidence drops to `assumed`), and one line explains that the phone's date looks wrong. New records are never silently written with a 1970 date.
+**Device clock wrong.** Clock-suspect mode has ONE trigger, and it is the window in *Domain model and rules*: `today` outside `[build_date, build_date + 10 years]`. In that mode date fields default to the newest known `occurred_on` instead of `today`, the `occurred_on ≤ today` block is relaxed to `≤ newest_known + 1 day`, **every due state renders `unknown`**, no notification is scheduled, and one line explains that the phone's date looks wrong. New records are never silently written with a 1970 date.
+
+This clause used to give a second trigger — "before the newest `created_at` or more than 24 hours ahead of it" — and a second consequence, that confidence drops to `assumed`. EPIC-07 corrected both. The trigger fired for anyone who opened the app on a Wednesday having last used it on a Monday, which is most users most weeks; and two definitions of one mode is two behaviours depending on which paragraph the engineer read, which §2 forbids.
 
 **Time-zone change or DST.** Fire times are stored as local wall-clock and resolved to an instant at schedule time, so 09:00 stays 09:00 in the new zone. A backwards clock change triggers a full schedule rebuild; a pending notification whose recomputed time is in the past fires at the next delivery slot, never immediately.
 

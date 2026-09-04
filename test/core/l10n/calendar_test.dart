@@ -7,6 +7,14 @@ import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/l10n/relative_date.dart';
 import 'package:test/test.dart';
 
+// `wholeDaysBetween` was here until EPIC-07, with a test asserting that a
+// 23-hour day across a daylight-saving boundary is still one day. It has no
+// caller now: `CivilDate.daysUntil` does the same arithmetic on a type that
+// cannot hold a time, so the second half of that test — two instants 22 hours
+// apart on ONE civil date counting as zero days — became structurally
+// impossible rather than merely true. The DST property itself is asserted in
+// `test/core/time/civil_date_test.dart`, in both hemispheres.
+
 void main() {
   group('resolveCalendar', () {
     test('fa reads Jalali', () {
@@ -282,25 +290,5 @@ void main() {
       expect(overdue.count, 12);
       expect(overdue.count, isPositive);
     });
-  });
-
-  test('whole days are counted by civil date, not by elapsed hours', () {
-    // A 23-hour day across a daylight-saving boundary is still one day. A
-    // reminder that says "tomorrow" on the Saturday must not say "today" on
-    // the Sunday the clocks changed.
-    expect(
-      wholeDaysBetween(
-        DateTime.utc(2026, 3, 28, 23),
-        DateTime.utc(2026, 3, 29, 1),
-      ),
-      1,
-    );
-    expect(
-      wholeDaysBetween(
-        DateTime.utc(2026, 3, 28, 1),
-        DateTime.utc(2026, 3, 28, 23),
-      ),
-      0,
-    );
   });
 }

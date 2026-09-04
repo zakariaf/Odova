@@ -54,7 +54,7 @@ String _t({
 CalmDueView _due(
   bool rtl,
   DueState state, {
-  DueConfidence confidence = DueConfidence.measured,
+  RateConfidence confidence = RateConfidence.measured,
   double? progress = 0.7,
   String? anchor,
 }) => CalmDueView(
@@ -572,7 +572,7 @@ List<CalmSpecimen> calmSpecimens() => [
         view: _due(
           rtl,
           DueState.needsOdometer,
-          confidence: DueConfidence.defaulted,
+          confidence: RateConfidence.defaulted,
           progress: null,
         ),
         density: CalmDueDensity.primary,
