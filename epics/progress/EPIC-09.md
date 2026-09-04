@@ -224,8 +224,16 @@ is one of those things.
   wired through. `dateDaysAgo` is in the ARB and ready for it.
 - **Mark as sold** and its sale form; **Delete**, which wants task 9.6's
   `showConfirmDeleteDialog`.
-- **The parity capture.** It will fail F-9.16 like `firstrun.vehicle` — the
-  screen carries a flat segmented control.
+- **The parity capture is taken and FAILS**, in all four combinations —
+  30/94, 27/93, 24/90, 23/84 against a 75% floor, with colour and theme green.
+  Two causes, both known and neither papered over. **F-9.16**: the swatches are
+  26pt paint inside a 52pt tap target, so the row is laid out at 60 where the
+  design draws 34 — the same defect as the chips, in a third place.
+  **F-9.20 revised**: the artboard turned out to be the COMPLETE screen rather
+  than a crop, and it has no VIN and no Notes field where §8's prose lists
+  both. Content won: deleting a field a user's data already holds, to make a
+  screenshot match, is not a trade this epic will make. They belong in a
+  collapsed group and go there when F-9.23's disclosure contents arrive.
 
 ### Two findings worth carrying
 

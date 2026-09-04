@@ -31,6 +31,7 @@ import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/vehicle_swatch.dart';
+import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
@@ -38,6 +39,7 @@ import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
+import 'package:odova/ui/calm/calm_sheet.dart';
 import 'package:odova/ui/calm/calm_switch.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
 
@@ -151,7 +153,14 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     final draft = state.draft;
     return CalmScaffold(
       appBar: CalmAppBar.modal(
-        title: l10n.vehicleEditTitle,
+        // The VEHICLE'S NAME, not the word "Vehicle" — the artboard titles this
+        // modal "Golf". A user with three cars open in three modals needs to
+        // know which one they are looking at, and the generic word tells them
+        // nothing. `vehicleEditTitle` stays for the loading state, where there
+        // is no name to show yet.
+        title: draft.name.trim().isEmpty
+            ? l10n.vehicleEditTitle
+            : draft.name.trim(),
         // A GLYPH, per the artboard, and named all the same — a bare ✕
         // announced as "button" leaves the only way out of a full-screen modal
         // unlabelled.
@@ -186,54 +195,61 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
           onChanged: (i) =>
               _notifier.edit((d) => d.copyWith(vehicleType: _typeSegments[i])),
         ),
-        CalmField(
-          label: l10n.vehicleMakeLabel,
-          controller: _make,
-          onChanged: (value) => _notifier.edit(
-            (d) => value.trim().isEmpty
-                ? d.copyWith(clear: {VehicleField.make})
-                : d.copyWith(make: value),
+        // PAIRED, as the artboard draws them. Make and Model belong together
+        // and so do Year and Plate; stacking all four turns four short answers
+        // into four screenfuls of scrolling.
+        _Pair(
+          start: CalmField(
+            label: l10n.vehicleMakeLabel,
+            controller: _make,
+            onChanged: (value) => _notifier.edit(
+              (d) => value.trim().isEmpty
+                  ? d.copyWith(clear: {VehicleField.make})
+                  : d.copyWith(make: value),
+            ),
+          ),
+          end: CalmField(
+            label: l10n.vehicleModelLabel,
+            controller: _model,
+            onChanged: (value) => _notifier.edit(
+              (d) => value.trim().isEmpty
+                  ? d.copyWith(clear: {VehicleField.model})
+                  : d.copyWith(model: value),
+            ),
           ),
         ),
-        CalmField(
-          label: l10n.vehicleModelLabel,
-          controller: _model,
-          onChanged: (value) => _notifier.edit(
-            (d) => value.trim().isEmpty
-                ? d.copyWith(clear: {VehicleField.model})
-                : d.copyWith(model: value),
+        _Pair(
+          start: CalmField(
+            label: l10n.vehicleYearLabel,
+            controller: _year,
+            numeric: true,
+            keyboardType: TextInputType.number,
+            errorText: draft.yearOutOfRange(_thisYear())
+                ? l10n.vehicleYearRangeError(
+                    _number(kEarliestVehicleYear),
+                    _number(_thisYear() + 1),
+                  )
+                : null,
+            onChanged: (value) => _notifier.edit((d) {
+              final year = int.tryParse(value.trim());
+              return year == null
+                  ? d.copyWith(clear: {VehicleField.year})
+                  : d.copyWith(year: year);
+            }),
           ),
-        ),
-        CalmField(
-          label: l10n.vehicleYearLabel,
-          controller: _year,
-          numeric: true,
-          keyboardType: TextInputType.number,
-          errorText: draft.yearOutOfRange(_thisYear())
-              ? l10n.vehicleYearRangeError(
-                  _number(kEarliestVehicleYear),
-                  _number(_thisYear() + 1),
-                )
-              : null,
-          onChanged: (value) => _notifier.edit((d) {
-            final year = int.tryParse(value.trim());
-            return year == null
-                ? d.copyWith(clear: {VehicleField.year})
-                : d.copyWith(year: year);
-          }),
-        ),
-        CalmField(
-          label: l10n.vehiclePlateLabel,
-          controller: _plate,
-          // Forced LTR and start-aligned even on a Persian screen, and stored
-          // verbatim: an Iranian plate legitimately carries Persian digits AND
-          // a Persian letter, and reordering it rewrites somebody's own
-          // characters.
-          code: true,
-          onChanged: (value) => _notifier.edit(
-            (d) => value.trim().isEmpty
-                ? d.copyWith(clear: {VehicleField.plate})
-                : d.copyWith(plate: value),
+          end: CalmField(
+            label: l10n.vehiclePlateLabel,
+            controller: _plate,
+            // Forced LTR and start-aligned even on a Persian screen, and
+            // stored verbatim: an Iranian plate legitimately carries Persian
+            // digits AND a Persian letter, and reordering it rewrites
+            // somebody's own characters.
+            code: true,
+            onChanged: (value) => _notifier.edit(
+              (d) => value.trim().isEmpty
+                  ? d.copyWith(clear: {VehicleField.plate})
+                  : d.copyWith(plate: value),
+            ),
           ),
         ),
         CalmField(
@@ -289,12 +305,40 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
             ),
           ],
         ),
+        CalmRowGroup(
+          rows: [
+            CalmListRow(
+              title: l10n.vehicleFuelLabel,
+              value: _fuelLabel(l10n, draft.fuelKindDefault),
+              // A caret DOWN, and it does not mirror — the artboard omits
+              // `icon--directional` here where the odometer and sale rows carry
+              // it. A menu opens downward in both directions.
+              end: const Icon(Icons.expand_more, size: 20),
+              onTap: () => unawaited(_pickFuel()),
+            ),
+          ],
+        ),
         // READ-ONLY here and an input only in create mode. SPEC.md §8: a facts
         // form is the wrong place to write a dated reading — someone
         // correcting the plate would stamp today's date on a number they last
         // checked in March, and that corrupts the series the whole app depends
         // on. Tapping it goes to `log.odometer`, where a reading has a date.
         _OdometerRow(vehicleId: widget.vehicleId, unit: draft.distanceUnit),
+        CalmRowGroup(
+          rows: [
+            CalmListRow(
+              title: l10n.vehicleMarkAsSold,
+              showChevron: true,
+              // EPIC-09 task 9.6 owns the sale form and the confirm-delete
+              // dialog. Inert until then rather than wired to nothing.
+            ),
+            CalmListRow(
+              title: l10n.vehicleDeleteRowEmpty(draft.name.trim()),
+              danger: true,
+              lead: const Icon(Icons.delete_outline, size: 20),
+            ),
+          ],
+        ),
         // NOT YET: SPEC.md §8's two disclosure groups — `Purchase and sale`
         // and `This vehicle's units & currency`. `CalmDisclosure` is built and
         // tested; what is missing is their CONTENTS, which need a date picker,
@@ -307,6 +351,38 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
       ],
     );
   }
+
+  /// The More… equivalent for fuel: every kind, in a sheet.
+  Future<void> _pickFuel() async {
+    final l10n = AppLocalizations.of(context);
+    final chosen = await CalmSheet.show<FuelKind>(
+      context,
+      builder: (sheetContext) => CalmSheet(
+        title: l10n.vehicleFuelLabel,
+        children: [
+          for (final fuel in FuelKind.values)
+            CalmButton(
+              label: _fuelLabel(l10n, fuel),
+              variant: CalmButtonVariant.tonal,
+              block: true,
+              onPressed: () => Navigator.of(sheetContext).pop(fuel),
+            ),
+        ],
+      ),
+    );
+    if (chosen == null || !mounted) return;
+    _notifier.edit((d) => d.copyWith(fuelKindDefault: chosen));
+  }
+
+  String _fuelLabel(AppLocalizations l10n, FuelKind fuel) => switch (fuel) {
+    FuelKind.petrol => l10n.fuelPetrol,
+    FuelKind.diesel => l10n.fuelDiesel,
+    FuelKind.electric => l10n.fuelElectric,
+    FuelKind.lpg => l10n.fuelLpg,
+    FuelKind.cng => l10n.fuelCng,
+    FuelKind.hybrid => l10n.fuelHybrid,
+    FuelKind.other => l10n.fuelOther,
+  };
 
   Future<void> _save() async {
     if (await _notifier.save() && mounted) {
@@ -537,4 +613,28 @@ class _OdometerRow extends ConsumerWidget {
     numerals: CalmNumerals.latin,
     grouped: false,
   );
+}
+
+/// Two fields side by side, as the artboard pairs Make/Model and Year/Plate.
+///
+/// A `Row` of `Expanded`s rather than a grid: the two halves are equal and the
+/// order mirrors for free under RTL, which a hand-placed left/right would not.
+class _Pair extends StatelessWidget {
+  const _Pair({required this.start, required this.end});
+
+  final Widget start;
+  final Widget end;
+
+  @override
+  Widget build(BuildContext context) {
+    final space = CalmSpace.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: space.s3,
+      children: [
+        Expanded(child: start),
+        Expanded(child: end),
+      ],
+    );
+  }
 }

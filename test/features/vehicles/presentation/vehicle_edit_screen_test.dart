@@ -162,12 +162,17 @@ void main() {
     // Re-seeding on every build would fight the user's typing — the notifier
     // deliberately never reloads its row, and the controllers must not either.
     await _pump(tester);
-    expect(find.text('The Golf'), findsOneWidget);
+    // TWICE, and both are right: the modal is titled with the vehicle's name —
+    // the artboard titles it "Golf", not "Vehicle" — and the field holds it
+    // too. A user with three cars open needs to know which one they are in.
+    expect(find.text('The Golf'), findsNWidgets(2));
 
     await tester.enterText(find.byType(CalmField).first, 'The Polo');
     await tester.pumpAndSettle();
     expect(_draft(tester).name, 'The Polo');
-    expect(find.text('The Polo'), findsOneWidget);
+    // The title follows the field as it is typed, so renaming a car does not
+    // leave the header describing the old one.
+    expect(find.text('The Polo'), findsNWidgets(2));
   });
 
   testWidgets('four type segments, and truck is not among them', (
