@@ -18,7 +18,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/money.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/l10n/number_format.dart';
 
 /// `Settings.currency_display`.
@@ -74,10 +74,10 @@ String formatMoney(
 }) {
   final resolved = resolveNumerals(numerals, formatsTag);
 
-  if (display == CalmCurrencyDisplay.toman && money.currency == 'IRR') {
+  if (display == CalmCurrencyDisplay.toman && money.currency.code == 'IRR') {
     // Divide by ten and drop the decimals — but only here, on the way to a
     // pixel. The stored integer does not move.
-    final tomans = (money.minorUnits / 10).round();
+    final tomans = (money.amountMinor / 10).round();
     final digits = shapeDigits(
       foldDigitsToAscii(calmDecimalFormat(formatsTag).format(tomans)),
       resolved,
@@ -90,17 +90,17 @@ String formatMoney(
   // `$1,234.56`, and it does it without any error.
   final format = NumberFormat.simpleCurrency(
     locale: numberFormatLocale(formatsTag),
-    name: money.currency,
-    decimalDigits: currencyDecimals(money.currency),
+    name: money.currency.code,
+    decimalDigits: money.currency.exponent,
   );
 
-  var rendered = format.format(money.major);
+  var rendered = format.format(_major(money));
 
   // Substitute the Arabic-script symbol where SPEC.md §5's table names one.
   // Done on the formatted string rather than by passing `symbol:` so ICU still
   // decides the PLACEMENT and the spacing, which is the half that differs by
   // locale and the half a translation string must never carry.
-  final ours = arabicScriptCurrencySymbols[money.currency];
+  final ours = arabicScriptCurrencySymbols[money.currency.code];
   if (ours != null && _usesArabicScript(formatsTag)) {
     rendered = rendered.replaceFirst(format.currencySymbol, ours);
   }
@@ -109,6 +109,16 @@ String formatMoney(
   // otherwise defeat an explicit `numerals: latin`.
   return isolate(shapeDigits(foldDigitsToAscii(rendered), resolved));
 }
+
+/// [money] as a decimal, for `NumberFormat` and for nothing else.
+///
+/// **The only `double` any money path is allowed to produce**, and it is
+/// produced HERE rather than on `Money` because the moment a value object
+/// offers a `double` getter somebody sums with it. EPIC-04's `Money` had one
+/// called `major`, which is how a rounding error gets into a total. ICU needs a
+/// decimal to place a separator; the projection therefore lives one step from
+/// the pixel, is never stored, and is never read back.
+double _major(Money money) => money.amountMinor / money.currency.minorPerMajor;
 
 /// The toman label. Not an ISO currency, so it has no CLDR symbol.
 const tomanLabel = 'تومان';

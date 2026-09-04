@@ -9,7 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/money.dart';
+import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/l10n/money_format.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
@@ -17,6 +18,11 @@ import 'package:odova/ui/calm/calm_figure.dart';
 
 import '../support/pump_app.dart';
 import '../support/source_tree.dart';
+
+/// `Money` needs a parsed `Currency`, and a test that writes
+/// `Currency.tryParse('EUR')!` eleven times is testing the reader's patience.
+Money _money(int amountMinor, String code) =>
+    Money(amountMinor, Currency.tryParse(code)!);
 
 /// SPEC.md §5 testing item 5's corpus, verbatim.
 const _corpus = <String>[
@@ -88,7 +94,7 @@ void main() {
       'a formatted amount is isolated for the screen and bare for a file',
       () {
         final shown = formatMoney(
-          const Money.of(123456, 'EUR'),
+          _money(123456, 'EUR'),
           'de-DE',
           numerals: CalmNumerals.auto,
         );

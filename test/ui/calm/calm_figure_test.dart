@@ -7,12 +7,18 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/money.dart';
+import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/l10n/money_format.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/ui/calm/calm_figure.dart';
 
 import '../../support/pump_app.dart';
+
+/// `Money` needs a parsed `Currency`, and a test that writes
+/// `Currency.tryParse('EUR')!` eleven times is testing the reader's patience.
+Money _money(int amountMinor, String code) =>
+    Money(amountMinor, Currency.tryParse(code)!);
 
 TextStyle _styleOf(WidgetTester tester) =>
     tester.widget<Text>(find.byType(Text)).style!;
@@ -51,7 +57,7 @@ void main() {
     // plain `Text` and silently drops the one guarantee this widget exists to
     // make. It is the same tabular-figures path, not a second one.
     final money = formatMoney(
-      const Money.of(123456, 'EUR'),
+      _money(123456, 'EUR'),
       'de-DE',
       numerals: CalmNumerals.auto,
     );
