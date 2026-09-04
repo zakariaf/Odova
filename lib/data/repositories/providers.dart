@@ -28,7 +28,10 @@ import 'package:odova/data/repositories/vehicle_repository.dart';
 
 /// Vehicles.
 final vehicleRepositoryProvider = Provider<VehicleRepository>(
-  (ref) => VehicleRepository(ref.watch(appDatabaseProvider)),
+  (ref) => VehicleRepository(
+    ref.watch(appDatabaseProvider),
+    ref.watch(ulidFactoryProvider),
+  ),
 );
 
 /// Service items, records and lines.

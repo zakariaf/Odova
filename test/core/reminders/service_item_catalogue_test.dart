@@ -14,7 +14,6 @@ library;
 
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/reminders/service_item_catalogue.dart';
-import 'package:odova/core/units/distance.dart';
 import 'package:test/test.dart';
 
 /// The seeds for one vehicle shape.
@@ -126,7 +125,7 @@ void main() {
       check(ServiceKind.registration, null, 12);
     });
 
-    test('priorities are the spec\'s, not a guess', () {
+    test("priorities are the spec's, not a guess", () {
       final seeds = _seed();
       for (final (kind, priority) in [
         (ServiceKind.oilAndFilter, ServicePriority.safety),
@@ -152,7 +151,8 @@ void main() {
       // from what actually happened.
       final seeds = _seed();
       for (final seed in seeds) {
-        final expected = const {
+        final expected =
+            const {
               ServiceKind.inspection,
               ServiceKind.insuranceRenewal,
               ServiceKind.registration,
@@ -171,8 +171,14 @@ void main() {
       // change every 6,213.7 miles, which reads as a machine talking.
       final seeds = _seed(unit: DistanceUnit.mi);
 
-      expect(_find(seeds, ServiceKind.oilAndFilter)!.intervalDistanceM, 9656064);
-      expect(_find(seeds, ServiceKind.tyreReplace)!.intervalDistanceM, 48280320);
+      expect(
+        _find(seeds, ServiceKind.oilAndFilter)!.intervalDistanceM,
+        9656064,
+      );
+      expect(
+        _find(seeds, ServiceKind.tyreReplace)!.intervalDistanceM,
+        48280320,
+      );
     });
 
     test('and the months do not change with the unit', () {
@@ -243,7 +249,10 @@ void main() {
     test('seeds oil_and_filter at 6,000 km and chain_lube on at 800 km', () {
       final seeds = _seed(type: VehicleType.motorcycle);
 
-      expect(_find(seeds, ServiceKind.oilAndFilter)!.intervalDistanceM, 6000000);
+      expect(
+        _find(seeds, ServiceKind.oilAndFilter)!.intervalDistanceM,
+        6000000,
+      );
       final chain = _find(seeds, ServiceKind.chainLube)!;
       expect(chain.isTracked, isTrue);
       expect(chain.intervalDistanceM, 800000);
@@ -305,8 +314,14 @@ void main() {
   group('van', () {
     test('seeds oil_and_filter at 15,000 km and tyre_replace at 40,000', () {
       final seeds = _seed(type: VehicleType.van);
-      expect(_find(seeds, ServiceKind.oilAndFilter)!.intervalDistanceM, 15000000);
-      expect(_find(seeds, ServiceKind.tyreReplace)!.intervalDistanceM, 40000000);
+      expect(
+        _find(seeds, ServiceKind.oilAndFilter)!.intervalDistanceM,
+        15000000,
+      );
+      expect(
+        _find(seeds, ServiceKind.tyreReplace)!.intervalDistanceM,
+        40000000,
+      );
     });
   });
 

@@ -15,6 +15,10 @@
 /// `LiquidVolume` is reading the same way the domain does.
 library;
 
+import 'dart:math';
+
+import 'package:clock/clock.dart';
+import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/units/distance.dart';
@@ -46,3 +50,15 @@ Money money(int amountMinor, String code) =>
 /// and a test that writes `metres == null ? null : Distance(metres)` inline
 /// stops being about the thing it is testing.
 Distance? metres(int? metres) => metres == null ? null : Distance(metres);
+
+/// A deterministic `UlidFactory` for a repository under test.
+///
+/// A fixed clock and a seeded `Random`, so a failing test names the same record
+/// every run — `seeded-determinism-and-golden-vectors` rule 1. Every repository
+/// that mints ids takes one, and a test that does not care still has to pass
+/// one, which is the point: an id source reached for rather than injected is an
+/// id nobody can reproduce.
+UlidFactory testUlids({int seed = 7}) => UlidFactory(
+  clock: Clock.fixed(DateTime.utc(2026, 9, 4)),
+  random: Random(seed),
+);

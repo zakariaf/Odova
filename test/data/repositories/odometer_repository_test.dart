@@ -50,7 +50,7 @@ void main() {
   setUp(() async {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     repository = OdometerRepository(db);
-    await VehicleRepository(db).save(
+    await VehicleRepository(db, testUlids()).save(
       Vehicle(
         id: _vehicleId,
         name: 'The Golf',
@@ -310,7 +310,7 @@ void main() {
 
     // Another vehicle must not be able to delete it.
     final other = VehicleId.tryParse('veh_01JV7B5X4G2K9M6P0S3D8FNRTC')!;
-    await VehicleRepository(db).save(
+    await VehicleRepository(db, testUlids()).save(
       Vehicle(
         id: other,
         name: 'Van',

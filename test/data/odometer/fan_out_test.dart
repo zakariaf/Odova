@@ -40,7 +40,7 @@ void main() {
     trips = TripRepository(db, testIds());
     services = ServiceRepository(db, testIds());
 
-    await VehicleRepository(db).save(
+    await VehicleRepository(db, testUlids()).save(
       Vehicle(
         id: _vehicleId,
         name: 'The Golf',
@@ -485,7 +485,7 @@ void main() {
     // guard validated against the new vehicle — and the new car's fill-up had
     // no reading at all.
     final other = VehicleId.tryParse('veh_01JV7B5X4G2K9M6P0S3D8FNRTC')!;
-    await VehicleRepository(db).save(
+    await VehicleRepository(db, testUlids()).save(
       Vehicle(
         id: other,
         name: 'Van',
