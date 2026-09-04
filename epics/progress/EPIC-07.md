@@ -134,6 +134,55 @@ dates in `resolve_anchor_test`, indexed suffixes in `vehicle_due_snapshot_test`)
 and collapsing it would make each test read further from what it asserts. Left
 as it is.
 
+## /code-review — every finding, applied
+
+Fifteen findings. **All fifteen applied; none answered-without-applying.** Four
+were verified by running the code before anything changed. The pass paid for
+itself on the first finding alone.
+
+### Reachable defects
+
+| # | Finding |
+|---|---|
+| 1 | `ReadingSeries.from` took `CivilDate.tryParse(date)!` on a value the SCHEMA permits — `occurred_on`'s only constraint is a GLOB on the shape, so `2026-02-30` passes it. One such row in a backup imports cleanly and then throws on every app foreground: **the home screen never renders again and the user cannot reach the data to fix it** |
+| 2 | `_isSnoozed` implemented half of SPEC §3's definition, ignoring `snooze_until_odometer_m` — so an item snoozed "after another 500 km" stayed the next thing due, and EPIC-11's scheduler would fire the reminder the user had just deferred |
+| 3 | An EXPIRED estimate still produced a firm `projectedDueDate`, extrapolated from the same reading §4.1.3 calls invention — and that date became `nextDueOn` |
+| 4 | `worseOf` was not commutative on a tie and resolved it backwards: `needsOdometer` beat `dueSoon`, the exact opposite of the rule its own doc states |
+| 5 | `_driver` compared severities rather than states, reporting "both axes agree" for a state only one axis had reached |
+| 6 | The `unknown` branch hardcoded `confidence: defaulted` and discarded a knowable `dueAtOdometerMetres` — the same defect fixed one function away in the same branch |
+| 7 | `CivilDate.tryParse` accepted `'+026-01-03'` and `'2026-+1-03'` as different valid dates, because `int.tryParse` takes a sign and whitespace |
+| 8 | `addMonths` computed the wrong year below year 0: `~/` truncates toward zero while `%` floors |
+| 9 | In clock-suspect mode the snapshot still published a rate and an estimate computed from the date it had just decided not to believe |
+
+### Gates and tests
+
+| # | Finding |
+|---|---|
+| 10 | **A self-test arm labelled "a planted violation" asserted the gate stays GREEN on it.** `state == DueState.overdue ? red : green` in a widget is what `check_status_encoding.sh` exists to prevent; its pattern matched `switch` and not `==`, and rather than closing the hole I wrote a permanent assertion that the bypass is allowed |
+| 11 | The due-matrix CI gate shipped with **no self-test arm**, in the same branch that added one for the step directly above it |
+| 12 | The affordability benchmark's 1,000 readings carried 900 distinct ids, so 100 overwrote each other and it measured a series whose values were not what it claimed |
+
+### Structural
+
+| # | Finding |
+|---|---|
+| 13 | `computeDueState` had gone back to building `DueAssessment` twice — the shape `vehicle_due_snapshot.dart` was changed to stop doing two commits earlier |
+| 14 | `_distanceAxis`/`_timeAxis` re-derived `hasDistanceAxis`/`hasTimeAxis`, which the model declares for exactly this consumer and nothing else used |
+| 15 | `_anchorDate`'s cycle walk was an unbounded `while (true)`; a corrupt baseline is ~24,000 calendar conversions per item per recompute. Also `--bless` skipped rows whose eligibility changed, and counted FIELDS as rows |
+
+### What the two passes together say
+
+`/simplify` found two bugs and `/code-review` found nine. Three of the fifteen
+were in code written **during this branch to fix that same class of thing** —
+the double construction, the `unknown` branch's hardcoded confidence, and the
+self-test arm that blessed a hole while closing another. Fixing a defect is when
+its neighbours are most likely to be introduced.
+
+Finding 1 is the one to remember: a `!` on a parse of a value the database
+permits. The schema constrains the SHAPE of `occurred_on` and nothing constrains
+its meaning, so every `YYYY-MM-DD`-shaped string that is not a date is a row the
+app must survive.
+
 ## Deferred
 
 - **`Distance` on the due engine's public fields.** See the answered finding

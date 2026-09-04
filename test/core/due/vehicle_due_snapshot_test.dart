@@ -161,6 +161,26 @@ void main() {
       }
     });
 
+    test('no estimate is published from a date the app does not believe', () {
+      // The rate and the estimate were computed BEFORE the suspect branch, so
+      // a phone reset to 1970 got `staleDays` clamped to 0 and an estimate of
+      // `projection: entered` — the odometer strip would render the last
+      // reading as though it had been typed today, while every assessment
+      // beside it said `unknown`. A clock set to 2050 gives `expired` with a
+      // nonsense staleness.
+      //
+      // §3's consequence is that the app stops answering. An odometer figure
+      // IS an answer.
+      final past = snapshot([item(0)], today: '1970-01-01');
+      expect(past.clock.isSuspect, isTrue);
+      expect(past.estimate, isNull);
+      expect(past.nextDueOn, isNull);
+
+      final future = snapshot([item(0)], today: '2050-01-01');
+      expect(future.clock.isSuspect, isTrue);
+      expect(future.estimate, isNull);
+    });
+
     test('a trusted clock produces real states again', () {
       final result = snapshot([item(0)]);
       expect(result.clock.isSuspect, isFalse);

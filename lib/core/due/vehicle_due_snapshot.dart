@@ -114,13 +114,32 @@ VehicleDueSnapshot recomputeVehicle(
 }) {
   final clock = assessClock(today: today, buildDate: buildDate);
 
-  // Once per vehicle, not once per item.
-  final rate = dailyDistance(
-    series,
-    expectedAnnualMetres: vehicle.expectedAnnual?.metres,
-    today: today,
-  );
-  final estimate = estimateOdometer(series, rate, today: today);
+  // Once per vehicle, not once per item — and NOT AT ALL when the clock is
+  // suspect.
+  //
+  // Both take `today`, so computing them before the suspect check publishes
+  // figures derived from a date the app has just decided not to believe: a
+  // phone reset to 1970 clamps `staleDays` to 0 and yields
+  // `projection: entered`, so the odometer strip renders the last reading as
+  // though it had been typed today while every assessment beside it says
+  // `unknown`. A clock set to 2050 yields `expired` with a nonsense staleness.
+  //
+  // §3's consequence is that the app stops answering, and an odometer figure is
+  // an answer. The rate keeps its `defaulted` shape so callers have something
+  // non-null to read; there is no rate to report either.
+  final rate = clock.isSuspect
+      ? const DailyDistance(
+          metresPerDay: kDefaultAnnualMetres ~/ 365,
+          confidence: RateConfidence.defaulted,
+        )
+      : dailyDistance(
+          series,
+          expectedAnnualMetres: vehicle.expectedAnnual?.metres,
+          today: today,
+        );
+  final estimate = clock.isSuspect
+      ? null
+      : estimateOdometer(series, rate, today: today);
 
   // Once per vehicle too: `resolveAnchor` otherwise walks every record and
   // every line for each of sixteen items.
