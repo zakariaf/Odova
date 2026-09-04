@@ -20,5 +20,10 @@
   "remindersDueCount": "{n, plural, =0{هیچ شتێک نییە} one{{nText} بیرخەرەوە} other{{nText} بیرخەرەوە}}",
   "routeNotFoundTitle": "نەدۆزرایەوە",
   "routeNotFoundBody": "ئەم بەستەرە بۆ هیچ شوێنێک نابات.",
-  "routeNotFoundGoHome": "چوون بۆ ماڵەوە"
+  "routeNotFoundGoHome": "چوون بۆ ماڵەوە",
+  "tabHome": "ماڵەوە",
+  "tabHistory": "مێژوو",
+  "tabCosts": "تێچووەکان",
+  "tabSettings": "ڕێکخستنەکان",
+  "tabLogA11y": "تۆمارکردن"
 }

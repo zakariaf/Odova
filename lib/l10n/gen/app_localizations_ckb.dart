@@ -118,4 +118,19 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get routeNotFoundGoHome => 'چوون بۆ ماڵەوە';
+
+  @override
+  String get tabHome => 'ماڵەوە';
+
+  @override
+  String get tabHistory => 'مێژوو';
+
+  @override
+  String get tabCosts => 'تێچووەکان';
+
+  @override
+  String get tabSettings => 'ڕێکخستنەکان';
+
+  @override
+  String get tabLogA11y => 'تۆمارکردن';
 }

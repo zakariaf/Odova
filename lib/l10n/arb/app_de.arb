@@ -20,5 +20,10 @@
   "remindersDueCount": "{n, plural, =0{Nichts fällig} one{{nText} Erinnerung fällig} other{{nText} Erinnerungen fällig}}",
   "routeNotFoundTitle": "Nicht gefunden",
   "routeNotFoundBody": "Dieser Link führt nirgendwohin.",
-  "routeNotFoundGoHome": "Zur Startseite"
+  "routeNotFoundGoHome": "Zur Startseite",
+  "tabHome": "Start",
+  "tabHistory": "Verlauf",
+  "tabCosts": "Kosten",
+  "tabSettings": "Einstellungen",
+  "tabLogA11y": "Erfassen"
 }

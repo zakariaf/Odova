@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 
@@ -69,7 +70,11 @@ Future<void> pumpApp(
             boldText: boldText,
             accessibleNavigation: accessibleNavigation,
           ),
-          child: OdovaApp(locale: locale, themeMode: themeMode, home: child),
+          child: OdovaApp(
+            locale: locale,
+            themeMode: themeMode,
+            router: singleScreenRouter(child),
+          ),
         ),
       ),
     ),
@@ -92,3 +97,18 @@ Future<void> pumpApp(
     const Duration(seconds: 5),
   );
 }
+
+/// A router that shows [child] at `/` and nothing else.
+///
+/// EPIC-08 replaced `OdovaApp.home` with a router, because
+/// `MaterialApp.router` has no `home:`. A component test still wants to pump
+/// one widget inside the real app's themes, locales and text scaler, so it
+/// pumps it as the only screen of a one-route graph rather than losing that
+/// wrapping.
+///
+/// It deliberately does NOT set `navigatorKey`. `rootNavigatorKey` belongs to
+/// the app's own router, and two routers claiming one GlobalKey is a duplicate
+/// key crash the moment both are mounted.
+GoRouter singleScreenRouter(Widget child) => GoRouter(
+  routes: [GoRoute(path: '/', builder: (context, state) => child)],
+);

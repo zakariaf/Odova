@@ -231,6 +231,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go to Home'**
   String get routeNotFoundGoHome;
+
+  /// Tab 1. SPEC.md §7: the tab labels are always visible under their icons — there is no icon-only mode to fall into. German and Sorani both run long here and wrap to two lines rather than truncating.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get tabHome;
+
+  /// Tab 2.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get tabHistory;
+
+  /// Tab 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Costs'**
+  String get tabCosts;
+
+  /// Tab 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get tabSettings;
+
+  /// Spoken label for the central + . It carries no visible text, so this is the only name a screen reader has for the app's most-pressed control. SPEC.md §7: logging is an act that finishes and returns you, which is why it is a button and not a fifth tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Log'**
+  String get tabLogA11y;
 }
 
 class _AppLocalizationsDelegate

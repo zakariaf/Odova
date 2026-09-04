@@ -156,5 +156,25 @@
   "routeNotFoundGoHome": "Go to Home",
   "@routeNotFoundGoHome": {
     "description": "The single action on the 404 screen. Home is the one screen that always exists and always has something to say."
+  },
+  "tabHome": "Home",
+  "@tabHome": {
+    "description": "Tab 1. SPEC.md §7: the tab labels are always visible under their icons — there is no icon-only mode to fall into. German and Sorani both run long here and wrap to two lines rather than truncating."
+  },
+  "tabHistory": "History",
+  "@tabHistory": {
+    "description": "Tab 2."
+  },
+  "tabCosts": "Costs",
+  "@tabCosts": {
+    "description": "Tab 3."
+  },
+  "tabSettings": "Settings",
+  "@tabSettings": {
+    "description": "Tab 4."
+  },
+  "tabLogA11y": "Log",
+  "@tabLogA11y": {
+    "description": "Spoken label for the central + . It carries no visible text, so this is the only name a screen reader has for the app's most-pressed control. SPEC.md §7: logging is an act that finishes and returns you, which is why it is a button and not a fifth tab."
   }
 }

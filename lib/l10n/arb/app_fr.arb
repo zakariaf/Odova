@@ -20,5 +20,10 @@
   "remindersDueCount": "{n, plural, =0{Rien à faire} one{{nText} rappel à échéance} many{{nText} rappels à échéance} other{{nText} rappels à échéance}}",
   "routeNotFoundTitle": "Introuvable",
   "routeNotFoundBody": "Ce lien ne mène nulle part.",
-  "routeNotFoundGoHome": "Aller à l'accueil"
+  "routeNotFoundGoHome": "Aller à l'accueil",
+  "tabHome": "Accueil",
+  "tabHistory": "Historique",
+  "tabCosts": "Coûts",
+  "tabSettings": "Réglages",
+  "tabLogA11y": "Enregistrer"
 }

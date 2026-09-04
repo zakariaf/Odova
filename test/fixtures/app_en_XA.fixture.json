@@ -20,5 +20,10 @@
   "remindersDueCount": "[{n, plural, =0{Ǹǿţħīǹḡ ḍǔḗ} one{{nText} řḗḿīǹḍḗř ḍǔḗ} other{{nText} řḗḿīǹḍḗřŝ ḍǔḗ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "routeNotFoundTitle": "[Ǹǿţ ƒǿǔǹḍ ǃǃǃǃ]",
   "routeNotFoundBody": "[Ţħáţ ŀīǹķ ḍǿḗŝǹ'ţ ŀḗáḍ áǹẏẇħḗřḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
-  "routeNotFoundGoHome": "[Ḡǿ ţǿ Ħǿḿḗ ǃǃǃǃ]"
+  "routeNotFoundGoHome": "[Ḡǿ ţǿ Ħǿḿḗ ǃǃǃǃ]",
+  "tabHome": "[Ħǿḿḗ ǃǃ]",
+  "tabHistory": "[Ħīŝţǿřẏ ǃǃǃ]",
+  "tabCosts": "[Çǿŝţŝ ǃǃ]",
+  "tabSettings": "[Ŝḗţţīǹḡŝ ǃǃǃǃ]",
+  "tabLogA11y": "[Ŀǿḡ ǃǃ]"
 }

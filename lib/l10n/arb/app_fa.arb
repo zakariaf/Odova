@@ -20,5 +20,10 @@
   "remindersDueCount": "{n, plural, =0{چیزی موعد ندارد} one{{nText} یادآور موعددار} other{{nText} یادآور موعددار}}",
   "routeNotFoundTitle": "پیدا نشد",
   "routeNotFoundBody": "این پیوند به جایی نمی‌رسد.",
-  "routeNotFoundGoHome": "رفتن به خانه"
+  "routeNotFoundGoHome": "رفتن به خانه",
+  "tabHome": "خانه",
+  "tabHistory": "تاریخچه",
+  "tabCosts": "هزینه‌ها",
+  "tabSettings": "تنظیمات",
+  "tabLogA11y": "ثبت"
 }

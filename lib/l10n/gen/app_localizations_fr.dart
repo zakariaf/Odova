@@ -123,4 +123,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get routeNotFoundGoHome => 'Aller à l\'accueil';
+
+  @override
+  String get tabHome => 'Accueil';
+
+  @override
+  String get tabHistory => 'Historique';
+
+  @override
+  String get tabCosts => 'Coûts';
+
+  @override
+  String get tabSettings => 'Réglages';
+
+  @override
+  String get tabLogA11y => 'Enregistrer';
 }

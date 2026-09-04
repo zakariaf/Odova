@@ -117,4 +117,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeNotFoundGoHome => 'Go to Home';
+
+  @override
+  String get tabHome => 'Home';
+
+  @override
+  String get tabHistory => 'History';
+
+  @override
+  String get tabCosts => 'Costs';
+
+  @override
+  String get tabSettings => 'Settings';
+
+  @override
+  String get tabLogA11y => 'Log';
 }

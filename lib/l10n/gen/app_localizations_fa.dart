@@ -118,4 +118,19 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get routeNotFoundGoHome => 'رفتن به خانه';
+
+  @override
+  String get tabHome => 'خانه';
+
+  @override
+  String get tabHistory => 'تاریخچه';
+
+  @override
+  String get tabCosts => 'هزینه‌ها';
+
+  @override
+  String get tabSettings => 'تنظیمات';
+
+  @override
+  String get tabLogA11y => 'ثبت';
 }

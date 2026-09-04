@@ -20,5 +20,10 @@
   "remindersDueCount": "‏{n, plural, =0{eud gnihtoN} one{{nText}eud rednimer } other{{nText}eud srednimer }}",
   "routeNotFoundTitle": "‏dnuof toN",
   "routeNotFoundBody": "‏.erehwyna dael t'nseod knil tahT",
-  "routeNotFoundGoHome": "‏emoH ot oG"
+  "routeNotFoundGoHome": "‏emoH ot oG",
+  "tabHome": "‏emoH",
+  "tabHistory": "‏yrotsiH",
+  "tabCosts": "‏stsoC",
+  "tabSettings": "‏sgnitteS",
+  "tabLogA11y": "‏goL"
 }

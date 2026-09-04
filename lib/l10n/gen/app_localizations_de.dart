@@ -118,4 +118,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get routeNotFoundGoHome => 'Zur Startseite';
+
+  @override
+  String get tabHome => 'Start';
+
+  @override
+  String get tabHistory => 'Verlauf';
+
+  @override
+  String get tabCosts => 'Kosten';
+
+  @override
+  String get tabSettings => 'Einstellungen';
+
+  @override
+  String get tabLogA11y => 'Erfassen';
 }

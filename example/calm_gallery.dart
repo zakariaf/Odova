@@ -9,6 +9,7 @@
 // forgotten in the other.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
@@ -39,80 +40,89 @@ class _GalleryState extends State<_Gallery> {
     return OdovaApp(
       themeMode: _mode,
       locale: _locale,
-      home: Builder(
-        builder: (context) {
-          final colors = CalmColors.of(context);
-          final space = CalmSpace.of(context);
-          final type = CalmType.of(context);
+      router: GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => Builder(
+              builder: (context) {
+                final colors = CalmColors.of(context);
+                final space = CalmSpace.of(context);
+                final type = CalmType.of(context);
 
-          return ColoredBox(
-            color: colors.bg,
-            child: SafeArea(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsetsDirectional.all(space.s4),
-                    child: Row(
+                return ColoredBox(
+                  color: colors.bg,
+                  child: SafeArea(
+                    child: Column(
                       children: [
+                        Padding(
+                          padding: EdgeInsetsDirectional.all(space.s4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Calm specimens',
+                                  style: type.title.copyWith(color: colors.ink),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => setState(
+                                  () => _mode = _mode == ThemeMode.light
+                                      ? ThemeMode.dark
+                                      : ThemeMode.light,
+                                ),
+                                icon: const Icon(Icons.brightness_6_outlined),
+                              ),
+                              IconButton(
+                                onPressed: () => setState(
+                                  () => _locale = _rtl
+                                      ? const Locale('en')
+                                      : const Locale('fa'),
+                                ),
+                                icon: const Icon(
+                                  Icons.format_textdirection_r_to_l,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         Expanded(
-                          child: Text(
-                            'Calm specimens',
-                            style: type.title.copyWith(color: colors.ink),
+                          child: ListView(
+                            padding: EdgeInsetsDirectional.all(space.s5),
+                            children: [
+                              for (final specimen in calmSpecimens()) ...[
+                                Padding(
+                                  padding: EdgeInsetsDirectional.only(
+                                    top: space.s7,
+                                    bottom: space.s3,
+                                  ),
+                                  child: Text(
+                                    specimen.name,
+                                    style: type.caption.copyWith(
+                                      color: colors.ink2,
+                                      fontWeight: type.semi,
+                                    ),
+                                  ),
+                                ),
+                                for (final child in specimen.build(rtl: _rtl))
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.only(
+                                      bottom: space.s4,
+                                    ),
+                                    child: child,
+                                  ),
+                              ],
+                            ],
                           ),
-                        ),
-                        IconButton(
-                          onPressed: () => setState(
-                            () => _mode = _mode == ThemeMode.light
-                                ? ThemeMode.dark
-                                : ThemeMode.light,
-                          ),
-                          icon: const Icon(Icons.brightness_6_outlined),
-                        ),
-                        IconButton(
-                          onPressed: () => setState(
-                            () => _locale = _rtl
-                                ? const Locale('en')
-                                : const Locale('fa'),
-                          ),
-                          icon: const Icon(Icons.format_textdirection_r_to_l),
                         ),
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsetsDirectional.all(space.s5),
-                      children: [
-                        for (final specimen in calmSpecimens()) ...[
-                          Padding(
-                            padding: EdgeInsetsDirectional.only(
-                              top: space.s7,
-                              bottom: space.s3,
-                            ),
-                            child: Text(
-                              specimen.name,
-                              style: type.caption.copyWith(
-                                color: colors.ink2,
-                                fontWeight: type.semi,
-                              ),
-                            ),
-                          ),
-                          for (final child in specimen.build(rtl: _rtl))
-                            Padding(
-                              padding: EdgeInsetsDirectional.only(
-                                bottom: space.s4,
-                              ),
-                              child: child,
-                            ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

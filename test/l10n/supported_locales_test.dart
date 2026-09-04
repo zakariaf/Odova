@@ -15,6 +15,7 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 
 import '../support/capture_context.dart';
+import '../support/pump_app.dart';
 
 void main() {
   testWidgets('supportedLocales is exactly en de fr fa ar ckb', (tester) async {
@@ -48,8 +49,10 @@ void main() {
           retry: noProviderRetry,
           child: OdovaApp(
             locale: Locale(locale),
-            home: captureContext(
-              (context) => resolved = Directionality.of(context),
+            router: singleScreenRouter(
+              captureContext(
+                (context) => resolved = Directionality.of(context),
+              ),
             ),
           ),
         ),
@@ -69,8 +72,8 @@ void main() {
       ProviderScope(
         retry: noProviderRetry,
         child: OdovaApp(
-          home: captureContext(
-            (context) => l10n = AppLocalizations.of(context),
+          router: singleScreenRouter(
+            captureContext((context) => l10n = AppLocalizations.of(context)),
           ),
         ),
       ),

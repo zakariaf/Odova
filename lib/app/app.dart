@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/lifecycle_observer.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/supported_locales.dart';
-import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 
@@ -69,14 +70,13 @@ class _LifecycleScopeState extends ConsumerState<_LifecycleScope> {
 
 /// The root widget.
 ///
-/// It carries the locale contract and the theme; the router arrives in
-/// EPIC-08.
+/// It carries the locale contract, the theme and the one router.
 class OdovaApp extends ConsumerWidget {
   /// Creates the root widget.
   const OdovaApp({
     super.key,
     this.locale,
-    this.home,
+    this.router,
     this.themeMode = ThemeMode.system,
   });
 
@@ -88,11 +88,18 @@ class OdovaApp extends ConsumerWidget {
   /// direction without going through the setting.
   final Locale? locale;
 
-  /// Replaces the placeholder screen.
+  /// Replaces the app's router.
   ///
-  /// Tests pass a `Builder` here to read the resolved [Directionality] or
-  /// [AppLocalizations] from inside the app's own `Localizations` scope.
-  final Widget? home;
+  /// Null — the shipping default — reads [routerProvider], which is the one
+  /// router the app runs on. A test passes its own to start somewhere other
+  /// than Home without going through a redirect, and a parity capture passes
+  /// one pinned to a single screen.
+  ///
+  /// It is a whole router rather than the `home:` widget this used to take,
+  /// because `MaterialApp.router` has no `home:` — and because a test that
+  /// pumps a bare widget under the app is testing that widget outside the
+  /// navigation it will ship inside.
+  final GoRouter? router;
 
   /// Pins the palette.
   ///
@@ -122,7 +129,11 @@ class OdovaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
+    return MaterialApp.router(
+      // The one router. `.router` rather than the plain constructor because a
+      // plain `MaterialApp` mounts its own Navigator that go_router knows
+      // nothing about, and every `context.go` inside it silently does nothing.
+      routerConfig: router ?? ref.watch(routerProvider),
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       // Watched, not read: SPEC.md §5 forbids a restart, so changing the
       // language has to rebuild from here and re-render in place.
@@ -163,31 +174,6 @@ class OdovaApp extends ConsumerWidget {
               CalmType.forLocale(Localizations.localeOf(context)),
             )]!,
         child: child!,
-      ),
-      home: home ?? const _PlaceholderHome(),
-    );
-  }
-}
-
-/// The placeholder screen, until EPIC-08 brings the shell.
-///
-/// A [Material] rather than a [Scaffold]: `check_calm_layering.sh` refuses a
-/// raw `Scaffold(` outside `lib/ui/calm/`, because wrapping Material is that
-/// layer's job and `CalmScaffold` is EPIC-03's. There is nothing here worth
-/// building a screen skeleton for.
-class _PlaceholderHome extends StatelessWidget {
-  const _PlaceholderHome();
-
-  @override
-  Widget build(BuildContext context) {
-    final colours = CalmColors.of(context);
-    return Material(
-      color: colours.bg,
-      child: Center(
-        child: Text(
-          AppLocalizations.of(context).appTitle,
-          style: CalmType.of(context).hero.copyWith(color: colours.ink),
-        ),
       ),
     );
   }

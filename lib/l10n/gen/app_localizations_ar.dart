@@ -137,4 +137,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get routeNotFoundGoHome => 'الذهاب إلى الرئيسية';
+
+  @override
+  String get tabHome => 'الرئيسية';
+
+  @override
+  String get tabHistory => 'السجل';
+
+  @override
+  String get tabCosts => 'التكاليف';
+
+  @override
+  String get tabSettings => 'الإعدادات';
+
+  @override
+  String get tabLogA11y => 'تسجيل';
 }

@@ -7,28 +7,29 @@
 //
 // The paths are NOT written here — they come from `routes.dart`, which is the
 // single registry `kScreenRoutes` and EPIC-18's parity harness also read. This
-// file only says what each path builds.
+// file only says what each path builds, and which navigator it builds it on.
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:odova/app/routing/app_shell.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
 
 /// The root navigator.
 ///
-/// Held here rather than created inside [buildRouter] so a modal can be pushed
-/// ABOVE the shell — which is what puts a log form over the tab bar instead of
-/// inside it.
+/// A route declared with this key is pushed ABOVE the shell, which is what puts
+/// a log form over the tab bar instead of inside a tab. Every route without it
+/// belongs to a branch and keeps the bar.
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// The app's router.
 ///
-/// A provider rather than a global, because the router will grow a redirect
-/// that reads whether a vehicle exists (task 8.6) and a global cannot watch
-/// anything. `keepAlive`: rebuilding the router would throw away every tab's
-/// stack.
+/// A provider rather than a global, because the router grows a redirect that
+/// reads whether a vehicle exists (task 8.6) and a global cannot watch
+/// anything. Never re-created while the app runs: rebuilding the router would
+/// throw away all four tab stacks.
 final routerProvider = Provider<GoRouter>((ref) => buildRouter());
 
 /// Builds the router.
@@ -40,9 +41,8 @@ GoRouter buildRouter({String initialLocation = Routes.home}) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: initialLocation,
-    // Not `errorPageBuilder`, and not left to default: without this go_router
-    // renders its own red-on-white exception page, which is a screen no
-    // designer drew and no translator saw.
+    // Not left to default: go_router's default is a red-on-white exception
+    // page, a screen no designer drew and no translator saw.
     errorBuilder: (context, state) =>
         RouteNotFoundScreen(location: state.uri.toString()),
     routes: _routes,
@@ -51,152 +51,195 @@ GoRouter buildRouter({String initialLocation = Routes.home}) {
 
 /// Every route in the app.
 ///
-/// Flat for now. Task 8.2 wraps the four tab roots in a
-/// `StatefulShellRoute.indexedStack` without changing a single path — a branch
-/// keeps its root's absolute path, so `/settings/units` is `/settings/units`
-/// either way and this table stays the source of truth.
+/// Two levels, and the level a route is declared at is the whole difference
+/// between a modal and a screen: the shell's branches sit under the tab bar,
+/// and everything carrying [rootNavigatorKey] covers it. Decided here rather
+/// than at the call site, so `context.push` cannot get it wrong.
 final List<RouteBase> _routes = [
-  GoRoute(
-    path: Routes.home,
-    builder: (context, state) => const PlaceholderScreen(screenId: 'home'),
+  StatefulShellRoute.indexedStack(
+    builder: (context, state, navigationShell) =>
+        AppShell(navigationShell: navigationShell),
+    branches: _branches,
   ),
   GoRoute(
     path: Routes.vehicleSwitcher,
+    parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) =>
         const PlaceholderScreen(screenId: 'vehicle.switcher'),
   ),
   GoRoute(
-    path: Routes.reminders,
-    builder: (context, state) =>
-        const PlaceholderScreen(screenId: 'reminders.list'),
-    routes: [
-      GoRoute(
-        path: ':reminderId',
-        builder: (context, state) => PlaceholderScreen(
-          screenId: 'reminders.edit',
-          // From the PATH. A cold start from a deep link has a null
-          // `state.extra`, so identity that travels in `extra` is identity
-          // that vanishes when the OS restarts the app.
-          detail: state.pathParameters['reminderId'],
-        ),
-      ),
-    ],
-  ),
-  GoRoute(
     path: '/log/:type',
+    parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) => _logScreen(state),
     routes: [
       GoRoute(
         path: ':entryId',
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => _logScreen(state),
       ),
     ],
   ),
-  GoRoute(
-    path: Routes.history,
-    builder: (context, state) => const PlaceholderScreen(screenId: 'history'),
-    routes: [
-      GoRoute(
-        path: 'report',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'report.service'),
-      ),
-    ],
-  ),
-  GoRoute(
-    path: Routes.costs,
-    builder: (context, state) => const PlaceholderScreen(screenId: 'costs'),
-    routes: [
-      GoRoute(
-        path: 'fuel',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'costs.fuel'),
-      ),
-      GoRoute(
-        path: 'trips',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'trips.list'),
-        routes: [
-          GoRoute(
-            path: ':tripId',
-            builder: (context, state) => PlaceholderScreen(
-              screenId: 'trips.edit',
-              detail: state.pathParameters['tripId'],
-            ),
-          ),
-        ],
-      ),
-      GoRoute(
-        // The second `history` instance. SPEC.md §7: a cross-tab data jump
-        // pushes into the CURRENT tab, so it needs its own location inside
-        // Costs rather than switching the user to the History tab.
-        path: 'history',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'history'),
-      ),
-    ],
-  ),
-  GoRoute(
-    path: Routes.settings,
-    builder: (context, state) => const PlaceholderScreen(screenId: 'settings'),
-    routes: [
-      GoRoute(
-        path: 'vehicles',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'vehicles'),
-        routes: [
-          GoRoute(
-            path: ':vehicleId',
-            builder: (context, state) => PlaceholderScreen(
-              screenId: 'vehicle.edit',
-              detail: state.pathParameters['vehicleId'],
-            ),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: 'language',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'settings.language'),
-      ),
-      GoRoute(
-        path: 'units',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'settings.units'),
-      ),
-      GoRoute(
-        path: 'notifications',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'settings.notifications'),
-      ),
-      GoRoute(
-        path: 'backup',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'settings.backup'),
-        routes: [
-          GoRoute(
-            path: 'import',
-            builder: (context, state) =>
-                const PlaceholderScreen(screenId: 'settings.import'),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: 'about',
-        builder: (context, state) =>
-            const PlaceholderScreen(screenId: 'settings.about'),
-      ),
-    ],
-  ),
+  // First run is outside the shell on purpose: it has no tab to belong to, and
+  // showing a tab bar over a screen the user cannot leave yet offers four
+  // destinations that all refuse.
   GoRoute(
     path: Routes.firstRunLanguage,
+    parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) =>
         const PlaceholderScreen(screenId: 'firstrun.language'),
   ),
   GoRoute(
     path: Routes.firstRunVehicle,
+    parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) =>
         const PlaceholderScreen(screenId: 'firstrun.vehicle'),
+  ),
+];
+
+/// One branch per tab, in `Routes.tabRoots` order.
+///
+/// Four branches and four `Navigator`s, all four kept mounted by
+/// `indexedStack`. That is the whole reason for it: switching tabs moves an
+/// index, so coming back to Settings finds the user where they left it rather
+/// than at the tab's root.
+final List<StatefulShellBranch> _branches = [
+  StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: Routes.home,
+        builder: (context, state) => const PlaceholderScreen(screenId: 'home'),
+        routes: [
+          GoRoute(
+            path: 'reminders',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'reminders.list'),
+            routes: [
+              GoRoute(
+                path: ':reminderId',
+                builder: (context, state) => PlaceholderScreen(
+                  screenId: 'reminders.edit',
+                  // From the PATH. A cold start from a deep link has a null
+                  // `state.extra`, so identity that travels in `extra` is
+                  // identity that vanishes when the OS restarts the app.
+                  detail: state.pathParameters['reminderId'],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  ),
+  StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: Routes.history,
+        builder: (context, state) =>
+            const PlaceholderScreen(screenId: 'history'),
+        routes: [
+          GoRoute(
+            path: 'report',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'report.service'),
+          ),
+        ],
+      ),
+    ],
+  ),
+  StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: Routes.costs,
+        builder: (context, state) => const PlaceholderScreen(screenId: 'costs'),
+        routes: [
+          GoRoute(
+            path: 'fuel',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'costs.fuel'),
+          ),
+          GoRoute(
+            path: 'trips',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'trips.list'),
+            routes: [
+              GoRoute(
+                path: ':tripId',
+                builder: (context, state) => PlaceholderScreen(
+                  screenId: 'trips.edit',
+                  detail: state.pathParameters['tripId'],
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            // The second `history` instance. SPEC.md §7: a cross-tab data jump
+            // pushes into the CURRENT tab, because the app never switches tabs
+            // under the user's finger — so "show me the fill-ups behind this
+            // figure" pushes here rather than throwing away where they were.
+            path: 'history',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'history'),
+          ),
+        ],
+      ),
+    ],
+  ),
+  StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: Routes.settings,
+        builder: (context, state) =>
+            const PlaceholderScreen(screenId: 'settings'),
+        routes: [
+          GoRoute(
+            path: 'vehicles',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'vehicles'),
+            routes: [
+              GoRoute(
+                path: ':vehicleId',
+                builder: (context, state) => PlaceholderScreen(
+                  screenId: 'vehicle.edit',
+                  detail: state.pathParameters['vehicleId'],
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'language',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'settings.language'),
+          ),
+          GoRoute(
+            path: 'units',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'settings.units'),
+          ),
+          GoRoute(
+            path: 'notifications',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'settings.notifications'),
+          ),
+          GoRoute(
+            path: 'backup',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'settings.backup'),
+            routes: [
+              GoRoute(
+                path: 'import',
+                builder: (context, state) =>
+                    const PlaceholderScreen(screenId: 'settings.import'),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'about',
+            builder: (context, state) =>
+                const PlaceholderScreen(screenId: 'settings.about'),
+          ),
+        ],
+      ),
+    ],
   ),
 ];
 
@@ -211,7 +254,7 @@ Widget _logScreen(GoRouterState state) {
     return RouteNotFoundScreen(location: state.uri.toString());
   }
   return PlaceholderScreen(
-    screenId: 'log.${type.wire}',
+    screenId: type.screenId,
     detail: state.pathParameters['entryId'],
   );
 }
