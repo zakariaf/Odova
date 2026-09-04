@@ -193,3 +193,62 @@ a `PopScope` on `AppShell`, `test/app/routing/{tab_behaviour,stack_reset}_test.d
   vehicle first, then route — is the function's contract and is tested.
 - `shell_harness.goTo` now takes a `backStack`, which any test about a
   deep-linked destination needs.
+
+## Task 8.8 — `dialog.discard` and the dirty-modal wiring ✅ (parity blocked)
+
+`lib/ui/dialogs/discard_dialog.dart`, `CalmDialog.actions`,
+`test/ui/dialogs/discard_dialog_test.dart` (11), the parity harness
+(`test/parity/support/{parity_capture,dialog_backdrop}.dart`) and
+`test/parity/dialog_discard_parity_test.dart`.
+
+### Three real defects the parity gate found
+
+- **Every Calm overlay rendered in `WidgetsApp`'s error text style.** No
+  `Material` ancestor → 48pt bold red monospace with a double yellow underline.
+  `CalmType` overrode the size and colour and left the FAMILY, so it looked
+  almost right. `CalmDialog` and `CalmSheet` now wrap in
+  `Material(type: transparency)`.
+- **All 88 committed goldens had it baked in.** `CalmSpecimenFont` patched only
+  the family. **76 goldens re-baselined.** `calm_overlay_typography_test.dart`
+  is the gate that keeps it fixed — it fails on family, underline and 48pt
+  independently.
+- **`loadAppFonts` renders Latin in Vazirmatn**, ~2× the platform width, because
+  Calm's Latin styles set no family and the fallback is the FIRST family
+  registered. Fine for goldens (deterministic), wrong for parity. Use
+  `loadParityFonts` for any capture — it registers SDK Roboto first, then
+  Vazirmatn, then MaterialIcons.
+
+### Harness traps, for the next screen epic
+
+- A `dart:io` write inside a widget test's fake-async zone **never completes**.
+  Wrap it in `tester.runAsync`.
+- `MaterialApp` mounts an `AnimatedTheme` whose ticker stops `runAsync`
+  returning. `themeAnimationStyle: AnimationStyle.noAnimation`.
+- `toImage` must come from a **keyed** boundary; `MaterialApp` inserts its own
+  and one that was never painted hangs with no output.
+- The capture's MediaQuery needs `padding: top 54, bottom 34` — the artboards
+  draw a status bar and a home indicator, and without them every band shifts.
+
+### ⚠️ The band check does NOT pass, and EPIC-09/EPIC-10 own the fix
+
+`dialog.discard` scores **53/80 band edges (66%)** against a 75% floor. Colour
+and theme pass in light. Nothing was widened and no reference was regenerated.
+
+The gap is the **backdrop**, per F-8.2: the three dialog references were shot
+over `home` (discard, snooze) and `vehicles` (confirmDelete), and **the `home`
+artboard overrides `.screen__body`'s own spacing inline — `padding-block: 8 12;
+gap: 12` against the stylesheet's `20 24 / 20`.** So the reference picture of
+`home` is not what a standard `CalmScaffold` produces, and **EPIC-10 will hit
+this building the real Home.** It has to be decided deliberately: re-shoot
+`home`'s artboard at `.screen__body`'s spacing, or give `CalmScaffold` the
+density the artboard uses.
+
+**EPIC-09 (`vehicles`) and EPIC-10 (`home`) must replace
+`test/parity/support/dialog_backdrop.dart` with the real screens and re-run all
+three dialog captures.** If the numbers do not improve, the stand-in was lying
+and that is a finding then.
+
+Also recorded: the **dark** captures fail the colour check on the scrim
+COMPOSITE — `--scrim` over `--color-bg` is #050403, not a token and unable to
+be, because `compare_to_reference.mjs` cannot see alpha. The scrim values match
+`odova.css` exactly. That is a blind spot in the checker, not a wrong colour.
