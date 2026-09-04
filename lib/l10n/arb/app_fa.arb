@@ -17,5 +17,8 @@
   "dateInAboutWeeks": "{n, plural, one{حدود {nText} هفته دیگر} other{حدود {nText} هفته دیگر}}",
   "dateInAboutMonths": "{n, plural, one{حدود {nText} ماه دیگر} other{حدود {nText} ماه دیگر}}",
   "dateDaysOverdue": "{n, plural, one{{nText} روز گذشته} other{{nText} روز گذشته}}",
-  "remindersDueCount": "{n, plural, =0{چیزی موعد ندارد} one{{nText} یادآور موعددار} other{{nText} یادآور موعددار}}"
+  "remindersDueCount": "{n, plural, =0{چیزی موعد ندارد} one{{nText} یادآور موعددار} other{{nText} یادآور موعددار}}",
+  "routeNotFoundTitle": "پیدا نشد",
+  "routeNotFoundBody": "این پیوند به جایی نمی‌رسد.",
+  "routeNotFoundGoHome": "رفتن به خانه"
 }

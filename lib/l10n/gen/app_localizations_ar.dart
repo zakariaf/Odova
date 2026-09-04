@@ -128,4 +128,13 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get routeNotFoundTitle => 'غير موجود';
+
+  @override
+  String get routeNotFoundBody => 'هذا الرابط لا يؤدي إلى أي مكان.';
+
+  @override
+  String get routeNotFoundGoHome => 'الذهاب إلى الرئيسية';
 }

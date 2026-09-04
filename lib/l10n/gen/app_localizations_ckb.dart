@@ -109,4 +109,13 @@ class AppLocalizationsCkb extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get routeNotFoundTitle => 'نەدۆزرایەوە';
+
+  @override
+  String get routeNotFoundBody => 'ئەم بەستەرە بۆ هیچ شوێنێک نابات.';
+
+  @override
+  String get routeNotFoundGoHome => 'چوون بۆ ماڵەوە';
 }

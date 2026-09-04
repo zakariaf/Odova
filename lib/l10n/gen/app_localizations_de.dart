@@ -109,4 +109,13 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get routeNotFoundTitle => 'Nicht gefunden';
+
+  @override
+  String get routeNotFoundBody => 'Dieser Link führt nirgendwohin.';
+
+  @override
+  String get routeNotFoundGoHome => 'Zur Startseite';
 }

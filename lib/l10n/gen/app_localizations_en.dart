@@ -108,4 +108,13 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get routeNotFoundTitle => 'Not found';
+
+  @override
+  String get routeNotFoundBody => 'That link doesn\'t lead anywhere.';
+
+  @override
+  String get routeNotFoundGoHome => 'Go to Home';
 }

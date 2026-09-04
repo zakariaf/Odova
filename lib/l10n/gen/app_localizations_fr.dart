@@ -114,4 +114,13 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get routeNotFoundTitle => 'Introuvable';
+
+  @override
+  String get routeNotFoundBody => 'Ce lien ne mène nulle part.';
+
+  @override
+  String get routeNotFoundGoHome => 'Aller à l\'accueil';
 }

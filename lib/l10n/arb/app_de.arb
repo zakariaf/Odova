@@ -17,5 +17,8 @@
   "dateInAboutWeeks": "{n, plural, one{in etwa {nText} Woche} other{in etwa {nText} Wochen}}",
   "dateInAboutMonths": "{n, plural, one{in etwa {nText} Monat} other{in etwa {nText} Monaten}}",
   "dateDaysOverdue": "{n, plural, one{{nText} Tag überfällig} other{{nText} Tage überfällig}}",
-  "remindersDueCount": "{n, plural, =0{Nichts fällig} one{{nText} Erinnerung fällig} other{{nText} Erinnerungen fällig}}"
+  "remindersDueCount": "{n, plural, =0{Nichts fällig} one{{nText} Erinnerung fällig} other{{nText} Erinnerungen fällig}}",
+  "routeNotFoundTitle": "Nicht gefunden",
+  "routeNotFoundBody": "Dieser Link führt nirgendwohin.",
+  "routeNotFoundGoHome": "Zur Startseite"
 }

@@ -144,5 +144,17 @@
         "description": "The count as the app already formatted and shaped it. A SECOND placeholder for the same number, on purpose: {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"1000\" inside a Persian sentence while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide."
       }
     }
+  },
+  "routeNotFoundTitle": "Not found",
+  "@routeNotFoundTitle": {
+    "description": "App bar title on the 404 screen. SPEC.md §7: an unknown link lands somewhere designed rather than on a red error box."
+  },
+  "routeNotFoundBody": "That link doesn't lead anywhere.",
+  "@routeNotFoundBody": {
+    "description": "The one sentence on the 404 screen. Deliberately does not name the app or the link — a dead end is worse than a wrong turn, and the sentence exists only to hand the user the button below it."
+  },
+  "routeNotFoundGoHome": "Go to Home",
+  "@routeNotFoundGoHome": {
+    "description": "The single action on the 404 screen. Home is the one screen that always exists and always has something to say."
   }
 }

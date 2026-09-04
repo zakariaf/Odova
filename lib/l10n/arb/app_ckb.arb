@@ -17,5 +17,8 @@
   "dateInAboutWeeks": "{n, plural, one{نزیکەی {nText} هەفتەی دیکە} other{نزیکەی {nText} هەفتەی دیکە}}",
   "dateInAboutMonths": "{n, plural, one{نزیکەی {nText} مانگی دیکە} other{نزیکەی {nText} مانگی دیکە}}",
   "dateDaysOverdue": "{n, plural, one{{nText} ڕۆژ دواکەوتووە} other{{nText} ڕۆژ دواکەوتووە}}",
-  "remindersDueCount": "{n, plural, =0{هیچ شتێک نییە} one{{nText} بیرخەرەوە} other{{nText} بیرخەرەوە}}"
+  "remindersDueCount": "{n, plural, =0{هیچ شتێک نییە} one{{nText} بیرخەرەوە} other{{nText} بیرخەرەوە}}",
+  "routeNotFoundTitle": "نەدۆزرایەوە",
+  "routeNotFoundBody": "ئەم بەستەرە بۆ هیچ شوێنێک نابات.",
+  "routeNotFoundGoHome": "چوون بۆ ماڵەوە"
 }

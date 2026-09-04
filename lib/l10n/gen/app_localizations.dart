@@ -213,6 +213,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, =0{Nothing due} one{{nText} reminder due} other{{nText} reminders due}}'**
   String remindersDueCount(int n, String nText);
+
+  /// App bar title on the 404 screen. SPEC.md §7: an unknown link lands somewhere designed rather than on a red error box.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found'**
+  String get routeNotFoundTitle;
+
+  /// The one sentence on the 404 screen. Deliberately does not name the app or the link — a dead end is worse than a wrong turn, and the sentence exists only to hand the user the button below it.
+  ///
+  /// In en, this message translates to:
+  /// **'That link doesn\'t lead anywhere.'**
+  String get routeNotFoundBody;
+
+  /// The single action on the 404 screen. Home is the one screen that always exists and always has something to say.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Home'**
+  String get routeNotFoundGoHome;
 }
 
 class _AppLocalizationsDelegate

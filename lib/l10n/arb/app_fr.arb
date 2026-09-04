@@ -17,5 +17,8 @@
   "dateInAboutWeeks": "{n, plural, one{dans environ {nText} semaine} many{dans environ {nText} semaines} other{dans environ {nText} semaines}}",
   "dateInAboutMonths": "{n, plural, one{dans environ {nText} mois} many{dans environ {nText} mois} other{dans environ {nText} mois}}",
   "dateDaysOverdue": "{n, plural, one{en retard de {nText} jour} many{en retard de {nText} jours} other{en retard de {nText} jours}}",
-  "remindersDueCount": "{n, plural, =0{Rien à faire} one{{nText} rappel à échéance} many{{nText} rappels à échéance} other{{nText} rappels à échéance}}"
+  "remindersDueCount": "{n, plural, =0{Rien à faire} one{{nText} rappel à échéance} many{{nText} rappels à échéance} other{{nText} rappels à échéance}}",
+  "routeNotFoundTitle": "Introuvable",
+  "routeNotFoundBody": "Ce lien ne mène nulle part.",
+  "routeNotFoundGoHome": "Aller à l'accueil"
 }

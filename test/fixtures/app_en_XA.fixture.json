@@ -17,5 +17,8 @@
   "dateInAboutWeeks": "[{n, plural, one{īǹ áḅǿǔţ {nText} ẇḗḗķ} other{īǹ áḅǿǔţ {nText} ẇḗḗķŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "dateInAboutMonths": "[{n, plural, one{īǹ áḅǿǔţ {nText} ḿǿǹţħ} other{īǹ áḅǿǔţ {nText} ḿǿǹţħŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "dateDaysOverdue": "[{n, plural, one{{nText} ḍáẏ ǿṽḗřḍǔḗ} other{{nText} ḍáẏŝ ǿṽḗřḍǔḗ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
-  "remindersDueCount": "[{n, plural, =0{Ǹǿţħīǹḡ ḍǔḗ} one{{nText} řḗḿīǹḍḗř ḍǔḗ} other{{nText} řḗḿīǹḍḗřŝ ḍǔḗ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]"
+  "remindersDueCount": "[{n, plural, =0{Ǹǿţħīǹḡ ḍǔḗ} one{{nText} řḗḿīǹḍḗř ḍǔḗ} other{{nText} řḗḿīǹḍḗřŝ ḍǔḗ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "routeNotFoundTitle": "[Ǹǿţ ƒǿǔǹḍ ǃǃǃǃ]",
+  "routeNotFoundBody": "[Ţħáţ ŀīǹķ ḍǿḗŝǹ'ţ ŀḗáḍ áǹẏẇħḗřḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "routeNotFoundGoHome": "[Ḡǿ ţǿ Ħǿḿḗ ǃǃǃǃ]"
 }

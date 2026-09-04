@@ -17,5 +17,8 @@
   "dateInAboutWeeks": "‏{n, plural, one{ tuoba ni{nText}keew } other{ tuoba ni{nText}skeew }}",
   "dateInAboutMonths": "‏{n, plural, one{ tuoba ni{nText}htnom } other{ tuoba ni{nText}shtnom }}",
   "dateDaysOverdue": "‏{n, plural, one{{nText}eudrevo yad } other{{nText}eudrevo syad }}",
-  "remindersDueCount": "‏{n, plural, =0{eud gnihtoN} one{{nText}eud rednimer } other{{nText}eud srednimer }}"
+  "remindersDueCount": "‏{n, plural, =0{eud gnihtoN} one{{nText}eud rednimer } other{{nText}eud srednimer }}",
+  "routeNotFoundTitle": "‏dnuof toN",
+  "routeNotFoundBody": "‏.erehwyna dael t'nseod knil tahT",
+  "routeNotFoundGoHome": "‏emoH ot oG"
 }

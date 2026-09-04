@@ -109,4 +109,13 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get routeNotFoundTitle => 'پیدا نشد';
+
+  @override
+  String get routeNotFoundBody => 'این پیوند به جایی نمی‌رسد.';
+
+  @override
+  String get routeNotFoundGoHome => 'رفتن به خانه';
 }
