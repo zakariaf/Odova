@@ -77,6 +77,63 @@ void main() {
     },
   );
 
+  test('the code decides, not the words', () async {
+    // SQLITE_CONSTRAINT is 19 and says so in a NUMBER. The message is English
+    // prose that a future SQLite could reword, and the difference between
+    // "your data is wrong" and "the disk is full" is the difference between a
+    // fix the user can make and one they cannot.
+    //
+    // A constraint failure whose message contains none of the words the string
+    // matcher looked for.
+    final worded = await _throwing(SqliteException(19, 'rejected by a rule'));
+    expect(
+      (worded as Err<int, PersistFailure>).failure,
+      isA<ConstraintViolated>(),
+    );
+
+    // And a disk failure whose message happens to contain one of them.
+    final misleading = await _throwing(
+      SqliteException(13, 'disk full while enforcing a unique index'),
+    );
+    expect(
+      (misleading as Err<int, PersistFailure>).failure,
+      isA<WriteFailed>(),
+      reason: 'the word "unique" in a disk message must not reclassify it',
+    );
+  });
+
+  test('a wrapped SqliteException keeps its result code', () async {
+    // `DriftWrappedException` carries the real exception, so the code
+    // survives — the string fallback is only for the isolate arm, where the
+    // exception itself does not cross the boundary.
+    final result = await _throwing(
+      DriftWrappedException(
+        message: 'insert',
+        cause: SqliteException(19, 'rejected by a rule'),
+        trace: StackTrace.empty,
+      ),
+    );
+    expect(
+      (result as Err<int, PersistFailure>).failure,
+      isA<ConstraintViolated>(),
+    );
+  });
+
+  test('every non-constraint result code is a write failure', () async {
+    for (final error in [
+      SqliteException(13, 'database or disk is full'),
+      SqliteException(11, 'database disk image is malformed'),
+      SqliteException(8, 'attempt to write a readonly database'),
+    ]) {
+      final result = await _throwing(error);
+      expect(
+        (result as Err<int, PersistFailure>).failure,
+        isA<WriteFailed>(),
+        reason: error.toString(),
+      );
+    }
+  });
+
   test('an isolate-wrapped exception is classified, not swallowed', () async {
     // The arm that carries every constraint failure on a real device. Without
     // it a user's "that plate is already taken" would arrive as an

@@ -36,9 +36,24 @@ Future<Result<T, PersistFailure>> guardPersist<T>(
   try {
     return await body();
   } on SqliteException catch (error) {
-    return Err(_classify(error.toString()));
+    // Classified by RESULT CODE, not by grepping the message. SQLITE_CONSTRAINT
+    // is 19 and says so in a number; the message is English prose that a future
+    // SQLite could reword, and "your data is wrong" versus "the disk is full"
+    // is the difference between a fix the user can make and one they cannot.
+    return Err(
+      error.resultCode == _sqliteConstraint
+          ? ConstraintViolated(error.toString())
+          : WriteFailed(error.toString()),
+    );
   } on DriftWrappedException catch (error) {
-    return Err(_classify(error.cause.toString()));
+    final cause = error.cause;
+    return Err(
+      cause is SqliteException
+          ? (cause.resultCode == _sqliteConstraint
+                ? ConstraintViolated(cause.toString())
+                : WriteFailed(cause.toString()))
+          : _classify(cause.toString()),
+    );
   } on Exception catch (error) {
     // The third arm exists for `DriftRemoteException`, the wrapper drift puts
     // around anything that crossed an isolate boundary — which is how the app
@@ -57,6 +72,18 @@ Future<Result<T, PersistFailure>> guardPersist<T>(
   }
 }
 
+/// `SQLITE_CONSTRAINT`. The primary result code for every constraint failure —
+/// CHECK, FOREIGN KEY, UNIQUE and NOT NULL all report it, with the specific one
+/// in the extended code.
+const _sqliteConstraint = 19;
+
+/// Classifies from a MESSAGE, for the case where the exception itself did not
+/// survive.
+///
+/// Only the isolate arm reaches this: a `DriftRemoteException` carries its
+/// cause as text across the boundary, so there is no result code left to read.
+/// Grepping English prose is a worse test than a number and it is used only
+/// where the number is gone.
 PersistFailure _classify(String message) {
   final lower = message.toLowerCase();
   if (lower.contains('constraint failed') ||
