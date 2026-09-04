@@ -122,8 +122,14 @@ String formatForDisplay(
   String formatsTag, {
   required CalmNumerals numerals,
   int? decimalDigits,
+  bool grouped = true,
 }) {
   final format = calmDecimalFormat(formatsTag);
+  // A COUNT is not a quantity. A year grouped reads "1,900" in English and
+  // "۱٬۹۰۰" in Persian — a thousand nine hundred, which is not a year anybody
+  // has driven a car in. The digit BLOCK still follows the locale; this drops
+  // the separator, not the shaping.
+  if (!grouped) format.turnOffGrouping();
   if (decimalDigits != null) {
     format
       ..minimumFractionDigits = decimalDigits

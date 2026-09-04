@@ -247,4 +247,58 @@ void main() {
       expect(failures, isEmpty, reason: failures.take(5).join('\n'));
     });
   });
+
+  group('a count is not a quantity', () {
+    test('grouped: false drops the separator but keeps the digit block', () {
+      // A YEAR and a character count are counts. Grouped, 1900 reads "1,900"
+      // in English and "۱٬۹۰۰" in Persian — a thousand nine hundred, which is
+      // not a year anybody has driven a car in.
+      expect(
+        formatForDisplay(
+          1900,
+          'en-US',
+          numerals: CalmNumerals.auto,
+          grouped: false,
+        ),
+        '1900',
+      );
+      expect(
+        formatForDisplay(
+          2027,
+          'de-DE',
+          numerals: CalmNumerals.auto,
+          grouped: false,
+        ),
+        '2027',
+      );
+      // The digit BLOCK still follows the locale — this is about the
+      // separator, not about which digits.
+      expect(
+        formatForDisplay(
+          1900,
+          'fa-IR',
+          numerals: CalmNumerals.auto,
+          grouped: false,
+        ),
+        '۱۹۰۰',
+      );
+      expect(
+        formatForDisplay(
+          17,
+          'ar-EG',
+          numerals: CalmNumerals.auto,
+          grouped: false,
+        ),
+        '١٧',
+      );
+    });
+
+    test('grouping is still on by default', () {
+      // An odometer, a price and a litre count are quantities and want it.
+      expect(
+        formatForDisplay(1900, 'en-US', numerals: CalmNumerals.auto),
+        '1,900',
+      );
+    });
+  });
 }
