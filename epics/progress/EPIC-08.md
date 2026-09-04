@@ -59,3 +59,33 @@
   a neutral Costs glyph or the design decides the euro is intended.
 - Tab-root behaviour on a tap of the CURRENT tab is task 8.3's; until then
   `goBranch` keeps the branch where it is rather than resetting.
+
+## Task 8.3 — tab-root behaviour, back, and the two stack resets ✅
+
+`lib/app/routing/tab_stack_reset.dart`, `lib/app/routing/tab_reselected.dart`,
+a `PopScope` on `AppShell`, `test/app/routing/{tab_behaviour,stack_reset}_test.dart`
+(8 + 6 tests), `test/app/routing/shell_harness.dart`. 33 mutations across tasks
+8.1–8.3 re-run against the shared harness, all red.
+
+- **`resetAllTabStacks` has ZERO callers today, not two.** SPEC.md §7's two are
+  the vehicle switcher (EPIC-09) and the importer (EPIC-13). The grep test in
+  `stack_reset_test.dart` asserts zero and names both epics — **whichever lands
+  first must update that expectation** rather than deleting the test.
+- **`GoRouter.go` to a branch root does NOT reset that branch.** go_router keeps
+  a match list per branch and restores it. The reset API is
+  `StatefulNavigationShell.goBranch(i, initialLocation: true)`, and it needs a
+  frame between each branch or all four collapse into the last one.
+- **The reset is a request the shell applies**, not a direct call: only the live
+  shell can empty a branch. `tabStackResetProvider` carries `(selectHome, tick)`;
+  the tick is why two identical requests are two events.
+- **`tabReselectedProvider` is the scroll-to-top seam.** EPIC-10 wires Home's
+  `ScrollController` to it: watch it, check `index == 0`, scroll. Nothing listens
+  yet.
+- **Every routing test goes through `test/app/routing/shell_harness.dart`.**
+  It owns the unmount-first rule (`MaterialApp.router` keeps its first delegate),
+  the `ProviderContainer` and its teardown, `locationOf`, `shellOf`, `tapTab`,
+  `goTo`, `setLocale`, `directionOf`, `shellGuard` and `systemBack`. A new
+  routing test uses it rather than pumping its own app.
+- `systemBack()` is copied from the Flutter SDK's own test utility because
+  `flutter_test` does not export it. `Navigator.pop` is not a substitute — it
+  bypasses `PopScope`.
