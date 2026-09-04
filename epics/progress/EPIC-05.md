@@ -230,3 +230,109 @@ that, and there is a test whose whole job is to say so.
   EPIC-06 and swap the canonical integers at the repository boundary in one
   pass. Until then the unit is in the field NAME and that is the only thing
   stopping a metre being added to a mile.
+
+---
+
+## `/simplify` — every finding, applied or answered
+
+Four agents over the epic's diff: reuse, simplification, efficiency, altitude.
+The pass paid for itself twice over — once for a blocking defect nothing else
+would have caught, and once for a correctness gap the epic had named a test for
+and I had not written.
+
+### The blocking one
+
+**`lib/data/failures/` was gitignored.** `.gitignore`'s `**/failures/` was
+written for golden diff artefacts, which land in
+`test/ui/calm/goldens/failures/`. It also matched `lib/data/failures/` and
+`test/data/failures/` — the sealed `PersistFailure` family that nine files in
+the data layer import, and its test. Neither was ever committed. `git status`
+read clean, the branch compiled locally against the working tree, every gate
+passed, and **a fresh clone would not have built**. Found by the reuse agent,
+which noticed that a file it had been asked to review was not in
+`git ls-files`. The rule is scoped to the goldens directory now, and planting a
+PNG there confirms they are still ignored.
+
+### The correctness one
+
+**Four of the five write paths into `odometer_readings` skipped the
+monotonicity guard.** `checkReading` had one call site,
+`OdometerRepository.saveReading`; the fan-out wrote with a raw upsert and never
+consulted it. A fill-up, service, expense or trip whose odometer went backwards
+was accepted, and the distance history was non-monotonic from that point on —
+a wrong consumption figure, a wrong projection and a wrong cost per km, from a
+save reported as successful. EPIC-05 task 5.9 lists this test by name and it
+did not exist.
+
+Fixed with `checkDerivedReading`, called before each parent's transaction opens.
+Two things fell out of writing it properly: the proposed reading has to reuse
+the REAL row's id, because `compareReadings` breaks a same-date tie on the id
+and an invented one sorts arbitrarily among its own neighbours; and
+`DerivedReadingNotEditable` had existed as a variant with no code path
+returning it, so the sealed-family test's exhaustive switch was reporting
+coverage the app did not have.
+
+### Applied
+
+- **One `watchList`/`watchOne` helper** replaces the soft-delete filter, the
+  model mapping and the `distinct` at nine call sites. Two of the nine had
+  forgotten `distinct` — `VehicleRepository`'s, and `vehiclesProvider` is the
+  one provider deliberately NOT autoDispose, so the most-subscribed stream in
+  the app rebuilt the shell on every write to `vehicles`.
+- **`watchRecords` was 1 + N queries** and the N ran before `distinct` could
+  discard them. Now two.
+- **Six missing indexes.** Only `fill_ups` and `odometer_readings` had one;
+  service items, service records, expenses, trips and corrections were all
+  `SCAN` plus a `TEMP B-TREE`, re-run on every write to their table. The
+  fan-out's `(source_id, source)` lookup was a full scan inside the write
+  transaction under `synchronous = FULL`. It is a UNIQUE partial index now,
+  which also collapses the fan-out's SELECT-then-write into one upsert.
+- **A props-completeness gate** and **a schema-derived cascade-list gate**, both
+  seen to fail.
+- **The explicit `ON DELETE` gate** — SQLite's default is `NO ACTION`, which is
+  the absence of a decision.
+- Ten failure classes now use `ValueEquality`; `storeIsWritableProvider`
+  deleted; `large_fixture` imports the real Crockford alphabet; two test helpers
+  back to the shared ones.
+- **Two bugs in `no_drift_in_signatures_test.dart` itself**, both now covered:
+  a wrapped top-level function's parameter list read as a class member, and an
+  expression body swallowed the whole method body into the signature.
+
+### Answered, not applied
+
+- **"`_stateOf` reads the whole history to check two neighbours."** True. The
+  redesign — two `LIMIT 1` neighbour queries plus the corrections — is not a
+  one-liner, because the cumulative offset depends on which corrections sort at
+  or before each neighbour. At a few thousand readings it is a millisecond or
+  two. Left until it shows up, as the agent itself recommended.
+- **"`_stateOf`'s two queries could be concurrent."** They could not usefully:
+  both run on one drift executor over one SQLite connection, which serialises
+  statements. Recorded so nobody "fixes" it later.
+- **"Five single-statement writes are wrapped in an explicit transaction."**
+  SQLite wraps a lone statement implicitly, so the explicit one adds a
+  BEGIN/COMMIT pair. Kept: four of the five now have a sibling that is
+  genuinely multi-statement, and one `save` that reads differently from the
+  others is a worse cost than a statement pair on a path that already fsyncs.
+- **"The `X IS NULL OR …` guards are redundant with three-valued CHECK
+  logic."** Correct — a CHECK evaluating to NULL passes. They are belt and
+  braces and cost a schema regeneration to remove, at v1 where the snapshot is
+  already committed. Left, with this sentence as the record that the guard is
+  not load-bearing.
+- **"`purgeDeleted` runs COUNT before and after each DELETE."** Real, 16 extra
+  scans. It fires once after the Undo window closes and the counts are what the
+  caller logs. Not worth a change on a rare path in the epic's final hours.
+- **"Row mappers are split across four files while `row_mappers.dart` claims to
+  be the only place that crosses the boundary."** The claim is too strong and
+  the header is what should change; the five private mappers all correctly call
+  the shared `enumFromWire`/`idFromStored`/`repairAuditTimes`, so nothing is
+  duplicated. Recorded rather than moved, because moving five mappers touches
+  three repositories for no behaviour change.
+- **`guardPersist`'s `on SqliteException` arm is redundant** with the `on
+  Exception` arm below it. Kept: it names the common case at the top of the
+  chain, and `guard_test.dart` drives it explicitly. Deleting it would make the
+  test pass through a broader arm and say less.
+- **Test-fixture duplication** (the `Vehicle` literal in six files, the `_body`
+  constant in four, five `COUNT(*)` helpers). Real. Not consolidated in this
+  epic: the fixtures are close to the tests that read them, and EPIC-06 changes
+  every one of those models when the value objects land. Consolidating now
+  means doing it twice. Recorded so the next epic does it once.
