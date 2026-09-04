@@ -73,6 +73,22 @@ List<ValueClass> valueClassesIn(String source) {
 
 void main() {
   test('every field of every value type is in its props', () {
+    // A field whose value is ENCODED into props rather than listed by name.
+    // `MoneyTotal` holds two Maps, and a Map in props compares by identity —
+    // so two totals built from the same amounts would never be equal. It
+    // encodes both as sorted strings instead, which the parser cannot see.
+    //
+    // Named individually with the reason, not waved through by type: the gate
+    // caught a real bug in this very class before the encoding was complete —
+    // the row counts were outside equality while `dominantCurrency` read them,
+    // so two "equal" totals answered differently.
+    const encodedNotListed = {
+      'lib/core/money/money_total.dart': {
+        'byCurrency',
+        '_counts',
+      },
+    };
+
     final offenders = <String>[];
     var checked = 0;
 
@@ -82,7 +98,9 @@ void main() {
     ]) {
       for (final value in valueClassesIn(sourceWithoutLineComments(file))) {
         checked++;
-        final missing = value.fields.difference(value.props);
+        final missing = value.fields
+            .difference(value.props)
+            .difference(encodedNotListed[file.path] ?? const {});
         if (missing.isNotEmpty) {
           offenders.add('${file.path}: ${value.name} omits $missing');
         }

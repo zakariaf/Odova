@@ -63,13 +63,30 @@ class MoneyTotal with ValueEquality {
   Money inCurrency(Currency currency) =>
       Money(byCurrency[currency] ?? 0, currency);
 
+  /// Encoded as sorted strings rather than the maps themselves.
+  ///
+  /// A `Map` in `props` compares by IDENTITY, so two totals built from the same
+  /// amounts would never be equal. Sorting makes the encoding independent of
+  /// insertion order, which is the property a caller expects.
+  ///
+  /// The ROW COUNTS are in here too, and leaving them out was a real bug the
+  /// props-completeness gate caught: [dominantCurrency] reads them, so two
+  /// totals with identical sums but different row counts compared EQUAL while
+  /// answering differently about which currency leads. A `distinct` on a
+  /// stream would then swallow the change and the screen would keep the old
+  /// primary currency.
   @override
   List<Object?> get props => [
     for (final entry in _sortedEntries) '${entry.key.code}:${entry.value}',
+    for (final entry in _sortedCounts) '${entry.key.code}x${entry.value}',
   ];
 
   List<MapEntry<Currency, int>> get _sortedEntries =>
       byCurrency.entries.toList()
+        ..sort((a, b) => a.key.code.compareTo(b.key.code));
+
+  List<MapEntry<Currency, int>> get _sortedCounts =>
+      _counts.entries.toList()
         ..sort((a, b) => a.key.code.compareTo(b.key.code));
 
   @override

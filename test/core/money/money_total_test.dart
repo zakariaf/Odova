@@ -79,6 +79,29 @@ void main() {
     );
   });
 
+  test('equal totals cannot disagree about the dominant currency', () {
+    // The bug the props-completeness gate caught. The ROW COUNTS drive
+    // `dominantCurrency` and were outside equality, so these two compared
+    // EQUAL while answering differently — and a `distinct` on a stream would
+    // have swallowed the change, leaving the screen on the old primary
+    // currency.
+    final euroLed = MoneyTotal([
+      Money(50, _eur),
+      Money(50, _eur),
+      Money(100, _gbp),
+    ]);
+    final poundLed = MoneyTotal([
+      Money(100, _eur),
+      Money(50, _gbp),
+      Money(50, _gbp),
+    ]);
+
+    expect(euroLed.byCurrency, poundLed.byCurrency, reason: 'same sums');
+    expect(euroLed.dominantCurrency, _eur);
+    expect(poundLed.dominantCurrency, _gbp);
+    expect(euroLed, isNot(poundLed), reason: 'so they must not be equal');
+  });
+
   test('the grouping is not writable through byCurrency', () {
     // A caller that mutated the map would change a value nothing recomputed.
     final total = MoneyTotal([Money(100, _eur)]);
