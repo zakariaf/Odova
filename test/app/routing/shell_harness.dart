@@ -9,6 +9,8 @@
 /// how it was found. [pumpShell] unmounts first, so each case is independent.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,8 +84,26 @@ Future<void> tapTab(
 }
 
 /// Navigates without a tap, for the pushes a test needs but is not asserting.
-void goTo(WidgetTester tester, String location) =>
-    GoRouter.of(_shellElement(tester)).go(location);
+///
+/// [backStack] synthesises the stack a deep link lands on: SPEC.md §7 says Back
+/// from a deep-linked modal reaches Home rather than leaving the app, and that
+/// only holds if something was put underneath it. `go` the roots, then `push`
+/// the destination.
+void goTo(
+  WidgetTester tester,
+  String location, {
+  List<String> backStack = const [],
+}) {
+  final router = GoRouter.of(_shellElement(tester));
+  backStack.forEach(router.go);
+  if (backStack.isEmpty) {
+    router.go(location);
+  } else {
+    // `unawaited`: `push` returns the route's result, which a deep link has no
+    // caller to hand it to.
+    unawaited(router.push<void>(location));
+  }
+}
 
 /// Changes `Settings.language` the way the settings screen will.
 ///
