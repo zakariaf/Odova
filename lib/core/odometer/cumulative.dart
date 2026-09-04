@@ -57,8 +57,23 @@ int compareReadings(ReadingPoint a, ReadingPoint b) {
 Map<String, Distance> cumulativeByReading(
   Iterable<ReadingPoint> readings,
   Iterable<CorrectionPoint> corrections,
+) => cumulativeBySorted([...readings]..sort(compareReadings), corrections);
+
+/// [cumulativeByReading] over readings ALREADY in [compareReadings] order.
+///
+/// Split out because `checkReading` needs the sorted list for itself — it has
+/// to find the proposed reading's neighbours — and was sorting the same list
+/// twice per save: once here and once for the neighbour lookup. That runs on
+/// every fill-up, service, expense and trip write, over the vehicle's entire
+/// reading history, on the path a user is standing at a pump waiting for.
+///
+/// Passing an unsorted list here produces a wrong answer rather than a slow
+/// one, which is why the public entry point above exists at all.
+@useResult
+Map<String, Distance> cumulativeBySorted(
+  List<ReadingPoint> sorted,
+  Iterable<CorrectionPoint> corrections,
 ) {
-  final sorted = [...readings]..sort(compareReadings);
   final byId = {for (final r in sorted) r.id: r};
 
   // Each correction's offset, placed at its boundary reading's position.

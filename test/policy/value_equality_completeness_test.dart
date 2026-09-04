@@ -85,8 +85,12 @@ void main() {
     const encodedNotListed = {
       // Two Maps. A Map in props compares by IDENTITY, so two totals built
       // from the same amounts would never be equal; both are encoded as
-      // sorted strings instead.
-      'lib/core/money/money_total.dart': {'byCurrency', '_counts'},
+      // sorted strings instead — computed once in the factory and STORED,
+      // because `props` is read by both `==` and `hashCode` and re-sorting
+      // two maps per read made one comparison four sorts. `props` itself is
+      // then a field, which is why it is named here: a field literally called
+      // `props` cannot be listed inside itself.
+      'lib/core/money/money_total.dart': {'byCurrency', '_counts', 'props'},
       // Same shape: two Maps per fill — the warnings with their sorted set,
       // and the discard reasons with their sorted ids AND the reason objects,
       // which are themselves ValueEquality and so compare by value.

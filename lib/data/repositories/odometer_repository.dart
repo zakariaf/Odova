@@ -73,7 +73,7 @@ class OdometerRepository {
     VehicleId vehicleId,
   ) => guardPersist(() async {
     final state = await _stateOf(vehicleId);
-    return Ok(cumulativeByReading(state.readings, state.corrections));
+    return Ok(cumulativeBySorted(state.readings, state.corrections));
   });
 
   /// Writes [reading] if the history allows it.
@@ -197,8 +197,9 @@ class OdometerRepository {
     });
 
     final state = await _stateOf(vehicleId);
-    final cumulative = cumulativeByReading(state.readings, state.corrections);
-    final ordered = [...state.readings]..sort(compareReadings);
+    // Already in `compareReadings` order — see `_readingsQuery`'s third key.
+    final ordered = state.readings;
+    final cumulative = cumulativeBySorted(ordered, state.corrections);
 
     final exposed = <OdometerReading>[];
     for (var i = 1; i < ordered.length; i++) {
@@ -219,6 +220,18 @@ class OdometerRepository {
     ..orderBy([
       (r) => OrderingTerm(expression: r.occurredOn),
       (r) => OrderingTerm(expression: r.createdAtUtcMs),
+      // The third key, so the rows arrive in exactly `compareReadings` order
+      // and nothing above has to re-sort them. It matters: `checkReading` runs
+      // on every fill-up, service, expense and trip write, over the vehicle's
+      // whole reading history, on the path a user is standing at a pump
+      // waiting for.
+      //
+      // SQLite compares TEXT with memcmp on UTF-8 and Dart's `compareTo` uses
+      // UTF-16 code units. They agree here because every one of these values
+      // is ASCII — a ULID is Crockford base-32 and a date is digits and
+      // hyphens — and `odometer_repository_test.dart` asserts the two orders
+      // agree rather than leaving that as a comment.
+      (r) => OrderingTerm(expression: r.id),
     ]);
 
   Future<_VehicleOdometerState> _stateOf(VehicleId vehicleId) async {

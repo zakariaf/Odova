@@ -35,6 +35,15 @@ const currencyExponents = <String, int>{
   'LYD': 3,
 };
 
+/// Three letters, A-Z.
+///
+/// Top level, so it is compiled ONCE. `tryParse` is on the hottest read path
+/// in the app — `row_mappers` calls it for every fill-up, expense, service line
+/// and vehicle, and drift's stream invalidation is table-level, so the whole
+/// query re-maps on every write. A `RegExp` built inside the function is a
+/// compile per row.
+final _isoCode = RegExp(r'^[A-Z]{3}$');
+
 /// A currency.
 ///
 /// A type rather than a `String`, so an amount cannot be built with a
@@ -53,7 +62,7 @@ class Currency with ValueEquality {
   /// database is two currencies to every `groupBy`.
   static Currency? tryParse(String code) {
     final upper = code.toUpperCase();
-    if (!RegExp(r'^[A-Z]{3}$').hasMatch(upper)) return null;
+    if (!_isoCode.hasMatch(upper)) return null;
     return Currency._(upper);
   }
 

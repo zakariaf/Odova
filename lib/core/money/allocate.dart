@@ -55,7 +55,9 @@ List<Money> allocate(Money total, List<int> weights) {
 
   // Hand the leftover out, largest remainder first, earliest index on a tie.
   final leftover = magnitude - allocated;
-  final order = [...remainders]
+  // `remainders` is dead after this line, so sorting it in place rather than
+  // copying it first buys the same result for one fewer list.
+  final order = remainders
     ..sort((a, b) {
       final byRemainder = b.remainder.compareTo(a.remainder);
       return byRemainder != 0 ? byRemainder : a.index.compareTo(b.index);

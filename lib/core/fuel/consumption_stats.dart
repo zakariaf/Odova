@@ -127,7 +127,7 @@ Result<RankedSegment, ConsumptionUnavailable> _rank(
 
   // Lower is better for fuel-per-distance, higher for distance-per-fuel.
   final wantLowest = unit.isFuelPerDistance == best;
-  ranked.sort((a, b) {
+  int compare(RankedSegment a, RankedSegment b) {
     final byValue = wantLowest
         ? a.value.compareTo(b.value)
         : b.value.compareTo(a.value);
@@ -135,7 +135,11 @@ Result<RankedSegment, ConsumptionUnavailable> _rank(
     return byValue != 0
         ? byValue
         : a.segment.toFillUpId.compareTo(b.segment.toFillUpId);
-  });
+  }
 
-  return Ok(ranked.first);
+  // A fold, not a sort. Only the first element is wanted and this is called
+  // twice per screen — `bestSegment` and `worstSegment` — so a ten-year
+  // history was two full sorts of ~900 segments to read two of them. The
+  // comparator is the same one, so the tiebreak and the determinism are too.
+  return Ok(ranked.reduce((a, b) => compare(a, b) <= 0 ? a : b));
 }

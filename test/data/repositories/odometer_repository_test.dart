@@ -12,12 +12,14 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/odometer/monotonicity.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/odometer_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
+
 import '../../support/values.dart';
 
 const int _km = 1000;
@@ -438,5 +440,54 @@ void main() {
     );
     expect(result, isA<Err<SavedReading, PersistFailure>>());
     expect(await countReadings(), 0);
+  });
+  test('SQL returns readings in exactly compareReadings order', () async {
+    // The repository stopped re-sorting what SQL already ordered, which is
+    // only correct while the two orders agree. They agree because every key is
+    // ASCII — SQLite compares TEXT with memcmp on UTF-8 and Dart's
+    // `compareTo` uses UTF-16 code units — and this asserts it rather than
+    // trusting the comment that says so.
+    //
+    // The ids and dates below exercise all three keys: two readings on the
+    // same date with different created-at, and two with the SAME created-at
+    // that can only be separated by id.
+    // Odometers ascend in the SORTED order (B, C, D, A), not the insert
+    // order, so monotonicity accepts all four and the ordering is what is
+    // under test.
+    //
+    // **D is inserted BEFORE C, and that is the point.** They share a date and
+    // a created-at, so only the id separates them — and with D written first,
+    // SQLite's rowid order and `compareReadings` order DISAGREE unless the id
+    // is really the third ORDER BY key. A first version of this test inserted
+    // them in id order, so dropping `r.id` from the query left it green.
+    for (final reading in [
+      _reading('A', '2026-06-01', 190000 * _km, createdAtUtcMs: 2000),
+      _reading('B', '2026-01-01', 180000 * _km),
+      _reading('D', '2026-06-01', 182000 * _km),
+      _reading('C', '2026-06-01', 181000 * _km),
+    ]) {
+      expect(await save(reading), isA<Ok<SavedReading, PersistFailure>>());
+    }
+
+    final fromSql = await repository.watchReadings(_vehicleId).first;
+    final points = fromSql
+        .map<ReadingPoint>(
+          (r) => (
+            id: r.id.toString(),
+            occurredOn: r.occurredOn,
+            createdAtUtcMs: r.createdAtUtcMs,
+            odometer: r.odometer,
+          ),
+        )
+        .toList();
+
+    final sorted = List<ReadingPoint>.from(points)..sort(compareReadings);
+    expect(
+      points,
+      orderedEquals(sorted),
+      reason: 'SQL order and compareReadings disagree',
+    );
+    // And it is not vacuous: the insert order was not the sorted order.
+    expect(points.first.occurredOn, '2026-01-01');
   });
 }

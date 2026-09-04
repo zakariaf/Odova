@@ -98,9 +98,11 @@ OdometerVerdict checkReading({
   // for every correction at or before it. Checking the raw dash number against
   // a corrected neighbour is how a legitimate post-cluster-swap reading gets
   // refused.
-  final all = [...existing, proposed];
-  final cumulative = cumulativeByReading(all, corrections);
-  final ordered = [...all]..sort(compareReadings);
+  // Sorted ONCE and used twice: the fold needs the order and so does the
+  // neighbour lookup below. This used to build two lists and sort both, on
+  // every write, over the vehicle's whole reading history.
+  final ordered = [...existing, proposed]..sort(compareReadings);
+  final cumulative = cumulativeBySorted(ordered, corrections);
   final index = ordered.indexWhere((r) => r.id == proposed.id);
 
   final proposedDistance = cumulative[proposed.id]!;

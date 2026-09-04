@@ -24,10 +24,25 @@ class MoneyTotal with ValueEquality {
       );
       counts.update(amount.currency, (n) => n + 1, ifAbsent: () => 1);
     }
-    return MoneyTotal._(Map.unmodifiable(byCurrency), Map.unmodifiable(counts));
+    final codes = byCurrency.keys.map((c) => c.code).toList()..sort();
+    return MoneyTotal._(
+      Map.unmodifiable(byCurrency),
+      Map.unmodifiable(counts),
+      // Computed ONCE, in the factory. `props` is read by both `==` and
+      // `hashCode`, so one comparison between two totals used to be four
+      // sorts and four lists of interpolated strings — and this type is
+      // headed for a `.distinct(valuesEqual)` on a watched stream, where that
+      // happens on every emission.
+      List.unmodifiable([
+        for (final code in codes) ...[
+          '$code:${byCurrency[Currency.tryParse(code)]}',
+          '${code}x${counts[Currency.tryParse(code)]}',
+        ],
+      ]),
+    );
   }
 
-  const MoneyTotal._(this.byCurrency, this._counts);
+  const MoneyTotal._(this.byCurrency, this._counts, this.props);
 
   /// The summed amount per currency.
   final Map<Currency, int> byCurrency;
@@ -76,22 +91,15 @@ class MoneyTotal with ValueEquality {
   /// stream would then swallow the change and the screen would keep the old
   /// primary currency.
   @override
-  List<Object?> get props => [
-    for (final entry in _sortedEntries) '${entry.key.code}:${entry.value}',
-    for (final entry in _sortedCounts) '${entry.key.code}x${entry.value}',
-  ];
-
-  List<MapEntry<Currency, int>> get _sortedEntries =>
-      byCurrency.entries.toList()
-        ..sort((a, b) => a.key.code.compareTo(b.key.code));
-
-  List<MapEntry<Currency, int>> get _sortedCounts =>
-      _counts.entries.toList()
-        ..sort((a, b) => a.key.code.compareTo(b.key.code));
+  final List<Object?> props;
 
   @override
   String toString() {
-    final parts = _sortedEntries.map((e) => '${e.value} ${e.key}').join(', ');
+    final parts =
+        (byCurrency.entries.toList()
+              ..sort((a, b) => a.key.code.compareTo(b.key.code)))
+            .map((e) => '${e.value} ${e.key}')
+            .join(', ');
     return 'MoneyTotal($parts)';
   }
 }
