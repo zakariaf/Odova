@@ -2398,8 +2398,7 @@ Language comes from the tapped row; everything else from the device region, not 
 │                                    │
 │           [      Start      ]      │
 │                                    │
-│  Moving from another phone?        │
-│  Restore a backup                  │
+│    I already have an Odova backup  │
 └────────────────────────────────────┘
 ```
 
@@ -4653,7 +4652,7 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 **Reminder the user wants gone.** An item that has never been referenced by a service line deletes outright. An item that *has* been is never deletable — the destructive control becomes **Turn this off**. Service history is never destroyed to tidy a reminder list, and every `service_item_id` still resolves.
 
-**Restore on a brand-new phone.** First run has an explicit escape: `vehicle.edit` (firstRun) carries a single text link — §8 owns the screen and its wording is *Moving from another phone? Restore a backup* — which opens `settings.import` in firstRun mode. Without it the most important journey in a no-account app requires inventing a fake vehicle and then wiping it. No new screen id.
+**Restore on a brand-new phone.** First run has an explicit escape: `vehicle.edit` (firstRun) carries a single text link, *I already have an Odova backup*, which opens `settings.import` in firstRun mode. That is a DIFFERENT string from `settings.language` (firstRun)'s two-line *Moving from another phone? / Restore a backup*, and deliberately so: by the time somebody reaches the vehicle screen they have already chosen a language and declined the offer once, so the second ask is the short one. Both are what `design/reference/calm/` draws. Without it the most important journey in a no-account app requires inventing a fake vehicle and then wiping it. No new screen id.
 
 ### Odometer and data integrity
 
