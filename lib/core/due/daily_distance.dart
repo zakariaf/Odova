@@ -170,8 +170,5 @@ int? _slope(List<OdometerPoint> points) {
 /// The NUMBER only. The confidence is never demoted by a clamp: the readings
 /// really were measured, and letting a typo change how every other figure on
 /// the screen is rendered would spread one bad row across the whole vehicle.
-int _clamp(int metresPerDay) => metresPerDay < kRateFloorMetresPerDay
-    ? kRateFloorMetresPerDay
-    : metresPerDay > kRateCeilingMetresPerDay
-    ? kRateCeilingMetresPerDay
-    : metresPerDay;
+int _clamp(int metresPerDay) =>
+    metresPerDay.clamp(kRateFloorMetresPerDay, kRateCeilingMetresPerDay);

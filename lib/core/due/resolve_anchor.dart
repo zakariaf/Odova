@@ -75,11 +75,11 @@ DueAnchor resolveAnchor(
         completing.odometer?.metres,
       ),
     (
-      CivilDate.tryParse(item.baselineDate ?? ''),
+      CivilDate.tryParseOrNull(item.baselineDate),
       item.baselineOdometer?.metres,
     ),
     (
-      CivilDate.tryParse(vehicle.purchaseDate ?? ''),
+      CivilDate.tryParseOrNull(vehicle.purchaseDate),
       vehicle.purchaseOdometer?.metres,
     ),
     if (earliest != null) (earliest.date, earliest.cumulative.metres),
@@ -158,8 +158,8 @@ CivilDate? _anchorDate(
 
   final months = item.intervalMonths;
   final base =
-      CivilDate.tryParse(item.baselineDate ?? '') ??
-      CivilDate.tryParse(vehicle.purchaseDate ?? '') ??
+      CivilDate.tryParseOrNull(item.baselineDate) ??
+      CivilDate.tryParseOrNull(vehicle.purchaseDate) ??
       earliest?.date;
 
   // No cycle to walk. An item marked `from_due` with no interval or no base

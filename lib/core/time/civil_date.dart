@@ -53,6 +53,16 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
     return CivilDate._(year, month, day);
   }
 
+  /// Reads `YYYY-MM-DD`, or null for null.
+  ///
+  /// `tryParse(x ?? '')` was written at six call sites, each independently
+  /// deciding that a MALFORMED stored date and an ABSENT one mean the same
+  /// thing. They do — a corrupted `baseline_date` from an imported backup is
+  /// no anchor either way — but that is a decision, and it should be made and
+  /// documented once rather than six times by accident.
+  static CivilDate? tryParseOrNull(String? text) =>
+      text == null ? null : tryParse(text);
+
   /// The year.
   final int year;
 

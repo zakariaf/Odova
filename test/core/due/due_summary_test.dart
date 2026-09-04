@@ -59,7 +59,7 @@ void main() {
         (item('A'), assessed(DueState.ok, projected: day('2027-01-01'))),
         (item('B'), assessed(DueState.due, projected: day('2026-10-12'))),
         (item('C'), assessed(DueState.ok, projected: day('2026-12-01'))),
-      ]);
+      ], today: day('2026-09-02'));
 
       expect(next, day('2026-10-12'));
     });
@@ -78,7 +78,7 @@ void main() {
           assessed(DueState.overdue, projected: day('2021-01-01')),
         ),
         (item('C'), assessed(DueState.ok, projected: day('2027-01-01'))),
-      ]);
+      ], today: day('2026-09-02'));
 
       expect(next, day('2027-01-01'));
     });
@@ -119,17 +119,22 @@ void main() {
     test('is null on a vehicle with no eligible items', () {
       // Null, and never a far-future sentinel: a sentinel sorts and formats,
       // and would appear on a screen as a real date in the year 9999.
-      expect(nextDue(const []), isNull);
+      expect(nextDue(const [], today: day('2026-09-02')), isNull);
       expect(
         nextDue([
           (item('A', isActive: false), assessed(DueState.overdue)),
-        ]),
+        ], today: day('2026-09-02')),
         isNull,
       );
     });
 
     test('is null when no eligible item has a projection', () {
-      expect(nextDue([(item('A'), assessed(DueState.unknown))]), isNull);
+      expect(
+        nextDue([
+          (item('A'), assessed(DueState.unknown)),
+        ], today: day('2026-09-02')),
+        isNull,
+      );
     });
   });
 
@@ -301,6 +306,60 @@ void main() {
         dueSummary([(item('A'), assessed(DueState.overdue))]),
         isNot(dueSummary([(item('B'), assessed(DueState.overdue))])),
       );
+    });
+  });
+  group('the two orderings of DueState differ ON PURPOSE', () {
+    // `axisSeverity` in `due_engine.dart` answers "which axis is worse".
+    // `attentionRank` here answers "which item do I name first". They are two
+    // questions, two orderings, and nothing but this test says they were
+    // supposed to disagree — EPIC-11's notification ranking and EPIC-12's home
+    // sort are the next consumers, and each will reach for whichever is nearer
+    // its import.
+
+    test('they disagree only where the difference is designed', () {
+      // needsOdometer: tied with dueSoon for combining, ABOVE it for naming.
+      expect(
+        axisSeverity(DueState.needsOdometer),
+        axisSeverity(DueState.dueSoon),
+        reason: 'a distance axis that cannot be placed must not outrank time',
+      );
+      expect(
+        attentionRank(DueState.needsOdometer),
+        greaterThan(attentionRank(DueState.dueSoon)),
+        reason: 'but it is more worth naming than a due_soon item',
+      );
+
+      // unknown: tied with ok for combining, BELOW it for naming.
+      expect(axisSeverity(DueState.unknown), axisSeverity(DueState.ok));
+      expect(
+        attentionRank(DueState.unknown),
+        lessThan(attentionRank(DueState.ok)),
+        reason: '"nothing to do" leads better than "we cannot say"',
+      );
+    });
+
+    test('and they AGREE on the strict ordering they share', () {
+      // The part that must never drift: wherever both are strict, they must
+      // point the same way. A contradiction here would make the home screen's
+      // worst item and the card's own state disagree about which is worse.
+      const strict = [DueState.dueSoon, DueState.due, DueState.overdue];
+      for (var i = 0; i < strict.length - 1; i++) {
+        expect(
+          axisSeverity(strict[i]),
+          lessThan(axisSeverity(strict[i + 1])),
+          reason: '${strict[i]} < ${strict[i + 1]} for combining',
+        );
+        expect(
+          attentionRank(strict[i]),
+          lessThan(attentionRank(strict[i + 1])),
+          reason: '${strict[i]} < ${strict[i + 1]} for naming',
+        );
+      }
+    });
+
+    test('attentionRank is a TOTAL order; no two states share a rank', () {
+      final ranks = DueState.values.map(attentionRank).toList();
+      expect(ranks.toSet(), hasLength(DueState.values.length));
     });
   });
 }

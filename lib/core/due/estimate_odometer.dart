@@ -11,6 +11,8 @@
 // lower a confidence; it hands back the last figure the user actually typed and
 // says when they typed it, and the strip reads
 // "187,412 km · last entered 12 Jul 2025".
+import 'dart:math' as math;
+
 import 'package:meta/meta.dart';
 import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/due/reading_series.dart';
@@ -99,7 +101,7 @@ OdometerEstimate? estimateOdometer(
   // projecting it backwards would report an odometer BELOW the number they
   // just typed.
   final elapsed = last.date.daysUntil(today);
-  final staleDays = elapsed > 0 ? elapsed : 0;
+  final staleDays = math.max(0, elapsed);
 
   if (staleDays == 0) {
     return OdometerEstimate(

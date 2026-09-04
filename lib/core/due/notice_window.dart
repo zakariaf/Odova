@@ -135,11 +135,10 @@ int _computedDistance(ServiceItem item) {
   if (interval == null || interval <= 0) return kNoticeDistanceCeilingMetres;
 
   final tenth = roundHalfAwayFromZero(interval * kNoticeFraction).toInt();
-  return tenth < kNoticeDistanceFloorMetres
-      ? kNoticeDistanceFloorMetres
-      : tenth > kNoticeDistanceCeilingMetres
-      ? kNoticeDistanceCeilingMetres
-      : tenth;
+  return tenth.clamp(
+    kNoticeDistanceFloorMetres,
+    kNoticeDistanceCeilingMetres,
+  );
 }
 
 /// A tenth of the month interval in days, clamped — or the ceiling.
@@ -152,9 +151,5 @@ int _computedDays(ServiceItem item) {
   final tenth = roundHalfAwayFromZero(
     months * kDaysPerMonth * kNoticeFraction,
   ).toInt();
-  return tenth < kNoticeDaysFloor
-      ? kNoticeDaysFloor
-      : tenth > kNoticeDaysCeiling
-      ? kNoticeDaysCeiling
-      : tenth;
+  return tenth.clamp(kNoticeDaysFloor, kNoticeDaysCeiling);
 }

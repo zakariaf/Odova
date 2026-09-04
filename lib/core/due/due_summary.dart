@@ -59,7 +59,7 @@ class DueSummary with ValueEquality {
 /// Null when there is nothing to report — never a far-future sentinel, which
 /// would sort and format and eventually appear on a screen as a real date in
 /// the year 9999.
-CivilDate? nextDue(List<AssessedItem> items, {CivilDate? today}) {
+CivilDate? nextDue(List<AssessedItem> items, {required CivilDate today}) {
   CivilDate? earliest;
   for (final (item, assessment) in items) {
     if (!isEligible(item)) continue;
@@ -94,12 +94,17 @@ DueSummary dueSummary(List<AssessedItem> items) {
 
 /// Whether [item] is snoozed as of [today].
 ///
-/// A snoozed item keeps its state and its card — SPEC.md §3 — but it is not
-/// the NEXT thing due, because the user has said "not yet" and the home screen
+/// A snoozed item keeps its state and its card — SPEC.md §3 — but it is not the
+/// NEXT thing due, because the user has said "not yet" and the home screen
 /// would otherwise keep offering it.
-bool _isSnoozed(ServiceItem item, CivilDate? today) {
-  if (today == null) return false;
-  final until = CivilDate.tryParse(item.snoozedUntil ?? '');
+///
+/// [today] is REQUIRED on `nextDue`. It was optional so tests could omit it,
+/// and the default silently disabled this filter: the unsafe direction, on a
+/// function whose obvious second caller is the notification scheduler. Omitting
+/// it there would fire reminders for items the user has explicitly deferred,
+/// with nothing red anywhere.
+bool _isSnoozed(ServiceItem item, CivilDate today) {
+  final until = CivilDate.tryParseOrNull(item.snoozedUntil);
   return until != null && until > today;
 }
 
@@ -109,9 +114,9 @@ bool _isSnoozed(ServiceItem item, CivilDate? today) {
 /// projection sorts after one that has a date at the same severity: a date is
 /// more actionable than none.
 bool _isWorse(AssessedItem candidate, AssessedItem current) {
-  final bySeverity = _rank(
+  final bySeverity = attentionRank(
     candidate.$2.state,
-  ).compareTo(_rank(current.$2.state));
+  ).compareTo(attentionRank(current.$2.state));
   if (bySeverity != 0) return bySeverity > 0;
 
   final a = candidate.$2.projectedDueDate;
@@ -123,13 +128,18 @@ bool _isWorse(AssessedItem candidate, AssessedItem current) {
   return _priority(candidate.$1) > _priority(current.$1);
 }
 
-/// Severity for the worst-item choice.
+/// Ranking for choosing which item to NAME FIRST.
 ///
-/// `needsOdometer` sits BELOW `due` and `overdue` here, and that is the whole
-/// rule `calm-due-state-and-status` states: an accusation the app can support
-/// beats one it cannot. A hollow ring where a red dot belongs understates the
-/// only item the user needs to act on today.
-int _rank(DueState state) => switch (state) {
+/// A total order over all six states, and deliberately not `axisSeverity` in
+/// `due_engine.dart`, which answers a different question — "which axis is
+/// worse" — and ties two pairs this one separates.
+///
+/// `needsOdometer` sits BELOW `due` and `overdue`, which is the rule
+/// `calm-due-state-and-status` states: an accusation the app can support beats
+/// one it cannot, and a hollow ring where a red dot belongs understates the
+/// only item the user needs to act on today. `unknown` sits below `ok`, because
+/// "nothing to do" is a better thing to lead with than "we cannot say".
+int attentionRank(DueState state) => switch (state) {
   DueState.unknown => 0,
   DueState.ok => 1,
   DueState.dueSoon => 2,

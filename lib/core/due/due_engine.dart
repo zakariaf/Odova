@@ -8,6 +8,8 @@
 // time axis only if it has a month interval or a target date — which is DERIVED
 // from the fields, not stored as a mode. A stored mode is a third thing that
 // can disagree with the two it describes.
+import 'dart:math' as math;
+
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/due/daily_distance.dart';
@@ -102,14 +104,30 @@ class DueAssessment with ValueEquality {
 /// neither appears in [DueState].
 bool isEligible(ServiceItem item) => item.isTracked && item.isActive;
 
-/// The worse of two states, by SPEC.md §3's severity order.
+/// The worse of two states, for COMBINING the two axes.
 ///
-/// `ok < due_soon < due < overdue`. Exposed because the combine is a rule
-/// worth testing directly rather than only through the engine.
+/// `ok < due_soon < due < overdue`, and two deliberate TIES that
+/// `due_summary.dart`'s ordering does not share — see [axisSeverity]. Exposed
+/// because the combine is a rule worth testing directly rather than only
+/// through the engine.
 DueState worseOf(DueState a, DueState b) =>
-    _severity(a) >= _severity(b) ? a : b;
+    axisSeverity(a) >= axisSeverity(b) ? a : b;
 
-int _severity(DueState state) => switch (state) {
+/// Severity for COMBINING two axes — "which axis is worse".
+///
+/// Deliberately different from `due_summary.dart`'s ranking, which answers
+/// "which item do I name first". The two ties here are the difference:
+///
+///   * `needsOdometer` ties with `dueSoon`, because a distance axis that cannot
+///     be placed must not outrank a time axis that can. §3: "if the time axis
+///     independently reaches due or overdue, that wins and shows as itself".
+///   * `ok` ties with `unknown`, because neither is a call to action and
+///     `_driver` compares severities to decide `DueDriver.both`.
+///
+/// Naming them apart matters: EPIC-11's notification ranking and EPIC-12's home
+/// sort are the next consumers of this idea, and each will reach for whichever
+/// function is nearer its import.
+int axisSeverity(DueState state) => switch (state) {
   DueState.ok => 0,
   DueState.unknown => 0,
   DueState.needsOdometer => 1,
@@ -201,8 +219,8 @@ DueAssessment computeDueState(
 /// Which axis produced [state].
 DueDriver _driver(DueState? distance, DueState? time, DueState state) {
   final byDistance =
-      distance != null && _severity(distance) == _severity(state);
-  final byTime = time != null && _severity(time) == _severity(state);
+      distance != null && axisSeverity(distance) == axisSeverity(state);
+  final byTime = time != null && axisSeverity(time) == axisSeverity(state);
   return byDistance && byTime
       ? DueDriver.both
       : byDistance
@@ -258,7 +276,7 @@ _Axis _timeAxis(
   NoticeWindow window,
   CivilDate today,
 ) {
-  final target = CivilDate.tryParse(item.targetDate ?? '');
+  final target = CivilDate.tryParseOrNull(item.targetDate);
   final months = item.intervalMonths;
   if (target == null && months == null) {
     return (state: null, remaining: null, dueAt: null, dueOn: null);
@@ -304,17 +322,14 @@ double _progress(
   final base = anchor.odometerMetres;
   final dueAt = distance.dueAt;
   if (base != null && dueAt != null && estimate != null && dueAt != base) {
-    best = _atLeast(best, (estimate.metres - base) / (dueAt - base));
+    best = math.max(best, (estimate.metres - base) / (dueAt - base));
   }
 
   final from = anchor.date;
   final dueOn = time.dueOn;
   if (from != null && dueOn != null && from.daysUntil(dueOn) != 0) {
-    best = _atLeast(best, from.daysUntil(today) / from.daysUntil(dueOn));
+    best = math.max(best, from.daysUntil(today) / from.daysUntil(dueOn));
   }
 
   return best;
 }
-
-double _atLeast(double current, double candidate) =>
-    candidate > current ? candidate : current;
