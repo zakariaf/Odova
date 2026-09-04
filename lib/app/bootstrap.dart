@@ -1,6 +1,7 @@
 import 'package:clock/clock.dart';
 // Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:odova/app/error_handlers.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
@@ -28,6 +29,16 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
   // lazy — the stream is only pulled if somebody opens the licences page — so
   // this costs nothing on the cold-launch path SPEC.md §17 budgets at 2.0s.
   registerFontLicences();
+
+  // ICU's date symbols, which are NOT compiled in the way its number symbols
+  // are. `DateFormat.yMMMMd('de')` throws `LocaleDataException` until this has
+  // run, and it runs once for the process — so it belongs on the cold-launch
+  // path rather than behind the first screen that formats a date, where the
+  // throw would land on a user instead of on a test.
+  //
+  // It is awaited but not slow: `date_symbol_data_local` is a compiled Dart
+  // table, not a file read, so nothing here touches the disk or a socket.
+  await initializeDateFormatting();
 
   final database = AppDatabase();
   final facts = await readLaunchFacts(database);

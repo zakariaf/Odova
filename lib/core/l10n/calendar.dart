@@ -94,6 +94,38 @@ const kurdishJalaliMonthNames = <String>[
   'ڕەشەمە',
 ];
 
+/// The twelve GREGORIAN months, in Sorani Kurdish.
+///
+/// `ckb-IQ` reads Gregorian — the country decides the calendar, and Iraq runs
+/// on it — and ICU carries no date data for `ckb` at all. Without this table
+/// `DateFormat.yMMMMd('ckb-IQ')` throws `Invalid locale`, which is a crash on
+/// every screen that shows a date rather than a fallback anybody would notice
+/// in review.
+///
+/// Borrowing Persian's words, the way `numberSymbolBorrows` borrows Persian's
+/// SEPARATORS, would be the same mistake [kurdishJalaliMonthNames] exists to
+/// undo: separators are shapes and month names are words. These are the
+/// Levantine forms Sorani writes in Iraq — the same geographic split
+/// [arabicMonthNamesLevant] records, and for the same reason.
+///
+/// **SPEC.md §18: Sorani quality is the single largest RTL risk, and this
+/// table wants a native reader's eye before launch alongside the numerals
+/// question and [kurdishJalaliMonthNames].**
+const kurdishGregorianMonthNames = <String>[
+  'کانوونی دووەم',
+  'شوبات',
+  'ئازار',
+  'نیسان',
+  'ئایار',
+  'حوزەیران',
+  'تەمووز',
+  'ئاب',
+  'ئەیلوول',
+  'تشرینی یەکەم',
+  'تشرینی دووەم',
+  'کانوونی یەکەم',
+];
+
 /// Regions that use the Levantine Gregorian month names.
 ///
 /// Arabic has two competing sets and the split is geographic, not dialectal:
@@ -251,8 +283,12 @@ CalmDateParts projectDate(
     year: utcDate.year,
     month: utcDate.month,
     day: utcDate.day,
-    monthName: language == 'ar'
-        ? arabicMonthNames(formatsTag)[utcDate.month - 1]
-        : null,
+    monthName: switch (language) {
+      'ar' => arabicMonthNames(formatsTag)[utcDate.month - 1],
+      // ICU has no `ckb` date data at all, so null here is not "ICU knows
+      // better" — it is a crash.
+      'ckb' => kurdishGregorianMonthNames[utcDate.month - 1],
+      _ => null,
+    },
   );
 }
