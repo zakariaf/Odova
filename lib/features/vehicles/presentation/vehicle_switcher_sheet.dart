@@ -10,9 +10,13 @@
 // sanctioned way to switch. A sheet that did any of it itself would be a second
 // answer to what switching means, and `active_vehicle_test.dart` refuses the
 // direct write that would let it.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/active_vehicle.dart';
+import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/l10n/numerals.dart';
@@ -109,16 +113,23 @@ class VehicleSwitcherSheet extends ConsumerWidget {
               title: l10n.switcherAddVehicle,
               size: CalmRowSize.compact,
               lead: const Icon(Icons.add),
-              // EPIC-09 task 9.8 registers `vehicle.edit` in create mode; the
-              // row is inert until it exists rather than wired to a 404.
-              onTap: () {},
+              // §8: "`vehicle.edit` (create) stacked OVER the sheet." Pushed,
+              // not gone to, so the sheet is still underneath when the form
+              // closes.
+              onTap: () => unawaited(context.push(Routes.vehicleNew)),
             ),
             CalmListRow(
               title: l10n.switcherManageVehicles,
               size: CalmRowSize.compact,
               lead: const Icon(Icons.home_outlined),
               showChevron: true,
-              onTap: () {},
+              // §8: "Dismisses, pushes `vehicles` into the current tab's
+              // stack." The pop comes FIRST — a sheet left open behind the
+              // garage is a sheet the back gesture returns to.
+              onTap: () {
+                Navigator.of(context).pop();
+                unawaited(context.push(Routes.vehicles));
+              },
             ),
           ],
         ),

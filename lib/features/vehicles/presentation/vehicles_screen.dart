@@ -74,7 +74,11 @@ class VehiclesScreen extends ConsumerWidget {
           CalmAppBarAction(
             label: l10n.commonAdd,
             icon: Icons.add,
-            onTap: () {},
+            // §8: "**+** in the app bar → `vehicle.edit`, create mode."
+            // `Routes.vehicleNew` is the same path with the sentinel id, which
+            // the screen reads as a null `VehicleId` — a vehicle that is not
+            // there yet, drawn by the same code that draws one that is gone.
+            onTap: () => context.push(Routes.vehicleNew),
           ),
         ],
       ),
@@ -223,6 +227,7 @@ class _GarageRow extends ConsumerWidget {
           size: CalmRowSize.compact,
           lead: lead,
           showChevron: true,
+          onTap: () => context.push(Routes.vehicleEdit(vehicle.id.toString())),
         ),
       );
     }
@@ -258,6 +263,7 @@ class _GarageRow extends ConsumerWidget {
         end: CalmStatusDot(
           style: CalmStatusStyle.of(context, vehicleDotState(status)),
         ),
+        onTap: () => context.push(Routes.vehicleEdit(vehicle.id.toString())),
         // Opens `vehicle.edit` and NEVER switches the active vehicle — §8's
         // whole reason for this screen's caption. EPIC-09 task 9.8
         // registers the route; the row is inert until it exists rather than
