@@ -16,6 +16,7 @@ import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
+import 'package:odova/data/repositories/watch.dart';
 
 /// A reading that was written, and anything worth telling the user about it.
 ///
@@ -53,14 +54,14 @@ class OdometerRepository {
 
   /// Every live correction for one vehicle.
   Stream<List<OdometerCorrection>> watchCorrections(VehicleId vehicleId) =>
-      (_db.select(_db.odometerCorrections)..where(
-            (c) =>
-                c.vehicleId.equals(vehicleId.toString()) &
-                c.deletedAtUtcMs.isNull(),
-          ))
-          .watch()
-          .map((rows) => rows.map(odometerCorrectionFromRow).toList())
-          .distinct(valuesEqual);
+      watchList(
+        _db.select(_db.odometerCorrections)..where(
+          (c) =>
+              c.vehicleId.equals(vehicleId.toString()) &
+              c.deletedAtUtcMs.isNull(),
+        ),
+        odometerCorrectionFromRow,
+      );
 
   /// The cumulative value of every live reading for [vehicleId], by id.
   ///

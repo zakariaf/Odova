@@ -40,7 +40,12 @@ final _driftShapes = RegExp(
 /// declaration at two-space indent to the first `{`, `=>` or `;`.
 Iterable<String> publicMemberSignatures(String source) sync* {
   final lines = source.split('\n');
-  var inPrivateClass = false;
+  // Null until the first class. A top-level function's WRAPPED parameter list
+  // is indented two spaces and looks exactly like a member declaration, so
+  // `watch.dart` — which has no class at all and legitimately takes a
+  // `Selectable` — reported three violations. The rule is about what a
+  // REPOSITORY exposes; a file with no class exposes no members.
+  bool? inPublicClass;
 
   for (var i = 0; i < lines.length; i++) {
     final line = lines[i];
@@ -49,10 +54,10 @@ Iterable<String> publicMemberSignatures(String source) sync* {
       r'^(?:final |abstract |sealed |base |interface )*class (\w+)',
     ).firstMatch(line);
     if (classMatch != null) {
-      inPrivateClass = classMatch.group(1)!.startsWith('_');
+      inPublicClass = !classMatch.group(1)!.startsWith('_');
       continue;
     }
-    if (inPrivateClass) continue;
+    if (inPublicClass != true) continue;
 
     // A member declaration starts at exactly two spaces of indent.
     if (!RegExp(r'^  \S').hasMatch(line)) continue;
@@ -71,7 +76,13 @@ Iterable<String> publicMemberSignatures(String source) sync* {
       buffer.write(' ${lines[end].trim()}');
     }
 
-    final signature = buffer.toString();
+    // Truncate at the body. An expression-bodied member wraps as
+    // `watchAll() => watchList(` — the `=>` is not at the end of a line, so
+    // accumulating to the terminator swallowed the whole body and matched
+    // every Drift type inside it.
+    var signature = buffer.toString();
+    final body = RegExp(r'=>|\{').firstMatch(signature);
+    if (body != null) signature = signature.substring(0, body.start);
     // Private members are internal to the data layer and may hold a row type.
     if (RegExp(r'\b_\w+\s*[(<=]').hasMatch(signature)) continue;
     yield signature;
@@ -99,6 +110,37 @@ void main() {
           'a Drift type in a public signature makes every caller need a '
           'database. Map rows to the models in lib/core/domain/models/.',
     );
+  });
+
+  test('a top-level function is not read as a class member', () {
+    // `watch.dart` has no class and legitimately takes a `Selectable` — it is
+    // the shared query helper INSIDE the data layer, not something handing a
+    // row type upward. Its wrapped parameter list is indented two spaces and
+    // looked exactly like a member declaration.
+    const source = '''
+Stream<List<T>> watchList<R, T>(
+  Selectable<R> rows,
+  T Function(R row) toModel,
+) => rows.watch();
+''';
+    expect(publicMemberSignatures(source), isEmpty);
+  });
+
+  test('an expression body is not read as part of the signature', () {
+    // `watchAll() => watchList(` puts the `=>` mid-line, so accumulating to
+    // the terminator swallowed the whole body and matched every Drift type
+    // inside it.
+    const source = '''
+class Repository {
+  Stream<List<Vehicle>> watchAll() => watchList(
+    _db.select(_db.vehicles)..orderBy([(v) => OrderingTerm(expression: v.id)]),
+    vehicleFromRow,
+  );
+}
+''';
+    final signature = publicMemberSignatures(source).single;
+    expect(signature, contains('watchAll'));
+    expect(signature, isNot(contains('OrderingTerm')));
   });
 
   test('a wrapped private signature is not read as public API', () {

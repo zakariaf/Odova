@@ -193,6 +193,35 @@ void main() {
     );
   });
 
+  test('an unchanged garage list does not wake the app shell', () async {
+    // `vehiclesProvider` is the one provider that is NOT autoDispose — alive
+    // for the whole session, feeding the shell. Drift's stream invalidation is
+    // table-level, so a write to ANY vehicle re-runs this query; without
+    // `distinct` the shell rebuilt on every write, including one that changed
+    // nothing the list shows.
+    final golf = _vehicle();
+    await repository.save(golf);
+
+    final emissions = <List<Vehicle>>[];
+    final subscription = repository.watchAll().listen(emissions.add);
+    await pumpEventQueue();
+    expect(emissions, hasLength(1));
+
+    // Re-saving an identical row is a real write — drift invalidates and
+    // re-runs the query — and the answer it produces is equal to the last one.
+    await repository.save(golf);
+    await pumpEventQueue();
+
+    await subscription.cancel();
+    expect(
+      emissions,
+      hasLength(1),
+      reason:
+          'the query re-ran and produced the same answer; the subscriber '
+          'must not have been woken',
+    );
+  });
+
   test('the garage list is ordered, deterministically', () async {
     // `sortOrder` then `id`. The id tiebreak is free because a ULID sorts in
     // mint order, and without it two vehicles at sortOrder 0 swap places

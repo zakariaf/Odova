@@ -17,6 +17,7 @@ import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
 import 'package:odova/data/repositories/odometer_fan_out.dart';
+import 'package:odova/data/repositories/watch.dart';
 
 /// Reads and writes the service side of a vehicle.
 class ServiceRepository {
@@ -37,17 +38,16 @@ class ServiceRepository {
   /// `distinct` is what stops the SUBSCRIBER waking, because the models
   /// compare by value and an unchanged answer is equal to the last one. Without
   /// it, saving a service on the van rebuilds the Golf's screen.
-  Stream<List<ServiceItem>> watchItems(VehicleId vehicleId) =>
-      (_db.select(_db.serviceItems)
-            ..where(
-              (i) =>
-                  i.vehicleId.equals(vehicleId.toString()) &
-                  i.deletedAtUtcMs.isNull(),
-            )
-            ..orderBy([(i) => OrderingTerm(expression: i.id)]))
-          .watch()
-          .map((rows) => rows.map(_itemFromRow).toList())
-          .distinct(valuesEqual);
+  Stream<List<ServiceItem>> watchItems(VehicleId vehicleId) => watchList(
+    _db.select(_db.serviceItems)
+      ..where(
+        (i) =>
+            i.vehicleId.equals(vehicleId.toString()) &
+            i.deletedAtUtcMs.isNull(),
+      )
+      ..orderBy([(i) => OrderingTerm(expression: i.id)]),
+    _itemFromRow,
+  );
 
   /// Every live service record for one vehicle, newest first, with its lines.
   Stream<List<ServiceRecord>> watchRecords(VehicleId vehicleId) {
@@ -65,14 +65,38 @@ class ServiceRepository {
         (r) => OrderingTerm(expression: r.id, mode: OrderingMode.desc),
       ]);
 
+    // TWO queries per emission, not 1 + N. The first version awaited
+    // `_recordWithLines` per row, so sixty service records meant sixty-one
+    // queries — and because drift's stream invalidation is table-level, all
+    // sixty-one ran on every write to `service_records`, including for a
+    // vehicle the user is not looking at, and BEFORE `distinct` could decide
+    // nothing had changed.
     return records
         .watch()
-        .asyncMap(
-          (rows) async => [
-            for (final row in rows) await _recordWithLines(row),
-          ],
-        )
+        .asyncMap((rows) async => _withLines(rows))
         .distinct(valuesEqual);
+  }
+
+  /// [rows] as records, with every line fetched in one query and grouped.
+  Future<List<ServiceRecord>> _withLines(List<ServiceRecordRow> rows) async {
+    if (rows.isEmpty) return const [];
+
+    final lines =
+        await (_db.select(_db.serviceLines)
+              ..where(
+                (l) => l.serviceRecordId.isIn([for (final r in rows) r.id]),
+              )
+              ..orderBy([(l) => OrderingTerm(expression: l.id)]))
+            .get();
+
+    final byRecord = <String, List<ServiceLineRow>>{};
+    for (final line in lines) {
+      byRecord.putIfAbsent(line.serviceRecordId, () => []).add(line);
+    }
+
+    return [
+      for (final row in rows) _recordFrom(row, byRecord[row.id] ?? const []),
+    ];
   }
 
   /// Writes [record] and its lines as one transaction.
@@ -165,7 +189,11 @@ class ServiceRepository {
               ..where((l) => l.serviceRecordId.equals(row.id))
               ..orderBy([(l) => OrderingTerm(expression: l.id)]))
             .get();
+    return _recordFrom(row, lines);
+  }
 
+  /// One record and the lines already fetched for it.
+  ServiceRecord _recordFrom(ServiceRecordRow row, List<ServiceLineRow> lines) {
     final times = repairAuditTimes(
       createdAtUtcMs: row.createdAtUtcMs,
       updatedAtUtcMs: row.updatedAtUtcMs,

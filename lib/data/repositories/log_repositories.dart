@@ -11,13 +11,13 @@ import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/result.dart';
-import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/audit_mapper.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
 import 'package:odova/data/repositories/odometer_fan_out.dart';
+import 'package:odova/data/repositories/watch.dart';
 
 /// Reads and writes fill-ups.
 class FillUpRepository {
@@ -36,23 +36,22 @@ class FillUpRepository {
   ///
   /// The order matches `idx_fillups_vehicle_date` exactly, so the page is an
   /// index read rather than a scan and a sort.
-  Stream<List<FillUp>> watchForVehicle(VehicleId vehicleId) =>
-      (_db.select(_db.fillUps)
-            ..where(
-              (f) =>
-                  f.vehicleId.equals(vehicleId.toString()) &
-                  f.deletedAtUtcMs.isNull(),
-            )
-            ..orderBy([
-              (f) => OrderingTerm(
-                expression: f.occurredOn,
-                mode: OrderingMode.desc,
-              ),
-              (f) => OrderingTerm(expression: f.id, mode: OrderingMode.desc),
-            ]))
-          .watch()
-          .map((rows) => rows.map(fillUpFromRow).toList())
-          .distinct(valuesEqual);
+  Stream<List<FillUp>> watchForVehicle(VehicleId vehicleId) => watchList(
+    _db.select(_db.fillUps)
+      ..where(
+        (f) =>
+            f.vehicleId.equals(vehicleId.toString()) &
+            f.deletedAtUtcMs.isNull(),
+      )
+      ..orderBy([
+        (f) => OrderingTerm(
+          expression: f.occurredOn,
+          mode: OrderingMode.desc,
+        ),
+        (f) => OrderingTerm(expression: f.id, mode: OrderingMode.desc),
+      ]),
+    fillUpFromRow,
+  );
 
   /// Writes [fillUp].
   Future<Result<FillUp, PersistFailure>> save(FillUp fillUp) =>
@@ -120,23 +119,22 @@ class ExpenseRepository {
   final UlidFactory _ids;
 
   /// Every live expense for one vehicle, newest first.
-  Stream<List<Expense>> watchForVehicle(VehicleId vehicleId) =>
-      (_db.select(_db.expenses)
-            ..where(
-              (e) =>
-                  e.vehicleId.equals(vehicleId.toString()) &
-                  e.deletedAtUtcMs.isNull(),
-            )
-            ..orderBy([
-              (e) => OrderingTerm(
-                expression: e.occurredOn,
-                mode: OrderingMode.desc,
-              ),
-              (e) => OrderingTerm(expression: e.id, mode: OrderingMode.desc),
-            ]))
-          .watch()
-          .map((rows) => rows.map(_expenseFromRow).toList())
-          .distinct(valuesEqual);
+  Stream<List<Expense>> watchForVehicle(VehicleId vehicleId) => watchList(
+    _db.select(_db.expenses)
+      ..where(
+        (e) =>
+            e.vehicleId.equals(vehicleId.toString()) &
+            e.deletedAtUtcMs.isNull(),
+      )
+      ..orderBy([
+        (e) => OrderingTerm(
+          expression: e.occurredOn,
+          mode: OrderingMode.desc,
+        ),
+        (e) => OrderingTerm(expression: e.id, mode: OrderingMode.desc),
+      ]),
+    _expenseFromRow,
+  );
 
   /// Writes [expense] and its derived odometer reading, together.
   Future<Result<Expense, PersistFailure>> save(
@@ -240,23 +238,22 @@ class TripRepository {
   final UlidFactory _ids;
 
   /// Every live trip for one vehicle, newest first.
-  Stream<List<Trip>> watchForVehicle(VehicleId vehicleId) =>
-      (_db.select(_db.trips)
-            ..where(
-              (t) =>
-                  t.vehicleId.equals(vehicleId.toString()) &
-                  t.deletedAtUtcMs.isNull(),
-            )
-            ..orderBy([
-              (t) => OrderingTerm(
-                expression: t.startedOn,
-                mode: OrderingMode.desc,
-              ),
-              (t) => OrderingTerm(expression: t.id, mode: OrderingMode.desc),
-            ]))
-          .watch()
-          .map((rows) => rows.map(_tripFromRow).toList())
-          .distinct(valuesEqual);
+  Stream<List<Trip>> watchForVehicle(VehicleId vehicleId) => watchList(
+    _db.select(_db.trips)
+      ..where(
+        (t) =>
+            t.vehicleId.equals(vehicleId.toString()) &
+            t.deletedAtUtcMs.isNull(),
+      )
+      ..orderBy([
+        (t) => OrderingTerm(
+          expression: t.startedOn,
+          mode: OrderingMode.desc,
+        ),
+        (t) => OrderingTerm(expression: t.id, mode: OrderingMode.desc),
+      ]),
+    _tripFromRow,
+  );
 
   /// Writes [trip] and its one or two derived odometer readings, together.
   Future<Result<Trip, PersistFailure>> save(

@@ -14,6 +14,7 @@ import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
+import 'package:odova/data/repositories/watch.dart';
 
 /// Reads and writes vehicles.
 class VehicleRepository {
@@ -24,25 +25,29 @@ class VehicleRepository {
 
   /// Every live vehicle, in garage order.
   ///
-  /// Soft-deleted rows are excluded HERE rather than at each call site, so
-  /// "invisible everywhere immediately" is one filter and not a convention.
-  Stream<List<Vehicle>> watchAll() =>
-      (_db.select(_db.vehicles)
-            ..where((v) => v.deletedAtUtcMs.isNull())
-            ..orderBy([
-              (v) => OrderingTerm(expression: v.sortOrder),
-              (v) => OrderingTerm(expression: v.id),
-            ]))
-          .watch()
-          .map((rows) => rows.map(vehicleFromRow).toList());
+  /// Through `watchList`, which is where the soft-delete filter's intent and
+  /// the de-duplication both live. These two streams were the only ones in the
+  /// data layer without `distinct`, and `vehiclesProvider` is the one provider
+  /// that is NOT autoDispose — alive for the whole session, feeding the app
+  /// shell. So the most-subscribed stream in the app was the one that rebuilt
+  /// on every write to `vehicles`, including a `sortOrder` nudge on a car the
+  /// user is not looking at.
+  Stream<List<Vehicle>> watchAll() => watchList(
+    _db.select(_db.vehicles)
+      ..where((v) => v.deletedAtUtcMs.isNull())
+      ..orderBy([
+        (v) => OrderingTerm(expression: v.sortOrder),
+        (v) => OrderingTerm(expression: v.id),
+      ]),
+    vehicleFromRow,
+  );
 
   /// One vehicle, or null while it does not exist.
-  Stream<Vehicle?> watchOne(VehicleId id) =>
-      (_db.select(_db.vehicles)..where(
-            (v) => v.id.equals(id.toString()) & v.deletedAtUtcMs.isNull(),
-          ))
-          .watchSingleOrNull()
-          .map((row) => row == null ? null : vehicleFromRow(row));
+  Stream<Vehicle?> watchById(VehicleId id) => watchOne(
+    _db.select(_db.vehicles)
+      ..where((v) => v.id.equals(id.toString()) & v.deletedAtUtcMs.isNull()),
+    vehicleFromRow,
+  );
 
   /// Reads one vehicle.
   Future<Result<Vehicle, PersistFailure>> findById(VehicleId id) =>
