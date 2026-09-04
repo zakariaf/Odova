@@ -578,7 +578,7 @@ Every derived value is a pure function: deterministic, no I/O, no clock except a
 | Derived value | Function |
 |---|---|
 | Next thing due, per vehicle | `nextDue(vehicle)` = min `projected_due_date` over tracked, active items |
-| Status counts for Home | `dueSummary(vehicle)` |
+| Status counts for Home | `dueSummary(vehicle)` → `{counts: Map<DueState,int>, worst: DueAssessment?, worstItem: ServiceItem?}` |
 | Fuel cost per distance | `fuelCostPerDistance(segments)` → per currency |
 | Lifetime distance | `lifetimeDistance(vehicle)` = max cumulative − purchase odometer |
 | Distance in a period | `distanceBetween(vehicle, from, to)` |
@@ -2832,6 +2832,8 @@ Every control here, the card `⋯` and the strip `✕` included, has a 48 × 48 
 #### Data in / data out
 
 Reads: `Settings` (`active_vehicle_id`, language, calendar, numerals, units, `currency_default`, notification permission state) · `Vehicle` (`name`, `vehicle_type`, `status`, `sold_on`, `purchase_date`, `purchase_odometer_m`, unit and currency overrides, `colour`) · `ServiceItem` (`is_tracked = true` and `is_active = true`) · `ServiceRecord` + lines · `OdometerReading` + `OdometerCorrection` · `FillUp` (latest, plus segments) · `Expense`.
+
+`dueSummary` carries the **worst item** as well as the counts. *The garage* (§8) renders "Oil and filter overdue" on a vehicle row's third line, and a `Map<DueState,int>` cannot say "Oil and filter" — the field was added in EPIC-07 because §8's stated shape could not be built from §3's stated one. Ties are broken by the earlier `projected_due_date`, then by priority (safety, normal, low). `needs_odometer` ranks BELOW `due` and `overdue` for this choice only: an accusation the app can support beats one it cannot, and a hollow ring where a red dot belongs understates the one item the user needs to act on.
 
 Derived at read time: `estimateOdometer`, `dailyDistance`, `resolveAnchor`, `computeDueState`, `projectDueDate`, `nextDue`, `dueSummary`, `averageConsumption`, `costPerDistance`, `monthlyCost`, `unitPrice`.
 

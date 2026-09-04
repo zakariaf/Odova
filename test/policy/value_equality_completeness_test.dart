@@ -106,6 +106,11 @@ void main() {
       },
       // And a Map of rates per currency, encoded the same way.
       'lib/core/fuel/fuel_money.dart': {'minorPerMetre'},
+      // A Map of counts per state, encoded over the fixed `DueState.values`
+      // so the order cannot vary, plus the item — which is compared by ID
+      // rather than by value, because two summaries naming the same item are
+      // the same summary whatever else that item's row has changed.
+      'lib/core/due/due_summary.dart': {'counts', 'worstItem'},
     };
 
     final offenders = <String>[];
