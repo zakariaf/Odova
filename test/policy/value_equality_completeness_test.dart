@@ -53,10 +53,28 @@ List<ValueClass> valueClassesIn(String source) {
       dotAll: true,
     ).firstMatch(chunk);
 
+    // `props => someField;` with no brackets. A class whose whole identity is
+    // one list writes exactly that, and the bracketed parser above read it as
+    // an EMPTY props and reported the field as omitted — which reads as a real
+    // finding and is not one. `[...points]` silences it and costs a full copy
+    // on every `==`, so the parser learns the shape instead.
+    final bareProps = RegExp(
+      r'List<Object\?> get props => (\w+);',
+    ).firstMatch(chunk);
+
     // Split on commas and take the bare identifiers. A regex over the whole
     // body needed a trailing comma to match, so `[a, b]` on one line yielded
     // only `a` — and the completeness test passed anyway, over a parser that
     // had found half the entries. That is what the guard test below is for.
+    if (propsBody == null && bareProps != null) {
+      classes.add((
+        name: header.group(1)!,
+        fields: fields,
+        props: {bareProps.group(1)!},
+      ));
+      continue;
+    }
+
     final props = propsBody == null
         ? <String>{}
         : propsBody

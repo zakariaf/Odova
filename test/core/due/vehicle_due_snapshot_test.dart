@@ -20,6 +20,7 @@ import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:test/test.dart';
@@ -165,6 +166,91 @@ void main() {
       expect(result.clock.isSuspect, isFalse);
       expect(result.assessments.single.$2.state, isNot(DueState.unknown));
     });
+  });
+
+  test('a decade of history recomputes in well under 50 ms', () {
+    // The version below runs with an empty record list and two readings, so it
+    // exercises NEITHER term that scales: not `items x records` in
+    // `resolveAnchor`, and not the sort in `ReadingSeries`. It could not have
+    // produced the finding its own comment promises.
+    //
+    // Ten years: 1,000 odometer readings, 200 service records, 16 reminders,
+    // five vehicles. If THIS is fast, "recompute everything, always" is
+    // affordable for the user the app is designed for.
+    final items = [for (var i = 0; i < 16; i++) item(i)];
+    final manyReadings = ReadingSeries.from([
+      for (var i = 0; i < 1000; i++)
+        reading(
+          i % 900,
+          CivilDate.tryParse('2016-01-01')!.addDays(i * 4).toString(),
+          100000 + i * 40,
+        ),
+    ], const []);
+    final manyRecords = [
+      for (var i = 0; i < 200; i++)
+        ServiceRecord(
+          id: ServiceRecordId.tryParse(
+            'srv_${_id.substring(0, 24)}${_suffix(i)}',
+          )!,
+          vehicleId: VehicleId.tryParse('veh_$_id')!,
+          occurredOn: CivilDate.tryParse(
+            '2016-01-01',
+          )!.addDays(i * 18).toString(),
+          odometer: Distance.fromKm(100000 + i * 200),
+          odometerUnit: DistanceUnit.km,
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+          lines: [
+            ServiceLine(
+              id: ServiceLineId.tryParse(
+                'lin_${_id.substring(0, 24)}${_suffix(i)}',
+              )!,
+              serviceRecordId: ServiceRecordId.tryParse(
+                'srv_${_id.substring(0, 24)}${_suffix(i)}',
+              )!,
+              serviceItemId: items[i % 16].id,
+              label: 'Service',
+              amount: Money(8900, Currency.tryParse('EUR')!),
+            ),
+          ],
+        ),
+    ];
+
+    VehicleDueSnapshot heavy() => recomputeVehicle(
+      _vehicle,
+      items,
+      manyRecords,
+      manyReadings,
+      _settings,
+      today: day('2026-06-01'),
+      buildDate: _build,
+    );
+
+    for (var i = 0; i < 3; i++) {
+      heavy();
+    }
+
+    final stopwatch = Stopwatch()..start();
+    for (var vehicle = 0; vehicle < 5; vehicle++) {
+      heavy();
+    }
+    stopwatch.stop();
+
+    // The measurement IS the report — the assertion below is the affordability
+    // claim and this is the number a reviewer reads.
+    // ignore: avoid_print
+    print(
+      '5 vehicles x 16 items x 200 records x 1000 readings: '
+      '${stopwatch.elapsedMilliseconds} ms',
+    );
+    expect(
+      stopwatch.elapsedMilliseconds,
+      lessThan(50),
+      reason:
+          'if this is slow, "recompute everything, always" is not affordable '
+          'for a ten-year history — and that is a finding, not a licence to '
+          'build a cache',
+    );
   });
 
   test('SPEC §4.2.1s 80 rows recompute in well under 50 ms', () {

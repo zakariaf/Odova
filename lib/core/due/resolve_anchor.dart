@@ -14,6 +14,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/reading_series.dart';
+import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/value_equality.dart';
 
@@ -56,9 +57,12 @@ DueAnchor resolveAnchor(
   ServiceItem item,
   List<ServiceRecord> records,
   Vehicle vehicle,
-  ReadingSeries series,
-) {
-  final completing = _newestCompleting(item, records);
+  ReadingSeries series, {
+  Map<ServiceItemId, ServiceRecord>? completingIndex,
+}) {
+  final completing = completingIndex != null
+      ? completingIndex[item.id]
+      : _newestCompleting(item, records);
   final earliest = series.points.isEmpty ? null : series.points.first;
 
   // The rungs as (date, odometer) pairs, most authoritative first. Written
@@ -89,6 +93,34 @@ DueAnchor resolveAnchor(
         .map((r) => r.$2)
         .firstWhere((m) => m != null, orElse: () => null),
   );
+}
+
+/// The newest completing record for EVERY item, in one pass.
+///
+/// `resolveAnchor` runs per item, and walking every record and every line for
+/// each of a vehicle's sixteen reminders is O(items x records x lines) — a
+/// plumber with two vans and eight years of receipts pays for that on every app
+/// foreground. `recomputeVehicle` builds this once and hands it in.
+///
+/// The un-indexed path stays: `resolveAnchor` is a documented pure function its
+/// own tests call with three arguments, and an index is an optimisation rather
+/// than part of its contract.
+Map<ServiceItemId, ServiceRecord> newestCompletingByItem(
+  List<ServiceRecord> records,
+) {
+  final newest = <ServiceItemId, ServiceRecord>{};
+  for (final record in records) {
+    for (final line in record.lines) {
+      final itemId = line.serviceItemId;
+      if (itemId == null) continue;
+      final current = newest[itemId];
+      if (current == null ||
+          record.occurredOn.compareTo(current.occurredOn) > 0) {
+        newest[itemId] = record;
+      }
+    }
+  }
+  return newest;
 }
 
 /// The newest record with a line referencing [item].

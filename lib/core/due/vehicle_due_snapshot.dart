@@ -122,6 +122,10 @@ VehicleDueSnapshot recomputeVehicle(
   );
   final estimate = estimateOdometer(series, rate, today: today);
 
+  // Once per vehicle too: `resolveAnchor` otherwise walks every record and
+  // every line for each of sixteen items.
+  final completing = newestCompletingByItem(records);
+
   final assessments = <AssessedItem>[];
   for (final item in items) {
     if (!isEligible(item)) continue;
@@ -142,7 +146,13 @@ VehicleDueSnapshot recomputeVehicle(
       continue;
     }
 
-    final anchor = resolveAnchor(item, records, vehicle, series);
+    final anchor = resolveAnchor(
+      item,
+      records,
+      vehicle,
+      series,
+      completingIndex: completing,
+    );
     final window = noticeWindow(
       item: item,
       vehicle: vehicle,

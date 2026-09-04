@@ -85,21 +85,23 @@ class ReadingSeries with ValueEquality {
         .toList();
     if (contributing.isEmpty) return const ReadingSeries._([]);
 
-    // Corrections first, because every later step compares odometers and a
-    // comparison on the raw dash number is a comparison across two scales.
-    // `cumulativeByReading` is EPIC-06's fold and already owns the "at or
-    // after the boundary" rule; re-deriving it here would be a second
-    // implementation of the one piece of arithmetic a whole epic went into.
-    final cumulative = cumulativeByReading(
-      contributing.map(_asReadingPoint),
-      corrections.map(_asCorrectionPoint),
-    );
-
-    // Step 1 — sort ascending, then collapse same-date to the HIGHEST.
-    // `compareReadings` breaks a date tie on created-at and then on id, so the
-    // order is total and two runs agree.
+    // Step 1 — sort ascending. `compareReadings` breaks a date tie on
+    // created-at and then on id, so the order is total and two runs agree.
     final sorted = contributing.map(_asReadingPoint).toList()
       ..sort(compareReadings);
+
+    // Corrections, because every later step compares odometers and a
+    // comparison on the raw dash number is a comparison across two scales.
+    //
+    // `cumulativeBySorted` and not `cumulativeByReading`: the latter sorts
+    // internally, so calling it here mapped and sorted the same 1,000 readings
+    // TWICE. EPIC-06 split the sorted form out for exactly this reason and its
+    // doc says so — passing an unsorted list to it is a wrong answer rather
+    // than a slow one, which is why the sort above comes first.
+    final cumulative = cumulativeBySorted(
+      sorted,
+      corrections.map(_asCorrectionPoint),
+    );
 
     final byDate = <String, Distance>{};
     for (final reading in sorted) {
@@ -125,7 +127,7 @@ class ReadingSeries with ValueEquality {
     // restarts the run, and only then is the >= 1 day gap measured — against
     // the previous ENDPOINT rather than the previous point, so a same-day pair
     // followed by a reading a month later does not inherit the gap.
-    var points = <OdometerPoint>[];
+    final points = <OdometerPoint>[];
     CivilDate? lastEndpointDate;
     Distance? previous;
 
@@ -146,15 +148,16 @@ class ReadingSeries with ValueEquality {
         // user, and the only safe thing to do with that ambiguity is refuse to
         // draw a line through it. It still ANCHORS the timing, so the next
         // endpoint has to be a day or more after it.
-        points = [
-          for (final p in points)
-            OdometerPoint(
-              date: p.date,
-              cumulative: p.cumulative,
-              isRateEndpoint: false,
-            ),
+        for (var i = 0; i < points.length; i++) {
+          points[i] = OdometerPoint(
+            date: points[i].date,
+            cumulative: points[i].cumulative,
+            isRateEndpoint: false,
+          );
+        }
+        points.add(
           OdometerPoint(date: date, cumulative: value, isRateEndpoint: false),
-        ];
+        );
         lastEndpointDate = date;
         previous = value;
         continue;
@@ -210,7 +213,7 @@ class ReadingSeries with ValueEquality {
   OdometerPoint? get last => points.isEmpty ? null : points.last;
 
   @override
-  List<Object?> get props => [...points];
+  List<Object?> get props => points;
 
   @override
   String toString() => 'ReadingSeries(${points.length} points)';
