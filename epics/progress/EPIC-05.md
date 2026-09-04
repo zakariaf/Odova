@@ -336,3 +336,95 @@ coverage the app did not have.
   epic: the fixtures are close to the tests that read them, and EPIC-06 changes
   every one of those models when the value objects land. Consolidating now
   means doing it twice. Recorded so the next epic does it once.
+
+---
+
+## `/code-review` — every finding, applied or answered
+
+Two adversarial passes, one over `lib/data/` and one over `lib/core/` plus the
+migration guard. Both reproduced their findings with throwaway tests rather than
+reasoning about them, which is why the list below is specific about
+consequences.
+
+**Eleven defects found. Nine fixed, two deferred with reasons.** Five of the
+nine were ways to lose or corrupt a user's history — the class CLAUDE.md rule 3
+puts above every feature — and every one of them returned SUCCESS to the caller.
+
+### Fixed
+
+1. **A re-parented record stranded its reading on the old vehicle, with the new
+   vehicle's odometer.** The upsert keys on `(source_id, source)`, which is
+   vehicle-independent, and `vehicle_id` was not in the `DO UPDATE SET` list.
+2. **Clearing an odometer destroyed a correction.**
+   `from_reading_id` is `ON DELETE CASCADE` and the anchor reading is usually
+   derived, so a hard delete took +187,412 km of offset off every later reading
+   and reported success. Soft-deleted now.
+3. **A failed restore on a full disk left neither the database nor the
+   snapshot** — delete-then-copy, plus a `finally` that deleted the snapshot on
+   every path. Renames now, and holds the snapshot until the restore completes.
+4. **The safety copy could throw into the launch path** — `on
+   FileSystemException` did not catch `SqliteException` or
+   `JsonUnsupportedObjectError`, so a database with a missing table crash-looped
+   the app on every launch. `on Object` now, with a `readFailed` variant.
+5. **The safety copy's failure was discarded**, so the app migrated in exactly
+   the two cases the failure exists to prevent. `MigrationRefused` is a real
+   outcome now.
+6. **The copy's write was not atomic** — `writeAsString` truncates, so a second
+   attempt destroyed the first attempt's copy before producing a replacement.
+   Temp file then rename.
+7. **The failure classifier read the user's own typed values.** On a device the
+   exception does not survive the isolate boundary, so the string arm is the one
+   the app uses — and `SqliteException.toString()` appends the bound
+   parameters. "Unique Fuel Station" made a full disk look like a broken rule.
+8. **Deleting a correction was hard and unscoped by vehicle** — no Undo for the
+   highest-leverage row in the odometer history, and a mismatched pair deleted
+   another vehicle's correction.
+9. **Correcting a whole trip's odometer upward was refused**, because the new
+   start was measured against the trip's own stale end. Also **the DST day
+   count**, fixed in its own commit: `DateTime.parse` returns LOCAL time and
+   `inDays` truncates a 47-hour spring-forward gap to 1, doubling the implied
+   rate and telling a delivery driver their odometer looked wrong.
+
+`purgeDeleted`'s sixteen full-table scans are gone, and its doc now says what
+the map means: rows the statement removed, not rows that left — the cascade's
+are invisible to it, which is correct for what the number is used for and wrong
+for what the name suggested.
+
+### Deferred, with reasons
+
+- **The safety copy is not in the backup file format.** `SchemaReader.read`
+  emits `{schema_version, tables: {…raw rows}}`; SPEC.md §6.2.1's envelope is
+  `format: "odova.backup"` with `format_version`, `record_counts`,
+  `content_hash` and file-shaped values, and §6.5's first check rejects anything
+  without the magic. So the copy is not restorable by the import path, which
+  §17's checklist requires.
+  **Deferred to EPIC-15**, which builds that format. Writing a file in an
+  envelope that does not exist yet would mean inventing it here and then
+  reconciling two definitions of it later — and the reader would be written
+  against a guess. What this epic owes EPIC-15 is the numbered-reader
+  mechanism, which it has; what EPIC-15 owes this epic is one `toBackupFile`
+  step between the reader and the encoder.
+- **`DateTime.parse` silently normalises a calendar-invalid date.** The event
+  date CHECK is a shape GLOB, so `'2026-02-30'` passes it, displays as 30
+  February and computes as 2 March. Reachable only from an import, and §6.5's
+  record-level validation is EPIC-15's. Recorded here because the GLOB is what
+  makes it reachable and the GLOB is this epic's.
+
+### Verified NOT bugs
+
+Recorded so they are not re-chased: the ULID's overflow wrap (2^80 ids in one
+millisecond) and its `late` field; prefix collisions (all nine are four
+characters and pairwise distinct); `_cast<T>` soundness; `valuesEqual` over the
+`...lines` spread; `cumulativeByReading` against SPEC's formula, including two
+corrections on one boundary; `Trip.distanceM` versus the cumulative form (the
+schema's `end >= start` CHECK means no correction boundary can fall between the
+endpoints, so they are equal on all storable data); BLOB values in the reader
+(STRICT forbids them); `repairAuditTimes` coverage on all nine read paths; the
+Undo timestamp collision (scoped by vehicle AND timestamp); `'￿$parentId'`
+as a sort key; and `expected = build(NativeDatabase.memory())` leaking a handle
+(both open lazily and `schemaVersion` is a const getter).
+
+One to re-check later, flagged by the reviewer: **the Undo timestamp scope is
+safe only while `softDeleteVehicle` is the sole soft-delete writer.** The moment
+a per-row delete lands, a fill-up deleted in the same millisecond as its vehicle
+would be restored by the vehicle's Undo.
