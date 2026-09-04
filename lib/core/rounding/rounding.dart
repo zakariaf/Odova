@@ -30,11 +30,26 @@ double roundHalfAwayFromZero(double value, {int decimals = 0}) {
   final factor = math.pow(10, decimals);
   final scaled = value * factor;
 
-  // `.abs()` then re-sign, rather than `.round()` on the signed value. Dart
-  // rounds -2.5 to -3 already, but stating it makes the rule checkable and
-  // survives somebody swapping in a different rounding call.
-  final rounded = (scaled.abs() + 0.5).floorToDouble();
-  return (value.isNegative ? -rounded : rounded) / factor;
+  // `.round()`, NOT `(x.abs() + 0.5).floor()`.
+  //
+  // The floor version is the classic add-half-then-floor defect, and it was
+  // here: `0.49999999999999994` is the largest double below one half, adding
+  // 0.5 to it TIES in binary and lands on exactly 1.0 before floor ever sees
+  // it, so a value that is strictly less than half rounded up. Dart's own
+  // `round()` answers 0, which is correct, and it is already half-away-from-
+  // zero — `(-2.5).round()` is -3. The comment that used to sit here said the
+  // explicit version "survives somebody swapping in a different rounding
+  // call"; what it actually did was reintroduce the bug it was avoiding.
+  //
+  // `toDouble()` after `round()` rather than `roundToDouble()`, because
+  // `roundToDouble()` on a negative that rounds to zero yields `-0.0` — and
+  // ICU renders that with a leading minus, so a cost per km of -0.0004 came
+  // out as "-0.000 EUR/km". Going through `int` has no negative zero.
+  final rounded = scaled.round().toDouble();
+  final result = rounded / factor;
+
+  // And the divide can put it back: `-0.0 / 100` is `-0.0`.
+  return result == 0 ? 0.0 : result;
 }
 
 /// How many decimals each kind of value gets, from SPEC.md §3's table.

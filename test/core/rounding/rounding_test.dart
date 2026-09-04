@@ -13,6 +13,41 @@ double _pow10(int exponent) {
 }
 
 void main() {
+  group('the add-half-then-floor trap', () {
+    test('a value strictly below a half rounds DOWN', () {
+      // 0.49999999999999994 is the largest double below 0.5. Adding 0.5 to it
+      // ties in binary and lands on exactly 1.0 BEFORE floor sees it, so
+      // `(x.abs() + 0.5).floor()` answers 1 for a number that is not half.
+      // Dart's own `round()` answers 0, which is correct.
+      expect(roundHalfAwayFromZero(0.49999999999999994), 0.0);
+      expect(roundHalfAwayFromZero(-0.49999999999999994), 0.0);
+      // Reachable at every zero-decimal call — `Decimals.odometer` and
+      // `Decimals.percentage` are both 0, which is this function's default.
+    });
+
+    test('and a real half still rounds AWAY from zero', () {
+      // The rule SPEC.md §3 actually states, unchanged by the fix.
+      expect(roundHalfAwayFromZero(0.5), 1.0);
+      expect(roundHalfAwayFromZero(-0.5), -1.0);
+      expect(roundHalfAwayFromZero(2.5), 3.0);
+      expect(roundHalfAwayFromZero(-2.5), -3.0);
+    });
+
+    test('zero has no sign to carry away from it', () {
+      // `-0.0` is what `(0.0).isNegative ? -rounded : rounded` produced for
+      // any small negative, and ICU renders it with a leading minus: a cost
+      // per km of -0.0004 became "-0.000 EUR/km" and a -0.04% change became
+      // "-0%". A minus sign in front of a zero is the app claiming a direction
+      // it does not have.
+      expect(roundHalfAwayFromZero(-0.4).isNegative, isFalse);
+      expect(roundHalfAwayFromZero(-0.0004, decimals: 3).isNegative, isFalse);
+      expect(roundHalfAwayFromZero(0.4).isNegative, isFalse);
+      // And a real negative keeps its sign.
+      expect(roundHalfAwayFromZero(-0.6), -1.0);
+      expect(roundHalfAwayFromZero(-1.5).isNegative, isTrue);
+    });
+  });
+
   group('half away from zero, never half-even', () {
     test('the four cases SPEC.md names', () {
       // Half-even is the better rule for accumulating statistics and it looks
