@@ -39,7 +39,8 @@ By the time this epic starts:
 | EPIC-01 | The Flutter app, `very_good_analysis` pinned, `pubspec.lock` committed, the composition root with the `Clock` seam, the `Result`/`Failure` spine, and CI's Flutter lane armed. |
 | **EPIC-05** | The Drift store: every table in §3 (`Vehicle`, `ServiceItem`, `ServiceRecord`, `ServiceLine`, `Fillup`, `Expense`, `Trip`, `OdometerReading`, `OdometerCorrection`, `Settings`), the ULID id minting with the nine `veh_`/`rem_`/`srv_`/`lin_`/`fil_`/`exp_`/`trp_`/`odo_`/`cor_` prefixes, the internal `schema_version`, the forward-only migration runner, and the WAL-safe snapshot primitive. Canonical integer storage — `odometer_m`, `quantity_ml`/`quantity_g`/`energy_wh`, `amount_minor` + ISO 4217 — is already the only way data is stored. **EPIC-05 also already ships §6.3.3's and §6.4.4's on-device half**: the safety copy written by the old schema's writer before a schema migration. Task 15.3 extends that store; it does not invent it. |
 | EPIC-06 | `Money`, `Distance`, `Volume`, `Energy` and the exact conversions (1 mi = 1.609344 km, 1 US gal = 3.785411784 L). The CSV in Task 15.8 converts to the user's units through these; the backup JSON never converts at all. |
-| EPIC-12 | `report.service` and its on-device PDF renderer, and `dialog.confirmDelete` (built in EPIC-12 Task 12.9). Task 15.9 hands that renderer a vehicle; Task 15.6 uses that dialog in its typed variant. Neither builds a second one. |
+| EPIC-12 | `report.service` and its on-device PDF renderer. Task 15.9 hands that renderer a vehicle. |
+| EPIC-08 | `dialog.confirmDelete`, built once in `lib/ui/dialogs/` — §7 makes the three global dialogs belong to no feature (finding F-8.1). Task 15.6 uses it in its typed variant and builds no second one. |
 | **EPIC-14** | The settings tree with **Backup & restore as its first row**, the `SettingsRepository` single write path, the `ShareGateway` seam proven by the `.ics` export, and `settings.about` already rendering `Backup format 1` from `SUPPORTED_FORMAT_VERSION` — a constant **this epic takes ownership of** in Task 15.1. |
 | EPIC-16 | `ReminderScheduler` and the notification gateway. §6 §4.1 requires that after the swap all local notifications are cancelled wholesale and rescheduled, because the ids the OS holds belong to the old data. This epic *triggers* that; EPIC-16 Task 16.9 owns the rebuild itself. |
 | The due engine (EPIC-07) | `resolveAnchor`, `DueState`, `estimateOdometer`, and the cumulative-distance rule `odometer_m + Σ(previous_m − new_m)` — all pure, all recomputed on read. This epic calls them after an import; it never reimplements them. |
@@ -501,10 +502,11 @@ Open `flutter-conventions-index` first; it routes the rest.
     appearance.
 - **Then build** — `lib/features/settings/ui/backup_screen.dart` (`BackupScreen`,
   `BackupNotifier` over an immutable `BackupScreenState`), the delete-all flow through the
-  **existing `dialog.confirmDelete` widget from EPIC-12 Task 12.9**, in its typed variant —
-  reuse it, do not reimplement it. Its four reference images belong to EPIC-12, so if this task
-  changes that widget's layout, re-run `check_parity.sh` over
-  `build/parity/dialog.confirmDelete-*.png` as well.
+  **existing `dialog.confirmDelete` widget from EPIC-08 task 8.9**, in its typed variant — reuse
+  it, do not reimplement it. (It was previously attributed to EPIC-12 task 12.9; §7 makes the
+  three dialogs global and EPIC-08 builds all three once — finding F-8.1.) Its four reference
+  images belong to EPIC-08, so if this task changes that widget's layout, re-run
+  `check_parity.sh` over `build/parity/dialog.confirmDelete-*.png` as well.
 - **Verify**
   ```bash
   flutter test test/features/settings/backup_screen_test.dart

@@ -251,7 +251,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
 - **Then build** — `lib/core/notifications/notification_payload.dart` (a `sealed class
   NotificationPayload` with the six subtypes, `toJson`/`fromJson` returning
   `Result<NotificationPayload, PayloadFailure>`) and
-  `lib/app/routing/notification_deep_link.dart` (`String locationFor(NotificationPayload)`
+  `lib/app/routing/notification_deep_link.dart` — the PAYLOAD half only. **EPIC-08 task 8.7 already built `lib/app/routing/deep_link.dart`**, which owns `locationFor`, the back-stack synthesis, the two "the thing is gone" rows and the vehicle-before-route ordering (finding F-8.3). This file owns the sealed `NotificationPayload`, its JSON round-trip and its per-kind `reminderId` validation, and maps onto `DeepLinkRequest` at the boundary. The tests below are kept and run against `locationFor` as it already exists — a function that is already right should still pass them. What was originally specified here was (`String locationFor(NotificationPayload)`
   plus the back-stack synthesis). Routing reads three fields and nothing else.
 - **Verify**
   ```bash
