@@ -59,14 +59,3 @@ RelativeDate bucketRelativeDays(int days) {
     count: (days / 30.44).round(),
   );
 }
-
-/// Whole days between two instants, by CIVIL date rather than by elapsed time.
-///
-/// A 23-hour day across a daylight-saving boundary is still one day, and a
-/// reminder that says "tomorrow" on a Saturday must not say "today" on the
-/// Sunday the clocks changed.
-int wholeDaysBetween(DateTime from, DateTime to) {
-  final a = DateTime.utc(from.year, from.month, from.day);
-  final b = DateTime.utc(to.year, to.month, to.day);
-  return b.difference(a).inDays;
-}

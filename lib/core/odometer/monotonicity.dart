@@ -10,8 +10,8 @@
 // really did do 900 km yesterday; a violation that writes corrupts the
 // distance history for everything downstream.
 import 'package:meta/meta.dart';
-import 'package:odova/core/l10n/relative_date.dart';
 import 'package:odova/core/odometer/cumulative.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 
 /// Something worth telling the user, that does not stop the write.
@@ -169,19 +169,25 @@ List<OdometerWarning> _softWarnings({
   final warnings = <OdometerWarning>[];
   final jump = to - from;
 
-  // Counted as CIVIL days, through the same UTC anchoring `wholeDaysBetween`
-  // uses. `DateTime.parse('2026-03-28')` returns a LOCAL time, and across a
-  // European spring-forward two dates two calendar days apart differ by
-  // 23 + 24 hours — which `inDays` truncates to 1. The implied rate then
-  // DOUBLES, and a driver who did 1,100 km/day over that weekend is told they
-  // did 2,200.
+  // CIVIL days, through `CivilDate`, which cannot hold a time.
   //
-  // The same trap `lib/core/l10n/relative_date.dart` already documents: "a
-  // 23-hour day across a daylight-saving boundary is still one day".
-  final days = wholeDaysBetween(
-    DateTime.parse(fromDate),
-    DateTime.parse(toDate),
-  );
+  // This used to be `wholeDaysBetween(DateTime.parse(a), DateTime.parse(b))` —
+  // the workaround. `DateTime.parse` on a `YYYY-MM-DD` string is the exact
+  // construction `CivilDate` was written to remove: it returns a
+  // LOCAL time, so across a European spring-forward two dates two calendar days
+  // apart differ by 47 hours and `inDays` truncates to 1: the implied rate then
+  // DOUBLES, and a driver who did 1,100 km/day over that weekend is told they
+  // did 2,200. `wholeDaysBetween` re-anchored to UTC to fix that, which worked
+  // and left the parse in place for the next caller to copy.
+  //
+  // A date that will not parse yields no warning rather than a wrong one: the
+  // dates here come from `occurred_on`, which the schema constrains to
+  // `YYYY-MM-DD`, so a failure is corruption and inventing a rate from it would
+  // be the guess this whole file exists to avoid.
+  final fromDay = CivilDate.tryParse(fromDate);
+  final toDay = CivilDate.tryParse(toDate);
+  final days = fromDay == null || toDay == null ? 0 : fromDay.daysUntil(toDay);
+
   // Same-day readings have no rate to imply — dividing by zero days would
   // make every second entry of the day look impossible.
   if (days > 0 && jump.metres ~/ days > _maxPlausibleMetresPerDay) {
