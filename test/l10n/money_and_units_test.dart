@@ -11,6 +11,7 @@ import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/units/consumption.dart';
 import 'package:odova/l10n/money_format.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
@@ -218,17 +219,33 @@ void main() {
       // A US gallon is 3.785 L and an imperial gallon is 4.546. Two enum
       // values rather than one plus a flag, so no arithmetic path can treat
       // them as equal.
+      //
+      // Asserted against `ConsumptionUnit`, the one in `lib/core/units/`.
+      // EPIC-04 wrote a second four-value `CalmConsumptionUnit` here, with
+      // `l_per_100km` and `mpg_imp` where SPEC.md §3 says `l_100km` and
+      // `mpg_uk` — and this test was its only reference, so the wrong
+      // spelling was pinned by the suite while nothing used the right one.
+      expect(ConsumptionUnit.mpgUs, isNot(ConsumptionUnit.mpgUk));
       expect(
-        CalmConsumptionUnit.mpgUs,
-        isNot(CalmConsumptionUnit.mpgImperial),
+        ConsumptionUnit.values.map((u) => u.wire).toSet(),
+        hasLength(ConsumptionUnit.values.length),
       );
-      expect(
-        CalmConsumptionUnit.values.map((u) => u.wire).toSet(),
-        hasLength(CalmConsumptionUnit.values.length),
-      );
-      // Only one of the four counts down.
-      expect(CalmConsumptionUnit.litresPerHundredKm.higherIsBetter, isFalse);
-      expect(CalmConsumptionUnit.mpgUs.higherIsBetter, isTrue);
+      // SPEC.md §3's stored vocabulary, exactly.
+      expect(ConsumptionUnit.values.map((u) => u.wire), [
+        'l_100km',
+        'km_l',
+        'mpg_us',
+        'mpg_uk',
+        'kwh_100km',
+        'mi_kwh',
+      ]);
+      // Two of the six count down, and they are the two per-distance ones —
+      // the Calm copy's `higherIsBetter` had no kWh case at all and would
+      // have put an EV's best tank at the bottom of the axis.
+      expect(ConsumptionUnit.lPer100km.isFuelPerDistance, isTrue);
+      expect(ConsumptionUnit.kwhPer100km.isFuelPerDistance, isTrue);
+      expect(ConsumptionUnit.mpgUs.isFuelPerDistance, isFalse);
+      expect(ConsumptionUnit.miPerKwh.isFuelPerDistance, isFalse);
     });
   });
 }

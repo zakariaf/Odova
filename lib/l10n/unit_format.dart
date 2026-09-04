@@ -37,34 +37,3 @@ String formatWithUnit(
   );
   return isolate('$digits $label');
 }
-
-/// The fuel-consumption units Odova stores.
-///
-/// `mpgUs` and `mpgImperial` are DIFFERENT units — a US gallon is 3.785 L and
-/// an imperial gallon is 4.546 — and SPEC.md §5 forbids conflating them in
-/// storage or on a chart axis. Two enum values rather than one plus a flag, so
-/// there is no arithmetic path that can treat them as equal.
-enum CalmConsumptionUnit {
-  /// Litres per hundred kilometres. Lower is better.
-  litresPerHundredKm('l_per_100km'),
-
-  /// Kilometres per litre. Higher is better.
-  kmPerLitre('km_per_l'),
-
-  /// Miles per US gallon.
-  mpgUs('mpg_us'),
-
-  /// Miles per imperial gallon.
-  mpgImperial('mpg_imp');
-
-  const CalmConsumptionUnit(this.wire);
-
-  /// The stored value.
-  final String wire;
-
-  /// Whether a larger number means a more efficient vehicle.
-  ///
-  /// The one place the four differ in a way a chart has to know about: an axis
-  /// that puts "better" at the top has to know which way that is.
-  bool get higherIsBetter => this != CalmConsumptionUnit.litresPerHundredKm;
-}
