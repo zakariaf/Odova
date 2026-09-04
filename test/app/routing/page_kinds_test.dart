@@ -407,7 +407,7 @@ void main() {
       );
     });
 
-    test('only the three sanctioned files own a PopScope', () {
+    test('only the four sanctioned files own a PopScope', () {
       // Two implementations of "what happens on back" is one too many, and the
       // second is always the one a lost draft came from. The list is an
       // allow-list rather than a ban because the first-run screens genuinely
@@ -426,6 +426,7 @@ void main() {
         'lib/app/routing/app_shell.dart',
         'lib/app/routing/dirty_modal_guard.dart',
         'lib/features/first_run/presentation/first_run_language_screen.dart',
+        'lib/features/first_run/presentation/first_run_vehicle_screen.dart',
       ]);
     });
   });

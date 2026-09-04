@@ -54,6 +54,7 @@ class FirstRunVehicleDraft {
     this.warningAccepted = false,
     this.saving = false,
     this.saveFailed = false,
+    this.startRefused = false,
   });
 
   /// SPEC.md §8's prefills, and the unit the odometer is typed in.
@@ -97,6 +98,15 @@ class FirstRunVehicleDraft {
 
   /// The last create failed. Only a disk write can fail here.
   final bool saveFailed;
+
+  /// Start has been pressed while it was disabled.
+  ///
+  /// This is what makes SPEC.md §8's "tapping it flashes the odometer hint"
+  /// mean something. Until it happens the field says nothing — a form that
+  /// scolds you before you have typed is a form that is angry at you for
+  /// arriving — and §8 puts its empty message under "Empty on Save", which is
+  /// precisely this moment.
+  final bool startRefused;
 
   /// What is wrong with [odometerText], or null.
   ///
@@ -155,6 +165,7 @@ class FirstRunVehicleDraft {
     bool? warningAccepted,
     bool? saving,
     bool? saveFailed,
+    bool? startRefused,
   }) => FirstRunVehicleDraft(
     unit: unit ?? this.unit,
     groupingSeparator: groupingSeparator,
@@ -166,6 +177,7 @@ class FirstRunVehicleDraft {
     warningAccepted: warningAccepted ?? this.warningAccepted,
     saving: saving ?? this.saving,
     saveFailed: saveFailed ?? this.saveFailed,
+    startRefused: startRefused ?? this.startRefused,
   );
 }
 
@@ -205,10 +217,18 @@ class FirstRunVehicleNotifier extends Notifier<FirstRunVehicleDraft> {
       // A new number is a new question, so a warning accepted about the old one
       // does not carry: "Use it anyway" applied to 30,000,001 must not silently
       // apply to the 300,000,001 typed after it.
-      state = state.copyWith(odometerText: text, warningAccepted: false);
+      state = state.copyWith(
+        odometerText: text,
+        warningAccepted: false,
+        // A new number is a new attempt: the refusal was about the old one.
+        startRefused: false,
+      );
 
   /// Renames the vehicle. The first call stops the type tile touching it.
   void rename(String name) => state = state.copyWith(name: name);
+
+  /// Records that Start was pressed while it was disabled.
+  void refuseStart() => state = state.copyWith(startRefused: true);
 
   /// Accepts the implausible-odometer warning.
   void useItAnyway() => state = state.copyWith(warningAccepted: true);
