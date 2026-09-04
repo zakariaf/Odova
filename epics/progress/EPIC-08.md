@@ -169,3 +169,27 @@ a `PopScope` on `AppShell`, `test/app/routing/{tab_behaviour,stack_reset}_test.d
     questions in a plain `test`, widget questions with data injected.
   - `OdovaRoot` needs a database now. `pumpApp`'s `noLaunchGate()` is the escape
     for tests that are not about routing.
+
+## Task 8.7 — notification deep links ✅
+
+`lib/app/routing/deep_link.dart` (`DeepLinkKind`, `DeepLinkRequest`,
+`DeepLinkFacts`, `DeepLinkTarget`, `DeepLinkFailure`, `locationFor`,
+`handleDeepLink`), `test/app/routing/deep_link_test.dart` (23 tests).
+16 mutations, all red.
+
+- **`SPEC.md` §7 was corrected in this PR.** Its `odometer.nudge` row opens
+  `log.odometer`; its bullet said "Tapping the body never opens a form",
+  unqualified. The bullet now says "the body of a **reminder** notification" and
+  names the nudge as the exception, with the reason.
+- **EPIC-16 extends this file rather than writing `lib/routing/
+  notification_deep_link.dart`** (F-8.3). It owns `NotificationPayload`, its
+  JSON round-trip and its per-kind validation, and maps onto `DeepLinkRequest`.
+  `DeepLinkKind.wire` already holds §7's six strings.
+- **`DeepLinkTarget.pinnedReminderId` is the seam for EPIC-10's Home**: scroll
+  the card into view and highlight it for ~2s. The 2-second expiry is Home's, not
+  the router's — nothing here holds a timer.
+- **Nothing calls `handleDeepLink` yet.** EPIC-16 wires the notification tap to
+  it, passing `setActiveVehicle` and a router `go`/`push` pair. The order —
+  vehicle first, then route — is the function's contract and is tested.
+- `shell_harness.goTo` now takes a `backStack`, which any test about a
+  deep-linked destination needs.
