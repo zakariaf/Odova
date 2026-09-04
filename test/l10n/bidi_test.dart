@@ -8,11 +8,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/l10n/bidi.dart';
-import 'package:odova/core/l10n/money_format.dart';
-import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/l10n/unit_format.dart';
 import 'package:odova/core/money.dart';
+import 'package:odova/l10n/money_format.dart';
+import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/ui/calm/calm_figure.dart';
 
 import '../support/pump_app.dart';

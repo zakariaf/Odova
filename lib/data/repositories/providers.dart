@@ -14,10 +14,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // because `specify_nonobvious_property_types` wants the annotation, and an
 // inferred family type reads as a `dynamic` argument at every call site.
 import 'package:flutter_riverpod/misc.dart' show StreamProviderFamily;
+import 'package:odova/app/id_provider.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
-import 'package:odova/core/ids/id_provider.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/log_repositories.dart';

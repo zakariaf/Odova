@@ -77,6 +77,15 @@ jobs:
           python3 -m pip install --quiet pyyaml
           python3 tools/check_skill_frontmatter.py
 
+      # Contract: lib/core/ is pure Dart — no Flutter, no dart:io, no dart:ui,
+      # no intl. The first three keep the domain testable in milliseconds and
+      # deterministic; the fourth is the one people add BY ACCIDENT, reaching
+      # for a NumberFormat while writing a conversion, and a domain function
+      # that formats has taken a locale as a hidden input — the same
+      # computation then answers differently in Tehran and Toronto.
+      - name: the pure core is pure
+        run: bash tools/check_core_purity.sh
+
       # Contract: the schema version the app claims, the committed snapshots,
       # the generated ladder and the era-correct classes all agree. Bumping the
       # constant without a snapshot makes stepByStep throw on a user's device;

@@ -5,12 +5,21 @@
 // any RLM belong here and never to a translation string — a translator handed
 // "{amount} €" will move the euro, and they will be right to, and it will be
 // wrong in the other five.
+// **Not in `lib/core/`, and the purity gate is why.** This places a currency symbol for a locale, which
+// means it takes `package:intl` — and a domain function that formats has taken
+// a locale as a HIDDEN input: the same computation then answers differently in
+// Tehran and Toronto. Formatting is a presentation act and lives at the edge.
+//
+// EPIC-04 moved these into `lib/core/l10n/` on the reasoning that they import
+// no Flutter, which was true and not the whole rule. EPIC-06's
+// `tools/check_core_purity.sh` caught it on its first run.
+
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
-import 'package:odova/core/l10n/number_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money.dart';
+import 'package:odova/l10n/number_format.dart';
 
 /// `Settings.currency_display`.
 enum CalmCurrencyDisplay {

@@ -527,6 +527,47 @@ restore_all
 rmdir lib/features 2>/dev/null || true
 assert 0 "check_drift_confinement is green again" bash "$DRIFT"
 
+echo "== check_core_purity =="
+PURITY=tools/check_core_purity.sh
+assert 0 "check_core_purity is green on the real tree" bash "$PURITY"
+
+# All three bans, planted separately, because they fail for different reasons
+# and the third is the one people add by accident.
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'package:flutter/material.dart';
+
+typedef Leak = Widget;
+DART
+assert 1 "check_core_purity is red on a Flutter import" bash "$PURITY"
+restore_all
+
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'dart:io';
+
+File? probe;
+DART
+assert 1 "check_core_purity is red on dart:io" bash "$PURITY"
+restore_all
+
+# The accidental one: reaching for a NumberFormat while writing a conversion.
+# A domain function that formats has taken a locale as a hidden input.
+write_scratch lib/core/selftest_probe.dart <<'DART'
+import 'package:intl/intl.dart';
+
+String probe(num v) => NumberFormat.decimalPattern().format(v);
+DART
+assert 1 "check_core_purity is red on package:intl" bash "$PURITY"
+restore_all
+
+# And the grab-bag directory.
+write_scratch lib/core/utils/selftest_probe.dart <<'DART'
+const probe = 1;
+DART
+assert 1 "check_core_purity is red on a utils/ directory" bash "$PURITY"
+restore_all
+rmdir lib/core/utils 2>/dev/null || true
+assert 0 "check_core_purity is green again" bash "$PURITY"
+
 echo "== check_schema_freshness =="
 FRESH=tools/check_schema_freshness.sh
 assert 0 "check_schema_freshness is green on the real tree" bash "$FRESH"

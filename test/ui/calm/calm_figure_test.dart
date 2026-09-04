@@ -6,10 +6,10 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/core/l10n/money_format.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/l10n/unit_format.dart';
 import 'package:odova/core/money.dart';
+import 'package:odova/l10n/money_format.dart';
+import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/ui/calm/calm_figure.dart';
 
 import '../../support/pump_app.dart';
