@@ -13,26 +13,19 @@
 //
 // The fixture itself was hand-authored from SPEC.md §3 and §4.1 through an
 // independent implementation of the prose. This tool has never written it.
+//
+// The scenario is decoded by `test/support/due_case.dart`, which
+// `due_matrix_test.dart` also uses. They used to construct it separately, and
+// that is worse than ordinary duplication because THIS is a gate: if the two
+// constructions drift, the gate green-lights a different scenario from the one
+// the test asserts and neither goes red. They had already drifted — the test
+// honoured `is_active` and this did not.
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:odova/core/domain/enums.dart';
-import 'package:odova/core/domain/models/records.dart';
-import 'package:odova/core/domain/models/settings.dart';
-import 'package:odova/core/domain/models/vehicle.dart';
-import 'package:odova/core/due/daily_distance.dart';
-import 'package:odova/core/due/due_engine.dart';
-import 'package:odova/core/due/estimate_odometer.dart';
-import 'package:odova/core/due/notice_window.dart';
-import 'package:odova/core/due/reading_series.dart';
-import 'package:odova/core/due/resolve_anchor.dart';
-import 'package:odova/core/ids/record_id.dart';
-import 'package:odova/core/money/currency.dart';
-import 'package:odova/core/time/civil_date.dart';
-import 'package:odova/core/units/distance.dart';
+import '../test/support/due_case.dart';
 
 const _path = 'test/core/due/fixtures/due_matrix.json';
-const _id = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
 
 void main(List<String> args) {
   final bless = args.contains('--bless');
@@ -43,9 +36,21 @@ void main(List<String> args) {
   final drifted = <String>[];
   for (final fixture in cases) {
     final expected = fixture['expect'] as Map<String, dynamic>?;
-    if (expected == null) continue; // an absence row; nothing to compute
+    final actual = runDueCase(fixture);
 
-    final actual = _compute(fixture);
+    if (expected == null) {
+      // An absence row: the fixture says the item is not eligible, so the
+      // engine must decline to assess it.
+      if (actual != null) {
+        drifted.add('${fixture['name']}: expected no assessment, got one');
+      }
+      continue;
+    }
+    if (actual == null) {
+      drifted.add('${fixture['name']}: expected an assessment, got none');
+      continue;
+    }
+
     for (final key in expected.keys) {
       final want = expected[key];
       final got = actual[key];
@@ -82,91 +87,3 @@ void main(List<String> args) {
     ..writeln('      FIXTURE is right, the engine has a bug.');
   exitCode = 1;
 }
-
-Map<String, Object?> _compute(Map<String, dynamic> fixture) {
-  final today = CivilDate.tryParse(fixture['today']! as String)!;
-  final itemSpec = fixture['item']! as Map<String, dynamic>;
-  final anchorSpec = fixture['anchor']! as Map<String, dynamic>;
-
-  final item = ServiceItem(
-    id: ServiceItemId.tryParse('rem_$_id')!,
-    vehicleId: VehicleId.tryParse('veh_$_id')!,
-    kind: ServiceKind.oilAndFilter,
-    intervalDistance: itemSpec['interval_m'] == null
-        ? null
-        : Distance(itemSpec['interval_m']! as int),
-    intervalMonths: itemSpec['interval_months'] as int?,
-    isTracked: true,
-    priority: ServicePriority.normal,
-    rollover: ServiceRollover.fromActual,
-    createdAtUtcMs: 1000,
-    updatedAtUtcMs: 1000,
-  );
-
-  final rows = (fixture['readings']! as List).cast<Map<String, dynamic>>();
-  final readings = [
-    for (var i = 0; i < rows.length; i++)
-      OdometerReading(
-        id: OdometerReadingId.tryParse('odo_${_id.substring(0, 25)}$i')!,
-        vehicleId: VehicleId.tryParse('veh_$_id')!,
-        occurredOn: rows[i]['date']! as String,
-        odometer: Distance(rows[i]['odometer_m']! as int),
-        odometerUnit: DistanceUnit.km,
-        source: OdometerSource.manual,
-        createdAtUtcMs: 1000,
-        updatedAtUtcMs: 1000,
-      ),
-  ];
-
-  final series = ReadingSeries.from(readings, const []);
-  final rate = dailyDistance(series, expectedAnnualMetres: null, today: today);
-  final assessment = computeDueState(
-    item,
-    DueAnchor(
-      date: anchorSpec['date'] == null
-          ? null
-          : CivilDate.tryParse(anchorSpec['date']! as String),
-      odometerMetres: anchorSpec['odometer_m'] as int?,
-    ),
-    estimateOdometer(series, rate, today: today),
-    noticeWindow(item: item, vehicle: _vehicle, settings: _settings),
-    today: today,
-    rate: rate,
-    series: series,
-  );
-
-  return {
-    'status': _specName(assessment.state.name),
-    'driver': assessment.driver.name,
-    'remaining_m': assessment.remainingMetres,
-    'remaining_days': assessment.remainingDays,
-    'due_at_odometer_m': assessment.dueAtOdometerMetres,
-    'due_on': assessment.dueOn?.toString(),
-    'projected_due_date': assessment.projectedDueDate?.toString(),
-    'confidence': assessment.confidence.wire,
-    'progress': double.parse(assessment.progress.toStringAsFixed(6)),
-  };
-}
-
-String _specName(String dartName) => switch (dartName) {
-  'dueSoon' => 'due_soon',
-  'needsOdometer' => 'needs_odometer',
-  _ => dartName,
-};
-
-final _vehicle = Vehicle(
-  id: VehicleId.tryParse('veh_$_id')!,
-  name: 'Fixture',
-  vehicleType: VehicleType.car,
-  fuelKindDefault: FuelKind.diesel,
-  status: VehicleStatus.active,
-  createdAtUtcMs: 1000,
-  updatedAtUtcMs: 1000,
-);
-
-final _settings = AppSettings(
-  schemaVersion: 1,
-  currencyDefault: Currency.tryParse('EUR')!,
-  createdAtUtcMs: 1000,
-  updatedAtUtcMs: 1000,
-);
