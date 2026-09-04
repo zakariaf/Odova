@@ -465,3 +465,74 @@ controls against its own 52pt `--touch-min`; **F-9.25** is the row above;
 **F-8.2** is EPIC-08's stand-in `HomeBackdrop`, whose edges are half the
 switcher's frame and which EPIC-10 replaces with the real `home`.
 
+## `/simplify` — what it found, and what was done
+
+Four agents over `lib/**`. **Three findings were defects, not tidiness**, and one
+of them would have failed the pipeline.
+
+### Applied
+
+- **`check_raw_values.sh` was RED on committed code** — a required CI step. Two
+  hits, both mine: a raw `Duration` in `lib/ui/calm/` and two raw hexes in the
+  garage silhouette. Moved to `lib/theme/calm/` (`kCalmDestructiveUndoWindow`,
+  `calmVehicleSwatchInk`). I ran every other gate before the PR and would still
+  have pushed red, because I never ran this one.
+- **The garage drew NO hairlines.** `CalmRowGroup(rows: [ReorderableListView…])`
+  passes one child and the divider rule is `i > 0`. A 1px line is under the
+  parity band detector's threshold, so only a reader could see it. Reordering is
+  `CalmRowGroup.onReorder` now — the only layer that can keep the surface, the
+  scope and the dividers true under a drag — and parity went 81/103 → 83/103.
+- **Two Latin digit leaks into Persian.** `vehicle.edit`'s age formatter forced
+  `'en'` + Latin numerals (one reading read "۴ ماه پیش" in the garage and
+  "4 months ago" one tap away), and the due-in-days count went through
+  `'${days ?? 0}'` on the same line as a Persian odometer.
+- Label tables lifted to `lib/l10n/vehicle_labels.dart` (three fuel copies, two
+  type copies, three `km`/`mi` ternaries); `vehicleSilhouette` to
+  `vehicle_status_line.dart`; `CivilDate.fromDateTime` (five hand-rolled
+  `YYYY-MM-DD` builders); `DeleteCounts` to `lib/core/vehicles/`; six smaller
+  derivable-state and duplication fixes; two free perf wins.
+
+**Three policy gates refused these fixes and all three were right.**
+`structure_test` caught `first_run` importing `vehicles`; `dialogs_write_nothing`
+caught the dialog importing the data layer, which is how "the dialog cannot
+delete anything" is a property rather than a promise; `check_raw_values` caught
+the hexes. Each pushed the fix one layer deeper than I had put it.
+
+### Answered, not applied
+
+- **`neverSeeded` and `ServiceItemSeed.label` are dead code.** They are not.
+  `neverSeeded` is the catalogue's statement about which kinds ship in the picker
+  but never seed themselves — EPIC-10's `reminders.list` reads it, and deleting a
+  documented product decision because its consumer is one epic away is how the
+  decision gets made again, differently. `label` returning a constant null is the
+  invariant "a seed's name is rendered FROM its kind, so a vehicle seeded in
+  English reads correctly in all six languages"; the test asserting it is null is
+  the test that a future edit does not quietly add a stored English string.
+- **`_ColourRow`/`_Swatch` belong in `lib/ui/calm/` as `CalmSwatch`.** Agreed in
+  principle, deferred deliberately: the artboard names `.swatch` and
+  `.swatchrow`, so it is drawn design, but promoting it now means a component,
+  its four states, its goldens and its parity re-check on a branch that is
+  already 70 commits. EPIC-17 touches every swatch anyway (F-9.16 covers the
+  26pt target), and that is the PR where it should land.
+- **`setActiveVehicle` should be an `ActiveVehicleController` notifier rather
+  than take a `ProviderReader`.** A fair reading, and probably the better shape.
+  Not now: it moves the one function every screen uses to switch vehicles, and
+  `active_vehicle_test.dart`'s "written in exactly one place" gate is a grep that
+  would need rewriting in the same commit. A branch that has already had three
+  gates catch it is not where I want to rewrite a gate.
+- **A `CalmDatePicker` seam for `showDatePicker`.** Right, and premature: EPIC-11
+  and EPIC-13 need the same picker, and the seam should be designed against three
+  callers rather than extrapolated from one.
+- **`due_snapshot_provider` should `select` the single vehicle instead of
+  watching the whole list.** Real, and left alone: `select` over a list that must
+  then be searched for one id trades a rebuild for a linear scan on every emit,
+  and the garage is a handful of rows. Worth doing when a fleet screen exists to
+  measure it.
+- **`entryCounts` should be one statement with five subselects.** Real. Deferred
+  because the five-count breakdown has one consumer today and the row that needs
+  only the total is the sold row, which is rare by construction. Recorded rather
+  than done.
+- **`formatForDisplay` should cache its `NumberFormat`.** Pre-existing, outside
+  this diff's scope, and a cache keyed wrongly (`grouped` mutates the instance)
+  is worse than none. Recorded for EPIC-16's performance pass.
+
