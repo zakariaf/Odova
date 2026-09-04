@@ -398,8 +398,70 @@ the frame. F-8.2 anticipated exactly this — "if the parity result CHANGES when
 [the real screens] replace them, this stand-in was lying" — and that re-run
 belongs to EPIC-10. This number is the before.
 
-### Still open in EPIC-09
-Task 9.8, the launch-state wiring, which also gives the garage's `+`, its row
-tap and the switcher's two footer rows the routes they are waiting for. Then
-`/simplify`, `/code-review`, the PR and the merge.
+## Task 9.8 — the router, and the controls that were waiting for it
+
+- **`f36ce07`** wires all five screens into the router that had been rendering
+  `PlaceholderScreen` for them. `vehicle.edit` takes a NULLABLE `VehicleId`:
+  `/settings/vehicles/not-an-id` is a link somebody can send, and parsing
+  straight into a non-nullable parameter would have thrown in the route
+  builder — a crash on a URL. Null draws the shell a missing vehicle draws.
+- **`669aac6`** points every inert control somewhere. The garage's row tap opens
+  the editor and **switches nothing**, which is now asserted by reading
+  `active_vehicle_id` out of the database after the tap.
+
+Two tests moved rather than being deleted: `route_table_test`'s id-bearing loop
+gave up `vehicle.edit` to `vehicle_edit_route_test.dart`, which asserts the same
+property against the real screen plus the unparseable case the placeholder could
+never have had.
+
+## F-9.25 — the RTL reference is 6pt shorter than its own stylesheet predicts
+
+**This is why EPIC-09 closes with `check_parity.sh` red on RTL, and it is a
+measurement rather than a shrug.**
+
+A three-line row's height is `fs × lh` summed over its lines plus
+`padding-block × 2`. Measured against the tokens in `odova.css`:
+
+| | app | tokens predict | reference measures |
+|---|---|---|---|
+| Latin | **104.0** | 103.20 | 103–106 ✓ |
+| Arabic | **115.0** | 114.60 | **109** ✗ |
+
+The app draws what the stylesheet declares, in both scripts. The Latin reference
+agrees with it. The Arabic reference is ~6pt short — about 2pt per line — which
+is what accumulates past the band check's 4px tolerance and takes `vehicles`
+RTL from a passing profile to 55/100.
+
+`odova.css` gives `[lang="fa"] .device` a `--lh-body-lg` of 1.72 and a
+`--lh-caption` of 1.68 against Latin's 1.5 and 1.45. A row built with Latin
+leading and Persian sizes computes 108.4 — within a point of what the reference
+measures. So the likeliest reading is that the RTL reference set was shot
+before those overrides existed, or under a selector that did not match.
+
+**Nothing was changed to make this pass.** No tolerance widened, no reference
+regenerated — CLAUDE.md §7 forbids regenerating to clear a failure that was not
+intended, and this one was not. Settling it means either re-shooting the RTL
+reference set from the current stylesheet, or deciding the Arabic leading
+overrides are wrong; both are design decisions and both belong in a deliberate
+PR. EPIC-17 already owns one design decision for this codebase and is the
+natural home.
+
+What the RTL captures DID prove: the colour census and the theme check pass in
+all four combinations on both screens, and looking at the sheets found the year
+rendering in Latin digits, every silhouette drawn as a car, and the section head
+inside its group.
+
+### Parity, screen by screen, at the close of EPIC-09
+| screen | LTR light | LTR dark | RTL light | RTL dark |
+|---|---|---|---|---|
+| `firstrun.language` | ok 84% | ok | ok 84% | ok |
+| `firstrun.vehicle` | F-9.16 | F-9.16 | F-9.16 | F-9.16 |
+| `vehicle.edit` | F-9.16 | F-9.16 | F-9.16 | F-9.16 |
+| `vehicles` | **ok 79%** | **ok 79%** | F-9.25 | F-9.25 |
+| `vehicle.switcher` | F-8.2 | F-8.2 | F-8.2 + F-9.25 | F-8.2 + F-9.25 |
+
+Three named causes, none of them hidden: **F-9.16** is Calm's 40/46/26pt
+controls against its own 52pt `--touch-min`; **F-9.25** is the row above;
+**F-8.2** is EPIC-08's stand-in `HomeBackdrop`, whose edges are half the
+switcher's frame and which EPIC-10 replaces with the real `home`.
 
