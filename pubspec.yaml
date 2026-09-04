@@ -9,7 +9,7 @@ environment:
 dependencies:
   # An injectable now(). SPEC.md §3's due engine is a pure function of the
   # date, so the date has to be an argument and never a global.
-  clock: ^1.1.2
+  clock: ^1.1.3
   # SQLite with a typed Dart API and real migrations. Chosen over sqflite for
   # the migration ladder specifically: SPEC.md §6.3.3 requires a step-by-step
   # migration whose every from->to pair is tested against a committed schema
