@@ -47,6 +47,14 @@ class CalmRowGroupScope extends InheritedWidget {
   bool updateShouldNotify(CalmRowGroupScope oldWidget) => false;
 }
 
+/// `.row--compact`'s min-height — the shortest row Calm draws.
+///
+/// Named because it is also a FLOOR that other components lean on:
+/// `CalmSwipeActions` stretches its buttons to the row's height and has no
+/// minimum of its own, so this being above `--touch-min` is what keeps a swipe
+/// action tappable.
+const double kCalmCompactRowHeight = 56;
+
 /// One row: lead / main / end.
 ///
 /// The `Row` mirrors for free under RTL; only the disclosure chevron flips its
@@ -202,7 +210,7 @@ class CalmListRow extends StatelessWidget {
     // compact row 57.5pt in Latin and 61.2 in Arabic against a design that is
     // 56 in both — the min-height stopped winning.
     final (minHeight, padBlock) = switch (size) {
-      CalmRowSize.compact => (56.0, space.s3), // .row--compact
+      CalmRowSize.compact => (kCalmCompactRowHeight, space.s3), // .row--compact
       CalmRowSize.md => (64.0, space.s4), //      .row
       CalmRowSize.lg => (76.0, space.s5), //      .row--lg
     };
