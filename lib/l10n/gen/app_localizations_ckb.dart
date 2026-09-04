@@ -544,6 +544,28 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String dateAboutWeeksAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'نزیکەی $nText هەفتە لەمەوبەر',
+      one: 'نزیکەی $nText هەفتە لەمەوبەر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateAboutMonthsAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'نزیکەی $nText مانگ لەمەوبەر',
+      one: 'نزیکەی $nText مانگ لەمەوبەر',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get vehiclesTitle => 'ئۆتۆمبێلەکان';
 
   @override

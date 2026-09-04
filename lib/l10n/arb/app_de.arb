@@ -123,6 +123,8 @@
   "colourYellow": "Gelb",
   "colourOther": "Sonstige",
   "dateDaysAgo": "{n, plural, one{Vor {nText} Tag} other{Vor {nText} Tagen}}",
+  "dateAboutWeeksAgo": "{n, plural, one{Vor etwa {nText} Woche} other{Vor etwa {nText} Wochen}}",
+  "dateAboutMonthsAgo": "{n, plural, one{Vor etwa {nText} Monat} other{Vor etwa {nText} Monaten}}",
   "vehiclesTitle": "Fahrzeuge",
   "vehiclesIntro": "Hier verwalten Sie Ihre Fahrzeuge. Das Fahrzeug wechseln Sie über den Titel auf der Startseite.",
   "vehiclesReorderHint": "Halten Sie ein Fahrzeug gedrückt, um die Reihenfolge zu ändern. Wischen Sie zum Verkaufen und Löschen.",

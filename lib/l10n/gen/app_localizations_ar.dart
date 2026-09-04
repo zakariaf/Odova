@@ -583,6 +583,36 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String dateAboutWeeksAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'قبل حوالي $nText أسبوع',
+      many: 'قبل حوالي $nText أسبوعًا',
+      few: 'قبل حوالي $nText أسابيع',
+      two: 'قبل حوالي أسبوعين',
+      one: 'قبل حوالي أسبوع',
+      zero: 'قبل حوالي $nText أسبوع',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateAboutMonthsAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'قبل حوالي $nText شهر',
+      many: 'قبل حوالي $nText شهرًا',
+      few: 'قبل حوالي $nText أشهر',
+      two: 'قبل حوالي شهرين',
+      one: 'قبل حوالي شهر',
+      zero: 'قبل حوالي $nText شهر',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get vehiclesTitle => 'المركبات';
 
   @override

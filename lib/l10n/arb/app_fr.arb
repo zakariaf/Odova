@@ -123,6 +123,8 @@
   "colourYellow": "Jaune",
   "colourOther": "Autre",
   "dateDaysAgo": "{n, plural, one{il y a {nText} jour} many{il y a {nText} jours} other{il y a {nText} jours}}",
+  "dateAboutWeeksAgo": "{n, plural, one{il y a environ {nText} semaine} many{il y a environ {nText} semaines} other{il y a environ {nText} semaines}}",
+  "dateAboutMonthsAgo": "{n, plural, one{il y a environ {nText} mois} many{il y a environ {nText} mois} other{il y a environ {nText} mois}}",
   "vehiclesTitle": "Véhicules",
   "vehiclesIntro": "Gérez le garage ici. Le changement de véhicule se fait depuis le titre de l’accueil.",
   "vehiclesReorderHint": "Appuyez longuement sur une ligne pour la déplacer. Balayez pour vendre ou supprimer.",

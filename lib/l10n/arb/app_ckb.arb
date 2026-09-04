@@ -123,6 +123,8 @@
   "colourYellow": "زەرد",
   "colourOther": "هیتر",
   "dateDaysAgo": "{n, plural, one{{nText} ڕۆژ لەمەوبەر} other{{nText} ڕۆژ لەمەوبەر}}",
+  "dateAboutWeeksAgo": "{n, plural, one{نزیکەی {nText} هەفتە لەمەوبەر} other{نزیکەی {nText} هەفتە لەمەوبەر}}",
+  "dateAboutMonthsAgo": "{n, plural, one{نزیکەی {nText} مانگ لەمەوبەر} other{نزیکەی {nText} مانگ لەمەوبەر}}",
   "vehiclesTitle": "ئۆتۆمبێلەکان",
   "vehiclesIntro": "لێرەدا ئۆتۆمبێلەکانت بەڕێوە دەبەیت. گۆڕینی ئۆتۆمبێل لە ناونیشانی پەڕەی ماڵەوە ئەنجام دەدرێت.",
   "vehiclesReorderHint": "بۆ گۆڕینی ڕیزبەندی، دەستت لەسەر ڕیزێک ڕابگرە. بۆ فرۆشتن و سڕینەوە، ڕیزەکە بەلایەکدا بکێشە.",

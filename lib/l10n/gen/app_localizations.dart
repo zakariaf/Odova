@@ -855,6 +855,18 @@ abstract class AppLocalizations {
   /// **'{n, plural, one{{nText} day ago} other{{nText} days ago}}'**
   String dateDaysAgo(int n, String nText);
 
+  /// How long ago, in weeks, for a span of 14 to 55 days. SPEC.md §5: a rounded answer rather than a day count. German capitalises it because vehicleOdometerRowHint places it first.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{about {nText} week ago} other{about {nText} weeks ago}}'**
+  String dateAboutWeeksAgo(int n, String nText);
+
+  /// How long ago, in months, for a span of 56 days or more. SPEC.md §8: "Odometer last updated 4 months ago".
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{about {nText} month ago} other{about {nText} months ago}}'**
+  String dateAboutMonthsAgo(int n, String nText);
+
   /// App bar title of the garage: the screen that lists, reorders, sells and deletes vehicles. Management only — NOT where the active vehicle is switched.
   ///
   /// In en, this message translates to:

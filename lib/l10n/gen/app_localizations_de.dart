@@ -546,6 +546,28 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String dateAboutWeeksAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Vor etwa $nText Wochen',
+      one: 'Vor etwa $nText Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateAboutMonthsAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Vor etwa $nText Monaten',
+      one: 'Vor etwa $nText Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get vehiclesTitle => 'Fahrzeuge';
 
   @override

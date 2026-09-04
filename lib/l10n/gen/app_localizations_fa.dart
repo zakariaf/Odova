@@ -540,6 +540,28 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String dateAboutWeeksAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'حدود $nText هفته پیش',
+      one: 'حدود $nText هفته پیش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateAboutMonthsAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'حدود $nText ماه پیش',
+      one: 'حدود $nText ماه پیش',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get vehiclesTitle => 'خودروها';
 
   @override

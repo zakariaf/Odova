@@ -19,7 +19,7 @@ import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/l10n/relative_date.dart';
+import 'package:odova/core/l10n/relative_past.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/vehicle_edit_draft.dart';
@@ -589,21 +589,32 @@ class _OdometerRow extends ConsumerWidget {
     final taken = DateTime.tryParse(reading.occurredOn);
     if (taken == null) return l10n.dateToday;
 
-    final days = DateUtils.dateOnly(taken).difference(today).inDays;
-    final relative = bucketRelativeDays(days);
-    return switch (relative.bucket) {
-      RelativeDateBucket.today => l10n.dateToday,
-      RelativeDateBucket.yesterday => l10n.dateYesterday,
-      // `overdue` is the PAST bucket, and its own string is about a missed due
-      // date — "3 days overdue" on an odometer reading would say the reading
-      // was late. `dateDaysAgo` exists for exactly this.
-      RelativeDateBucket.overdue => l10n.dateDaysAgo(
-        relative.count,
-        _plain(relative.count),
+    // The PAST side of the bucketing, not `bucketRelativeDays`. Its `overdue`
+    // bucket counts exact days because a missed due date must say 123 rather
+    // than "about 4 months" — but a READING taken 123 days ago is a fact about
+    // how much the app knows, and SPEC.md §5's "in about 7 weeks is an answer"
+    // applies to it unchanged. This used to read "123 days ago".
+    //
+    // A date in the FUTURE collapses to today rather than inventing a phrase:
+    // the app never writes one, but a restored backup can.
+    final past = bucketDaysAgo(
+      today.difference(DateUtils.dateOnly(taken)).inDays,
+    );
+    return switch (past.bucket) {
+      PastDateBucket.today => l10n.dateToday,
+      PastDateBucket.yesterday => l10n.dateYesterday,
+      PastDateBucket.daysAgo => l10n.dateDaysAgo(
+        past.count,
+        _plain(past.count),
       ),
-      // A reading dated in the FUTURE is not a thing the app writes, and the
-      // honest answer is not to invent a phrase for it.
-      _ => l10n.dateToday,
+      PastDateBucket.aboutWeeksAgo => l10n.dateAboutWeeksAgo(
+        past.count,
+        _plain(past.count),
+      ),
+      PastDateBucket.aboutMonthsAgo => l10n.dateAboutMonthsAgo(
+        past.count,
+        _plain(past.count),
+      ),
     };
   }
 

@@ -123,6 +123,8 @@
   "colourYellow": "أصفر",
   "colourOther": "آخر",
   "dateDaysAgo": "{n, plural, zero{قبل {nText} يوم} one{قبل يوم} two{قبل يومين} few{قبل {nText} أيام} many{قبل {nText} يومًا} other{قبل {nText} يوم}}",
+  "dateAboutWeeksAgo": "{n, plural, zero{قبل حوالي {nText} أسبوع} one{قبل حوالي أسبوع} two{قبل حوالي أسبوعين} few{قبل حوالي {nText} أسابيع} many{قبل حوالي {nText} أسبوعًا} other{قبل حوالي {nText} أسبوع}}",
+  "dateAboutMonthsAgo": "{n, plural, zero{قبل حوالي {nText} شهر} one{قبل حوالي شهر} two{قبل حوالي شهرين} few{قبل حوالي {nText} أشهر} many{قبل حوالي {nText} شهرًا} other{قبل حوالي {nText} شهر}}",
   "vehiclesTitle": "المركبات",
   "vehiclesIntro": "أدِر مركباتك من هنا. أمّا التبديل بينها فيتم من عنوان الشاشة الرئيسية.",
   "vehiclesReorderHint": "اضغط مطوّلًا على صف لإعادة ترتيبه. اسحب للبيع والحذف.",

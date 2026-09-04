@@ -123,6 +123,8 @@
   "colourYellow": "[Ẏḗŀŀǿẇ ǃǃǃ]",
   "colourOther": "[Ǿţħḗř ǃǃ]",
   "dateDaysAgo": "[{n, plural, one{{nText} ḍáẏ áḡǿ} other{{nText} ḍáẏŝ áḡǿ}} ǃǃǃǃǃǃǃ]",
+  "dateAboutWeeksAgo": "[{n, plural, one{áḅǿǔţ {nText} ẇḗḗķ áḡǿ} other{áḅǿǔţ {nText} ẇḗḗķŝ áḡǿ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "dateAboutMonthsAgo": "[{n, plural, one{áḅǿǔţ {nText} ḿǿǹţħ áḡǿ} other{áḅǿǔţ {nText} ḿǿǹţħŝ áḡǿ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "vehiclesTitle": "[Ṽḗħīçŀḗŝ ǃǃǃǃ]",
   "vehiclesIntro": "[Ḿáǹáḡḗ ţħḗ ḡářáḡḗ ħḗřḗ. Ŝẇīţçħīǹḡ çářŝ ħáƥƥḗǹŝ ƒřǿḿ ţħḗ Ħǿḿḗ ţīţŀḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "vehiclesReorderHint": "[Ƥřḗŝŝ áǹḍ ħǿŀḍ á řǿẇ ţǿ řḗǿřḍḗř. Ŝẇīƥḗ ƒǿř ŝḗŀŀ áǹḍ ḍḗŀḗţḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",

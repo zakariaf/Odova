@@ -123,6 +123,8 @@
   "colourYellow": "‏wolleY",
   "colourOther": "‏rehtO",
   "dateDaysAgo": "‏{n, plural, one{{nText}oga yad } other{{nText}oga syad }}",
+  "dateAboutWeeksAgo": "‏{n, plural, one{ tuoba{nText}oga keew } other{ tuoba{nText}oga skeew }}",
+  "dateAboutMonthsAgo": "‏{n, plural, one{ tuoba{nText}oga htnom } other{ tuoba{nText}oga shtnom }}",
   "vehiclesTitle": "‏selciheV",
   "vehiclesIntro": "‏.eltit emoH eht morf sneppah srac gnihctiwS .ereh egarag eht eganaM",
   "vehiclesReorderHint": "‏.eteled dna lles rof epiwS .redroer ot wor a dloh dna sserP",

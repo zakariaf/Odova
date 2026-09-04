@@ -123,6 +123,8 @@
   "colourYellow": "زرد",
   "colourOther": "سایر",
   "dateDaysAgo": "{n, plural, one{{nText} روز پیش} other{{nText} روز پیش}}",
+  "dateAboutWeeksAgo": "{n, plural, one{حدود {nText} هفته پیش} other{حدود {nText} هفته پیش}}",
+  "dateAboutMonthsAgo": "{n, plural, one{حدود {nText} ماه پیش} other{حدود {nText} ماه پیش}}",
   "vehiclesTitle": "خودروها",
   "vehiclesIntro": "گاراژ را اینجا مدیریت کنید. تعویض خودرو از عنوان صفحه خانه انجام می‌شود.",
   "vehiclesReorderHint": "برای جابه‌جایی، ردیف را نگه دارید. برای فروش و حذف، بکشید.",

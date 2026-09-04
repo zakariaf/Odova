@@ -24,6 +24,8 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'dateDaysOverdue' => l10n.dateDaysOverdue(n, nText),
       'remindersDueCount' => l10n.remindersDueCount(n, nText),
       'dateDaysAgo' => l10n.dateDaysAgo(n, nText),
+      'dateAboutWeeksAgo' => l10n.dateAboutWeeksAgo(n, nText),
+      'dateAboutMonthsAgo' => l10n.dateAboutMonthsAgo(n, nText),
       'switcherCount' => l10n.switcherCount(n, nText),
       // {date} and {item} are pinned, so the matrix varies the COUNT only —
       // which is the axis a `few`/`many` mistake shows up against.
