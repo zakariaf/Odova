@@ -12,6 +12,8 @@ import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_dialog.dart';
+import 'package:odova/ui/calm/calm_list_row.dart';
+import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
 import 'package:odova/ui/calm/calm_snackbar.dart';
@@ -555,6 +557,54 @@ void main() {
       // ask for less time to undo, and the existing bar already says so about
       // the 6-second window.
       expect(kCalmDestructiveUndoWindow, greaterThan(calmMotion.undoWindow));
+    });
+  });
+
+  group('the sheet head', () {
+    // `.sheet__head { display: flex; align-items: baseline;
+    // justify-content: space-between; padding-inline: var(--space-1) }` — the
+    // same shape as `.section__head`. The title at the start edge and the
+    // subtitle at the END, on one line.
+    Future<void> pumpSheet(WidgetTester tester) => pumpApp(
+      tester,
+      const Align(
+        alignment: Alignment.bottomCenter,
+        child: CalmSheet(
+          title: 'Switch vehicle',
+          subtitle: '3 vehicles',
+          children: [
+            CalmRowGroup(rows: [CalmListRow(title: 'The Golf')]),
+          ],
+        ),
+      ),
+    );
+
+    testWidgets('the subtitle sits at the END of the title, not beneath it', (
+      tester,
+    ) async {
+      await pumpSheet(tester);
+      final title = tester.getRect(find.text('Switch vehicle'));
+      final sub = tester.getRect(find.text('3 vehicles'));
+      expect(
+        sub.left,
+        greaterThan(title.right),
+        reason: 'one line, title first',
+      );
+      expect(sub.top, closeTo(title.top, 12), reason: 'baseline-aligned');
+    });
+
+    testWidgets('the head is start-aligned, not centred', (tester) async {
+      // The outer column defaulted to `CrossAxisAlignment.center`, so the head
+      // shrink-wrapped and floated in the middle of the sheet — which the
+      // `vehicle.switcher` parity capture showed and no other test could.
+      await pumpSheet(tester);
+      final sheet = tester.getRect(find.byType(CalmSheet));
+      final title = tester.getRect(find.text('Switch vehicle'));
+      expect(
+        title.left - sheet.left,
+        lessThan(sheet.width / 4),
+        reason: 'near the start edge, not centred in the sheet',
+      );
     });
   });
 }
