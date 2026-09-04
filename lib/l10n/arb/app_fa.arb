@@ -29,5 +29,19 @@
   "discardTitle": "تغییرات دور ریخته شود؟",
   "discardBody": "ویرایش‌های شما روی {subject} — {summary} — ذخیره نشده است.",
   "discardKeepEditing": "ادامه ویرایش",
-  "discardDiscard": "دور بریز"
+  "discardDiscard": "دور بریز",
+  "confirmDeleteTitle": "{subject} و {count, plural, =0{رکوردهایش} one{یک رکوردش} other{{countText} رکوردش}} حذف شود؟",
+  "confirmDeleteBody": "{fillUps, plural, =0{هیچ سوخت‌گیری} one{یک سوخت‌گیری} other{{fillUpsText} سوخت‌گیری}}، {services, plural, =0{هیچ سرویس} one{یک سرویس} other{{servicesText} سرویس}}، {costs, plural, =0{هیچ هزینه} one{یک هزینه} other{{costsText} هزینه}}، {trips, plural, =0{هیچ سفر} one{یک سفر} other{{tripsText} سفر}} و {reminders, plural, =0{هیچ یادآور} one{یک یادآور} other{{remindersText} یادآور}} برای همیشه حذف می‌شوند.",
+  "confirmDeleteTypeToConfirm": "برای تأیید، {subject} را بنویسید",
+  "confirmDeleteDelete": "حذف",
+  "confirmDeleteCancel": "انصراف",
+  "snoozeTitle": "به تعویق انداختن {item}",
+  "snoozeBody": "این فقط یادآور را ساکت می‌کند و زمان سررسید کار را تغییر نمی‌دهد.",
+  "snoozeThreeDays": "{count} روز",
+  "snoozeOneWeek": "{count} هفته",
+  "snoozeOneMonth": "{count} ماه",
+  "snoozeDistance": "پس از {distance} دیگر",
+  "snoozeUntil": "تا {date}",
+  "snoozeAtOdometer": "در {odometer}",
+  "snoozeCancel": "انصراف"
 }

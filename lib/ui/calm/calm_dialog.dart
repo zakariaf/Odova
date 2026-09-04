@@ -183,42 +183,50 @@ class CalmDialog extends StatelessWidget {
                   space.s6,
                   space.s6,
                 ),
-                child: Column(
-                  // start, not centre: centred body copy is unreadable at
-                  // Sorani line lengths.
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (icon != null) ...[
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: _CalmDialogIcon(icon: icon!, danger: danger),
+                // Scrolls when it does not fit, and it will: three stacked
+                // actions plus a typed-confirmation field is taller than a
+                // small phone at 200% text scale in German, and SPEC.md §17
+                // allows zero glyph clipping there. A dialog that FITS is
+                // unaffected — a shrink-wrapping scroll view is exactly as
+                // tall as its content.
+                child: SingleChildScrollView(
+                  child: Column(
+                    // start, not centre: centred body copy is unreadable at
+                    // Sorani line lengths.
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (icon != null) ...[
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: _CalmDialogIcon(icon: icon!, danger: danger),
+                        ),
+                        SizedBox(height: space.s4),
+                      ],
+                      Text(
+                        title,
+                        textAlign: TextAlign.start,
+                        style: type.title.copyWith(
+                          color: colors.ink,
+                          fontWeight: type.semi,
+                        ),
                       ),
-                      SizedBox(height: space.s4),
-                    ],
-                    Text(
-                      title,
-                      textAlign: TextAlign.start,
-                      style: type.title.copyWith(
-                        color: colors.ink,
-                        fontWeight: type.semi,
+                      SizedBox(height: space.s2),
+                      Text(
+                        body,
+                        textAlign: TextAlign.start,
+                        style: type.bodyLg.copyWith(color: colors.ink2),
                       ),
-                    ),
-                    SizedBox(height: space.s2),
-                    Text(
-                      body,
-                      textAlign: TextAlign.start,
-                      style: type.bodyLg.copyWith(color: colors.ink2),
-                    ),
-                    SizedBox(height: space.s6),
-                    // Stacked and full width. A row of two puts the
-                    // destructive action under the thumb that was reaching
-                    // for the other one.
-                    for (final (index, action) in _actions.indexed) ...[
-                      if (index > 0) SizedBox(height: space.s3),
-                      action,
+                      SizedBox(height: space.s6),
+                      // Stacked and full width. A row of two puts the
+                      // destructive action under the thumb that was reaching
+                      // for the other one.
+                      for (final (index, action) in _actions.indexed) ...[
+                        if (index > 0) SizedBox(height: space.s3),
+                        action,
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),

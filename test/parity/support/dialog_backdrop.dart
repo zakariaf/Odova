@@ -73,6 +73,37 @@ class _Copy {
   String get costs => _t('Costs', 'هزینه‌ها');
   String get settings => _t('Settings', 'تنظیمات');
   String get log => _t('Log', 'ثبت');
+  String get vehiclesTitle => _t('Vehicles', 'خودروها');
+  String get garageCaption => _t(
+    'Manage the garage here. Switching cars happens from the Home title.',
+    'گاراژ را اینجا مدیریت کنید. تعویض خودرو از عنوان صفحه خانه انجام می‌شود.',
+  );
+
+  /// The three vehicles the artboard lists: name, spec line, status line, and
+  /// the due state its dot and tile take.
+  List<(String, String, String, DueState)> get garage => [
+    (
+      _t('The Golf', 'گلف'),
+      _t('VW Golf VII · 2016 · diesel', 'فولکس‌واگن گلف ۷ · ۲۰۱۶ · دیزل'),
+      _t(
+        '187,412 km · oil and filter overdue',
+        '۱۸۷٬۴۱۲ کیلومتر · روغن عقب‌افتاده',
+      ),
+      DueState.overdue,
+    ),
+    (
+      _t('Transit', 'ترنزیت'),
+      _t('Ford Transit · 2019 · business', 'فورد ترنزیت · ۲۰۱۹ · کاری'),
+      _t('96,400 km · all good', '۹۶٬۴۰۰ کیلومتر · همه‌چیز مرتب'),
+      DueState.ok,
+    ),
+    (
+      'CB500X',
+      _t('Honda · 2021 · petrol', 'هوندا · ۲۰۲۱ · بنزین'),
+      _t('23,905 km · no reminders yet', '۲۳٬۹۰۵ کیلومتر · هنوز یادآوری ندارد'),
+      DueState.needsOdometer,
+    ),
+  ];
 }
 
 /// The `home` screen as the discard and snooze references draw it.
@@ -283,3 +314,67 @@ Widget _dot(BuildContext context, DueState state) =>
 /// A backdrop does nothing when tapped: it is a picture, not a screen.
 void _inert() {}
 void _inertIndex(int _) {}
+
+/// The `vehicles` screen as the confirm-delete reference draws it.
+///
+/// Same caveats as [HomeBackdrop] and the same artboard override — this one
+/// tightens `padding-block` to `4 12`. A stand-in for a screen EPIC-09 builds,
+/// kept only so the band check sees the dialog rather than the wall behind it.
+class VehiclesBackdrop extends StatelessWidget {
+  /// Creates the backdrop.
+  const VehiclesBackdrop({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final copy = _Copy(rtl: rtl);
+    final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
+    final type = CalmType.of(context);
+
+    return Material(
+      color: colors.bg,
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            CalmAppBar(title: copy.vehiclesTitle),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  space.screenPad,
+                  space.s1,
+                  space.screenPad,
+                  space.s3,
+                ),
+                children: [
+                  Text(
+                    copy.garageCaption,
+                    style: type.caption.copyWith(color: colors.ink3),
+                  ),
+                  SizedBox(height: space.s5),
+                  CalmRowGroup(
+                    rows: [
+                      for (final vehicle in copy.garage)
+                        CalmListRow(
+                          title: vehicle.$1,
+                          subtitle: '${vehicle.$2}\n${vehicle.$3}',
+                          lead: CalmIconTile(
+                            icon: Icons.directions_car_outlined,
+                            state: vehicle.$4,
+                          ),
+                          end: _dot(context, vehicle.$4),
+                          onTap: _inert,
+                          size: CalmRowSize.lg,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

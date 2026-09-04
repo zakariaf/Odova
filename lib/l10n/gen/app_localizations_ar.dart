@@ -166,4 +166,138 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get discardDiscard => 'تجاهل';
+
+  @override
+  String confirmDeleteTitle(String subject, int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText سجل',
+      many: '$countText سجلاً',
+      few: '$countText سجلات',
+      two: 'سجليه',
+      one: 'سجله الواحد',
+      zero: 'سجلاته',
+    );
+    return 'حذف $subject و$_temp0؟';
+  }
+
+  @override
+  String confirmDeleteBody(
+    int fillUps,
+    String fillUpsText,
+    int services,
+    String servicesText,
+    int costs,
+    String costsText,
+    int trips,
+    String tripsText,
+    int reminders,
+    String remindersText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      fillUps,
+      locale: localeName,
+      other: '$fillUpsText تعبئة',
+      many: '$fillUpsText تعبئةً',
+      few: '$fillUpsText تعبئات',
+      two: 'تعبئتان',
+      one: 'تعبئة واحدة',
+      zero: 'لا تعبئات',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      services,
+      locale: localeName,
+      other: '$servicesText صيانة',
+      many: '$servicesText صيانةً',
+      few: '$servicesText صيانات',
+      two: 'صيانتان',
+      one: 'صيانة واحدة',
+      zero: 'لا صيانات',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      costs,
+      locale: localeName,
+      other: '$costsText تكلفة',
+      many: '$costsText تكلفةً',
+      few: '$costsText تكاليف',
+      two: 'تكلفتان',
+      one: 'تكلفة واحدة',
+      zero: 'لا تكاليف',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      trips,
+      locale: localeName,
+      other: '$tripsText رحلة',
+      many: '$tripsText رحلةً',
+      few: '$tripsText رحلات',
+      two: 'رحلتان',
+      one: 'رحلة واحدة',
+      zero: 'لا رحلات',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
+      reminders,
+      locale: localeName,
+      other: '$remindersText تذكير',
+      many: '$remindersText تذكيرًا',
+      few: '$remindersText تذكيرات',
+      two: 'تذكيران',
+      one: 'تذكير واحد',
+      zero: 'لا تذكيرات',
+    );
+    return '$_temp0، و$_temp1، و$_temp2، و$_temp3 و$_temp4 تُحذف نهائيًا.';
+  }
+
+  @override
+  String confirmDeleteTypeToConfirm(String subject) {
+    return 'اكتب $subject للتأكيد';
+  }
+
+  @override
+  String get confirmDeleteDelete => 'حذف';
+
+  @override
+  String get confirmDeleteCancel => 'إلغاء';
+
+  @override
+  String snoozeTitle(String item) {
+    return 'تأجيل $item';
+  }
+
+  @override
+  String get snoozeBody =>
+      'هذا يُسكت التذكير فقط. ولا يغيّر موعد استحقاق العمل.';
+
+  @override
+  String snoozeThreeDays(String count) {
+    return '$count أيام';
+  }
+
+  @override
+  String snoozeOneWeek(String count) {
+    return '$count أسبوع';
+  }
+
+  @override
+  String snoozeOneMonth(String count) {
+    return '$count شهر';
+  }
+
+  @override
+  String snoozeDistance(String distance) {
+    return 'بعد $distance أخرى';
+  }
+
+  @override
+  String snoozeUntil(String date) {
+    return 'حتى $date';
+  }
+
+  @override
+  String snoozeAtOdometer(String odometer) {
+    return 'عند $odometer';
+  }
+
+  @override
+  String get snoozeCancel => 'إلغاء';
 }

@@ -147,4 +147,120 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get discardDiscard => 'دور بریز';
+
+  @override
+  String confirmDeleteTitle(String subject, int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText رکوردش',
+      one: 'یک رکوردش',
+      zero: 'رکوردهایش',
+    );
+    return '$subject و $_temp0 حذف شود؟';
+  }
+
+  @override
+  String confirmDeleteBody(
+    int fillUps,
+    String fillUpsText,
+    int services,
+    String servicesText,
+    int costs,
+    String costsText,
+    int trips,
+    String tripsText,
+    int reminders,
+    String remindersText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      fillUps,
+      locale: localeName,
+      other: '$fillUpsText سوخت‌گیری',
+      one: 'یک سوخت‌گیری',
+      zero: 'هیچ سوخت‌گیری',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      services,
+      locale: localeName,
+      other: '$servicesText سرویس',
+      one: 'یک سرویس',
+      zero: 'هیچ سرویس',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      costs,
+      locale: localeName,
+      other: '$costsText هزینه',
+      one: 'یک هزینه',
+      zero: 'هیچ هزینه',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      trips,
+      locale: localeName,
+      other: '$tripsText سفر',
+      one: 'یک سفر',
+      zero: 'هیچ سفر',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
+      reminders,
+      locale: localeName,
+      other: '$remindersText یادآور',
+      one: 'یک یادآور',
+      zero: 'هیچ یادآور',
+    );
+    return '$_temp0، $_temp1، $_temp2، $_temp3 و $_temp4 برای همیشه حذف می‌شوند.';
+  }
+
+  @override
+  String confirmDeleteTypeToConfirm(String subject) {
+    return 'برای تأیید، $subject را بنویسید';
+  }
+
+  @override
+  String get confirmDeleteDelete => 'حذف';
+
+  @override
+  String get confirmDeleteCancel => 'انصراف';
+
+  @override
+  String snoozeTitle(String item) {
+    return 'به تعویق انداختن $item';
+  }
+
+  @override
+  String get snoozeBody =>
+      'این فقط یادآور را ساکت می‌کند و زمان سررسید کار را تغییر نمی‌دهد.';
+
+  @override
+  String snoozeThreeDays(String count) {
+    return '$count روز';
+  }
+
+  @override
+  String snoozeOneWeek(String count) {
+    return '$count هفته';
+  }
+
+  @override
+  String snoozeOneMonth(String count) {
+    return '$count ماه';
+  }
+
+  @override
+  String snoozeDistance(String distance) {
+    return 'پس از $distance دیگر';
+  }
+
+  @override
+  String snoozeUntil(String date) {
+    return 'تا $date';
+  }
+
+  @override
+  String snoozeAtOdometer(String odometer) {
+    return 'در $odometer';
+  }
+
+  @override
+  String get snoozeCancel => 'انصراف';
 }

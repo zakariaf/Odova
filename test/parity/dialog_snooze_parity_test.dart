@@ -1,4 +1,4 @@
-// `dialog.discard`, captured over its backdrop, in all four combinations.
+// `dialog.snooze`, captured over its backdrop, in all four combinations.
 //
 // The capture FILENAME is the screen id, dot included — `compare_to_reference
 // .mjs` looks up its reference by that name. The test file uses underscores
@@ -16,13 +16,13 @@ void main() {
   setUpAll(loadParityFonts);
 
   for (final config in kParityCases) {
-    testWidgets('dialog.discard ${config.theme}/${config.dir}', (tester) async {
+    testWidgets('dialog.snooze ${config.theme}/${config.dir}', (tester) async {
       await captureParity(
         tester,
-        screen: 'dialog.discard',
+        screen: 'dialog.snooze',
         config: config,
         child: const HomeBackdrop(),
-        overlay: const DiscardOverlay(),
+        overlay: const SnoozeOverlay(),
       );
     });
   }

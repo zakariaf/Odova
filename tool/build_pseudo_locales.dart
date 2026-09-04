@@ -164,7 +164,21 @@ String? accentFor(String character) => _accents[character];
 String pseudoAccented(String message) {
   String accent(String run) =>
       run.split('').map((c) => _accents[c] ?? c).join();
-  final padding = _pad * ((message.length * 0.4).ceil().clamp(1, 40));
+
+  // 40% of the LITERAL length, and no upper clamp.
+  //
+  // Both halves were wrong and both only showed on a long message. The raw
+  // length counts ICU syntax as copy, and a clamp at 40 characters turned the
+  // promise into a fixed suffix — so `confirmDeleteBody`, five nested plurals
+  // and 152 characters of actual words, expanded by 28% instead of 40%. The
+  // strings that most need the headroom are exactly the ones the clamp was
+  // silently exempting.
+  var literalLength = 0;
+  transformIcu(message, (run) {
+    literalLength += run.length;
+    return run;
+  });
+  final padding = _pad * (literalLength * 0.4).ceil().clamp(1, 1 << 30);
   return '[${transformIcu(message, accent)} $padding]';
 }
 

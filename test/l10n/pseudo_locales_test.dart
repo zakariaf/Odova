@@ -74,12 +74,20 @@ void main() {
     test('it is at least 40% longer, which is what finds truncation', () {
       // German runs ~30% longer than English and French ~20%, so 40% is the
       // headroom a layout needs to survive the worst of the six.
+      //
+      // Measured over the LITERAL text, not the raw ICU string. Truncation is
+      // about what is RENDERED, and a message that is mostly ICU syntax is
+      // mostly characters no user ever sees: `confirmDeleteBody` carries five
+      // nested plurals, so category names, braces and placeholder names are
+      // three quarters of its length. Comparing raw strings scored it at 19%
+      // expanded and called the generator broken, when every word in it had
+      // been expanded correctly.
       final template = _arb('en');
       final xa = _arb('en_XA');
       for (final key in _keys(template)) {
         expect(
-          (xa[key]! as String).length,
-          greaterThan((template[key]! as String).length * 1.3),
+          _literalLength(xa[key]! as String),
+          greaterThan(_literalLength(template[key]! as String) * 1.3),
           reason: key,
         );
       }
@@ -209,4 +217,20 @@ void main() {
       expect(mapped.toSet(), hasLength(mapped.length));
     });
   });
+}
+
+/// The characters of [message] a user actually sees.
+///
+/// Counted with the GENERATOR's own definition of a literal — `transformIcu`
+/// hands every non-syntax run to the callback, and this one measures instead of
+/// accenting it. A second implementation here would be a second opinion about
+/// what ICU syntax is, and the two would disagree on the day somebody added a
+/// `select`.
+int _literalLength(String message) {
+  var length = 0;
+  transformIcu(message, (run) {
+    length += run.length;
+    return run;
+  });
+  return length;
 }

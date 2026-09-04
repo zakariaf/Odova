@@ -146,4 +146,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discardDiscard => 'Discard';
+
+  @override
+  String confirmDeleteTitle(String subject, int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'its $countText entries',
+      one: 'its $countText entry',
+      zero: 'its entries',
+    );
+    return 'Delete $subject and $_temp0?';
+  }
+
+  @override
+  String confirmDeleteBody(
+    int fillUps,
+    String fillUpsText,
+    int services,
+    String servicesText,
+    int costs,
+    String costsText,
+    int trips,
+    String tripsText,
+    int reminders,
+    String remindersText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      fillUps,
+      locale: localeName,
+      other: '$fillUpsText fill-ups',
+      one: '$fillUpsText fill-up',
+      zero: 'No fill-ups',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      services,
+      locale: localeName,
+      other: '$servicesText services',
+      one: '$servicesText service',
+      zero: 'no services',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      costs,
+      locale: localeName,
+      other: '$costsText costs',
+      one: '$costsText cost',
+      zero: 'no costs',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      trips,
+      locale: localeName,
+      other: '$tripsText trips',
+      one: '$tripsText trip',
+      zero: 'no trips',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
+      reminders,
+      locale: localeName,
+      other: '$remindersText reminders',
+      one: '$remindersText reminder',
+      zero: 'no reminders',
+    );
+    return '$_temp0, $_temp1, $_temp2, $_temp3 and $_temp4 go permanently.';
+  }
+
+  @override
+  String confirmDeleteTypeToConfirm(String subject) {
+    return 'Type $subject to confirm';
+  }
+
+  @override
+  String get confirmDeleteDelete => 'Delete';
+
+  @override
+  String get confirmDeleteCancel => 'Cancel';
+
+  @override
+  String snoozeTitle(String item) {
+    return 'Snooze $item';
+  }
+
+  @override
+  String get snoozeBody =>
+      'This quiets the reminder. It does not change when the job is due.';
+
+  @override
+  String snoozeThreeDays(String count) {
+    return '$count days';
+  }
+
+  @override
+  String snoozeOneWeek(String count) {
+    return '$count week';
+  }
+
+  @override
+  String snoozeOneMonth(String count) {
+    return '$count month';
+  }
+
+  @override
+  String snoozeDistance(String distance) {
+    return 'After another $distance';
+  }
+
+  @override
+  String snoozeUntil(String date) {
+    return 'until $date';
+  }
+
+  @override
+  String snoozeAtOdometer(String odometer) {
+    return 'at $odometer';
+  }
+
+  @override
+  String get snoozeCancel => 'Cancel';
 }

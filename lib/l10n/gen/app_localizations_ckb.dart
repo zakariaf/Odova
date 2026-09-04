@@ -147,4 +147,120 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get discardDiscard => 'فڕێدان';
+
+  @override
+  String confirmDeleteTitle(String subject, int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText تۆماری',
+      one: 'یەک تۆماری',
+      zero: 'تۆمارەکانی',
+    );
+    return '$subject و $_temp0 بسڕدرێتەوە؟';
+  }
+
+  @override
+  String confirmDeleteBody(
+    int fillUps,
+    String fillUpsText,
+    int services,
+    String servicesText,
+    int costs,
+    String costsText,
+    int trips,
+    String tripsText,
+    int reminders,
+    String remindersText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      fillUps,
+      locale: localeName,
+      other: '$fillUpsText سووتەمەنی',
+      one: 'یەک سووتەمەنی',
+      zero: 'هیچ سووتەمەنیەک',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      services,
+      locale: localeName,
+      other: '$servicesText خزمەتگوزاری',
+      one: 'یەک خزمەتگوزاری',
+      zero: 'هیچ خزمەتگوزارییەک',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      costs,
+      locale: localeName,
+      other: '$costsText تێچوو',
+      one: 'یەک تێچوو',
+      zero: 'هیچ تێچوویەک',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      trips,
+      locale: localeName,
+      other: '$tripsText گەشت',
+      one: 'یەک گەشت',
+      zero: 'هیچ گەشتێک',
+    );
+    String _temp4 = intl.Intl.pluralLogic(
+      reminders,
+      locale: localeName,
+      other: '$remindersText بیرخەرەوە',
+      one: 'یەک بیرخەرەوە',
+      zero: 'هیچ بیرخەرەوەیەک',
+    );
+    return '$_temp0، $_temp1، $_temp2، $_temp3 و $_temp4 بۆ هەمیشە دەسڕدرێنەوە.';
+  }
+
+  @override
+  String confirmDeleteTypeToConfirm(String subject) {
+    return 'بۆ پشتڕاستکردنەوە $subject بنووسە';
+  }
+
+  @override
+  String get confirmDeleteDelete => 'سڕینەوە';
+
+  @override
+  String get confirmDeleteCancel => 'پاشگەزبوونەوە';
+
+  @override
+  String snoozeTitle(String item) {
+    return 'دواخستنی $item';
+  }
+
+  @override
+  String get snoozeBody =>
+      'ئەمە تەنها بیرخەرەوەکە بێدەنگ دەکات و کاتی پێویستی کارەکە ناگۆڕێت.';
+
+  @override
+  String snoozeThreeDays(String count) {
+    return '$count ڕۆژ';
+  }
+
+  @override
+  String snoozeOneWeek(String count) {
+    return '$count هەفتە';
+  }
+
+  @override
+  String snoozeOneMonth(String count) {
+    return '$count مانگ';
+  }
+
+  @override
+  String snoozeDistance(String distance) {
+    return 'دوای $distanceی دیکە';
+  }
+
+  @override
+  String snoozeUntil(String date) {
+    return 'تا $date';
+  }
+
+  @override
+  String snoozeAtOdometer(String odometer) {
+    return 'لە $odometer';
+  }
+
+  @override
+  String get snoozeCancel => 'پاشگەزبوونەوە';
 }

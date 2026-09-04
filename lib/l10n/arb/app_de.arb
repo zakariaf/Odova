@@ -29,5 +29,19 @@
   "discardTitle": "Änderungen verwerfen?",
   "discardBody": "Deine Änderungen an {subject} — {summary} — wurden nicht gespeichert.",
   "discardKeepEditing": "Weiter bearbeiten",
-  "discardDiscard": "Verwerfen"
+  "discardDiscard": "Verwerfen",
+  "confirmDeleteTitle": "{subject} und {count, plural, =0{seine Einträge} one{seinen einen Eintrag} other{seine {countText} Einträge}} löschen?",
+  "confirmDeleteBody": "{fillUps, plural, =0{Keine Tankfüllungen} one{{fillUpsText} Tankfüllung} other{{fillUpsText} Tankfüllungen}}, {services, plural, =0{keine Services} one{{servicesText} Service} other{{servicesText} Services}}, {costs, plural, =0{keine Kostenposten} one{{costsText} Kostenposten} other{{costsText} Kostenposten}}, {trips, plural, =0{keine Fahrten} one{{tripsText} Fahrt} other{{tripsText} Fahrten}} und {reminders, plural, =0{keine Erinnerungen} one{{remindersText} Erinnerung} other{{remindersText} Erinnerungen}} sind endgültig weg.",
+  "confirmDeleteTypeToConfirm": "Zum Bestätigen {subject} eingeben",
+  "confirmDeleteDelete": "Löschen",
+  "confirmDeleteCancel": "Abbrechen",
+  "snoozeTitle": "{item} zurückstellen",
+  "snoozeBody": "Das macht nur die Erinnerung still. Der Fälligkeitstermin ändert sich nicht.",
+  "snoozeThreeDays": "{count} Tage",
+  "snoozeOneWeek": "{count} Woche",
+  "snoozeOneMonth": "{count} Monat",
+  "snoozeDistance": "Nach weiteren {distance}",
+  "snoozeUntil": "bis {date}",
+  "snoozeAtOdometer": "bei {odometer}",
+  "snoozeCancel": "Abbrechen"
 }

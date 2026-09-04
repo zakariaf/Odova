@@ -285,6 +285,101 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discard'**
   String get discardDiscard;
+
+  /// Title of the global delete confirmation. Names the subject and its total entry count so the user is agreeing to a size, not a word. SPEC.md §2: delete is immediate, with Undo in the moment — there is no trash to recover from, which is why the count is in the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {subject} and {count, plural, =0{its entries} one{its {countText} entry} other{its {countText} entries}}?'**
+  String confirmDeleteTitle(String subject, int count, String countText);
+
+  /// The five per-type counts, as ONE ICU message. SPEC.md §2 forbids assembling a sentence from parts: five plurals in one message is legal ICU and translatable, and a sentence built in Dart is a sentence no translator can reorder. Every count has an explicit =0 because a vehicle with no trips must not read '0 trips'.
+  ///
+  /// In en, this message translates to:
+  /// **'{fillUps, plural, =0{No fill-ups} one{{fillUpsText} fill-up} other{{fillUpsText} fill-ups}}, {services, plural, =0{no services} one{{servicesText} service} other{{servicesText} services}}, {costs, plural, =0{no costs} one{{costsText} cost} other{{costsText} costs}}, {trips, plural, =0{no trips} one{{tripsText} trip} other{{tripsText} trips}} and {reminders, plural, =0{no reminders} one{{remindersText} reminder} other{{remindersText} reminders}} go permanently.'**
+  String confirmDeleteBody(
+    int fillUps,
+    String fillUpsText,
+    int services,
+    String servicesText,
+    int costs,
+    String costsText,
+    int trips,
+    String tripsText,
+    int reminders,
+    String remindersText,
+  );
+
+  /// Label above the typed-confirmation field. SPEC.md §8: required exactly when the entry count is non-zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {subject} to confirm'**
+  String confirmDeleteTypeToConfirm(String subject);
+
+  /// The destructive action. Disabled until the typed name matches.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get confirmDeleteDelete;
+
+  /// The way out. Tap-out and system back both return this — no dialog is ever dismissed into a destructive outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get confirmDeleteCancel;
+
+  /// Title of the snooze dialog. The item label is interpolated AS STORED: the reference lower-cases it inside the sentence, and an ICU message cannot case-fold a placeholder — German capitalises every noun (EPIC-08 finding F-8.6).
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze {item}'**
+  String snoozeTitle(String item);
+
+  /// The reference's sentence, verbatim. It is deliberately state-neutral: it says what snoozing does and does not do, which is true for a due, due-soon or overdue item alike, so no ICU select over DueState is needed (EPIC-08 finding F-8.8).
+  ///
+  /// In en, this message translates to:
+  /// **'This quiets the reminder. It does not change when the job is due.'**
+  String get snoozeBody;
+
+  /// The first snooze option.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String snoozeThreeDays(String count);
+
+  /// The second.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} week'**
+  String snoozeOneWeek(String count);
+
+  /// The third. A calendar month, clamped to the last day of the target month.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} month'**
+  String snoozeOneMonth(String count);
+
+  /// The fourth, shown only when the item has a distance interval. SPEC.md §4.7.2 writes it as 500 km with no mile equivalent; §4.8 says defaults are defined per unit system rather than converted, and that is unsettled (EPIC-08 finding F-8.9).
+  ///
+  /// In en, this message translates to:
+  /// **'After another {distance}'**
+  String snoozeDistance(String distance);
+
+  /// The resolved date on a time option. {date} is already formatted in the active calendar and numerals.
+  ///
+  /// In en, this message translates to:
+  /// **'until {date}'**
+  String snoozeUntil(String date);
+
+  /// The resolved reading on the distance option. {odometer} is the entered cumulative reading plus 500 km, already formatted — never a projection, which would move every time the estimate did.
+  ///
+  /// In en, this message translates to:
+  /// **'at {odometer}'**
+  String snoozeAtOdometer(String odometer);
+
+  /// The single quiet action.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get snoozeCancel;
 }
 
 class _AppLocalizationsDelegate
