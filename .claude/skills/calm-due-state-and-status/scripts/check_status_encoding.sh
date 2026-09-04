@@ -5,7 +5,22 @@
 # estimate tilde is built in Dart instead of coming from an ICU message.
 set -euo pipefail
 TARGET="${1:-lib}"
-OWNER='theme/calm/calm_status.dart'          # the ONE file allowed to switch
+OWNER='theme/calm/calm_status.dart'          # the ONE file allowed to RESOLVE
+# The DOMAIN may switch on a DueState; only PRESENTATION may not.
+#
+# This gate's contract is "fails if a WIDGET switches on the state", and until
+# EPIC-07 the only code that switched was a widget, so matching every file
+# outside the owner said the same thing. Then the due engine arrived and
+# switched on DueState to answer domain questions — which axis is worse, which
+# item to name first — and the gate fired on the layer whose job that is.
+#
+# `lib/core/` is safe to exempt and nothing else would be: `tools/check_core_purity.sh`
+# and `test/policy/core_is_pure_test.dart` both prove it imports no Flutter, so
+# a file there provably contains no widget and cannot resolve a colour. What the
+# gate protects is unchanged — a state must become a COLOUR in exactly one
+# place — and `lib/core/due/due_state.dart`'s own header states the same split:
+# what a state IS belongs to the domain, what it LOOKS LIKE belongs to the theme.
+DOMAIN_RE='^lib/core/'                       # may switch; may never read a slot
 # Allowlist for a DIRECT slot read (rule 3's carve-out). The theme directory
 # declares the ramps and resolves them; CalmField reads `overdue` for its error
 # ring and CalmSnackbar's destructive variant reads `danger` — both states are
@@ -41,7 +56,9 @@ while IFS= read -r -d '' f; do
   if printf '%s\n' "$f" | grep -qE "$SLOT_ALLOW_RE"; then slots=1; else slots=0; fi
   src="$(sed -E "$STRIP" "$f")"
 
-  if [ "$owner" -eq 0 ]; then
+  if printf '%s\n' "$f" | grep -qE "$DOMAIN_RE"; then domain=1; else domain=0; fi
+
+  if [ "$owner" -eq 0 ] && [ "$domain" -eq 0 ]; then
     hits="$(printf '%s\n' "$src" | grep -nE "$SWITCH_RE" || true)"
     [ -n "$hits" ] && report "$f  (switches on DueState; use CalmStatusStyle)" "$hits"
   fi

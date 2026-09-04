@@ -10,9 +10,12 @@
 // can disagree with the two it describes.
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/models/records.dart';
+import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/notice_window.dart';
+import 'package:odova/core/due/project_due_date.dart';
+import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/due/resolve_anchor.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/value_equality.dart';
@@ -60,7 +63,7 @@ class DueAssessment with ValueEquality {
 
   /// The distance axis's due date, projected at the current rate.
   ///
-  /// Filled by task 7.7. Null here.
+  /// The single sort key across both axes — see `project_due_date.dart`.
   final CivilDate? projectedDueDate;
 
   /// How much to trust the rate behind [projectedDueDate] and any `~` figure.
@@ -116,12 +119,21 @@ int _severity(DueState state) => switch (state) {
 };
 
 /// The due state of [item], per SPEC.md §3.
+///
+/// Takes the [rate] and the [series] so it can fill `confidence` and
+/// `projectedDueDate` itself. It used to fill neither honestly — `confidence`
+/// was a hardcoded `measured`, `projectedDueDate` was a documented `null`, and
+/// exactly one caller knew to overwrite both. A return value that is never
+/// valid on its own invites the next caller to forget, and the fixture matrix
+/// pinned the hardcoded constant as though it were spec output.
 DueAssessment computeDueState(
   ServiceItem item,
   DueAnchor anchor,
   OdometerEstimate? estimate,
   NoticeWindow window, {
   required CivilDate today,
+  required DailyDistance rate,
+  required ReadingSeries series,
 }) {
   final distance = _distanceAxis(item, anchor, estimate, window);
   final time = _timeAxis(item, anchor, window, today);
@@ -156,15 +168,33 @@ DueAssessment computeDueState(
       ? distanceState
       : worseOf(distanceState, time.state!);
 
-  return DueAssessment(
+  final assessment = DueAssessment(
     state: state,
     driver: _driver(distanceState, time.state, state),
     remainingMetres: distance.remaining,
     remainingDays: time.remaining,
     dueAtOdometerMetres: distance.dueAt,
     dueOn: time.dueOn,
-    confidence: RateConfidence.measured,
+    confidence: rate.confidence,
     progress: _progress(distance, time, anchor, estimate, today),
+  );
+
+  return DueAssessment(
+    state: assessment.state,
+    driver: assessment.driver,
+    remainingMetres: assessment.remainingMetres,
+    remainingDays: assessment.remainingDays,
+    dueAtOdometerMetres: assessment.dueAtOdometerMetres,
+    dueOn: assessment.dueOn,
+    projectedDueDate: projectDueDate(
+      dueOn: assessment.dueOn,
+      dueAtOdometerMetres: assessment.dueAtOdometerMetres,
+      series: series,
+      rate: rate,
+      today: today,
+    ),
+    confidence: assessment.confidence,
+    progress: assessment.progress,
   );
 }
 

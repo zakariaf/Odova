@@ -7,7 +7,6 @@
 // It is a SORT KEY and not a promise. An already-overdue item projects into the
 // past, which is what puts it above one due next week.
 import 'package:odova/core/due/daily_distance.dart';
-import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/time/civil_date.dart';
 
@@ -22,15 +21,20 @@ import 'package:odova/core/time/civil_date.dart';
 /// and §4.1.3 writes the same thing from `today` and `odo_now`; they are
 /// algebraically identical because `odo_now` is exactly
 /// `last + rate × (today − last.date)`, so only one of them is implemented.
-CivilDate? projectDueDate(
-  DueAssessment assessment,
-  ReadingSeries series,
-  DailyDistance rate, {
+///
+/// Takes the two axis results rather than a whole `DueAssessment`: the engine
+/// calls this while BUILDING one, so depending on the finished type would be a
+/// cycle — and the function never needed more than these two numbers.
+CivilDate? projectDueDate({
+  required CivilDate? dueOn,
+  required int? dueAtOdometerMetres,
+  required ReadingSeries series,
+  required DailyDistance rate,
   required CivilDate today,
 }) {
   final candidates = <CivilDate>[
-    if (assessment.dueOn != null) assessment.dueOn!,
-    ?_distanceProjection(assessment, series, rate),
+    ?dueOn,
+    ?_distanceProjection(dueAtOdometerMetres, series, rate),
   ];
 
   if (candidates.isEmpty) return null;
@@ -39,11 +43,10 @@ CivilDate? projectDueDate(
 
 /// When the distance axis will reach its threshold, at the current rate.
 CivilDate? _distanceProjection(
-  DueAssessment assessment,
+  int? dueAt,
   ReadingSeries series,
   DailyDistance rate,
 ) {
-  final dueAt = assessment.dueAtOdometerMetres;
   final last = series.last;
   // A rate of zero cannot project: dividing by it gives an Infinity that
   // becomes a date. `dailyDistance` clamps to 5 km/day so this is unreachable

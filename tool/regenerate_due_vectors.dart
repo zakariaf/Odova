@@ -24,7 +24,6 @@ import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/notice_window.dart';
-import 'package:odova/core/due/project_due_date.dart';
 import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/due/resolve_anchor.dart';
 import 'package:odova/core/ids/record_id.dart';
@@ -132,6 +131,8 @@ Map<String, Object?> _compute(Map<String, dynamic> fixture) {
     estimateOdometer(series, rate, today: today),
     noticeWindow(item: item, vehicle: _vehicle, settings: _settings),
     today: today,
+    rate: rate,
+    series: series,
   );
 
   return {
@@ -141,12 +142,7 @@ Map<String, Object?> _compute(Map<String, dynamic> fixture) {
     'remaining_days': assessment.remainingDays,
     'due_at_odometer_m': assessment.dueAtOdometerMetres,
     'due_on': assessment.dueOn?.toString(),
-    'projected_due_date': projectDueDate(
-      assessment,
-      series,
-      rate,
-      today: today,
-    )?.toString(),
+    'projected_due_date': assessment.projectedDueDate?.toString(),
     'confidence': assessment.confidence.wire,
     'progress': double.parse(assessment.progress.toStringAsFixed(6)),
   };

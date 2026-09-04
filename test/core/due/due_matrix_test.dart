@@ -32,7 +32,6 @@ import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/notice_window.dart';
-import 'package:odova/core/due/project_due_date.dart';
 import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/due/resolve_anchor.dart';
 import 'package:odova/core/ids/record_id.dart';
@@ -88,6 +87,7 @@ const _requiredRows = {
   'distance-only x one metre past a CEILING-clamped grace is overdue',
   'distance-only x one metre outside a FLOOR-clamped notice is ok',
   'time-only x one day outside a FLOOR-clamped notice is ok',
+  'both x readings that do not qualify report confidence default',
   'passat - the SPEC.md 4.1.3 worked example',
   'second-hand car with a service book reports unknown, never overdue',
 };
@@ -202,8 +202,11 @@ void main() {
         estimate,
         window,
         today: today,
+        rate: rate,
+        series: series,
       );
-      final projected = projectDueDate(assessment, series, rate, today: today);
+      // The engine fills it now, so the matrix asserts what a caller receives.
+      final projected = assessment.projectedDueDate;
 
       expect(
         assessment.state.name,
@@ -235,6 +238,11 @@ void main() {
         projected?.toString(),
         expected['projected_due_date'],
         reason: 'projected_due_date',
+      );
+      expect(
+        assessment.confidence.wire,
+        expected['confidence'],
+        reason: 'confidence',
       );
       expect(
         assessment.progress,

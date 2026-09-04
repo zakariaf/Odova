@@ -1,6 +1,6 @@
 {
   "_source": "Hand-authored from SPEC.md 3 and 4.1 via an independent oracle, NOT dumped from lib/core/due/. See the header of due_matrix_test.dart.",
-  "_rows": 29,
+  "_rows": 30,
   "cases": [
     {
       "name": "distance-only x ok",
@@ -874,6 +874,39 @@
         "projected_due_date": "2026-02-01",
         "confidence": "measured",
         "progress": 0.741935
+      }
+    },
+    {
+      "name": "both x readings that do not qualify report confidence default",
+      "item": {
+        "interval_m": 10000000,
+        "interval_months": 12
+      },
+      "anchor": {
+        "date": "2026-01-01",
+        "odometer_m": 100000000
+      },
+      "readings": [
+        {
+          "date": "2026-05-19",
+          "odometer_m": 100000000
+        },
+        {
+          "date": "2026-06-01",
+          "odometer_m": 100500000
+        }
+      ],
+      "today": "2026-06-01",
+      "expect": {
+        "status": "ok",
+        "driver": "both",
+        "remaining_m": 9500000,
+        "remaining_days": 214,
+        "due_at_odometer_m": 110000000,
+        "due_on": "2027-01-01",
+        "projected_due_date": "2027-01-01",
+        "confidence": "default",
+        "progress": 0.413699
       }
     }
   ]

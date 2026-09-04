@@ -129,6 +129,8 @@ void main() {
         estimateOdometer(series, _rate, today: today),
         noticeWindow(item: oil, vehicle: car, settings: _settings),
         today: today,
+        rate: _rate,
+        series: series,
       );
 
       expect(assessment.dueAtOdometerMetres! ~/ 1000, 118200);
@@ -144,14 +146,14 @@ void main() {
         estimate,
         noticeWindow(item: oil, vehicle: car, settings: _settings),
         today: today,
+        rate: _rate,
+        series: series,
       );
 
-      final projected = projectDueDate(
-        assessment,
-        series,
-        _rate,
-        today: today,
-      );
+      // The engine fills `projectedDueDate` itself now, so this reads it
+      // rather than recomputing it — which is also the stronger assertion:
+      // it pins what a CALLER receives, not what a helper returns.
+      final projected = assessment.projectedDueDate;
 
       expect(projected, day('2026-10-12'));
 
@@ -169,7 +171,7 @@ void main() {
 
   group('min over the axes that exist', () {
     test('takes the earlier of the two when both are present', () {
-      final projected = projectDueDate(
+      final projected = projectFrom(
         _assessment(dueOn: day('2027-02-10'), dueAtKm: 118200),
         _seriesAt('2026-08-20', 116050),
         _rate,
@@ -182,7 +184,7 @@ void main() {
       // The bug a naive `min` produces: `null` sorts before every date, so a
       // distance-only item would project as "no date" and sort to the top of
       // the home screen forever.
-      final projected = projectDueDate(
+      final projected = projectFrom(
         _assessment(dueAtKm: 118200),
         _seriesAt('2026-08-20', 116050),
         _rate,
@@ -192,7 +194,7 @@ void main() {
     });
 
     test('is the time date for a time-only item', () {
-      final projected = projectDueDate(
+      final projected = projectFrom(
         _assessment(dueOn: day('2027-02-10')),
         _seriesAt('2026-08-20', 116050),
         _rate,
@@ -203,7 +205,7 @@ void main() {
 
     test('is null when neither axis can be projected', () {
       expect(
-        projectDueDate(
+        projectFrom(
           _assessment(),
           _seriesAt('2026-08-20', 116050),
           _rate,
@@ -217,7 +219,7 @@ void main() {
   test('rounds the day count UP, never down', () {
     // 52.4 days is 53. A projection that lands the user at the garage AFTER
     // the threshold is the failure mode; arriving a day early is not.
-    final projected = projectDueDate(
+    final projected = projectFrom(
       _assessment(dueAtKm: 118200),
       _seriesAt('2026-09-02', 116050),
       // 2,150 km remaining at 41 km/day is 52.44 days.
@@ -234,7 +236,7 @@ void main() {
   test('returns a date in the PAST for an already-overdue axis', () {
     // It is a sort key, not a promise. An item 2,000 km past due sorts above
     // one due next week, which is the whole reason the key exists.
-    final projected = projectDueDate(
+    final projected = projectFrom(
       _assessment(dueAtKm: 110000),
       _seriesAt('2026-09-02', 112000),
       _rate,
@@ -247,7 +249,7 @@ void main() {
   test('still produces a sort key at confidence default', () {
     // §4.1.4 forbids SHOWING the date at `default`, not computing it. The
     // hedging is the UI's job; the list still has to be in an order.
-    final projected = projectDueDate(
+    final projected = projectFrom(
       _assessment(dueAtKm: 118200),
       _seriesAt('2026-08-20', 116050),
       const DailyDistance(
@@ -264,7 +266,7 @@ void main() {
     // The rate is clamped to 5 km/day so this is unreachable through
     // `dailyDistance` — and a caller can hand any rate in, and dividing by
     // zero here would produce an Infinity that becomes a date.
-    final projected = projectDueDate(
+    final projected = projectFrom(
       _assessment(dueOn: day('2027-02-10'), dueAtKm: 118200),
       _seriesAt('2026-08-20', 116050),
       const DailyDistance(
@@ -286,7 +288,7 @@ final _settings = AppSettings(
   updatedAtUtcMs: 1000,
 );
 
-/// An assessment carrying only the fields `projectDueDate` reads.
+/// An assessment carrying only the fields the projection reads.
 DueAssessment _assessment({CivilDate? dueOn, int? dueAtKm}) => DueAssessment(
   state: DueState.ok,
   driver: DueDriver.none,
@@ -294,6 +296,25 @@ DueAssessment _assessment({CivilDate? dueOn, int? dueAtKm}) => DueAssessment(
   progress: 0,
   dueOn: dueOn,
   dueAtOdometerMetres: dueAtKm == null ? null : Distance.fromKm(dueAtKm).metres,
+);
+
+/// `projectDueDate` from a finished assessment.
+///
+/// The function itself takes the two axis results rather than a whole
+/// `DueAssessment`, because the engine calls it while BUILDING one and
+/// depending on the finished type would be an import cycle. This file's cases
+/// read better with the assessment, so the adapter lives here.
+CivilDate? projectFrom(
+  DueAssessment assessment,
+  ReadingSeries series,
+  DailyDistance rate, {
+  required CivilDate today,
+}) => projectDueDate(
+  dueOn: assessment.dueOn,
+  dueAtOdometerMetres: assessment.dueAtOdometerMetres,
+  series: series,
+  rate: rate,
+  today: today,
 );
 
 ReadingSeries _seriesAt(String date, int km) =>

@@ -26,7 +26,6 @@ import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/notice_window.dart';
-import 'package:odova/core/due/project_due_date.dart';
 import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/due/resolve_anchor.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -69,7 +68,22 @@ class VehicleDueSnapshot with ValueEquality {
 
   @override
   List<Object?> get props => [
-    for (final (item, assessment) in assessments) '${item.id}:$assessment',
+    // The ids and the assessments THEMSELVES, not a string built from them.
+    //
+    // This encoded each pair as `'${item.id}:$assessment'`, and
+    // `DueAssessment.toString()` prints only `state` and `driver` — so two
+    // snapshots whose remaining metres, remaining days, due date, projection,
+    // confidence and progress all differed compared EQUAL. `valuesEqual` is the
+    // `distinct` predicate on the repositories' watch streams, so the home
+    // screen would not have rebuilt when the only thing that changed was the
+    // numbers it renders.
+    //
+    // A `toString()` is a debug convenience and must never be load-bearing for
+    // equality. `DueAssessment` already has full value equality; the item is
+    // compared by ID because two snapshots naming the same reminders are the
+    // same snapshot whatever else that row has changed.
+    for (final (item, _) in assessments) item.id,
+    for (final (_, assessment) in assessments) assessment,
     summary,
     rate,
     estimate,
@@ -134,31 +148,20 @@ VehicleDueSnapshot recomputeVehicle(
       vehicle: vehicle,
       settings: settings,
     );
-    final assessment = computeDueState(
-      item,
-      anchor,
-      estimate,
-      window,
-      today: today,
-    );
-
+    // The engine fills `confidence` and `projectedDueDate` itself now. This
+    // used to reconstruct all nine fields to overwrite exactly those two, which
+    // meant the engine's return value was never a valid assessment on its own
+    // and only this caller knew how to finish it.
     assessments.add((
       item,
-      DueAssessment(
-        state: assessment.state,
-        driver: assessment.driver,
-        remainingMetres: assessment.remainingMetres,
-        remainingDays: assessment.remainingDays,
-        dueAtOdometerMetres: assessment.dueAtOdometerMetres,
-        dueOn: assessment.dueOn,
-        projectedDueDate: projectDueDate(
-          assessment,
-          series,
-          rate,
-          today: today,
-        ),
-        confidence: rate.confidence,
-        progress: assessment.progress,
+      computeDueState(
+        item,
+        anchor,
+        estimate,
+        window,
+        today: today,
+        rate: rate,
+        series: series,
       ),
     ));
   }

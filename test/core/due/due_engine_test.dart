@@ -10,10 +10,12 @@
 // between an amber card and a red one on the day a user looks.
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
+import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/notice_window.dart';
+import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/due/resolve_anchor.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -87,7 +89,17 @@ DueAssessment assess({
   noOdometer ? null : (odometer ?? estimate(105000)),
   withWindow ?? window,
   today: day(today),
+  rate: _rate,
+  series: _series,
 );
+
+/// A fixed rate and a one-reading series: this file is about the BANDS, and
+/// the projection is `project_due_date_test`'s subject.
+const _rate = DailyDistance(
+  metresPerDay: 41000,
+  confidence: RateConfidence.measured,
+);
+final ReadingSeries _series = ReadingSeries.from(const [], const []);
 
 void main() {
   group('the distance axis, band by band', () {

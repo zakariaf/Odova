@@ -11,7 +11,11 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/due/clock_suspicion.dart';
+import 'package:odova/core/due/daily_distance.dart';
+import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/due_state.dart';
+import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
@@ -191,5 +195,52 @@ void main() {
           'if this is slow, "recompute everything, always" is not affordable '
           'and that is a finding — not a licence to build a cache',
     );
+  });
+  test('two snapshots differing only in the NUMBERS are not equal', () {
+    // `props` encoded each assessment through `DueAssessment.toString()`, which
+    // prints only `state` and `driver`. So two snapshots whose remaining
+    // metres, remaining days, due date, projection, confidence and progress all
+    // differed compared EQUAL — and `valuesEqual` is the `distinct` predicate
+    // on the repositories' watch streams, so the home screen would not rebuild
+    // when the only thing that changed was the numbers it renders.
+    //
+    // Built DIRECTLY rather than through `recomputeVehicle`, and that is the
+    // point: a first version drove two recomputes four days apart and passed
+    // under the bug, because `estimate` differs between them and carried the
+    // inequality on its own. Isolating the assessment encoding means holding
+    // every other field identical, which only direct construction can do.
+    DueAssessment withRemaining(int days) => DueAssessment(
+      state: DueState.dueSoon,
+      driver: DueDriver.time,
+      confidence: RateConfidence.measured,
+      progress: 0.5,
+      remainingDays: days,
+    );
+
+    VehicleDueSnapshot snapshotOf(DueAssessment assessment) =>
+        VehicleDueSnapshot(
+          assessments: [(item(0), assessment)],
+          summary: const DueSummary(counts: {DueState.dueSoon: 1}),
+          rate: const DailyDistance(
+            metresPerDay: 41000,
+            confidence: RateConfidence.measured,
+          ),
+          clock: ClockSuspicion(
+            isSuspect: false,
+            observedToday: day('2026-06-01'),
+          ),
+        );
+
+    final a = snapshotOf(withRemaining(10));
+    final b = snapshotOf(withRemaining(20));
+
+    expect(a.assessments.single.$2.state, b.assessments.single.$2.state);
+    expect(a.assessments.single.$2.driver, b.assessments.single.$2.driver);
+    expect(
+      a.assessments.single.$2.toString(),
+      b.assessments.single.$2.toString(),
+      reason: 'the debug string is identical — that is what made this a bug',
+    );
+    expect(a, isNot(b));
   });
 }
