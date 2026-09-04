@@ -13,6 +13,8 @@ import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/result.dart';
 import 'package:test/test.dart';
 
+import '../../support/source_tree.dart';
+
 /// A factory whose clock and randomness are both fixed.
 UlidFactory _factory({DateTime? at, int seed = 42}) => UlidFactory(
   clock: Clock.fixed(at ?? DateTime.utc(2026, 9, 3, 12)),
@@ -197,14 +199,10 @@ void main() {
         'lib/core/ids/ulid.dart',
         'lib/core/ids/record_id.dart',
       ]) {
-        final source = _sourceOf(path);
+        final source = sourceWithoutLineComments(File(path));
         expect(source, isNot(contains('DateTime.now()')), reason: path);
         expect(source, isNot(RegExp(r'Random\(\)')), reason: path);
       }
     });
   });
 }
-
-String _sourceOf(String path) => File(
-  path,
-).readAsLinesSync().where((l) => !l.trimLeft().startsWith('//')).join('\n');

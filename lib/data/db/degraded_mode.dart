@@ -75,12 +75,3 @@ final degradedModeProvider =
     NotifierProvider<DegradedModeController, DegradedMode>(
       DegradedModeController.new,
     );
-
-/// Whether writes are permitted.
-///
-/// Read by the repository write wrapper. Reads are never blocked: seeing the
-/// history and being able to export it is the whole point of coming up
-/// read-only rather than crashing.
-final storeIsWritableProvider = Provider<bool>(
-  (ref) => ref.watch(degradedModeProvider) is Healthy,
-);

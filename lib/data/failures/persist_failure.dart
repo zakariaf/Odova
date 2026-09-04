@@ -10,10 +10,11 @@
 // compile error at every call site rather than a case that falls through.
 import 'package:meta/meta.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/value_equality.dart';
 
 /// Why a write against the local database did not happen.
 @immutable
-sealed class PersistFailure extends Failure {
+sealed class PersistFailure extends Failure with ValueEquality {
   const PersistFailure();
 }
 
@@ -32,11 +33,7 @@ final class WriteFailed extends PersistFailure {
   String get code => 'write_failed';
 
   @override
-  bool operator ==(Object other) =>
-      other is WriteFailed && other.detail == detail;
-
-  @override
-  int get hashCode => Object.hash(WriteFailed, detail);
+  List<Object?> get props => [detail];
 }
 
 /// A schema constraint refused the row.
@@ -55,11 +52,7 @@ final class ConstraintViolated extends PersistFailure {
   String get code => 'constraint_violated';
 
   @override
-  bool operator ==(Object other) =>
-      other is ConstraintViolated && other.constraint == constraint;
-
-  @override
-  int get hashCode => Object.hash(ConstraintViolated, constraint);
+  List<Object?> get props => [constraint];
 }
 
 /// The row is not there.
@@ -74,10 +67,7 @@ final class NotFound extends PersistFailure {
   String get code => 'not_found';
 
   @override
-  bool operator ==(Object other) => other is NotFound && other.id == id;
-
-  @override
-  int get hashCode => Object.hash(NotFound, id);
+  List<Object?> get props => [id];
 }
 
 /// The reading would make the history non-monotonic.
@@ -107,19 +97,11 @@ final class OdometerWouldGoBackwards extends PersistFailure {
   String get code => 'odometer_would_go_backwards';
 
   @override
-  bool operator ==(Object other) =>
-      other is OdometerWouldGoBackwards &&
-      other.previousCumulativeM == previousCumulativeM &&
-      other.previousOccurredOn == previousOccurredOn &&
-      other.attemptedCumulativeM == attemptedCumulativeM;
-
-  @override
-  int get hashCode => Object.hash(
-    OdometerWouldGoBackwards,
+  List<Object?> get props => [
     previousCumulativeM,
     previousOccurredOn,
     attemptedCumulativeM,
-  );
+  ];
 }
 
 /// A reading emitted by a fill-up, a service or a trip cannot be edited on its
@@ -145,13 +127,7 @@ final class DerivedReadingNotEditable extends PersistFailure {
   String get code => 'derived_reading_not_editable';
 
   @override
-  bool operator ==(Object other) =>
-      other is DerivedReadingNotEditable &&
-      other.readingId == readingId &&
-      other.source == source;
-
-  @override
-  int get hashCode => Object.hash(DerivedReadingNotEditable, readingId, source);
+  List<Object?> get props => [readingId, source];
 }
 
 /// The store is read-only because a migration failed.
@@ -174,13 +150,7 @@ final class StoreReadOnly extends PersistFailure {
   String get code => 'store_read_only';
 
   @override
-  bool operator ==(Object other) =>
-      other is StoreReadOnly &&
-      other.atVersion == atVersion &&
-      other.expectedVersion == expectedVersion;
-
-  @override
-  int get hashCode => Object.hash(StoreReadOnly, atVersion, expectedVersion);
+  List<Object?> get props => [atVersion, expectedVersion];
 }
 
 /// The row points at something that is not there.
@@ -201,11 +171,5 @@ final class OrphanReference extends PersistFailure {
   String get code => 'orphan_reference';
 
   @override
-  bool operator ==(Object other) =>
-      other is OrphanReference &&
-      other.field == field &&
-      other.target == target;
-
-  @override
-  int get hashCode => Object.hash(OrphanReference, field, target);
+  List<Object?> get props => [field, target];
 }

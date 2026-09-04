@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:odova/core/ids/ulid.dart';
 import 'package:sqlite3/common.dart';
 
 /// How many records the §17 gate requires.
@@ -118,13 +119,15 @@ String contentHash(CommonDatabase database, List<String> tables) {
 }
 
 /// A 26-character Crockford body.
-String _body(Random random) {
-  const alphabet = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
-  return String.fromCharCodes([
-    for (var i = 0; i < 26; i++)
-      alphabet.codeUnitAt(random.nextInt(alphabet.length)),
-  ]);
-}
+///
+/// Both the alphabet and the length come from `lib/core/ids/ulid.dart` rather
+/// than being retyped. Two copies of a 32-character alphabet is the shape that
+/// drifts silently: a fixture minting a body the real `isUlid` rejects would
+/// pass every migration test and fail nowhere useful.
+String _body(Random random) => String.fromCharCodes([
+  for (var i = 0; i < ulidLength; i++)
+    crockfordAlphabet.codeUnitAt(random.nextInt(crockfordAlphabet.length)),
+]);
 
 /// A date `i` days after 2018-01-01, as `YYYY-MM-DD`.
 String _dateFor(int i) {

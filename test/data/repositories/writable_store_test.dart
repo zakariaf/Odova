@@ -59,26 +59,24 @@ void main() {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
+    // One fact, one provider. `storeIsWritableProvider` computed `mode is
+    // Healthy` beside this computing `writeRefusalFor(mode) == null` — two
+    // derivations of one boolean, in two files, and the typed one is the only
+    // one that can carry the versions the banner needs. A caller wanting the
+    // bool reads `writeRefusalProvider != null`.
     expect(container.read(writeRefusalProvider), isNull);
-    expect(container.read(storeIsWritableProvider), isTrue);
 
     container
         .read(degradedModeProvider.notifier)
         .migrationFailed(atVersion: 1, expectedVersion: 2);
 
     expect(container.read(writeRefusalProvider), isA<StoreReadOnly>());
-    expect(container.read(storeIsWritableProvider), isFalse);
   });
 
-  test('the switch over DegradedMode is exhaustive', () {
-    // Sealed, with no `default:`. Adding a third mode — a corrupt file, a
-    // storage-full state — becomes a compile error here rather than a mode
-    // that silently permits writes.
-    for (final mode in <DegradedMode>[
-      const Healthy(),
-      const MigrationFailed(atVersion: 1, expectedVersion: 2),
-    ]) {
-      expect(() => writeRefusalFor(mode), returnsNormally);
-    }
-  });
+  // Removed: a test that looped both modes asserting `returnsNormally`.
+  // Exhaustiveness over a sealed type is a COMPILE-time property — the fact
+  // that `writeRefusalFor` compiles at all is the proof, and adding a third
+  // mode breaks the build rather than the test. Both modes are already
+  // asserted above with their actual answers, so the loop could not fail for
+  // any reason the other tests would not catch first.
 }

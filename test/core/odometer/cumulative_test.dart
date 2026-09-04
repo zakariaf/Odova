@@ -8,6 +8,8 @@ import 'dart:io';
 import 'package:odova/core/odometer/cumulative.dart';
 import 'package:test/test.dart';
 
+import '../../support/source_tree.dart';
+
 /// A reading, with the fields that matter and defaults for the rest.
 ReadingPoint reading(
   String id,
@@ -172,9 +174,19 @@ void main() {
     // COLUMN stores a cumulative value — is asserted against the real schema
     // in test/data/db/schema_reality_test.dart, because that is where a
     // regression would actually appear.
+    // Through `importUrisIn`, not a substring search: this file's own header
+    // quotes SPEC.md's formula and a sibling's doc comment names
+    // `package:drift` in order to explain why the fold does not use it. A
+    // `contains` check turns red for the comment rather than the code.
     final source = File('lib/core/odometer/cumulative.dart').readAsStringSync();
-    for (final banned in ['package:drift', 'package:flutter', 'dart:ui']) {
-      expect(source, isNot(contains(banned)), reason: banned);
+    for (final uri in importUrisIn(source)) {
+      expect(
+        uri,
+        isNot(
+          anyOf(startsWith('package:flutter'), startsWith('package:drift')),
+        ),
+      );
+      expect(uri, isNot('dart:ui'));
     }
   });
 }

@@ -345,6 +345,46 @@ void main() {
     expect(record.lines.single.amountMinor, 8900);
   });
 
+  test(
+    'the cascade list is exactly what the schema says it should be',
+    () async {
+      // `vehicleChildTables` is hand-maintained and the delete path is raw SQL
+      // over it, so nothing gates its completeness. The progress file records
+      // that `odometer_corrections` was missing from the first version and was
+      // found only because a fixture assertion happened to walk it — a table
+      // added in a later epic would be missed the same way, and the symptom
+      // is a vehicle delete that leaves rows behind.
+      //
+      // Derived here from the schema: every table carrying BOTH a `vehicle_id`
+      // and a `deleted_at_utc_ms` belongs in the cascade. `service_lines` is
+      // excluded structurally rather than by name — it has neither, because it
+      // lives and dies with its record.
+      final tables = await db
+          .customSelect(
+            "SELECT name FROM sqlite_schema WHERE type = 'table' "
+            "AND name NOT LIKE 'sqlite_%';",
+          )
+          .get();
+
+      final shouldCascade = <String>{};
+      for (final table in tables) {
+        final name = table.read<String>('name');
+        if (name == 'vehicles') continue; // the parent, not a child
+        final columns = await db
+            .customSelect('PRAGMA table_info($name);')
+            .get();
+        final names = columns.map((c) => c.read<String>('name')).toSet();
+        if (names.contains('vehicle_id') &&
+            names.contains('deleted_at_utc_ms')) {
+          shouldCascade.add(name);
+        }
+      }
+
+      expect(vehicleChildTables.toSet(), shouldCascade);
+      expect(shouldCascade, isNotEmpty);
+    },
+  );
+
   test('service_lines carries no deleted_at, deliberately', () async {
     // It is a child row that lives and dies with its record, and the schema's
     // ON DELETE CASCADE removes it. A `deleted_at` here would be a second

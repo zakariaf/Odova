@@ -9,6 +9,7 @@
 import 'package:meta/meta.dart';
 import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/value_equality.dart';
 
 /// The nine entities that own an id, and the prefix each one writes.
 enum RecordIdKind {
@@ -46,7 +47,7 @@ enum RecordIdKind {
 }
 
 /// Why an id could not be read.
-sealed class IdFailure extends Failure {
+sealed class IdFailure extends Failure with ValueEquality {
   const IdFailure();
 }
 
@@ -65,11 +66,7 @@ final class MalformedId extends IdFailure {
   String get code => 'malformed_id';
 
   @override
-  bool operator ==(Object other) =>
-      other is MalformedId && other.offered == offered;
-
-  @override
-  int get hashCode => Object.hash(MalformedId, offered);
+  List<Object?> get props => [offered];
 }
 
 /// The id is well-formed, but belongs to a different entity.
@@ -87,13 +84,7 @@ final class WrongPrefix extends IdFailure {
   String get code => 'wrong_prefix';
 
   @override
-  bool operator ==(Object other) =>
-      other is WrongPrefix &&
-      other.expected == expected &&
-      other.actual == actual;
-
-  @override
-  int get hashCode => Object.hash(WrongPrefix, expected, actual);
+  List<Object?> get props => [expected, actual];
 }
 
 /// An entity's identity.
@@ -150,6 +141,10 @@ sealed class RecordId {
     };
   }
 
+  // Hand-rolled rather than `ValueEquality`, deliberately: that mixin compares
+  // `runtimeType` first, and a `RecordId` returned by the kind-agnostic
+  // `RecordId.parse` must equal the `VehicleId` a caller minted. The kind IS
+  // the type here, and comparing it directly is what makes the two paths agree.
   @override
   bool operator ==(Object other) =>
       other is RecordId && other.kind == kind && other.body == body;
