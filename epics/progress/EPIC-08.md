@@ -89,3 +89,27 @@ a `PopScope` on `AppShell`, `test/app/routing/{tab_behaviour,stack_reset}_test.d
 - `systemBack()` is copied from the Flutter SDK's own test utility because
   `flutter_test` does not export it. `Navigator.pop` is not a substitute — it
   bypasses `PopScope`.
+
+## Task 8.4 — the four page kinds, and the dismissal contract ✅
+
+`lib/app/routing/page_kinds.dart` (`PageKind`, four `Page` factories),
+`lib/app/routing/dirty_modal_guard.dart`, `test/app/routing/page_kinds_test.dart`
+(13 tests). 14 mutations, all red.
+
+- **`parentNavigatorKey: rootNavigatorKey` on a top-level route is a no-op** and
+  was removed from five routes after a mutation proved it. The LEVEL a route is
+  declared at is the mechanism. The key matters only for a route that lives
+  inside a branch and must still cover the tab bar.
+- **`DirtyModalGuard.confirmDiscard` is injected.** Task 8.8 supplies
+  `showDiscardDialog` as the app's answer; nothing wires it yet, so no modal in
+  the app is guarded today — there are no modals yet either.
+- **`DirtyModalGuard.of(context)` needs a context BELOW the guard.** A Cancel
+  built from the context that created the guard asserts rather than silently
+  popping. Every modal's Cancel goes through `requestDismiss()`, never
+  `Navigator.pop`.
+- **Two of the epic's listed tests are deferred to 8.8–8.10**: `no dialog can be
+  dismissed into a destructive outcome` (a table over the three dialog builders,
+  which do not exist yet) and `a modal stacked over a sheet dismisses both on
+  save` (needs `vehicle.switcher`, EPIC-09).
+- `shell_harness.dart` now resolves the shell with `skipOffstage: false`, because
+  an opaque modal puts the whole shell offstage.
