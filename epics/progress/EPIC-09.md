@@ -135,7 +135,60 @@ six pixels of drift over seven rows against a band tolerance of four. Bands went
 naming a language nothing in the dependency set can name. See the entry above
 for F-9.1 through F-9.6.
 
+## Task 9.4 — `firstrun.vehicle` and the create transaction ✅ (parity blocked)
+
+Five controls, one required entry. 13 screen tests, 14 notifier tests, 5 for the
+annual bands, 4 for the settings write. **Parity does NOT pass — see F-9.16.**
+
+**Six design questions had to be settled before a line could be written**, all
+in `SPEC.md` rather than in code: the work switch dropped (F-9.9), Start
+disabled *and* tappable (F-9.10), three type tiles and no overflow (F-9.11), the
+band `maxChars` made moot by moving the unit into the label (F-9.12), More… as a
+sheet (F-9.13), and the artboard's filled form accepted as the parity state
+(F-9.14). Two more surfaced while building: no liquid-cooled question (F-9.15)
+and the odometer affix is not a control (F-9.17).
+
+**Two defects in code that already existed.**
+
+- **`VehicleRepository.create` never wrote `Settings`.** SPEC §8's Data out
+  lists four writes and it did three, so first run would have created a car and
+  then bounced the user back to the first-run screen forever — nothing else in
+  the app sets `onboarding_done`. Now inside the same transaction, behind
+  `asFirstVehicle:` so the garage's + never steals the active slot.
+- **One German string addressed the user as *du*** where ten used *Sie*.
+  `SPEC.md` §5 now decides the register and `test/l10n/register_test.dart`
+  catches the next one.
+
+**F-9.16 — parity fails in all four combinations, and the cause is exactly one
+thing.** 50/89, 46/86, 50/89, 48/84 against a 75% floor, with colour and theme
+green and a 7–14% pixel diff. Measured, not guessed: the app tracks the
+reference to within 3px down to the Fuel label, gains ~25px across the chipbar,
+and holds it. `.chip` paints 40 and `.segmented__opt` 46, while
+`RenderCalmTapTarget` meets the 52pt floor by growing the LAYOUT box — so a
+chipbar the artboard draws at 48 comes out 60. `calm_touch_targets_test.dart`'s
+own comment already says the intent is "paint smaller than they hit". **This
+blocks every screen with a chipbar or a flat segmented control** — `log.fillup`,
+`reminders.edit`, `history`, `costs` — and the fix is a design decision with
+three defensible answers, so EPIC-17 owns it. **No tolerance widened, no
+reference re-shot.**
+
+**Deferred, deliberately.** `Restore a backup ... pushes settings.import` — the
+picker seam is called and cancel is proven to write nothing; EPIC-15 owns the
+import screen and the package that opens a real dialog.
+
+**Three things for the next task.**
+
+- **Assert that a mutation applied.** Three mutations in this epic reported
+  green because `str.replace` silently matched nothing after `dart format`
+  reflowed the source. A mutation that does not check itself is indistinguishable
+  from a passing gate.
+- **A drift future never completes under `testWidgets`** — the symptom is a
+  ten-minute hang with no output. Database assertions go in a plain `test`.
+- **A new `ProviderScope` is a cold start, not a return from the background.**
+  To test state restoration, change the widget's KEY so the State is rebuilt
+  under the same container.
+
 ### Still to do in this epic
-Tasks 9.4–9.8: `firstrun.vehicle`, `vehicle.edit`, `vehicles`,
-`vehicle.switcher`, and the launch-state wiring. Four screens, 16 reference
-images.
+Tasks 9.5–9.8: `vehicle.edit`, `vehicles`, `vehicle.switcher`, and the
+launch-state wiring. Three screens, 12 reference images — plus F-9.16, which
+`vehicles` and `vehicle.switcher` will hit too if they carry a chipbar.
