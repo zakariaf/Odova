@@ -14,7 +14,21 @@ import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
+import '../../data/support/rows.dart';
 import '../../support/provider_harness.dart';
+
+/// A harness whose settings row already exists.
+///
+/// That is the real precondition: `firstrun.vehicle` is only reachable from
+/// `firstrun.language`'s Continue, which writes the row, or from a launch with
+/// `onboarding_done` already true, which implies one. A test that saves without
+/// it is testing a state the app cannot be in — and `create(asFirstVehicle:
+/// true)` says so by refusing.
+Future<DatabaseHarness> _seeded({String device = 'en-GB'}) async {
+  final h = _harness(device: device);
+  await insertSettings(h.db);
+  return h;
+}
 
 DatabaseHarness _harness({String device = 'en-GB'}) {
   final parts = device.split('-');
@@ -142,7 +156,7 @@ void main() {
         (VehicleType.motorcycle, false),
         (VehicleType.van, true),
       ]) {
-        final h = _harness();
+        final h = await _seeded();
         final n = _notifier(h)
           ..chooseType(type)
           ..rename('Whatever')
@@ -160,7 +174,7 @@ void main() {
     test(
       'writes the vehicle, its reading and its seeded items at once',
       () async {
-        final h = _harness(device: 'de-DE');
+        final h = await _seeded(device: 'de-DE');
         final n = _notifier(h)
           ..chooseType(VehicleType.car)
           ..chooseFuel(FuelKind.diesel)
@@ -194,7 +208,7 @@ void main() {
     test(
       'a second Save while the first is in flight writes one vehicle',
       () async {
-        final h = _harness();
+        final h = await _seeded();
         final n = _notifier(h)
           ..rename('Once')
           ..typeOdometer('1000');
@@ -205,7 +219,7 @@ void main() {
     );
 
     test('Save refuses while the odometer is unusable', () async {
-      final h = _harness();
+      final h = await _seeded();
       final n = _notifier(h)..rename('No number');
       expect(await n.save(), isFalse);
       expect(await h.db.select(h.db.vehicles).get(), isEmpty);
@@ -223,7 +237,7 @@ void main() {
     // nothing is written. A cold kill loses it and replays this screen — six
     // digits is an acceptable loss, a draft row for a vehicle that does not
     // exist is not."
-    final h = _harness();
+    final h = await _seeded();
     _notifier(h)
       ..chooseType(VehicleType.van)
       ..chooseFuel(FuelKind.electric)
@@ -234,5 +248,21 @@ void main() {
     expect(await h.db.select(h.db.vehicles).get(), isEmpty);
     expect(await h.db.select(h.db.odometerReadings).get(), isEmpty);
     expect(await h.db.select(h.db.serviceItems).get(), isEmpty);
+  });
+
+  test('Save finishes onboarding and makes the new vehicle active', () async {
+    // SPEC.md §8's fourth write. Without it first run creates a car and then
+    // sends the user back to the first-run screen forever, because the launch
+    // gate reads `onboarding_done`.
+    final h = await _seeded();
+    final n = _notifier(h)
+      ..rename('The Golf')
+      ..typeOdometer('187412');
+    expect(await n.save(), isTrue);
+
+    final vehicle = await h.db.select(h.db.vehicles).getSingle();
+    final settings = await h.db.select(h.db.settingsTable).getSingle();
+    expect(settings.onboardingDone, isTrue);
+    expect(settings.activeVehicleId, vehicle.id);
   });
 }

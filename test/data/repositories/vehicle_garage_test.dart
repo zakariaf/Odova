@@ -398,4 +398,68 @@ void main() {
       );
     },
   );
+
+  group('the first vehicle finishes onboarding, and later ones do not', () {
+    test(
+      'asFirstVehicle points active_vehicle_id at it and sets the flag',
+      () async {
+        // SPEC.md §8's Data out, fourth line:
+        // `UPDATE Settings { active_vehicle_id, onboarding_done: true }`, in
+        // the SAME transaction as the vehicle, the reading and the seeded
+        // items. It was missing entirely, so first run created a car and then
+        // sent the user back to the first-run screen forever.
+        await insertSettings(db);
+
+        final created =
+            await repository.create(
+                  _draft(),
+                  nowUtcMs: 1757000000000,
+                  asFirstVehicle: true,
+                )
+                as Ok<Vehicle, PersistFailure>;
+
+        final settings = await db.select(db.settingsTable).getSingle();
+        expect(settings.onboardingDone, isTrue);
+        expect(settings.activeVehicleId, created.value.id.toString());
+        expect(settings.updatedAtUtcMs, 1757000000000);
+      },
+    );
+
+    test('an ordinary create touches Settings not at all', () async {
+      // Task 9.6: "add from the vehicles + appends the vehicle, does not make
+      // it active". A second car must never steal the active slot from the one
+      // the user is looking at.
+      await insertSettings(
+        db,
+        activeVehicleId: 'veh_existing',
+        onboardingDone: true,
+      );
+
+      await repository.create(_draft(), nowUtcMs: 1757000000000);
+
+      final settings = await db.select(db.settingsTable).getSingle();
+      expect(settings.activeVehicleId, 'veh_existing');
+      expect(settings.updatedAtUtcMs, 1000, reason: 'the row was not touched');
+    });
+
+    test('no settings row unwinds the whole create', () async {
+      // Production cannot reach this: the vehicle step is entered either from
+      // `firstrun.language`'s Continue, which writes the settings row, or from
+      // a launch with `onboarding_done` already true, which implies one. So it
+      // is a routing bug, and the honest answer is to unwind rather than to
+      // invent a `currency_default` this layer has no basis for — a repository
+      // has no locale and no device region.
+      final created = await repository.create(
+        _draft(),
+        nowUtcMs: 1757000000000,
+        asFirstVehicle: true,
+      );
+      expect(created, isA<Err<Vehicle, PersistFailure>>());
+
+      // All or nothing: no orphan vehicle, no orphan reading, no orphan items.
+      expect(await db.select(db.vehicles).get(), isEmpty);
+      expect(await db.select(db.odometerReadings).get(), isEmpty);
+      expect(await db.select(db.serviceItems).get(), isEmpty);
+    });
+  });
 }

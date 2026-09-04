@@ -265,6 +265,13 @@ class FirstRunVehicleNotifier extends Notifier<FirstRunVehicleDraft> {
             // teaches the user the app makes things up.
           ),
           nowUtcMs: clock.millisecondsSinceEpoch,
+          // SPEC.md §8's fourth Data-out line, in the same transaction:
+          // `UPDATE Settings { active_vehicle_id, onboarding_done: true }`.
+          // This screen is the only place onboarding finishes — `settings
+          // .language`'s Continue deliberately leaves the flag false so a kill
+          // between the two steps replays from the language step rather than
+          // opening an app with no car.
+          asFirstVehicle: true,
         );
 
     final ok = written is Ok;

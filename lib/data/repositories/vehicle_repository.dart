@@ -9,6 +9,7 @@
 import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/ids/ulid.dart';
@@ -105,7 +106,20 @@ class VehicleRepository {
   Future<Result<Vehicle, PersistFailure>> create(
     VehicleDraft draft, {
     required int nowUtcMs,
+    bool asFirstVehicle = false,
   }) => guardPersist(() async {
+    try {
+      return await _create(draft, nowUtcMs, asFirstVehicle: asFirstVehicle);
+    } on _MissingSettings {
+      return const Err(NotFound(AppSettings.id));
+    }
+  });
+
+  Future<Result<Vehicle, PersistFailure>> _create(
+    VehicleDraft draft,
+    int nowUtcMs, {
+    required bool asFirstVehicle,
+  }) async {
     final vehicle = Vehicle(
       id: VehicleId.tryParse('veh_${_ids.next()}')!,
       name: draft.name,
@@ -170,10 +184,46 @@ class VehicleRepository {
               ),
             );
       }
+
+      if (!asFirstVehicle) return;
+      // SPEC.md §8's fourth Data-out line, and it belongs INSIDE this
+      // transaction rather than after it. `onboarding_done` is what stops the
+      // app replaying first run; a vehicle that exists with the flag still
+      // false is a car the user made and cannot reach.
+      //
+      // Only on the FIRST vehicle. Task 9.6: "add from the vehicles + appends
+      // the vehicle, does not make it active" — a second car must never steal
+      // the active slot from the one the user is looking at.
+      final updated =
+          await (_db.update(
+            _db.settingsTable,
+          )..where((s) => s.id.equals(AppSettings.id))).write(
+            SettingsTableCompanion(
+              activeVehicleId: Value(vehicle.id.toString()),
+              onboardingDone: const Value(true),
+              updatedAtUtcMs: Value(nowUtcMs),
+            ),
+          );
+      if (updated == 0) {
+        // No settings row, which production cannot reach: `firstrun.vehicle`
+        // is entered either from `firstrun.language`'s Continue, which writes
+        // the row, or from a launch with `onboarding_done` already true, which
+        // implies one. So this is a bug in the caller rather than a user's
+        // situation, and the transaction unwinds.
+        //
+        // The alternative — create the row here — means choosing a
+        // `currency_default` this layer has no basis for. A repository has no
+        // locale and no device region, and a guessed currency on somebody's
+        // first vehicle is exactly the kind of invented fact §2 forbids.
+        // Thrown so drift unwinds the transaction, and caught below so the
+        // caller gets a typed failure rather than a stack trace. `guardPersist`
+        // classifies SQLite errors and this is not one.
+        throw const _MissingSettings();
+      }
     });
 
     return Ok(vehicle);
-  });
+  }
 
   /// What `dialog.confirmDelete` states out loud before destroying it.
   ///
@@ -384,3 +434,13 @@ typedef DeleteCounts = ({
   int trips,
   int reminders,
 });
+
+/// Thrown inside `create`'s transaction when there is no settings row to
+/// complete, so drift unwinds it and `create` answers with a typed failure.
+///
+/// A private exception rather than a `SqliteException` with a borrowed result
+/// code: this is not a database error, and dressing it as one would put "the
+/// disk is full" in front of a user whose disk is fine.
+class _MissingSettings implements Exception {
+  const _MissingSettings();
+}
