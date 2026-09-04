@@ -41,13 +41,24 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
     if (text.length != 10) return null;
     if (text[4] != '-' || text[7] != '-') return null;
 
-    final year = int.tryParse(text.substring(0, 4));
-    final month = int.tryParse(text.substring(5, 7));
-    final day = int.tryParse(text.substring(8, 10));
-    if (year == null || month == null || day == null) return null;
-    // `int.tryParse` accepts a leading sign and whitespace; the length and
-    // separator checks above do not rule out `2026--1-03`.
-    if (year < 0 || month < 1 || month > 12 || day < 1) return null;
+    // Every other character must be a DIGIT.
+    //
+    // `int.tryParse` accepts a leading sign and leading whitespace, so without
+    // this `'+026-01-03'` and `' 026-01-03'` parsed as year 26 and
+    // `'2026-+1-03'` parsed as January — a corrupted `baseline_date` silently
+    // adopted as an anchor, which `toString()` then round-tripped to a date
+    // the database never held. A `year < 0` guard alone does not catch it,
+    // because `+026` is positive.
+    for (var i = 0; i < 10; i++) {
+      if (i == 4 || i == 7) continue;
+      final code = text.codeUnitAt(i);
+      if (code < 0x30 || code > 0x39) return null;
+    }
+
+    final year = int.parse(text.substring(0, 4));
+    final month = int.parse(text.substring(5, 7));
+    final day = int.parse(text.substring(8, 10));
+    if (month < 1 || month > 12 || day < 1) return null;
     if (day > daysInMonth(year, month)) return null;
 
     return CivilDate._(year, month, day);
@@ -120,7 +131,12 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
   /// backwards a few days every time.
   CivilDate addMonths(int months) {
     final zeroBased = (year * 12 + (month - 1)) + months;
-    final targetYear = zeroBased ~/ 12;
+    // FLOOR division, not `~/`. Dart's `~/` truncates toward zero while `%`
+    // floors, so the two disagree below year 0: a zero-based index of -1 gave
+    // year 0 month 12 rather than year -1 month 12, and -13 produced a
+    // malformed `00-1-12-15`. Reachable with a negative `months`, which
+    // `_timeAxis` passes without a positivity guard.
+    final targetYear = (zeroBased - (zeroBased % 12)) ~/ 12;
     final targetMonth = zeroBased % 12 + 1;
     final lastDay = daysInMonth(targetYear, targetMonth);
     return CivilDate._(

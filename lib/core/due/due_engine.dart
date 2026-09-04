@@ -110,31 +110,33 @@ bool isEligible(ServiceItem item) => item.isTracked && item.isActive;
 /// `due_summary.dart`'s ordering does not share — see [axisSeverity]. Exposed
 /// because the combine is a rule worth testing directly rather than only
 /// through the engine.
-DueState worseOf(DueState a, DueState b) =>
-    axisSeverity(a) >= axisSeverity(b) ? a : b;
+DueState worseOf(DueState a, DueState b) {
+  final bySeverity = axisSeverity(a).compareTo(axisSeverity(b));
+  if (bySeverity != 0) return bySeverity > 0 ? a : b;
 
-/// Severity for COMBINING two axes — "which axis is worse".
-///
-/// Deliberately different from `due_summary.dart`'s ranking, which answers
-/// "which item do I name first". The two ties here are the difference:
-///
-///   * `needsOdometer` ties with `dueSoon`, because a distance axis that cannot
-///     be placed must not outrank a time axis that can. §3: "if the time axis
-///     independently reaches due or overdue, that wins and shows as itself".
-///   * `ok` ties with `unknown`, because neither is a call to action and
-///     `_driver` compares severities to decide `DueDriver.both`.
-///
-/// Naming them apart matters: EPIC-11's notification ranking and EPIC-12's home
-/// sort are the next consumers of this idea, and each will reach for whichever
-/// function is nearer its import.
-int axisSeverity(DueState state) => switch (state) {
-  DueState.ok => 0,
-  DueState.unknown => 0,
-  DueState.needsOdometer => 1,
-  DueState.dueSoon => 1,
-  DueState.due => 2,
-  DueState.overdue => 3,
-};
+  // A TIE, and `a >= b ? a : b` resolved it to whichever came first — which is
+  // always the distance axis, because that is the argument order at the one
+  // call site. So a `needsOdometer` distance axis beat a `dueSoon` time axis,
+  // the exact opposite of the rule stated below `axisSeverity`: "a distance
+  // axis that cannot be placed must not outrank a time axis that can".
+  //
+  // On a tie, the axis that KNOWS wins — which is the rule stated below
+  // `axisSeverity` and the reason the ties exist at all. Both of them pair a
+  // certain state with an uncertain one: `dueSoon` with `needsOdometer`, and
+  // `ok` with `unknown`.
+  //
+  // `attentionRank` cannot decide this: it puts `needsOdometer` ABOVE `dueSoon`
+  // and `unknown` BELOW `ok`, so no single direction through it answers both.
+  // The rule is about certainty, not about severity, so it is written as
+  // certainty.
+  //
+  // Commutative, which a public function comparing two peers has to be — and
+  // the old form was not: `a >= b ? a : b` returned whichever came first, which
+  // is always the distance axis at the one call site.
+  if (isUncertainState(a) && !isUncertainState(b)) return b;
+  if (isUncertainState(b) && !isUncertainState(a)) return a;
+  return a;
+}
 
 /// The due state of [item], per SPEC.md §3.
 ///
@@ -172,10 +174,20 @@ DueAssessment computeDueState(
   }
 
   if (distanceState == null && time.state == null) {
-    return const DueAssessment(
+    // `dueAt` and `dueOn` are knowable even when the STATE is not — a distance
+    // interval and an anchor odometer give the first without any reading — and
+    // throwing them away loses the one figure a card could still show.
+    //
+    // The confidence is the RATE's, not a constant. This hardcoded
+    // `defaulted`, so a vehicle with an `expected_annual_m` reported `assumed`
+    // on its snapshot and `default` on every one of its items, and
+    // `mayShowFigure` and `actionKey` in the theme branch on the wrong one.
+    return DueAssessment(
       state: DueState.unknown,
       driver: DueDriver.none,
-      confidence: RateConfidence.defaulted,
+      dueAtOdometerMetres: distance.dueAt,
+      dueOn: time.dueOn,
+      confidence: rate.confidence,
       progress: 0,
     );
   }
@@ -206,7 +218,14 @@ DueAssessment computeDueState(
     dueOn: assessment.dueOn,
     projectedDueDate: projectDueDate(
       dueOn: assessment.dueOn,
-      dueAtOdometerMetres: assessment.dueAtOdometerMetres,
+      // NO distance projection past the expiry. §4.1.3: "the window is empty
+      // and `odo_now` is invention" — which is why the axis is downgraded to
+      // `needsOdometer` above. Extrapolating from the same too-old reading
+      // produced a firm date anyway, and that date became `nextDueOn` and
+      // would have been the notification scheduler's anchor.
+      dueAtOdometerMetres: estimate?.projection == OdometerProjection.expired
+          ? null
+          : assessment.dueAtOdometerMetres,
       series: series,
       rate: rate,
       today: today,
@@ -217,10 +236,15 @@ DueAssessment computeDueState(
 }
 
 /// Which axis produced [state].
+///
+/// Compares the STATE, not its severity. Two states can tie on severity and be
+/// different states — `needsOdometer` with `dueSoon`, `unknown` with `ok` — and
+/// a severity comparison then reported `both` for a card whose reported state
+/// only one of the two axes had actually reached. "Both axes agree" is a copy
+/// pattern, and it was being shown where they did not.
 DueDriver _driver(DueState? distance, DueState? time, DueState state) {
-  final byDistance =
-      distance != null && axisSeverity(distance) == axisSeverity(state);
-  final byTime = time != null && axisSeverity(time) == axisSeverity(state);
+  final byDistance = distance == state;
+  final byTime = time == state;
   return byDistance && byTime
       ? DueDriver.both
       : byDistance

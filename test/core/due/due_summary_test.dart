@@ -18,6 +18,7 @@ import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:test/test.dart';
 
 const _id = '01JQ8ZK3M7F0R6XN2E9TB4HCVD';
@@ -30,6 +31,7 @@ ServiceItem item(
   bool isTracked = true,
   bool isActive = true,
   String? snoozedUntil,
+  int? snoozeUntilKm,
 }) => ServiceItem(
   id: ServiceItemId.tryParse('rem_${_id.substring(0, 25)}$suffix')!,
   vehicleId: VehicleId.tryParse('veh_$_id')!,
@@ -38,6 +40,9 @@ ServiceItem item(
   isTracked: isTracked,
   isActive: isActive,
   snoozedUntil: snoozedUntil,
+  snoozeUntilOdometer: snoozeUntilKm == null
+      ? null
+      : Distance.fromKm(snoozeUntilKm),
   priority: priority,
   rollover: ServiceRollover.fromActual,
   createdAtUtcMs: 1000,
@@ -99,6 +104,47 @@ void main() {
       );
 
       expect(next, day('2027-01-01'));
+    });
+
+    test('an item snoozed by DISTANCE is skipped too', () {
+      // SPEC.md §3: "`snoozed` (`snoozed_until` in the future, OR the odometer
+      // below `snooze_until_odometer_m`)". §9's snooze dialog offers "after
+      // another 500 km" as one of its four options, and that sets the odometer
+      // field with `snoozed_until` left null.
+      //
+      // This checked only the date, so a distance-snoozed item stayed the next
+      // thing due — and the doc on `_isSnoozed` names EPIC-11's scheduler as
+      // the obvious second caller, which would fire the reminder the user had
+      // just deferred.
+      final next = nextDue(
+        [
+          (
+            item('A', snoozeUntilKm: 120000),
+            assessed(DueState.overdue, projected: day('2020-01-01')),
+          ),
+          (item('B'), assessed(DueState.ok, projected: day('2027-01-01'))),
+        ],
+        today: day('2026-09-02'),
+        currentOdometerMetres: const Distance.fromKm(110000).metres,
+      );
+
+      expect(next, day('2027-01-01'));
+    });
+
+    test('and counts again once the odometer passes the snooze point', () {
+      final next = nextDue(
+        [
+          (
+            item('A', snoozeUntilKm: 120000),
+            assessed(DueState.overdue, projected: day('2026-02-01')),
+          ),
+          (item('B'), assessed(DueState.ok, projected: day('2027-01-01'))),
+        ],
+        today: day('2026-09-02'),
+        currentOdometerMetres: const Distance.fromKm(120000).metres,
+      );
+
+      expect(next, day('2026-02-01'));
     });
 
     test('a snooze that has EXPIRED counts again', () {

@@ -352,4 +352,45 @@ void main() {
       ReadingSeries.from(input, const []),
     );
   });
+  group('a stored date the schema permits but no calendar has', () {
+    test('is skipped, and does not take the whole vehicle down', () {
+      // `occurred_on`'s only constraint is
+      // `GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'`, which accepts
+      // `2026-02-30`, `2026-13-01` and `0000-00-00`. `CivilDate.tryParse`
+      // correctly refuses all three, and this used to take the result with a
+      // `!`.
+      //
+      // A backup carrying one such row imports cleanly and then every
+      // `recomputeVehicle` throws on every app foreground: the home screen
+      // never renders again and the user cannot reach the data to fix it. A
+      // row nobody can read must cost that row, not the vehicle.
+      for (final bad in ['2026-02-30', '2026-13-01', '0000-00-00']) {
+        final series = ReadingSeries.from([
+          reading('A', '2026-01-01', 100000),
+          reading('B', bad, 101000),
+          reading('C', '2026-03-01', 102000),
+        ], const []);
+
+        expect(series.points, hasLength(2), reason: bad);
+        expect(
+          series.points.map((p) => p.date.toString()),
+          ['2026-01-01', '2026-03-01'],
+          reason: bad,
+        );
+      }
+    });
+
+    test(
+      'a vehicle whose every reading is unreadable is empty, not a crash',
+      () {
+        final series = ReadingSeries.from([
+          reading('A', '2026-02-30', 100000),
+        ], const []);
+
+        expect(series.points, isEmpty);
+        expect(series.rateEndpoints, isEmpty);
+        expect(series.last, isNull);
+      },
+    );
+  });
 }

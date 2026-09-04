@@ -214,7 +214,7 @@ void main() {
       expect(a.driver, DueDriver.distance);
     });
 
-    test('driver is both when the two axes reach the same severity', () {
+    test('driver is both when the two axes reach the same STATE', () {
       // Distance due at 110,000 and time due on 2027-01-01.
       final a = assess(odometer: estimate(110000), today: '2027-01-01');
       expect(a.state, DueState.due);
@@ -373,5 +373,119 @@ void main() {
 
   test('the stale threshold is the one SPEC.md §3 states', () {
     expect(kStaleOdometerDays, 60);
+  });
+  group('what the review found', () {
+    test(
+      'an unknown item still reports the RATE confidence, not a constant',
+      () {
+        // The `unknown` branch hardcoded `defaulted`. On a vehicle with an
+        // `expected_annual_m`, `dailyDistance` returns `assumed` — so the
+        // snapshot's rate said `assumed` while the assessment for the same
+        // vehicle said `default`, and `mayShowFigure` and `actionKey` in
+        // `calm_status.dart` branch on the wrong one.
+        final a = computeDueState(
+          item(intervalKm: null, intervalMonths: null),
+          anchor(),
+          estimate(105000),
+          window,
+          today: day('2026-06-01'),
+          rate: const DailyDistance(
+            metresPerDay: 49315,
+            confidence: RateConfidence.assumed,
+          ),
+          series: _series,
+        );
+
+        expect(a.state, DueState.unknown);
+        expect(a.confidence, RateConfidence.assumed);
+      },
+    );
+
+    test('an unknown item keeps the due odometer it computed', () {
+      // A distance interval and an anchor odometer but no time axis and no
+      // readings: `dueAt` is `base + interval` and is knowable even though the
+      // state is not. Throwing it away loses the one figure a card could show.
+      final a = computeDueState(
+        item(intervalMonths: null),
+        anchor(),
+        null,
+        window,
+        today: day('2026-06-01'),
+        rate: _rate,
+        series: _series,
+      );
+
+      expect(a.state, DueState.unknown);
+      expect(a.dueAtOdometerMetres, const Distance.fromKm(110000).metres);
+    });
+
+    test('an EXPIRED estimate produces no projected date at all', () {
+      // §4.1.3: past 180 days "the window is empty and `odo_now` is
+      // invention". The distance axis is downgraded to `needsOdometer` for
+      // exactly that reason — and `projectDueDate` still extrapolated from the
+      // same too-old reading, producing a firm date that became
+      // `nextDueOn` and would have been the notification scheduler's anchor.
+      final a = computeDueState(
+        item(intervalMonths: null),
+        anchor(),
+        estimate(
+          108000,
+          staleDays: 250,
+          projection: OdometerProjection.expired,
+        ),
+        window,
+        today: day('2026-06-01'),
+        rate: _rate,
+        // A REAL series, or `_distanceProjection` returns null for want of a
+        // last reading and the test proves nothing.
+        series: ReadingSeries.from([
+          OdometerReading(
+            id: OdometerReadingId.tryParse('odo_${_id.substring(0, 25)}X')!,
+            vehicleId: VehicleId.tryParse('veh_$_id')!,
+            occurredOn: '2025-09-01',
+            odometer: const Distance.fromKm(108000),
+            odometerUnit: DistanceUnit.km,
+            source: OdometerSource.manual,
+            createdAtUtcMs: 1000,
+            updatedAtUtcMs: 1000,
+          ),
+        ], const []),
+      );
+
+      expect(a.state, DueState.needsOdometer);
+      expect(a.projectedDueDate, isNull);
+    });
+
+    test('worseOf is commutative on the needsOdometer/dueSoon tie', () {
+      // The tie exists "because a distance axis that cannot be placed must not
+      // outrank a time axis that can" — and `a >= b ? a : b` returned whichever
+      // came FIRST, which is always the distance axis. So the card read
+      // `needsOdometer` where SPEC wants the time axis's `dueSoon` shown.
+      expect(
+        worseOf(DueState.needsOdometer, DueState.dueSoon),
+        worseOf(DueState.dueSoon, DueState.needsOdometer),
+      );
+      expect(
+        worseOf(DueState.needsOdometer, DueState.dueSoon),
+        DueState.dueSoon,
+        reason: 'the axis that CAN be placed wins the tie',
+      );
+      expect(
+        worseOf(DueState.unknown, DueState.ok),
+        DueState.ok,
+        reason: 'and "nothing to do" beats "we cannot say"',
+      );
+    });
+
+    test('a needsOdometer distance axis beside a due_soon time axis', () {
+      // The combination the tie is about, end to end.
+      final a = assess(
+        odometer: estimate(110000, staleDays: 61),
+        today: '2026-12-15',
+      );
+
+      expect(a.state, DueState.dueSoon);
+      expect(a.driver, DueDriver.time);
+    });
   });
 }

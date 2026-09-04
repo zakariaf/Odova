@@ -157,8 +157,11 @@ class CalmStatusStyle {
 
   /// The two states that mean "we do not know". Neither may carry a figure and
   /// neither may borrow the ok or overdue palette (SPEC §1).
-  bool get isUncertain =>
-      state == DueState.unknown || state == DueState.needsOdometer;
+  ///
+  /// Through `isUncertainState` in `lib/core/due/`, because the due engine
+  /// needs the same pair to resolve a severity tie between its two axes — and
+  /// two spellings of "we do not know" is how one of them gains a third member.
+  bool get isUncertain => isUncertainState(state);
 
   /// `ok` is rendered as CalmAllClear instead of a card; see
   /// calm-layout-and-motion.

@@ -41,6 +41,18 @@ void main() {
         '2026/02/03',
         '',
         'today',
+        // `int.tryParse` accepts a leading sign and leading whitespace, so
+        // each of these parsed as a DIFFERENT valid date until the digit
+        // check below existed: '+026-01-03' and ' 026-01-03' became year 26,
+        // and '2026-+1-03' became January. A corrupted `baseline_date` was
+        // then silently adopted as an anchor, and `toString()` round-tripped
+        // it to a date the database never held.
+        '+026-01-03',
+        ' 026-01-03',
+        '2026-+1-03',
+        '2026- 1-03',
+        '2026-01-+3',
+        '2026-01- 3',
       ]) {
         expect(CivilDate.tryParse(bad), isNull, reason: bad);
       }
@@ -333,6 +345,27 @@ void main() {
       expect(early >= early, isTrue);
       expect(early.compareTo(late), lessThan(0));
       expect(early.compareTo(early), 0);
+    });
+  });
+  group('addMonths below year zero', () {
+    test('crossing into a negative year keeps the month', () {
+      // `~/` truncates toward zero and `%` floors, so a zero-based month index
+      // of -1 gave year 0 month 12 instead of year -1 month 12, and -13 gave
+      // a malformed `00-1-12-15`. Reachable only with a negative `months`, and
+      // `_timeAxis` is the one caller that passes `interval_months` without a
+      // positivity guard.
+      final start = CivilDate.tryParse('0000-01-15')!;
+      expect(start.addMonths(-1).month, 12);
+      expect(start.addMonths(-1).year, -1);
+      expect(start.addMonths(-13).year, -2);
+      expect(start.addMonths(-13).month, 12);
+    });
+
+    test('and round-trips with addMonths in the other direction', () {
+      final start = CivilDate.tryParse('0000-06-15')!;
+      for (final n in [1, 6, 12, 13, 25]) {
+        expect(start.addMonths(-n).addMonths(n), start, reason: '$n');
+      }
     });
   });
 }

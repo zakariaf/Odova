@@ -59,11 +59,17 @@ class DueSummary with ValueEquality {
 /// Null when there is nothing to report — never a far-future sentinel, which
 /// would sort and format and eventually appear on a screen as a real date in
 /// the year 9999.
-CivilDate? nextDue(List<AssessedItem> items, {required CivilDate today}) {
+CivilDate? nextDue(
+  List<AssessedItem> items, {
+  required CivilDate today,
+  int? currentOdometerMetres,
+}) {
   CivilDate? earliest;
   for (final (item, assessment) in items) {
     if (!isEligible(item)) continue;
-    if (_isSnoozed(item, today)) continue;
+    if (isSnoozed(item, today: today, odometerMetres: currentOdometerMetres)) {
+      continue;
+    }
 
     final projected = assessment.projectedDueDate;
     if (projected == null) continue;
@@ -92,20 +98,37 @@ DueSummary dueSummary(List<AssessedItem> items) {
   );
 }
 
-/// Whether [item] is snoozed as of [today].
+/// Whether [item] is snoozed, by EITHER of SPEC.md §3's two clauses.
 ///
-/// A snoozed item keeps its state and its card — SPEC.md §3 — but it is not the
-/// NEXT thing due, because the user has said "not yet" and the home screen
-/// would otherwise keep offering it.
+/// §3: "`snoozed` (`snoozed_until` in the future, **or** the odometer below
+/// `snooze_until_odometer_m`)". §9's snooze dialog offers "after another
+/// 500 km" as one of its four options, which sets the odometer field and
+/// leaves the date null — so a check on the date alone misses a whole quarter
+/// of the ways a user can defer something.
 ///
-/// [today] is REQUIRED on `nextDue`. It was optional so tests could omit it,
-/// and the default silently disabled this filter: the unsafe direction, on a
-/// function whose obvious second caller is the notification scheduler. Omitting
-/// it there would fire reminders for items the user has explicitly deferred,
-/// with nothing red anywhere.
-bool _isSnoozed(ServiceItem item, CivilDate today) {
+/// A snoozed item keeps its state and its card, and is simply not the NEXT
+/// thing due: the user has said "not yet" and the home screen would otherwise
+/// keep offering it.
+///
+/// [odometerMetres] null means the vehicle has no reading, so a distance
+/// snooze cannot be evaluated — and an unevaluable snooze does NOT suppress.
+/// A user who cannot be shown where they are must not have a reminder hidden
+/// from them on the strength of a number nobody has.
+///
+/// Public because EPIC-11's scheduler needs the same predicate, and a second
+/// copy of a two-clause rule is how one clause goes missing.
+bool isSnoozed(
+  ServiceItem item, {
+  required CivilDate today,
+  int? odometerMetres,
+}) {
   final until = CivilDate.tryParseOrNull(item.snoozedUntil);
-  return until != null && until > today;
+  if (until != null && until > today) return true;
+
+  final untilOdometer = item.snoozeUntilOdometer?.metres;
+  return untilOdometer != null &&
+      odometerMetres != null &&
+      odometerMetres < untilOdometer;
 }
 
 /// Whether [candidate] should take the worst slot from [current].
@@ -127,26 +150,6 @@ bool _isWorse(AssessedItem candidate, AssessedItem current) {
 
   return _priority(candidate.$1) > _priority(current.$1);
 }
-
-/// Ranking for choosing which item to NAME FIRST.
-///
-/// A total order over all six states, and deliberately not `axisSeverity` in
-/// `due_engine.dart`, which answers a different question — "which axis is
-/// worse" — and ties two pairs this one separates.
-///
-/// `needsOdometer` sits BELOW `due` and `overdue`, which is the rule
-/// `calm-due-state-and-status` states: an accusation the app can support beats
-/// one it cannot, and a hollow ring where a red dot belongs understates the
-/// only item the user needs to act on today. `unknown` sits below `ok`, because
-/// "nothing to do" is a better thing to lead with than "we cannot say".
-int attentionRank(DueState state) => switch (state) {
-  DueState.unknown => 0,
-  DueState.ok => 1,
-  DueState.dueSoon => 2,
-  DueState.needsOdometer => 3,
-  DueState.due => 4,
-  DueState.overdue => 5,
-};
 
 /// Safety before normal before low, per §3.
 int _priority(ServiceItem item) => switch (item.priority) {

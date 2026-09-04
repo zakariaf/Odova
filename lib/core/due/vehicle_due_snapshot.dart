@@ -191,7 +191,13 @@ VehicleDueSnapshot recomputeVehicle(
     // projection one day, for a screen that wants to show something greyed
     // out, and notifications quietly start scheduling against a date the app
     // does not believe.
-    nextDueOn: clock.isSuspect ? null : nextDue(assessments, today: today),
+    nextDueOn: clock.isSuspect
+        ? null
+        : nextDue(
+            assessments,
+            today: today,
+            currentOdometerMetres: estimate?.metres,
+          ),
     clock: clock,
   );
 }

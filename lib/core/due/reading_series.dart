@@ -119,8 +119,22 @@ class ReadingSeries with ValueEquality {
     // implementation detail for the ordering of the whole series, and nothing
     // would fail loudly the day somebody swaps the map type.
     final dates = byDate.keys.toList()..sort();
+    // A date the schema permits and no calendar has is SKIPPED, not fatal.
+    //
+    // `occurred_on`'s only constraint is a GLOB on the shape, so `2026-02-30`,
+    // `2026-13-01` and `0000-00-00` all pass it and `CivilDate.tryParse`
+    // correctly refuses all three. This took the result with a `!` — and a
+    // backup carrying one such row imported cleanly and then threw on every
+    // app foreground, so the home screen never rendered again and the user
+    // could not reach the data to fix it.
+    //
+    // A row nobody can read costs that row. `monotonicity.dart` was changed to
+    // the same rule in this epic: a date that will not parse yields no answer
+    // rather than a wrong one.
     final collapsed = [
-      for (final date in dates) (CivilDate.tryParse(date)!, byDate[date]!),
+      for (final date in dates)
+        if (CivilDate.tryParse(date) case final parsed?)
+          (parsed, byDate[date]!),
     ];
 
     // Steps 2 and 3 in ONE forward pass, and in that order: a decrease
