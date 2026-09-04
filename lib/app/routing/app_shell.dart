@@ -6,14 +6,19 @@
 // where the + sits, how tall a slot is or what an active label weighs is
 // answered in `lib/ui/calm/calm_scaffold.dart`, once, for all 28 screens.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/app/routing/tab_reselected.dart';
+import 'package:odova/app/routing/tab_stack_reset.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 
 /// The four tabs and the docked central `+`.
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   /// Creates the shell around [navigationShell].
   const AppShell({required this.navigationShell, super.key});
 
@@ -25,9 +30,58 @@ class AppShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
 
+    // The shell is the only thing that can empty a branch, so the two events
+    // SPEC.md §7 allows post a request and this applies it. `listen`, not
+    // `watch`: a reset is an event, and watching it would re-apply the last one
+    // on every unrelated rebuild of the shell.
+    ref.listen(tabStackResetProvider, (previous, next) {
+      if (next == null || next == previous) return;
+      // Fire and forget: it walks the four branches a frame at a time, and
+      // there is nothing here that can wait for it.
+      unawaited(
+        applyStackReset(navigationShell, selectHome: next.selectHome),
+      );
+    });
+
+    // `PopScope`, never `WillPopScope`: WillPopScope cannot see a predictive
+    // back gesture and cannot say whether the pop actually happened, and
+    // predictive back is Android 14's default.
+    //
+    // Only reached when the active BRANCH has nothing left to pop — the branch
+    // Navigator handles its own stack first, and this route sits below it. So
+    // by the time it fires the user is at a tab root, and SPEC.md §7 says a
+    // tab root that is not Home goes to Home, and Home exits.
+    return PopScope(
+      canPop: navigationShell.currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        navigationShell.goBranch(0);
+      },
+      child: _body(context, ref, l10n),
+    );
+  }
+
+  /// What a tap on tab [index] does.
+  ///
+  /// SPEC.md §7's *Tab-root behaviour*, both halves. A tap on a DIFFERENT tab
+  /// goes to that tab exactly where it was left — that is what `indexedStack`
+  /// is for, and resetting here would scroll History to the top every time the
+  /// user came back to it. A tap on the tab you are already on pops it to its
+  /// root and scrolls that root to the top; the pop is `initialLocation: true`
+  /// and the scroll is a tick the root listens to, because the roots do not
+  /// exist yet and their scroll controllers are the feature epics'.
+  void _onTab(WidgetRef ref, int index) {
+    final reselected = index == navigationShell.currentIndex;
+    navigationShell.goBranch(index, initialLocation: reselected);
+    if (reselected) {
+      ref.read(tabReselectedProvider.notifier).reselect(index);
+    }
+  }
+
+  Widget _body(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     return Stack(
       children: [
         Positioned.fill(child: navigationShell),
@@ -50,11 +104,7 @@ class AppShell extends StatelessWidget {
               CalmTabIcons.settings,
             ],
             addLabel: l10n.tabLogA11y,
-            // Task 8.3 owns what a tap on the CURRENT tab does. Until then it
-            // lands where the branch already is — `goBranch`'s default — rather
-            // than resetting to the root, because a reset that arrives before
-            // its tests is a reset nobody proved.
-            onChanged: navigationShell.goBranch,
+            onChanged: (index) => _onTab(ref, index),
             // `push` on the ROOT navigator, which is what puts the form over
             // the tab bar instead of inside the tab. `context.push` finds the
             // root because the log route is declared outside the shell.

@@ -9,15 +9,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
-import 'package:odova/l10n/gen/app_localizations.dart';
-import 'package:odova/theme/calm/calm_theme.dart';
 
 import '../../support/source_tree.dart';
+import 'shell_harness.dart';
 
 /// The ids the design system actually draws.
 Set<String> _designScreenIds() {
@@ -156,14 +154,7 @@ void main() {
       final location = _concrete(path);
       final id = Uri.parse(location).pathSegments.last;
 
-      // Keyed by location: without it the second pump reuses the first
-      // harness's State — and its router — and every case after the first
-      // asserts against the first one's screen while looking like it passed
-      // its own.
-      await tester.pumpWidget(
-        _Harness(key: ValueKey(location), location: location),
-      );
-      await tester.pumpAndSettle();
+      await pumpShell(tester, location);
 
       final screen = tester.widget<PlaceholderScreen>(
         find.byType(PlaceholderScreen),
@@ -178,8 +169,7 @@ void main() {
   });
 
   testWidgets('an unknown location renders the error screen', (tester) async {
-    await tester.pumpWidget(const _Harness(location: '/nope'));
-    await tester.pumpAndSettle();
+    await pumpShell(tester, '/nope');
 
     expect(find.byType(RouteNotFoundScreen), findsOneWidget);
     expect(find.byType(ErrorWidget), findsNothing);
@@ -187,8 +177,7 @@ void main() {
 
   testWidgets('the error screen offers one way back to Home', (tester) async {
     // A dead end is worse than a wrong turn.
-    await tester.pumpWidget(const _Harness(location: '/nope'));
-    await tester.pumpAndSettle();
+    await pumpShell(tester, '/nope');
 
     await tester.tap(find.text('Go to Home'));
     await tester.pumpAndSettle();
@@ -212,36 +201,4 @@ void main() {
     }
     expect(offenders, ['lib/app/routing/app_router.dart']);
   });
-}
-
-/// A `MaterialApp.router` over the real graph, at a chosen starting location.
-///
-/// Deliberately not `OdovaApp`: task 8.2 mounts the router there, and pinning
-/// this test to that wiring would make it fail for a reason that has nothing to
-/// do with the route table.
-class _Harness extends StatefulWidget {
-  const _Harness({required this.location, super.key});
-
-  final String location;
-
-  @override
-  State<_Harness> createState() => _HarnessState();
-}
-
-class _HarnessState extends State<_Harness> {
-  late final GoRouter _router = buildRouter(initialLocation: widget.location);
-
-  @override
-  void dispose() {
-    _router.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => MaterialApp.router(
-    routerConfig: _router,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    theme: buildCalmTheme(Brightness.light),
-  );
 }

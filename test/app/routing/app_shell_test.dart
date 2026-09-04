@@ -7,7 +7,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:odova/app/app.dart';
 import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/app_shell.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
@@ -17,6 +16,7 @@ import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 
 import '../../support/source_tree.dart';
+import 'shell_harness.dart';
 
 /// The shell route, found by walking the graph rather than by index.
 StatefulShellRoute _shellRoute() {
@@ -40,28 +40,6 @@ List<String> _branchRoots() => [
 
 String _firstPath(List<RouteBase> routes) =>
     routes.whereType<GoRoute>().first.path;
-
-/// Mounts the app at [location], in [locale], on a torn-down tree.
-///
-/// The empty pump first is not ceremony. `MaterialApp.router` builds its
-/// `RouterDelegate` once and keeps it, so pumping a second `OdovaApp` over the
-/// first leaves the FIRST router driving the tree — and every case after the
-/// first then asserts against the previous case's location while looking like
-/// it asserted its own. Unmounting is what makes each case independent.
-Future<void> _pumpApp(
-  WidgetTester tester,
-  String location, {
-  Locale locale = const Locale('en'),
-  Widget Function(Widget)? wrap,
-}) async {
-  await tester.pumpWidget(const SizedBox.shrink());
-  final app = OdovaApp(
-    locale: locale,
-    router: buildRouter(initialLocation: location),
-  );
-  await tester.pumpWidget(wrap == null ? app : wrap(app));
-  await tester.pumpAndSettle();
-}
 
 /// The centre of [finder]'s box on the horizontal axis.
 double _centreX(WidgetTester tester, Finder finder) {
@@ -108,7 +86,7 @@ void main() {
     tester,
   ) async {
     for (final root in Routes.tabRoots) {
-      await _pumpApp(tester, root);
+      await pumpShell(tester, root);
 
       expect(find.byType(CalmTabBar), findsOneWidget, reason: root);
       await tester.tap(find.byType(CalmTabFab));
@@ -142,7 +120,7 @@ void main() {
   testWidgets('the + opens on the Fill-up segment', (tester) async {
     // Asserted as the route's `type` parameter, not as a widget's state: a
     // default held in a StatefulWidget is a default a deep link bypasses.
-    await _pumpApp(tester, Routes.home);
+    await pumpShell(tester, Routes.home);
     await tester.tap(find.byType(CalmTabFab));
     await tester.pumpAndSettle();
 
@@ -157,7 +135,7 @@ void main() {
   ) async {
     // The whole reason for `indexedStack`. Without it the Settings stack is
     // rebuilt from its root on the way back and the user loses their place.
-    await _pumpApp(tester, Routes.settingsUnits);
+    await pumpShell(tester, Routes.settingsUnits);
 
     final l10n = _l10n(tester);
     await tester.tap(find.text(l10n.tabHistory));
@@ -178,7 +156,7 @@ void main() {
   testWidgets('the bar renders home, history, +, costs, settings in LTR', (
     tester,
   ) async {
-    await _pumpApp(tester, Routes.home);
+    await pumpShell(tester, Routes.home);
 
     final l10n = _l10n(tester);
     expect(_paintedOrder(tester, l10n), [
@@ -199,7 +177,7 @@ void main() {
     // SPEC.md §7 states both halves and they fail independently: a bar built
     // from `left`/`right` mirrors nothing, and a + positioned inside its slot
     // rather than in the bar drifts when the slots are unequal.
-    await _pumpApp(tester, Routes.home, locale: const Locale('fa'));
+    await pumpShell(tester, Routes.home, locale: const Locale('fa'));
 
     final l10n = _l10n(tester);
     expect(_paintedOrder(tester, l10n), [
@@ -218,7 +196,7 @@ void main() {
 
   testWidgets('labels are always visible under the icons', (tester) async {
     // No icon-only mode exists to fall into.
-    await _pumpApp(tester, Routes.home);
+    await pumpShell(tester, Routes.home);
 
     final l10n = _l10n(tester);
     for (final label in [
@@ -241,7 +219,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     for (final locale in [const Locale('de'), const Locale('ckb')]) {
-      await _pumpApp(
+      await pumpShell(
         tester,
         Routes.home,
         locale: locale,
@@ -278,7 +256,7 @@ void main() {
   ) async {
     // A bar that signals with colour alone says nothing in a grayscale render
     // and nothing to a user who cannot separate the two hues.
-    await _pumpApp(tester, Routes.home);
+    await pumpShell(tester, Routes.home);
 
     final l10n = _l10n(tester);
     final active = tester.widget<Text>(find.text(l10n.tabHome)).style!;
@@ -302,7 +280,7 @@ void main() {
     // ever reaches the child: written the CSS way, as a negative offset inside
     // the bar, the overhanging 18pt of the app's most-pressed control would be
     // dead.
-    await _pumpApp(tester, Routes.home);
+    await pumpShell(tester, Routes.home);
 
     final l10n = _l10n(tester);
     final circle = tester.getRect(
@@ -320,7 +298,7 @@ void main() {
       Offset(circle.left + 1, circle.center.dy),
       Offset(circle.right - 1, circle.center.dy),
     ]) {
-      await _pumpApp(tester, Routes.home);
+      await pumpShell(tester, Routes.home);
       await tester.tapAt(point);
       await tester.pumpAndSettle();
 
@@ -342,7 +320,7 @@ void main() {
     // in this epic's progress file for EPIC-17's design pass rather than
     // changed here, where it would be a design-system edit inside a routing
     // task.
-    await _pumpApp(tester, Routes.home);
+    await pumpShell(tester, Routes.home);
 
     final target = tester.getRect(
       find
@@ -355,7 +333,7 @@ void main() {
     expect(target.height, greaterThanOrEqualTo(52));
 
     for (final dy in [target.top + 1, target.bottom - 1]) {
-      await _pumpApp(tester, Routes.home);
+      await pumpShell(tester, Routes.home);
       await tester.tapAt(Offset(target.center.dx, dy));
       await tester.pumpAndSettle();
       expect(
@@ -367,7 +345,7 @@ void main() {
   });
 
   testWidgets('MaterialApp.router is mounted exactly once', (tester) async {
-    await _pumpApp(tester, Routes.home);
+    await pumpShell(tester, Routes.home);
     expect(find.byType(MaterialApp), findsOneWidget);
 
     // And the plain constructor is gone from the source: a `MaterialApp(` left
