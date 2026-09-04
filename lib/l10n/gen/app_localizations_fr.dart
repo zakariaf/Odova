@@ -546,4 +546,87 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get colourOther => 'Autre';
+
+  @override
+  String dateDaysAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'il y a $nText jours',
+      many: 'il y a $nText jours',
+      one: 'il y a $nText jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vehiclesTitle => 'Véhicules';
+
+  @override
+  String get vehiclesIntro =>
+      'Gérez le garage ici. Le changement de véhicule se fait depuis le titre de l’accueil.';
+
+  @override
+  String get vehiclesReorderHint =>
+      'Appuyez longuement sur une ligne pour la déplacer. Balayez pour vendre ou supprimer.';
+
+  @override
+  String get vehiclesSoldArchived => 'Vendus et archivés';
+
+  @override
+  String get vehicleStatusAllGood => 'Tout est en ordre';
+
+  @override
+  String get vehicleStatusNoReminders => 'Aucun rappel pour l’instant';
+
+  @override
+  String get vehicleStatusNeedsOdometer => 'Compteur à mettre à jour';
+
+  @override
+  String get vehicleStatusUnknown => 'Impossible de déterminer les échéances';
+
+  @override
+  String vehicleStatusOverdue(String item) {
+    return '$item en retard';
+  }
+
+  @override
+  String get vehiclesOnlyOneWarning =>
+      'C’est votre seul véhicule. Le supprimer remet Odova à zéro.';
+
+  @override
+  String get vehicleSwitchToIt => 'Passer à ce véhicule';
+
+  @override
+  String get switcherTitle => 'Changer de véhicule';
+
+  @override
+  String switcherCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText véhicules',
+      many: '$nText véhicules',
+      one: '$nText véhicule',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get switcherAddVehicle => 'Ajouter un véhicule';
+
+  @override
+  String get switcherManageVehicles => 'Gérer les véhicules';
+
+  @override
+  String get vehicleBusinessBadge => 'Professionnel';
+
+  @override
+  String get commonBack => 'Retour';
+
+  @override
+  String get commonAdd => 'Ajouter';
+
+  @override
+  String get commonDelete => 'Supprimer';
 }

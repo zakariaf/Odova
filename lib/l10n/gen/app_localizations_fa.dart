@@ -527,4 +527,86 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get colourOther => 'سایر';
+
+  @override
+  String dateDaysAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText روز پیش',
+      one: '$nText روز پیش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vehiclesTitle => 'خودروها';
+
+  @override
+  String get vehiclesIntro =>
+      'گاراژ را اینجا مدیریت کنید. تعویض خودرو از عنوان صفحه خانه انجام می‌شود.';
+
+  @override
+  String get vehiclesReorderHint =>
+      'برای جابه‌جایی، ردیف را نگه دارید. برای فروش و حذف، بکشید.';
+
+  @override
+  String get vehiclesSoldArchived => 'فروخته‌شده و بایگانی';
+
+  @override
+  String get vehicleStatusAllGood => 'همه‌چیز مرتب';
+
+  @override
+  String get vehicleStatusNoReminders => 'هنوز یادآوری ندارد';
+
+  @override
+  String get vehicleStatusNeedsOdometer =>
+      'کیلومترشمار نیاز به به‌روزرسانی دارد';
+
+  @override
+  String get vehicleStatusUnknown => 'مشخص نشد چه چیزی موعد دارد';
+
+  @override
+  String vehicleStatusOverdue(String item) {
+    return '$item عقب‌افتاده';
+  }
+
+  @override
+  String get vehiclesOnlyOneWarning =>
+      'این تنها خودروی شماست. با حذف آن، اودووا از نو شروع می‌شود.';
+
+  @override
+  String get vehicleSwitchToIt => 'همین را نشان بده';
+
+  @override
+  String get switcherTitle => 'تعویض خودرو';
+
+  @override
+  String switcherCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خودرو',
+      one: '$nText خودرو',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get switcherAddVehicle => 'افزودن خودرو';
+
+  @override
+  String get switcherManageVehicles => 'مدیریت خودروها';
+
+  @override
+  String get vehicleBusinessBadge => 'کاری';
+
+  @override
+  String get commonBack => 'بازگشت';
+
+  @override
+  String get commonAdd => 'افزودن';
+
+  @override
+  String get commonDelete => 'حذف';
 }

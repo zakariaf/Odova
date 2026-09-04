@@ -848,6 +848,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get colourOther;
+
+  /// How long ago something was recorded. A PAST phrase, and deliberately not `dateDaysOverdue`, which is about a missed due date. German capitalises it, because `vehicleOdometerRowHint` places it first: "Vor 3 Tagen erfasst".
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} day ago} other{{nText} days ago}}'**
+  String dateDaysAgo(int n, String nText);
+
+  /// App bar title of the garage: the screen that lists, reorders, sells and deletes vehicles. Management only — NOT where the active vehicle is switched.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles'**
+  String get vehiclesTitle;
+
+  /// A caption at the top of the garage. It exists to stop people looking for the car switcher here; it lives on the Home title instead. German drops "garage", where the word means the building.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage the garage here. Switching cars happens from the Home title.'**
+  String get vehiclesIntro;
+
+  /// A caption at the foot of the garage, teaching two gestures. Hidden when there is only one vehicle, because neither gesture applies.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold a row to reorder. Swipe for sell and delete.'**
+  String get vehiclesReorderHint;
+
+  /// A collapsed group header at the bottom of the garage, holding vehicles the user no longer drives.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold and archived'**
+  String get vehiclesSoldArchived;
+
+  /// The third line of a garage row when nothing is due. Calm and final — a fact stated, never congratulation offered.
+  ///
+  /// In en, this message translates to:
+  /// **'All good'**
+  String get vehicleStatusAllGood;
+
+  /// The third line when the vehicle has no tracked reminders at all. A statement, not a prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet'**
+  String get vehicleStatusNoReminders;
+
+  /// The third line when the last reading is too old to project from. It names the action without commanding it.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer needs updating'**
+  String get vehicleStatusNeedsOdometer;
+
+  /// The third line when the due engine failed. The row never disappears — SPEC.md §2: the app admits it does not know rather than guessing. An admission, never an apology.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t work out what\'s due'**
+  String get vehicleStatusUnknown;
+
+  /// The third line naming the worst item. {item} is an already-localised service name like "Oil and filter".
+  ///
+  /// In en, this message translates to:
+  /// **'{item} overdue'**
+  String vehicleStatusOverdue(String item);
+
+  /// Added to the delete confirmation when the garage holds one vehicle. It warns without forbidding — the user may still delete it.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your only vehicle. Deleting it starts Odova over.'**
+  String get vehiclesOnlyOneWarning;
+
+  /// A snackbar action after adding a vehicle from the garage. The new vehicle is NOT made active automatically; this offers it.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to it'**
+  String get vehicleSwitchToIt;
+
+  /// Title of the sheet that changes which vehicle the app is showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch vehicle'**
+  String get switcherTitle;
+
+  /// A subtitle under the switcher title, counting the LIVE vehicles — sold and archived ones are not in it.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} vehicle} other{{nText} vehicles}}'**
+  String switcherCount(int n, String nText);
+
+  /// A footer action in the switcher sheet. Opens the vehicle form over the sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add vehicle'**
+  String get switcherAddVehicle;
+
+  /// A footer action in the switcher sheet. Dismisses and opens the garage. SPEC.md §8 names the German wording for this one itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage vehicles'**
+  String get switcherManageVehicles;
+
+  /// A small badge on a vehicle driven for work. One word, on a chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get vehicleBusinessBadge;
+
+  /// Accessible name for the back chevron in an app bar. Never drawn as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get commonBack;
+
+  /// Accessible name for a + in an app bar. Never drawn as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get commonAdd;
+
+  /// A destructive action label. Deliberately the same word as `confirmDeleteDelete`, so a row and the dialog it opens cannot disagree.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
 }
 
 class _AppLocalizationsDelegate

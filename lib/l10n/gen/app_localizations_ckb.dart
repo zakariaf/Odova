@@ -531,4 +531,86 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get colourOther => 'هیتر';
+
+  @override
+  String dateDaysAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ڕۆژ لەمەوبەر',
+      one: '$nText ڕۆژ لەمەوبەر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vehiclesTitle => 'ئۆتۆمبێلەکان';
+
+  @override
+  String get vehiclesIntro =>
+      'لێرەدا ئۆتۆمبێلەکانت بەڕێوە دەبەیت. گۆڕینی ئۆتۆمبێل لە ناونیشانی پەڕەی ماڵەوە ئەنجام دەدرێت.';
+
+  @override
+  String get vehiclesReorderHint =>
+      'بۆ گۆڕینی ڕیزبەندی، دەستت لەسەر ڕیزێک ڕابگرە. بۆ فرۆشتن و سڕینەوە، ڕیزەکە بەلایەکدا بکێشە.';
+
+  @override
+  String get vehiclesSoldArchived => 'فرۆشراو و ئەرشیفکراو';
+
+  @override
+  String get vehicleStatusAllGood => 'هەموو شتێک باشە';
+
+  @override
+  String get vehicleStatusNoReminders => 'هێشتا هیچ بیرخەرەوەیەک نییە';
+
+  @override
+  String get vehicleStatusNeedsOdometer =>
+      'ژمارەی کیلۆمێتر پێویستی بە نوێکردنەوەیە';
+
+  @override
+  String get vehicleStatusUnknown => 'نەزانرا چی کاتی هاتووە';
+
+  @override
+  String vehicleStatusOverdue(String item) {
+    return '$item دواکەوتووە';
+  }
+
+  @override
+  String get vehiclesOnlyOneWarning =>
+      'ئەمە تاکە ئۆتۆمبێلتە. ئەگەر بیسڕیتەوە، ئۆدۆڤا لە سەرەتاوە دەست پێدەکاتەوە.';
+
+  @override
+  String get vehicleSwitchToIt => 'بۆی بگۆڕە';
+
+  @override
+  String get switcherTitle => 'گۆڕینی ئۆتۆمبێل';
+
+  @override
+  String switcherCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ئۆتۆمبێل',
+      one: '$nText ئۆتۆمبێل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get switcherAddVehicle => 'زیادکردنی ئۆتۆمبێل';
+
+  @override
+  String get switcherManageVehicles => 'بەڕێوەبردنی ئۆتۆمبێلەکان';
+
+  @override
+  String get vehicleBusinessBadge => 'کار';
+
+  @override
+  String get commonBack => 'گەڕانەوە';
+
+  @override
+  String get commonAdd => 'زیادکردن';
+
+  @override
+  String get commonDelete => 'سڕینەوە';
 }

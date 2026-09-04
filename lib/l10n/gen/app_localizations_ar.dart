@@ -566,4 +566,93 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get colourOther => 'آخر';
+
+  @override
+  String dateDaysAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'قبل $nText يوم',
+      many: 'قبل $nText يومًا',
+      few: 'قبل $nText أيام',
+      two: 'قبل يومين',
+      one: 'قبل يوم',
+      zero: 'قبل $nText يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vehiclesTitle => 'المركبات';
+
+  @override
+  String get vehiclesIntro =>
+      'أدِر مركباتك من هنا. أمّا التبديل بينها فيتم من عنوان الشاشة الرئيسية.';
+
+  @override
+  String get vehiclesReorderHint =>
+      'اضغط مطوّلًا على صف لإعادة ترتيبه. اسحب للبيع والحذف.';
+
+  @override
+  String get vehiclesSoldArchived => 'مباعة ومؤرشفة';
+
+  @override
+  String get vehicleStatusAllGood => 'كل شيء على ما يرام';
+
+  @override
+  String get vehicleStatusNoReminders => 'لا تذكيرات بعد';
+
+  @override
+  String get vehicleStatusNeedsOdometer => 'العدّاد يحتاج إلى تحديث';
+
+  @override
+  String get vehicleStatusUnknown => 'تعذّر تحديد ما هو مستحق';
+
+  @override
+  String vehicleStatusOverdue(String item) {
+    return 'فات موعد $item';
+  }
+
+  @override
+  String get vehiclesOnlyOneWarning =>
+      'هذه مركبتك الوحيدة. حذفها يعيد أودوفا إلى نقطة البداية.';
+
+  @override
+  String get vehicleSwitchToIt => 'التبديل إليها';
+
+  @override
+  String get switcherTitle => 'تبديل المركبة';
+
+  @override
+  String switcherCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مركبة',
+      many: '$nText مركبةً',
+      few: '$nText مركبات',
+      two: 'مركبتان',
+      one: 'مركبة واحدة',
+      zero: '$nText مركبة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get switcherAddVehicle => 'إضافة مركبة';
+
+  @override
+  String get switcherManageVehicles => 'إدارة المركبات';
+
+  @override
+  String get vehicleBusinessBadge => 'للعمل';
+
+  @override
+  String get commonBack => 'رجوع';
+
+  @override
+  String get commonAdd => 'إضافة';
+
+  @override
+  String get commonDelete => 'حذف';
 }

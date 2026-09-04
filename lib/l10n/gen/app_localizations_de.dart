@@ -533,4 +533,85 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get colourOther => 'Sonstige';
+
+  @override
+  String dateDaysAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Vor $nText Tagen',
+      one: 'Vor $nText Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vehiclesTitle => 'Fahrzeuge';
+
+  @override
+  String get vehiclesIntro =>
+      'Hier verwalten Sie Ihre Fahrzeuge. Das Fahrzeug wechseln Sie über den Titel auf der Startseite.';
+
+  @override
+  String get vehiclesReorderHint =>
+      'Halten Sie ein Fahrzeug gedrückt, um die Reihenfolge zu ändern. Wischen Sie zum Verkaufen und Löschen.';
+
+  @override
+  String get vehiclesSoldArchived => 'Verkauft und archiviert';
+
+  @override
+  String get vehicleStatusAllGood => 'Alles in Ordnung';
+
+  @override
+  String get vehicleStatusNoReminders => 'Noch keine Erinnerungen';
+
+  @override
+  String get vehicleStatusNeedsOdometer => 'Kilometerstand aktualisieren';
+
+  @override
+  String get vehicleStatusUnknown => 'Konnte nicht ermitteln, was fällig ist';
+
+  @override
+  String vehicleStatusOverdue(String item) {
+    return '$item überfällig';
+  }
+
+  @override
+  String get vehiclesOnlyOneWarning =>
+      'Das ist Ihr einziges Fahrzeug. Wenn Sie es löschen, beginnt Odova von vorn.';
+
+  @override
+  String get vehicleSwitchToIt => 'Wechseln';
+
+  @override
+  String get switcherTitle => 'Fahrzeug wechseln';
+
+  @override
+  String switcherCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Fahrzeuge',
+      one: '$nText Fahrzeug',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get switcherAddVehicle => 'Fahrzeug hinzufügen';
+
+  @override
+  String get switcherManageVehicles => 'Fahrzeuge verwalten';
+
+  @override
+  String get vehicleBusinessBadge => 'Beruflich';
+
+  @override
+  String get commonBack => 'Zurück';
+
+  @override
+  String get commonAdd => 'Hinzufügen';
+
+  @override
+  String get commonDelete => 'Löschen';
 }

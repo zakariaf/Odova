@@ -23,6 +23,8 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'dateInAboutMonths' => l10n.dateInAboutMonths(n, nText),
       'dateDaysOverdue' => l10n.dateDaysOverdue(n, nText),
       'remindersDueCount' => l10n.remindersDueCount(n, nText),
+      'dateDaysAgo' => l10n.dateDaysAgo(n, nText),
+      'switcherCount' => l10n.switcherCount(n, nText),
       // The delete dialog's two. `confirmDeleteBody` carries FIVE plurals in
       // one message — SPEC.md §2 forbids assembling a sentence from parts, and
       // five is legal ICU. The matrix drives one of them at a time and pins the

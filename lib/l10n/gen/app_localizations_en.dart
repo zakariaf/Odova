@@ -528,4 +528,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get colourOther => 'Other';
+
+  @override
+  String dateDaysAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText days ago',
+      one: '$nText day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vehiclesTitle => 'Vehicles';
+
+  @override
+  String get vehiclesIntro =>
+      'Manage the garage here. Switching cars happens from the Home title.';
+
+  @override
+  String get vehiclesReorderHint =>
+      'Press and hold a row to reorder. Swipe for sell and delete.';
+
+  @override
+  String get vehiclesSoldArchived => 'Sold and archived';
+
+  @override
+  String get vehicleStatusAllGood => 'All good';
+
+  @override
+  String get vehicleStatusNoReminders => 'No reminders yet';
+
+  @override
+  String get vehicleStatusNeedsOdometer => 'Odometer needs updating';
+
+  @override
+  String get vehicleStatusUnknown => 'Couldn\'t work out what\'s due';
+
+  @override
+  String vehicleStatusOverdue(String item) {
+    return '$item overdue';
+  }
+
+  @override
+  String get vehiclesOnlyOneWarning =>
+      'This is your only vehicle. Deleting it starts Odova over.';
+
+  @override
+  String get vehicleSwitchToIt => 'Switch to it';
+
+  @override
+  String get switcherTitle => 'Switch vehicle';
+
+  @override
+  String switcherCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText vehicles',
+      one: '$nText vehicle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get switcherAddVehicle => 'Add vehicle';
+
+  @override
+  String get switcherManageVehicles => 'Manage vehicles';
+
+  @override
+  String get vehicleBusinessBadge => 'Business';
+
+  @override
+  String get commonBack => 'Back';
+
+  @override
+  String get commonAdd => 'Add';
+
+  @override
+  String get commonDelete => 'Delete';
 }

@@ -755,5 +755,111 @@
   "colourOther": "Other",
   "@colourOther": {
     "description": "Not one of the eight paints. Drawn as an OUTLINED swatch with no fill — EPIC-09 F-9.18, which refused to invent a ninth hex."
+  },
+  "dateDaysAgo": "{n, plural, one{{nText} day ago} other{{nText} days ago}}",
+  "@dateDaysAgo": {
+    "description": "How long ago something was recorded. A PAST phrase, and deliberately not `dateDaysOverdue`, which is about a missed due date. German capitalises it, because `vehicleOdometerRowHint` places it first: \"Vor 3 Tagen erfasst\".",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "nText": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "vehiclesTitle": "Vehicles",
+  "@vehiclesTitle": {
+    "description": "App bar title of the garage: the screen that lists, reorders, sells and deletes vehicles. Management only — NOT where the active vehicle is switched."
+  },
+  "vehiclesIntro": "Manage the garage here. Switching cars happens from the Home title.",
+  "@vehiclesIntro": {
+    "description": "A caption at the top of the garage. It exists to stop people looking for the car switcher here; it lives on the Home title instead. German drops \"garage\", where the word means the building."
+  },
+  "vehiclesReorderHint": "Press and hold a row to reorder. Swipe for sell and delete.",
+  "@vehiclesReorderHint": {
+    "description": "A caption at the foot of the garage, teaching two gestures. Hidden when there is only one vehicle, because neither gesture applies."
+  },
+  "vehiclesSoldArchived": "Sold and archived",
+  "@vehiclesSoldArchived": {
+    "description": "A collapsed group header at the bottom of the garage, holding vehicles the user no longer drives."
+  },
+  "vehicleStatusAllGood": "All good",
+  "@vehicleStatusAllGood": {
+    "description": "The third line of a garage row when nothing is due. Calm and final — a fact stated, never congratulation offered."
+  },
+  "vehicleStatusNoReminders": "No reminders yet",
+  "@vehicleStatusNoReminders": {
+    "description": "The third line when the vehicle has no tracked reminders at all. A statement, not a prompt."
+  },
+  "vehicleStatusNeedsOdometer": "Odometer needs updating",
+  "@vehicleStatusNeedsOdometer": {
+    "description": "The third line when the last reading is too old to project from. It names the action without commanding it."
+  },
+  "vehicleStatusUnknown": "Couldn't work out what's due",
+  "@vehicleStatusUnknown": {
+    "description": "The third line when the due engine failed. The row never disappears — SPEC.md §2: the app admits it does not know rather than guessing. An admission, never an apology."
+  },
+  "vehicleStatusOverdue": "{item} overdue",
+  "@vehicleStatusOverdue": {
+    "description": "The third line naming the worst item. {item} is an already-localised service name like \"Oil and filter\".",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      }
+    }
+  },
+  "vehiclesOnlyOneWarning": "This is your only vehicle. Deleting it starts Odova over.",
+  "@vehiclesOnlyOneWarning": {
+    "description": "Added to the delete confirmation when the garage holds one vehicle. It warns without forbidding — the user may still delete it."
+  },
+  "vehicleSwitchToIt": "Switch to it",
+  "@vehicleSwitchToIt": {
+    "description": "A snackbar action after adding a vehicle from the garage. The new vehicle is NOT made active automatically; this offers it."
+  },
+  "switcherTitle": "Switch vehicle",
+  "@switcherTitle": {
+    "description": "Title of the sheet that changes which vehicle the app is showing."
+  },
+  "switcherCount": "{n, plural, one{{nText} vehicle} other{{nText} vehicles}}",
+  "@switcherCount": {
+    "description": "A subtitle under the switcher title, counting the LIVE vehicles — sold and archived ones are not in it.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "nText": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "switcherAddVehicle": "Add vehicle",
+  "@switcherAddVehicle": {
+    "description": "A footer action in the switcher sheet. Opens the vehicle form over the sheet."
+  },
+  "switcherManageVehicles": "Manage vehicles",
+  "@switcherManageVehicles": {
+    "description": "A footer action in the switcher sheet. Dismisses and opens the garage. SPEC.md §8 names the German wording for this one itself."
+  },
+  "vehicleBusinessBadge": "Business",
+  "@vehicleBusinessBadge": {
+    "description": "A small badge on a vehicle driven for work. One word, on a chip."
+  },
+  "commonBack": "Back",
+  "@commonBack": {
+    "description": "Accessible name for the back chevron in an app bar. Never drawn as text."
+  },
+  "commonAdd": "Add",
+  "@commonAdd": {
+    "description": "Accessible name for a + in an app bar. Never drawn as text."
+  },
+  "commonDelete": "Delete",
+  "@commonDelete": {
+    "description": "A destructive action label. Deliberately the same word as `confirmDeleteDelete`, so a row and the dialog it opens cannot disagree."
   }
 }
