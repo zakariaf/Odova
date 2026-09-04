@@ -157,10 +157,18 @@ a `PopScope` on `AppShell`, `test/app/routing/{tab_behaviour,stack_reset}_test.d
   to re-point it at `VehicleRepository.watchGarage()` is obsolete.
 - **The `vehicle.switcher` redirect deferred from 8.5 landed here**, as one
   clause in the gate.
-- **`bootstrap()` is unchanged.** It returns overrides and does not read the
+- ~~**`bootstrap()` is unchanged.** It returns overrides and does not read the
   facts: `routerProvider` reads them itself on first build, which is before the
-  first frame and is the same guarantee with one fewer moving part. If EPIC-16
-  needs facts earlier (a notification cold start), that is where to add it.
+  first frame and is the same guarantee with one fewer moving part.~~
+  **THIS WAS WRONG, and `/code-review` proved it against a real database.** A
+  synchronous read of a StreamProvider that has not delivered returns NO VALUE,
+  so the first facts on every cold start were `(false, 0)` and every returning
+  user opened on the language step. `bootstrap()` now does what this task
+  originally specified: it opens the database, reads `onboarding_done` and the
+  live vehicle count, and supplies `initialLaunchFactsProvider`. Each fact falls
+  back to that when its stream has none — which also covers an ERRORED stream,
+  where the old code would have parked an established user in onboarding and let
+  first run overwrite their settings row.
 - **Three test-infrastructure repairs that every later epic inherits:**
   - `test/data/support/rows.dart` now calls `markTablesUpdated` — raw
     `customStatement` never invalidates a watching drift query.
@@ -382,3 +390,51 @@ EPIC-10's — and **both artboards override `.screen__body`'s spacing inline**
   `customStatement` never invalidates a watching query.
 - `OdovaRoot` needs a database. `pumpApp`'s `noLaunchGate()` is the escape.
 - Every routing test goes through `test/app/routing/shell_harness.dart`.
+
+
+---
+
+## What `/simplify` and `/code-review` changed, and what the next epic inherits
+
+Both passes ran before the PR, as CLAUDE.md §6 steps 7 and 8 require. Between
+them they found nineteen real defects; the commits `simplify:` and
+`code-review:` carry the full accounting. What outlives this epic:
+
+### Rules the reviews established
+
+- **A widget test cannot hold a live drift stream.** Ask database questions in a
+  plain `test`; inject the answer into widget tests.
+- **A "double" a function is never handed proves nothing.** If a function takes
+  no side-effect port, assert THAT — over the signature and the imports.
+- **A test that enumerates the cases it knows about cannot fail on the case
+  nobody thought of.** Derive the set (from `kScreenRoutes`, from the ARB, from
+  the router) rather than listing it.
+- **`text.overflow` is null unless somebody set it**, so `isNot(ellipsis)` can
+  never fail. Measure the rendered height instead.
+- **`findsWidgets` means "at least one".** Count.
+
+### Still open, for the epics that own them
+
+- **EPIC-05 / EPIC-15: `migrationFailed` can never be true in a shipped build.**
+  `appDatabaseProvider` constructs `AppDatabase()` directly;
+  `openMigratedDatabase` — the safety copy, the snapshot, the rollback — has
+  callers only in `test/migration/`, and nothing in `lib/` ever calls
+  `DegradedModeController.migrationFailed`. So the launch gate's
+  highest-priority branch is dead code in production: a failed migration
+  surfaces as a query error, both streams fail, and the app opens on first run
+  over a half-migrated database. The gate, its tests and its mutations are all
+  correct; the WIRING is missing. **SPEC.md §14 *Migration fails on launch*
+  depends on it.**
+- **EPIC-09: `setActiveVehicle` now returns `Result<void, PersistFailure>`.**
+  The switcher must show something when it is an `Err` — a silent failure closes
+  the sheet on a vehicle that did not change.
+- **EPIC-16: `handleDeepLink`'s `activateVehicle` is a `Future` and is awaited.**
+  Pass `setActiveVehicle` directly; do not wrap it in a `void` callback.
+- **EPIC-17: `CalmDialog`'s two-action constructor has no production caller.**
+  All three global dialogs use `.actions`. Collapsing it would remove four
+  nullable fields and two `!` de-references; it survives because it is the right
+  shape for a dialog with no safe alternative, and because collapsing it
+  re-baselines specimens.
+- **EPIC-17: `CalmDialog` inserts a uniform gap before every `actions` element**,
+  and the delete dialog passes a field and an explanation through that slot with
+  a one-token nudge. A `content` slot with its own spacing is the real fix.
