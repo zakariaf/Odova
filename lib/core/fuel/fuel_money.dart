@@ -31,6 +31,14 @@ typedef FillUpCost = ({String id, Money cost, FuelQuantity quantity});
 /// per watt-hour — because that is the only ratio that stays exact. The
 /// presentation edge multiplies up to a litre or a gallon and rounds to three
 /// decimals, per SPEC.md §3's table.
+///
+/// **The one division of money outside `allocate`, and deliberately so.**
+/// `allocate` exists to SPLIT a total into parts that must sum back to it — a
+/// premium across the days it covers, a bill across its lines — where the
+/// residual has to go somewhere and largest-remainder decides where. This
+/// produces a RATE, not parts: nothing has to sum back, so there is no residual
+/// to place, and routing it through `allocate` would be asking a splitter for
+/// something it does not compute.
 Result<double, ConsumptionUnavailable> unitPrice(FillUpCost fill) {
   final amount = fill.quantity.amount;
   if (amount <= 0) {
