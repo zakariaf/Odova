@@ -44,6 +44,7 @@ import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 
 import '../../../parity/support/parity_capture.dart'
     show kReferenceDpr, kReferencePhysical;
+import '../../../support/due_case.dart';
 import '../../../support/pump_app.dart';
 
 final VehicleId _golf = VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA')!;
@@ -151,6 +152,11 @@ Future<void> _pump(
       // Latin digits while the strings were Persian. Both have to move.
       if (locale != null) deviceLocalesProvider.overrideWithValue([locale]),
       vehiclesProvider.overrideWith((ref) => Stream.value(vehicles)),
+      // A VALUE. The row reads `Settings.distance_unit` as the fallback for a
+      // vehicle with no override, and `settingsProvider` is a drift stream —
+      // which never delivers under `testWidgets` and leaves a timer pending
+      // after the tree is gone.
+      settingsProvider.overrideWith((ref) => Stream.value(dueFixtureSettings)),
       for (final v in vehicles)
         vehicleDueSnapshotProvider(v.id).overrideWithValue(
           due.containsKey(v.id)

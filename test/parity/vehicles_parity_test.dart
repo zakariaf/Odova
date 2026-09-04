@@ -32,6 +32,7 @@ import 'package:odova/features/vehicles/entry_counts_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
+import '../support/due_case.dart';
 import 'support/parity_capture.dart';
 
 const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
@@ -196,6 +197,12 @@ void main() {
           overrides: <Override>[
             vehiclesProvider.overrideWith(
               (ref) => Stream.value(_garage(rtl: rtl)),
+            ),
+            // The row reads `Settings.distance_unit` for a vehicle with no
+            // override of its own, and `settingsProvider` is another drift
+            // stream that will not deliver inside one captured frame.
+            settingsProvider.overrideWith(
+              (ref) => Stream.value(dueFixtureSettings),
             ),
             clockProvider.overrideWithValue(
               Clock.fixed(DateTime.utc(2026, 9, 4)),

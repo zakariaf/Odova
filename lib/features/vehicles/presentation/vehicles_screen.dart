@@ -189,6 +189,8 @@ class _GarageRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final tag = ref.watch(resolvedLocaleTagsProvider).formats;
+    final globalUnit =
+        ref.watch(settingsProvider).value?.distanceUnit ?? DistanceUnit.km;
     final lead = _Silhouette(vehicle: vehicle);
 
     // A SOLD row is a different row, not a live one with a field blanked.
@@ -246,6 +248,7 @@ class _GarageRow extends ConsumerWidget {
           vehicle: vehicle,
           snapshot: snapshot,
           status: status,
+          globalUnit: globalUnit,
         ),
         // The overdue ink on that line alone, and never instead of the words —
         // §8: "colour is never the only signal".

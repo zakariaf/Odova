@@ -49,6 +49,7 @@ String vehicleOdometerAndStatus({
   required Vehicle vehicle,
   required VehicleDueSnapshot? snapshot,
   required GarageStatus status,
+  required DistanceUnit globalUnit,
 }) {
   final estimate = snapshot?.estimate;
   final words = switch (estimate?.projection) {
@@ -68,7 +69,12 @@ String vehicleOdometerAndStatus({
   if (estimate == null) return words;
 
   final projected = estimate.projection == OdometerProjection.projected;
-  final unit = vehicle.distanceUnit ?? DistanceUnit.km;
+  // The vehicle's own override, then the GLOBAL — never a constant. SPEC.md
+  // §8's switcher exists to show "each vehicle's odometer in that vehicle's own
+  // `distance_unit`, not the active one's", and a hard-coded `km` here made a
+  // miles user's un-overridden vehicle read in kilometres on the one screen
+  // whose whole point is the unit.
+  final unit = vehicle.distanceUnit ?? globalUnit;
   final shown = projected
       ? roundEstimateForDisplay(Distance(estimate.metres), unit)
       : Distance(estimate.metres);
