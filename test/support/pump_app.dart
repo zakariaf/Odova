@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/routing/app_router.dart';
 
 /// Pumps [child] inside everything a real Odova screen sits in.
 ///
@@ -112,3 +113,20 @@ Future<void> pumpApp(
 GoRouter singleScreenRouter(Widget child) => GoRouter(
   routes: [GoRoute(path: '/', builder: (context, state) => child)],
 );
+
+/// A router with no launch gate, for a test that is not about routing.
+///
+/// EPIC-08 wired `routerProvider` to the launch gate, which reads
+/// `Settings.onboarding_done` and the live vehicle count — so from that point
+/// on, building the real router opens the DATABASE. A test about the lifecycle
+/// observer or the retry policy that pumps `OdovaRoot` therefore opened a real
+/// database on disk and left drift's stream timers pending after the tree was
+/// torn down, which `flutter_test` fails on and which took ten minutes per
+/// test to do it.
+///
+/// The fix is an override rather than a launch gate that tolerates a missing
+/// database: "no database" and "no vehicles" are different conditions, and
+/// SPEC.md §7 sends them to different screens.
+List<Override> noLaunchGate() => [
+  routerProvider.overrideWithValue(buildRouter()),
+];

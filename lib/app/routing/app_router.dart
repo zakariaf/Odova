@@ -13,6 +13,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/app_shell.dart';
+import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
@@ -30,17 +31,40 @@ final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 /// reads whether a vehicle exists (task 8.6) and a global cannot watch
 /// anything. Never re-created while the app runs: rebuilding the router would
 /// throw away all four tab stacks.
-final routerProvider = Provider<GoRouter>((ref) => buildRouter());
+final routerProvider = Provider<GoRouter>((ref) {
+  // `read`, not `watch`, for the initial location: the router is built once
+  // and re-creating it would throw away all four tab stacks. The redirect below
+  // reads the CURRENT facts on every navigation, and `refreshListenable` is
+  // what re-runs it when they change.
+  final listenable = launchFactsListenable(ref);
+  return buildRouter(
+    initialLocation: initialLocationFor(ref.read(launchFactsProvider)),
+    redirect: (location) =>
+        appRedirect(ref.read(launchFactsProvider), location),
+    refreshListenable: listenable,
+  );
+});
 
 /// Builds the router.
 ///
 /// Public so a test can build one without a `ProviderContainer`. There is still
 /// exactly one in a running app — this is the constructor, `routerProvider` is
 /// the instance.
-GoRouter buildRouter({String initialLocation = Routes.home}) {
+GoRouter buildRouter({
+  String initialLocation = Routes.home,
+  String? Function(String location)? redirect,
+  Listenable? refreshListenable,
+}) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: initialLocation,
+    refreshListenable: refreshListenable,
+    // The gate is a pure function of three facts and a location; the closure
+    // is what supplies the facts. Keeping the read OUT of `appRedirect` is what
+    // makes the loop-freedom property testable over the whole route table.
+    redirect: redirect == null
+        ? null
+        : (context, state) => redirect(state.matchedLocation),
     // Not left to default: go_router's default is a red-on-white exception
     // page, a screen no designer drew and no translator saw.
     errorBuilder: (context, state) =>

@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 
+import '../support/pump_app.dart';
 import '../support/source_gates.dart';
 
 /// Every placeholder provider, and how to read it.
@@ -69,7 +70,7 @@ void main() {
   );
 
   testWidgets('the root ProviderScope disables retry', (tester) async {
-    await tester.pumpWidget(const OdovaRoot());
+    await tester.pumpWidget(OdovaRoot(overrides: noLaunchGate()));
 
     final scope = tester.widget<ProviderScope>(find.byType(ProviderScope));
 
