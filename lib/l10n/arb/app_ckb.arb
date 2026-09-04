@@ -146,6 +146,9 @@
   "commonBack": "گەڕانەوە",
   "commonAdd": "زیادکردن",
   "commonDelete": "سڕینەوە",
+  "commonUndo": "گەڕانەوە",
+  "vehicleDeletedSnack": "{name} سڕایەوە",
+  "vehicleSoldSnack": "{name} وەک فرۆشراو نیشانە کرا",
   "vehicleSoldSummary": "{n, plural, =0{فرۆشراوە {date}} one{فرۆشراوە لە {date} · {countText} تۆمار} other{فرۆشراوە لە {date} · {countText} تۆمار}}",
   "vehicleStatusDueInDays": "{n, plural, one{{item} لە {countText} ڕۆژی دیکەدا پێویستە} other{{item} لە {countText} ڕۆژی دیکەدا پێویستە}}"
 }

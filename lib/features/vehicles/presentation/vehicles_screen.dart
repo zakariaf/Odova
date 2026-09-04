@@ -7,6 +7,8 @@
 // switcher.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/due_engine.dart';
@@ -15,13 +17,17 @@ import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/l10n/relative_past.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/estimate_rounding.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/entry_counts_provider.dart';
 import 'package:odova/features/vehicles/garage_status.dart';
+import 'package:odova/features/vehicles/presentation/mark_as_sold_sheet.dart';
+import 'package:odova/features/vehicles/vehicles_notifier.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
@@ -35,7 +41,9 @@ import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
+import 'package:odova/ui/calm/calm_snackbar.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
+import 'package:odova/ui/calm/calm_swipe_actions.dart';
 import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 
 /// What joins the facts on a garage row.
@@ -129,50 +137,209 @@ class _GarageRow extends ConsumerWidget {
     // in its place because the row still opens the vehicle.
     if (vehicle.status != VehicleStatus.active) {
       final counts = ref.watch(vehicleEntryCountsProvider(vehicle.id)).value;
-      return CalmListRow(
-        title: vehicle.name,
-        subtitle: counts == null || vehicle.soldOn == null
-            ? null
-            : l10n.vehicleSoldSummary(
-                counts.total,
-                formatLongDate(vehicle.soldOn!, tag),
-                formatForDisplay(
+      // No sale action on a car that is already sold: its only outcome is
+      // overwriting a sale date the user entered.
+      return _swipeable(
+        context,
+        ref,
+        l10n,
+        sold: true,
+        child: CalmListRow(
+          title: vehicle.name,
+          subtitle: counts == null || vehicle.soldOn == null
+              ? null
+              : l10n.vehicleSoldSummary(
                   counts.total,
-                  tag,
-                  numerals: CalmNumerals.auto,
-                  decimalDigits: 0,
+                  formatLongDate(vehicle.soldOn!, tag),
+                  formatForDisplay(
+                    counts.total,
+                    tag,
+                    numerals: CalmNumerals.auto,
+                    decimalDigits: 0,
+                  ),
                 ),
-              ),
-        size: CalmRowSize.compact,
-        lead: lead,
-        showChevron: true,
+          size: CalmRowSize.compact,
+          lead: lead,
+          showChevron: true,
+        ),
       );
     }
 
     final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicle.id));
     final status = garageStatusOf(snapshot?.summary);
 
-    return CalmListRow(
-      title: vehicle.name,
-      // `VW Golf VII · 2016 · diesel` — what tells two silver hatchbacks apart
-      // in a garage of four. None of it is a status.
-      subtitle: _facts(l10n),
-      // `187,412 km · all good`. SPEC.md §8: "Odometer and one-line status
-      // share the third line because that is the pair people scan for."
-      detail: _odometerAndStatus(context, l10n, tag, snapshot, status),
-      // The overdue ink on that line alone, and never instead of the words —
-      // §8: "colour is never the only signal".
-      detailState: status == GarageStatus.overdue ? DueState.overdue : null,
-      size: CalmRowSize.lg,
-      lead: lead,
-      end: CalmStatusDot(
-        style: CalmStatusStyle.of(context, _dotState(status)),
+    return _swipeable(
+      context,
+      ref,
+      l10n,
+      sold: false,
+      child: CalmListRow(
+        title: vehicle.name,
+        // `VW Golf VII · 2016 · diesel` — what tells two silver hatchbacks
+        // apart in a garage of four. None of it is a status.
+        subtitle: _facts(l10n),
+        // `187,412 km · all good`. SPEC.md §8: "Odometer and one-line status
+        // share the third line because that is the pair people scan for."
+        detail: _odometerAndStatus(context, l10n, tag, snapshot, status),
+        // The overdue ink on that line alone, and never instead of the words —
+        // §8: "colour is never the only signal".
+        detailState: status == GarageStatus.overdue ? DueState.overdue : null,
+        size: CalmRowSize.lg,
+        lead: lead,
+        end: CalmStatusDot(
+          style: CalmStatusStyle.of(context, _dotState(status)),
+        ),
+        // Opens `vehicle.edit` and NEVER switches the active vehicle — §8's
+        // whole reason for this screen's caption. EPIC-09 task 9.8
+        // registers the route; the row is inert until it exists rather than
+        // wired to one that would 404.
       ),
-      // Opens `vehicle.edit` and NEVER switches the active vehicle — §8's whole
-      // reason for the caption at the top of this screen. EPIC-09 task 9.8
-      // registers the route; the row is inert until it exists rather than
-      // wired to one that would 404.
     );
+  }
+
+  /// Wraps [child] in SPEC.md §8's end actions.
+  ///
+  /// Mark as sold FIRST, then Delete. §8 offers the sale before the delete
+  /// everywhere, "because 'I sold the car' is what people mean most of the time
+  /// they reach for Delete" — and putting the destructive one last also puts it
+  /// furthest from the thumb.
+  Widget _swipeable(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n, {
+    required bool sold,
+    required Widget child,
+  }) => CalmSwipeActions(
+    endActions: [
+      if (!sold)
+        CalmSwipeAction(
+          label: l10n.vehicleMarkAsSold,
+          icon: Icons.sell_outlined,
+          tone: CalmSwipeTone.caution,
+          onPressed: () => _markSold(context, ref, l10n),
+        ),
+      CalmSwipeAction(
+        label: l10n.commonDelete,
+        icon: Icons.delete_outline,
+        tone: CalmSwipeTone.danger,
+        onPressed: () => _confirmDelete(context, ref, l10n),
+      ),
+    ],
+    child: child,
+  );
+
+  /// Opens the sale form and, if it comes back with a date, performs the sale.
+  ///
+  /// No Undo on the snackbar. A sale is one row and the form that wrote it is
+  /// one tap away, unlike a delete that takes five tables with it.
+  Future<void> _markSold(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) async {
+    final sale = await showMarkAsSoldSheet(
+      context,
+      vehicleName: vehicle.name,
+    );
+    if (sale == null || !context.mounted) return;
+
+    final result = await ref
+        .read(vehiclesNotifierProvider.notifier)
+        .markSold(
+          vehicle.id,
+          soldOn: sale.soldOn,
+          soldPriceMinor: sale.soldPriceMinor,
+        );
+    if (!context.mounted) return;
+    // The FAILURE reaches the user. `guardPersist` wraps a full disk and a
+    // locked database alike, and a swallowed one here leaves the row looking
+    // unchanged with no reason given — SPEC.md §1's rule that the app never
+    // pretends something happened.
+    CalmSnackbar.show(
+      context,
+      message: result is Ok
+          ? l10n.vehicleSoldSnack(vehicle.name)
+          : l10n.saveDiskFullError,
+      danger: result is! Ok,
+    );
+  }
+
+  /// SPEC.md §8's delete, end to end.
+  ///
+  /// The dialog is EPIC-08's shared one and this screen performs the delete —
+  /// `showConfirmDeleteDialog` has no port to the database at all, which is
+  /// what makes "the dialog cannot delete anything" a property rather than a
+  /// promise.
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) async {
+    final tag = ref.read(resolvedLocaleTagsProvider).formats;
+    final counts =
+        await ref.read(vehicleEntryCountsProvider(vehicle.id).future) ??
+        (fillUps: 0, services: 0, costs: 0, trips: 0, reminders: 0);
+    if (!context.mounted) return;
+
+    final choice = await showConfirmDeleteDialog(
+      context,
+      subject: vehicle.name,
+      counts: counts,
+      formatCount: (n) => formatForDisplay(
+        n,
+        tag,
+        numerals: CalmNumerals.auto,
+        decimalDigits: 0,
+      ),
+      // §8: "Keep it — mark it sold" is offered ABOVE Delete, because it is
+      // what people usually mean. A sold vehicle has no sale to offer.
+      safeAlternativeLabel: vehicle.status == VehicleStatus.active
+          ? l10n.vehicleMarkAsSold
+          : null,
+    );
+    if (!context.mounted) return;
+
+    switch (choice) {
+      case ConfirmDeleteChoice.cancel:
+        return;
+      case ConfirmDeleteChoice.safeAlternative:
+        await _markSold(context, ref, l10n);
+      case ConfirmDeleteChoice.delete:
+        await _delete(context, ref, l10n);
+    }
+  }
+
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) async {
+    final notifier = ref.read(vehiclesNotifierProvider.notifier);
+    final result = await notifier.delete(vehicle.id);
+    if (!context.mounted) return;
+
+    if (result case Err()) {
+      CalmSnackbar.show(context, message: l10n.saveDiskFullError, danger: true);
+      return;
+    }
+    final deletion = (result as Ok<VehicleDeletion, PersistFailure>).value;
+
+    CalmSnackbar.show(
+      context,
+      message: l10n.vehicleDeletedSnack(vehicle.name),
+      actionLabel: l10n.commonUndo,
+      // TEN seconds, not the usual six. §8: "longer than the usual 6 because
+      // this destroys more than one row", and after it the only recovery left
+      // is the user's own exported backup.
+      duration: kCalmDestructiveUndoWindow,
+      danger: true,
+      onAction: () => notifier.undoDelete(deletion),
+    );
+
+    // §8: "Deleting the last vehicle routes to `vehicle.edit` (firstRun) with
+    // the Undo snackbar above the modal." The snackbar goes through
+    // `ScaffoldMessenger`, so it survives the route change that follows.
+    if (deletion.wasLast) context.go(Routes.firstRunVehicle);
   }
 
   /// `VW · Golf VII · 2016 · Diesel`, skipping what is not known.

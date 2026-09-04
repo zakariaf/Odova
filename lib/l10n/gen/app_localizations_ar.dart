@@ -697,6 +697,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonDelete => 'حذف';
 
   @override
+  String get commonUndo => 'تراجع';
+
+  @override
+  String vehicleDeletedSnack(String name) {
+    return 'تم حذف $name';
+  }
+
+  @override
+  String vehicleSoldSnack(String name) {
+    return 'تم وضع علامة \"مباعة\" على $name';
+  }
+
+  @override
   String vehicleSoldSummary(int n, String date, String countText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,

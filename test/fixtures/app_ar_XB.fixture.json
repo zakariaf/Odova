@@ -146,6 +146,9 @@
   "commonBack": "‏kcaB",
   "commonAdd": "‏ddA",
   "commonDelete": "‏eteleD",
+  "commonUndo": "‏odnU",
+  "vehicleDeletedSnack": "‏ deteleD{name}",
+  "vehicleSoldSnack": "‏{name}dlos sa dekram ",
   "vehicleSoldSummary": "‏{n, plural, =0{ dloS{date}} one{ dloS{date} · {countText}yrtne } other{ dloS{date} · {countText}seirtne }}",
   "vehicleStatusDueInDays": "‏{n, plural, one{{item} ni eud {countText}yad } other{{item} ni eud {countText}syad }}"
 }

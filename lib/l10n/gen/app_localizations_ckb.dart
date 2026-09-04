@@ -647,6 +647,19 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get commonDelete => 'سڕینەوە';
 
   @override
+  String get commonUndo => 'گەڕانەوە';
+
+  @override
+  String vehicleDeletedSnack(String name) {
+    return '$name سڕایەوە';
+  }
+
+  @override
+  String vehicleSoldSnack(String name) {
+    return '$name وەک فرۆشراو نیشانە کرا';
+  }
+
+  @override
   String vehicleSoldSummary(int n, String date, String countText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,

@@ -146,6 +146,9 @@
   "commonBack": "بازگشت",
   "commonAdd": "افزودن",
   "commonDelete": "حذف",
+  "commonUndo": "واگرد",
+  "vehicleDeletedSnack": "{name} حذف شد",
+  "vehicleSoldSnack": "{name} به‌عنوان فروخته‌شده علامت خورد",
   "vehicleSoldSummary": "{n, plural, =0{فروخته‌شده {date}} one{فروخته‌شده در {date} · {countText} رکورد} other{فروخته‌شده در {date} · {countText} رکورد}}",
   "vehicleStatusDueInDays": "{n, plural, one{{item} تا {countText} روز دیگر موعد دارد} other{{item} تا {countText} روز دیگر موعد دارد}}"
 }

@@ -648,6 +648,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get commonDelete => 'Löschen';
 
   @override
+  String get commonUndo => 'Rückgängig';
+
+  @override
+  String vehicleDeletedSnack(String name) {
+    return '$name gelöscht';
+  }
+
+  @override
+  String vehicleSoldSnack(String name) {
+    return '$name als verkauft markiert';
+  }
+
+  @override
   String vehicleSoldSummary(int n, String date, String countText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,

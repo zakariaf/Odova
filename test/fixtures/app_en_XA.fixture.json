@@ -146,6 +146,9 @@
   "commonBack": "[Ḅáçķ ǃǃ]",
   "commonAdd": "[Áḍḍ ǃǃ]",
   "commonDelete": "[Ḍḗŀḗţḗ ǃǃǃ]",
+  "commonUndo": "[Ǔǹḍǿ ǃǃ]",
+  "vehicleDeletedSnack": "[Ḍḗŀḗţḗḍ {name} ǃǃǃǃ]",
+  "vehicleSoldSnack": "[{name} ḿářķḗḍ áŝ ŝǿŀḍ ǃǃǃǃǃǃ]",
   "vehicleSoldSummary": "[{n, plural, =0{Ŝǿŀḍ {date}} one{Ŝǿŀḍ {date} · {countText} ḗǹţřẏ} other{Ŝǿŀḍ {date} · {countText} ḗǹţřīḗŝ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "vehicleStatusDueInDays": "[{n, plural, one{{item} ḍǔḗ īǹ {countText} ḍáẏ} other{{item} ḍǔḗ īǹ {countText} ḍáẏŝ}} ǃǃǃǃǃǃǃǃǃǃ]"
 }

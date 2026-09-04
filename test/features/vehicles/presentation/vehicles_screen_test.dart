@@ -33,6 +33,7 @@ import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
+import 'package:odova/ui/calm/calm_swipe_actions.dart';
 import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 
 import '../../../parity/support/parity_capture.dart'
@@ -593,5 +594,56 @@ void main() {
     // The STATUS half is not isolated: it is ordinary prose in the UI language
     // and isolating it would cut it off from the sentence it belongs to.
     expect(raw.split('\u2069').last, startsWith(' · '));
+  });
+
+  group('the swipe actions', () {
+    // SPEC.md §8's interaction table. The hint at the bottom of the screen
+    // promises both of these in words, so a row that did not carry them would
+    // make the screen lie about itself.
+    testWidgets('a LIVE row carries Mark as sold and Delete', (tester) async {
+      await _pump(
+        tester,
+        vehicles: [_vehicle(_golf, 'The Golf')],
+        due: {_golf: DueState.ok},
+      );
+      final swipe = tester.widget<CalmSwipeActions>(
+        find.byType(CalmSwipeActions),
+      );
+      expect(
+        [for (final a in swipe.endActions) a.label],
+        [
+          _l10n(tester).vehicleMarkAsSold,
+          _l10n(tester).commonDelete,
+        ],
+        reason: 'Mark as sold FIRST — §8 offers it before Delete everywhere',
+      );
+      expect(swipe.endActions.last.tone, CalmSwipeTone.danger);
+      expect(swipe.endActions.first.tone, CalmSwipeTone.caution);
+    });
+
+    testWidgets('a SOLD row offers no sale, only a delete', (tester) async {
+      // Offering "Mark as sold" on a car that is already sold is an action
+      // whose only outcome is overwriting a sale date the user entered.
+      await _pump(
+        tester,
+        vehicles: [
+          _vehicle(_golf, 'The Golf'),
+          _vehicle(
+            _polo,
+            'Yamaha MT-07',
+            status: VehicleStatus.sold,
+            soldOn: '2024-03-12',
+          ),
+        ],
+      );
+      final swipes = tester.widgetList<CalmSwipeActions>(
+        find.byType(CalmSwipeActions),
+      );
+      expect(swipes, hasLength(2));
+      expect(
+        [for (final a in swipes.last.endActions) a.label],
+        [_l10n(tester).commonDelete],
+      );
+    });
   });
 }

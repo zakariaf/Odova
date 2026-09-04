@@ -643,6 +643,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get commonDelete => 'حذف';
 
   @override
+  String get commonUndo => 'واگرد';
+
+  @override
+  String vehicleDeletedSnack(String name) {
+    return '$name حذف شد';
+  }
+
+  @override
+  String vehicleSoldSnack(String name) {
+    return '$name به‌عنوان فروخته‌شده علامت خورد';
+  }
+
+  @override
   String vehicleSoldSummary(int n, String date, String countText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,

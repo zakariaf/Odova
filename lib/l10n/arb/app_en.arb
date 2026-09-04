@@ -901,6 +901,30 @@
     "description": "Accessible name for a + in an app bar. Never drawn as text."
   },
   "commonDelete": "Delete",
+  "commonUndo": "Undo",
+  "@commonUndo": {
+    "description": "The snackbar action. SPEC.md §10: confirmation is a snackbar with Undo, never a dialog. French uses Annuler for both Cancel and Undo — they are different actions in English and the same word here, which is correct and worth knowing before somebody 'fixes' it."
+  },
+  "vehicleDeletedSnack": "Deleted {name}",
+  "@vehicleDeletedSnack": {
+    "description": "The snackbar after a vehicle delete. SPEC.md §8 gives it a 10-second Undo rather than the usual 6.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "The Golf"
+      }
+    }
+  },
+  "vehicleSoldSnack": "{name} marked as sold",
+  "@vehicleSoldSnack": {
+    "description": "The snackbar after Mark as sold. No Undo: the sale is one row and the form that wrote it is one tap away, unlike a delete that takes five tables with it.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "The Golf"
+      }
+    }
+  },
   "@commonDelete": {
     "description": "A destructive action label. Deliberately the same word as `confirmDeleteDelete`, so a row and the dialog it opens cannot disagree."
   },

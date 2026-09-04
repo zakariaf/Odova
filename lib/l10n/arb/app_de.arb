@@ -146,6 +146,9 @@
   "commonBack": "Zurück",
   "commonAdd": "Hinzufügen",
   "commonDelete": "Löschen",
+  "commonUndo": "Rückgängig",
+  "vehicleDeletedSnack": "{name} gelöscht",
+  "vehicleSoldSnack": "{name} als verkauft markiert",
   "vehicleSoldSummary": "{n, plural, =0{Verkauft am {date}} one{Verkauft am {date} · {countText} Eintrag} other{Verkauft am {date} · {countText} Einträge}}",
   "vehicleStatusDueInDays": "{n, plural, one{{item} in {countText} Tag fällig} other{{item} in {countText} Tagen fällig}}"
 }

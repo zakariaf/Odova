@@ -146,6 +146,9 @@
   "commonBack": "رجوع",
   "commonAdd": "إضافة",
   "commonDelete": "حذف",
+  "commonUndo": "تراجع",
+  "vehicleDeletedSnack": "تم حذف {name}",
+  "vehicleSoldSnack": "تم وضع علامة \"مباعة\" على {name}",
   "vehicleSoldSummary": "{n, plural, zero{بِيعت في {date}} one{بِيعت في {date} · سجل واحد} two{بِيعت في {date} · سجلان} few{بِيعت في {date} · {countText} سجلات} many{بِيعت في {date} · {countText} سجلاً} other{بِيعت في {date} · {countText} سجل}}",
   "vehicleStatusDueInDays": "{n, plural, zero{موعد {item} خلال {countText} يوم} one{موعد {item} خلال يوم} two{موعد {item} خلال يومين} few{موعد {item} خلال {countText} أيام} many{موعد {item} خلال {countText} يومًا} other{موعد {item} خلال {countText} يوم}}"
 }

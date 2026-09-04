@@ -363,14 +363,46 @@ void main() {
     }
   });
 
-  test('it is one shared widget', () {
+  test('it is one shared widget, and only listed screens call it', () {
+    // A second confirm-delete dialog in a feature is a second answer to "what
+    // exactly am I destroying", and the two will disagree about the counts.
+    //
+    // **An ALLOW-LIST, because the first version forbade too much** — the same
+    // correction `discard_dialog_test.dart` already carries, and for the same
+    // reason. Banning the symbols outright was right while nothing called them
+    // and wrong the moment a screen did: EPIC-09 task 9.6 says in so many words
+    // that the garage's "Delete calls **EPIC-08 task 8.9's
+    // `showConfirmDeleteDialog`**". The rule was never "nobody may call it"; it
+    // was "nobody may write a second one", and those are only the same test
+    // while the caller count is zero.
+    //
+    // Every screen that destroys a whole record earns a line here, and adding
+    // one is a moment where somebody says what their screen deletes.
+    const callers = {
+      // §8's garage: the row swipe and the row overflow both land here, and
+      // this is the only screen in v1 that deletes a VEHICLE.
+      'lib/features/vehicles/presentation/vehicles_screen.dart',
+    };
+
     final offenders = <String>[];
     for (final file in dartFilesUnder('lib')) {
       if (file.path == 'lib/ui/dialogs/confirm_delete_dialog.dart') continue;
+      final source = sourceWithoutLineComments(file);
+      // DEFINING a second one stays banned outright, from everywhere. A
+      // DECLARATION, not a mention: `ConfirmDeleteChoice.delete` in a caller is
+      // reading the shared answer, which is the whole point of sharing it.
       if (RegExp(
-        'showConfirmDeleteDialog|ConfirmDeleteChoice',
-      ).hasMatch(sourceWithoutLineComments(file))) {
-        offenders.add(file.path);
+        r'(class|enum)\s+\w*ConfirmDelete\w*\b|'
+        r'Future<\w*ConfirmDeleteChoice\w*>\s+show\w*Delete',
+      ).hasMatch(source)) {
+        offenders.add(
+          '${file.path}: declares a confirm-delete dialog of its own',
+        );
+        continue;
+      }
+      if (RegExp('showConfirmDeleteDialog').hasMatch(source) &&
+          !callers.contains(file.path)) {
+        offenders.add('${file.path}: calls showConfirmDeleteDialog, unlisted');
       }
     }
     expect(offenders, isEmpty, reason: offenders.join('\n'));

@@ -993,6 +993,24 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get commonDelete;
 
+  /// The snackbar action. SPEC.md §10: confirmation is a snackbar with Undo, never a dialog. French uses Annuler for both Cancel and Undo — they are different actions in English and the same word here, which is correct and worth knowing before somebody 'fixes' it.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get commonUndo;
+
+  /// The snackbar after a vehicle delete. SPEC.md §8 gives it a 10-second Undo rather than the usual 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {name}'**
+  String vehicleDeletedSnack(String name);
+
+  /// The snackbar after Mark as sold. No Undo: the sale is one row and the form that wrote it is one tap away, unlike a delete that takes five tables with it.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} marked as sold'**
+  String vehicleSoldSnack(String name);
+
   /// The second line of a sold vehicle in the garage. {date} is an already-formatted ABSOLUTE date — a relative one would read "Sold Today". Written WITHOUT a plural first, which rendered "1 entries"; two translators caught it independently before any test did. SPEC.md §8 requires an explicit =0 case, and every locale carries one EXCEPT Arabic: CLDR's Arabic `zero` category is n = 0, so an =0 clause shadows it and the language renders five forms where it has six. Arabic already owns the slot, so the date-only sentence lives in `zero` there. `plurals_test.dart` caught this; it is not a thing a reviewer would see.
   ///
   /// In en, this message translates to:
