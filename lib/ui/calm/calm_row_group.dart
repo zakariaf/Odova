@@ -19,6 +19,7 @@ class CalmRowGroup extends StatelessWidget {
     required this.rows,
     super.key,
     this.footer,
+    this.onReorder,
     this.tinted = false,
     this.flat = false,
   });
@@ -28,6 +29,24 @@ class CalmRowGroup extends StatelessWidget {
 
   /// A caption below the rows, explaining a consequence.
   final String? footer;
+
+  /// Makes the rows draggable, and reports `(from, to)` when one lands.
+  ///
+  /// `to` is already adjusted for the removal — this is `onReorderItem`'s
+  /// contract, not the deprecated `onReorder`'s, so no caller writes
+  /// `to > from ? to - 1 : to` again.
+  ///
+  /// **On the group, not composed by a screen.** The garage built its own
+  /// `CalmRowGroup(rows: [ReorderableListView(...)])`, which passes ONE child —
+  /// so the group drew ZERO hairlines between three vehicles while the sold
+  /// group below it drew its own. The divider rule, the surface and the scope
+  /// all belong here, so the drag has to as well, or every reorderable list in
+  /// the app loses one of the three.
+  ///
+  /// A LONG press, never a plain drag: rows in this app also carry a horizontal
+  /// swipe, and a plain drag listener lets a scroll that starts on a row pick
+  /// the row up instead.
+  final void Function(int from, int to)? onReorder;
 
   /// Draws the group on `surface2` with no shadow — a group inside a card.
   final bool tinted;
@@ -78,7 +97,33 @@ class CalmRowGroup extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            ...divided,
+            if (onReorder == null)
+              ...divided
+            else
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                buildDefaultDragHandles: false,
+                itemCount: divided.length,
+                itemBuilder: (context, index) =>
+                    ReorderableDelayedDragStartListener(
+                      key: ValueKey(index),
+                      index: index,
+                      child: divided[index],
+                    ),
+                // The lifted row is built in an OVERLAY, which is outside this
+                // group — so it loses `CalmRowGroupScope` and `CalmListRow`
+                // asserts mid-gesture. Re-providing it is not a workaround: the
+                // row really is still this group's row, it is simply being
+                // painted somewhere else for the length of a drag. The Material
+                // is TRANSPARENT because the default proxy is an elevation,
+                // which paints a white slab over the card the row came out of.
+                proxyDecorator: (child, index, animation) => Material(
+                  type: MaterialType.transparency,
+                  child: CalmRowGroupScope(child: child),
+                ),
+                onReorderItem: onReorder,
+              ),
             if (footer != null)
               Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(

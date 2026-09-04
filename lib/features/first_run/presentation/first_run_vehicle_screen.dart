@@ -21,6 +21,7 @@ import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
@@ -197,7 +198,7 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
         ),
         children: [
           CalmSegmented(
-            labels: [for (final t in _tiles) _typeLabel(l10n, t)],
+            labels: [for (final t in _tiles) vehicleTypeLabel(l10n, t)],
             icons: const [
               Icons.directions_car_outlined,
               Icons.two_wheeler_outlined,
@@ -217,7 +218,7 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
               chips: [
                 for (final fuel in _chips)
                   CalmChip(
-                    label: _fuelLabel(l10n, fuel),
+                    label: vehicleFuelLabel(l10n, fuel),
                     selected: draft.fuel == fuel,
                     onTap: () => notifier.chooseFuel(fuel),
                   ),
@@ -291,7 +292,7 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
         children: [
           for (final fuel in _moreFuels)
             CalmButton(
-              label: _fuelLabel(l10n, fuel),
+              label: vehicleFuelLabel(l10n, fuel),
               variant: CalmButtonVariant.tonal,
               block: true,
               onPressed: () => Navigator.of(sheetContext).pop(fuel),
@@ -317,22 +318,6 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
         OdometerProblem.notANumber => l10n.odometerNotANumberError,
         OdometerProblem.implausible => l10n.odometerImplausibleWarning,
       };
-
-  String _typeLabel(AppLocalizations l10n, VehicleType type) => switch (type) {
-    VehicleType.van => l10n.vehicleTypeVan,
-    VehicleType.motorcycle => l10n.vehicleTypeMotorcycle,
-    _ => l10n.vehicleTypeCar,
-  };
-
-  String _fuelLabel(AppLocalizations l10n, FuelKind fuel) => switch (fuel) {
-    FuelKind.petrol => l10n.fuelPetrol,
-    FuelKind.diesel => l10n.fuelDiesel,
-    FuelKind.electric => l10n.fuelElectric,
-    FuelKind.lpg => l10n.fuelLpg,
-    FuelKind.cng => l10n.fuelCng,
-    FuelKind.hybrid => l10n.fuelHybrid,
-    FuelKind.other => l10n.fuelOther,
-  };
 
   String _unitLabel(AppLocalizations l10n, DistanceUnit unit) =>
       unit == DistanceUnit.mi ? l10n.unitDistanceMi : l10n.unitDistanceKm;

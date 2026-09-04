@@ -9,6 +9,7 @@
 // `vehicles` puts it on the third line, under the make and model.
 // `vehicle.switcher` puts it on the second, because a sheet has no room for a
 // line that only tells two silver hatchbacks apart.
+import 'package:flutter/material.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
@@ -25,6 +26,7 @@ import 'package:odova/features/vehicles/garage_status.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 
 /// What joins the facts on a vehicle row.
 ///
@@ -58,9 +60,10 @@ String vehicleOdometerAndStatus({
       formatLongDate(estimate!.asOf.toString(), tag),
     ),
     _ when (estimate?.staleDays ?? 0) > kStaleOdometerDays =>
-      l10n.vehicleOdometerStale(_age(l10n, tag, estimate!.staleDays)),
+      l10n.vehicleOdometerStale(formatDaysAgo(l10n, tag, estimate!.staleDays)),
     _ => _statusLine(
       l10n,
+      tag,
       status,
       snapshot?.summary.worstItem,
       snapshot?.summary.worst?.remainingDays,
@@ -84,9 +87,7 @@ String vehicleOdometerAndStatus({
     numerals: CalmNumerals.auto,
     decimalDigits: 0,
   );
-  final label = unit == DistanceUnit.mi
-      ? l10n.unitDistanceMi
-      : l10n.unitDistanceKm;
+  final label = distanceUnitLabel(l10n, unit);
   // ONE isolate around marker, number and unit together — not
   // `formatWithUnit` with a `~` isolated on top of it, which nests two and
   // says nothing the outer one does not. SPEC.md §8's RTL note makes the run
@@ -96,8 +97,13 @@ String vehicleOdometerAndStatus({
   return '$figure$kFactSeparator$words';
 }
 
-/// "4 months ago", bucketed.
-String _age(AppLocalizations l10n, String tag, int staleDays) {
+/// "4 months ago", bucketed and SHAPED.
+///
+/// Public because `vehicle.edit`'s odometer row says the same thing about the
+/// same reading, and its own copy forced `'en'` with Latin numerals — so one
+/// reading read "۴ ماه پیش" in the garage and "4 months ago" one tap away.
+/// SPEC.md §5 has one numbering system active app-wide.
+String formatDaysAgo(AppLocalizations l10n, String tag, int staleDays) {
   final past = bucketDaysAgo(staleDays);
   String n() => formatForDisplay(
     past.count,
@@ -113,17 +119,6 @@ String _age(AppLocalizations l10n, String tag, int staleDays) {
     PastDateBucket.aboutMonthsAgo => l10n.dateAboutMonthsAgo(past.count, n()),
   };
 }
-
-/// What a [FuelKind] is called on a vehicle row.
-String vehicleFuelLabel(AppLocalizations l10n, FuelKind kind) => switch (kind) {
-  FuelKind.petrol => l10n.fuelPetrol,
-  FuelKind.diesel => l10n.fuelDiesel,
-  FuelKind.electric => l10n.fuelElectric,
-  FuelKind.lpg => l10n.fuelLpg,
-  FuelKind.cng => l10n.fuelCng,
-  FuelKind.hybrid => l10n.fuelHybrid,
-  FuelKind.other => l10n.fuelOther,
-};
 
 /// Which state the dot draws.
 ///
@@ -143,6 +138,7 @@ DueState vehicleDotState(GarageStatus status) => switch (status) {
 
 String _statusLine(
   AppLocalizations l10n,
+  String tag,
   GarageStatus status,
   ServiceItem? worst,
   int? days,
@@ -167,6 +163,35 @@ String _statusLine(
   GarageStatus.dueInDays => l10n.vehicleStatusDueInDays(
     days ?? 0,
     worst?.label ?? l10n.vehicleStatusItemGeneric,
-    '${days ?? 0}',
+    // Through `formatForDisplay`, never `'\$days'`. SPEC.md §5: one numbering
+    // system app-wide, and this count sits on the same LINE as the odometer —
+    // "۱۸۷٬۴۱۲ کیلومتر · Service due in 3 days" is two systems in one sentence.
+    formatForDisplay(
+      days ?? 0,
+      tag,
+      numerals: CalmNumerals.auto,
+      decimalDigits: 0,
+    ),
   ),
+};
+
+/// The silhouette for a [VehicleType].
+///
+/// SPEC.md §8: "the avatar — a silhouette from `vehicle_type`". The TYPE, not
+/// one car for everything: a motorbike drawn as a car is the app telling a
+/// rider it does not know what they own, which is the same failure §8 names
+/// about offering a motorbike a cabin filter.
+///
+/// Here rather than on either screen, because the garage and the switcher both
+/// draw it and a motorbike that is a motorbike on one and a car on the other is
+/// worse than being wrong twice.
+///
+/// `truck` takes the van's glyph — nearer its shape — and `other` the car's: a
+/// vehicle of unknown type has no honest silhouette and still has to have one.
+IconData vehicleSilhouette(VehicleType type) => switch (type) {
+  VehicleType.car => Icons.directions_car_outlined,
+  VehicleType.van => Icons.local_shipping_outlined,
+  VehicleType.motorcycle => Icons.two_wheeler_outlined,
+  VehicleType.truck => Icons.local_shipping_outlined,
+  VehicleType.other => Icons.directions_car_outlined,
 };

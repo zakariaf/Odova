@@ -138,6 +138,21 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
   }
 }
 
+/// How long an Undo stays on screen when it is undoing a DELETE.
+///
+/// SPEC.md §8: "a snackbar offers Undo for 10 seconds — longer than the usual 6
+/// because this destroys more than one row." Deleting a vehicle takes its
+/// fill-ups, services, costs, trips and reminders with it and writes no safety
+/// copy; once this expires the only recovery left is the user's own exported
+/// backup, so the extra four seconds are the cheapest insurance in the app.
+///
+/// A DEADLINE rather than an animation, which is why `CalmSnackbar.show` does
+/// not put it through `calmDuration` — a user who asked for stillness did not
+/// ask for less time to undo. It lives here anyway because it is a TIMING
+/// value, and `check_raw_values.sh` is right that those belong here:
+/// it was a raw `Duration` in `lib/ui/calm/`, and that turned the gate red.
+const kCalmDestructiveUndoWindow = Duration(seconds: 10);
+
 /// The one instance: motion is brightness-independent.
 const calmMotion = CalmMotion(
   instant: Duration(milliseconds: 90),

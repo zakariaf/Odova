@@ -4,6 +4,7 @@
 // BETWEEN adjacent rows only. Per-row radius and per-row shadow produce the
 // striped, rattling list Calm rejects, and a divider under the last row is the
 // off-by-one that survives every review because it looks deliberate.
+import 'package:flutter/gestures.dart' show kLongPressTimeout;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
@@ -853,6 +854,68 @@ void main() {
         tester.getSize(find.text('Sold and archived')).height,
         lessThan(40),
       );
+    });
+  });
+
+  group('a reorderable group', () {
+    // The garage composed one itself — `CalmRowGroup(rows: [ReorderableListView
+    // (...)])` — which passes ONE child, so the group drew ZERO hairlines
+    // between three vehicles while the sold group below it drew its own. The
+    // divider rule, the surface and the scope all belong to the group, so the
+    // drag does too.
+    Widget group({required bool reorderable}) => CalmRowGroup(
+      onReorder: reorderable ? (_, _) {} : null,
+      rows: const [
+        CalmListRow(title: 'The Golf'),
+        CalmListRow(title: 'The Polo'),
+        CalmListRow(title: 'Transit'),
+      ],
+    );
+
+    testWidgets('keeps its hairlines under a drag', (tester) async {
+      await pumpApp(tester, group(reorderable: true));
+      expect(_dividers(), findsNWidgets(2));
+    });
+
+    testWidgets('draws the same rows either way', (tester) async {
+      for (final reorderable in [true, false]) {
+        await pumpApp(tester, group(reorderable: reorderable));
+        expect(
+          find.byType(CalmListRow),
+          findsNWidgets(3),
+          reason: '$reorderable',
+        );
+        expect(_groupSurface(), findsOneWidget, reason: '$reorderable');
+      }
+    });
+
+    testWidgets('a group with no onReorder has no reorderable list', (
+      tester,
+    ) async {
+      await pumpApp(tester, group(reorderable: false));
+      expect(find.byType(ReorderableListView), findsNothing);
+    });
+
+    testWidgets('the lifted row keeps the group scope, so a row can assert', (
+      tester,
+    ) async {
+      // A drag proxy is built in an OVERLAY, outside the group — so it loses
+      // `CalmRowGroupScope` and `CalmListRow`'s "rows have no surface of their
+      // own" assertion fires mid-gesture. The group re-provides it, because the
+      // row really is still its row; it is simply being painted elsewhere for
+      // the length of a drag.
+      await pumpApp(tester, group(reorderable: true));
+      final drag = await tester.startGesture(
+        tester.getCenter(find.text('The Golf')),
+      );
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 100));
+      for (var i = 0; i < 4; i++) {
+        await drag.moveBy(const Offset(0, 30));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(tester.takeException(), isNull);
+      await drag.up();
+      await tester.pumpAndSettle();
     });
   });
 }

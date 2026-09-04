@@ -13,19 +13,6 @@ import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart' show calmSnackbarBottomInset;
 
-/// How long an Undo stays on screen when it is undoing a DELETE.
-///
-/// SPEC.md §8: "a snackbar offers Undo for 10 seconds — longer than the usual 6
-/// because this destroys more than one row." Deleting a vehicle takes its
-/// fill-ups, services, costs, trips and reminders with it and writes no safety
-/// copy; once this expires the only recovery left is the user's own exported
-/// backup, so the extra four seconds are the cheapest insurance in the app.
-///
-/// Not a `CalmMotion` field. Motion tokens are the ones a reduced-motion
-/// setting scales, and this is a DEADLINE rather than an animation — the same
-/// reason `CalmSnackbar.show` never puts `undoWindow` through `calmDuration`.
-const kCalmDestructiveUndoWindow = Duration(seconds: 10);
-
 /// The bar itself.
 class CalmSnackbar extends StatelessWidget {
   /// Creates a snackbar body.

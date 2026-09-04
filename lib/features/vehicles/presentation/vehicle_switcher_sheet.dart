@@ -200,16 +200,3 @@ class _SwitcherRow extends ConsumerWidget {
     );
   }
 }
-
-/// The glyph for a [VehicleType].
-///
-/// SPEC.md §8: "silhouettes from `vehicle_type`". Shared with the garage,
-/// because a motorbike that is a motorbike on one screen and a car on the other
-/// is worse than being wrong twice.
-IconData vehicleSilhouette(VehicleType type) => switch (type) {
-  VehicleType.car => Icons.directions_car_outlined,
-  VehicleType.van => Icons.local_shipping_outlined,
-  VehicleType.motorcycle => Icons.two_wheeler_outlined,
-  VehicleType.truck => Icons.local_shipping_outlined,
-  VehicleType.other => Icons.directions_car_outlined,
-};

@@ -15,19 +15,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/core/domain/enums.dart';
-import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/l10n/relative_past.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/vehicle_edit_draft.dart';
 import 'package:odova/features/vehicles/vehicle_edit_notifier.dart';
+import 'package:odova/features/vehicles/vehicle_status_line.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/vehicle_swatch.dart';
@@ -200,7 +200,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
           onChanged: (value) => _notifier.edit((d) => d.copyWith(name: value)),
         ),
         CalmSegmented(
-          labels: [for (final t in _typeSegments) _typeLabel(l10n, t)],
+          labels: [for (final t in _typeSegments) vehicleTypeLabel(l10n, t)],
           index: _typeSegments.indexOf(draft.vehicleType),
           onChanged: (i) =>
               _notifier.edit((d) => d.copyWith(vehicleType: _typeSegments[i])),
@@ -319,7 +319,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
           rows: [
             CalmListRow(
               title: l10n.vehicleFuelLabel,
-              value: _fuelLabel(l10n, draft.fuelKindDefault),
+              value: vehicleFuelLabel(l10n, draft.fuelKindDefault),
               // A caret DOWN, and it does not mirror — the artboard omits
               // `icon--directional` here where the odometer and sale rows carry
               // it. A menu opens downward in both directions.
@@ -372,7 +372,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         children: [
           for (final fuel in FuelKind.values)
             CalmButton(
-              label: _fuelLabel(l10n, fuel),
+              label: vehicleFuelLabel(l10n, fuel),
               variant: CalmButtonVariant.tonal,
               block: true,
               onPressed: () => Navigator.of(sheetContext).pop(fuel),
@@ -383,16 +383,6 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     if (chosen == null || !mounted) return;
     _notifier.edit((d) => d.copyWith(fuelKindDefault: chosen));
   }
-
-  String _fuelLabel(AppLocalizations l10n, FuelKind fuel) => switch (fuel) {
-    FuelKind.petrol => l10n.fuelPetrol,
-    FuelKind.diesel => l10n.fuelDiesel,
-    FuelKind.electric => l10n.fuelElectric,
-    FuelKind.lpg => l10n.fuelLpg,
-    FuelKind.cng => l10n.fuelCng,
-    FuelKind.hybrid => l10n.fuelHybrid,
-    FuelKind.other => l10n.fuelOther,
-  };
 
   Future<void> _save() async {
     if (await _notifier.save() && mounted) {
@@ -415,13 +405,6 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     // separator, or 1900 reads as 1,900.
     grouped: false,
   );
-
-  String _typeLabel(AppLocalizations l10n, VehicleType type) => switch (type) {
-    VehicleType.van => l10n.vehicleTypeVan,
-    VehicleType.motorcycle => l10n.vehicleTypeMotorcycle,
-    VehicleType.other => l10n.vehicleTypeOther,
-    _ => l10n.vehicleTypeCar,
-  };
 }
 
 /// `.swatchrow` — nine colours in a row that SCROLLS.
@@ -577,7 +560,25 @@ class _OdometerRow extends ConsumerWidget {
                 ),
           subtitle: latest == null
               ? null
-              : l10n.vehicleOdometerRowHint(_age(context, l10n, latest)),
+              // The GARAGE's formatter, not a copy. This screen had its own,
+              // which forced `'en'` and Latin numerals — so one reading read
+              // "۴ ماه پیش" in the garage and "4 months ago" one tap away.
+              : l10n.vehicleOdometerRowHint(
+                  formatDaysAgo(
+                    l10n,
+                    tag,
+                    DateUtils.dateOnly(
+                          ref.read(clockProvider).now(),
+                        )
+                        .difference(
+                          DateUtils.dateOnly(
+                            DateTime.tryParse(latest.occurredOn) ??
+                                ref.read(clockProvider).now(),
+                          ),
+                        )
+                        .inDays,
+                  ),
+                ),
           showChevron: true,
           // EPIC-11 owns `log.odometer`. Until it exists the row is INERT —
           // `CalmListRow` draws an inert row without a tap target, so this is
@@ -588,52 +589,6 @@ class _OdometerRow extends ConsumerWidget {
   }
 
   /// How long ago the reading was taken, as a phrase.
-  String _age(
-    BuildContext context,
-    AppLocalizations l10n,
-    OdometerReading reading,
-  ) {
-    final today = DateUtils.dateOnly(
-      ProviderScope.containerOf(context).read(clockProvider).now(),
-    );
-    final taken = DateTime.tryParse(reading.occurredOn);
-    if (taken == null) return l10n.dateToday;
-
-    // The PAST side of the bucketing, not `bucketRelativeDays`. Its `overdue`
-    // bucket counts exact days because a missed due date must say 123 rather
-    // than "about 4 months" — but a READING taken 123 days ago is a fact about
-    // how much the app knows, and SPEC.md §5's "in about 7 weeks is an answer"
-    // applies to it unchanged. This used to read "123 days ago".
-    //
-    // A date in the FUTURE collapses to today rather than inventing a phrase:
-    // the app never writes one, but a restored backup can.
-    final past = bucketDaysAgo(
-      today.difference(DateUtils.dateOnly(taken)).inDays,
-    );
-    return switch (past.bucket) {
-      PastDateBucket.today => l10n.dateToday,
-      PastDateBucket.yesterday => l10n.dateYesterday,
-      PastDateBucket.daysAgo => l10n.dateDaysAgo(
-        past.count,
-        _plain(past.count),
-      ),
-      PastDateBucket.aboutWeeksAgo => l10n.dateAboutWeeksAgo(
-        past.count,
-        _plain(past.count),
-      ),
-      PastDateBucket.aboutMonthsAgo => l10n.dateAboutMonthsAgo(
-        past.count,
-        _plain(past.count),
-      ),
-    };
-  }
-
-  String _plain(int value) => formatForDisplay(
-    value.toDouble(),
-    'en',
-    numerals: CalmNumerals.latin,
-    grouped: false,
-  );
 }
 
 /// Two fields side by side, as the artboard pairs Make/Model and Year/Plate.

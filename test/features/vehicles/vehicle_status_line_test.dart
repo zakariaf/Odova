@@ -40,6 +40,35 @@ Vehicle _vehicle({DistanceUnit? unit}) => Vehicle(
   updatedAtUtcMs: 1000,
 );
 
+/// A snapshot whose worst item is due in [days].
+VehicleDueSnapshot _dueIn(int days) => VehicleDueSnapshot(
+  assessments: const [],
+  summary: DueSummary(
+    counts: const {DueState.due: 1},
+    worst: DueAssessment(
+      state: DueState.due,
+      driver: DueDriver.distance,
+      confidence: RateConfidence.measured,
+      progress: 0.9,
+      remainingDays: days,
+    ),
+  ),
+  rate: const DailyDistance(
+    metresPerDay: 40000,
+    confidence: RateConfidence.measured,
+  ),
+  estimate: OdometerEstimate(
+    metres: 187412000,
+    asOf: CivilDate.tryParse('2026-09-04')!,
+    projection: OdometerProjection.entered,
+    staleDays: 0,
+  ),
+  clock: ClockSuspicion(
+    isSuspect: false,
+    observedToday: CivilDate.tryParse('2026-09-04')!,
+  ),
+);
+
 VehicleDueSnapshot _snapshot({
   required int metres,
   OdometerProjection projection = OdometerProjection.entered,
@@ -95,6 +124,7 @@ String _line(
 
 void main() {
   late AppLocalizations l10n;
+  late AppLocalizations l10nFa;
 
   setUpAll(() async {
     // What `bootstrap()` does on the cold-launch path. The EXPIRED branch
@@ -102,6 +132,7 @@ void main() {
     // ICU's date symbols are loaded.
     await initializeDateFormatting();
     l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    l10nFa = await AppLocalizations.delegate.load(const Locale('fa'));
   });
 
   test("a vehicle's own unit wins over the global one", () {
@@ -163,5 +194,33 @@ void main() {
       ),
       startsWith('116,452 mi'),
     );
+  });
+
+  test('a day count is shaped, never a raw Dart string', () {
+    // SPEC.md §5: one numbering system, app-wide. The count went through
+    // `'${days ?? 0}'`, which renders Latin digits beside a Persian odometer on
+    // the SAME LINE — `187,412 كيلومتر · Service due in 3 days`.
+    final line = stripBidi(
+      vehicleOdometerAndStatus(
+        l10n: l10nFa,
+        tag: 'fa-IR',
+        vehicle: _vehicle(),
+        snapshot: _dueIn(3),
+        status: GarageStatus.dueInDays,
+        globalUnit: DistanceUnit.km,
+      ),
+    );
+    expect(line, contains('۳'));
+    expect(line, isNot(matches(RegExp('[0-9]'))));
+  });
+
+  test('an age is shaped in the SAME system as everything beside it', () {
+    // `vehicle.edit`'s odometer row forced `'en'` and Latin numerals while the
+    // garage's row shaped its own, so one reading read "۴ ماه پیش" on one
+    // screen and "4 months ago" on the other. One function now.
+    final fa = formatDaysAgo(l10nFa, 'fa-IR', 122);
+    expect(fa, contains('۴'));
+    expect(fa, isNot(matches(RegExp('[0-9]'))));
+    expect(formatDaysAgo(l10n, 'en-GB', 122), contains('4'));
   });
 }

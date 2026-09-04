@@ -30,3 +30,19 @@ Color? calmVehicleSwatch(VehicleColour colour) => switch (colour) {
   VehicleColour.yellow => const Color(0xFFD2A63A),
   VehicleColour.other => null,
 };
+
+/// The ink that reads on [paint].
+///
+/// Chosen by the PAINT's own luminance, not by the theme: a silhouette on a
+/// white car needs dark ink in both themes and one on a black car needs light
+/// ink in both. A `CalmColors` slot would flip with the brightness and put
+/// near-black on a black car every night.
+///
+/// The two values are the ends of Calm's own ink range rather than pure black
+/// and white — `#232323` is what the system uses for ink on a light ground and
+/// `#FFF9F1` is `on-brand`. They are raw here because `lib/theme/calm/` is the
+/// one directory allowed to name a colour, which is exactly the reason this
+/// function is here and not in the garage row that used to inline them.
+Color calmVehicleSwatchInk(Color paint) => paint.computeLuminance() > 0.5
+    ? const Color(0xFF232323)
+    : const Color(0xFFFFF9F1);

@@ -27,7 +27,7 @@ import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/entry_counts_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
-import 'package:odova/ui/calm/calm_snackbar.dart';
+import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/ui/calm/calm_swipe_actions.dart';
 
 import '../../../parity/support/parity_capture.dart'

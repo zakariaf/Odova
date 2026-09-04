@@ -28,7 +28,9 @@ import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
+import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_type.dart';
@@ -90,61 +92,25 @@ class VehiclesScreen extends ConsumerWidget {
           l10n.vehiclesIntro,
           style: type.caption.copyWith(color: colors.ink3),
         ),
-        if (live.length > 1)
-          // §8: "Long-press drag — Reorders, writes `sort_order`." A
-          // `ReorderableListView` inside the screen's own scroller, so it never
-          // scrolls independently of the sold group beneath it — the garage is
-          // one list to the user, whatever it is to the widget tree.
-          //
-          // Only the LIVE vehicles. Sold ones sink to the bottom regardless of
-          // `sort_order` (§8), so a drag there would write a number the screen
-          // then ignores: a gesture that appears to work and does nothing.
-          CalmRowGroup(
-            rows: [
-              ReorderableListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                buildDefaultDragHandles: false,
-                itemCount: live.length,
-                itemBuilder: (context, index) =>
-                    ReorderableDelayedDragStartListener(
-                      key: ValueKey(live[index].id),
-                      index: index,
-                      child: _GarageRow(vehicle: live[index]),
-                    ),
-                // A LIFTED row is built in an OVERLAY, which is outside the
-                // group — so it loses `CalmRowGroupScope` and `CalmListRow`
-                // asserts. Re-providing it is not a workaround: the row really
-                // is still the group's row, it is simply being painted
-                // somewhere else for the length of a drag.
-                //
-                // Transparent Material for the same reason: the default proxy
-                // is a Material elevation, which paints a white slab over the
-                // card the row was lifted out of.
-                proxyDecorator: (child, index, animation) => Material(
-                  type: MaterialType.transparency,
-                  child: CalmRowGroupScope(child: child),
-                ),
-                // `onReorderItem`, not the deprecated `onReorder`. The old
-                // one reports the destination as an index in the list BEFORE
-                // the removal, so a downward move is one too far and every
-                // caller writes the same `to > from ? to - 1 : to` adjustment —
-                // which is exactly why the framework now does it. The LIVE
-                // list, never the whole garage: §8 sinks sold vehicles
-                // regardless of `sort_order`, so writing them one would be a
-                // number the screen then ignores.
-                onReorderItem: (from, to) {
+        // Reorderable only with more than one live vehicle: neither gesture
+        // applies to a list of one, and a reorderable list of one is a
+        // long-press that lifts a row and puts it back.
+        //
+        // §8's "Sold and archived sort to the bottom regardless" is why only
+        // the LIVE group takes `onReorder` — a drag in the sold group would
+        // write a `sort_order` the screen then ignores.
+        CalmRowGroup(
+          onReorder: live.length > 1
+              ? (from, to) {
                   final ids = [for (final v in live) v.id];
                   ids.insert(to, ids.removeAt(from));
                   unawaited(
                     ref.read(vehiclesNotifierProvider.notifier).reorder(ids),
                   );
-                },
-              ),
-            ],
-          )
-        else
-          CalmRowGroup(rows: [for (final v in live) _GarageRow(vehicle: v)]),
+                }
+              : null,
+          rows: [for (final v in live) _GarageRow(vehicle: v)],
+        ),
         if (gone.isNotEmpty) ...[
           // `.section__head`, a SIBLING of the group it names — that is how all
           // nine of the artboards that have one draw it. The count sits beside
@@ -460,25 +426,6 @@ class _Silhouette extends StatelessWidget {
 
   final Vehicle vehicle;
 
-  /// The glyph for a [VehicleType].
-  ///
-  /// SPEC.md §8: "the avatar — a silhouette from `vehicle_type` on the
-  /// vehicle's colour". The TYPE, not one car for everything: a motorbike
-  /// drawn as a car is the app telling a rider it does not know what they own,
-  /// which is the same failure §8 names about offering a motorbike a cabin
-  /// filter.
-  ///
-  /// `truck` and `other` take the van and the car glyph. §8 says both take the
-  /// car's seeded reminder set; here the van is nearer a truck's shape, and a
-  /// vehicle of unknown type has no honest silhouette but has to have one.
-  IconData get _glyph => switch (vehicle.vehicleType) {
-    VehicleType.car => Icons.directions_car_outlined,
-    VehicleType.van => Icons.local_shipping_outlined,
-    VehicleType.motorcycle => Icons.two_wheeler_outlined,
-    VehicleType.truck => Icons.local_shipping_outlined,
-    VehicleType.other => Icons.directions_car_outlined,
-  };
-
   @override
   Widget build(BuildContext context) {
     final colour = VehicleColour.tryParse(vehicle.colour);
@@ -488,21 +435,24 @@ class _Silhouette extends StatelessWidget {
       // The BUSINESS tint stands in — `icon-tile--business` in the artboard,
       // which is how the Transit reads as a work vehicle at a glance without
       // spending the third line's fourth slot twice.
-      return CalmIconTile(icon: _glyph, business: vehicle.isBusiness);
+      return CalmIconTile(
+        icon: vehicleSilhouette(vehicle.vehicleType),
+        business: vehicle.isBusiness,
+      );
     }
     return DecoratedBox(
       decoration: BoxDecoration(color: paint, shape: BoxShape.circle),
       child: SizedBox.square(
         dimension: CalmIconTile.dimension,
         child: Icon(
-          _glyph,
+          vehicleSilhouette(vehicle.vehicleType),
           size: 22,
           // Readable on both a white car and a black one, decided by the
           // paint's own luminance rather than by the theme — the ink on a
-          // silhouette is about the silhouette.
-          color: paint.computeLuminance() > 0.5
-              ? const Color(0xFF232323)
-              : const Color(0xFFFFFFFF),
+          // silhouette is about the silhouette. Resolved in `lib/theme/calm/`
+          // beside the paints, which is the one directory allowed to name a
+          // colour and the reason `check_raw_values.sh` was red on this file.
+          color: calmVehicleSwatchInk(paint),
         ),
       ),
     );
