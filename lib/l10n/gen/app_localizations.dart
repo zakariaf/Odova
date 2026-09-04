@@ -289,7 +289,7 @@ abstract class AppLocalizations {
   /// Title of the global delete confirmation. Names the subject and its total entry count so the user is agreeing to a size, not a word. SPEC.md §2: delete is immediate, with Undo in the moment — there is no trash to recover from, which is why the count is in the title.
   ///
   /// In en, this message translates to:
-  /// **'Delete {subject} and {count, plural, =0{its entries} one{its {countText} entry} other{its {countText} entries}}?'**
+  /// **'{count, plural, =0{Delete {subject}?} other{Delete {subject} and {count, plural, one{its {countText} entry} other{its {countText} entries}}?}}'**
   String confirmDeleteTitle(String subject, int count, String countText);
 
   /// The five per-type counts, as ONE ICU message. SPEC.md §2 forbids assembling a sentence from parts: five plurals in one message is legal ICU and translatable, and a sentence built in Dart is a sentence no translator can reorder. Every count has an explicit =0 because a vehicle with no trips must not read '0 trips'.

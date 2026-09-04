@@ -16,11 +16,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/app.dart';
+import 'package:odova/app/bootstrap.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/core/domain/models/settings.dart';
+import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/degraded_mode.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -154,6 +157,122 @@ void main() {
       await pumpEventQueue();
 
       expect(container.read(launchFactsProvider).liveVehicleCount, 1);
+    });
+  });
+
+  group('the facts are known BEFORE the first frame', () {
+    // The defect this group exists for, found by a code-review pass and
+    // verified against a real database: `launchFactsProvider` derived its
+    // answer from two drift streams, and on the first synchronous read those
+    // carry no value at all. So the first answer on EVERY cold start was
+    // `(onboardingDone: false, liveVehicleCount: 0)` — a returning user with a
+    // car and eight years of history opened on the language step, corrected
+    // only once the queries landed, which on a slow phone with a large file is
+    // many frames later.
+    //
+    // The tests that should have caught it did not: the widget group injects
+    // the facts, and the plain-`test` group settles the streams first. Both are
+    // the right shape for what they assert and neither exercises frame ONE.
+
+    test('bootstrap reads them from disk, not from a stream', () async {
+      final harness = containerWithDatabase();
+      await insertVehicle(harness.db, id: _golf);
+      await insertSettings(
+        harness.db,
+        activeVehicleId: _golf,
+        onboardingDone: true,
+      );
+
+      final facts = await readLaunchFacts(harness.db);
+
+      expect(facts.onboardingDone, isTrue);
+      expect(facts.liveVehicleCount, 1);
+      expect(initialLocationFor(facts), Routes.home);
+    });
+
+    test('a soft-deleted vehicle is not counted by that read', () async {
+      final harness = containerWithDatabase();
+      await insertVehicle(harness.db, id: _golf);
+      await insertVehicle(harness.db, id: _polo, name: 'The Polo');
+      await insertSettings(harness.db, onboardingDone: true);
+      await harness.db.customUpdate(
+        'UPDATE vehicles SET deleted_at_utc_ms = 2000 WHERE id != ?',
+        variables: [const Variable<String>(_golf)],
+        updates: {harness.db.vehicles},
+      );
+
+      expect((await readLaunchFacts(harness.db)).liveVehicleCount, 1);
+    });
+
+    test('the FIRST read of the gate is the disk answer, not (false, 0)', () {
+      // The regression itself. Nothing is settled and no stream has delivered:
+      // `settingsProvider` and `vehiclesProvider` are both `AsyncLoading` with
+      // no value, which is precisely the state the router is built in.
+      const returning = LaunchFacts(
+        onboardingDone: true,
+        liveVehicleCount: 1,
+        migrationFailed: false,
+      );
+      final harness = containerWithDatabase(initialFacts: returning);
+
+      final first = harness.container.read(launchFactsProvider);
+
+      expect(first, returning);
+      expect(initialLocationFor(first), Routes.home);
+    });
+
+    test('an errored stream keeps the disk answer rather than resetting', () {
+      // `AsyncError` carries no value either, and `noProviderRetry` means there
+      // is no recovery. Falling back to `false`/`0` would park an established
+      // user in onboarding, where first run's Save overwrites the real settings
+      // row — a data loss caused by rendering "unknown" as a fact.
+      const returning = LaunchFacts(
+        onboardingDone: true,
+        liveVehicleCount: 2,
+        migrationFailed: false,
+      );
+      final harness = containerWithDatabase(
+        initialFacts: returning,
+        overrides: [
+          settingsProvider.overrideWith(
+            (ref) => Stream<AppSettings?>.error(StateError('disk')),
+          ),
+          vehiclesProvider.overrideWith(
+            (ref) => Stream<List<Vehicle>>.error(StateError('disk')),
+          ),
+        ],
+      );
+      addTearDown(
+        harness.container.listen(launchFactsProvider, (_, _) {}).close,
+      );
+
+      expect(harness.container.read(launchFactsProvider), returning);
+    });
+
+    test('and a delivered stream overrides the disk answer', () async {
+      // The other arm: the fallback must not become a floor. A user who
+      // finishes first run in this session has to be seen to.
+      final harness = containerWithDatabase();
+      await settleProviders(harness.container, [
+        settingsProvider,
+        vehiclesProvider,
+      ]);
+      expect(
+        harness.container.read(launchFactsProvider).onboardingDone,
+        isFalse,
+      );
+
+      await insertVehicle(harness.db, id: _golf);
+      await insertSettings(
+        harness.db,
+        activeVehicleId: _golf,
+        onboardingDone: true,
+      );
+      await pumpEventQueue();
+
+      final after = harness.container.read(launchFactsProvider);
+      expect(after.onboardingDone, isTrue);
+      expect(after.liveVehicleCount, 1);
     });
   });
 

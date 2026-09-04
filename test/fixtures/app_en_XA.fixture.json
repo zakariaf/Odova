@@ -30,7 +30,7 @@
   "discardBody": "[Ẏǿǔř ḗḍīţŝ ţǿ {subject} — {summary} — ħáṽḗ ǹǿţ ḅḗḗǹ ŝáṽḗḍ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "discardKeepEditing": "[Ķḗḗƥ ḗḍīţīǹḡ ǃǃǃǃǃ]",
   "discardDiscard": "[Ḍīŝçářḍ ǃǃǃ]",
-  "confirmDeleteTitle": "[Ḍḗŀḗţḗ {subject} áǹḍ {count, plural, =0{īţŝ ḗǹţřīḗŝ} one{īţŝ {countText} ḗǹţřẏ} other{īţŝ {countText} ḗǹţřīḗŝ}}? ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "confirmDeleteTitle": "[{count, plural, =0{Ḍḗŀḗţḗ {subject}?} other{Ḍḗŀḗţḗ {subject} áǹḍ {count, plural, one{īţŝ {countText} ḗǹţřẏ} other{īţŝ {countText} ḗǹţřīḗŝ}}?}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "confirmDeleteBody": "[{fillUps, plural, =0{Ǹǿ ƒīŀŀ-ǔƥŝ} one{{fillUpsText} ƒīŀŀ-ǔƥ} other{{fillUpsText} ƒīŀŀ-ǔƥŝ}}, {services, plural, =0{ǹǿ ŝḗřṽīçḗŝ} one{{servicesText} ŝḗřṽīçḗ} other{{servicesText} ŝḗřṽīçḗŝ}}, {costs, plural, =0{ǹǿ çǿŝţŝ} one{{costsText} çǿŝţ} other{{costsText} çǿŝţŝ}}, {trips, plural, =0{ǹǿ ţřīƥŝ} one{{tripsText} ţřīƥ} other{{tripsText} ţřīƥŝ}} áǹḍ {reminders, plural, =0{ǹǿ řḗḿīǹḍḗřŝ} one{{remindersText} řḗḿīǹḍḗř} other{{remindersText} řḗḿīǹḍḗřŝ}} ḡǿ ƥḗřḿáǹḗǹţŀẏ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "confirmDeleteTypeToConfirm": "[Ţẏƥḗ {subject} ţǿ çǿǹƒīřḿ ǃǃǃǃǃǃǃ]",
   "confirmDeleteDelete": "[Ḍḗŀḗţḗ ǃǃǃ]",

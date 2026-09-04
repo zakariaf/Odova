@@ -161,9 +161,14 @@ class AppLocalizationsFr extends AppLocalizations {
       other: 'ses $countText entrées',
       many: 'ses $countText entrées',
       one: 'son entrée',
-      zero: 'ses entrées',
     );
-    return 'Supprimer $subject et $_temp0 ?';
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Supprimer $subject et $_temp0 ?',
+      zero: 'Supprimer $subject ?',
+    );
+    return '$_temp1';
   }
 
   @override

@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/l10n/bidi.dart';
+import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
@@ -55,6 +56,20 @@ void main() {
     // dialog that said 412 while its body added to 156 is not expressible.
     expect(_golfCounts.total, 156);
     expect(_empty.total, 0);
+  });
+
+  testWidgets('a zero-count title claims no history the car does not have', (
+    tester,
+  ) async {
+    // "Delete The Golf and its entries?" sat directly above "No fill-ups, no
+    // services, no costs, no trips and no reminders go permanently." — two
+    // sentences contradicting each other, and the first stating a history that
+    // does not exist. SPEC.md §1: never guess in a way that looks like fact.
+    final probe = _Probe(counts: _empty);
+    await pumpApp(tester, probe.widget);
+    await probe.open(tester);
+
+    expect(visibleText(tester, 'Delete The Golf'), 'Delete The Golf?');
   });
 
   testWidgets('the body names all five per-type counts in one sentence', (
@@ -140,6 +155,88 @@ void main() {
     expect(_enabled(tester, 'Delete'), isTrue);
   });
 
+  testWidgets('an EMPTY subject never satisfies the lock', (tester) async {
+    // A vehicle can be named "". `vehicles.name` carries no non-empty CHECK,
+    // and SPEC.md §2's import REPLACES — so a backup with an empty name
+    // restores one. Comparing two empty strings left Delete enabled the instant
+    // the dialog opened, and one tap destroyed 412 entries behind a
+    // confirmation that had confirmed nothing.
+    final probe = _Probe(counts: _golfCounts, subject: '');
+    await pumpApp(tester, probe.widget);
+    await probe.open(tester);
+
+    expect(_enabled(tester, 'Delete'), isFalse, reason: 'opened unlocked');
+
+    await tester.enterText(find.byType(TextField), '');
+    await tester.pumpAndSettle();
+    expect(_enabled(tester, 'Delete'), isFalse, reason: 'empty matched empty');
+
+    await tester.enterText(find.byType(TextField), '   ');
+    await tester.pumpAndSettle();
+    expect(_enabled(tester, 'Delete'), isFalse, reason: 'whitespace matched');
+  });
+
+  testWidgets('a name carrying a bidi control is still deletable', (
+    tester,
+  ) async {
+    // An imported name can carry an invisible U+200F. No soft keyboard can
+    // reproduce one, so comparing the raw strings left Delete permanently
+    // disabled and the vehicle permanently undeletable — there is no other
+    // route to removing it. `lib/core/l10n/bidi.dart` says `stripBidi` is what
+    // goes into anything compared, and this is a comparison.
+    final probe = _Probe(counts: _golfCounts, subject: 'گلف\u200F');
+    await pumpApp(tester, probe.widget, locale: const Locale('fa'));
+    await probe.open(tester);
+
+    await tester.enterText(find.byType(TextField), 'گلف');
+    await tester.pumpAndSettle();
+
+    expect(_enabled(tester, l10nOf(tester).confirmDeleteDelete), isTrue);
+  });
+
+  testWidgets('a subject that changes while mounted re-locks the button', (
+    tester,
+  ) async {
+    // `ConfirmDeleteDialogBody` is public and its own doc invites composing it
+    // outside a route — the parity harness already does. Its normalised and
+    // isolated subject are cached for the keystroke path, and without
+    // `didUpdateWidget` the cache outlived the input: the title and placeholder
+    // updated to the new car while the field's label still named the old one,
+    // and typing the OLD name unlocked a button that deleted the NEW one.
+    final subject = ValueNotifier<String>('The Golf');
+    addTearDown(subject.dispose);
+
+    await pumpApp(
+      tester,
+      ValueListenableBuilder<String>(
+        valueListenable: subject,
+        builder: (context, value, _) => ConfirmDeleteDialogBody(
+          subject: value,
+          counts: _golfCounts,
+          formatCount: (n) => '$n',
+          onChoice: (_) {},
+        ),
+      ),
+    );
+
+    await tester.enterText(find.byType(TextField), 'The Golf');
+    await tester.pumpAndSettle();
+    expect(_enabled(tester, 'Delete'), isTrue);
+
+    subject.value = 'The Polo';
+    await tester.pumpAndSettle();
+
+    expect(
+      _enabled(tester, 'Delete'),
+      isFalse,
+      reason: 'the old name still unlocks the new car',
+    );
+
+    await tester.enterText(find.byType(TextField), 'The Polo');
+    await tester.pumpAndSettle();
+    expect(_enabled(tester, 'Delete'), isTrue);
+  });
+
   testWidgets('the safe alternative sits above Delete', (tester) async {
     // "Keep it — mark it sold" is usually what people mean, so it is offered
     // first. A caller with no alternative gets two actions, not a stub.
@@ -207,17 +304,6 @@ void main() {
     }
   });
 
-  testWidgets('the dialog performs no delete', (tester) async {
-    final probe = _Probe(counts: _empty);
-    await pumpApp(tester, probe.widget);
-    await probe.open(tester);
-    await tester.tap(find.text('Delete'));
-    await tester.pumpAndSettle();
-
-    expect(probe.repositoryTouches, isEmpty);
-    expect(probe.choice, ConfirmDeleteChoice.delete);
-  });
-
   testWidgets('the subject is wrapped in a first-strong isolate', (
     tester,
   ) async {
@@ -269,8 +355,11 @@ void main() {
         isNull,
         reason: '${locale.languageCode} overflowed at 200%',
       );
-      // And the actions are still reachable rather than merely un-crashed.
-      expect(find.byType(CalmButton), findsWidgets);
+      // All THREE actions, counted. `findsWidgets` means "at least one", so it
+      // passed against a build that dropped the safe alternative at large text
+      // scales "to make it fit" — losing the action a user most often wants,
+      // silently, on exactly the configuration this test is named for.
+      expect(find.byType(CalmButton), findsNWidgets(3));
     }
   });
 
@@ -300,6 +389,15 @@ void main() {
   });
 }
 
+/// The one visible string containing [needle], with bidi controls removed.
+String visibleText(WidgetTester tester, String needle) => stripBidi(
+  tester
+      .widgetList<Text>(find.byType(Text))
+      .map((t) => t.data)
+      .whereType<String>()
+      .firstWhere((s) => stripBidi(s).contains(needle)),
+);
+
 /// The box of the [CalmButton] whose label is [label].
 Rect _boxFor(WidgetTester tester, String label) => tester.getRect(
   find.ancestor(of: find.text(label), matching: find.byType(CalmButton)),
@@ -327,9 +425,6 @@ class _Probe {
 
   /// What the dialog answered.
   ConfirmDeleteChoice? choice;
-
-  /// Anything the dialog wrote. It must stay empty.
-  final List<String> repositoryTouches = [];
 
   late final Widget widget = Builder(
     builder: (context) => Material(
@@ -368,3 +463,7 @@ String _visible(WidgetTester tester, {required String contains}) => stripBidi(
       .whereType<String>()
       .firstWhere((s) => s.contains(contains)),
 );
+
+/// The localisations the pumped app resolved.
+AppLocalizations l10nOf(WidgetTester tester) =>
+    AppLocalizations.of(tester.element(find.text('open')));

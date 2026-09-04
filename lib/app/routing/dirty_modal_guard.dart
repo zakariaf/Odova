@@ -87,13 +87,52 @@ class DirtyModalGuardState extends State<DirtyModalGuard> {
       return;
     }
 
+    // `try`/`finally`, because the alternative traps the user. If
+    // `confirmDiscard` completes with an ERROR — a missing localisation for a
+    // locale, a `CalmColors.of` assertion from a guard mounted outside the
+    // theme, a dialog that throws during a route transition — a bare
+    // `_asking = false` after the await never runs. Every subsequent swipe,
+    // Cancel and system back then returns at the guard above, with
+    // `canPop: false` over them, and the user is trapped in a modal with no
+    // exit but killing the app. That is the failure this file exists to
+    // prevent, arriving through the file itself.
+    // Caught, not just unwound. If the question cannot be ASKED — a missing
+    // localisation for a locale, a `CalmColors.of` assertion from a guard
+    // mounted outside the theme, a dialog that throws during a route
+    // transition — the answer is KEEP. Discarding on a failure to ask would
+    // throw away a draft because the app could not phrase a question about it,
+    // and SPEC.md §7's rule that no dismissal is ever the destructive outcome
+    // holds for an error as much as for a tap-out.
+    //
+    // And `finally`, because a bare reset after the await never runs on a
+    // throw: `_asking` would stay true, every later swipe, Cancel and system
+    // back would return at the guard above with `canPop: false` over them, and
+    // the user would be trapped in the modal with no exit but killing the app.
+    bool discard;
     _asking = true;
-    final discard = await widget.confirmDiscard(context);
-    _asking = false;
+    try {
+      discard = await widget.confirmDiscard(context);
+    } on Object catch (error, stack) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stack,
+          library: 'odova',
+          context: ErrorDescription('asking whether to discard a draft'),
+        ),
+      );
+      return;
+    } finally {
+      _asking = false;
+    }
     if (!discard) return;
 
-    widget.onDiscard();
+    // `mounted` BEFORE the drop, not after. A guard unmounted while the dialog
+    // was open — the route replaced under it, the vehicle switched — otherwise
+    // threw away every segment's draft on the way out of a modal that is no
+    // longer there.
     if (!mounted) return;
+    widget.onDiscard();
     _leave();
   }
 

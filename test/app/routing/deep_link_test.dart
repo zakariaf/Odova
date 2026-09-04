@@ -157,11 +157,19 @@ void main() {
       }
     });
 
-    test('handleDeepLink applies the vehicle, then navigates', () {
+    test('handleDeepLink AWAITS the vehicle, then navigates', () async {
+      // Awaited, not merely called first. `setActiveVehicle` writes to SQLite,
+      // so a `void` callback would let the route resolve while the write was
+      // still in flight — and the odometer modal would prefill from the
+      // PREVIOUS car. The fake completes on a later microtask, which is what
+      // makes the difference observable at all.
       final log = <String>[];
-      handleDeepLink(
+      await handleDeepLink(
         _target(DeepLinkKind.odometerNudge),
-        activateVehicle: (id) => log.add('vehicle:$id'),
+        activateVehicle: (id) async {
+          await Future<void>.delayed(Duration.zero);
+          log.add('vehicle:$id');
+        },
         navigate: (location, {required backStack}) =>
             log.add('navigate:$location'),
       );
@@ -172,11 +180,11 @@ void main() {
       ]);
     });
 
-    test('a target with no vehicle does not touch the active one', () {
+    test('a target with no vehicle does not touch the active one', () async {
       final log = <String>[];
-      handleDeepLink(
+      await handleDeepLink(
         _target(DeepLinkKind.keeper),
-        activateVehicle: (id) => log.add('vehicle:$id'),
+        activateVehicle: (id) async => log.add('vehicle:$id'),
         navigate: (location, {required backStack}) =>
             log.add('navigate:$location'),
       );

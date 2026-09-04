@@ -203,7 +203,7 @@
   "@discardDiscard": {
     "description": "The destructive action. SPEC.md §10: it drops every segment draft, not only the visible one."
   },
-  "confirmDeleteTitle": "Delete {subject} and {count, plural, =0{its entries} one{its {countText} entry} other{its {countText} entries}}?",
+  "confirmDeleteTitle": "{count, plural, =0{Delete {subject}?} other{Delete {subject} and {count, plural, one{its {countText} entry} other{its {countText} entries}}?}}",
   "@confirmDeleteTitle": {
     "description": "Title of the global delete confirmation. Names the subject and its total entry count so the user is agreeing to a size, not a word. SPEC.md §2: delete is immediate, with Undo in the moment — there is no trash to recover from, which is why the count is in the title.",
     "placeholders": {

@@ -20,6 +20,7 @@ import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/app_shell.dart';
+import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
@@ -41,6 +42,14 @@ Future<ProviderContainer> pumpShell(
     overrides: [
       // The one router, at the location this test starts from.
       routerProvider.overrideWithValue(buildRouter(initialLocation: location)),
+      // What `bootstrap()` supplies in production; the app has no default.
+      initialLaunchFactsProvider.overrideWithValue(
+        const LaunchFacts(
+          onboardingDone: true,
+          liveVehicleCount: 1,
+          migrationFailed: false,
+        ),
+      ),
       ...overrides,
     ],
   );

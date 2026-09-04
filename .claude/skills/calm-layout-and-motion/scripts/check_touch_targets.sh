@@ -64,13 +64,20 @@ if [ -d "$TESTS" ]; then
     # pumpAndSettle after it was invisible to the rule.
     hits="$(src "$f" | awk '
       !block && /^[[:space:]]*(testWidgets|test)\(/ {
-        block=NR; reduced=0; settles=""; depth=0; opened=0
+        block=NR; reduced=0; settles=""; depth=0; opened=0; pending=0
       }
       block {
         opens = gsub(/\{/, "{"); closes = gsub(/\}/, "}")
         depth += opens - closes
         if (opens > 0) opened = 1
-        if (/disableAnimations|AnimationStyle\.noAnimation/) reduced=1
+        # The VALUE, not the identifier. `disableAnimations: false` is a case
+        # that deliberately turns motion ON — the other arm of a reduced-motion
+        # test, which exists to prove the collapse is doing something — and
+        # matching the bare name flagged it, making that arm unwriteable.
+        if (/disableAnimations[ \t]*:[ \t]*true/) reduced=1
+        if (/AnimationStyle\.noAnimation/) reduced=1
+        if (/disableAnimations:[ \t]*$/) pending=1
+        if (pending && /^[ \t]*true,?[ \t]*$/) { reduced=1; pending=0 }
         if (/pumpAndSettle/) settles = settles " " NR
         if (opened && depth <= 0) {
           if (reduced && settles != "") print "case at line " block ":" settles

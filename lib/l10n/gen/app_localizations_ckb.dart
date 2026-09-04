@@ -155,9 +155,14 @@ class AppLocalizationsCkb extends AppLocalizations {
       locale: localeName,
       other: '$countText تۆماری',
       one: 'یەک تۆماری',
-      zero: 'تۆمارەکانی',
     );
-    return '$subject و $_temp0 بسڕدرێتەوە؟';
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$subject و $_temp0 بسڕدرێتەوە؟',
+      zero: '$subject بسڕدرێتەوە؟',
+    );
+    return '$_temp1';
   }
 
   @override

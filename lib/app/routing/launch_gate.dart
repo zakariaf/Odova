@@ -13,7 +13,6 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/degraded_mode.dart';
@@ -147,18 +146,54 @@ String? appRedirect(LaunchFacts facts, String location) {
 String initialLocationFor(LaunchFacts facts) =>
     appRedirect(facts, Routes.home) ?? Routes.home;
 
+/// What `bootstrap()` read before the first frame.
+///
+/// **Overridden in `bootstrap()`, and the default is deliberately unreachable
+/// in a shipping build.** A returning user's facts are on disk, and reading
+/// them is a database open plus two queries — real work that cannot happen
+/// inside a synchronous provider.
+///
+/// Without this the gate derived its facts from two drift streams that had not
+/// delivered yet, so the FIRST answer on every cold start was
+/// `(onboardingDone: false, liveVehicleCount: 0)` — a returning user with a car
+/// and eight years of history opened on the language step and was corrected
+/// only when the streams landed, which on a slow phone with a large file is
+/// many frames later. That is the flash `app-startup-and-bootstrap` rule 5
+/// forbids, and this epic's progress file claimed it did not happen. It did.
+///
+/// It is also what makes an ERRORED stream safe: `AsyncError` carries no value
+/// either, so the fallback below is the last thing actually read from disk
+/// rather than "definitely a fresh install".
+final initialLaunchFactsProvider = Provider<LaunchFacts>(
+  (ref) => throw StateError(
+    'initialLaunchFactsProvider was read before bootstrap() overrode it. The '
+    'launch gate cannot guess: "we have not read the database yet" and "this '
+    'is a fresh install" are different facts and SPEC.md §7 sends them to '
+    'different screens.',
+  ),
+);
+
 /// The three facts, read from the app's state.
 ///
 /// One provider so the router, `bootstrap()` and any screen that has to explain
 /// itself all read the SAME answer. Three separate reads at three call sites is
 /// three chances to disagree about whether onboarding is finished.
-final launchFactsProvider = Provider<LaunchFacts>(
-  (ref) => LaunchFacts(
-    onboardingDone: ref.watch(settingsProvider).value?.onboardingDone ?? false,
-    liveVehicleCount: ref.watch(liveVehicleCountProvider),
+///
+/// Each fact falls back to what `bootstrap()` read when the live source has no
+/// value — which is true on the first frame and true again if a stream errors.
+/// `?? initial.x` rather than `?? false`: the absence of a value is not the
+/// value `false`.
+final launchFactsProvider = Provider<LaunchFacts>((ref) {
+  final initial = ref.watch(initialLaunchFactsProvider);
+  final settings = ref.watch(settingsProvider);
+  final vehicles = ref.watch(vehiclesProvider);
+
+  return LaunchFacts(
+    onboardingDone: settings.value?.onboardingDone ?? initial.onboardingDone,
+    liveVehicleCount: vehicles.value?.length ?? initial.liveVehicleCount,
     migrationFailed: ref.watch(degradedModeProvider) is MigrationFailed,
-  ),
-);
+  );
+});
 
 /// Ticks whenever the launch facts change.
 ///

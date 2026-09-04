@@ -118,6 +118,7 @@ class SnoozeOverlay extends StatelessWidget {
           currentOdometerMetres: 187412000,
           formatDate: copy.artboardDate,
           formatDistance: copy.artboardDistance,
+          formatCount: copy.number,
           onChoice: (_) {},
         ),
       ],

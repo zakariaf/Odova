@@ -189,6 +189,42 @@ void main() {
     expect(screen.screenId, 'home');
   });
 
+  testWidgets('an id-bearing log route opens ONE modal, not two', (
+    tester,
+  ) async {
+    // `/log/:type/:entryId` was nested under `/log/:type`, so a `go` to the
+    // edit form materialised both pages: the parent's builder runs too, and
+    // `pathParameters` carries `entryId` into it, so the second page was an
+    // identical copy of the first. Dismissing the form revealed the other one.
+    // `context.push` hid it — one imperative match is one page — which is why
+    // it survived the epic.
+    await pumpShell(tester, Routes.logEdit(LogType.fillUp, 'fil_x'));
+
+    // `skipOffstage: false`, and counted by SCREEN ID. The duplicate is the
+    // page underneath, which an ordinary finder skips — the version that used
+    // the default found one widget and passed against the bug.
+    final logScreens = tester
+        .widgetList<PlaceholderScreen>(
+          find.byType(PlaceholderScreen, skipOffstage: false),
+        )
+        .where((s) => s.screenId == LogType.fillUp.screenId);
+
+    expect(logScreens, hasLength(1), reason: 'two identical log modals');
+  });
+
+  test('the router is disposed with its container', () {
+    // `ref.onDispose(router.dispose)`. Without it the delegate and its
+    // route-information provider outlive the container — one instance in
+    // production, and one per `ProviderContainer` across the suite, each still
+    // attached to the shared `rootNavigatorKey`. Two live routers holding one
+    // GlobalKey is the duplicate-key failure that forces every routing test to
+    // unmount before it pumps.
+    final source = sourceWithoutLineComments(
+      File('lib/app/routing/app_router.dart'),
+    );
+    expect(source, contains('ref.onDispose(router.dispose)'));
+  });
+
   test('there is exactly one GoRouter in lib/', () {
     // The rule `navigation-and-routing` states first. Two routers is two
     // navigation graphs, and the second one is always the one the bug is in.

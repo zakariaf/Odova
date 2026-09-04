@@ -13,6 +13,7 @@ import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/tab_stack_reset.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 
 /// The vehicle every scoped screen is about.
@@ -30,12 +31,13 @@ final activeVehicleIdProvider = Provider<VehicleId?>(
 
 /// How many live vehicles there are.
 ///
-/// Over `vehiclesProvider`, which already filters soft-deleted rows and is
-/// already alive for the whole session. A second query would be a second answer
-/// — and it would be the wrong one the moment a user deleted a car, because a
-/// count that includes tombstones keeps a switcher that offers one choice.
+/// Through `launchFactsProvider`, which falls back to what `bootstrap()` read
+/// before the first frame when the stream has no value yet. A bare
+/// `vehiclesProvider.value?.length ?? 0` answered ZERO on every cold start
+/// until the drift query landed — and zero is a fact SPEC.md §7 acts on, not a
+/// placeholder.
 final liveVehicleCountProvider = Provider<int>(
-  (ref) => ref.watch(vehiclesProvider).value?.length ?? 0,
+  (ref) => ref.watch(launchFactsProvider).liveVehicleCount,
 );
 
 /// Whether the multi-vehicle interface exists at all.
@@ -82,7 +84,10 @@ final costsAllVehiclesProvider = NotifierProvider<CostsAllVehicles, bool>(
 /// allows — the switcher sheet and the deep-link handler — have one, and a
 /// function this important should be callable from a test without a widget
 /// tree.
-Future<void> setActiveVehicle(ProviderContainer ref, VehicleId id) async {
+Future<Result<void, PersistFailure>> setActiveVehicle(
+  ProviderContainer ref,
+  VehicleId id,
+) async {
   // A targeted UPDATE, not a read-modify-write: `SettingsRepository` explains
   // why the difference matters, and it is the difference between "writes one
   // field" being a promise and being an accident.
@@ -93,10 +98,14 @@ Future<void> setActiveVehicle(ProviderContainer ref, VehicleId id) async {
         updatedAtUtcMs: ref.read(clockProvider).now().millisecondsSinceEpoch,
       );
 
-  // No settings row means first run has not finished, and there is nothing to
-  // scope or to reset. Silent because nothing has asked for this yet — there
-  // is no screen to tell.
-  if (written is! Ok) return;
+  // The failure is RETURNED, not swallowed. `guardPersist` wraps a thrown
+  // UPDATE as well as a missing row — a full disk, a locked database, a
+  // degraded-mode refusal — and a silent one here closes the switcher on a
+  // vehicle that did not change: the user believes they switched cars and logs
+  // the next fill-up against the wrong one. EPIC-09's sheet is the screen that
+  // has to say so.
+  if (written is! Ok) return written;
 
   ref.read(tabStackResetProvider.notifier).resetAllTabStacks(selectHome: false);
+  return const Ok(null);
 }

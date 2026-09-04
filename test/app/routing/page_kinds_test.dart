@@ -5,6 +5,8 @@
 // than by a habit — so the tab-bar difference is asserted by TREE MEMBERSHIP,
 // not by a flag on a screen. A screen cannot get it wrong because a screen does
 // not decide it.
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -31,37 +33,68 @@ void main() {
     expect(find.byType(CalmTabBar), findsNothing);
   });
 
-  testWidgets('every modal route in the graph is on the root navigator', (
-    tester,
-  ) async {
-    // The general form of the test above. Walking the graph rather than
-    // checking one screen is what makes the rule hold for the modals EPIC-09
-    // onwards adds, none of which exist to be pumped yet.
-    const modalPaths = {
-      '/log/:type',
-      '/vehicle-switcher',
-      '/first-run/language',
-      '/first-run/vehicle',
+  test('every route SPEC.md §7 calls a modal is on the root navigator', () {
+    // Derived from `kScreenRoutes`, not hard-coded. The first version listed
+    // the four paths it knew about and passed while FOUR OTHERS — the reminder,
+    // trip and vehicle editors and the import screen — sat inside a branch as
+    // pushes, keeping the tab bar. `settings.import` is the one that matters:
+    // §7 calls it blocking because import is the only irreversible action in
+    // the app, and a live tab bar is a way out of a blocking modal.
+    //
+    // A test that enumerates the cases it already knows about cannot fail on
+    // the case nobody thought of, which is the only kind worth catching.
+    const modalScreens = {
+      'log.fillup',
+      'log.service',
+      'log.expense',
+      'log.odometer',
+      'vehicle.switcher',
+      'reminders.edit',
+      'trips.edit',
+      'vehicle.edit',
+      'settings.import',
+      'firstrun.language',
+      'firstrun.vehicle',
     };
 
-    final onRoot = <String>{};
-    void walk(List<RouteBase> routes, {required bool insideShell}) {
+    // Resolved through the ROUTER, not by matching path strings: the four log
+    // screens share one route (`/log/:type`), so a registry path is not a route
+    // path and comparing them silently excused all four.
+    final router = buildRouter();
+
+    /// Every route inside the shell's branches.
+    final insideShell = <RouteBase>{};
+    void collect(List<RouteBase> routes) {
       for (final route in routes) {
-        if (route is GoRoute) {
-          if (!insideShell || route.parentNavigatorKey != null) {
-            onRoot.add(route.path);
-          }
-          walk(route.routes, insideShell: insideShell);
-        } else if (route is StatefulShellRoute) {
-          for (final branch in route.branches) {
-            walk(branch.routes, insideShell: true);
-          }
-        }
+        insideShell.add(route);
+        collect(route.routes);
       }
     }
 
-    walk(buildRouter().configuration.routes, insideShell: false);
-    expect(onRoot.intersection(modalPaths), modalPaths);
+    for (final route in router.configuration.routes) {
+      if (route is! StatefulShellRoute) continue;
+      for (final branch in route.branches) {
+        collect(branch.routes);
+      }
+    }
+
+    for (final screen in modalScreens) {
+      final location = (kScreenRoutes[screen]! as ScreenLocation).path
+          .replaceAll(RegExp(':[A-Za-z]+Id'), 'x')
+          .replaceAll(':type', LogType.fillUp.wire);
+      final matched = router.configuration
+          .findMatch(Uri.parse(location))
+          .routes
+          .whereType<GoRoute>()
+          .last;
+
+      expect(
+        !insideShell.contains(matched) || matched.parentNavigatorKey != null,
+        isTrue,
+        reason:
+            '$screen ($location) is a branch route, so it keeps the tab bar',
+      );
+    }
   });
 
   testWidgets('reduced motion collapses every kind to no movement', (
@@ -78,7 +111,10 @@ void main() {
       await tester.pumpWidget(
         _TransitionProbe(kind: kind, disableAnimations: true),
       );
-      await tester.pumpAndSettle();
+      // `pump`, never `pumpAndSettle`. With motion disabled there is nothing to
+      // settle, so a settle asserts nothing and hides the case where something
+      // is still moving — `check_touch_targets.sh` refuses it for that reason.
+      await tester.pump();
       await tester.tap(find.text('go'));
       // One frame. The destination must already be in place — not on its way
       // there faster.
@@ -120,9 +156,12 @@ void main() {
     await tester.pumpWidget(
       const _TransitionProbe(kind: PageKind.sheet, disableAnimations: true),
     );
-    await tester.pumpAndSettle();
+    // `pump`, never `pumpAndSettle`: with motion disabled there is nothing to
+    // settle, so a settle asserts nothing.
+    await tester.pump();
     await tester.tap(find.text('go'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
 
     expect(find.text('arrived'), findsOneWidget);
     expect(
@@ -138,15 +177,20 @@ void main() {
       await tester.pumpWidget(
         _TransitionProbe(kind: kind, disableAnimations: true),
       );
-      await tester.pumpAndSettle();
+      // `pump`, never `pumpAndSettle`. With motion disabled there is nothing to
+      // settle, so a settle asserts nothing and hides the case where something
+      // is still moving — `check_touch_targets.sh` refuses it for that reason.
+      await tester.pump();
       await tester.tap(find.text('go'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
 
       // The barrier is the whole frame minus the surface; the probe's surface
       // is at the top-start, so the bottom-end corner is scrim.
       final frame = tester.getSize(find.byType(MaterialApp));
       await tester.tapAt(Offset(frame.width - 4, frame.height - 4));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
 
       expect(find.text('arrived'), findsNothing, reason: kind.name);
     }
@@ -175,14 +219,19 @@ void main() {
       await tester.pumpWidget(
         _TransitionProbe(kind: kind, disableAnimations: true),
       );
-      await tester.pumpAndSettle();
+      // `pump`, never `pumpAndSettle`. With motion disabled there is nothing to
+      // settle, so a settle asserts nothing and hides the case where something
+      // is still moving — `check_touch_targets.sh` refuses it for that reason.
+      await tester.pump();
       await tester.tap(find.text('go'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
 
       expect(find.text('go'), findsNothing, reason: kind.name);
       final frame = tester.getSize(find.byType(MaterialApp));
       await tester.tapAt(Offset(frame.width - 4, frame.height - 4));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
       expect(find.text('arrived'), findsOneWidget, reason: kind.name);
     }
   });
@@ -279,6 +328,85 @@ void main() {
       expect(probe.popped, isTrue);
     });
 
+    testWidgets('a throwing dialog does not trap the user in the modal', (
+      tester,
+    ) async {
+      // `_asking` guards against a second gesture arriving while the dialog is
+      // open. Without a `finally`, a `confirmDiscard` that THROWS — a missing
+      // localisation, a `CalmColors.of` assertion from a guard mounted outside
+      // the theme — leaves it true forever, and every subsequent swipe, Cancel
+      // and system back returns immediately with `canPop: false` above them.
+      // The user is trapped in a modal with no exit but killing the app, losing
+      // the draft this widget exists to protect.
+      final probe = _GuardProbe(dirty: true, throws: true);
+      await tester.pumpWidget(probe.app);
+      await tester.pumpAndSettle();
+
+      await probe.dismiss(tester, DismissGesture.systemBack);
+
+      expect(probe.asked, isTrue);
+      // The draft survives a question that could not be asked: KEEP is the only
+      // safe answer to "we could not ask", and the modal stays put so the user
+      // still has somewhere to save from.
+      expect(probe.discarded, 0);
+      expect(probe.popped, isFalse);
+    });
+
+    test('asking is reset in a finally, and a failure keeps the draft', () {
+      // Asserted over the SOURCE, like the check below, and for the same
+      // reason: the dialog future is deliberately unawaited, so a widget test
+      // cannot reliably observe the state of `_asking` between two gestures —
+      // it ends up testing the harness. What matters is structural and is
+      // checkable directly.
+      //
+      // Without the `finally`, a throw leaves `_asking` true forever: every
+      // later swipe, Cancel and system back returns at the guard, with
+      // `canPop: false` above them, and the user is trapped in the modal with
+      // no exit but killing the app. And the catch must NOT set `discard` —
+      // discarding because the app could not phrase a question is the
+      // destructive outcome SPEC.md §7 says a dismissal never is.
+      final body = File(
+        'lib/app/routing/dirty_modal_guard.dart',
+      ).readAsStringSync();
+
+      expect(
+        body,
+        contains(RegExp(r'\}\s*finally\s*\{\s*_asking = false;')),
+        reason: '_asking is not reset in a finally',
+      );
+      final catchAt = body.indexOf('} on Object catch');
+      final discardAt = body.indexOf('if (!discard) return;');
+      expect(catchAt, greaterThan(0));
+      expect(
+        body.substring(catchAt, discardAt),
+        isNot(contains('discard = true')),
+        reason: 'a failure to ask must not mean discard',
+      );
+      expect(body.substring(catchAt, discardAt), contains('return;'));
+    });
+
+    test('the mounted check comes BEFORE the draft is dropped', () {
+      // `onDiscard` ran before `if (!mounted)`, so a guard whose route was
+      // replaced while the dialog was open threw away every segment's draft on
+      // the way out of a modal that is no longer there. Asserted over the
+      // SOURCE because arranging the unmount inside a widget test's fake async
+      // — the dialog future is deliberately unawaited — tests the harness
+      // rather than the guard.
+      final body = File(
+        'lib/app/routing/dirty_modal_guard.dart',
+      ).readAsStringSync();
+      final mountedAt = body.indexOf('if (!mounted) return;');
+      final discardAt = body.indexOf('widget.onDiscard();');
+
+      expect(mountedAt, greaterThan(0));
+      expect(discardAt, greaterThan(0));
+      expect(
+        mountedAt,
+        lessThan(discardAt),
+        reason: 'onDiscard runs before the mounted check',
+      );
+    });
+
     test('DirtyModalGuard is the only PopScope outside the shell', () {
       // Two implementations of "what happens on back" is one too many, and the
       // second is always the one a lost draft came from.
@@ -359,13 +487,20 @@ enum DismissGesture { swipeDown, cancel, systemBack }
 
 /// A modal wrapped in the guard, with every decision recorded.
 class _GuardProbe {
-  _GuardProbe({required this.dirty, this.answer = false});
+  _GuardProbe({
+    required this.dirty,
+    this.answer = false,
+    this.throws = false,
+  });
 
   /// Whether the fake form has unsaved edits.
   final bool dirty;
 
   /// What the discard dialog answers when it is opened.
   final bool answer;
+
+  /// Whether asking throws instead of answering.
+  final bool throws;
 
   /// Whether the guard asked before popping.
   bool asked = false;
@@ -386,10 +521,10 @@ class _GuardProbe {
         return answer;
       },
       onDismissed: () => popped = true,
-      // The Builder is INSIDE the guard on purpose. `DirtyModalGuard.of` walks
-      // up from the context it is handed, so a Cancel built from a context
-      // above the guard finds nothing — which the guard asserts about rather
-      // than silently popping.
+      // The Builder is INSIDE the guard on purpose. `DirtyModalGuard.of`
+      // walks up from the context it is handed, so a Cancel built from a
+      // context above the guard finds nothing — which the guard asserts
+      // about rather than silently popping.
       child: Material(
         child: Align(
           alignment: AlignmentDirectional.topStart,

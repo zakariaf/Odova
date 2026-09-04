@@ -195,14 +195,34 @@ void main() {
     }
   });
 
-  testWidgets('German and Sorani labels wrap rather than truncate', (
+  testWidgets('German and Sorani labels WRAP to two lines, not truncate', (
     tester,
   ) async {
     // `Einstellungen` and `ڕێکخستنەکان` are the long ones, and a bar that
     // ellipsises them says nothing at all in the fourth slot.
+    //
+    // Asserted by HEIGHT, not by `text.overflow`. The label sets no `overflow`
+    // and no `maxLines`, so the property is `null` for every label in every
+    // locale and `isNot(TextOverflow.ellipsis)` could not fail — the version
+    // that checked it passed against a `Text` given `maxLines: 1,
+    // overflow: TextOverflow.fade`, which truncates exactly as this test's name
+    // forbids.
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
+
+    // The English baseline: one line, at the same scale.
+    await pumpShell(
+      tester,
+      Routes.home,
+      wrap: (app) => MediaQuery(
+        data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
+        child: app,
+      ),
+    );
+    final oneLine = tester
+        .getSize(find.text(l10nOf(tester).tabSettings))
+        .height;
 
     for (final locale in [const Locale('de'), const Locale('ckb')]) {
       await pumpShell(
@@ -214,20 +234,22 @@ void main() {
           child: app,
         ),
       );
-
       final l10n = l10nOf(tester);
+
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: '${locale.languageCode} overflowed its slot',
+      );
+      expect(
+        tester.getSize(find.text(l10n.tabSettings)).height,
+        greaterThan(oneLine),
+        reason: '${locale.languageCode}: "${l10n.tabSettings}" did not wrap',
+      );
+      // And every label is still fully laid out — a clipped one measures the
+      // slot rather than the text.
       for (final label in tabLabels(l10n)) {
-        final text = tester.widget<Text>(find.text(label));
-        expect(
-          text.overflow,
-          isNot(TextOverflow.ellipsis),
-          reason: '${locale.languageCode}: $label',
-        );
-        expect(
-          tester.takeException(),
-          isNull,
-          reason: '${locale.languageCode}: $label overflowed its slot',
-        );
+        expect(find.text(label), findsOneWidget, reason: label);
       }
     }
   });

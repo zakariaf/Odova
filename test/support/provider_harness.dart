@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
 
@@ -23,11 +24,26 @@ typedef DatabaseHarness = ({ProviderContainer container, AppDatabase db});
 /// Builds a container over a fresh in-memory database.
 ///
 /// Both are torn down together, container first.
-DatabaseHarness containerWithDatabase({List<Override> overrides = const []}) {
+DatabaseHarness containerWithDatabase({
+  List<Override> overrides = const [],
+  LaunchFacts initialFacts = const LaunchFacts(
+    onboardingDone: false,
+    liveVehicleCount: 0,
+    migrationFailed: false,
+  ),
+}) {
   final db = AppDatabase.forTesting(NativeDatabase.memory());
   final container = ProviderContainer(
     retry: noProviderRetry,
-    overrides: [appDatabaseProvider.overrideWithValue(db), ...overrides],
+    overrides: [
+      appDatabaseProvider.overrideWithValue(db),
+      // What `bootstrap()` supplies in production. It has no default in the
+      // app on purpose: "we have not read the database yet" and "this is a
+      // fresh install" are different facts, and the gate must not guess.
+      // A test starts from the fresh-install answer unless it says otherwise.
+      initialLaunchFactsProvider.overrideWithValue(initialFacts),
+      ...overrides,
+    ],
   );
   addTearDown(() async {
     container.dispose();

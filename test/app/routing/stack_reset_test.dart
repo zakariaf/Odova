@@ -171,7 +171,7 @@ void main() {
     }
   });
 
-  test('resetAllTabStacks has one implementation and exactly two callers', () {
+  test('resetAllTabStacks has one implementation and one caller today', () {
     // The test that stops a reset being scattered per caller. Both callers are
     // named, so a third has to change this line and say which §7 row it comes
     // from.

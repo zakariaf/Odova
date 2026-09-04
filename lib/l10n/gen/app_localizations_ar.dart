@@ -177,9 +177,14 @@ class AppLocalizationsAr extends AppLocalizations {
       few: '$countText سجلات',
       two: 'سجليه',
       one: 'سجله الواحد',
-      zero: 'سجلاته',
     );
-    return 'حذف $subject و$_temp0؟';
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حذف $subject و$_temp0؟',
+      zero: 'حذف $subject؟',
+    );
+    return '$_temp1';
   }
 
   @override

@@ -154,9 +154,14 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: 'its $countText entries',
       one: 'its $countText entry',
-      zero: 'its entries',
     );
-    return 'Delete $subject and $_temp0?';
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $subject and $_temp0?',
+      zero: 'Delete $subject?',
+    );
+    return '$_temp1';
   }
 
   @override

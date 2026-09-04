@@ -12,6 +12,7 @@
 // `reminders.list` swipe (EPIC-08 finding F-8.1).
 
 import 'package:flutter/material.dart';
+import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
@@ -54,9 +55,12 @@ const kSnoozeDistanceMetres = 500000;
 /// interval: §7 states the condition, and a disabled row is an offer the user
 /// has to work out they cannot take.
 ///
-/// **It writes nothing.** EPIC-16 applies the choice — `snoozed_until`, the
-/// distance-to-date conversion through the projection, the three-consecutive
-/// limit and the fourth-offer escalation of §4.7.2 are all its.
+/// **It writes nothing**, and it is not able to: its parameters are a label,
+/// a date, two flags and three formatters, so there is no port through which
+/// a write could reach the database. EPIC-16 applies the choice —
+/// `snoozed_until`, the distance-to-date conversion through the projection, the
+/// three-consecutive limit and the fourth-offer escalation of §4.7.2 are all
+/// its.
 Future<SnoozeChoice?> showSnoozeDialog(
   BuildContext context, {
   required String itemLabel,
@@ -64,6 +68,7 @@ Future<SnoozeChoice?> showSnoozeDialog(
   required bool hasDistanceInterval,
   required String Function(CivilDate) formatDate,
   required String Function(int metres) formatDistance,
+  required String Function(int) formatCount,
   int? currentOdometerMetres,
 }) {
   return CalmDialog.show<SnoozeChoice>(
@@ -74,6 +79,7 @@ Future<SnoozeChoice?> showSnoozeDialog(
       hasDistanceInterval: hasDistanceInterval,
       formatDate: formatDate,
       formatDistance: formatDistance,
+      formatCount: formatCount,
       currentOdometerMetres: currentOdometerMetres,
       onChoice: (choice) => Navigator.of(context).pop(choice),
     ),
@@ -93,6 +99,7 @@ class SnoozeDialogBody extends StatelessWidget {
     required this.hasDistanceInterval,
     required this.formatDate,
     required this.formatDistance,
+    required this.formatCount,
     required this.onChoice,
     super.key,
     this.currentOdometerMetres,
@@ -112,6 +119,15 @@ class SnoozeDialogBody extends StatelessWidget {
 
   /// Formats a distance in the user's unit.
   final String Function(int metres) formatDistance;
+
+  /// Formats a small whole number in the active numbering system.
+  ///
+  /// The row titles carry "3", "1" and "1", and they were passed as ASCII
+  /// literals — so a Persian user read `3 روز` beside a value of `تا ۱۵ شهریور`
+  /// and an odometer of `۱۸۷٬۹۱۲`, three numbering systems on one dialog.
+  /// SPEC.md §5 has ONE active app-wide, and the ARB declares these
+  /// placeholders `String` precisely so the app can shape them.
+  final String Function(int) formatCount;
 
   /// The last entered reading, or null.
   final int? currentOdometerMetres;
@@ -138,7 +154,12 @@ class SnoozeDialogBody extends StatelessWidget {
       // and an ICU message cannot case-fold a placeholder — German capitalises
       // every noun, so folding here would be wrong in a second locale to fix
       // the look in one (EPIC-08 finding F-8.6).
-      title: l10n.snoozeTitle(itemLabel),
+      // The label in a first-strong ISOLATE. An item called "Oil filter 5W-30"
+      // inside an Arabic sentence otherwise reorders at the paragraph boundary
+      // and renders as "تأجيل 30-Oil filter 5W" — SPEC.md §2's bidi rule, and a
+      // title is where it breaks first because it is the one line that mixes a
+      // user's own words with ours.
+      title: l10n.snoozeTitle(isolate(itemLabel)),
       body: l10n.snoozeBody,
       actions: [
         CalmRowGroup(
@@ -147,19 +168,19 @@ class SnoozeDialogBody extends StatelessWidget {
             _option(
               context,
               SnoozeChoice.threeDays,
-              l10n.snoozeThreeDays('3'),
+              l10n.snoozeThreeDays(formatCount(3)),
               l10n.snoozeUntil(formatDate(today.addDays(3))),
             ),
             _option(
               context,
               SnoozeChoice.oneWeek,
-              l10n.snoozeOneWeek('1'),
+              l10n.snoozeOneWeek(formatCount(1)),
               l10n.snoozeUntil(formatDate(today.addDays(7))),
             ),
             _option(
               context,
               SnoozeChoice.oneMonth,
-              l10n.snoozeOneMonth('1'),
+              l10n.snoozeOneMonth(formatCount(1)),
               // `addMonths`, which clamps to the last day of the target month:
               // 31 January plus one month is 28 February, not 3 March.
               l10n.snoozeUntil(formatDate(today.addMonths(1))),

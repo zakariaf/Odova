@@ -13,7 +13,9 @@ import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/tab_stack_reset.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 
 import '../data/support/rows.dart';
@@ -91,7 +93,7 @@ void main() {
     expect(after, before);
   });
 
-  test('setting it resets all four tab stacks', () async {
+  test('setting it POSTS a reset that keeps the current tab', () async {
     // Through task 8.3's single function, asserted on the REQUEST rather than
     // by re-implementing the reset here — a test that walks the branches itself
     // would keep passing after the caller stopped asking.
@@ -122,6 +124,41 @@ void main() {
     final rows = await db.customSelect('SELECT * FROM settings;').get();
     expect(rows, isEmpty);
     expect(container.read(tabStackResetProvider), isNull);
+  });
+
+  test('a write failure is RETURNED, not swallowed', () async {
+    // `guardPersist` wraps a thrown UPDATE as well as a missing row — a full
+    // disk, a locked database, a degraded-mode refusal. Swallowing it closed
+    // the switcher on a vehicle that did not change: the user believes they
+    // switched cars and logs the next fill-up against the wrong one.
+    await insertVehicle(db, id: _golf);
+    await insertSettings(db, activeVehicleId: _golf, onboardingDone: true);
+    await settle();
+
+    // The settings TABLE is gone, so the UPDATE throws rather than matching
+    // zero rows — the failure mode a missing row cannot reproduce.
+    await db.customStatement('DROP TABLE settings;');
+
+    final result = await setActiveVehicle(
+      container,
+      VehicleId.tryParse(_polo)!,
+    );
+
+    expect(result, isA<Err<void, PersistFailure>>());
+    expect(container.read(tabStackResetProvider), isNull);
+  });
+
+  test('and a successful write reports success', () async {
+    await insertVehicle(db, id: _golf);
+    await insertSettings(db, activeVehicleId: _golf, onboardingDone: true);
+    await settle();
+
+    final result = await setActiveVehicle(
+      container,
+      VehicleId.tryParse(_polo)!,
+    );
+
+    expect(result, isA<Ok<void, PersistFailure>>());
   });
 
   group('the one-car user is never taxed', () {
@@ -173,16 +210,32 @@ void main() {
     });
   });
 
-  test("the Costs tab's All-vehicles toggle is not the active vehicle", () {
+  test('the All-vehicles toggle is not the active vehicle', () async {
     // SPEC.md §7's one exception. It is a tab-scoped view flag and it is
     // explicitly NOT persisted into Settings — decided here so EPIC-13 inherits
     // it rather than making the call again over a half-built screen.
+    //
+    // Against a SETTLED two-vehicle fixture, and asserting the id is
+    // UNCHANGED. The version that asserted `isNull` ran with nothing inserted
+    // and nothing settled, so the active vehicle was null before the toggle as
+    // well as after — a toggle that also wrote `active_vehicle_id` would have
+    // passed it.
+    await insertVehicle(db, id: _golf);
+    await insertVehicle(db, id: _polo, name: 'The Polo');
+    await insertSettings(db, activeVehicleId: _golf, onboardingDone: true);
+    await settle();
+    expect(container.read(activeVehicleIdProvider)?.toString(), _golf);
     expect(container.read(costsAllVehiclesProvider), isFalse);
 
     container.read(costsAllVehiclesProvider.notifier).toggle();
+
     expect(container.read(costsAllVehiclesProvider), isTrue);
-    expect(container.read(activeVehicleIdProvider), isNull);
+    expect(container.read(activeVehicleIdProvider)?.toString(), _golf);
     expect(container.read(tabStackResetProvider), isNull);
+
+    // And nothing reached the database.
+    final row = await _settingsRow(db);
+    expect(row['active_vehicle_id'], _golf);
   });
 
   test('active_vehicle_id is written in exactly one place', () async {
@@ -195,7 +248,12 @@ void main() {
       if (file.path.endsWith('active_vehicle.dart')) continue;
       if (file.path.startsWith('lib/data/')) continue;
       final source = sourceWithoutLineComments(file);
-      if (RegExp('activeVehicleId:').hasMatch(source)) {
+      // BOTH shapes. The model field is the obvious one; the dangerous one is
+      // a feature calling `SettingsRepository.setActiveVehicle` directly,
+      // bypassing the tab-stack reset — and that call site contains no
+      // `activeVehicleId:` at all, so the first version of this grep could not
+      // see the writer it most needed to catch.
+      if (RegExp(r'activeVehicleId:|\.setActiveVehicle\(').hasMatch(source)) {
         writers.add(file.path);
       }
     }

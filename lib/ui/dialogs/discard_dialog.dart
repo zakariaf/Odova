@@ -11,6 +11,7 @@
 // shared dialog should still pass every caller's assertions.
 
 import 'package:flutter/material.dart';
+import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_dialog.dart';
@@ -38,9 +39,10 @@ enum DiscardChoice {
 /// anyone can answer: the user has to know whether the thing they are about to
 /// throw away is worth the tap it would cost to keep it.
 ///
-/// **It writes nothing.** It returns a decision and the caller owns the draft —
-/// a dialog that also cleared the draft would work perfectly until the second
-/// caller needed to keep it.
+/// **It writes nothing**, and it is not able to: its parameters are two
+/// strings, so there is no port through which a write could reach anything. The
+/// caller owns the draft — a dialog that also cleared it would work perfectly
+/// until the second caller needed to keep it.
 Future<DiscardChoice> showDiscardDialog(
   BuildContext context, {
   required String subject,
@@ -94,7 +96,10 @@ class DiscardDialogBody extends StatelessWidget {
     return CalmDialog.actions(
       icon: Icons.edit_note_outlined,
       title: l10n.discardTitle,
-      body: l10n.discardBody(subject, summary),
+      // Both halves in first-strong ISOLATES. They are the user's own words,
+      // and they sit between two em-dashes — a neutral on each side, which is
+      // the most exposed position there is for a directional run. SPEC.md §2.
+      body: l10n.discardBody(isolate(subject), isolate(summary)),
       // Safe first: the reference orders them this way, and §7's "no dialog is
       // ever dismissed into a destructive outcome" points the same way.
       actions: [

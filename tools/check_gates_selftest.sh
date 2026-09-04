@@ -418,6 +418,60 @@ PROBE
 assert 1 "check_touch_targets is red on pumpAndSettle INSIDE a reduced-motion case" \
   bash "$TARGETS" lib test
 restore_all
+
+# The VALUE decides, not the identifier. `disableAnimations: false` is a case
+# that deliberately turns motion ON — the other arm of a reduced-motion test,
+# which exists to prove the collapse is doing something — and it must be free to
+# settle. Matching the bare name made that arm unwriteable, which EPIC-08 hit
+# writing exactly it.
+write_scratch test/ui/selftest_probe_test.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('motion is ON here, so settling is the whole point', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(disableAnimations: false),
+        child: SizedBox.shrink(),
+      ),
+    );
+    await tester.pumpAndSettle();
+  });
+}
+PROBE
+assert 0 "check_touch_targets allows pumpAndSettle when disableAnimations is FALSE" \
+  bash "$TARGETS" lib test
+restore_all
+
+# And the value split across lines, which is what `dart format` produces on a
+# long constructor — the shape the rule meets most often in this repo.
+write_scratch test/ui/selftest_probe_test.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('a wrapped reduced-motion case still may not settle', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(
+          disableAnimations:
+              true,
+        ),
+        child: SizedBox.shrink(),
+      ),
+    );
+    await tester.pumpAndSettle();
+  });
+}
+PROBE
+assert 1 "check_touch_targets is red on a WRAPPED disableAnimations: true" \
+  bash "$TARGETS" lib test
+restore_all
 assert 0 "check_touch_targets is green again once removed" bash "$TARGETS" lib test
 
 # The SAME violation, written the way a real test is written: with a nested

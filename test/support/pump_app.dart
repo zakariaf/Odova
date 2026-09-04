@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/app_router.dart';
+import 'package:odova/app/routing/launch_gate.dart';
 
 /// Pumps [child] inside everything a real Odova screen sits in.
 ///
@@ -133,6 +134,13 @@ GoRouter singleScreenRouter(Widget child) => GoRouter(
 /// SPEC.md §7 sends them to different screens.
 List<Override> noLaunchGate() => [
   routerProvider.overrideWithValue(buildRouter()),
+  initialLaunchFactsProvider.overrideWithValue(
+    const LaunchFacts(
+      onboardingDone: true,
+      liveVehicleCount: 1,
+      migrationFailed: false,
+    ),
+  ),
 ];
 
 /// The ARB files that are missing any of [keys].

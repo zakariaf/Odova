@@ -34,7 +34,7 @@ void main() {
     await pumpApp(tester, probe.widget);
     await probe.open(tester);
 
-    expect(find.text('Snooze Oil and filter'), findsOneWidget);
+    expect(visibleText(tester, 'Snooze'), 'Snooze Oil and filter');
   });
 
   testWidgets('the body says it only quiets the reminder', (tester) async {
@@ -50,9 +50,7 @@ void main() {
     );
   });
 
-  testWidgets('the body is the same whatever state the item is in', (
-    tester,
-  ) async {
+  testWidgets('the dialog takes no DueState at all', (tester) async {
     // The epic expected an ICU `select` over `DueState`, on the premise that
     // the reference reads "It stays overdue on Home" — which would be FALSE for
     // a due or due-soon item, the exact failure §1 forbids. The reference's
@@ -137,6 +135,12 @@ void main() {
     await pumpApp(tester, probe.widget);
     await probe.open(tester);
 
+    // The ROW, by its text, not a count of rows. A count of three passed
+    // against a version whose guard sat on the wrong option — the distance row
+    // rendered unconditionally and `1 month` disappeared instead, offering a
+    // 500 km snooze with no reading to add it to.
+    expect(find.text('After another 500000 m'), findsNothing);
+    expect(find.text('1 month'), findsOneWidget);
     expect(find.byType(CalmListRow), findsNWidgets(3));
   });
 
@@ -148,6 +152,8 @@ void main() {
     await pumpApp(tester, probe.widget);
     await probe.open(tester);
 
+    expect(find.text('After another 500000 m'), findsNothing);
+    expect(find.text('1 month'), findsOneWidget);
     expect(find.byType(CalmListRow), findsNWidgets(3));
   });
 
@@ -191,16 +197,6 @@ void main() {
     }
   });
 
-  testWidgets('the dialog writes nothing', (tester) async {
-    final probe = _Probe();
-    await pumpApp(tester, probe.widget);
-    await probe.open(tester);
-    await tester.tap(find.text('1 week'));
-    await tester.pumpAndSettle();
-
-    expect(probe.repositoryTouches, isEmpty);
-  });
-
   testWidgets('the odometer figure and its unit are one atomic run', (
     tester,
   ) async {
@@ -218,6 +214,24 @@ void main() {
         .firstWhere((s) => s.contains('187912000'));
     expect(value, contains(firstStrongIsolate));
     expect(value, contains(popDirectionalIsolate));
+  });
+
+  testWidgets('the row titles carry the ACTIVE numbering system', (
+    tester,
+  ) async {
+    // They were `'3'`, `'1'`, `'1'` — ASCII literals, in placeholders the ARB
+    // declares `String` precisely so the app can shape them. A Persian user
+    // read `3 روز` beside a value of `تا ۱۵ شهریور` and an odometer of
+    // `۱۸۷٬۹۱۲`: three numbering systems on one dialog, where SPEC.md §5 has
+    // one active app-wide.
+    final probe = _Probe(rtlDigits: true);
+    await pumpApp(tester, probe.widget);
+    await probe.open(tester);
+
+    expect(find.text('۳ days'), findsOneWidget);
+    expect(find.text('۱ week'), findsOneWidget);
+    expect(find.text('۱ month'), findsOneWidget);
+    expect(find.text('3 days'), findsNothing);
   });
 
   test('it is one shared widget', () {
@@ -258,6 +272,18 @@ void main() {
   });
 }
 
+/// The one visible string containing [needle], with bidi controls removed.
+///
+/// The title wraps the item label in a first-strong isolate — SPEC.md §2 — so
+/// asserting the raw string would be asserting U+2068 mid-sentence.
+String visibleText(WidgetTester tester, String needle) => stripBidi(
+  tester
+      .widgetList<Text>(find.byType(Text))
+      .map((t) => t.data)
+      .whereType<String>()
+      .firstWhere((s) => stripBidi(s).contains(needle)),
+);
+
 /// The `value` shown at the end of the row titled [title].
 String _valueFor(WidgetTester tester, String title) => tester
     .widget<CalmListRow>(
@@ -272,6 +298,7 @@ class _Probe {
     this.hasDistanceInterval = true,
     this.odometerMetres,
     this.isolateFigures = false,
+    this.rtlDigits = false,
   }) : today = today ?? _today;
 
   /// The date the dialog is asked to reckon from.
@@ -283,15 +310,15 @@ class _Probe {
   /// app's own does.
   final bool isolateFigures;
 
+  /// Whether the injected count formatter shapes its digits.
+  final bool rtlDigits;
+
   /// What the dialog answered.
   SnoozeChoice? choice;
 
   /// Whether it returned at all — a null choice and a dialog that never closed
   /// are different failures.
   bool answered = false;
-
-  /// Anything the dialog wrote. It must stay empty.
-  final List<String> repositoryTouches = [];
 
   late final Widget widget = Builder(
     builder: (context) => Material(
@@ -310,6 +337,11 @@ class _Probe {
               // tests and this one would be asserting them twice.
               formatDate: (d) => '${d.year}-${_two(d.month)}-${_two(d.day)}',
               formatDistance: (m) => isolateFigures ? isolate('$m m') : '$m m',
+              // Persian digits when asked, so the row titles are checkable as
+              // SHAPED rather than as the ASCII the dialog used to hard-code.
+              formatCount: (n) => rtlDigits
+                  ? '$n'.split('').map((d) => '۰۱۲۳۴۵۶۷۸۹'[int.parse(d)]).join()
+                  : '$n',
             );
             answered = true;
           },

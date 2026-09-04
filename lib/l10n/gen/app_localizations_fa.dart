@@ -155,9 +155,14 @@ class AppLocalizationsFa extends AppLocalizations {
       locale: localeName,
       other: '$countText رکوردش',
       one: 'یک رکوردش',
-      zero: 'رکوردهایش',
     );
-    return '$subject و $_temp0 حذف شود؟';
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$subject و $_temp0 حذف شود؟',
+      zero: '$subject حذف شود؟',
+    );
+    return '$_temp1';
   }
 
   @override

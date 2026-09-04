@@ -8,6 +8,7 @@
 // the tap they would spend keeping it.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
@@ -33,11 +34,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text(
-        'Your edits to Oil and filter — a 15,000 km interval and a new '
-        'baseline — have not been saved.',
-      ),
-      findsOneWidget,
+      visibleText(tester, 'Your edits to'),
+      'Your edits to Oil and filter — a 15,000 km interval and a new '
+      'baseline — have not been saved.',
     );
   });
 
@@ -132,20 +131,6 @@ void main() {
     expect(probe.fieldHasFocus, isTrue);
   });
 
-  testWidgets('it writes nothing', (tester) async {
-    // It returns a choice; the CALLER owns the draft. Asserted with a double
-    // that fails the test if touched, because a dialog that also cleared the
-    // draft would work perfectly until the second caller needed to keep it.
-    final probe = _ChoiceProbe();
-    await pumpApp(tester, probe.widget);
-    await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Discard'));
-    await tester.pumpAndSettle();
-
-    expect(probe.writes, isEmpty);
-  });
-
   testWidgets('both action labels come from the ARB, in RTL too', (
     tester,
   ) async {
@@ -199,9 +184,6 @@ class _ChoiceProbe {
   /// What the dialog answered, or null before it has.
   DiscardChoice? choice;
 
-  /// Anything the dialog wrote. It must stay empty.
-  final List<String> writes = [];
-
   final FocusNode _field = FocusNode(debugLabel: 'field');
 
   /// Whether the form field currently holds focus.
@@ -248,3 +230,16 @@ class _Opener extends StatelessWidget {
     ),
   );
 }
+
+/// The one visible string containing [needle], with bidi controls removed.
+///
+/// The dialogs wrap the user's own words in first-strong isolates — SPEC.md §2
+/// — so asserting the raw string would be asserting U+2068 in the middle of an
+/// English sentence.
+String visibleText(WidgetTester tester, String needle) => stripBidi(
+  tester
+      .widgetList<Text>(find.byType(Text))
+      .map((t) => t.data)
+      .whereType<String>()
+      .firstWhere((s) => stripBidi(s).contains(needle)),
+);

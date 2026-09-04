@@ -63,8 +63,11 @@ extension DeleteCountsTotal on DeleteCounts {
 /// §8's "Keep it — mark it sold" — because it is usually what people mean. A
 /// caller with no alternative gets two actions, not a disabled stub.
 ///
-/// **It deletes nothing.** It returns a decision and the caller acts on it,
-/// proven by a repository double that fails the test if touched.
+/// **It deletes nothing**, and it is not able to: its parameters are a string,
+/// five counts and two formatters, so there is no port through which a write
+/// could reach the database. That is the claim the tests assert — over the
+/// SIGNATURE, not over a double, because a double the function never receives
+/// can only ever come back untouched.
 Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
   BuildContext context, {
   required String subject,
@@ -129,13 +132,35 @@ class ConfirmDeleteDialogBody extends StatefulWidget {
 class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
   final _typed = TextEditingController();
 
-  /// The subject, folded and isolated once.
+  /// The subject, normalised and isolated.
   ///
-  /// Neither can change for the life of the dialog, and `onChanged` rebuilds
-  /// the body on every keystroke — so without these, each keystroke folded the
-  /// subject twice and built three bidi-wrapped copies of it.
-  late final String _foldedSubject = foldDigitsToAscii(widget.subject.trim());
-  late final String _isolatedSubject = isolate(widget.subject);
+  /// Cached because `onChanged` rebuilds on every keystroke, and RECOMPUTED in
+  /// [didUpdateWidget] because this is a public widget whose `subject` a
+  /// composed caller can change while it is mounted — the version that computed
+  /// them once left the field's label naming the old car while the title named
+  /// the new one, and unlocked Delete on the wrong name.
+  late String _normalisedSubject = _normalise(widget.subject);
+  late String _isolatedSubject = isolate(widget.subject);
+
+  @override
+  void didUpdateWidget(ConfirmDeleteDialogBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.subject == widget.subject) return;
+    _normalisedSubject = _normalise(widget.subject);
+    _isolatedSubject = isolate(widget.subject);
+  }
+
+  /// What a name has to match, from either side.
+  ///
+  /// Digits folded, so a Persian-keyboard user typing "Golf ۲۰۱۹" is not locked
+  /// out of deleting their own car by a numbering system they did not choose.
+  /// And bidi controls STRIPPED: `stripBidi` is what `lib/core/l10n/bidi.dart`
+  /// says goes into anything compared, and this is a comparison. A name that
+  /// arrived from an import carrying an invisible U+200F is a name no soft
+  /// keyboard can reproduce — Delete would be permanently disabled and the
+  /// vehicle permanently undeletable, with no other route to removing it.
+  static String _normalise(String text) =>
+      foldDigitsToAscii(stripBidi(text)).trim();
 
   /// Whether the typed confirmation is required at all.
   ///
@@ -151,10 +176,15 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
 
   /// Whether what was typed matches the subject.
   ///
-  /// Digits are folded to ASCII on both sides before comparing, so a
-  /// Persian-keyboard user typing a name that contains a number is not locked
-  /// out of deleting their own car by a numbering system they did not choose.
-  bool get _matches => foldDigitsToAscii(_typed.text.trim()) == _foldedSubject;
+  /// An EMPTY subject never matches, whatever was typed. A vehicle can be named
+  /// `""` — `vehicles.name` carries no non-empty CHECK, and SPEC.md §2's import
+  /// REPLACES, so a backup with an empty name restores one — and comparing two
+  /// empty strings left the lock satisfied the instant the dialog opened. One
+  /// tap then destroyed 412 entries behind a confirmation that had confirmed
+  /// nothing.
+  bool get _matches =>
+      _normalisedSubject.isNotEmpty &&
+      _normalise(_typed.text) == _normalisedSubject;
 
   @override
   Widget build(BuildContext context) {
@@ -246,8 +276,12 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
           ),
         CalmButton(
           label: l10n.commonCancel,
-          onPressed: () =>
-              Navigator.of(context).pop(ConfirmDeleteChoice.cancel),
+          // Through `onChoice` like the other two. Popping the Navigator here
+          // works only on the routed path: composed — which this class's own
+          // doc invites, and which the parity harness does — it pops the
+          // enclosing PAGE and hands `cancel` to a caller expecting something
+          // else, or does nothing at all if the body is the root route.
+          onPressed: () => widget.onChoice(ConfirmDeleteChoice.cancel),
           variant: CalmButtonVariant.quiet,
           block: true,
         ),

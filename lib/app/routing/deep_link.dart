@@ -275,13 +275,23 @@ const _plainHome = DeepLinkTarget(
 /// The two effects are injected rather than taken from a `Ref`, so the ORDER
 /// can be asserted by a test that records the calls. An end-state assertion
 /// cannot see it, which is exactly why the bug survives on device.
-void handleDeepLink(
+///
+/// `activateVehicle` returns a `Future` and is awaited: the write has to LAND
+/// before the route resolves, not merely be started before it.
+Future<void> handleDeepLink(
   DeepLinkTarget target, {
-  required void Function(String vehicleId) activateVehicle,
+  required Future<void> Function(String vehicleId) activateVehicle,
   required void Function(String location, {required List<String> backStack})
   navigate,
-}) {
+}) async {
   final vehicleId = target.activateVehicleId;
-  if (vehicleId != null) activateVehicle(vehicleId);
+  // AWAITED, and the type is what makes that enforceable. It was a
+  // `void Function(String)` while the only production implementation —
+  // `setActiveVehicle` — is a `Future<void>` that writes to SQLite, so every
+  // caller had to drop the future and the route resolved before the settings
+  // write landed. The odometer modal then opened prefilled with the PREVIOUS
+  // car's last reading: exactly the bug this function's order was designed to
+  // prevent, reintroduced by the signature.
+  if (vehicleId != null) await activateVehicle(vehicleId);
   navigate(target.location, backStack: target.backStack);
 }

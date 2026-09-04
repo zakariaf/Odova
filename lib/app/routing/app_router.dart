@@ -38,12 +38,19 @@ final routerProvider = Provider<GoRouter>((ref) {
   // reads the CURRENT facts on every navigation, and `refreshListenable` is
   // what re-runs it when they change.
   final listenable = launchFactsListenable(ref);
-  return buildRouter(
+  final router = buildRouter(
     initialLocation: initialLocationFor(ref.read(launchFactsProvider)),
     redirect: (location) =>
         appRedirect(ref.read(launchFactsProvider), location),
     refreshListenable: listenable,
   );
+  // The delegate and its route-information provider outlive the container
+  // otherwise. One instance in production, and one per `ProviderContainer`
+  // across the suite — each still attached to the shared `rootNavigatorKey`,
+  // which is why two live routers produce a duplicate-GlobalKey failure and why
+  // `shell_harness.dart` has to unmount before every pump.
+  ref.onDispose(router.dispose);
+  return router;
 });
 
 /// Builds the router.
@@ -100,23 +107,32 @@ final List<RouteBase> _routes = [
       const PlaceholderScreen(screenId: 'vehicle.switcher'),
     ),
   ),
+  // The log modal, in both modes, as TWO SIBLINGS rather than a parent and a
+  // child.
+  //
+  // Nested, `/log/fillup/fil_…` materialised BOTH pages — the parent's builder
+  // runs too, and `state.pathParameters` carries `entryId` into it — so a
+  // non-imperative navigation to the edit form opened the form with an
+  // identical second copy of itself underneath. Dismissing it revealed the
+  // other one. `context.push` happened to hide it, because one imperative match
+  // is one page, which is why nothing had noticed.
   GoRoute(
     path: '/log/:type',
+    parentNavigatorKey: rootNavigatorKey,
     pageBuilder: (context, state) => PageKind.modal.page(
       context,
       state,
       _logScreen(state),
     ),
-    routes: [
-      GoRoute(
-        path: ':entryId',
-        pageBuilder: (context, state) => PageKind.modal.page(
-          context,
-          state,
-          _logScreen(state),
-        ),
-      ),
-    ],
+  ),
+  GoRoute(
+    path: '/log/:type/:entryId',
+    parentNavigatorKey: rootNavigatorKey,
+    pageBuilder: (context, state) => PageKind.modal.page(
+      context,
+      state,
+      _logScreen(state),
+    ),
   ),
   // First run is outside the shell on purpose: it has no tab to belong to, and
   // showing a tab bar over a screen the user cannot leave yet offers four
@@ -166,7 +182,8 @@ final List<StatefulShellBranch> _branches = [
             routes: [
               GoRoute(
                 path: ':reminderId',
-                pageBuilder: (context, state) => PageKind.push.page(
+                parentNavigatorKey: rootNavigatorKey,
+                pageBuilder: (context, state) => PageKind.modal.page(
                   context,
                   state,
                   PlaceholderScreen(
@@ -234,7 +251,8 @@ final List<StatefulShellBranch> _branches = [
             routes: [
               GoRoute(
                 path: ':tripId',
-                pageBuilder: (context, state) => PageKind.push.page(
+                parentNavigatorKey: rootNavigatorKey,
+                pageBuilder: (context, state) => PageKind.modal.page(
                   context,
                   state,
                   PlaceholderScreen(
@@ -281,7 +299,8 @@ final List<StatefulShellBranch> _branches = [
             routes: [
               GoRoute(
                 path: ':vehicleId',
-                pageBuilder: (context, state) => PageKind.push.page(
+                parentNavigatorKey: rootNavigatorKey,
+                pageBuilder: (context, state) => PageKind.modal.page(
                   context,
                   state,
                   PlaceholderScreen(
@@ -326,7 +345,8 @@ final List<StatefulShellBranch> _branches = [
             routes: [
               GoRoute(
                 path: 'import',
-                pageBuilder: (context, state) => PageKind.push.page(
+                parentNavigatorKey: rootNavigatorKey,
+                pageBuilder: (context, state) => PageKind.modal.page(
                   context,
                   state,
                   const PlaceholderScreen(screenId: 'settings.import'),

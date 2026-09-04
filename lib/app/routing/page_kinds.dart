@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
+import 'package:odova/ui/calm/calm_pressable.dart' show calmDuration;
 
 /// The two slides, built once per motion rather than once per frame.
 ///
@@ -83,12 +84,15 @@ enum PageKind {
       opaque: !_translucent,
       barrierDismissible: _translucent,
       barrierColor: _translucent ? CalmColors.of(context).scrim : null,
-      // Read here and NOT collapsed for reduced motion: the route holds this
-      // number from creation and there is a context, but the transition itself
-      // is where a user sees movement — so the collapse happens in the builder
-      // below, which runs per frame and can ask the CURRENT MediaQuery.
-      transitionDuration: motion.base,
-      reverseTransitionDuration: motion.base,
+      // Collapsed for reduced motion HERE as well as in the builder below.
+      // The builder decides what the user sees move; this decides how long the
+      // route takes, and they are not the same thing — with the duration left
+      // at `motion.base` the outgoing screen stayed mounted for 260ms behind a
+      // destination that was already in place. Invisible, because the
+      // destination is opaque, and enough to make "the screen behind is gone"
+      // untestable without waiting out an animation that is not running.
+      transitionDuration: calmDuration(context, motion.base),
+      reverseTransitionDuration: calmDuration(context, motion.base),
       transitionsBuilder: (context, animation, secondary, child) =>
           _transition(context, animation, child),
     );
