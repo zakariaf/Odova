@@ -212,9 +212,45 @@ changing it touches `FillUpPoint`, the vector generator and the golden file for
 no behavioural gain. **EPIC-07 or the fuel screen epic should take it**, and the
 comparison at `build_fuel_segments.dart` is the place to start.
 
+## Handover — a gap between two epic files, read this before starting EPIC-07
+
+`epics/EPIC-07-the-due-engine.md`'s *Where we are now* states that EPIC-06 delivered
+"the zoneless `CivilDate` with calendar-month `addMonths` clamping to the last day of
+the target month". **It did not, and it was never asked to.** `CivilDate` appears
+nowhere in EPIC-06's ten tasks, its *What we will have when this is done*, or its
+Definition of done. EPIC-07 then uses it in the signature of almost every function it
+specifies — `OpenDueItem.asOf`, `DueAnchor.date`, `dailyDistance(..., required
+CivilDate today)`, `DueStatus.dueOn` and `projectedDueDate`.
+
+The other half of that sentence is fine: the injected `Clock` from `package:clock`
+**does** exist — EPIC-05 built it (`lib/app/providers.dart`'s `clockProvider`,
+consumed by `lib/core/ids/ulid.dart`), and EPIC-06 inherited it rather than adding it.
+
+So **EPIC-07's first task is to build `CivilDate`**, before task 7.1, and its *Where
+we are now* should be corrected in the same PR rather than left claiming an
+inheritance that is not there. What it needs, from EPIC-07's own usage:
+
+- Zoneless. A `DateTime` is not it: `DateTime.parse('2026-03-29')` returns a LOCAL
+  time, and across a European spring-forward two dates two calendar days apart differ
+  by 47 hours, which `inDays` truncates to 1. This epic hit that exact bug in
+  `monotonicity.dart` and routed around it through `wholeDaysBetween`; the due engine
+  divides by days far more often and needs the type rather than the workaround.
+- `addMonths` clamping to the last day of the target month — 31 January plus one month
+  is 28 February, not 3 March. SPEC.md §3's `interval_months` depends on it.
+- `lib/core/time/` is the place, beside `completed_months.dart`, which this epic moved
+  there for exactly this reason: `MonthRange` and `completedMonthsBefore` are the same
+  subject and the due engine needs both.
+
+`lib/core/time/` is already in `core_is_pure_test.dart`'s allowlist of named core
+subjects, so adding a file there costs nothing.
+
 ## Deferred
 
 - **Nothing from the epic's task list.** All ten tasks are built and their tests pass.
+- **`CivilDate` is not built**, and EPIC-07's *Where we are now* wrongly says it is —
+  see the handover section above. Deliberately left to EPIC-07: it is due-engine
+  infrastructure, EPIC-06's task list never named it, and the tests that would justify
+  its shape all live in EPIC-07.
 - `SPEC.md` §18 question 25 (the two failing Calm contrast values) is untouched and
   still belongs to EPIC-17. Nothing in this epic made it more expensive: no screen was
   built.
