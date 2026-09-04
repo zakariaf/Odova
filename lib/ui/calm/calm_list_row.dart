@@ -8,6 +8,7 @@ import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
@@ -58,6 +59,8 @@ class CalmListRow extends StatelessWidget {
     required this.title,
     super.key,
     this.subtitle,
+    this.detail,
+    this.detailState,
     this.value,
     this.lead,
     this.end,
@@ -89,6 +92,12 @@ class CalmListRow extends StatelessWidget {
     this.enabled = true,
     this.standalone = false,
   }) : _isSwitch = true,
+       // A settings toggle has one sub-line at most. `.row__main`'s second
+       // span never appears next to a switch in any artboard, and a numeric
+       // detail line beside an on/off control would be a fact the switch does
+       // not govern.
+       detail = null,
+       detailState = null,
        value = null,
        onTap = null,
        selected = false,
@@ -101,6 +110,27 @@ class CalmListRow extends StatelessWidget {
 
   /// A second line under [title].
   final String? subtitle;
+
+  /// A SECOND sub-line, beneath [subtitle].
+  ///
+  /// `.row__main` carries two `.row__sub` spans on ten rows across six
+  /// artboards — the garage, `home`, `vehicle.switcher`, `dialog.confirmDelete`
+  /// and both scroll dialogs — so it is a row feature rather than something
+  /// each of those screens rebuilds.
+  ///
+  /// Every one of those ten carries `.num` as well, so this line is always set
+  /// in tabular, lining figures. A non-numeric second sub-line has never been
+  /// drawn; the flag that would allow one can arrive with the design that
+  /// needs it.
+  final String? detail;
+
+  /// The due state [detail] is coloured by, or null for the ordinary ink-3.
+  ///
+  /// The overdue row in the garage and in `dialog.confirmDelete` sets
+  /// `color: var(--color-overdue-ink)` inline on that line. It is the ink ramp
+  /// rather than the dot colour: `--color-overdue` is tuned to be seen as a
+  /// 12pt dot, and on an 13pt caption it is a red that fails contrast.
+  final DueState? detailState;
 
   /// An end-aligned read-out.
   final String? value;
@@ -180,6 +210,8 @@ class CalmListRow extends StatelessWidget {
     Widget row = _CalmRowBody(
       title: title,
       subtitle: subtitle,
+      detail: detail,
+      detailState: detailState,
       value: value,
       lead: lead,
       end: end,
@@ -247,6 +279,8 @@ class _CalmRowBody extends StatelessWidget {
   const _CalmRowBody({
     required this.title,
     required this.subtitle,
+    required this.detail,
+    required this.detailState,
     required this.value,
     required this.lead,
     required this.end,
@@ -260,6 +294,8 @@ class _CalmRowBody extends StatelessWidget {
 
   final String title;
   final String? subtitle;
+  final String? detail;
+  final DueState? detailState;
   final String? value;
   final Widget? lead;
   final Widget? end;
@@ -313,6 +349,10 @@ class _CalmRowBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
+              // `.row__main { gap: 2px }` — a literal, not a token. Calm's
+              // space scale starts at 4 and this is half of it: the hairline
+              // that keeps three stacked lines from reading as a paragraph.
+              spacing: 2,
               children: [
                 Text(
                   title,
@@ -339,6 +379,17 @@ class _CalmRowBody extends StatelessWidget {
                   Text(
                     subtitle!,
                     style: type.caption.copyWith(color: colors.ink3),
+                  ),
+                if (detail != null)
+                  Text(
+                    detail!,
+                    style: CalmType.tabular(
+                      type.caption.copyWith(
+                        color: detailState == null
+                            ? colors.ink3
+                            : CalmStatusStyle.of(context, detailState!).ink,
+                      ),
+                    ),
                   ),
               ],
             ),

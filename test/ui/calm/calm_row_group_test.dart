@@ -6,8 +6,10 @@
 // off-by-one that survives every review because it looks deliberate.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
@@ -659,5 +661,112 @@ void main() {
         reason: '$locale — an ordinary title keeps the body-lg leading',
       );
     }
+  });
+
+  group('the second sub-line', () {
+    // `.row__main` holds TWO `.row__sub` spans on ten rows across six
+    // artboards — the garage, home, `vehicle.switcher`, `dialog.confirmDelete`
+    // and both scroll dialogs. It is a design-system fact, not a garage
+    // special case, so it lives on the row rather than being rebuilt by each
+    // screen that needs it.
+    Future<void> pumpDetail(
+      WidgetTester tester, {
+      DueState? state,
+    }) => pumpApp(
+      tester,
+      CalmRowGroup(
+        rows: [
+          CalmListRow(
+            title: 'The Golf',
+            subtitle: 'VW Golf VII · 2016 · diesel',
+            detail: '187,412 km · oil and filter overdue',
+            detailState: state,
+            size: CalmRowSize.lg,
+          ),
+        ],
+      ),
+    );
+
+    TextStyle styleOf(WidgetTester tester, String text) =>
+        tester.widget<Text>(find.text(text)).style!;
+
+    testWidgets('draws beneath the first, both of them present', (
+      tester,
+    ) async {
+      await pumpDetail(tester);
+      expect(find.text('VW Golf VII · 2016 · diesel'), findsOneWidget);
+      expect(find.text('187,412 km · oil and filter overdue'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('187,412 km · oil and filter overdue')).dy,
+        greaterThan(
+          tester.getTopLeft(find.text('VW Golf VII · 2016 · diesel')).dy,
+        ),
+      );
+    });
+
+    testWidgets('takes tabular, lining figures — the design .num does both', (
+      tester,
+    ) async {
+      // Every one of those ten second sub-lines carries `.num`, which sets
+      // `tabular-nums lining-nums`. Tabular alone lets a font with oldstyle
+      // figures by default draw 187,412 with a descending 4 — aligned columns
+      // of the wrong shape.
+      await pumpDetail(tester);
+      expect(
+        styleOf(tester, '187,412 km · oil and filter overdue').fontFeatures,
+        containsAll(const [
+          FontFeature.tabularFigures(),
+          FontFeature.liningFigures(),
+        ]),
+      );
+    });
+
+    testWidgets('a state colours it with that state ink, not ink-3', (
+      tester,
+    ) async {
+      // The artboard sets `color: var(--color-overdue-ink)` inline on the
+      // overdue row's second sub-line. It is the ink ramp, not the dot colour:
+      // `--color-overdue` on a caption would be a red that fails contrast on
+      // `surface`.
+      await pumpDetail(tester, state: DueState.overdue);
+      final context = tester.element(find.byType(CalmRowGroup));
+      expect(
+        styleOf(tester, '187,412 km · oil and filter overdue').color,
+        CalmStatusStyle.of(context, DueState.overdue).ink,
+      );
+      expect(
+        styleOf(tester, 'VW Golf VII · 2016 · diesel').color,
+        CalmColors.of(context).ink3,
+        reason: 'the FIRST sub-line is never restyled by the state',
+      );
+    });
+
+    testWidgets('no state leaves it the same ink-3 as the first', (
+      tester,
+    ) async {
+      await pumpDetail(tester);
+      final ink3 = CalmColors.of(
+        tester.element(find.byType(CalmRowGroup)),
+      ).ink3;
+      expect(
+        styleOf(tester, '187,412 km · oil and filter overdue').color,
+        ink3,
+      );
+      expect(styleOf(tester, 'VW Golf VII · 2016 · diesel').color, ink3);
+    });
+
+    testWidgets('2px separates the title from its sub-lines', (tester) async {
+      // `.row__main { gap: 2px }`. Two sub-lines make it two gaps, and a row
+      // that stacked them flush is 4pt shorter than a 76pt design row — which
+      // the parity band profile reads as a shifted edge on every row below it.
+      await pumpDetail(tester);
+      final title = tester.getRect(find.text('The Golf'));
+      final sub = tester.getRect(find.text('VW Golf VII · 2016 · diesel'));
+      final detail = tester.getRect(
+        find.text('187,412 km · oil and filter overdue'),
+      );
+      expect(sub.top - title.bottom, closeTo(2, 0.01));
+      expect(detail.top - sub.bottom, closeTo(2, 0.01));
+    });
   });
 }

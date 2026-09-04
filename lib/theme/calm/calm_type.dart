@@ -194,8 +194,17 @@ class CalmType extends ThemeExtension<CalmType> {
   /// Aligned digits come from a font FEATURE, never from a monospace family —
   /// Calm has no monospace anywhere, and swapping the family for a figure
   /// changes the voice of the whole line.
+  ///
+  /// BOTH features, because `odova.css`'s `.num` sets both:
+  /// `font-variant-numeric: tabular-nums lining-nums`. Tabular alone still
+  /// lets a font whose default figures are oldstyle draw a descending 4 and a
+  /// short 1 — a column that aligns but does not match the design's shapes.
+  /// Three call sites set tabular without lining before this said so.
   static TextStyle tabular(TextStyle style) => style.copyWith(
-    fontFeatures: const [FontFeature.tabularFigures()],
+    fontFeatures: const [
+      FontFeature.tabularFigures(),
+      FontFeature.liningFigures(),
+    ],
   );
 
   @override

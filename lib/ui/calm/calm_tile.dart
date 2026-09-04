@@ -61,14 +61,16 @@ class CalmTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.fade,
               softWrap: false,
-              style: type.title.copyWith(
-                color: brand ? colors.brandSoftInk : colors.ink,
-                fontWeight: type.semi,
-                // Tabular figures, not a monospace family: Calm has no
-                // monospace,
-                // and a column of stats that jitters as the value changes reads
-                // as broken rather than as live.
-                fontFeatures: const [FontFeature.tabularFigures()],
+              // Tabular figures, not a monospace family: Calm has no
+              // monospace, and a column of stats that jitters as the value
+              // changes reads as broken rather than as live. `.tile__value` is
+              // one of the five selectors in the CSS's `.num` group, so it
+              // goes through the same helper the other four do.
+              style: CalmType.tabular(
+                type.title.copyWith(
+                  color: brand ? colors.brandSoftInk : colors.ink,
+                  fontWeight: type.semi,
+                ),
               ),
             ),
             SizedBox(height: space.s1),
