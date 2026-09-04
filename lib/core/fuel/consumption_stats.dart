@@ -112,14 +112,33 @@ Result<RankedSegment, ConsumptionUnavailable> _rank(
   }
 
   if (ranked.isEmpty) {
-    // Two different situations, and only one of them gets better with time.
-    // There were no segments — log another full fill — versus there were
-    // segments and NONE of them converts to this unit, which is a CNG car
-    // asked for litres per 100 km. A driver of one was being told to keep
-    // logging, forever.
-    return list.isEmpty
-        ? const Err(InsufficientData(have: 0, need: 1))
-        : Err(UnitNotApplicable(unit.wire));
+    // THREE different situations, and `asUnit`'s `null` does not distinguish
+    // them — it means both "this form has no such unit" and "this segment is
+    // not measurable". Collapsing them told a diesel driver whose segments all
+    // measured zero distance that litres per 100 km does not apply to their
+    // car.
+    if (list.isEmpty) {
+      // Log another full fill. The only one of the three that time fixes.
+      return const Err(InsufficientData(have: 0, need: 1));
+    }
+
+    final unmeasurable = list.where((s) => !s.consumption.isComputable);
+    if (unmeasurable.length == list.length) {
+      // Every segment has no distance or no fuel. The unit is fine; the data
+      // is not, and the fill ids say which rows.
+      final first = unmeasurable.first;
+      return Err(
+        NonPositiveDistance(
+          fromFillUpId: first.fromFillUpId,
+          toFillUpId: first.toFillUpId,
+        ),
+      );
+    }
+
+    // Measurable segments that this unit cannot express: a CNG car asked for
+    // litres per 100 km. No number of fills will help, and the placeholder
+    // this replaced said "one more full fill".
+    return Err(UnitNotApplicable(unit.wire));
   }
 
   // Lower is better for fuel-per-distance, higher for distance-per-fuel.

@@ -113,7 +113,7 @@ FuelSegmentSet buildFuelSegments(Iterable<FillUpPoint> fills) {
           partialCount: pending.length - 1,
         ),
       );
-    } else {
+    } else if (distance.metres <= 0) {
       // Two fills at the same odometer, or a distance running backwards. A
       // data error, and BOTH fills are named because only the user knows which
       // of the two numbers is wrong. Never a 0 L/100 km.
@@ -128,6 +128,23 @@ FuelSegmentSet buildFuelSegments(Iterable<FillUpPoint> fills) {
       );
       discarded[open.id] = reason;
       discarded[fill.id] = reason;
+    } else if (quantity == null) {
+      // Partials of two different physical kinds inside one segment — an
+      // importer's doing, since one `fuel_kind` cannot produce it. Both ends
+      // are named because the offending partial is in neither position.
+      discarded[open.id] = const MixedFuelForms();
+      discarded[fill.id] = const MixedFuelForms();
+    } else {
+      // A fill recording no fuel. Named on ITS OWN row and not as a conflict
+      // between two odometers: the readings are fine and the litres are
+      // missing, so sending the user to check two correct readings is the
+      // wrong instruction. This branch used to build `NonPositiveDistance`
+      // like the two above it — one guard for three causes.
+      final zero = pending.firstWhere(
+        (f) => f.quantity.isZero,
+        orElse: () => fill,
+      );
+      discarded[zero.id] = NonPositiveQuantity(zero.id);
     }
 
     open = fill;

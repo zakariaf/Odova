@@ -16,6 +16,7 @@
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/money/money_total.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/value_equality.dart';
@@ -285,16 +286,27 @@ class ServiceRecord with ValueEquality {
   /// When it was last changed.
   final int updatedAtUtcMs;
 
-  /// The cost.
+  /// The cost, grouped by currency.
   ///
   /// DERIVED — there is no total column. SPEC.md §3: cost is always the sum of
   /// the lines, and a stored total drifts the first time one is edited.
   ///
-  /// Null for a record with no lines, which the schema forbids and an import
-  /// could still produce. Summing nothing has no currency, and inventing one
-  /// would put a euro sign on a Japanese service.
-  Money? get total =>
-      lines.isEmpty ? null : lines.map((l) => l.amount).reduce((a, b) => a + b);
+  /// **A [MoneyTotal] and not a `Money?`, because this getter must not throw.**
+  /// `Money.+` refuses across currencies, deliberately: a caller asking for one
+  /// number from two is wrong. But this is a plain getter on a domain model
+  /// that a list screen reads for every row, so throwing here means a record
+  /// with a part billed abroad — or any import — crashes the screen instead of
+  /// showing what is known. It used to `reduce` with `+`, and the whole suite
+  /// missed it because every fixture used euros.
+  ///
+  /// Every other total in this app groups rather than sums: `fuelSpend`,
+  /// `avgPricePaid`, `fuelCostPerDistance`. This is the same rule, and
+  /// SPEC.md §12 is explicit that there is no third option that adds them up.
+  ///
+  /// An empty record gives an EMPTY total rather than a zero: summing nothing
+  /// has no currency, and inventing one would put a euro sign on a Japanese
+  /// service.
+  MoneyTotal get total => MoneyTotal(lines.map((l) => l.amount));
 
   @override
   List<Object?> get props => [

@@ -137,7 +137,21 @@ FuelCostPerDistance fuelCostPerDistance(
       for (final id in ids)
         if (costsByFillId[id] != null) costsByFillId[id]!,
     ];
-    if (fills.isEmpty) continue;
+
+    // EVERY contributing fill must have a cost, or the segment's cost is
+    // unknown rather than smaller. Taking the fills that happen to have one
+    // put a partial sum over the WHOLE segment distance: a 600 km tank whose
+    // middle top-up was saved without a total read about 40% cheaper per
+    // kilometre, presented as a fact. Half a cost is the same shape of mistake
+    // as half a price, and `moneyOrNull` already refuses that one.
+    //
+    // Counted, not silently dropped — SPEC.md §12's data-quality row is what
+    // `excludedSegmentCount` feeds, and a tank left out of the figure without
+    // being counted is the figure lying quietly.
+    if (fills.length != ids.length || fills.isEmpty) {
+      excluded++;
+      continue;
+    }
 
     final currencies = fills.map((f) => f.cost.currency).toSet();
     if (currencies.length > 1) {
@@ -149,16 +163,9 @@ FuelCostPerDistance fuelCostPerDistance(
     }
 
     final currency = currencies.single;
-    cost.update(
-      currency,
-      (c) => c + fills.fold(0, (s, f) => s + f.cost.amountMinor),
-      ifAbsent: () => fills.fold(0, (s, f) => s + f.cost.amountMinor),
-    );
-    distance.update(
-      currency,
-      (d) => d + segment.distance.metres,
-      ifAbsent: () => segment.distance.metres,
-    );
+    final total = fills.fold(0, (sum, f) => sum + f.cost.amountMinor);
+    cost[currency] = (cost[currency] ?? 0) + total;
+    distance[currency] = (distance[currency] ?? 0) + segment.distance.metres;
   }
 
   return FuelCostPerDistance(

@@ -87,12 +87,27 @@ Result<ConsumptionTrend, ConsumptionUnavailable> consumptionTrend(
     );
   }
 
+  // The whole run, checked ONCE, before the windows are cut.
+  //
+  // Checking each window separately proves the forms match within each and
+  // NOTHING between them, so six charge segments followed by three petrol ones
+  // passed both checks and produced a confident verdict comparing watt-hours
+  // per metre against millilitres per metre — it read as "-40%, leaner". A
+  // range-extender EV, or a bi-fuel car an importer landed under one
+  // `fuel_kind`, is exactly that list.
+  final window = segments.sublist(segments.length - trendSegmentFloor);
+  if (FuelQuantity.sumOf(window.map((s) => s.quantity)) == null) {
+    return const Err(MixedFuelForms());
+  }
+
   final recent = _totalOverTotal(segments.sublist(segments.length - 3));
   final previous = _totalOverTotal(
     segments.sublist(segments.length - 9, segments.length - 3),
   );
   if (recent == null || previous == null) {
-    // Mixed fuel forms in one list: the caller split by fuel kind wrongly.
+    // Unreachable now that the whole window is checked above, and kept
+    // because `_totalOverTotal` is nullable and a silent `!` here would be the
+    // next person's bug.
     return const Err(MixedFuelForms());
   }
 
@@ -147,9 +162,10 @@ Result<ConsumptionTrend, ConsumptionUnavailable> consumptionTrend(
 /// Null when the segment is not computable.
 ///
 /// The unit of the numerator is whatever [Consumption.quantity]'s form is —
-/// millilitres, grams or watt-hours — and that is fine here because the ratio
-/// is only ever COMPARED against another ratio from the same run of segments,
-/// which [_totalOverTotal] has already proved share a form.
+/// millilitres, grams or watt-hours — so two ratios are only comparable when
+/// their segments share a form. [consumptionTrend] proves that over the WHOLE
+/// nine-segment window before cutting it in two; proving it per window, which
+/// is what it used to do, proves nothing across the seam.
 double? _ratio(Consumption consumption) {
   if (!consumption.isComputable) return null;
   return consumption.quantity.amount / consumption.distance.metres;

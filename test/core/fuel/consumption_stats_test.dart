@@ -236,6 +236,32 @@ void main() {
       );
     });
 
+    test('a zero-distance run is not "this unit does not apply"', () {
+      // `asUnit` returns null for two unrelated reasons — a form/unit mismatch
+      // and `!isComputable` (zero distance or zero fuel) — and `_rank`
+      // collapsed both into `UnitNotApplicable`. A diesel car whose segments
+      // all measured zero distance was told litres per 100 km does not apply
+      // to it, which is the same class of wrong refusal this epic set out to
+      // remove.
+      final stuck = [
+        for (var i = 0; i < 3; i++)
+          FuelSegment(
+            fromFillUpId: 's${i}_from',
+            toFillUpId: 's$i',
+            distance: Distance.zero,
+            quantity: const LiquidVolume(Volume(40000)),
+            partialCount: 0,
+          ),
+      ];
+
+      final best = bestSegment(stuck, ConsumptionUnit.lPer100km);
+      expect(
+        (best as Err<RankedSegment, ConsumptionUnavailable>).failure,
+        const NonPositiveDistance(fromFillUpId: 's0_from', toFillUpId: 's0'),
+        reason: 'the unit is fine; the segments are not measurable',
+      );
+    });
+
     test('and NO segments is still insufficiency, which does get better', () {
       final best = bestSegment(const [], ConsumptionUnit.lPer100km);
       expect(

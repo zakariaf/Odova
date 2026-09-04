@@ -244,6 +244,32 @@ void main() {
       );
     });
 
+    test('a run whose two WINDOWS differ produces nothing', () {
+      // The subtle one. `_totalOverTotal` runs per window and proves the
+      // forms match WITHIN each — so six charge segments followed by three
+      // petrol ones passed both checks and produced a confident verdict
+      // comparing watt-hours per metre against millilitres per metre. It read
+      // as "-40%, leaner".
+      //
+      // A range-extender EV, or a bi-fuel car an importer landed under one
+      // `fuel_kind`, is exactly this list.
+      final switched = [
+        for (var i = 0; i < 6; i++) chargeSegment('e$i', 50),
+        for (var i = 0; i < 3; i++) segment('l$i', 6),
+      ];
+
+      expect(
+        consumptionTrend(switched),
+        isA<Err<ConsumptionTrend, ConsumptionUnavailable>>(),
+      );
+      expect(
+        (consumptionTrend(switched)
+                as Err<ConsumptionTrend, ConsumptionUnavailable>)
+            .failure,
+        const MixedFuelForms(),
+      );
+    });
+
     test('a run mixing two forms still produces nothing', () {
       // Mixing is DATA, not a bug — an importer can land a bi-fuel car's
       // fills under one fuel_kind — and adding kilowatt-hours to litres would

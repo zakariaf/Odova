@@ -53,7 +53,8 @@ void main() {
         lines: [_line('A', 8900), _line('B', 4250), _line('C', 0)],
       );
 
-      expect(record.total, money(13150, 'EUR'));
+      expect(record.total.byCurrency[isoCurrency('EUR')], 13150);
+      expect(record.total.isMixed, isFalse);
     });
 
     test('a warranty job of one zero line totals zero, not nothing', () {
@@ -70,7 +71,7 @@ void main() {
         lines: [_line('A', 0)],
       );
 
-      expect(record.total, money(0, 'EUR'));
+      expect(record.total.byCurrency[isoCurrency('EUR')], 0);
     });
 
     test('two records differing only in a line are not equal', () {
@@ -209,5 +210,60 @@ void main() {
     );
 
     expect(correction.offset, const Distance(187412000));
+  });
+  group('a record whose lines span two currencies', () {
+    test('groups them, and does not throw', () {
+      // `Money.+` throws across currencies, deliberately — a screen that asks
+      // for one number from two is wrong. But `total` is a plain GETTER on a
+      // domain model, so throwing there means a record with a part billed
+      // abroad crashes the screen that lists it rather than showing what is
+      // known. Every other total in this epic groups: `fuelSpend`,
+      // `MoneyTotal`, `fuelCostPerDistance`. This was the one that summed
+      // blind, and the whole suite missed it because every fixture used EUR.
+      final record = ServiceRecord(
+        id: _record,
+        vehicleId: _vehicle,
+        occurredOn: '2026-09-03',
+        odometerUnit: DistanceUnit.km,
+        createdAtUtcMs: 0,
+        updatedAtUtcMs: 0,
+        lines: [
+          ServiceLine(
+            id: ServiceLineId.tryParse('lin_${_id.substring(0, 25)}X')!,
+            serviceRecordId: _record,
+            label: 'Parts, bought abroad',
+            amount: money(4250, 'GBP'),
+          ),
+          ServiceLine(
+            id: ServiceLineId.tryParse('lin_${_id.substring(0, 25)}Y')!,
+            serviceRecordId: _record,
+            label: 'Labour',
+            amount: money(8900, 'EUR'),
+          ),
+        ],
+      );
+
+      expect(record.total.isMixed, isTrue);
+      expect(record.total.byCurrency[isoCurrency('GBP')], 4250);
+      expect(record.total.byCurrency[isoCurrency('EUR')], 8900);
+      // SPEC.md §12: the screen reads this to choose between one figure and a
+      // list. There is no third option that adds them up.
+      expect(record.total.dominantCurrency, isNotNull);
+    });
+
+    test('an empty record totals nothing, and says so without a currency', () {
+      final empty = ServiceRecord(
+        id: _record,
+        vehicleId: _vehicle,
+        occurredOn: '2026-09-03',
+        odometerUnit: DistanceUnit.km,
+        createdAtUtcMs: 0,
+        updatedAtUtcMs: 0,
+        lines: const [],
+      );
+
+      expect(empty.total.isEmpty, isTrue);
+      expect(empty.total.dominantCurrency, isNull);
+    });
   });
 }

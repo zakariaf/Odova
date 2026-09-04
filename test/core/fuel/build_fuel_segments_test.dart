@@ -400,8 +400,15 @@ void main() {
     ]);
 
     expect(set.segments, isEmpty);
-    expect(set.flaggedFillUpIds, ['a', 'b']);
+    // ONLY 'b'. This asserted `['a', 'b']` when the discard branch reported
+    // every cause as an odometer conflict — but a's reading is correct and b's
+    // litres are missing, so naming a sends the user to check a number that is
+    // right. A zero-DISTANCE pair names both, because either reading could be
+    // the wrong one; a zero-QUANTITY fill names itself, because only one row
+    // is short a value.
+    expect(set.flaggedFillUpIds, ['b']);
   });
+
   group('a discarded fill says WHY, not just that it was discarded', () {
     // The builder knows precisely which of four things happened, and used to
     // throw that away into a bare `List<String>`. SPEC.md §3's copy for these
@@ -461,6 +468,48 @@ void main() {
       ]);
 
       expect(set.discarded, {'b': const MissingOdometer('b')});
+    });
+
+    test('a zero-quantity fill is NOT reported as an odometer conflict', () {
+      // The discard branch had one guard for three causes — backwards
+      // distance, zero quantity, mixed forms — and built `NonPositiveDistance`
+      // for all of them. A fill saved with 0 mL between two correct readings
+      // 600 km apart told the user "these two readings are the same number",
+      // sending them to check two odometers that are right.
+      //
+      // `NonPositiveQuantity` was in the sealed set the whole time and the
+      // builder never constructed it; `refusals_are_reachable_test` passed
+      // only because `unitPrice` happens to construct it elsewhere.
+      final set = buildFuelSegments([
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill('b', km: 600, litres: 0, occurredOn: '2026-02-01'),
+      ]);
+
+      expect(set.segments, isEmpty);
+      expect(set.discarded, {'b': const NonPositiveQuantity('b')});
+    });
+
+    test('mixed forms inside one segment say mixed forms', () {
+      // Two partials of different physical kinds between two full fills. It
+      // takes an importer to produce, and it is not an odometer conflict.
+      final set = buildFuelSegments([
+        fill('a', km: 0, litres: 40, occurredOn: '2026-01-01'),
+        fill(
+          'b',
+          km: 300,
+          litres: 0,
+          occurredOn: '2026-01-15',
+          full: false,
+          quantity: const ElectricEnergy(Energy(20000)),
+        ),
+        fill('c', km: 600, litres: 30, occurredOn: '2026-02-01'),
+      ]);
+
+      expect(set.segments, isEmpty);
+      expect(set.discarded, {
+        'a': const MixedFuelForms(),
+        'c': const MixedFuelForms(),
+      });
     });
 
     test('flaggedFillUpIds is still the sorted key set', () {

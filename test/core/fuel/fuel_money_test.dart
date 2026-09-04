@@ -267,5 +267,48 @@ void main() {
       );
       expect(result.minorPerMetre, isEmpty);
     });
+
+    test('a segment with only SOME of its costs is excluded, not halved', () {
+      // The numerator dropped the fills that had no cost row and the
+      // denominator kept the whole segment distance, so a 600 km tank whose
+      // middle top-up was saved without a total reported roughly 40% less per
+      // kilometre — presented as a fact and entirely plausible.
+      //
+      // A partial cost is not a smaller cost; it is an unknown one, which is
+      // the same argument `moneyOrNull` makes about half a price.
+      final result = fuelCostPerDistance(
+        [segment('d', km: 600)],
+        {
+          'b': fill('b', cents: 5000, millilitres: 20000),
+          // 'c' contributed fuel and has no cost row.
+          'd': fill('d', cents: 4000, millilitres: 25200),
+        },
+        {
+          'd': ['b', 'c', 'd'],
+        },
+      );
+
+      expect(result.minorPerMetre, isEmpty);
+      expect(
+        result.excludedSegmentCount,
+        1,
+        reason: 'SPEC.md §12 has a data-quality row; it needs the count',
+      );
+    });
+
+    test('a segment with NO costs at all is counted as excluded too', () {
+      // It used to `continue` with no counter, so the data-quality row said
+      // nothing had been left out while a tank had been.
+      final result = fuelCostPerDistance(
+        [segment('b', km: 600)],
+        const {},
+        {
+          'b': ['a', 'b'],
+        },
+      );
+
+      expect(result.minorPerMetre, isEmpty);
+      expect(result.excludedSegmentCount, 1);
+    });
   });
 }

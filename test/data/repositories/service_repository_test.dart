@@ -88,7 +88,7 @@ void main() {
     final found = await repository.findRecordById(_recordId);
     final record = (found as Ok<ServiceRecord, PersistFailure>).value;
     expect(record.lines, hasLength(2));
-    expect(record.total, money(13150, 'EUR'));
+    expect(record.total.byCurrency[isoCurrency('EUR')], 13150);
     expect(record, saved);
   });
 
@@ -140,8 +140,8 @@ void main() {
             .value;
     expect(found.lines, hasLength(2));
     expect(
-      found.total,
-      money(13150, 'EUR'),
+      found.total.byCurrency[isoCurrency('EUR')],
+      13150,
       reason: 'the old values must survive',
     );
   });
@@ -158,7 +158,7 @@ void main() {
                 as Ok<ServiceRecord, PersistFailure>)
             .value;
     expect(found.lines, hasLength(1));
-    expect(found.total, money(8900, 'EUR'));
+    expect(found.total.byCurrency[isoCurrency('EUR')], 8900);
     expect(await countLines(), 1);
   });
 
