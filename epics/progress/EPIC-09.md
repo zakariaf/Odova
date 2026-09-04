@@ -252,3 +252,62 @@ is one of those things.
 Task 9.5's remainder (listed above), then 9.6 `vehicles`, 9.7
 `vehicle.switcher` and 9.8's launch-state wiring. Plus F-9.16, which every
 screen with a chipbar or a flat segmented control will hit.
+
+## Task 9.6 — `vehicles`, the garage
+
+Seven commits, because the artboard needed four things the app did not have.
+
+- **`0de8610`** the screen and its ten tests. No database in the test: a drift
+  stream never delivers under `testWidgets` and the symptom is a ten-minute hang
+  with no output. That is the THIRD time this epic; `provider_harness.dart` and
+  now this file both say so. One pump per test, too — Riverpod asserts the
+  override count is constant across a rebuild, so a test that pumped one vehicle
+  and then two died inside `updateOverrides` rather than in an expectation.
+- **`e0fcf6a`** `CalmListRow.detail` — a second sub-line. `.row__main` carries
+  two `.row__sub` spans on ten rows across six artboards, so it belongs on the
+  row rather than being rebuilt by the garage, `home`, `vehicle.switcher` and
+  `dialog.confirmDelete` in turn. It also found that **`.row__main { gap: 2px }`
+  was never implemented**: every row with a subtitle has been 2pt short since the
+  component was written. Four `rows-*` goldens re-baselined for it and four
+  `tile-*` for the lining figures.
+- **`8181287`** the past side of the relative-date bucketing. SPEC.md §5's rule
+  has no tense in it, but only the forward half was built, so `vehicle.edit` told
+  users a reading was "123 days ago". A 30-day month passed every case I first
+  wrote; the divisor is now pinned against `bucketRelativeDays` itself.
+- **`add5f12`** `roundEstimateForDisplay`. SPEC.md §1.4 is binding on every
+  screen and nothing implemented it. The unit is an argument, not a constant:
+  1024 mi and 1025 mi both land on 1025.3 if you round to 100 km first.
+- **`735af7b`** `formatLongDate`, and **a crash nobody had hit yet**. ICU carries
+  no `ckb` date data at all — not sparse, absent — and `ckb-IQ` reads Gregorian,
+  so `DateFormat.yMMMMd('ckb-IQ')` throws `Invalid locale`. A Sorani user in Iraq
+  would have crashed on every screen with a date on it. `kurdishGregorianMonthNames`
+  fixes it where `projectDate` already decides who supplies a month name.
+- **`0b8d159`** the row the artboard draws, plus `CalmRowGroup.headerHint`.
+
+### Two findings from this task
+
+- **F-9.24 — SPEC's prose contradicted SPEC's own drawing.** §8 said a sold
+  vehicle "shows `—`"; its own ASCII sketch and `screens.html` both show
+  `Sold 12 March 2024 · 1,204 entries`, a compact row in a tinted group, and a
+  chevron where the dot would be. `vehicleSoldSummary` — added earlier in this
+  epic — had already assumed the drawing. SPEC.md is corrected; the em-dash test
+  is deleted rather than left asserting a sentence nobody will see.
+- **SPEC's `=0` rule collides with Arabic.** §8 requires an explicit `=0` plural
+  case on entry counts. Adding one to Arabic made it render five distinct forms
+  where it has six, because CLDR's Arabic `zero` category IS n = 0 and an `=0`
+  clause shadows it. Arabic already owns the slot, so the date-only sentence
+  lives in `zero` there and in `=0` in the other five. `plurals_test.dart` caught
+  it; six ARB files do not show it to a reader.
+
+### A golden that moves on its own
+`--update-goldens` rewrote `segmented-light-ltr` and `segmented-dark-ltr` as
+well. Stashing every lib change and re-running the flag showed those two move
+with no code change at all: they are the cross-machine rasterisation noise
+`test/flutter_test_config.dart` tolerates at 0.05%. They were NOT blessed —
+doing so writes this host's rendering into the repo. Worth knowing before the
+next person reaches for the flag and commits ten files.
+
+### Still open in 9.6
+Swipe end actions, long-press reorder, the sell form, the delete wiring onto
+EPIC-08's `showConfirmDeleteDialog`, and the parity capture.
+
