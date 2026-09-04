@@ -49,3 +49,106 @@ Three times a test or a gate was green against the thing it was written to catch
   the first draft of the DISTANCE ones proved nothing either, because a 10,000 km
   interval computes exactly 1,000,000 m of notice and never touches the clamp.
 
+## /simplify — every finding, applied or answered
+
+Four agents over `git diff main...HEAD`. **Applied: 18. Answered without
+applying: 3.** The passes found two real bugs and one gate that was checking a
+different scenario from the test it backs.
+
+### Bugs
+
+| Finding | What was wrong |
+|---|---|
+| `VehicleDueSnapshot.props` encoded each assessment through `toString()`, which prints only state and driver | Two snapshots differing in every number compared EQUAL, and `valuesEqual` is the `distinct` predicate on the watch streams — the home screen would not have rebuilt when only the numbers it renders had changed |
+| `computeDueState` hardcoded `confidence: measured` and left `projectedDueDate` null for one caller to patch | The golden file's confidence column was a transcript of two literals. It takes the rate and the series now, and a new fixture row — readings 13 days apart, one short of §4.1.2's minimum — is the first where readings EXIST and the confidence is still `default` |
+| `nextDue`'s `today` was optional, and the default disabled the snooze filter | The unsafe direction on a function whose obvious second caller is EPIC-11's scheduler: omitting it fires reminders for items the user has deferred |
+
+### Duplication — the fourth and fifth instances in three epics
+
+`CivilDate` wrote `days_from_civil` and its inverse for a job
+`lib/core/l10n/jalali.dart` had been doing since EPIC-04 with Fliegel-Van
+Flandern. They agree over 100,000 consecutive days with zero mismatches, which is
+the good outcome; the bad one is a repo where two day counts disagree somewhere
+nobody looked. Unified into `lib/core/time/julian_day.dart`, and each suite's
+tests now cover the other's path.
+
+`wholeDaysBetween` was the third. Its one caller did
+`DateTime.parse(fromDate)` on a `YYYY-MM-DD` string — the exact construction
+`CivilDate` was written to remove, kept alive by the helper that worked around
+it. Deleted.
+
+**Neither was catchable by the one-type gate**, because they share no name, no
+signature and no file. Nothing greps for "the same arithmetic spelled
+differently", and that is worth knowing before the next epic assumes the gate
+covers this class.
+
+### The benchmark measured neither term that scales
+
+The affordability test ran with an empty record list and two readings, so it
+exercised neither `items x records` in `resolveAnchor` nor the sort in
+`ReadingSeries`. Its own comment promised it could produce a finding; it could
+not. It now runs a decade — 5 vehicles, 16 reminders, 200 records, 1,000 readings
+— in **1 ms**, and removing the record index it prompted costs 3 ms.
+
+### Two orderings of one enum
+
+`axisSeverity` ("which axis is worse") and `attentionRank` ("which item do I name
+first") are genuinely different questions and were two unnamed private functions,
+only one of which explained itself. Named, documented in terms of each other, and
+guarded by three tests: they disagree exactly where designed, they AGREE on the
+strict ordering they share, and `attentionRank` is total. EPIC-11's notification
+ranking and EPIC-12's home sort are the next consumers.
+
+### The gate and the test computed the same row differently
+
+`due_matrix_test.dart` and `tool/regenerate_due_vectors.dart` each decoded the
+fixture into a scenario. **They had already drifted** — the test honoured
+`is_active` and the tool did not, so the gate skipped every `paused` row. One
+`test/support/due_case.dart` now serves both; the tool drops 176 lines to 89 and
+the gate checks the absence rows for the first time.
+
+### Answered, not applied
+
+**`Distance` should replace the raw `int` metres on five of the epic's value
+types.** `DueAnchor.odometerMetres`, `OdometerEstimate.metres`,
+`DueAssessment.remainingMetres` / `dueAtOdometerMetres` and `NoticeWindow`'s two
+windows are `int` while `OdometerPoint.cumulative` in the same epic is a
+`Distance`. The finding is right and the cost is six public fields across five
+files plus the fixture JSON boundary and most of the due tests, for no
+behavioural change. **Deferred deliberately, and it is in the Deferred list
+below** — the next epic that consumes these types inherits the convention, so it
+should be decided rather than drifted into. `DailyDistance.metresPerDay` is a
+RATE and correctly stays an `int`.
+
+**`DueSummary.worst` and `worstItem` should be one `AssessedItem?`.** True: the
+type admits a state `dueSummary` cannot produce. Skipped because the two fields
+read better at every call site (`summary.worst?.state` against
+`summary.worst?.$2.state`), the invariant is enforced by the only constructor,
+and §8's garage row is the consumer — merging them makes the spec-facing shape
+worse to buy an unreachable state's absence.
+
+**Nine test files each declare `day()`, `reading()` and the ULID constant.** Real
+duplication, and `test/support/due_case.dart` now covers the matrix half of it.
+The rest is per-file fixture preamble whose shapes genuinely differ (nullable
+dates in `resolve_anchor_test`, indexed suffixes in `vehicle_due_snapshot_test`),
+and collapsing it would make each test read further from what it asserts. Left
+as it is.
+
+## Deferred
+
+- **`Distance` on the due engine's public fields.** See the answered finding
+  above. The next epic to consume `DueAnchor`, `OdometerEstimate`,
+  `DueAssessment` or `NoticeWindow` inherits raw `int` metres, and should decide
+  deliberately whether to keep them.
+- **`lib/core/time/completed_months.dart` still has its own `_daysIn` and month
+  arithmetic**, which `CivilDate.daysInMonth` and `addMonths` now duplicate. Its
+  own header predicted this file would be the one the due engine reused, and the
+  reuse went the other way. One small refactor, no behaviour change, and no
+  caller of `completedMonthsBefore` exists yet — so it belongs to whichever epic
+  first needs a monthly cost figure.
+- **The domain models still store `occurredOn` as a `String`.** `CivilDate` is
+  the type, and moving the models onto it touches EPIC-05's mappers, the backup
+  writer and the import validator. The DB column stays `TEXT` either way, so
+  nothing gets more expensive by waiting.
+- **`SPEC.md` §18 question 25** (the Calm contrast failures) is untouched and
+  still EPIC-17's. No screen was built here.
