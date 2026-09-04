@@ -284,4 +284,48 @@ void main() {
       );
     });
   });
+  test('each window is TOTAL-over-total, not a mean of its segments', () {
+    // SPEC.md §3 said "compares the MEAN of the last 3 segments against the 6
+    // before them" in one place and "everything here is total-over-total" in
+    // another, about the same function. This PR resolves that in favour of
+    // total-over-total and changes the spec line — see the PR's Spec section.
+    //
+    // The reason is the one SPEC.md itself gives two lines above, for the
+    // lifetime average: a mean over-weights a 40 km segment against a 900 km
+    // one. Over three segments that is far worse than over ninety — one town
+    // top-up is a third of the answer.
+    //
+    // These numbers make the two rules disagree by 30%, which is enough to
+    // flip the verdict across the ±8% band.
+    FuelSegment seg(String id, {required int km, required double lPer100km}) =>
+        FuelSegment(
+          fromFillUpId: '${id}_from',
+          toFillUpId: id,
+          distance: Distance.fromKm(km),
+          quantity: LiquidVolume(Volume((lPer100km * km * 10).round())),
+          partialCount: 0,
+        );
+
+    final history = [
+      // Six steady tanks at 6.0.
+      for (var i = 0; i < 6; i++) seg('old$i', km: 500, lPer100km: 6),
+      // Then a short, thirsty town run and two long steady ones.
+      seg('new0', km: 40, lPer100km: 12),
+      seg('new1', km: 900, lPer100km: 6),
+      seg('new2', km: 900, lPer100km: 6),
+    ];
+
+    final trend =
+        (consumptionTrend(history)
+                as Ok<ConsumptionTrend, ConsumptionUnavailable>)
+            .value;
+
+    // Total-over-total for the recent window: (48 + 540 + 540) L over 1840 km
+    // = 6.13 L/100 km, a 2.2% rise on 6.0 — inside the band.
+    expect(trend.direction, TrendDirection.steady);
+    expect(trend.changePercent, closeTo(2.2, 0.3));
+    // A mean of the three would be (12 + 6 + 6) / 3 = 8.0, a 33% rise, and the
+    // user would be told their car got thirsty because they filled up in town
+    // once.
+  });
 }
