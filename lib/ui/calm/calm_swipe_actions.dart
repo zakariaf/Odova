@@ -153,16 +153,17 @@ class _CalmSwipeActionsState extends State<CalmSwipeActions>
             // The actions sit BEHIND the row and do not move. The row slides
             // off them, which is what makes the reveal read as uncovering
             // rather than as pushing.
-            PositionedDirectional(
-              top: 0,
-              bottom: 0,
-              end: 0,
-              child: _EndActions(
-                actions: widget.endActions,
-                open: _offset > 0,
-                onRun: _run,
+            // Not BUILT while the row is shut, rather than built and hidden:
+            // an offstage button still takes focus in a traversal and still
+            // reports itself to a screen reader, which would put two Deletes in
+            // the tree — the custom action and a button nobody can see.
+            if (_offset > 0)
+              PositionedDirectional(
+                top: 0,
+                bottom: 0,
+                end: 0,
+                child: _EndActions(actions: widget.endActions, onRun: _run),
               ),
-            ),
             AnimatedSlide(
               duration: calmDuration(context, motion.quick),
               curve: motion.easeOut,
@@ -191,23 +192,13 @@ class _CalmSwipeActionsState extends State<CalmSwipeActions>
 }
 
 class _EndActions extends StatelessWidget {
-  const _EndActions({
-    required this.actions,
-    required this.open,
-    required this.onRun,
-  });
+  const _EndActions({required this.actions, required this.onRun});
 
   final List<CalmSwipeAction> actions;
-  final bool open;
   final void Function(CalmSwipeAction) onRun;
 
   @override
   Widget build(BuildContext context) {
-    // Nothing is BUILT while the row is shut, not merely hidden: an offstage
-    // button still takes focus in a traversal and still reports itself to a
-    // screen reader, which would put two Deletes in the tree — the custom
-    // action and a button nobody can see.
-    if (!open) return const SizedBox.shrink();
     // FULL width from the first pixel of the drag, with the row sliding over
     // it. The version that sized this box to the travelled distance put a
     // 176-wide Row inside an 88-wide box for the whole gesture and overflowed

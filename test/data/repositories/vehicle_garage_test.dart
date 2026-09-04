@@ -18,6 +18,7 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
+import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';

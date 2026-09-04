@@ -15,6 +15,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -175,7 +176,6 @@ class _GarageRow extends ConsumerWidget {
         context,
         ref,
         l10n,
-        sold: true,
         child: CalmListRow(
           title: vehicle.name,
           subtitle: counts == null || vehicle.soldOn == null
@@ -205,7 +205,6 @@ class _GarageRow extends ConsumerWidget {
       context,
       ref,
       l10n,
-      sold: false,
       child: CalmListRow(
         title: vehicle.name,
         // `VW Golf VII · 2016 · diesel` — what tells two silver hatchbacks
@@ -248,11 +247,12 @@ class _GarageRow extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n, {
-    required bool sold,
     required Widget child,
   }) => CalmSwipeActions(
     endActions: [
-      if (!sold)
+      // Derived, not passed. The caller had it from `vehicle.status`, and the
+      // same predicate was spelled three times in this file.
+      if (vehicle.status == VehicleStatus.active)
         CalmSwipeAction(
           label: l10n.vehicleMarkAsSold,
           icon: Icons.sell_outlined,

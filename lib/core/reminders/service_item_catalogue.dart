@@ -16,6 +16,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/units/distance.dart';
 
 /// One row of the catalogue, ready to become a `ServiceItem`.
 @immutable
@@ -103,7 +104,7 @@ class _Interval {
 ///
 /// 1609.344 m is the international mile by definition, and the multiplication
 /// is integer so the stored value is exact rather than a rounded double.
-int _milesToMetres(int miles) => miles * 1609344 ~/ 1000;
+int _milesToMetres(int miles) => Distance.fromMiles(miles).metres;
 
 /// §4.8.1 and §4.8.2: the car set, which `truck` and `other` take unchanged.
 const _carSet =

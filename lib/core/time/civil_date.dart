@@ -31,6 +31,21 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
   /// date that already exists — both of which produce a real calendar date.
   const CivilDate._(this.year, this.month, this.day);
 
+  /// [when]'s calendar date, or null when its year does not fit `YYYY`.
+  ///
+  /// Every caller that starts from `clockProvider.now()` was string-building a
+  /// `YYYY-MM-DD` and handing it straight back to [tryParse] — three copies in
+  /// EPIC-09 alone, plus two that predate it. The type owns the format; it was
+  /// missing the entry point.
+  ///
+  /// NULLABLE for the same reason [tryParse] is: a device clock reading year
+  /// 275760 is a real thing SPEC.md §3's clock-suspicion check exists for, and
+  /// it has no four-digit year.
+  static CivilDate? fromDateTime(DateTime when) =>
+      when.year < 0 || when.year > 9999
+      ? null
+      : CivilDate._(when.year, when.month, when.day);
+
   /// Reads `YYYY-MM-DD`, or null.
   ///
   /// Null and never a guess: `2026-02-30` is not "2 March", it is a value that

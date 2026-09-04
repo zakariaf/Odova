@@ -14,6 +14,7 @@
 import 'package:flutter/material.dart';
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_button.dart';
@@ -36,25 +37,6 @@ enum ConfirmDeleteChoice {
   /// Also what a tap-out and a system back mean. SPEC.md §7: no dialog is ever
   /// dismissed into a destructive outcome.
   cancel,
-}
-
-/// The five per-type counts SPEC.md §8's dialog names.
-///
-/// A record rather than five parameters, so no caller can pass a total that
-/// disagrees with its own breakdown — the total is computed by
-/// [DeleteCountsTotal.total] and cannot be supplied.
-typedef DeleteCounts = ({
-  int fillUps,
-  int services,
-  int costs,
-  int trips,
-  int reminders,
-});
-
-/// Everything that would be deleted.
-extension DeleteCountsTotal on DeleteCounts {
-  /// The number in the title.
-  int get total => fillUps + services + costs + trips + reminders;
 }
 
 /// Asks whether to delete [subject] and everything attached to it.

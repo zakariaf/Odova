@@ -78,8 +78,9 @@ enum AnnualBand {
   /// The round number in the user's own unit, converted ONCE and exactly on the
   /// way into storage — §2 keeps metres and only metres, and 1,609.344 m is the
   /// international mile by definition.
-  int metresFor(DistanceUnit unit) =>
-      unit == DistanceUnit.mi ? mi * 1609344 ~/ 1000 : km * 1000;
+  int metresFor(DistanceUnit unit) => unit == DistanceUnit.mi
+      ? Distance.fromMiles(mi).metres
+      : Distance.fromKm(km).metres;
 
   /// The chip's boundaries in [unit], for the label.
   ///

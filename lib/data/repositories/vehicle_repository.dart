@@ -16,6 +16,7 @@ import 'package:odova/core/ids/ulid.dart';
 import 'package:odova/core/reminders/service_item_catalogue.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
@@ -425,15 +426,6 @@ class VehicleDraft {
   /// the answer travels here rather than being guessed from the fuel kind.
   final bool liquidCooled;
 }
-
-/// The five numbers `dialog.confirmDelete` states out loud.
-typedef DeleteCounts = ({
-  int fillUps,
-  int services,
-  int costs,
-  int trips,
-  int reminders,
-});
 
 /// Thrown inside `create`'s transaction when there is no settings row to
 /// complete, so drift unwinds it and `create` answers with a typed failure.

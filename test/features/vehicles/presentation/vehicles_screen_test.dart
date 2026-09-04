@@ -29,6 +29,7 @@ import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
@@ -40,7 +41,6 @@ import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_swipe_actions.dart';
-import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 
 import '../../../parity/support/parity_capture.dart'
     show kReferenceDpr, kReferencePhysical;

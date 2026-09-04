@@ -63,12 +63,10 @@ vehicleDueSnapshotProvider = Provider.autoDispose.family((ref, vehicleId) {
   final vehicle = vehicles.where((v) => v.id == vehicleId).firstOrNull;
   if (vehicle == null) return null;
 
-  final now = ref.watch(clockProvider).now();
-  final today = CivilDate.tryParse(
-    '${now.year.toString().padLeft(4, '0')}-'
-    '${now.month.toString().padLeft(2, '0')}-'
-    '${now.day.toString().padLeft(2, '0')}',
-  );
+  // `CivilDate.fromDateTime`, not a string built here and parsed back. The
+  // guard stays: a device clock reading year 275760 has no four-digit year, and
+  // SPEC.md §3's clock-suspicion check exists because such clocks are real.
+  final today = CivilDate.fromDateTime(ref.watch(clockProvider).now());
   if (today == null) return null;
 
   return recomputeVehicle(

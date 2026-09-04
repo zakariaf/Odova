@@ -11,6 +11,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numeric_input.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -152,7 +153,14 @@ class FirstRunVehicleDraft {
   ///
   /// The deliberate exception to "Save is never disabled", scoped by SPEC.md
   /// §8 to one required field with an always-visible hint.
-  bool get canStart => odometerMetres != null && problem == null;
+  ///
+  /// ONE condition. It used to read
+  /// `odometerMetres != null && problem == null`, and the first half could
+  /// never decide anything: [problem] already answers
+  /// `empty` or `notANumber` whenever the odometer does not parse, so the
+  /// conjunct was a second spelling of the same question — and one that would
+  /// go on being true if a third kind of problem were ever added.
+  bool get canStart => problem == null;
 
   /// A copy with the given changes.
   FirstRunVehicleDraft copyWith({
@@ -280,10 +288,14 @@ class FirstRunVehicleNotifier extends Notifier<FirstRunVehicleDraft> {
   }
 
   /// `YYYY-MM-DD`, in the device's own day.
+  ///
+  /// Through `CivilDate`, which owns the format. A clock with no four-digit
+  /// year falls back to the epoch's date rather than writing a reading the
+  /// database cannot store — the odometer is required and losing it would leave
+  /// a vehicle the domain contract forbids.
   static String _today(DateTime now) =>
-      '${now.year.toString().padLeft(4, '0')}-'
-      '${now.month.toString().padLeft(2, '0')}-'
-      '${now.day.toString().padLeft(2, '0')}';
+      (CivilDate.fromDateTime(now) ?? CivilDate.fromDateTime(DateTime(1970))!)
+          .toString();
 }
 
 /// The first-run vehicle draft.

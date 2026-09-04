@@ -72,19 +72,22 @@ class CalmIconTile extends StatelessWidget {
     final shapes = CalmShapes.of(context);
 
     final style = state == null ? null : CalmStatusStyle.of(context, state!);
+    // ONE decision, read twice. The ground and the ink were two copies of the
+    // same three-way choice, so a fourth ground would have to be added in two
+    // places and the second is the one that gets forgotten.
+    final (Color ground, Color ink) = switch (style) {
+      final s? => (s.tint, s.ink),
+      _ when brand => (colours.brandSoft, colours.brandSoftInk),
+      _ when business => (colours.business.tint, colours.business.ink),
+      _ => (colours.surface2, colours.ink2),
+    };
 
     return ExcludeSemantics(
       child: SizedBox.square(
         dimension: dimension,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color:
-                style?.tint ??
-                (brand
-                    ? colours.brandSoft
-                    : business
-                    ? colours.business.tint
-                    : colours.surface2),
+            color: ground,
             // radiusPill only ever reaches a StadiumBorder; a circle here is
             // an explicit shape rather than a 999 radius.
             shape: round ? BoxShape.circle : BoxShape.rectangle,
@@ -94,13 +97,7 @@ class CalmIconTile extends StatelessWidget {
             child: Icon(
               icon,
               size: 22,
-              color:
-                  style?.ink ??
-                  (brand
-                      ? colours.brandSoftInk
-                      : business
-                      ? colours.business.ink
-                      : colours.ink2),
+              color: ink,
             ),
           ),
         ),

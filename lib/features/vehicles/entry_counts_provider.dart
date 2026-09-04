@@ -14,8 +14,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show FutureProviderFamily;
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/data/repositories/providers.dart';
-import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 
 /// One vehicle's entry counts, or null when they could not be read.
 ///

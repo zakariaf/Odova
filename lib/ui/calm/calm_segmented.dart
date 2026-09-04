@@ -143,13 +143,16 @@ class CalmSegmentedOption extends StatelessWidget {
     final text = Text(
       label,
       textAlign: TextAlign.center,
-      style: (icon == null ? type.label : type.caption).copyWith(
-        color: foreground,
-        fontWeight: selected ? type.semi : type.medium,
-        fontFeatures: numeric
-            ? const [FontFeature.tabularFigures(), FontFeature.liningFigures()]
-            : null,
-      ),
+      // Through `CalmType.tabular`, which owns `.num`'s two features. Spelled
+      // inline here, this was a third definition of a rule the type layer had
+      // just been given.
+      style: () {
+        final base = (icon == null ? type.label : type.caption).copyWith(
+          color: foreground,
+          fontWeight: selected ? type.semi : type.medium,
+        );
+        return numeric ? CalmType.tabular(base) : base;
+      }(),
     );
 
     return Semantics(

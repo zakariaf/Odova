@@ -231,7 +231,7 @@ class _CalmFieldState extends State<CalmField> {
     };
 
     final baseStyle = widget.size == CalmFieldSize.lg ? type.hero : type.bodyLg;
-    final textStyle = baseStyle.copyWith(
+    final plainStyle = baseStyle.copyWith(
       color: widget.enabled
           ? (widget.computed ? colors.ink2 : colors.ink)
           : colors.ink4,
@@ -246,12 +246,13 @@ class _CalmFieldState extends State<CalmField> {
       // than the type role's, and the difference is exactly what makes 56pt
       // land on 56 instead of 58.
       height: widget.size == CalmFieldSize.lg ? 1.1 : 1.4,
-      fontFeatures: widget.numeric
-          // Tabular lining figures so a column of readings aligns and a digit
-          // change does not reflow the string.
-          ? const [FontFeature.tabularFigures(), FontFeature.liningFigures()]
-          : null,
     );
+    // Tabular lining figures so a column of readings aligns and a digit change
+    // does not reflow the string — through `CalmType.tabular`, which owns
+    // `.num`'s two features for the whole system.
+    final textStyle = widget.numeric
+        ? CalmType.tabular(plainStyle)
+        : plainStyle;
 
     // `.inputgroup` reserves 76pt of end padding for the affix and 56pt of
     // start padding for the lead. The ring is painted INSIDE the box

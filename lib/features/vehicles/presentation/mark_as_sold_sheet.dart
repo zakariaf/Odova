@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/l10n/numeric_input.dart';
 import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
@@ -97,10 +98,14 @@ class _MarkAsSoldSheetState extends ConsumerState<MarkAsSoldSheet> {
     return (valid: true, minor: (major * currency.minorPerMajor).round());
   }
 
+  /// `YYYY-MM-DD`. Through `CivilDate`, which owns the format.
+  ///
+  /// The picker cannot offer a year outside 1900..today, so the fallback is
+  /// unreachable from the UI — it exists because `fromDateTime` is honest about
+  /// a clock that has no four-digit year.
   String _isoDate(DateTime date) =>
-      '${date.year.toString().padLeft(4, '0')}-'
-      '${date.month.toString().padLeft(2, '0')}-'
-      '${date.day.toString().padLeft(2, '0')}';
+      (CivilDate.fromDateTime(date) ?? CivilDate.fromDateTime(DateTime(1970))!)
+          .toString();
 
   Future<void> _pickDate() async {
     final today = markAsSoldLastDate(ref.read(clockProvider).now().toLocal());
