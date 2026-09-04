@@ -398,4 +398,139 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get commonRetry => 'Erneut versuchen';
+
+  @override
+  String get vehicleEditTitle => 'Fahrzeug';
+
+  @override
+  String get commonClose => 'Schließen';
+
+  @override
+  String get commonSave => 'Speichern';
+
+  @override
+  String get vehicleTypeOther => 'Sonstiges';
+
+  @override
+  String get vehicleMakeLabel => 'Marke';
+
+  @override
+  String get vehicleModelLabel => 'Modell';
+
+  @override
+  String get vehicleYearLabel => 'Baujahr';
+
+  @override
+  String get vehiclePlateLabel => 'Kennzeichen';
+
+  @override
+  String get vehicleVinLabel => 'FIN';
+
+  @override
+  String get vehicleColourLabel => 'Farbe';
+
+  @override
+  String get vehicleNotesLabel => 'Notizen';
+
+  @override
+  String get vehicleBusinessLabel => 'Fahren Sie damit beruflich?';
+
+  @override
+  String get vehicleMuteLabel =>
+      'Erinnerungen für dieses Fahrzeug stummschalten';
+
+  @override
+  String get vehicleOdometerRow => 'Kilometerstand';
+
+  @override
+  String vehicleOdometerRowHint(String age) {
+    return '$age erfasst · zum Aktualisieren tippen';
+  }
+
+  @override
+  String get vehicleMarkAsSold => 'Als verkauft markieren';
+
+  @override
+  String vehicleDeleteRow(String name, String countText) {
+    return '$name und seine $countText Einträge löschen';
+  }
+
+  @override
+  String vehicleDeleteRowEmpty(String name) {
+    return '$name löschen';
+  }
+
+  @override
+  String get vehiclePurchaseGroup => 'Kauf und Verkauf';
+
+  @override
+  String get vehicleUnitsGroup => 'Einheiten & Währung dieses Fahrzeugs';
+
+  @override
+  String get commonAutomatic => 'Automatisch';
+
+  @override
+  String get vehiclePurchaseDate => 'Kaufdatum';
+
+  @override
+  String get vehiclePurchasePrice => 'Kaufpreis';
+
+  @override
+  String get vehiclePurchaseOdometer => 'Kilometerstand beim Kauf';
+
+  @override
+  String get vehicleSoldOn => 'Verkauft am';
+
+  @override
+  String get vehicleSoldPrice => 'Verkaufspreis';
+
+  @override
+  String vehicleYearRangeError(String min, String max) {
+    return 'Geben Sie ein Jahr zwischen $min und $max ein.';
+  }
+
+  @override
+  String vehicleVinLengthNote(String countText) {
+    return 'Eine FIN hat üblicherweise $countText Zeichen.';
+  }
+
+  @override
+  String vehicleDuplicateNameNote(String name) {
+    return 'Sie haben bereits ein Fahrzeug namens $name';
+  }
+
+  @override
+  String get vehicleCurrencyChangeNote =>
+      'Gilt nur für neue Einträge. Bereits Gespeichertes bleibt unverändert.';
+
+  @override
+  String get vehicleFuelChangeNote =>
+      'Erinnerungen behalten ihre bisherigen Intervalle.';
+
+  @override
+  String get colourWhite => 'Weiß';
+
+  @override
+  String get colourSilver => 'Silber';
+
+  @override
+  String get colourGrey => 'Grau';
+
+  @override
+  String get colourBlack => 'Schwarz';
+
+  @override
+  String get colourRed => 'Rot';
+
+  @override
+  String get colourBlue => 'Blau';
+
+  @override
+  String get colourGreen => 'Grün';
+
+  @override
+  String get colourYellow => 'Gelb';
+
+  @override
+  String get colourOther => 'Sonstige';
 }

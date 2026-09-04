@@ -397,4 +397,138 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get commonRetry => 'دووبارە هەوڵبدە';
+
+  @override
+  String get vehicleEditTitle => 'ئۆتۆمبێل';
+
+  @override
+  String get commonClose => 'داخستن';
+
+  @override
+  String get commonSave => 'پاشەکەوتکردن';
+
+  @override
+  String get vehicleTypeOther => 'هیتر';
+
+  @override
+  String get vehicleMakeLabel => 'مارکە';
+
+  @override
+  String get vehicleModelLabel => 'مۆدێل';
+
+  @override
+  String get vehicleYearLabel => 'ساڵ';
+
+  @override
+  String get vehiclePlateLabel => 'پلاک';
+
+  @override
+  String get vehicleVinLabel => 'VIN';
+
+  @override
+  String get vehicleColourLabel => 'ڕەنگ';
+
+  @override
+  String get vehicleNotesLabel => 'تێبینی';
+
+  @override
+  String get vehicleBusinessLabel => 'ئەمە بۆ کار لێدەخوڕیت؟';
+
+  @override
+  String get vehicleMuteLabel => 'بێدەنگکردنی بیرخەرەوەکانی ئەم ئۆتۆمبێلە';
+
+  @override
+  String get vehicleOdometerRow => 'ژمارەی کیلۆمێتر';
+
+  @override
+  String vehicleOdometerRowHint(String age) {
+    return '$age تۆمارکراوە · بۆ نوێکردنەوە دەستی لێبدە';
+  }
+
+  @override
+  String get vehicleMarkAsSold => 'نیشانەکردن وەک فرۆشراو';
+
+  @override
+  String vehicleDeleteRow(String name, String countText) {
+    return 'سڕینەوەی $name و $countText تۆمارەکەی';
+  }
+
+  @override
+  String vehicleDeleteRowEmpty(String name) {
+    return 'سڕینەوەی $name';
+  }
+
+  @override
+  String get vehiclePurchaseGroup => 'کڕین و فرۆشتن';
+
+  @override
+  String get vehicleUnitsGroup => 'یەکە و دراوی ئەم ئۆتۆمبێلە';
+
+  @override
+  String get commonAutomatic => 'خۆکار';
+
+  @override
+  String get vehiclePurchaseDate => 'بەرواری کڕین';
+
+  @override
+  String get vehiclePurchasePrice => 'نرخی کڕین';
+
+  @override
+  String get vehiclePurchaseOdometer => 'ژمارەی کیلۆمێتر لە کاتی کڕین';
+
+  @override
+  String get vehicleSoldOn => 'بەرواری فرۆشتن';
+
+  @override
+  String get vehicleSoldPrice => 'نرخی فرۆشتن';
+
+  @override
+  String vehicleYearRangeError(String min, String max) {
+    return 'ساڵێک لە نێوان $min و $max بنووسە.';
+  }
+
+  @override
+  String vehicleVinLengthNote(String countText) {
+    return 'بەزۆری VIN لە $countText پیت پێکدێت.';
+  }
+
+  @override
+  String vehicleDuplicateNameNote(String name) {
+    return 'پێشتر ئۆتۆمبێلێکت بە ناوی $name هەیە';
+  }
+
+  @override
+  String get vehicleCurrencyChangeNote =>
+      'تەنها تۆمارە نوێیەکان ئەمە بەکاردەهێنن. ئەوەی پێشتر پاشەکەوت کراوە ناگۆڕێت.';
+
+  @override
+  String get vehicleFuelChangeNote =>
+      'ماوەکانی بیرخەرەوەکان وەک خۆیان دەمێننەوە.';
+
+  @override
+  String get colourWhite => 'سپی';
+
+  @override
+  String get colourSilver => 'زیوی';
+
+  @override
+  String get colourGrey => 'خۆڵەمێشی';
+
+  @override
+  String get colourBlack => 'ڕەش';
+
+  @override
+  String get colourRed => 'سوور';
+
+  @override
+  String get colourBlue => 'شین';
+
+  @override
+  String get colourGreen => 'سەوز';
+
+  @override
+  String get colourYellow => 'زەرد';
+
+  @override
+  String get colourOther => 'هیتر';
 }

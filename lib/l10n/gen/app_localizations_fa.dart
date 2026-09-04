@@ -393,4 +393,138 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get commonRetry => 'تلاش دوباره';
+
+  @override
+  String get vehicleEditTitle => 'خودرو';
+
+  @override
+  String get commonClose => 'بستن';
+
+  @override
+  String get commonSave => 'ذخیره';
+
+  @override
+  String get vehicleTypeOther => 'سایر';
+
+  @override
+  String get vehicleMakeLabel => 'سازنده';
+
+  @override
+  String get vehicleModelLabel => 'مدل';
+
+  @override
+  String get vehicleYearLabel => 'سال';
+
+  @override
+  String get vehiclePlateLabel => 'پلاک';
+
+  @override
+  String get vehicleVinLabel => 'VIN';
+
+  @override
+  String get vehicleColourLabel => 'رنگ';
+
+  @override
+  String get vehicleNotesLabel => 'یادداشت';
+
+  @override
+  String get vehicleBusinessLabel => 'از این خودرو برای کار استفاده می‌کنید؟';
+
+  @override
+  String get vehicleMuteLabel => 'ساکت کردن یادآورهای این خودرو';
+
+  @override
+  String get vehicleOdometerRow => 'کیلومترشمار';
+
+  @override
+  String vehicleOdometerRowHint(String age) {
+    return '$age ثبت شده · برای به‌روزرسانی ضربه بزنید';
+  }
+
+  @override
+  String get vehicleMarkAsSold => 'ثبت به‌عنوان فروخته‌شده';
+
+  @override
+  String vehicleDeleteRow(String name, String countText) {
+    return 'حذف $name و $countText رکوردش';
+  }
+
+  @override
+  String vehicleDeleteRowEmpty(String name) {
+    return 'حذف $name';
+  }
+
+  @override
+  String get vehiclePurchaseGroup => 'خرید و فروش';
+
+  @override
+  String get vehicleUnitsGroup => 'یکاها و واحد پول این خودرو';
+
+  @override
+  String get commonAutomatic => 'خودکار';
+
+  @override
+  String get vehiclePurchaseDate => 'تاریخ خرید';
+
+  @override
+  String get vehiclePurchasePrice => 'قیمت خرید';
+
+  @override
+  String get vehiclePurchaseOdometer => 'کیلومترشمار هنگام خرید';
+
+  @override
+  String get vehicleSoldOn => 'تاریخ فروش';
+
+  @override
+  String get vehicleSoldPrice => 'قیمت فروش';
+
+  @override
+  String vehicleYearRangeError(String min, String max) {
+    return 'سالی بین $min و $max وارد کنید.';
+  }
+
+  @override
+  String vehicleVinLengthNote(String countText) {
+    return 'شمارهٔ VIN معمولاً $countText کاراکتر دارد.';
+  }
+
+  @override
+  String vehicleDuplicateNameNote(String name) {
+    return 'از قبل خودرویی به نام $name دارید';
+  }
+
+  @override
+  String get vehicleCurrencyChangeNote =>
+      'فقط رکوردهای جدید از این پیروی می‌کنند. چیزی که ذخیره شده تغییر نمی‌کند.';
+
+  @override
+  String get vehicleFuelChangeNote =>
+      'یادآورها بازه‌های فعلی خود را نگه می‌دارند.';
+
+  @override
+  String get colourWhite => 'سفید';
+
+  @override
+  String get colourSilver => 'نقره‌ای';
+
+  @override
+  String get colourGrey => 'خاکستری';
+
+  @override
+  String get colourBlack => 'مشکی';
+
+  @override
+  String get colourRed => 'قرمز';
+
+  @override
+  String get colourBlue => 'آبی';
+
+  @override
+  String get colourGreen => 'سبز';
+
+  @override
+  String get colourYellow => 'زرد';
+
+  @override
+  String get colourOther => 'سایر';
 }

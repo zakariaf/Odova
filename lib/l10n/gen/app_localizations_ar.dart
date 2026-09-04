@@ -433,4 +433,137 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonRetry => 'إعادة المحاولة';
+
+  @override
+  String get vehicleEditTitle => 'المركبة';
+
+  @override
+  String get commonClose => 'إغلاق';
+
+  @override
+  String get commonSave => 'حفظ';
+
+  @override
+  String get vehicleTypeOther => 'أخرى';
+
+  @override
+  String get vehicleMakeLabel => 'الماركة';
+
+  @override
+  String get vehicleModelLabel => 'الطراز';
+
+  @override
+  String get vehicleYearLabel => 'السنة';
+
+  @override
+  String get vehiclePlateLabel => 'رقم اللوحة';
+
+  @override
+  String get vehicleVinLabel => 'رقم الهيكل';
+
+  @override
+  String get vehicleColourLabel => 'اللون';
+
+  @override
+  String get vehicleNotesLabel => 'الملاحظات';
+
+  @override
+  String get vehicleBusinessLabel => 'هل تستخدم هذه المركبة في العمل؟';
+
+  @override
+  String get vehicleMuteLabel => 'كتم تذكيرات هذه المركبة';
+
+  @override
+  String get vehicleOdometerRow => 'العدّاد';
+
+  @override
+  String vehicleOdometerRowHint(String age) {
+    return 'أُدخِل $age · اضغط للتحديث';
+  }
+
+  @override
+  String get vehicleMarkAsSold => 'تحديد كمباعة';
+
+  @override
+  String vehicleDeleteRow(String name, String countText) {
+    return 'حذف $name و$countText من سجلاته';
+  }
+
+  @override
+  String vehicleDeleteRowEmpty(String name) {
+    return 'حذف $name';
+  }
+
+  @override
+  String get vehiclePurchaseGroup => 'الشراء والبيع';
+
+  @override
+  String get vehicleUnitsGroup => 'وحدات هذه المركبة وعملتها';
+
+  @override
+  String get commonAutomatic => 'تلقائي';
+
+  @override
+  String get vehiclePurchaseDate => 'تاريخ الشراء';
+
+  @override
+  String get vehiclePurchasePrice => 'سعر الشراء';
+
+  @override
+  String get vehiclePurchaseOdometer => 'العدّاد عند الشراء';
+
+  @override
+  String get vehicleSoldOn => 'تاريخ البيع';
+
+  @override
+  String get vehicleSoldPrice => 'سعر البيع';
+
+  @override
+  String vehicleYearRangeError(String min, String max) {
+    return 'أدخل سنة بين $min و$max.';
+  }
+
+  @override
+  String vehicleVinLengthNote(String countText) {
+    return 'عادةً ما يتكوّن رقم الهيكل من $countText خانةً.';
+  }
+
+  @override
+  String vehicleDuplicateNameNote(String name) {
+    return 'لديك بالفعل مركبة باسم $name';
+  }
+
+  @override
+  String get vehicleCurrencyChangeNote =>
+      'ينطبق هذا على السجلات الجديدة فقط. ولا يتغيّر شيء مما حُفظ من قبل.';
+
+  @override
+  String get vehicleFuelChangeNote => 'تحتفظ التذكيرات بفتراتها كما هي.';
+
+  @override
+  String get colourWhite => 'أبيض';
+
+  @override
+  String get colourSilver => 'فضي';
+
+  @override
+  String get colourGrey => 'رمادي';
+
+  @override
+  String get colourBlack => 'أسود';
+
+  @override
+  String get colourRed => 'أحمر';
+
+  @override
+  String get colourBlue => 'أزرق';
+
+  @override
+  String get colourGreen => 'أخضر';
+
+  @override
+  String get colourYellow => 'أصفر';
+
+  @override
+  String get colourOther => 'آخر';
 }

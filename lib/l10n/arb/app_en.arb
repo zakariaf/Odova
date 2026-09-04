@@ -551,5 +551,209 @@
   "commonRetry": "Retry",
   "@commonRetry": {
     "description": "Tries the failed save again."
+  },
+  "vehicleEditTitle": "Vehicle",
+  "@vehicleEditTitle": {
+    "description": "Modal title on the screen that edits every fact about one vehicle."
+  },
+  "commonClose": "Close",
+  "@commonClose": {
+    "description": "Accessible name for the ✕ that dismisses a full-screen modal. NEVER drawn as text — a screen reader speaks it, which is why the label is required even when a glyph replaces it."
+  },
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "The modal end action that commits the form."
+  },
+  "vehicleTypeOther": "Other",
+  "@vehicleTypeOther": {
+    "description": "Vehicle type. Not a car, van or motorbike. `truck` has no segment — EPIC-09 F-9.21, raised rather than closed."
+  },
+  "vehicleMakeLabel": "Make",
+  "@vehicleMakeLabel": {
+    "description": "Field label. The manufacturer."
+  },
+  "vehicleModelLabel": "Model",
+  "@vehicleModelLabel": {
+    "description": "Field label. The model name."
+  },
+  "vehicleYearLabel": "Year",
+  "@vehicleYearLabel": {
+    "description": "Field label. Model year. German uses Baujahr, which is strictly build year — the everyday word, and what every German car form asks for."
+  },
+  "vehiclePlateLabel": "Plate",
+  "@vehiclePlateLabel": {
+    "description": "Field label. The registration plate, stored VERBATIM — never digit-shaped, never uppercased, and forced LTR in its own field even on an RTL screen."
+  },
+  "vehicleVinLabel": "VIN",
+  "@vehicleVinLabel": {
+    "description": "Field label. Vehicle identification number. German ships FIN, its own established abbreviation and the one printed on a German registration document; the other five keep VIN."
+  },
+  "vehicleColourLabel": "Colour",
+  "@vehicleColourLabel": {
+    "description": "Field label above a scrolling row of paint swatches."
+  },
+  "vehicleNotesLabel": "Notes",
+  "@vehicleNotesLabel": {
+    "description": "Field label. Free multiline text, taking direction from its content."
+  },
+  "vehicleBusinessLabel": "Do you drive this for work?",
+  "@vehicleBusinessLabel": {
+    "description": "Switch label. Turning it on splits this vehicle into the business side of the cost report."
+  },
+  "vehicleMuteLabel": "Mute reminders for this vehicle",
+  "@vehicleMuteLabel": {
+    "description": "Switch label. Stops notifications for this vehicle only."
+  },
+  "vehicleOdometerRow": "Odometer",
+  "@vehicleOdometerRow": {
+    "description": "A READ-ONLY row showing the latest reading; tapping it opens log.odometer. SPEC.md §8: a facts form is the wrong place to write a dated reading."
+  },
+  "vehicleOdometerRowHint": "entered {age} · tap to update",
+  "@vehicleOdometerRowHint": {
+    "description": "Subtitle under the odometer row. {age} is an already-formatted relative age. German puts it FIRST, so the formatter must supply a capitalised past-tense phrase — \"Heute\", \"Vor 3 Tagen\".",
+    "placeholders": {
+      "age": {
+        "type": "String",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "vehicleMarkAsSold": "Mark as sold",
+  "@vehicleMarkAsSold": {
+    "description": "Opens the sale form. Offered before Delete because it is what people usually mean."
+  },
+  "vehicleDeleteRow": "Delete {name} and its {countText} entries",
+  "@vehicleDeleteRow": {
+    "description": "A destructive ROW, not a dialog title — it takes NO question mark, because a row does not ask. Deliberately NOT `confirmDeleteTitle`, which always ends in one.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "The Golf"
+      },
+      "countText": {
+        "type": "String",
+        "example": "412"
+      }
+    }
+  },
+  "vehicleDeleteRowEmpty": "Delete {name}",
+  "@vehicleDeleteRowEmpty": {
+    "description": "The same row when the vehicle has no entries at all.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "The Golf"
+      }
+    }
+  },
+  "vehiclePurchaseGroup": "Purchase and sale",
+  "@vehiclePurchaseGroup": {
+    "description": "A disclosure group, collapsed by default, holding purchase date, purchase odometer, purchase price and the sale fields."
+  },
+  "vehicleUnitsGroup": "This vehicle's units & currency",
+  "@vehicleUnitsGroup": {
+    "description": "A disclosure group, collapsed by default, holding the six per-vehicle overrides."
+  },
+  "commonAutomatic": "Automatic",
+  "@commonAutomatic": {
+    "description": "The option that writes NULL and lets the app-wide setting decide. Null is not \"a value that matches the global\" — it is an instruction to keep following it."
+  },
+  "vehiclePurchaseDate": "Purchase date",
+  "@vehiclePurchaseDate": {
+    "description": "Field label. When the user bought the vehicle. Never later than today."
+  },
+  "vehiclePurchasePrice": "Purchase price",
+  "@vehiclePurchasePrice": {
+    "description": "Field label. What they paid."
+  },
+  "vehiclePurchaseOdometer": "Odometer at purchase",
+  "@vehiclePurchaseOdometer": {
+    "description": "Field label. The reading when they bought it. A vehicle FACT and not an observation — it emits no odometer reading, because the series records what was seen on a date."
+  },
+  "vehicleSoldOn": "Sold on",
+  "@vehicleSoldOn": {
+    "description": "Field label in the sale form. The date it was sold."
+  },
+  "vehicleSoldPrice": "Sold price",
+  "@vehicleSoldPrice": {
+    "description": "Field label in the sale form. What it sold for."
+  },
+  "vehicleYearRangeError": "Enter a year between {min} and {max}.",
+  "@vehicleYearRangeError": {
+    "description": "Inline error under the year field. Both values are already-formatted numbers. The upper bound is next year, because next year's models are on sale this year.",
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "1900"
+      },
+      "max": {
+        "type": "String",
+        "example": "2027"
+      }
+    }
+  },
+  "vehicleVinLengthNote": "A VIN is usually {countText} characters.",
+  "@vehicleVinLengthNote": {
+    "description": "A NOTE and not an error: the field still saves. Some pre-1981 and non-road vehicles have shorter numbers, and refusing theirs would mean refusing the vehicle.",
+    "placeholders": {
+      "countText": {
+        "type": "String",
+        "example": "17"
+      }
+    }
+  },
+  "vehicleDuplicateNameNote": "You already have a vehicle called {name}",
+  "@vehicleDuplicateNameNote": {
+    "description": "A NOTE and not an error: duplicates are allowed. Two vans with the same name is the user's business. No full stop, matching a label rather than a sentence.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Van"
+      }
+    }
+  },
+  "vehicleCurrencyChangeNote": "Only new entries use this. Nothing already saved changes.",
+  "@vehicleCurrencyChangeNote": {
+    "description": "A PERMANENT line under the per-vehicle currency override. It promises that changing it rewrites no history — money already stored keeps the currency it was stored in."
+  },
+  "vehicleFuelChangeNote": "Reminders keep the intervals they already have.",
+  "@vehicleFuelChangeNote": {
+    "description": "Shown once when the fuel kind changes. It promises that petrol becoming diesel deletes and rewrites no reminder row, which would be deleting somebody’s history."
+  },
+  "colourWhite": "White",
+  "@colourWhite": {
+    "description": "Vehicle paint colour."
+  },
+  "colourSilver": "Silver",
+  "@colourSilver": {
+    "description": "Vehicle paint colour."
+  },
+  "colourGrey": "Grey",
+  "@colourGrey": {
+    "description": "Vehicle paint colour."
+  },
+  "colourBlack": "Black",
+  "@colourBlack": {
+    "description": "Vehicle paint colour."
+  },
+  "colourRed": "Red",
+  "@colourRed": {
+    "description": "Vehicle paint colour."
+  },
+  "colourBlue": "Blue",
+  "@colourBlue": {
+    "description": "Vehicle paint colour."
+  },
+  "colourGreen": "Green",
+  "@colourGreen": {
+    "description": "Vehicle paint colour."
+  },
+  "colourYellow": "Yellow",
+  "@colourYellow": {
+    "description": "Vehicle paint colour."
+  },
+  "colourOther": "Other",
+  "@colourOther": {
+    "description": "Not one of the eight paints. Drawn as an OUTLINED swatch with no fill — EPIC-09 F-9.18, which refused to invent a ninth hex."
   }
 }

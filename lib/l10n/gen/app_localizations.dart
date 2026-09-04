@@ -608,6 +608,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get commonRetry;
+
+  /// Modal title on the screen that edits every fact about one vehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get vehicleEditTitle;
+
+  /// Accessible name for the ✕ that dismisses a full-screen modal. NEVER drawn as text — a screen reader speaks it, which is why the label is required even when a glyph replaces it.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
+  /// The modal end action that commits the form.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get commonSave;
+
+  /// Vehicle type. Not a car, van or motorbike. `truck` has no segment — EPIC-09 F-9.21, raised rather than closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get vehicleTypeOther;
+
+  /// Field label. The manufacturer.
+  ///
+  /// In en, this message translates to:
+  /// **'Make'**
+  String get vehicleMakeLabel;
+
+  /// Field label. The model name.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get vehicleModelLabel;
+
+  /// Field label. Model year. German uses Baujahr, which is strictly build year — the everyday word, and what every German car form asks for.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get vehicleYearLabel;
+
+  /// Field label. The registration plate, stored VERBATIM — never digit-shaped, never uppercased, and forced LTR in its own field even on an RTL screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate'**
+  String get vehiclePlateLabel;
+
+  /// Field label. Vehicle identification number. German ships FIN, its own established abbreviation and the one printed on a German registration document; the other five keep VIN.
+  ///
+  /// In en, this message translates to:
+  /// **'VIN'**
+  String get vehicleVinLabel;
+
+  /// Field label above a scrolling row of paint swatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get vehicleColourLabel;
+
+  /// Field label. Free multiline text, taking direction from its content.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get vehicleNotesLabel;
+
+  /// Switch label. Turning it on splits this vehicle into the business side of the cost report.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you drive this for work?'**
+  String get vehicleBusinessLabel;
+
+  /// Switch label. Stops notifications for this vehicle only.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute reminders for this vehicle'**
+  String get vehicleMuteLabel;
+
+  /// A READ-ONLY row showing the latest reading; tapping it opens log.odometer. SPEC.md §8: a facts form is the wrong place to write a dated reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get vehicleOdometerRow;
+
+  /// Subtitle under the odometer row. {age} is an already-formatted relative age. German puts it FIRST, so the formatter must supply a capitalised past-tense phrase — "Heute", "Vor 3 Tagen".
+  ///
+  /// In en, this message translates to:
+  /// **'entered {age} · tap to update'**
+  String vehicleOdometerRowHint(String age);
+
+  /// Opens the sale form. Offered before Delete because it is what people usually mean.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as sold'**
+  String get vehicleMarkAsSold;
+
+  /// A destructive ROW, not a dialog title — it takes NO question mark, because a row does not ask. Deliberately NOT `confirmDeleteTitle`, which always ends in one.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name} and its {countText} entries'**
+  String vehicleDeleteRow(String name, String countText);
+
+  /// The same row when the vehicle has no entries at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}'**
+  String vehicleDeleteRowEmpty(String name);
+
+  /// A disclosure group, collapsed by default, holding purchase date, purchase odometer, purchase price and the sale fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase and sale'**
+  String get vehiclePurchaseGroup;
+
+  /// A disclosure group, collapsed by default, holding the six per-vehicle overrides.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle\'s units & currency'**
+  String get vehicleUnitsGroup;
+
+  /// The option that writes NULL and lets the app-wide setting decide. Null is not "a value that matches the global" — it is an instruction to keep following it.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get commonAutomatic;
+
+  /// Field label. When the user bought the vehicle. Never later than today.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase date'**
+  String get vehiclePurchaseDate;
+
+  /// Field label. What they paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase price'**
+  String get vehiclePurchasePrice;
+
+  /// Field label. The reading when they bought it. A vehicle FACT and not an observation — it emits no odometer reading, because the series records what was seen on a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer at purchase'**
+  String get vehiclePurchaseOdometer;
+
+  /// Field label in the sale form. The date it was sold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold on'**
+  String get vehicleSoldOn;
+
+  /// Field label in the sale form. What it sold for.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold price'**
+  String get vehicleSoldPrice;
+
+  /// Inline error under the year field. Both values are already-formatted numbers. The upper bound is next year, because next year's models are on sale this year.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a year between {min} and {max}.'**
+  String vehicleYearRangeError(String min, String max);
+
+  /// A NOTE and not an error: the field still saves. Some pre-1981 and non-road vehicles have shorter numbers, and refusing theirs would mean refusing the vehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'A VIN is usually {countText} characters.'**
+  String vehicleVinLengthNote(String countText);
+
+  /// A NOTE and not an error: duplicates are allowed. Two vans with the same name is the user's business. No full stop, matching a label rather than a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a vehicle called {name}'**
+  String vehicleDuplicateNameNote(String name);
+
+  /// A PERMANENT line under the per-vehicle currency override. It promises that changing it rewrites no history — money already stored keeps the currency it was stored in.
+  ///
+  /// In en, this message translates to:
+  /// **'Only new entries use this. Nothing already saved changes.'**
+  String get vehicleCurrencyChangeNote;
+
+  /// Shown once when the fuel kind changes. It promises that petrol becoming diesel deletes and rewrites no reminder row, which would be deleting somebody’s history.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders keep the intervals they already have.'**
+  String get vehicleFuelChangeNote;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get colourWhite;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver'**
+  String get colourSilver;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get colourGrey;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get colourBlack;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get colourRed;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get colourBlue;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get colourGreen;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow'**
+  String get colourYellow;
+
+  /// Not one of the eight paints. Drawn as an OUTLINED swatch with no fill — EPIC-09 F-9.18, which refused to invent a ninth hex.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get colourOther;
 }
 
 class _AppLocalizationsDelegate
