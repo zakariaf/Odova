@@ -124,9 +124,9 @@ void main() {
     for (final state in DueState.values) {
       final style = CalmStatusStyle.resolve(calmColorsLight, state);
 
-      for (final confidence in DueConfidence.values) {
+      for (final confidence in RateConfidence.values) {
         final expected =
-            style.isUncertain || confidence == DueConfidence.defaulted
+            style.isUncertain || confidence == RateConfidence.defaulted
             ? 'action.updateOdometer'
             : 'action.logIt';
         expect(
@@ -141,9 +141,9 @@ void main() {
     // regress: a measured due-soon item logs, the same item at `defaulted`
     // asks for a reading.
     final dueSoon = CalmStatusStyle.resolve(calmColorsLight, DueState.dueSoon);
-    expect(dueSoon.actionKey(DueConfidence.measured), 'action.logIt');
+    expect(dueSoon.actionKey(RateConfidence.measured), 'action.logIt');
     expect(
-      dueSoon.actionKey(DueConfidence.defaulted),
+      dueSoon.actionKey(RateConfidence.defaulted),
       'action.updateOdometer',
     );
   });
@@ -177,10 +177,10 @@ void main() {
     // item with no history says `unknown` rather than a number that looks
     // like a fact.
     for (final state in DueState.values) {
-      for (final confidence in DueConfidence.values) {
+      for (final confidence in RateConfidence.values) {
         final allowed = mayShowFigure(state, confidence);
         if (CalmStatusStyle.resolve(calmColorsLight, state).isUncertain ||
-            confidence == DueConfidence.defaulted) {
+            confidence == RateConfidence.defaulted) {
           expect(allowed, isFalse, reason: '${state.name}/${confidence.name}');
         } else {
           expect(allowed, isTrue, reason: '${state.name}/${confidence.name}');

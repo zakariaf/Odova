@@ -8,7 +8,22 @@
 ///
 /// The split is the layering, not a workaround: what a state IS belongs to the
 /// domain, and what it LOOKS LIKE belongs to the theme.
+///
+/// This file also held a `DueConfidence` — `{ measured, assumed, defaulted }`,
+/// written by EPIC-02 for the due card — until EPIC-07 wrote `RateConfidence`
+/// with the same three members for the rate that confidence describes. The
+/// value flows from one to the other, since the rate's confidence is exactly
+/// what the card renders, so two types meant a conversion between two enums
+/// that are supposed to be identical: a place they stop being identical.
+///
+/// `RateConfidence` won because it says what it is and because it is what the
+/// epic's own signatures name. It is re-exported here so a caller reaching for
+/// the due vocabulary still finds it in one place.
+/// `test/policy/one_money_type_test.dart` now fails on any two enums that
+/// share a member set.
 library;
+
+export 'package:odova/core/due/daily_distance.dart' show RateConfidence;
 
 /// The product's due states. Exactly six, exactly these (SPEC.md §3).
 ///
@@ -51,20 +66,4 @@ enum DueDriver {
 
   /// Neither axis could be assessed.
   none,
-}
-
-/// How much the projection engine actually knows about the daily rate.
-///
-/// `default` is a Dart reserved word, hence [defaulted]; it is SPEC.md §4.1's
-/// `default` and serialises as `"default"` in any payload. Do not alias it
-/// anywhere else.
-enum DueConfidence {
-  /// A two-endpoint slope over real readings.
-  measured,
-
-  /// The vehicle's `expected_annual_m`.
-  assumed,
-
-  /// 12,000 km a year, because there was nothing else.
-  defaulted,
 }
