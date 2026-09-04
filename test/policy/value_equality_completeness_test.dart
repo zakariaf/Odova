@@ -89,6 +89,8 @@ void main() {
       'lib/core/money/money_total.dart': {'byCurrency', '_counts'},
       // Same shape: a Map of warnings per fill, encoded with its sorted set.
       'lib/core/fuel/fuel_segment.dart': {'warnings'},
+      // And a Map of rates per currency, encoded the same way.
+      'lib/core/fuel/fuel_money.dart': {'minorPerMetre'},
     };
 
     final offenders = <String>[];
