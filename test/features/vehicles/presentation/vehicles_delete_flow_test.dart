@@ -181,7 +181,7 @@ void main() {
     await _pump(tester);
     await _swipeDelete(tester, 'The Polo');
     expect(find.textContaining('The Polo'), findsWidgets);
-    expect(find.textContaining('156'), findsWidgets, reason: '96+14+22+8+16');
+    expect(find.textContaining('140'), findsWidgets, reason: '96+14+22+8');
     // The OTHER vehicle's name appears exactly once — in its own row, and not
     // in the dialog. Asserting only that "The Polo" is on screen cannot fail:
     // its row is behind the dialog either way, which is how a hard-coded

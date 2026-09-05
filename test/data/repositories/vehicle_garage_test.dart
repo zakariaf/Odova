@@ -187,6 +187,21 @@ void main() {
       expect(value.reminders, 1);
     });
 
+    test('a just-created vehicle has reminders but no entries', () async {
+      // The end of SPEC.md §8's "Zero entries: one-tap Delete", from the only
+      // place it can be proved: a REAL create, with the seeded set §4.8.3 puts
+      // on every vehicle. If reminders were entries this number could never be
+      // zero, and the rule would have no reachable case — a car added by
+      // mistake would demand its own name typed back to remove it (F-9.26).
+      final created = await repository.create(_draft(), nowUtcMs: 1000);
+      final id = (created as Ok<Vehicle, PersistFailure>).value.id;
+
+      final counts = await repository.entryCounts(id);
+      final value = (counts as Ok<DeleteCounts, PersistFailure>).value;
+      expect(value.reminders, greaterThan(0), reason: 'the seeded set');
+      expect(value.total, 0, reason: 'the user has entered nothing');
+    });
+
     test('counts only this vehicle', () async {
       await insertVehicle(db, id: _golf);
       await insertVehicle(db, id: _polo, name: 'The Polo');

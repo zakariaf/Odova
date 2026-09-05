@@ -46,17 +46,52 @@ void main() {
     // U+2068 in the middle of an English sentence.
     expect(
       _visible(tester, contains: 'entries?'),
-      'Delete The Golf and its 156 entries?',
+      'Delete The Golf and its 140 entries?',
     );
   });
 
   testWidgets('the total is the sum, and no caller can disagree with it', (
     tester,
   ) async {
-    // 96 + 14 + 22 + 8 + 16. `DeleteCounts` has no `total` field to pass, so a
-    // dialog that said 412 while its body added to 156 is not expressible.
-    expect(_golfCounts.total, 156);
+    // 96 + 14 + 22 + 8. `DeleteCounts` has no `total` field to pass, so a
+    // dialog that said 412 while its body added to 140 is not expressible.
+    expect(_golfCounts.total, 140);
     expect(_empty.total, 0);
+  });
+
+  testWidgets('a vehicle with only its seeded reminders has no entries', (
+    tester,
+  ) async {
+    // An ENTRY is something the user entered. Reminders are not: SPEC.md
+    // §4.8.3 seeds a set on every vehicle at creation, so counting them would
+    // make §8's "Zero entries: one-tap Delete" unreachable — every car ever
+    // created would demand its own name typed back before it could go, twenty
+    // seconds after it was added by mistake.
+    //
+    // They are still named in the body, because they are still destroyed.
+    const seededOnly = (
+      fillUps: 0,
+      services: 0,
+      costs: 0,
+      trips: 0,
+      reminders: 8,
+    );
+    expect(seededOnly.total, 0);
+
+    final probe = _Probe(counts: seededOnly);
+    await pumpApp(tester, probe.widget);
+    await probe.open(tester);
+
+    expect(find.byType(CalmField), findsNothing, reason: 'nothing to lose');
+    expect(_enabled(tester, 'Delete'), isTrue);
+    // 'Golf', not 'Delete The Golf': the subject travels in a first-strong
+    // isolate, so U+2068 sits between the two halves of the raw string.
+    expect(_visible(tester, contains: 'Golf'), 'Delete The Golf?');
+    expect(
+      _visible(tester, contains: 'reminders'),
+      'No fill-ups, no services, no costs, no trips and 8 reminders go '
+      'permanently.',
+    );
   });
 
   testWidgets('a zero-count title claims no history the car does not have', (

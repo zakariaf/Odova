@@ -29,6 +29,21 @@ typedef DeleteCounts = ({
 
 /// Everything that would be deleted.
 extension DeleteCountsTotal on DeleteCounts {
-  /// The number in the title.
-  int get total => fillUps + services + costs + trips + reminders;
+  /// The number in the title — how many ENTRIES the user would lose.
+  ///
+  /// Four of the five, and reminders are the one left out. An entry is
+  /// something the user entered; a reminder is a setting the APP put there.
+  /// SPEC.md §4.8.3 seeds a set on every vehicle at creation, so a total that
+  /// counted them would never be zero, and §8's "Zero entries: one-tap Delete"
+  /// would be a rule with no reachable case — a car added by mistake would
+  /// demand its own name typed back twenty seconds later, to protect eight
+  /// reminders that the next car gets for free.
+  ///
+  /// This is a decision about SPEC.md §8, not a reading of it: the section
+  /// asks for both rules and seeding puts them in tension. Recorded as F-9.26.
+  ///
+  /// Reminders stay in [DeleteCounts] and stay in the dialog's body, because
+  /// they are still destroyed and the body says what dies. They are just not
+  /// what "entries" counts.
+  int get total => fillUps + services + costs + trips;
 }

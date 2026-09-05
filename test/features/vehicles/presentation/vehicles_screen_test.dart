@@ -561,7 +561,10 @@ void main() {
     expect(sold.showChevron, isTrue);
     expect(sold.end, isNull, reason: 'no status dot on a car that is gone');
     expect(sold.detail, isNull, reason: 'one sub-line, not two');
-    expect(sold.subtitle, contains('1,204'));
+    // 1,000 + 100 + 50 + 34. The twenty reminders are destroyed with the bike
+    // but are not entries: the app seeded them, the user did not enter them
+    // (`DeleteCountsTotal.total`, F-9.26).
+    expect(sold.subtitle, contains('1,184'));
     expect(sold.subtitle, contains('12'), reason: 'the sale date');
     // The live row still has both its lines and its dot.
     expect(_row(tester, 'The Golf').showChevron, isFalse);
