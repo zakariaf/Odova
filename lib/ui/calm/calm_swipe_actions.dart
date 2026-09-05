@@ -79,10 +79,16 @@ const kCalmSwipeActionWidth = 88.0;
 double calmSwipeActionMinHeight(BuildContext context) {
   final space = CalmSpace.of(context);
   final caption = CalmType.of(context).caption;
+  // `scale(fontSize)`, NOT `scale(1) * fontSize`. A `TextScaler` is not a
+  // ratio: on Android 14 and later the system scaler is non-linear, so
+  // `scale(1)` is the scaled size of a ONE-POINT font and multiplying a 13pt
+  // caption by it computes a line box materially smaller than the text
+  // actually occupies. The floor would then be too low at exactly the setting
+  // it matters at, and the two-line tile overflows — which is the 4pt Persian
+  // "امروز انجام شد" overflow this function exists to prevent.
   final line =
-      (caption.fontSize ?? 13) *
-      (caption.height ?? 1.4) *
-      MediaQuery.textScalerOf(context).scale(1);
+      MediaQuery.textScalerOf(context).scale(caption.fontSize ?? 13) *
+      (caption.height ?? 1.4);
   // CEILED per line. A text line box is laid out in whole logical pixels, so
   // `13 * 1.4` occupies 19 and not 18.2 — and the 0.8 the two of them gain is
   // exactly the overflow this function exists to prevent.

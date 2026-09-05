@@ -317,6 +317,38 @@ void main() {
     expect(find.text('See all reminders (1)'), findsOneWidget);
   });
 
+  testWidgets('the all-clear date and its fuzzy line describe the SAME event', (
+    tester,
+  ) async {
+    // §9's all-clear names the next item with its date and puts a fuzzy line
+    // under it. The date came from `projectedDueDate` — the earlier of the two
+    // axes — and the fuzzy line from `remainingDays`, which is the TIME axis
+    // alone. An item whose DISTANCE projects three weeks out and whose time
+    // interval falls five months out read "26 September" with "in about 5
+    // months" directly underneath: a date contradicted by the sentence beneath
+    // it, on the card whose job is to say there is nothing to worry about.
+    await pumpHome(
+      tester,
+      snapshots: {
+        golfId: homeSnapshot([
+          (
+            homeItem('Oil and filter'),
+            homeAssessment(
+              state: DueState.ok,
+              driver: DueDriver.distance,
+              dueOn: '2026-09-26',
+              remainingDays: 152,
+            ),
+          ),
+        ]),
+      },
+    );
+
+    expect(find.textContaining('26 September'), findsOneWidget);
+    expect(find.textContaining('in about 3 weeks'), findsOneWidget);
+    expect(find.textContaining('5 months'), findsNothing);
+  });
+
   testWidgets('a sold vehicle replaces the due stack', (tester) async {
     await pumpHome(
       tester,

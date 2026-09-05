@@ -132,6 +132,43 @@ void main() {
 
     expect(_row(tester, 'Tyre rotation').detailState, DueState.ok);
     expect(find.byType(CalmStatusDot), findsOneWidget);
+    // The VALUE, which is the whole point of the row being here. This test
+    // asserted the dot and the state and never the text, so it went on passing
+    // while the end column was BLANK: `dueStatusLine` returns an empty string
+    // for `ok` — correctly, because Home keeps `ok` off the screen — and an
+    // `ok` row was being routed through it.
+    expect(
+      _row(tester, 'Tyre rotation').value,
+      isNotEmpty,
+      reason: '§9: ok items appear here WITH THEIR NEXT DUE',
+    );
+    expect(_row(tester, 'Tyre rotation').value, contains('8 months'));
+  });
+
+  testWidgets('a distance-driven ok item counts down in distance', (
+    tester,
+  ) async {
+    // The artboard's on-track row reads `in 8,600 km` — the same sentence a
+    // `due_soon` distance row gets, because §9 puts this group "in the same
+    // dot/colour/wording vocabulary, so no legend is needed".
+    final air = homeItem('Air filter');
+    await _pump(
+      tester,
+      items: [air],
+      assessed: [
+        (
+          air,
+          homeAssessment(
+            state: DueState.ok,
+            driver: DueDriver.distance,
+            remainingMetres: 8600000,
+            remainingDays: null,
+          ),
+        ),
+      ],
+    );
+
+    expect(_row(tester, 'Air filter').value, contains('8,600 km'));
   });
 
   testWidgets('paused rows are greyed and carry no status', (tester) async {

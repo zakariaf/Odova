@@ -93,16 +93,42 @@ String dueStatusLine(
     },
     DueState.due => l10n.homeDueNow,
     DueState.needsOdometer => l10n.homeNeedsOdometer,
-    DueState.dueSoon =>
-      _mustAskForReading(assessment)
-          ? l10n.homeDueSoonNoConfidence
-          : assessment.driver == DueDriver.distance
-          ? l10n.homeDueSoonDistance(distance(assessment.remainingMetres ?? 0))
-          : homeRelativeLine(l10n, formatsTag, assessment.remainingDays ?? 0),
+    DueState.dueSoon => dueLeadTimeLine(l10n, formatsTag, assessment, unit),
     // Neither reaches a card: §9 keeps `ok` off Home entirely and collapses
-    // `unknown` into its own card, which carries no status line.
+    // `unknown` into its own card, which carries no status line. `ok` DOES
+    // reach `reminders.list`, which asks for [dueLeadTimeLine] directly —
+    // "`ok` items appear here with their next due, which is the difference
+    // between this screen and Home".
     DueState.ok || DueState.unknown => '',
   };
+}
+
+/// How far away the next one is — `in about 1,800 km`, `in about 3 weeks`.
+///
+/// The `due_soon` arm, extracted because `reminders.list` needs the same
+/// sentence for an `ok` row and §9 requires it in the same words: that screen's
+/// first group is "sorted by `projected_due_date` exactly as Home sorts and in
+/// the same dot/colour/wording vocabulary, so no legend is needed". A second
+/// phrasing for the same fact is the legend that screen is built not to need.
+String dueLeadTimeLine(
+  AppLocalizations l10n,
+  String formatsTag,
+  DueAssessment assessment,
+  DistanceUnit unit,
+) {
+  if (_mustAskForReading(assessment)) return l10n.homeDueSoonNoConfidence;
+  if (assessment.driver == DueDriver.distance) {
+    return l10n.homeDueSoonDistance(
+      formatWithUnit(
+        Distance(assessment.remainingMetres ?? 0).inUnit(unit),
+        distanceUnitLabel(l10n, unit),
+        formatsTag,
+        numerals: CalmNumerals.auto,
+        decimalDigits: 0,
+      ),
+    );
+  }
+  return homeRelativeLine(l10n, formatsTag, assessment.remainingDays ?? 0);
 }
 
 /// The card's THIRD line: what the status is measured against.

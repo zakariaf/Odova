@@ -20,10 +20,9 @@ Future<void> showEstimatePopover(
   final box = context.findRenderObject()! as RenderBox;
   final overlay =
       Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
-  final origin = box.localToGlobal(
-    box.size.bottomLeft(Offset.zero),
-    ancestor: overlay,
-  );
+  final anchor = box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
+  final frame = overlay.size;
+  final rtl = Directionality.of(context) == TextDirection.rtl;
 
   return showDialog<void>(
     context: context,
@@ -31,11 +30,39 @@ Future<void> showEstimatePopover(
     builder: (context) => Stack(
       children: [
         Positioned(
-          left: origin.dx,
-          top: origin.dy,
+          // CLAMPED to the frame, and anchored on the leading edge in both
+          // directions. It used to be `left: origin.dx` with no bound: in RTL
+          // the first glance tile sits on the RIGHT, so `dx` was near the
+          // screen width, the popover is up to 280 wide, and a left-positioned
+          // child in a Stack gets loose constraints — so it laid out past the
+          // trailing edge and was clipped. The same happened at the bottom for
+          // a value near the fold.
+          //
+          // §9 says the popover is "anchored to" the value; it does not say the
+          // anchor may leave the screen.
+          left: _clamp(
+            rtl ? anchor.right - kCalmPopoverMaxWidth : anchor.left,
+            kCalmPopoverMaxWidth,
+            frame.width,
+          ),
+          top: _clamp(anchor.bottom, kCalmPopoverMinHeight, frame.height),
           child: Material(type: MaterialType.transparency, child: body),
         ),
       ],
     ),
   );
 }
+
+/// The tallest the popover is assumed to be when it is being kept on screen.
+///
+/// A guess, and deliberately a small one: the popover sizes itself to one
+/// sentence and at most one button, and reserving more than it needs would
+/// push it up the screen away from the value it is explaining. Being a little
+/// low is recoverable — the sheet is transient and a tap anywhere closes it.
+const double kCalmPopoverMinHeight = 120;
+
+/// [start] moved back inside a [extent]-long axis, never past zero.
+double _clamp(double start, double size, double extent) =>
+    start + size <= extent
+    ? (start < 0 ? 0 : start)
+    : (extent - size).clamp(0, extent);

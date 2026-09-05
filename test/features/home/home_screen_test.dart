@@ -507,6 +507,37 @@ void main() {
     );
   });
 
+  testWidgets('the popover stays inside the frame in RTL', (tester) async {
+    // The popover was `left: origin.dx` with no bound. In RTL the value sits
+    // on the RIGHT, so `dx` was near the screen width, the popover is up to
+    // 280 wide, and a left-positioned child in a Stack gets loose constraints —
+    // it laid out past the trailing edge and was clipped. §9 anchors it to the
+    // value; it does not say the anchor may leave the screen.
+    await pumpHome(
+      tester,
+      locale: const Locale('fa'),
+      snapshots: {
+        golfId: homeSnapshot(
+          [(homeItem('روغن'), homeAssessment(state: DueState.ok))],
+          estimate: homeEstimate(187412, staleDays: 12),
+        ),
+      },
+    );
+
+    // The FIRST glance tile, which in RTL sits hard against the right edge —
+    // the case the popover's `left: origin.dx` could not survive.
+    final dash = find.text(kGlanceDash).first;
+    await tester.ensureVisible(dash);
+    await tester.pumpAndSettle();
+    await tester.tap(dash);
+    await tester.pumpAndSettle();
+
+    final rect = tester.getRect(find.byType(CalmPopover));
+    final frame = tester.getSize(find.byType(HomeScreen));
+    expect(rect.left, greaterThanOrEqualTo(0));
+    expect(rect.right, lessThanOrEqualTo(frame.width));
+  });
+
   testWidgets('the glance tiles are on the screen and explain their dashes', (
     tester,
   ) async {

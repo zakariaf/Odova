@@ -226,6 +226,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           else if (state.stack.unknown case final unknown?) ...[
             if (state.stack.cards.isNotEmpty) _dueStack(state, unit, tag),
             UnknownAnchorPanel(
+              formatsTag: tag,
               card: unknown,
               firstRun: state.stack.cards.isEmpty && state.lastFillUp == null,
               onOpenList: () => unawaited(context.push(Routes.reminders)),
@@ -238,7 +239,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ] else if (state.allClear case final allClear?) ...[
             HomeAllClearPanel(
               nextLine: _nextLine(l10n, tag, allClear),
-              fuzzLine: _fuzzLine(l10n, tag, allClear),
+              fuzzLine: _fuzzLine(l10n, tag, allClear, state.today),
               since: _sinceLine(l10n, tag, allClear, unit),
             ),
             // The row SURVIVES the all-clear. §9's zone table: "Present
@@ -306,12 +307,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// `in about 5 months` — the estimate, on its own line so it can never read
   /// as a fact.
-  String? _fuzzLine(AppLocalizations l10n, String tag, HomeAllClear allClear) {
-    final next = allClear.next;
-    if (next == null) return null;
-    final days = next.$2.remainingDays;
-    if (days == null) return null;
-    return homeRelativeLine(l10n, tag, days);
+  ///
+  /// Counted from the SAME date [_nextLine] prints. It used to read
+  /// `remainingDays`, which is the TIME axis alone, while the line above it
+  /// named `projectedDueDate` — the earlier of the two axes. An item whose
+  /// distance projects three weeks out and whose time interval falls five
+  /// months out then read "Next: Oil and filter, 26 September" with "in about
+  /// 5 months" directly underneath: a date, contradicted by the sentence
+  /// beneath it, on the card whose whole job is to say there is nothing to
+  /// worry about.
+  String? _fuzzLine(
+    AppLocalizations l10n,
+    String tag,
+    HomeAllClear allClear,
+    CivilDate? today,
+  ) {
+    final on = allClear.next?.$2.projectedDueDate;
+    if (on == null || today == null) return null;
+    return homeRelativeLine(l10n, tag, today.daysUntil(on));
   }
 
   /// The receipt: `Since the last oil change: 3,120 km · 4 months`.

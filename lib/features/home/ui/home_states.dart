@@ -8,9 +8,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 import 'package:odova/features/home/ui/odometer_strip.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
@@ -36,6 +38,7 @@ class UnknownAnchorPanel extends StatelessWidget {
   /// Creates the card.
   const UnknownAnchorPanel({
     required this.card,
+    required this.formatsTag,
     required this.onOpenList,
     required this.onOpenItem,
     super.key,
@@ -44,6 +47,9 @@ class UnknownAnchorPanel extends StatelessWidget {
 
   /// What `buildHomeStack` collapsed, or an empty one on first run.
   final UnknownAnchorCard card;
+
+  /// The tag the count is shaped by.
+  final String formatsTag;
 
   /// Opens `reminders.list`.
   final VoidCallback onOpenList;
@@ -122,7 +128,20 @@ class UnknownAnchorPanel extends StatelessWidget {
             ),
             if (card.moreCount > 0)
               Text(
-                l10n.homeUnknownMore(card.moreCount, '${card.moreCount}'),
+                l10n.homeUnknownMore(
+                  card.moreCount,
+                  // Through the formatter, like every other count on this
+                  // screen. A raw `'${'$'}{card.moreCount}'` renders Latin
+                  // digits, so in fa, ar and ckb this one line read `+ 2 more`
+                  // while the strip above it and the see-all row beside it
+                  // both read `۲`.
+                  formatForDisplay(
+                    card.moreCount,
+                    formatsTag,
+                    numerals: CalmNumerals.auto,
+                    decimalDigits: 0,
+                  ),
+                ),
                 style: type.caption.copyWith(color: colors.ink2),
               ),
           ],
