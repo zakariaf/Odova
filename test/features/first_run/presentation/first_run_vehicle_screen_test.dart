@@ -238,7 +238,11 @@ void main() {
 
     expect(find.text(l10n.odometerImplausibleWarning), findsOneWidget);
     expect(find.text(l10n.commonUseItAnyway), findsOneWidget);
-    expect(_start(tester).onPressed, isNull);
+    expect(
+      _start(tester).onPressed,
+      isNotNull,
+      reason: 'SPEC.md §8: a warning with an affordance, never a block',
+    );
 
     await tester.tap(find.text(l10n.commonUseItAnyway));
     await tester.pumpAndSettle();

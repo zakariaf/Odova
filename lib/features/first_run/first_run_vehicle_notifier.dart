@@ -152,15 +152,17 @@ class FirstRunVehicleDraft {
   /// Whether Start may be pressed.
   ///
   /// The deliberate exception to "Save is never disabled", scoped by SPEC.md
-  /// §8 to one required field with an always-visible hint.
+  /// §8 to one required field with an always-visible hint — and scoped no
+  /// further than that. It asks whether the field holds a READING, not whether
+  /// the app likes it.
   ///
-  /// ONE condition. It used to read
-  /// `odometerMetres != null && problem == null`, and the first half could
-  /// never decide anything: [problem] already answers
-  /// `empty` or `notANumber` whenever the odometer does not parse, so the
-  /// conjunct was a second spelling of the same question — and one that would
-  /// go on being true if a third kind of problem were ever added.
-  bool get canStart => problem == null;
+  /// So it is not `problem == null`, which is what it used to be. That spelling
+  /// quietly promoted [OdometerProblem.implausible] into a block, and §8 says
+  /// the opposite in as many words: "a warning with a 'Use it anyway'
+  /// affordance, never a block". A truck that really has done three million
+  /// kilometres could not be entered without first arguing with the app, and
+  /// "never a block" is not "one extra tap".
+  bool get canStart => odometerMetres != null;
 
   /// A copy with the given changes.
   FirstRunVehicleDraft copyWith({

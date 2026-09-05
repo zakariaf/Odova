@@ -107,13 +107,32 @@ void main() {
         final h = _harness();
         final n = _notifier(h)..typeOdometer('3000001');
         expect(_draft(h).problem, OdometerProblem.implausible);
-        expect(_draft(h).canStart, isFalse);
+        expect(
+          _draft(h).canStart,
+          isTrue,
+          reason: 'the warning is a warning; Start stays pressable',
+        );
 
         n.useItAnyway();
         expect(_draft(h).problem, isNull);
         expect(_draft(h).canStart, isTrue);
       },
     );
+
+    test('only a reading that cannot be read at all disables Start', () {
+      // The other half of "never a block": the ONE exception to "Save is never
+      // disabled" is a required field with nothing usable in it. A number the
+      // app merely doubts is still a number.
+      final h = _harness();
+      final n = _notifier(h);
+      expect(_draft(h).canStart, isFalse, reason: 'empty');
+      n.typeOdometer('twelve');
+      expect(_draft(h).canStart, isFalse, reason: 'not a number');
+      n.typeOdometer('1000.5');
+      expect(_draft(h).canStart, isFalse, reason: 'not a whole reading');
+      n.typeOdometer('0');
+      expect(_draft(h).canStart, isTrue, reason: 'new cars exist');
+    });
 
     test('a new number is a new question, so the warning does not carry', () {
       // Accepting 3,000,001 must not silently accept the 300,000,001 typed
@@ -224,9 +243,10 @@ void main() {
       expect(await n.save(), isFalse);
       expect(await h.db.select(h.db.vehicles).get(), isEmpty);
 
-      // And with an unaccepted warning, which is a value the user has not yet
-      // stood behind.
-      n.typeOdometer('9000000');
+      // And with digits that are not a reading. Not with a DOUBTED reading:
+      // nine million kilometres still writes, because §8's warning is a warning
+      // (see 'an implausible reading is saved without being acknowledged').
+      n.typeOdometer('one hundred');
       expect(await n.save(), isFalse);
       expect(await h.db.select(h.db.vehicles).get(), isEmpty);
     });
@@ -264,6 +284,22 @@ void main() {
     final settings = await h.db.select(h.db.settingsTable).getSingle();
     expect(settings.onboardingDone, isTrue);
     expect(settings.activeVehicleId, vehicle.id);
+  });
+
+  test('an implausible reading is saved without being acknowledged', () async {
+    // "Never a block" is not "one extra tap". A user whose truck really has
+    // done 3,000,001 km presses Start and the reading is written, whether or
+    // not they went past the warning first — the app doubts the number, it does
+    // not hold it hostage.
+    final h = await _seeded();
+    final n = _notifier(h)
+      ..rename('The Truck')
+      ..typeOdometer('3000001');
+    expect(_draft(h).problem, OdometerProblem.implausible);
+
+    expect(await n.save(), isTrue);
+    final reading = await h.db.select(h.db.odometerReadings).getSingle();
+    expect(reading.odometerM, const Distance.fromMiles(3000001).metres);
   });
 
   test('an accepted implausible reading is saved exactly as typed', () async {
