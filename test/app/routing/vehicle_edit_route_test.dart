@@ -14,6 +14,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
@@ -83,9 +84,44 @@ void main() {
       find.byType(VehicleEditScreen),
     );
     expect(screen.vehicleId, isNull);
+    // EDIT mode, and this is the assertion that separates the two null-id
+    // cases: `tryParse` answers null for `not-an-id` and for the `new`
+    // sentinel alike, and they must not draw the same screen.
+    expect(screen.mode, VehicleEditMode.edit);
     // And it draws the shell a missing vehicle draws — a modal the user can
     // close, rather than a blank route with no way out.
     expect(find.text('Vehicle'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the `new` sentinel opens CREATE mode, not that shell', (
+    tester,
+  ) async {
+    // The other null-id case, and the one that shipped broken: `Routes
+    // .vehicleNew` is `/settings/vehicles/new`, `VehicleId.tryParse('new')`
+    // is null, and the router read it as a malformed link. Both doors marked
+    // "+" opened an empty modal with a Save that called `() {}`.
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    await insertSettings(db, activeVehicleId: _golf);
+    await insertVehicle(db, id: _golf);
+
+    await pumpShell(
+      tester,
+      Routes.vehicleNew,
+      overrides: <Override>[
+        appDatabaseProvider.overrideWithValue(db),
+        clockProvider.overrideWithValue(
+          Clock.fixed(DateTime.utc(2026, 11, 20)),
+        ),
+      ],
+    );
+
+    final screen = tester.widget<VehicleEditScreen>(
+      find.byType(VehicleEditScreen),
+    );
+    expect(screen.mode, VehicleEditMode.create);
+    expect(screen.vehicleId, isNull);
     expect(tester.takeException(), isNull);
   });
 }

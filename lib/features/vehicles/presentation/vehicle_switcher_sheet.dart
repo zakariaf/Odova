@@ -183,14 +183,19 @@ Future<void> switchToAndDismiss(
   WidgetRef ref,
   VehicleId? id,
 ) async {
+  // Captured, all three, before the write. A `context.mounted` guard after it
+  // does not just skip the pop — it skips the MESSAGE, so a failed switch
+  // becomes a tap that did nothing and said nothing, on the one screen whose
+  // entire purpose is to have switched.
   final navigator = Navigator.of(context);
   final l10n = AppLocalizations.of(context);
+  final snackbars = CalmSnackbarHost.of(context);
+
   final switched = id == null
       ? const Ok<void, PersistFailure>(null)
       : await setActiveVehicle(ref.read, id);
-  if (!context.mounted) return;
   if (switched is! Ok<void, PersistFailure>) {
-    CalmSnackbar.show(context, message: l10n.saveDiskFullError, danger: true);
+    snackbars.show(message: l10n.saveDiskFullError, danger: true);
     return;
   }
   navigator.pop();

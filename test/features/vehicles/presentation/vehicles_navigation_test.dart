@@ -74,10 +74,11 @@ void main() {
   testWidgets('the + opens the editor in CREATE mode, with no vehicle', (
     tester,
   ) async {
-    // §8: "**+** in the app bar → `vehicle.edit`, create mode." The route
-    // carries the sentinel id, which the screen reads as a null `VehicleId` —
-    // a vehicle that is not there yet, drawn by the same code that draws one
-    // that is gone.
+    // §8: "**+** in the app bar → `vehicle.edit`, create mode." The MODE is
+    // what this asserts, not the null id: `VehicleId.tryParse` answers null
+    // for the `new` sentinel and for `not-an-id` alike, so a test that checked
+    // only the id passed for months while the + opened the bad-deep-link
+    // shell — an empty modal with a Save wired to `() {}`.
     final db = await _db();
     addTearDown(db.close);
 
@@ -103,12 +104,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(
-      tester
-          .widget<VehicleEditScreen>(find.byType(VehicleEditScreen))
-          .vehicleId,
-      isNull,
+    final screen = tester.widget<VehicleEditScreen>(
+      find.byType(VehicleEditScreen),
     );
+    expect(screen.mode, VehicleEditMode.create);
+    expect(screen.vehicleId, isNull, reason: 'there is no vehicle yet');
     expect(
       await _activeVehicle(db),
       _golf,

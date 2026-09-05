@@ -23,15 +23,48 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/source_gates.dart';
 
+/// `RelativeDateBucket.inDays` is a bucket NAME, not a duration — it selects
+/// the `dateInDays` ARB message, and its five siblings are named after their
+/// five keys the same way. Everything else that reaches `.inDays` got there
+/// through a `Duration`.
+const _banned = r'(?<!RelativeDateBucket)\.inDays';
+
 void main() {
   test('no day count in lib/ is measured with a Duration', () {
     expectNoBannedPatterns(const {
-      // `RelativeDateBucket.inDays` is a bucket NAME, not a duration, and its
-      // declaration carries no dot. Everything else that reaches `.inDays` got
-      // there through `DateTime.difference`.
-      r'(?<!RelativeDateBucket)\.inDays':
+      _banned:
           'a calendar day is not 24 hours across a DST change: count days '
           'with CivilDate.daysUntil, which has no timezone on its path',
     });
+  });
+
+  test('the matcher recognises the shapes it claims to', () {
+    // Guard the guard. CLAUDE.md §4: a gate that has only ever been green is a
+    // comment that runs — and this one greps a tree it currently finds nothing
+    // in, so without this it has never been observed doing either half of its
+    // job.
+    final banned = RegExp(_banned);
+
+    // The two spellings that actually shipped, and the shape they shipped in.
+    for (final bad in [
+      'DateUtils.dateOnly(now).difference(then).inDays',
+      '.inDays,',
+      'final age = now.difference(reading).inDays;',
+      'duration.inDays',
+    ]) {
+      expect(banned.hasMatch(bad), isTrue, reason: bad);
+    }
+
+    // And the one name that must survive it. A carve-out that stopped matching
+    // would fail the gate on a file that is doing nothing wrong, and the
+    // cheapest way to get green would be to delete the gate.
+    for (final good in [
+      'RelativeDateBucket.inDays',
+      'return (bucket: RelativeDateBucket.inDays, count: days);',
+      // The declaration carries no dot at all.
+      '  inDays,',
+    ]) {
+      expect(banned.hasMatch(good), isFalse, reason: good);
+    }
   });
 }

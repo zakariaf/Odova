@@ -22,9 +22,12 @@ import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/data/repositories/settings_repository.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_switcher_sheet.dart';
 import 'package:odova/ui/calm/calm_disclosure.dart';
@@ -59,10 +62,31 @@ Vehicle _vehicle(
   updatedAtUtcMs: 1000,
 );
 
+/// A settings repository whose one write always refuses.
+///
+/// The switcher's whole job is to have switched, so "the write failed" is a
+/// state it has to be able to draw. Subclassed rather than faked wholesale:
+/// everything else on the real repository still behaves, so the test is about
+/// the one call that fails.
+class _RefusingSettings extends SettingsRepository {
+  // `super.db` is what one lint wants and another refuses: the field it
+  // forwards to is private, so a super parameter cannot share its name from
+  // another library.
+  // ignore: use_super_parameters
+  const _RefusingSettings(AppDatabase db) : super(db);
+
+  @override
+  Future<Result<void, PersistFailure>> setActiveVehicle(
+    VehicleId? id, {
+    required int updatedAtUtcMs,
+  }) async => const Err(WriteFailed('disk full'));
+}
+
 Future<ProviderContainer> _pump(
   WidgetTester tester, {
   List<Vehicle>? vehicles,
   VehicleId? active,
+  bool writesFail = false,
 }) async {
   // A REAL in-memory database for the WRITE. Tapping a row goes through
   // `setActiveVehicle`, which asks the repository to update one column — and a
@@ -88,10 +112,16 @@ Future<ProviderContainer> _pump(
     Builder(
       builder: (context) {
         container = ProviderScope.containerOf(context);
-        return Center(
-          child: TextButton(
-            onPressed: () => showVehicleSwitcher(context),
-            child: const Text('open'),
+        // A SCAFFOLD under it, because `ScaffoldMessenger.showSnackBar` has
+        // nothing to present to without one — so a bare `Center` here silently
+        // swallows every snackbar the sheet tries to show, and the failure
+        // path would look tested while asserting nothing.
+        return Scaffold(
+          body: Center(
+            child: TextButton(
+              onPressed: () => showVehicleSwitcher(context),
+              child: const Text('open'),
+            ),
           ),
         );
       },
@@ -115,6 +145,8 @@ Future<ProviderContainer> _pump(
       ),
       for (final v in garage)
         vehicleDueSnapshotProvider(v.id).overrideWithValue(null),
+      if (writesFail)
+        settingsRepositoryProvider.overrideWith((ref) => _RefusingSettings(db)),
     ],
   );
   await tester.pumpAndSettle();
@@ -219,6 +251,27 @@ void main() {
     // The tab-stack reset is `setActiveVehicle`'s second effect and the proof
     // the sheet went through it rather than writing the column itself.
     expect(container.read(tabStackResetProvider), isNotNull);
+  });
+
+  testWidgets('a refused write keeps the sheet open and says so', (
+    tester,
+  ) async {
+    // The sheet's whole purpose is to have switched. It used to discard
+    // `setActiveVehicle`'s `Result` and pop regardless, so a write that never
+    // happened looked exactly like one that did — the user watched the tick
+    // move, the sheet closed, and the app was still on the old car.
+    final container = await _pump(tester, writesFail: true);
+
+    await tester.tap(find.text('Transit'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(VehicleSwitcherSheet), findsOneWidget);
+    expect(
+      container.read(tabStackResetProvider),
+      isNull,
+      reason: 'nothing was switched, so nothing was reset',
+    );
+    expect(find.byType(SnackBar), findsOneWidget, reason: 'and it says so');
   });
 
   testWidgets('tapping the ACTIVE vehicle changes nothing and dismisses', (

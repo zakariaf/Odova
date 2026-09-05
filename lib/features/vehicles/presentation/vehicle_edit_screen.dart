@@ -43,6 +43,7 @@ import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
+import 'package:odova/ui/calm/calm_snackbar.dart';
 import 'package:odova/ui/calm/calm_swatch.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
 
@@ -466,8 +467,26 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
   }
 
   Future<void> _save() async {
+    final snackbars = CalmSnackbarHost.of(context);
+    final l10n = AppLocalizations.of(context);
     final saved = await _notifier.save();
-    if (saved == null || !mounted) return;
+    if (saved == null) {
+      // `failed` was written by the notifier and read by NOBODY: a save that
+      // hit a full disk left the form looking exactly as it did before —
+      // no message, no error, no disabled button — and the user pressed Save
+      // again, and again. `firstrun.vehicle` had the same state and wired it
+      // up; this screen had the state and stopped there.
+      //
+      // A snackbar rather than an inline block, because that is what the
+      // garage's sale and delete already do when a write refuses, and this
+      // modal has an app-bar Save rather than a footer to put a message under.
+      final state = ref.read(vehicleEditProvider(_key));
+      if (state is VehicleEditReady && state.failed) {
+        snackbars.show(message: l10n.saveDiskFullError, danger: true);
+      }
+      return;
+    }
+    if (!mounted) return;
     // `pop`, not `maybePop`. `DirtyModalGuard` holds `canPop: false` so that a
     // DISMISSAL can be refused and re-issued after the discard dialog answers
     // — and its re-issue carries no result, which silently swallowed the id
