@@ -817,4 +817,22 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeEnteredOn(String date) {
+    return 'entered $date';
+  }
+
+  @override
+  String homeEstimatedFrom(String rate, String date) {
+    return 'Estimated from about $rate a day since $date.';
+  }
+
+  @override
+  String get homeEstimateExpired =>
+      'Your last reading is too old, so Odova has stopped guessing. Enter what the dash says now.';
+
+  @override
+  String get homeConsumptionPending =>
+      'Your first consumption figure arrives at your next full fill-up.';
 }

@@ -899,4 +899,22 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeEnteredOn(String date) {
+    return 'أُدخِل $date';
+  }
+
+  @override
+  String homeEstimatedFrom(String rate, String date) {
+    return 'تقدير من نحو $rate يوميًا منذ $date.';
+  }
+
+  @override
+  String get homeEstimateExpired =>
+      'قراءتك الأخيرة قديمة جدًا، لذا توقّفت أودوفا عن التقدير. أدخِل ما يظهر على العدّاد الآن.';
+
+  @override
+  String get homeConsumptionPending =>
+      'يصل أول رقم استهلاك عند تعبئة الخزان بالكامل في المرّة القادمة.';
 }

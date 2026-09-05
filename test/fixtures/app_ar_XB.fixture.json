@@ -174,5 +174,9 @@
   "actionUpdateOdometer": "‏retemodo etadpU",
   "homeDurationDays": "‏{n, plural, one{{nText}yad } other{{nText}syad }}",
   "homeDurationWeeks": "‏{n, plural, one{{nText}keew } other{{nText}skeew }}",
-  "homeDurationMonths": "‏{n, plural, one{{nText}htnom } other{{nText}shtnom }}"
+  "homeDurationMonths": "‏{n, plural, one{{nText}htnom } other{{nText}shtnom }}",
+  "homeEnteredOn": "‏ deretne{date}",
+  "homeEstimatedFrom": "‏ tuoba morf detamitsE{rate} ecnis yad a {date}.",
+  "homeEstimateExpired": "‏.won syas hsad eht tahw retnE .gnisseug deppots sah avodO os ,dlo oot si gnidaer tsal ruoY",
+  "homeConsumptionPending": "‏.pu-llif lluf txen ruoy ta sevirra erugif noitpmusnoc tsrif ruoY"
 }

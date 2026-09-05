@@ -174,5 +174,9 @@
   "actionUpdateOdometer": "نوێکردنەوەی کیلۆمەتر",
   "homeDurationDays": "{n, plural, one{{nText} ڕۆژ} other{{nText} ڕۆژ}}",
   "homeDurationWeeks": "{n, plural, one{{nText} هەفتە} other{{nText} هەفتە}}",
-  "homeDurationMonths": "{n, plural, one{{nText} مانگ} other{{nText} مانگ}}"
+  "homeDurationMonths": "{n, plural, one{{nText} مانگ} other{{nText} مانگ}}",
+  "homeEnteredOn": "تۆمارکراوە {date}",
+  "homeEstimatedFrom": "خەمڵێنراو لە نزیکەی {rate} ڕۆژانە لە {date}ەوە.",
+  "homeEstimateExpired": "دوایین خوێندنەوەت زۆر کۆنە، بۆیە ئۆدۆڤا وازی لە خەمڵاندن هێناوە. ئەوەی ئێستا لەسەر داشبۆردە بینووسە.",
+  "homeConsumptionPending": "یەکەم ژمارەی خەرجکردنت لە پڕکردنەوەی تەواوی داهاتوودا دێت."
 }

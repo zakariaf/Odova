@@ -174,5 +174,9 @@
   "actionUpdateOdometer": "تحديث العدّاد",
   "homeDurationDays": "{n, plural, zero{{nText} يوم} one{يوم واحد} two{يومان} few{{nText} أيام} many{{nText} يومًا} other{{nText} يوم}}",
   "homeDurationWeeks": "{n, plural, zero{{nText} أسبوع} one{أسبوع واحد} two{أسبوعان} few{{nText} أسابيع} many{{nText} أسبوعًا} other{{nText} أسبوع}}",
-  "homeDurationMonths": "{n, plural, zero{{nText} شهر} one{شهر واحد} two{شهران} few{{nText} أشهر} many{{nText} شهرًا} other{{nText} شهر}}"
+  "homeDurationMonths": "{n, plural, zero{{nText} شهر} one{شهر واحد} two{شهران} few{{nText} أشهر} many{{nText} شهرًا} other{{nText} شهر}}",
+  "homeEnteredOn": "أُدخِل {date}",
+  "homeEstimatedFrom": "تقدير من نحو {rate} يوميًا منذ {date}.",
+  "homeEstimateExpired": "قراءتك الأخيرة قديمة جدًا، لذا توقّفت أودوفا عن التقدير. أدخِل ما يظهر على العدّاد الآن.",
+  "homeConsumptionPending": "يصل أول رقم استهلاك عند تعبئة الخزان بالكامل في المرّة القادمة."
 }

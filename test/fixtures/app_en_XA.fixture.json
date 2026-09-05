@@ -174,5 +174,9 @@
   "actionUpdateOdometer": "[Ǔƥḍáţḗ ǿḍǿḿḗţḗř ǃǃǃǃǃǃ]",
   "homeDurationDays": "[{n, plural, one{{nText} ḍáẏ} other{{nText} ḍáẏŝ}} ǃǃǃǃ]",
   "homeDurationWeeks": "[{n, plural, one{{nText} ẇḗḗķ} other{{nText} ẇḗḗķŝ}} ǃǃǃǃǃ]",
-  "homeDurationMonths": "[{n, plural, one{{nText} ḿǿǹţħ} other{{nText} ḿǿǹţħŝ}} ǃǃǃǃǃǃ]"
+  "homeDurationMonths": "[{n, plural, one{{nText} ḿǿǹţħ} other{{nText} ḿǿǹţħŝ}} ǃǃǃǃǃǃ]",
+  "homeEnteredOn": "[ḗǹţḗřḗḍ {date} ǃǃǃǃ]",
+  "homeEstimatedFrom": "[Ḗŝţīḿáţḗḍ ƒřǿḿ áḅǿǔţ {rate} á ḍáẏ ŝīǹçḗ {date}. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "homeEstimateExpired": "[Ẏǿǔř ŀáŝţ řḗáḍīǹḡ īŝ ţǿǿ ǿŀḍ, ŝǿ Ǿḍǿṽá ħáŝ ŝţǿƥƥḗḍ ḡǔḗŝŝīǹḡ. Ḗǹţḗř ẇħáţ ţħḗ ḍáŝħ ŝáẏŝ ǹǿẇ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "homeConsumptionPending": "[Ẏǿǔř ƒīřŝţ çǿǹŝǔḿƥţīǿǹ ƒīḡǔřḗ ářřīṽḗŝ áţ ẏǿǔř ǹḗẋţ ƒǔŀŀ ƒīŀŀ-ǔƥ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]"
 }

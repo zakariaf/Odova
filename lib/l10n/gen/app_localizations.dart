@@ -1166,6 +1166,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, one{{nText} month} other{{nText} months}}'**
   String homeDurationMonths(int n, String nText);
+
+  /// The odometer strip's second line when the number is a READING the user typed. SPEC.md §9 keeps entered and projected visibly different, and this is half of that: an entered value has no tilde and says when it was entered.
+  ///
+  /// In en, this message translates to:
+  /// **'entered {date}'**
+  String homeEnteredOn(String date);
+
+  /// The popover behind an estimated value. §9 allows exactly one sentence and one action, and no percentage, no bar and no tier name — "the tilde and the word 'about' are the whole vocabulary".
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated from about {rate} a day since {date}.'**
+  String homeEstimatedFrom(String rate, String date);
+
+  /// The popover when `estimateOdometer` has stopped projecting — past 180 days. §9: "Ten thousand kilometres of invented number is worse than a blank." It says the app stopped rather than pretending it did not.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last reading is too old, so Odova has stopped guessing. Enter what the dash says now.'**
+  String get homeEstimateExpired;
+
+  /// The popover behind the consumption tile before there are two full fill-ups. §9 makes this one dismissal-only: there is nothing for the user to do but drive and fill up.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first consumption figure arrives at your next full fill-up.'**
+  String get homeConsumptionPending;
 }
 
 class _AppLocalizationsDelegate

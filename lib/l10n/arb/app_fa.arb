@@ -174,5 +174,9 @@
   "actionUpdateOdometer": "به‌روزرسانی کیلومتر",
   "homeDurationDays": "{n, plural, one{{nText} روز} other{{nText} روز}}",
   "homeDurationWeeks": "{n, plural, one{{nText} هفته} other{{nText} هفته}}",
-  "homeDurationMonths": "{n, plural, one{{nText} ماه} other{{nText} ماه}}"
+  "homeDurationMonths": "{n, plural, one{{nText} ماه} other{{nText} ماه}}",
+  "homeEnteredOn": "ثبت‌شده {date}",
+  "homeEstimatedFrom": "برآورد از حدود {rate} در روز از {date}.",
+  "homeEstimateExpired": "آخرین عدد تو خیلی قدیمی است، پس اودووا دیگر حدس نمی‌زند. آنچه روی داشبورد است را وارد کن.",
+  "homeConsumptionPending": "اولین عدد مصرف تو در باک‌پرکردن کامل بعدی می‌آید."
 }

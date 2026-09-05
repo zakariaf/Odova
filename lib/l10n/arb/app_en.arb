@@ -1171,5 +1171,37 @@
         "example": "3"
       }
     }
+  },
+  "homeEnteredOn": "entered {date}",
+  "@homeEnteredOn": {
+    "description": "The odometer strip's second line when the number is a READING the user typed. SPEC.md §9 keeps entered and projected visibly different, and this is half of that: an entered value has no tilde and says when it was entered.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "12 September"
+      }
+    }
+  },
+  "homeEstimatedFrom": "Estimated from about {rate} a day since {date}.",
+  "@homeEstimatedFrom": {
+    "description": "The popover behind an estimated value. §9 allows exactly one sentence and one action, and no percentage, no bar and no tier name — \"the tilde and the word 'about' are the whole vocabulary\".",
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "41 km"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 July"
+      }
+    }
+  },
+  "homeEstimateExpired": "Your last reading is too old, so Odova has stopped guessing. Enter what the dash says now.",
+  "@homeEstimateExpired": {
+    "description": "The popover when `estimateOdometer` has stopped projecting — past 180 days. §9: \"Ten thousand kilometres of invented number is worse than a blank.\" It says the app stopped rather than pretending it did not."
+  },
+  "homeConsumptionPending": "Your first consumption figure arrives at your next full fill-up.",
+  "@homeConsumptionPending": {
+    "description": "The popover behind the consumption tile before there are two full fill-ups. §9 makes this one dismissal-only: there is nothing for the user to do but drive and fill up."
   }
 }

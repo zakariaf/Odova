@@ -817,4 +817,22 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeEnteredOn(String date) {
+    return 'ثبت‌شده $date';
+  }
+
+  @override
+  String homeEstimatedFrom(String rate, String date) {
+    return 'برآورد از حدود $rate در روز از $date.';
+  }
+
+  @override
+  String get homeEstimateExpired =>
+      'آخرین عدد تو خیلی قدیمی است، پس اودووا دیگر حدس نمی‌زند. آنچه روی داشبورد است را وارد کن.';
+
+  @override
+  String get homeConsumptionPending =>
+      'اولین عدد مصرف تو در باک‌پرکردن کامل بعدی می‌آید.';
 }

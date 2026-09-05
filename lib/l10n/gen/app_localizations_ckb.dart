@@ -821,4 +821,22 @@ class AppLocalizationsCkb extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeEnteredOn(String date) {
+    return 'تۆمارکراوە $date';
+  }
+
+  @override
+  String homeEstimatedFrom(String rate, String date) {
+    return 'خەمڵێنراو لە نزیکەی $rate ڕۆژانە لە $dateەوە.';
+  }
+
+  @override
+  String get homeEstimateExpired =>
+      'دوایین خوێندنەوەت زۆر کۆنە، بۆیە ئۆدۆڤا وازی لە خەمڵاندن هێناوە. ئەوەی ئێستا لەسەر داشبۆردە بینووسە.';
+
+  @override
+  String get homeConsumptionPending =>
+      'یەکەم ژمارەی خەرجکردنت لە پڕکردنەوەی تەواوی داهاتوودا دێت.';
 }
