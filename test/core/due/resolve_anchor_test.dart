@@ -347,4 +347,84 @@ void main() {
     expect(anchor.date, day('2026-07-14'));
     expect(anchor.odometerMetres, const Distance.fromKm(112000).metres);
   });
+
+  group('the rung that won is reported', () {
+    // EPIC-10 needs it. SPEC.md §9: "Home renders any item anchored on the
+    // `purchase` or `first_reading` rung as `unknown`, whatever the due engine
+    // returns" — so a 2019 car entered today does not open on eleven red
+    // cards. The ladder already walks four rungs and picks a winner per axis;
+    // it was throwing away WHICH one, and a presentation layer cannot ask
+    // afterwards without walking the ladder a second time and disagreeing.
+
+    test('a completing record reports the record rung', () {
+      final anchor = resolveAnchor(
+        item(baselineDate: '2020-01-01', baselineKm: 50000),
+        [record('A', '2026-07-14', 112000)],
+        vehicle(purchaseDate: '2019-03-01', purchaseKm: 10000),
+        seriesOf(const []),
+      );
+      expect(anchor.dateRung, AnchorRung.record);
+      expect(anchor.odometerRung, AnchorRung.record);
+    });
+
+    test('the item own baseline reports the baseline rung', () {
+      final anchor = resolveAnchor(
+        item(baselineDate: '2020-01-01', baselineKm: 50000),
+        const [],
+        vehicle(purchaseDate: '2019-03-01', purchaseKm: 10000),
+        seriesOf(const []),
+      );
+      expect(anchor.dateRung, AnchorRung.baseline);
+      expect(anchor.odometerRung, AnchorRung.baseline);
+    });
+
+    test('the vehicle purchase reports the purchase rung', () {
+      final anchor = resolveAnchor(
+        item(),
+        const [],
+        vehicle(purchaseDate: '2019-03-01', purchaseKm: 10000),
+        seriesOf(const []),
+      );
+      expect(anchor.dateRung, AnchorRung.purchase);
+      expect(anchor.odometerRung, AnchorRung.purchase);
+    });
+
+    test('the earliest reading reports the firstReading rung', () {
+      final anchor = resolveAnchor(
+        item(),
+        const [],
+        vehicle(),
+        seriesOf([reading('A', '2026-01-01', 100000)]),
+      );
+      expect(anchor.dateRung, AnchorRung.firstReading);
+      expect(anchor.odometerRung, AnchorRung.firstReading);
+    });
+
+    test('the two axes report their own rungs, separately', () {
+      // The whole reason the ladder is walked twice. A vehicle with a purchase
+      // DATE but no purchase odometer takes its date from `purchase` and its
+      // odometer from the earliest reading — and Home has to see both, because
+      // either one being a guess is what makes the item unknown.
+      final anchor = resolveAnchor(
+        item(),
+        const [],
+        vehicle(purchaseDate: '2019-03-01'),
+        seriesOf([reading('A', '2026-01-01', 100000)]),
+      );
+      expect(anchor.dateRung, AnchorRung.purchase);
+      expect(anchor.odometerRung, AnchorRung.firstReading);
+    });
+
+    test('an axis with nothing on any rung reports no rung', () {
+      final anchor = resolveAnchor(
+        item(),
+        const [],
+        vehicle(),
+        seriesOf(const []),
+      );
+      expect(anchor.isEmpty, isTrue);
+      expect(anchor.dateRung, isNull);
+      expect(anchor.odometerRung, isNull);
+    });
+  });
 }

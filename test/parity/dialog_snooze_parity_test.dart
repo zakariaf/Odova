@@ -8,8 +8,8 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/dialog_backdrop.dart';
 import 'support/dialog_overlays.dart';
+import 'support/home_backdrop.dart';
 import 'support/parity_capture.dart';
 
 void main() {
@@ -21,7 +21,11 @@ void main() {
         tester,
         screen: 'dialog.snooze',
         config: config,
-        child: const HomeBackdrop(),
+        tab: 0,
+        child: homeBackdrop(
+          rtl: config.dir == 'rtl',
+          locale: config.locale,
+        ),
         overlay: const SnoozeOverlay(),
       );
     });

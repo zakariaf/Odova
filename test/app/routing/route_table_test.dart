@@ -13,6 +13,7 @@ import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/features/home/ui/home_screen.dart';
 
 import '../../support/source_tree.dart';
 import 'shell_harness.dart';
@@ -144,12 +145,12 @@ void main() {
     // app. The placeholder renders whatever the route read, so the assertion is
     // that the id reached the screen — not that a particular field was touched.
     //
-    // `vehicle.edit` is NOT in this map any more: EPIC-09 gave it the real
-    // screen, which takes a parsed `VehicleId` rather than a string, so its
-    // path-reading is asserted by `vehicle_edit_route_test.dart` against the
-    // screen instead. Three placeholders remain and each still earns its line.
+    // `vehicle.edit` and `reminders.edit` are NOT in this map any more: EPIC-09
+    // and EPIC-10 gave them real screens, so their path-reading is asserted
+    // against the screen — `vehicle_edit_route_test.dart` and
+    // `reminders_edit_test.dart` — rather than against a placeholder's text.
+    // Two placeholders remain and each still earns its line.
     const idBearing = {
-      '/reminders/:reminderId': 'reminders.edit',
       '/costs/trips/:tripId': 'trips.edit',
       '/log/:type/:entryId': 'log.fillup',
     };
@@ -167,9 +168,10 @@ void main() {
       expect(screen.detail, id, reason: '$path did not read $id from the path');
     }
 
-    // And the graph declares exactly these three plus `vehicle.edit`. A fifth
-    // added without a test is a fifth nobody proved reads its path.
-    expect(idBearing, hasLength(3));
+    // And the graph declares exactly these two plus `vehicle.edit` and
+    // `reminders.edit`. A fifth added without a test is a fifth nobody proved
+    // reads its path.
+    expect(idBearing, hasLength(2));
   });
 
   testWidgets('an unknown location renders the error screen', (tester) async {
@@ -187,10 +189,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(RouteNotFoundScreen), findsNothing);
-    final screen = tester.widget<PlaceholderScreen>(
-      find.byType(PlaceholderScreen),
-    );
-    expect(screen.screenId, 'home');
+    // Home is a real screen since EPIC-10, so the arrival is asserted by its
+    // type rather than by a placeholder's id.
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 
   testWidgets('an id-bearing log route opens ONE modal, not two', (

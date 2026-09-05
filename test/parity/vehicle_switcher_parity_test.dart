@@ -2,9 +2,9 @@
 //
 // The reference shoots the sheet OVER `home`, with its scrim — so the band
 // check runs against the whole 390x844 frame the artboard drew, not against a
-// sheet floating on nothing. `HomeBackdrop` is EPIC-08's stand-in for the home
-// screen, and EPIC-10 replaces it with the real one; if this capture's result
-// changes when it does, the stand-in was lying (F-8.2).
+// sheet floating on nothing. That backdrop is the REAL `home` under the
+// artboard's own data — EPIC-08's hand-built stand-in stood here until EPIC-10
+// built the screen it was standing in for (F-8.2).
 @Tags(['parity'])
 library;
 
@@ -28,13 +28,13 @@ import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/data/repositories/due_snapshot_provider.dart';
 import 'package:odova/data/repositories/providers.dart';
-import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_switcher_sheet.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 
-import 'support/dialog_backdrop.dart';
+import 'support/home_backdrop.dart';
 import 'support/parity_capture.dart';
 
 const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
@@ -139,7 +139,10 @@ void main() {
         screen: 'vehicle.switcher',
         config: config,
         tab: 0,
-        child: const HomeBackdrop(),
+        child: homeBackdrop(
+          rtl: config.dir == 'rtl',
+          locale: config.locale,
+        ),
         overlay: ProviderScope(
           overrides: <Override>[
             clockProvider.overrideWithValue(

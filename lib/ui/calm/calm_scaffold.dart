@@ -39,8 +39,8 @@ class CalmChromeScope extends InheritedWidget {
   /// Whether a tab bar is on screen below this subtree.
   final bool hasTabBar;
 
-  /// False when there is no scaffold above, which is what a bare test pump
-  /// looks like.
+  /// False when nothing above declared one, which is what a bare test pump and
+  /// a modal both look like.
   static bool hasTabBarIn(BuildContext context) =>
       context
           .dependOnInheritedWidgetOfExactType<CalmChromeScope>()
@@ -50,6 +50,22 @@ class CalmChromeScope extends InheritedWidget {
   @override
   bool updateShouldNotify(CalmChromeScope oldWidget) =>
       oldWidget.hasTabBar != hasTabBar;
+}
+
+/// Publishes `hasTabBar: true`, or inherits whatever is above.
+///
+/// Not a plain [CalmChromeScope]: that would write `false` over an ancestor's
+/// `true`, and the ancestor is `AppShell`, which draws the bar every tab root
+/// sits under.
+class _ChromeScope extends StatelessWidget {
+  const _ChromeScope({required this.hasTabBar, required this.child});
+
+  final bool hasTabBar;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      hasTabBar ? CalmChromeScope(hasTabBar: true, child: child) : child;
 }
 
 /// The only screen skeleton in Odova.
@@ -66,6 +82,7 @@ class CalmScaffold extends StatelessWidget {
     this.bodyGap,
     this.bodyPadBlock,
     this.footPadBlock,
+    this.controller,
   });
 
   /// The bar at the top. An ordinary widget in a Column, never
@@ -124,6 +141,15 @@ class CalmScaffold extends StatelessWidget {
   /// stylesheet's s4/s5.
   final ({double top, double bottom})? footPadBlock;
 
+  /// The body's scroll controller, for a screen that has to drive it.
+  ///
+  /// SPEC.md §7: a second tap on the active tab pops that tab to its root AND
+  /// scrolls the root to the top. The pop belongs to the shell; the scroll
+  /// belongs to whichever screen is at the root, and it cannot reach a
+  /// controller the frame owns privately. Null keeps the default — a screen
+  /// that never needs to move its own body should not have to make one.
+  final ScrollController? controller;
+
   /// `.screen--brand` — the wash behind `firstrun.language` and
   /// `settings.about`.
   ///
@@ -137,7 +163,11 @@ class CalmScaffold extends StatelessWidget {
     final colors = CalmColors.of(context);
     final space = CalmSpace.of(context);
 
-    return CalmChromeScope(
+    return _ChromeScope(
+      // Only when this scaffold DRAWS one. A screen inside `AppShell` has a tab
+      // bar under it that it did not build — the shell publishes that — and a
+      // scaffold that asserted `false` here would overwrite the true answer
+      // with its own ignorance of it.
       hasTabBar: tabBar != null,
       child: Scaffold(
         backgroundColor: colors.bg,
@@ -153,6 +183,7 @@ class CalmScaffold extends StatelessWidget {
                 ?appBar,
                 Expanded(
                   child: ListView.separated(
+                    controller: controller,
                     padding: EdgeInsetsDirectional.fromSTEB(
                       space.screenPad,
                       bodyPadBlock?.top ?? space.s5,

@@ -8,9 +8,9 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/dialog_backdrop.dart';
 import 'support/dialog_overlays.dart';
 import 'support/parity_capture.dart';
+import 'support/vehicles_backdrop.dart';
 
 void main() {
   setUpAll(loadParityFonts);
@@ -23,7 +23,14 @@ void main() {
         tester,
         screen: 'dialog.confirmDelete',
         config: config,
-        child: const VehiclesBackdrop(),
+        // The artboard draws the tab bar with the FOURTH item active — the
+        // stand-in this replaced drew no bar at all, which is ten icons and
+        // ten labels' worth of band edges the check could never find.
+        tab: 3,
+        child: vehiclesBackdrop(
+          rtl: config.dir == 'rtl',
+          locale: config.locale,
+        ),
         overlay: const ConfirmDeleteOverlay(),
       );
     });

@@ -32,7 +32,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unitVolumeGallon => 'gal';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'L/$n km';
   }
 
@@ -701,4 +701,495 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return 'Overdue by $distance';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return 'Overdue by $duration';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return 'Overdue by $distance and $duration';
+  }
+
+  @override
+  String get homeDueNow => 'Due now';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'in about $distance';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'Needs an odometer reading';
+
+  @override
+  String get homeUnknownTitle => 'When were these last done?';
+
+  @override
+  String get homeUnknownHint => 'Telling me turns them into reminders.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText more',
+      one: '+ $nText more',
+      zero: 'See all',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'See all — $nText more due or overdue',
+      one: 'See all — $nText more due or overdue',
+      zero: 'See all reminders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'Snoozed until $date';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'See all reminders ($nText)',
+      one: 'See all reminders ($nText)',
+      zero: 'See all reminders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'Odova starts you off with the usual jobs. Your handbook wins — edit anything here.';
+
+  @override
+  String get actionLogIt => 'Log it';
+
+  @override
+  String get actionUpdateOdometer => 'Update odometer';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText days',
+      one: '$nText day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText weeks',
+      one: '$nText week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText months',
+      one: '$nText month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeEnteredOn(String date) {
+    return 'entered $date';
+  }
+
+  @override
+  String homeEstimatedFrom(String rate, String date) {
+    return 'Estimated from about $rate a day since $date.';
+  }
+
+  @override
+  String get homeEstimateExpired =>
+      'Your last reading is too old, so Odova has stopped guessing. Enter what the dash says now.';
+
+  @override
+  String get homeConsumptionPending =>
+      'Your first consumption figure arrives at your next full fill-up.';
+
+  @override
+  String get homeLastFillUp => 'Last fill-up';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText overdue',
+      one: '$name · $nText overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText due',
+      one: '$name · $nText due',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'per $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'per month';
+
+  @override
+  String get homeMoreActions => 'More actions';
+
+  @override
+  String get actionSnooze => 'Snooze';
+
+  @override
+  String get actionEditReminder => 'Edit reminder';
+
+  @override
+  String get actionTurnOff => 'Turn this off';
+
+  @override
+  String homeTurnedOff(String item) {
+    return '$item turned off';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'km/L';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'kWh/$n km';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'mi/kWh';
+
+  @override
+  String get unitEnergyKwh => 'kWh';
+
+  @override
+  String get unitMassKg => 'kg';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
+
+  @override
+  String homeWasDueAt(String odometer) {
+    return 'Was due at $odometer';
+  }
+
+  @override
+  String homeWasDueOn(String date) {
+    return 'Was due $date';
+  }
+
+  @override
+  String homeWasDueAtOn(String odometer, String date) {
+    return 'Was due at $odometer · $date';
+  }
+
+  @override
+  String homeDueAt(String odometer) {
+    return 'At $odometer';
+  }
+
+  @override
+  String homeDueAtOn(String odometer, String date) {
+    return 'At $odometer · $date';
+  }
+
+  @override
+  String homeAroundDate(String date) {
+    return 'around $date';
+  }
+
+  @override
+  String homeLastEntered(String date) {
+    return 'Last entered $date';
+  }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Odometer last updated $nText days ago.',
+      one: 'Odometer last updated $nText day ago.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'Hide this for a week';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'You marked $item done on $date.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'I recorded $odometer and no cost.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'Next due at $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'Add the real numbers';
+
+  @override
+  String get actionThatsRight => 'That\'s right';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item went overdue on $date';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item is due $date';
+  }
+
+  @override
+  String get homeDigestDismiss => 'Dismiss this summary';
+
+  @override
+  String get odometerSavedSnack => 'Odometer saved';
+
+  @override
+  String get homeNothingDue => 'Nothing due';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'Next: $item, $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'Since the last $item:';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'Set up your reminders — tell me when things were last done';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'Log a fill-up and your consumption starts here.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'This vehicle is marked sold ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return 'Owned $duration · $distance driven';
+  }
+
+  @override
+  String get homeErrorTitle => 'Odova can\'t read your data.';
+
+  @override
+  String get actionOpenBackup => 'Open Backup & restore';
+
+  @override
+  String get homeRowBroken => 'Something\'s wrong with this reminder';
+
+  @override
+  String get remindersTitle => 'Reminders';
+
+  @override
+  String get remindersGroupPaused => 'Paused';
+
+  @override
+  String get remindersGroupNotTracked => 'Not tracked';
+
+  @override
+  String get remindersTrack => '+ Track';
+
+  @override
+  String get remindersPausedStatus => 'Paused';
+
+  @override
+  String get remindersEmpty => 'No reminders yet.';
+
+  @override
+  String get remindersNothingTracked =>
+      'Nothing is being tracked on this vehicle.';
+
+  @override
+  String get remindersWhenLastDone => 'When was this last done';
+
+  @override
+  String get actionDoneToday => 'Done today';
+
+  @override
+  String get actionTurnOffShort => 'Turn off';
+
+  @override
+  String get actionSnoozeShort => 'Snooze';
+
+  @override
+  String get reminderEditTitle => 'Reminder';
+
+  @override
+  String get reminderNewTitle => 'New reminder';
+
+  @override
+  String get reminderName => 'Name';
+
+  @override
+  String get reminderEveryDistance => 'Every';
+
+  @override
+  String get reminderEveryMonths => 'Every … months';
+
+  @override
+  String get reminderOnceAtOdometer => 'Or once, at odometer';
+
+  @override
+  String get reminderOnceOnDate => 'Or once, on date';
+
+  @override
+  String get reminderLastDoneDate => 'Last done — date';
+
+  @override
+  String get reminderLastDoneOdometer => 'Last done — odometer';
+
+  @override
+  String get reminderNotify => 'Notify me';
+
+  @override
+  String get reminderNoticeAhead => 'Tell me this far ahead';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'Blank means automatic — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'Priority';
+
+  @override
+  String get reminderPrioritySafety => 'Safety';
+
+  @override
+  String get reminderPriorityNormal => 'Normal';
+
+  @override
+  String get reminderPriorityLow => 'Low';
+
+  @override
+  String get reminderRollover => 'When it repeats, count from';
+
+  @override
+  String get reminderRolloverActual => 'The day it was done';
+
+  @override
+  String get reminderRolloverDue => 'The day it was due';
+
+  @override
+  String get reminderRepeats => 'Repeats';
+
+  @override
+  String get reminderNotes => 'Notes';
+
+  @override
+  String get reminderNoScheduleError =>
+      'Set an interval or a target date — otherwise there\'s nothing to remind you about.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'This is below the earliest reading for this vehicle.';
+
+  @override
+  String get reminderBaselineFutureError =>
+      'A job cannot have been done in the future.';
+
+  @override
+  String get reminderNameError => 'Give this reminder a name.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return 'Deleted $item';
+  }
+
+  @override
+  String get reminderNotTrackedBanner => 'Not tracked — you won\'t be reminded';
+
+  @override
+  String get reminderStartTracking => 'Start tracking';
+
+  @override
+  String get reminderTurnBackOn => 'Turn back on';
+
+  @override
+  String get reminderTurnThisOff => 'Turn this reminder off';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText services are recorded against this. Turning it off keeps them.',
+      one: '$nText service is recorded against this. Turning it off keeps it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'Last done';
+
+  @override
+  String get reminderNoticeAheadDays => 'Tell me this far ahead — days';
 }

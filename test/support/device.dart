@@ -26,6 +26,10 @@ class Device {
   /// text scale breaks first.
   static const compact = Device('compact_320', Size(320, 640), 2);
 
+  /// 375x667 — SPEC.md §9's "floor screen", where the fold guarantee is
+  /// stated and therefore where it is measured.
+  static const floor = Device('floor_375', Size(375, 667), 2);
+
   /// 360x800 — the commonest Android width.
   static const small = Device('small_360', Size(360, 800), 3);
 
@@ -45,6 +49,17 @@ class Device {
   /// `addTearDown(view.reset)` — which the doc on [CalmDeviceHarness.useDevice]
   /// warns poisons every later test in the file.
   static const specimenSheet = Device('specimen_430', Size(430, 1400), 3);
+
+  /// A tall surface for a FORM, which is longer than any phone.
+  ///
+  /// `CalmScaffold`'s body is a `ListView`, so a field below the fold is not
+  /// built at all and no finder can see it. A test that wants to assert the
+  /// whole of `reminders.edit`'s fourteen fields at once pins this rather than
+  /// scrolling to each one — the LAYOUT at a real width is still asserted, by
+  /// the tests that use [floor].
+  ///
+  /// Not in [all]: it is a surface, not a device.
+  static const tallForm = Device('form_400', Size(400, 2600), 2);
 
   /// The matrix iterates this list. [specimenSheet] is deliberately NOT in it:
   /// it is a sheet, not a device.

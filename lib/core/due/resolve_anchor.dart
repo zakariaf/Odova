@@ -18,6 +18,33 @@ import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/value_equality.dart';
 
+/// Which rung of SPEC.md §3's ladder supplied a half of the anchor.
+///
+/// Recorded per axis, because the two axes walk the ladder separately and
+/// routinely land on different rungs — a vehicle with a purchase DATE and no
+/// purchase odometer takes its date from `purchase` and its odometer from
+/// `firstReading`.
+///
+/// It exists for §9. Home "renders any item anchored on the `purchase` or
+/// `first_reading` rung as `unknown`, whatever the due engine returns", so a
+/// 2019 car entered today does not open on eleven red cards. That is a
+/// PRESENTATION rule and this enum is how it stays one: without the
+/// provenance, Home would have to walk the ladder a second time and could
+/// disagree with the engine about what anchored an item.
+enum AnchorRung {
+  /// The newest service record whose lines reference this item.
+  record,
+
+  /// The item's own `baseline_date` / `baseline_odometer_m`.
+  baseline,
+
+  /// The vehicle's purchase facts.
+  purchase,
+
+  /// The earliest odometer reading Odova holds.
+  firstReading,
+}
+
 /// The date and odometer a cycle is measured from.
 ///
 /// Either half may be null, and they are not null together for the same
@@ -25,7 +52,12 @@ import 'package:odova/core/value_equality.dart';
 @immutable
 class DueAnchor with ValueEquality {
   /// Creates an anchor.
-  const DueAnchor({this.date, this.odometerMetres});
+  const DueAnchor({
+    this.date,
+    this.odometerMetres,
+    this.dateRung,
+    this.odometerRung,
+  });
 
   /// Nothing was found on either axis.
   static const none = DueAnchor();
@@ -36,16 +68,23 @@ class DueAnchor with ValueEquality {
   /// The odometer the next cycle is measured from, in canonical metres.
   final int? odometerMetres;
 
+  /// Which rung supplied [date], or null when nothing did.
+  final AnchorRung? dateRung;
+
+  /// Which rung supplied [odometerMetres], or null when nothing did.
+  final AnchorRung? odometerRung;
+
   /// Whether neither axis could be anchored.
   ///
   /// The caller turns this into `unknown` — never `overdue`, per §14.
   bool get isEmpty => date == null && odometerMetres == null;
 
   @override
-  List<Object?> get props => [date, odometerMetres];
+  List<Object?> get props => [date, odometerMetres, dateRung, odometerRung];
 
   @override
-  String toString() => 'DueAnchor($date, ${odometerMetres}m)';
+  String toString() =>
+      'DueAnchor($date via $dateRung, ${odometerMetres}m via $odometerRung)';
 }
 
 /// The anchor for [item], per SPEC.md §3's ladder.
@@ -68,30 +107,38 @@ DueAnchor resolveAnchor(
   // The rungs as (date, odometer) pairs, most authoritative first. Written
   // once and walked twice, so the two axes cannot drift apart in the order
   // they consult.
-  final rungs = <(CivilDate?, int?)>[
+  final rungs = <(AnchorRung, CivilDate?, int?)>[
     if (completing != null)
       (
+        AnchorRung.record,
         _anchorDate(item, completing, vehicle, earliest),
         completing.odometer?.metres,
       ),
     (
+      AnchorRung.baseline,
       CivilDate.tryParseOrNull(item.baselineDate),
       item.baselineOdometer?.metres,
     ),
     (
+      AnchorRung.purchase,
       CivilDate.tryParseOrNull(vehicle.purchaseDate),
       vehicle.purchaseOdometer?.metres,
     ),
-    if (earliest != null) (earliest.date, earliest.cumulative.metres),
+    if (earliest != null)
+      (AnchorRung.firstReading, earliest.date, earliest.cumulative.metres),
   ];
 
+  // One walk per axis, and each keeps the rung it stopped on. The rung is
+  // carried out with the value rather than re-derived later, because a second
+  // walk is a second opinion — and §9's Home rule turns on which rung won.
+  final date = _firstOn(rungs, (r) => r.$2);
+  final odometer = _firstOn(rungs, (r) => r.$3);
+
   return DueAnchor(
-    date: rungs
-        .map((r) => r.$1)
-        .firstWhere((d) => d != null, orElse: () => null),
-    odometerMetres: rungs
-        .map((r) => r.$2)
-        .firstWhere((m) => m != null, orElse: () => null),
+    date: date?.$2,
+    odometerMetres: odometer?.$2,
+    dateRung: date?.$1,
+    odometerRung: odometer?.$1,
   );
 }
 
@@ -206,4 +253,16 @@ CivilDate? _anchorDate(
   // first cycle even opened. Nothing has been satisfied, so the record's own
   // date is the anchor.
   return candidate > done ? done : candidate;
+}
+
+/// The first rung whose [axis] carries a value, with the rung it came from.
+(AnchorRung, T)? _firstOn<T>(
+  List<(AnchorRung, CivilDate?, int?)> rungs,
+  T? Function((AnchorRung, CivilDate?, int?)) axis,
+) {
+  for (final rung in rungs) {
+    final value = axis(rung);
+    if (value != null) return (rung.$1, value);
+  }
+  return null;
 }

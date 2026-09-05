@@ -20,20 +20,39 @@ OWNER='theme/calm/calm_status.dart'          # the ONE file allowed to RESOLVE
 # gate protects is unchanged — a state must become a COLOUR in exactly one
 # place — and `lib/core/due/due_state.dart`'s own header states the same split:
 # what a state IS belongs to the domain, what it LOOKS LIKE belongs to the theme.
-DOMAIN_RE='^lib/core/'                       # may switch; may never read a slot
+# May SWITCH on a state; may never read a colour slot. `lib/core/` is the due
+# engine, which answers domain questions by switching. EPIC-10 widened it twice
+# and both are the same principle rather than a convenience:
+#
+#   * any `domain/` directory — a feature's presentation MODEL is pure Dart
+#     reasoning about states, and `home_view_model.dart` orders the due stack by
+#     severity without ever asking what colour a state is;
+#   * a `*_copy.dart` mapper — the copy for a card is a question about the
+#     ASSESSMENT (which axis, how far past, how much the rate is trusted), and
+#     `CalmStatusStyle` sees none of those. Moving the mapper into the theme
+#     would drag `DueAssessment` in with it, which is a worse answer than this
+#     line.
+#
+# The gate's contract is unchanged and is enforced below for all three: the
+# COLOUR resolves once, in calm_status.dart, and none of these may read a slot.
+DOMAIN_RE='^lib/core/|/domain/|_copy\.dart$'
 # Allowlist for a DIRECT slot read (rule 3's carve-out). The theme directory
 # declares the ramps and resolves them; CalmField reads `overdue` for its error
 # ring and CalmSnackbar's destructive variant reads `danger` — both states are
 # fixed when the widget is written and neither is resolved from a DueState.
-# FOUR widgets read a state slot at AUTHORING time rather than resolving one from
+# FIVE widgets read a state slot at AUTHORING time rather than resolving one from
 # a DueState, so CalmStatusStyle has nothing to resolve: the field error ring is
 # always `overdue`, the destructive snackbar is always `danger`, all-clear is
-# always `ok`, and a swipe action's tone is a `CalmSwipeTone` chosen when the
-# action is declared — SPEC.md §8 names them, "Mark as sold (amber), Delete
-# (red)". Anything that switches on a DueState still goes through
-# CalmStatusStyle, including in these four files: the allowance is for reading a
-# slot, never for resolving one.
-SLOT_ALLOW_RE='/theme/calm/|/calm_field\.dart$|/calm_snackbar\.dart$|/calm_all_clear\.dart$|/calm_swipe_actions\.dart$'
+# always `ok`, a swipe action's tone is a `CalmSwipeTone` chosen when the action
+# is declared — SPEC.md §8 names them, "Mark as sold (amber), Delete (red)" —
+# and a notice's tone is a `CalmNoticeTone`, which odova.css declares as
+# `.notice--info`, `--warn` and `--ok`: three fixed tints, picked when the strip
+# is written and never from a due state. Anything that switches on a DueState
+# still goes through CalmStatusStyle, including in these five files: the
+# allowance is for reading a slot, never for resolving one, and the arm below
+# plants a slot read in an ordinary `lib/ui/calm/` file to prove the list is per
+# FILE rather than per directory.
+SLOT_ALLOW_RE='/theme/calm/|/calm_field\.dart$|/calm_snackbar\.dart$|/calm_all_clear\.dart$|/calm_swipe_actions\.dart$|/calm_notice\.dart$'
 if [ ! -d "$TARGET" ]; then echo "note: '$TARGET' not found."; exit 0; fi
 
 # Generated code and the generated localisations legitimately carry both the
@@ -51,7 +70,14 @@ SWITCH_RE='(case[[:space:]]+DueState\.|DueState\.[A-Za-z]+[[:space:]]*(\|\|[[:sp
 SLOT_RE='\.(overdue|due|dueSoon|ok|unknown|needsOdometer)\.(base|ink|tint|edge)\b'
 BARE_RE='CalmColors[^;]*\.(overdue|due|dueSoon|ok|unknown|needsOdometer)\b'
 COPY_RE='Odova needs a reading'
-TILDE_RE="[\"']~\\\$"
+# A Dart-side `~` glued to a figure, in EITHER spelling. It matched only
+# `'~$…` — a tilde immediately before an interpolation — until EPIC-10 found
+# `'${projected ? '~' : ''}$digits'` sitting unseen in `vehicle_status_line`,
+# which is the same mistake written as a conditional. The mark belongs in
+# `commonEstimatedValue` so a translator decides which side of the figure it
+# sits on; a Dart concatenation takes that away and reads correctly in
+# English while it does so.
+TILDE_RE="[\"']~[\"']|[\"']~\\\$"
 fail=0
 report() { echo "== $1 =="; printf '%s\n' "$2"; fail=1; }
 

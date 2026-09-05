@@ -33,7 +33,7 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get unitVolumeGallon => 'گاڵن';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'ل/$n کم';
   }
 
@@ -705,4 +705,494 @@ class AppLocalizationsCkb extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return '$distance دواکەوتووە';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return '$duration دواکەوتووە';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return '$distance و $duration دواکەوتووە';
+  }
+
+  @override
+  String get homeDueNow => 'ئێستا کاتیەتی';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'نزیکەی $distance تر';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'پێویستی بە خوێندنەوەی کیلۆمەترە';
+
+  @override
+  String get homeUnknownTitle => 'ئەمانە دواجار کەی کران؟';
+
+  @override
+  String get homeUnknownHint => 'پێم بڵێ تا ببنە بیرخەرەوە.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText تری',
+      one: '+ $nText تری',
+      zero: 'هەموویان ببینە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'هەموویان ببینە — $nText تری کاتیەتی یان دواکەوتووە',
+      one: 'هەموویان ببینە — $nText تری کاتیەتی یان دواکەوتووە',
+      zero: 'هەموو بیرخەرەوەکان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'دواخراوە هەتا $date';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'هەموو بیرخەرەوەکان ($nText)',
+      one: 'هەموو بیرخەرەوەکان ($nText)',
+      zero: 'هەموو بیرخەرەوەکان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'ئۆدۆڤا بە کارە ئاساییەکان دەست پێدەکات. ڕێنمای خۆت سەرەکییە — هەرچی لێرە بگۆڕە.';
+
+  @override
+  String get actionLogIt => 'تۆماری بکە';
+
+  @override
+  String get actionUpdateOdometer => 'نوێکردنەوەی کیلۆمەتر';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ڕۆژ',
+      one: '$nText ڕۆژ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText هەفتە',
+      one: '$nText هەفتە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مانگ',
+      one: '$nText مانگ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeEnteredOn(String date) {
+    return 'تۆمارکراوە $date';
+  }
+
+  @override
+  String homeEstimatedFrom(String rate, String date) {
+    return 'خەمڵێنراو لە نزیکەی $rate ڕۆژانە لە $dateەوە.';
+  }
+
+  @override
+  String get homeEstimateExpired =>
+      'دوایین خوێندنەوەت زۆر کۆنە، بۆیە ئۆدۆڤا وازی لە خەمڵاندن هێناوە. ئەوەی ئێستا لەسەر داشبۆردە بینووسە.';
+
+  @override
+  String get homeConsumptionPending =>
+      'یەکەم ژمارەی خەرجکردنت لە پڕکردنەوەی تەواوی داهاتوودا دێت.';
+
+  @override
+  String get homeLastFillUp => 'دوایین سووتەمەنی‌کردن';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText دواکەوتوو',
+      one: '$name · $nText دواکەوتوو',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText کاتی هاتووە',
+      one: '$name · $nText کاتی هاتووە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'بۆ هەر $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'لە مانگێکدا';
+
+  @override
+  String get homeMoreActions => 'کردارەکانی تر';
+
+  @override
+  String get actionSnooze => 'دواخستن';
+
+  @override
+  String get actionEditReminder => 'دەستکاری بیرخەرەوە';
+
+  @override
+  String get actionTurnOff => 'ئەم بیرخەرەوە بکوژێنەوە';
+
+  @override
+  String homeTurnedOff(String item) {
+    return '$item کوژێنرایەوە';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'کم/ل';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'ک.و.س/$n کم';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'مایل/ک.و.س';
+
+  @override
+  String get unitEnergyKwh => 'ک.و.س';
+
+  @override
+  String get unitMassKg => 'کگم';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
+
+  @override
+  String homeWasDueAt(String odometer) {
+    return 'کاتی لە $odometer بوو';
+  }
+
+  @override
+  String homeWasDueOn(String date) {
+    return 'کاتی لە $date بوو';
+  }
+
+  @override
+  String homeWasDueAtOn(String odometer, String date) {
+    return 'کاتی لە $odometer · $date بوو';
+  }
+
+  @override
+  String homeDueAt(String odometer) {
+    return 'لە $odometer';
+  }
+
+  @override
+  String homeDueAtOn(String odometer, String date) {
+    return 'لە $odometer · $date';
+  }
+
+  @override
+  String homeAroundDate(String date) {
+    return 'نزیکەی $date';
+  }
+
+  @override
+  String homeLastEntered(String date) {
+    return 'دوایین تۆمار $date';
+  }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'کیلۆمەترپێو $nText ڕۆژ لەمەوبەر نوێ کرایەوە.',
+      one: 'کیلۆمەترپێو $nText ڕۆژ لەمەوبەر نوێ کرایەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'بۆ هەفتەیەک بیشارەوە';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'تۆ $item ت لە $date بە کراو نیشانە کرد.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'من $odometer و بێ تێچوو تۆمارم کرد.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'داهاتوو لە $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'ژمارە ڕاستەکان بنووسە';
+
+  @override
+  String get actionThatsRight => 'ڕاستە';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item لە $date دواکەوت';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item لە $date کاتی دێت';
+  }
+
+  @override
+  String get homeDigestDismiss => 'داخستنی ئەم کورتەیە';
+
+  @override
+  String get odometerSavedSnack => 'کیلۆمەترپێو پاشەکەوت کرا';
+
+  @override
+  String get homeNothingDue => 'هیچ شتێک کاتی نەهاتووە';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'دواتر: $item، $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'لە دوایین $itemەوە:';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'بیرخەرەوەکانت ڕێک بخە — پێم بڵێ دوایین جار کەی کراون';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'سووتەمەنییەک تۆمار بکە و خەرجییەکەت لێرەوە دەست پێدەکات.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'ئەم ئۆتۆمبێلە بە فرۆشراو نیشانە کراوە ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return '$duration خاوەندارێتی · $distance لێخوڕدن';
+  }
+
+  @override
+  String get homeErrorTitle => 'ئۆدۆڤا ناتوانێت داتاکانت بخوێنێتەوە.';
+
+  @override
+  String get actionOpenBackup => 'کردنەوەی پاڵپشت و گەڕاندنەوە';
+
+  @override
+  String get homeRowBroken => 'شتێک لەم بیرخەرەوەیە هەڵەیە';
+
+  @override
+  String get remindersTitle => 'بیرخەرەوەکان';
+
+  @override
+  String get remindersGroupPaused => 'وەستێنراو';
+
+  @override
+  String get remindersGroupNotTracked => 'شوێن‌نەکەوتوو';
+
+  @override
+  String get remindersTrack => '+ شوێن‌کەوتن';
+
+  @override
+  String get remindersPausedStatus => 'وەستاو';
+
+  @override
+  String get remindersEmpty => 'هێشتا هیچ بیرخەرەوەیەک نییە.';
+
+  @override
+  String get remindersNothingTracked =>
+      'هیچ شتێک بۆ ئەم ئۆتۆمبێلە شوێن ناکرێت.';
+
+  @override
+  String get remindersWhenLastDone => 'دوایین جار کەی کرا';
+
+  @override
+  String get actionDoneToday => 'ئەمڕۆ کرا';
+
+  @override
+  String get actionTurnOffShort => 'کوژاندنەوە';
+
+  @override
+  String get actionSnoozeShort => 'دواخستن';
+
+  @override
+  String get reminderEditTitle => 'بیرخەرەوە';
+
+  @override
+  String get reminderNewTitle => 'بیرخەرەوەی نوێ';
+
+  @override
+  String get reminderName => 'ناو';
+
+  @override
+  String get reminderEveryDistance => 'هەموو';
+
+  @override
+  String get reminderEveryMonths => 'هەموو … مانگ';
+
+  @override
+  String get reminderOnceAtOdometer => 'یان جارێک، لە کیلۆمەترپێو';
+
+  @override
+  String get reminderOnceOnDate => 'یان جارێک، لە بەروار';
+
+  @override
+  String get reminderLastDoneDate => 'دوایین جار — بەروار';
+
+  @override
+  String get reminderLastDoneOdometer => 'دوایین جار — کیلۆمەترپێو';
+
+  @override
+  String get reminderNotify => 'ئاگادارم بکەوە';
+
+  @override
+  String get reminderNoticeAhead => 'ئەوەندە پێشتر پێم بڵێ';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'بەتاڵ واتە خۆکار — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'پێشینە';
+
+  @override
+  String get reminderPrioritySafety => 'سەلامەتی';
+
+  @override
+  String get reminderPriorityNormal => 'ئاسایی';
+
+  @override
+  String get reminderPriorityLow => 'نزم';
+
+  @override
+  String get reminderRollover => 'کاتی دووبارەبوونەوە، بژمێرە لە';
+
+  @override
+  String get reminderRolloverActual => 'ئەو ڕۆژەی کرا';
+
+  @override
+  String get reminderRolloverDue => 'ئەو ڕۆژەی کاتی بوو';
+
+  @override
+  String get reminderRepeats => 'دووبارە دەبێتەوە';
+
+  @override
+  String get reminderNotes => 'تێبینی';
+
+  @override
+  String get reminderNoScheduleError =>
+      'ماوەیەک یان بەروارێکی ئامانج دیاری بکە — ئەگەرنا هیچ شتێک نییە بیرت بخەمەوە.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'ئەمە کەمترە لە کۆنترین خوێندنەوەی ئەم ئۆتۆمبێلە.';
+
+  @override
+  String get reminderBaselineFutureError => 'کارێک ناکرێت لە داهاتوودا کرابێت.';
+
+  @override
+  String get reminderNameError => 'ناوێک بدە بەم بیرخەرەوەیە.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return '$item سڕایەوە';
+  }
+
+  @override
+  String get reminderNotTrackedBanner => 'شوێن‌ناکرێت — بیرت ناخرێتەوە';
+
+  @override
+  String get reminderStartTracking => 'دەستپێکردنی شوێن‌کەوتن';
+
+  @override
+  String get reminderTurnBackOn => 'دووبارە دایبگرسێنە';
+
+  @override
+  String get reminderTurnThisOff => 'ئەم بیرخەرەوەیە بکوژێنەوە';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText خزمەتگوزاری بۆ ئەمە تۆمار کراوە. کوژاندنەوەی دەیانپارێزێت.',
+      one: '$nText خزمەتگوزاری بۆ ئەمە تۆمار کراوە. کوژاندنەوەی دەیپارێزێت.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'دوایین جارەکان';
+
+  @override
+  String get reminderNoticeAheadDays => 'ئەوەندە پێشتر پێم بڵێ — ڕۆژ';
 }

@@ -488,4 +488,26 @@ void main() {
       expect(a.driver, DueDriver.time);
     });
   });
+
+  group('the assessment carries the anchor it reasoned from', () {
+    // SPEC.md §9's Home rule turns on WHICH rung anchored an item, and the
+    // engine is the only place that knows: it resolves the anchor, uses it,
+    // and used to drop it on the floor. Home would otherwise re-walk the same
+    // ladder and could reach a different answer than the engine did about the
+    // very item it is drawing.
+    test('it is the anchor that was passed in', () {
+      final at = DueAnchor(
+        date: day('2020-01-01'),
+        odometerMetres: const Distance.fromKm(50000).metres,
+        dateRung: AnchorRung.purchase,
+        odometerRung: AnchorRung.firstReading,
+      );
+
+      final assessed = assess(at: at);
+
+      expect(assessed.anchor, at);
+      expect(assessed.anchor.dateRung, AnchorRung.purchase);
+      expect(assessed.anchor.odometerRung, AnchorRung.firstReading);
+    });
+  });
 }

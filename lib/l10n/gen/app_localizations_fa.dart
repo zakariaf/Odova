@@ -33,7 +33,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get unitVolumeGallon => 'گالن';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'ل/$n کم';
   }
 
@@ -701,4 +701,494 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return '$distance گذشته';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return '$duration گذشته';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return '$distance و $duration گذشته';
+  }
+
+  @override
+  String get homeDueNow => 'همین حالا موعدش است';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'حدود $distance دیگر';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'به کیلومتر نیاز دارد';
+
+  @override
+  String get homeUnknownTitle => 'اینها آخرین بار کی انجام شدند؟';
+
+  @override
+  String get homeUnknownHint => 'بگو تا به یادآور تبدیل شوند.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText مورد دیگر',
+      one: '+ $nText مورد دیگر',
+      zero: 'دیدن همه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'دیدن همه — $nText مورد دیگر رسیده یا گذشته',
+      one: 'دیدن همه — $nText مورد دیگر رسیده یا گذشته',
+      zero: 'همهٔ یادآورها',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'تا $date به تعویق افتاد';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'همهٔ یادآورها ($nText)',
+      one: 'همهٔ یادآورها ($nText)',
+      zero: 'همهٔ یادآورها',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'اودووا با کارهای معمول شروع می‌کند. دفترچهٔ خودت مرجع است — هر چیزی را اینجا تغییر بده.';
+
+  @override
+  String get actionLogIt => 'ثبت کن';
+
+  @override
+  String get actionUpdateOdometer => 'به‌روزرسانی کیلومتر';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText روز',
+      one: '$nText روز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText هفته',
+      one: '$nText هفته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ماه',
+      one: '$nText ماه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeEnteredOn(String date) {
+    return 'ثبت‌شده $date';
+  }
+
+  @override
+  String homeEstimatedFrom(String rate, String date) {
+    return 'برآورد از حدود $rate در روز از $date.';
+  }
+
+  @override
+  String get homeEstimateExpired =>
+      'آخرین عدد تو خیلی قدیمی است، پس اودووا دیگر حدس نمی‌زند. آنچه روی داشبورد است را وارد کن.';
+
+  @override
+  String get homeConsumptionPending =>
+      'اولین عدد مصرف تو در باک‌پرکردن کامل بعدی می‌آید.';
+
+  @override
+  String get homeLastFillUp => 'آخرین سوخت‌گیری';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText عقب‌افتاده',
+      one: '$name · $nText عقب‌افتاده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText سررسید',
+      one: '$name · $nText سررسید',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'در هر $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'در ماه';
+
+  @override
+  String get homeMoreActions => 'اقدام‌های بیشتر';
+
+  @override
+  String get actionSnooze => 'یادآوری بعداً';
+
+  @override
+  String get actionEditReminder => 'ویرایش یادآور';
+
+  @override
+  String get actionTurnOff => 'خاموش کردن این یادآور';
+
+  @override
+  String homeTurnedOff(String item) {
+    return '$item خاموش شد';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'کم/ل';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'کیلووات‌ساعت/$n کم';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'مایل/کیلووات‌ساعت';
+
+  @override
+  String get unitEnergyKwh => 'کیلووات‌ساعت';
+
+  @override
+  String get unitMassKg => 'کیلوگرم';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
+
+  @override
+  String homeWasDueAt(String odometer) {
+    return 'موعدش $odometer بود';
+  }
+
+  @override
+  String homeWasDueOn(String date) {
+    return 'موعدش $date بود';
+  }
+
+  @override
+  String homeWasDueAtOn(String odometer, String date) {
+    return 'موعدش $odometer · $date بود';
+  }
+
+  @override
+  String homeDueAt(String odometer) {
+    return 'در $odometer';
+  }
+
+  @override
+  String homeDueAtOn(String odometer, String date) {
+    return 'در $odometer · $date';
+  }
+
+  @override
+  String homeAroundDate(String date) {
+    return 'حدود $date';
+  }
+
+  @override
+  String homeLastEntered(String date) {
+    return 'آخرین ثبت $date';
+  }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'کیلومترشمار $nText روز پیش به‌روز شد.',
+      one: 'کیلومترشمار $nText روز پیش به‌روز شد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'یک هفته پنهان کن';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'شما $item را در $date انجام‌شده علامت زدید.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'من $odometer و بدون هزینه ثبت کردم.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'موعد بعدی $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'عددهای واقعی را وارد کن';
+
+  @override
+  String get actionThatsRight => 'درست است';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item در $date عقب‌افتاده شد';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item در $date سررسید می‌شود';
+  }
+
+  @override
+  String get homeDigestDismiss => 'بستن این خلاصه';
+
+  @override
+  String get odometerSavedSnack => 'کیلومترشمار ذخیره شد';
+
+  @override
+  String get homeNothingDue => 'چیزی سررسید نشده';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'بعدی: $item، $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'از آخرین $item:';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'یادآورهایتان را تنظیم کنید — بگویید هر کار آخرین‌بار کی انجام شده';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'یک سوخت‌گیری ثبت کنید تا مصرف‌تان از اینجا شروع شود.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'این خودرو فروخته‌شده علامت خورده است ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return '$duration در اختیار · $distance رانده‌شده';
+  }
+
+  @override
+  String get homeErrorTitle => 'اودووا نمی‌تواند داده‌های شما را بخواند.';
+
+  @override
+  String get actionOpenBackup => 'باز کردن پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get homeRowBroken => 'این یادآور مشکلی دارد';
+
+  @override
+  String get remindersTitle => 'یادآورها';
+
+  @override
+  String get remindersGroupPaused => 'متوقف‌شده';
+
+  @override
+  String get remindersGroupNotTracked => 'پیگیری نمی‌شود';
+
+  @override
+  String get remindersTrack => '+ پیگیری';
+
+  @override
+  String get remindersPausedStatus => 'متوقف';
+
+  @override
+  String get remindersEmpty => 'هنوز یادآوری نیست.';
+
+  @override
+  String get remindersNothingTracked => 'برای این خودرو چیزی پیگیری نمی‌شود.';
+
+  @override
+  String get remindersWhenLastDone => 'آخرین‌بار کی انجام شد';
+
+  @override
+  String get actionDoneToday => 'امروز انجام شد';
+
+  @override
+  String get actionTurnOffShort => 'خاموش';
+
+  @override
+  String get actionSnoozeShort => 'تعویق';
+
+  @override
+  String get reminderEditTitle => 'یادآور';
+
+  @override
+  String get reminderNewTitle => 'یادآور تازه';
+
+  @override
+  String get reminderName => 'نام';
+
+  @override
+  String get reminderEveryDistance => 'هر';
+
+  @override
+  String get reminderEveryMonths => 'هر … ماه';
+
+  @override
+  String get reminderOnceAtOdometer => 'یا یک‌بار، در کیلومترشمار';
+
+  @override
+  String get reminderOnceOnDate => 'یا یک‌بار، در تاریخ';
+
+  @override
+  String get reminderLastDoneDate => 'آخرین‌بار — تاریخ';
+
+  @override
+  String get reminderLastDoneOdometer => 'آخرین‌بار — کیلومترشمار';
+
+  @override
+  String get reminderNotify => 'به من اطلاع بده';
+
+  @override
+  String get reminderNoticeAhead => 'چقدر زودتر بگویم';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'خالی یعنی خودکار — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'اولویت';
+
+  @override
+  String get reminderPrioritySafety => 'ایمنی';
+
+  @override
+  String get reminderPriorityNormal => 'عادی';
+
+  @override
+  String get reminderPriorityLow => 'کم';
+
+  @override
+  String get reminderRollover => 'هنگام تکرار، بشمار از';
+
+  @override
+  String get reminderRolloverActual => 'روزی که انجام شد';
+
+  @override
+  String get reminderRolloverDue => 'روز سررسید';
+
+  @override
+  String get reminderRepeats => 'تکرار می‌شود';
+
+  @override
+  String get reminderNotes => 'یادداشت';
+
+  @override
+  String get reminderNoScheduleError =>
+      'یک بازه یا تاریخ هدف تعیین کنید — وگرنه چیزی برای یادآوری نیست.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'این کمتر از قدیمی‌ترین عدد ثبت‌شدهٔ این خودرو است.';
+
+  @override
+  String get reminderBaselineFutureError =>
+      'کاری نمی‌تواند در آینده انجام شده باشد.';
+
+  @override
+  String get reminderNameError => 'برای این یادآور نامی بگذارید.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return '$item حذف شد';
+  }
+
+  @override
+  String get reminderNotTrackedBanner => 'پیگیری نمی‌شود — یادآوری نخواهید شد';
+
+  @override
+  String get reminderStartTracking => 'شروع پیگیری';
+
+  @override
+  String get reminderTurnBackOn => 'دوباره روشن کن';
+
+  @override
+  String get reminderTurnThisOff => 'این یادآور را خاموش کن';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText سرویس برای این ثبت شده است. خاموش کردن آن‌ها را نگه می‌دارد.',
+      one: '$nText سرویس برای این ثبت شده است. خاموش کردن آن را نگه می‌دارد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'آخرین‌بارها';
+
+  @override
+  String get reminderNoticeAheadDays => 'چقدر زودتر بگویم — روز';
 }

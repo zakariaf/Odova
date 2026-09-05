@@ -17,7 +17,6 @@ import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/vehicle_due_snapshot.dart';
-import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/l10n/relative_past.dart';
 import 'package:odova/core/units/distance.dart';
@@ -93,19 +92,17 @@ String vehicleOdometerAndStatus({
   final shown = projected
       ? roundEstimateForDisplay(Distance(estimate.metres), unit)
       : Distance(estimate.metres);
-  final digits = formatForDisplay(
-    shown.inUnit(unit),
+  // Through `formatDistanceFigure`, which is the one place the estimate mark
+  // is applied. This used to concatenate `'~'` in Dart — same rendering in
+  // English, but it took the mark's SIDE away from the translator, and
+  // `check_status_encoding.sh` greps for a spelling this one did not use.
+  final figure = formatDistanceFigure(
+    l10n,
     tag,
-    numerals: CalmNumerals.auto,
-    decimalDigits: 0,
+    shown,
+    unit,
+    estimated: projected,
   );
-  final label = distanceUnitLabel(l10n, unit);
-  // ONE isolate around marker, number and unit together — not
-  // `formatWithUnit` with a `~` isolated on top of it, which nests two and
-  // says nothing the outer one does not. SPEC.md §8's RTL note makes the run
-  // atomic: `۱۸۷٬۴۱۲ کیلومتر` never splits, and the marker is `~` in every
-  // locale (§1.4) sitting on the figure's leading edge in both directions.
-  final figure = isolate('${projected ? '~' : ''}$digits $label');
   return '$figure$kFactSeparator$words';
 }
 

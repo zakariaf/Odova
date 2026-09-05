@@ -58,8 +58,27 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
   /// so a clock reading year 275760 costs the user a wrong date rather than a
   /// vehicle the domain contract will not have. A date column can be corrected;
   /// a missing row cannot be invented back.
-  static String isoDateOf(DateTime when) =>
-      (fromDateTime(when) ?? fromDateTime(DateTime(1970))!).toString();
+  static String isoDateOf(DateTime when) => ofOrEpoch(when).toString();
+
+  /// [when]'s calendar date, falling back to [epoch].
+  ///
+  /// [isoDateOf] as a `CivilDate` rather than a `String`, for the callers that
+  /// need to COMPARE the date rather than store it.
+  static CivilDate ofOrEpoch(DateTime when) => fromDateTime(when) ?? epoch;
+
+  /// `1970-01-01` — what a date is when the clock cannot name a day.
+  ///
+  /// Named because three EPIC-10 call sites wrote
+  /// `?? fromDateTime(DateTime(1970))!` out again, each with its own paragraph
+  /// about why, and one of them then meant something different by it. The
+  /// value is not the decision; the decision is that a clock reading year
+  /// 275760 costs the user a wrong date rather than a missing row (see
+  /// [isoDateOf]) or a screen that refuses to draw.
+  ///
+  /// It is deliberately the EARLIEST representable day, so a comparison
+  /// against it reads as "we cannot say this has passed" rather than as "it
+  /// has". A snooze compared against the epoch is still in force.
+  static const CivilDate epoch = CivilDate._(1970, 1, 1);
 
   /// Reads `YYYY-MM-DD`, or null.
   ///

@@ -36,10 +36,10 @@
   },
   "unitConsumptionPerDistance": "L/{n} km",
   "@unitConsumptionPerDistance": {
-    "description": "Fuel consumption as volume per distance, e.g. \"L/100 km\". {n} is the hundred, as a PLACEHOLDER rather than a literal, so the active numbering system shapes it like every other number.",
+    "description": "Fuel consumption as volume per distance, e.g. \"L/100 km\". {n} is the hundred, as a PLACEHOLDER rather than a literal, and a String rather than an int: gen-l10n interpolates a bare int in Latin digits, and SPEC.md §5 shapes every number through `formatForDisplay` against the FORMATS tag, which follows the device region rather than the UI language.",
     "placeholders": {
       "n": {
-        "type": "int",
+        "type": "String",
         "example": "100"
       }
     }
@@ -1005,5 +1005,799 @@
         "example": "3"
       }
     }
+  },
+  "homeOverdueByDistance": "Overdue by {distance}",
+  "@homeOverdueByDistance": {
+    "description": "Home's status line when the distance axis drove the overdue. SPEC.md §9: overdue uses its own POSITIVE string — never \"in −1,400 km\". The distance and its unit arrive as one already-isolated run.",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "1,400 km"
+      }
+    }
+  },
+  "homeOverdueByTime": "Overdue by {duration}",
+  "@homeOverdueByTime": {
+    "description": "The same line when the time axis drove it.",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "3 weeks"
+      }
+    }
+  },
+  "homeOverdueByBoth": "Overdue by {distance} and {duration}",
+  "@homeOverdueByBoth": {
+    "description": "Both axes overdue. §9: \"distance phrasing wins when both axes are overdue, because a kilometre figure is checkable against the dash and a date is not\" — so the distance leads.",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "1,400 km"
+      },
+      "duration": {
+        "type": "String",
+        "example": "3 weeks"
+      }
+    }
+  },
+  "homeDueNow": "Due now",
+  "@homeDueNow": {
+    "description": "The `due` status line. No number: §9 gives this state a bare statement, because a figure would suggest a precision the grace window does not have."
+  },
+  "homeDueSoonDistance": "in about {distance}",
+  "@homeDueSoonDistance": {
+    "description": "`due_soon` driven by distance, at `measured` or `assumed` confidence only. At `default` the card says `homeDueSoonNoConfidence` instead and shows no figure at all.",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "5,000 km"
+      }
+    }
+  },
+  "homeNeedsOdometer": "Needs an odometer reading",
+  "@homeNeedsOdometer": {
+    "description": "The `needs_odometer` status line. §9: \"a request, not an accusation\" — the app has lost track of the distance axis and is asking, not blaming."
+  },
+  "homeUnknownTitle": "When were these last done?",
+  "@homeUnknownTitle": {
+    "description": "The unknown-anchor card's heading. §9: a used car must not open on eleven cards shouting OVERDUE, so every item anchored on purchase or the first reading collapses into this one card."
+  },
+  "homeUnknownHint": "Telling me turns them into reminders.",
+  "@homeUnknownHint": {
+    "description": "The line under the named items on the unknown-anchor card. It says what answering buys, rather than nagging."
+  },
+  "homeUnknownMore": "{n, plural, =0{See all} one{+ {nText} more} other{+ {nText} more}}",
+  "@homeUnknownMore": {
+    "description": "How many unknown-anchored items the card did not name. The =0 case is the card's row WITHOUT a count — the screen draws no \"+ 0 more\", and a zero branch that rendered empty would be indistinguishable from a branch somebody emptied by mistake.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "6"
+      },
+      "nText": {
+        "type": "String",
+        "example": "6"
+      }
+    }
+  },
+  "homeMoreDue": "{n, plural, =0{See all reminders} one{See all — {nText} more due or overdue} other{See all — {nText} more due or overdue}}",
+  "@homeMoreDue": {
+    "description": "The red see-all row under the stack, counting the due or overdue items that did not fit in three cards. At =0 nothing is left over and the screen uses `remindersSeeAll` instead; this branch is the honest fallback rather than an empty string.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "9"
+      },
+      "nText": {
+        "type": "String",
+        "example": "9"
+      }
+    }
+  },
+  "homeSnoozedUntil": "Snoozed until {date}",
+  "@homeSnoozedUntil": {
+    "description": "A snoozed item's fourth line. §9: it stays on Home and stays red — the snooze is a note, not a state.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "12 October"
+      }
+    }
+  },
+  "remindersSeeAll": "{n, plural, =0{See all reminders} one{See all reminders ({nText})} other{See all reminders ({nText})}}",
+  "@remindersSeeAll": {
+    "description": "The see-all row, counting ALL tracked items rather than the due ones — §9 is explicit, and counting the due ones would make the row disagree with the screen it opens. At =0 the vehicle has nothing tracked and §9 does not draw the row at all.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "14"
+      },
+      "nText": {
+        "type": "String",
+        "example": "14"
+      }
+    }
+  },
+  "remindersDisclaimer": "Odova starts you off with the usual jobs. Your handbook wins — edit anything here.",
+  "@remindersDisclaimer": {
+    "description": "The header on `reminders.list` and on first run's seeded catalogue — SPEC.md §4.8's own sentence, and the same key in both places so the two cannot drift."
+  },
+  "actionLogIt": "Log it",
+  "@actionLogIt": {
+    "description": "The primary card's button for every state the user can act on directly."
+  },
+  "actionUpdateOdometer": "Update odometer",
+  "@actionUpdateOdometer": {
+    "description": "The primary button when the app needs a reading before it can say anything — `needs_odometer`, and `due_soon` by distance at default confidence."
+  },
+  "homeDurationDays": "{n, plural, one{{nText} day} other{{nText} days}}",
+  "@homeDurationDays": {
+    "description": "How far past due, as a bare quantity. SPEC.md §9 supplies the word \"overdue\" around it, so this carries no direction — the overshoot is positive and the sentence says which way it points.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "nText": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "homeDurationWeeks": "{n, plural, one{{nText} week} other{{nText} weeks}}",
+  "@homeDurationWeeks": {
+    "description": "See homeDurationDays. The buckets are `bucketRelativeDays` read forwards, so \"21 days overdue\" reads as \"3 weeks\".",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "nText": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "homeDurationMonths": "{n, plural, one{{nText} month} other{{nText} months}}",
+  "@homeDurationMonths": {
+    "description": "See homeDurationDays.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "nText": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "homeEnteredOn": "entered {date}",
+  "@homeEnteredOn": {
+    "description": "The odometer strip's second line when the number is a READING the user typed. SPEC.md §9 keeps entered and projected visibly different, and this is half of that: an entered value has no tilde and says when it was entered.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "12 September"
+      }
+    }
+  },
+  "homeEstimatedFrom": "Estimated from about {rate} a day since {date}.",
+  "@homeEstimatedFrom": {
+    "description": "The popover behind an estimated value. §9 allows exactly one sentence and one action, and no percentage, no bar and no tier name — \"the tilde and the word 'about' are the whole vocabulary\".",
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "41 km"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 July"
+      }
+    }
+  },
+  "homeEstimateExpired": "Your last reading is too old, so Odova has stopped guessing. Enter what the dash says now.",
+  "@homeEstimateExpired": {
+    "description": "The popover when `estimateOdometer` has stopped projecting — past 180 days. §9: \"Ten thousand kilometres of invented number is worse than a blank.\" It says the app stopped rather than pretending it did not."
+  },
+  "homeConsumptionPending": "Your first consumption figure arrives at your next full fill-up.",
+  "@homeConsumptionPending": {
+    "description": "The popover behind the consumption tile before there are two full fill-ups. §9 makes this one dismissal-only: there is nothing for the user to do but drive and fill up."
+  },
+  "homeLastFillUp": "Last fill-up",
+  "@homeLastFillUp": {
+    "description": "The 56pt read-out row under the glance tiles. A heading, not a link — SPEC.md §9 gives the row no action."
+  },
+  "homeLastFillUpDetail": "{date} · {volume}",
+  "@homeLastFillUpDetail": {
+    "description": "The last fill-up row's second line: when it happened and how much went in. Both parts are formatted upstream; the separator is the only copy here.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "2 September"
+      },
+      "volume": {
+        "type": "String",
+        "example": "42.8 L"
+      }
+    }
+  },
+  "homeOtherVehicleOverdue": "{n, plural, one{{name} · {nText} overdue} other{{name} · {nText} overdue}}",
+  "@homeOtherVehicleOverdue": {
+    "description": "The other-vehicles row when another car has overdue work. It names the VEHICLE and the count, never the job — SPEC.md §9: \"Home shows whose problem it is, not what it is.\"",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "1"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1"
+      },
+      "name": {
+        "type": "String",
+        "example": "Van"
+      }
+    }
+  },
+  "homeOtherVehicleDue": "{n, plural, one{{name} · {nText} due} other{{name} · {nText} due}}",
+  "@homeOtherVehicleDue": {
+    "description": "The other-vehicles row when another car has work due but nothing overdue. A separate key from homeOtherVehicleOverdue because the two words are not interchangeable.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "1"
+      },
+      "nText": {
+        "type": "String",
+        "example": "1"
+      },
+      "name": {
+        "type": "String",
+        "example": "Van"
+      }
+    }
+  },
+  "homeTilePerDistance": "per {unit}",
+  "@homeTilePerDistance": {
+    "description": "The second glance tile's two-line label — cost per kilometre or mile. {unit} is the abbreviation from the unit keys, never spelled out here.",
+    "placeholders": {
+      "unit": {
+        "type": "String",
+        "example": "km"
+      }
+    }
+  },
+  "homeTilePerMonth": "per month",
+  "@homeTilePerMonth": {
+    "description": "The third glance tile's two-line label — what the vehicle costs in a month."
+  },
+  "homeMoreActions": "More actions",
+  "@homeMoreActions": {
+    "description": "The accessible name of the due card's ⋯ button. It carries no visible word, so this is the only thing a screen reader can announce."
+  },
+  "actionSnooze": "Snooze",
+  "@actionSnooze": {
+    "description": "The card overflow's second item, opening dialog.snooze. A verb: it is what the tap does, not what the state is called."
+  },
+  "actionEditReminder": "Edit reminder",
+  "@actionEditReminder": {
+    "description": "The card overflow's third item, opening reminders.edit for this item."
+  },
+  "actionTurnOff": "Turn this off",
+  "@actionTurnOff": {
+    "description": "The card overflow's last item. It sets is_active = false on the item — it does not delete anything, which is why the wording is \"turn off\" rather than \"remove\"."
+  },
+  "homeTurnedOff": "{item} turned off",
+  "@homeTurnedOff": {
+    "description": "The snackbar after Turn this off. It carries an Undo, so it names the item rather than saying \"done\".",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      }
+    }
+  },
+  "unitConsumptionKmPerLitre": "km/L",
+  "@unitConsumptionKmPerLitre": {
+    "description": "Consumption as distance per volume — the inverse direction, where HIGHER is better. Its own key rather than a reversal of unitConsumptionPerDistance, which bakes the hundred in."
+  },
+  "unitConsumptionKwhPerDistance": "kWh/{n} km",
+  "@unitConsumptionKwhPerDistance": {
+    "description": "Electric consumption as energy per distance. {n} is the hundred, as a PLACEHOLDER rather than a literal, for the same reason unitConsumptionPerDistance carries one — and a String for the same reason too: the shaping belongs to the formats tag, not to gen-l10n.",
+    "placeholders": {
+      "n": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "unitConsumptionMiPerKwh": "mi/kWh",
+  "@unitConsumptionMiPerKwh": {
+    "description": "Electric consumption as distance per energy, where HIGHER is better."
+  },
+  "unitEnergyKwh": "kWh",
+  "@unitEnergyKwh": {
+    "description": "The energy abbreviation, for an electric fill-up. Ours rather than the platform's, like every other unit label — SPEC.md §5."
+  },
+  "unitMassKg": "kg",
+  "@unitMassKg": {
+    "description": "The mass abbreviation, for a CNG fill-up, which is sold by weight rather than by volume."
+  },
+  "commonEstimatedValue": "~{value}",
+  "@commonEstimatedValue": {
+    "description": "An estimated figure, with the mark SPEC.md §1.4 gives it. The tilde is the marker in every locale, so the six values are identical today — the key exists so that the mark's SIDE is a translation decision rather than a Dart concatenation, and so it lands inside the number's bidi isolate instead of in front of it.",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "187,400 km"
+      }
+    }
+  },
+  "homeWasDueAt": "Was due at {odometer}",
+  "@homeWasDueAt": {
+    "description": "The overdue card's anchor line when DISTANCE drove the status. SPEC.md §9: a kilometre figure is checkable against the dash and a date is not, so the distance leads whenever there is one.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "186,512 km"
+      }
+    }
+  },
+  "homeWasDueOn": "Was due {date}",
+  "@homeWasDueOn": {
+    "description": "The overdue card's anchor line when TIME drove the status and there is no odometer to name.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "12 August"
+      }
+    }
+  },
+  "homeWasDueAtOn": "Was due at {odometer} · {date}",
+  "@homeWasDueAtOn": {
+    "description": "The overdue card's anchor line when both axes are past. One message rather than two joined in Dart — SPEC.md §2 forbids assembling a sentence from parts, and the separator's side is a translation decision.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "186,512 km"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 August"
+      }
+    }
+  },
+  "homeDueAt": "At {odometer}",
+  "@homeDueAt": {
+    "description": "The due card's anchor line when only a distance is known. Present tense: the job is due now, not overdue.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "192,000 km"
+      }
+    }
+  },
+  "homeDueAtOn": "At {odometer} · {date}",
+  "@homeDueAtOn": {
+    "description": "The due card's anchor line when both axes are known — SPEC.md §9's `At 192,000 km · 10 October`.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "192,000 km"
+      },
+      "date": {
+        "type": "String",
+        "example": "10 October"
+      }
+    }
+  },
+  "homeAroundDate": "around {date}",
+  "@homeAroundDate": {
+    "description": "A date PROJECTED from the distance axis, and the only vocabulary SPEC.md §9 allows for one: the word \"around\" and nothing else. Never used for a date the calendar produced, which is exact and reads plainly.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "22 October"
+      }
+    }
+  },
+  "homeLastEntered": "Last entered {date}",
+  "@homeLastEntered": {
+    "description": "The needs-odometer card's anchor line. It states what the app HAS rather than what it wants — an accusation the app cannot support is the thing SPEC.md §9 is most careful to avoid.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "12 July"
+      }
+    }
+  },
+  "homeStripStale": "{n, plural, one{Odometer last updated {nText} day ago.} other{Odometer last updated {nText} days ago.}}",
+  "@homeStripStale": {
+    "description": "The stale-odometer strip's first line. It states a fact about the APP rather than asking the user for something — SPEC.md §1: the app tells people things rather than asking them things, and the field underneath is the ask.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "68"
+      },
+      "nText": {
+        "type": "String",
+        "example": "68"
+      }
+    }
+  },
+  "homeStripStaleDismiss": "Hide this for a week",
+  "@homeStripStaleDismiss": {
+    "description": "The stale-odometer strip's ✕, as a screen reader hears it. The glyph carries no word, and \"close\" would understate it: SPEC.md §9 hides the strip for seven days on that vehicle, which is a decision rather than a dismissal."
+  },
+  "homeStripDoneTitle": "You marked {item} done on {date}.",
+  "@homeStripDoneTitle": {
+    "description": "The done-from-notification confirmation strip, first line. Second person, because the user did this and the app is confirming it back — not announcing it.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 September"
+      }
+    }
+  },
+  "homeStripDoneRecorded": "I recorded {odometer} and no cost.",
+  "@homeStripDoneRecorded": {
+    "description": "The confirmation strip's second line. It names what the app GUESSED, so the estimate mark travels with the number — that is what \"Add the real numbers\" is offering to replace.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "~187,400 km"
+      }
+    }
+  },
+  "homeStripDoneNext": "Next due at {odometer} · {date}.",
+  "@homeStripDoneNext": {
+    "description": "The confirmation strip's third line — the consequence of the record, which is the thing the user actually wanted to know.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "202,400 km"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 September 2026"
+      }
+    }
+  },
+  "actionAddRealNumbers": "Add the real numbers",
+  "@actionAddRealNumbers": {
+    "description": "The confirmation strip's first action. It opens log.service in edit mode on the record the notification wrote."
+  },
+  "actionThatsRight": "That's right",
+  "@actionThatsRight": {
+    "description": "The confirmation strip's second action. It clears odometer_estimated and cost_estimated on the record — the user has confirmed the app's guesses, so they stop being guesses."
+  },
+  "homeDigestOverdue": "{item} went overdue on {date}",
+  "@homeDigestOverdue": {
+    "description": "One line of the away digest, for something that went past due while the app was closed. Past tense: it already happened.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 August"
+      }
+    }
+  },
+  "homeDigestDue": "{item} is due {date}",
+  "@homeDigestDue": {
+    "description": "One line of the away digest, for something coming up rather than past.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Inspection"
+      },
+      "date": {
+        "type": "String",
+        "example": "14 March"
+      }
+    }
+  },
+  "homeDigestDismiss": "Dismiss this summary",
+  "@homeDigestDismiss": {
+    "description": "The away digest's ✕, as a screen reader hears it."
+  },
+  "odometerSavedSnack": "Odometer saved",
+  "@odometerSavedSnack": {
+    "description": "The snackbar after the stale-odometer strip writes a reading. It carries an Undo, so it says what happened rather than thanking the user."
+  },
+  "homeNothingDue": "Nothing due",
+  "@homeNothingDue": {
+    "description": "The all-clear headline. Present tense, no exclamation mark, no praise: SPEC.md §9 makes this the most common state in the app and the one most apps waste."
+  },
+  "homeNextIs": "Next: {item}, {date}",
+  "@homeNextIs": {
+    "description": "The all-clear card's second line — the next item and its exact date, off the TIME axis. Without it the card is an assertion; with it, an answer.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Inspection"
+      },
+      "date": {
+        "type": "String",
+        "example": "14 March"
+      }
+    }
+  },
+  "homeSinceLast": "Since the last {item}:",
+  "@homeSinceLast": {
+    "description": "The label above the all-clear's receipt line. The receipt is what turns a claim into evidence — SPEC.md §9 names the most recent service, whatever it was.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "oil change"
+      }
+    }
+  },
+  "homeSinceLastFigure": "{distance} · {duration}",
+  "@homeSinceLastFigure": {
+    "description": "The receipt itself — \"3,120 km · 4 months\". Both halves are formatted upstream; the separator is the only copy here.",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "3,120 km"
+      },
+      "duration": {
+        "type": "String",
+        "example": "4 months"
+      }
+    }
+  },
+  "homeFirstRunSetUp": "Set up your reminders — tell me when things were last done",
+  "@homeFirstRunSetUp": {
+    "description": "The unknown-anchor card's headline on FIRST RUN, where the app knows nothing yet. An invitation, not the \"When were these last done?\" question it asks once it has a list."
+  },
+  "homeFirstRunConsumption": "Log a fill-up and your consumption starts here.",
+  "@homeFirstRunConsumption": {
+    "description": "The one line under the first-run tiles. A STATEMENT and not a button — SPEC.md §9: \"the + is already one tap away\"."
+  },
+  "homeSoldTitle": "This vehicle is marked sold ({date}).",
+  "@homeSoldTitle": {
+    "description": "The panel that REPLACES the due stack on a sold or archived vehicle. It states the fact rather than nagging: SPEC.md §9 gives such a vehicle no reminders, no notifications and no nudges.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "14 June"
+      }
+    }
+  },
+  "homeSoldOwned": "Owned {duration} · {distance} driven",
+  "@homeSoldOwned": {
+    "description": "The sold panel's ownership summary. Both figures come from records the user entered, which is why the panel keeps History and Costs fully available beneath it.",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "6 years 2 months"
+      },
+      "distance": {
+        "type": "String",
+        "example": "132,900 km"
+      }
+    }
+  },
+  "homeErrorTitle": "Odova can't read your data.",
+  "@homeErrorTitle": {
+    "description": "The whole of Home when the store cannot be read. One message and one button — SPEC.md §9: get the data out of the building before anything else."
+  },
+  "actionOpenBackup": "Open Backup & restore",
+  "@actionOpenBackup": {
+    "description": "The error state's only action. It goes to settings.backup, because the first thing to do with data that cannot be read is to get a copy of it out."
+  },
+  "homeRowBroken": "Something's wrong with this reminder",
+  "@homeRowBroken": {
+    "description": "One card whose derived state threw. SPEC.md §9: \"one bad row never blanks the screen\" — the card is grey, says so, and offers a chevron to the editor."
+  },
+  "remindersTitle": "Reminders",
+  "@remindersTitle": {
+    "description": "The reminders.list app-bar title. The screen's own name, with the vehicle beside it."
+  },
+  "remindersGroupPaused": "Paused",
+  "@remindersGroupPaused": {
+    "description": "The second group header on reminders.list — items with is_active = false. SPEC.md §9 makes the header carry the word for a group whose rows print no status of their own, so the screen needs no legend."
+  },
+  "remindersGroupNotTracked": "Not tracked",
+  "@remindersGroupNotTracked": {
+    "description": "The third group header — catalogue rows the user has not switched on. They are excluded from the due engine, from Home and from notifications."
+  },
+  "remindersTrack": "+ Track",
+  "@remindersTrack": {
+    "description": "The action in place of a status on an untracked row. It sets is_tracked and opens the editor, because a tracked item with no anchor is just another unknown. It WRAPS to two lines rather than truncating — German is \"+ Verfolgen\"."
+  },
+  "remindersPausedStatus": "Paused",
+  "@remindersPausedStatus": {
+    "description": "A paused row's end text. The same word as its group header and a separate key, because a header names a group and this names one row — a translator may need different grammar for each."
+  },
+  "remindersEmpty": "No reminders yet.",
+  "@remindersEmpty": {
+    "description": "The reminders.list empty state — every item deleted. One line and the +, never an illustration."
+  },
+  "remindersNothingTracked": "Nothing is being tracked on this vehicle.",
+  "@remindersNothingTracked": {
+    "description": "Shown above the Paused group when every item is paused. A statement of fact rather than a nag: the user turned them off on purpose."
+  },
+  "remindersWhenLastDone": "When was this last done",
+  "@remindersWhenLastDone": {
+    "description": "The end text of a tracked row the app has no anchor for — SPEC.md §9's reminders.list drawing. A question, because that is what it is; the row opens the editor where the answer goes."
+  },
+  "actionDoneToday": "Done today",
+  "@actionDoneToday": {
+    "description": "The first swipe action on a reminders.list row. It writes a ServiceRecord through the logging mark-done path and offers an Undo."
+  },
+  "actionTurnOffShort": "Turn off",
+  "@actionTurnOffShort": {
+    "description": "The third swipe action. Shorter than actionTurnOff because a swipe reveals a narrow tile, and a separate key because a swipe tile and a menu row have different room."
+  },
+  "actionSnoozeShort": "Snooze",
+  "@actionSnoozeShort": {
+    "description": "The snooze swipe tile's label. Shorter than actionSnooze for the reason actionTurnOffShort is: a swipe reveals an 88pt tile with a glyph above two lines of text, and the Persian \"یادآوری بعداً\" overflowed it by 4pt. A separate key rather than a shortened translation, because the menu row has the room and should keep the fuller phrase."
+  },
+  "reminderEditTitle": "Reminder",
+  "@reminderEditTitle": {
+    "description": "The reminders.edit modal head, in edit mode."
+  },
+  "reminderNewTitle": "New reminder",
+  "@reminderNewTitle": {
+    "description": "The reminders.edit modal head, in create mode."
+  },
+  "reminderName": "Name",
+  "@reminderName": {
+    "description": "The label field. A catalogue kind carries its own name; a custom item needs this one, and the `service_items` CHECK refuses it without."
+  },
+  "reminderEveryDistance": "Every",
+  "@reminderEveryDistance": {
+    "description": "The distance-interval field label — \"Every 10,000 km\". The unit sits at the end INSIDE the field, never concatenated after it."
+  },
+  "reminderEveryMonths": "Every … months",
+  "@reminderEveryMonths": {
+    "description": "The time-interval field label. MONTHS and never days — SPEC.md §3: \"Manuals say 12 months. Calendar addition stops a 12-month service creeping earlier every year.\""
+  },
+  "reminderOnceAtOdometer": "Or once, at odometer",
+  "@reminderOnceAtOdometer": {
+    "description": "The one-off odometer target. \"Cambelt at 120,000 km.\""
+  },
+  "reminderOnceOnDate": "Or once, on date",
+  "@reminderOnceOnDate": {
+    "description": "The one-off date target. A FUTURE date is allowed here, unlike the baseline."
+  },
+  "reminderLastDoneDate": "Last done — date",
+  "@reminderLastDoneDate": {
+    "description": "Half the baseline. Prefilled from the newest ServiceRecord for this item."
+  },
+  "reminderLastDoneOdometer": "Last done — odometer",
+  "@reminderLastDoneOdometer": {
+    "description": "The other half of the baseline."
+  },
+  "reminderNotify": "Notify me",
+  "@reminderNotify": {
+    "description": "The notification switch. Off still shows on Home and still goes red; it just never posts — which is why the label is about notifying and not about tracking."
+  },
+  "reminderNoticeAhead": "Tell me this far ahead",
+  "@reminderNoticeAhead": {
+    "description": "The two optional notice overrides. Blank means the automatic window, shown as a placeholder — SPEC.md §9, and the German is the reason labels sit ABOVE inputs rather than beside them."
+  },
+  "reminderNoticeAutomatic": "Blank means automatic — {distance} / {days}.",
+  "@reminderNoticeAutomatic": {
+    "description": "The hint UNDER the notice pair: the window the due engine would compute when both fields are blank. A hint rather than a placeholder in each field, which is what the artboard draws and what stops the same sentence appearing twice. A PLACEHOLDER-class value and never a stored one — SPEC.md §2 forbids persisting a derived number, and a notice window written into the row would survive an interval change and then be wrong.",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "1,000 km"
+      },
+      "days": {
+        "type": "String",
+        "example": "30 days"
+      }
+    }
+  },
+  "reminderPriority": "Priority",
+  "@reminderPriority": {
+    "description": "Safety, Normal or Low. It breaks ties when the notification cap coalesces."
+  },
+  "reminderPrioritySafety": "Safety",
+  "@reminderPrioritySafety": {
+    "description": "The highest priority — brakes, tyres, a timing belt."
+  },
+  "reminderPriorityNormal": "Normal",
+  "@reminderPriorityNormal": {
+    "description": "The default priority."
+  },
+  "reminderPriorityLow": "Low",
+  "@reminderPriorityLow": {
+    "description": "The lowest priority — a wiper blade, a cabin filter."
+  },
+  "reminderRollover": "When it repeats, count from",
+  "@reminderRollover": {
+    "description": "Which day the next interval starts from. SPEC.md §3: from the day it was DONE suits most jobs; from the day it was DUE suits an inspection that stays in April."
+  },
+  "reminderRolloverActual": "The day it was done",
+  "@reminderRolloverActual": {
+    "description": "`from_actual` — the default."
+  },
+  "reminderRolloverDue": "The day it was due",
+  "@reminderRolloverDue": {
+    "description": "`from_due` — for anything on a fixed calendar."
+  },
+  "reminderRepeats": "Repeats",
+  "@reminderRepeats": {
+    "description": "Off makes it a one-off that goes `ok` after completion."
+  },
+  "reminderNotes": "Notes",
+  "@reminderNotes": {
+    "description": "Free text, 500 characters. First-strong direction from the content, not from the UI language."
+  },
+  "reminderNoScheduleError": "Set an interval or a target date — otherwise there's nothing to remind you about.",
+  "@reminderNoScheduleError": {
+    "description": "The inline message under the interval block when none of the four scheduling fields is set. The `service_items` CHECK says the same thing in SQL; this is the sentence that stops the row reaching it."
+  },
+  "reminderBaselineTooLowError": "This is below the earliest reading for this vehicle.",
+  "@reminderBaselineTooLowError": {
+    "description": "The inline message under the baseline odometer. A service cannot have happened before the car had been that far."
+  },
+  "reminderBaselineFutureError": "A job cannot have been done in the future.",
+  "@reminderBaselineFutureError": {
+    "description": "The inline message under the baseline date. The TARGET date has no such rule — a future target is a plan."
+  },
+  "reminderNameError": "Give this reminder a name.",
+  "@reminderNameError": {
+    "description": "The inline message under Name when a CUSTOM reminder has none. The `service_items` CHECK is `kind <> 'custom' OR label IS NOT NULL`, so this is the one field a custom item cannot be saved without. It used to print the field's own LABEL, which told the user nothing."
+  },
+  "reminderDeletedSnack": "Deleted {item}",
+  "@reminderDeletedSnack": {
+    "description": "The snackbar after a reminder is deleted outright, with Undo beside it. Separate from homeTurnedOff: a deleted reminder is gone and a turned-off one is still on `reminders.list` under Paused, and saying the wrong one of those tells the user to look in the wrong place.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      }
+    }
+  },
+  "reminderNotTrackedBanner": "Not tracked — you won't be reminded",
+  "@reminderNotTrackedBanner": {
+    "description": "The banner on an untracked item, with Start tracking beside it."
+  },
+  "reminderStartTracking": "Start tracking",
+  "@reminderStartTracking": {
+    "description": "The action on the untracked banner. It sets is_tracked."
+  },
+  "reminderTurnBackOn": "Turn back on",
+  "@reminderTurnBackOn": {
+    "description": "The action on the paused banner. It sets is_active."
+  },
+  "reminderTurnThisOff": "Turn this reminder off",
+  "@reminderTurnThisOff": {
+    "description": "What the destructive control becomes on an item that HAS been referenced by a service line. SPEC.md §9: such an item is not deletable, because deleting it would orphan the records that name it."
+  },
+  "reminderCannotDelete": "{n, plural, one{{nText} service is recorded against this. Turning it off keeps it.} other{{nText} services are recorded against this. Turning it off keeps them.}}",
+  "@reminderCannotDelete": {
+    "description": "The line under Turn this reminder off. It states what would be lost and that nothing will be — SPEC.md §2: eight years of service history is the most valuable object in the app.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "2"
+      },
+      "nText": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "reminderLastDoneHeading": "Last done",
+  "@reminderLastDoneHeading": {
+    "description": "The heading above the five most recent service records for this item. SPEC.md §9 calls it \"the evidence behind the anchor, so a user who thinks the app is wrong can check instead of argue.\""
+  },
+  "reminderNoticeAheadDays": "Tell me this far ahead — days",
+  "@reminderNoticeAheadDays": {
+    "description": "The DAYS half of the notice override. Its label is not drawn — SPEC.md §9 asks the question once, above the pair — but it exists so that a screen-reader user can tell the two fields apart, which is the one thing a shared visible label takes away."
   }
 }

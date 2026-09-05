@@ -42,9 +42,14 @@ while IFS= read -r -d '' f; do
   case "$f" in */ui/calm/*) in_calm=1 ;; esac
 
   if [ "$in_theme" -eq 0 ] && [ "$in_calm" -eq 0 ]; then
-    h="$(grep -nE 'BoxDecoration\(' "$f" || true)"
+    # BOTH decorations. The rule is "only lib/ui/calm/ assembles a Calm
+    # surface", and this grepped for `BoxDecoration(` alone until a feature
+    # popover built the identical thing out of a `ShapeDecoration` and walked
+    # straight through — losing the sheen on the way, which is the exact loss
+    # calm_surface.dart records two cards already suffering.
+    h="$(grep -nE '(Box|Shape)Decoration\(' "$f" || true)"
     if [ -n "$h" ]; then report "$f" "$h" \
-      "use CalmCard/CalmRowGroup/CalmTile/CalmSheet; only lib/ui/calm/ builds a BoxDecoration"; fi
+      "use CalmSurface/CalmCard/CalmRowGroup/CalmTile/CalmPopover; only lib/ui/calm/ builds a decoration"; fi
     h="$(grep -nE "$SUBSTITUTES" "$f" || true)"
     if [ -n "$h" ]; then report "$f" "$h" \
       "use the Calm widget instead (see references/component-inventory.md)"; fi

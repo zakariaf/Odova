@@ -9,10 +9,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/ids/record_id.dart';
-import 'package:odova/features/vehicles/due_snapshot_provider.dart';
+import 'package:odova/data/repositories/due_snapshot_provider.dart';
 
-import '../../data/support/rows.dart';
 import '../../support/provider_harness.dart';
+import '../../support/source_tree.dart';
+import '../support/rows.dart';
 
 const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 final VehicleId _id = VehicleId.tryParse(_golf)!;
@@ -150,6 +151,69 @@ void main() {
       snapshot!.rate.confidence,
       RateConfidence.assumed,
       reason: 'the Polo has no expected annual, so this would read default',
+    );
+  });
+
+  test('both providers watch the same six inputs', () {
+    // The two lists are written out by hand, and they have to be. The
+    // unreadable check short-circuits on a non-null snapshot, so it cannot be
+    // DERIVED from the snapshot provider — every widget test and every parity
+    // capture overrides `vehicleDueSnapshotProvider` with a value, and a
+    // derived twin would reach past the override, subscribe six drift streams
+    // that never deliver under `testWidgets`, and leave a pending timer that
+    // fails the next test. That is the failure this file's own comment
+    // describes, and it is why the two lists stay two.
+    //
+    // What was mitigated by ADJACENCY is gated here instead. A seventh input
+    // added to the snapshot and not to the twin means Home renders the
+    // skeleton for ever instead of §9's error panel — a state no behaviour
+    // test would notice, because both lists have to be wrong together to be
+    // caught.
+    final source = sourceWithoutLineComments(
+      dartFilesUnder(
+        'lib/data/repositories',
+      ).firstWhere((f) => f.path.endsWith('due_snapshot_provider.dart')),
+    );
+
+    // Sliced at the NEXT top-level declaration, not at a closing brace: the
+    // two providers are indented differently and a `\n});` boundary matched
+    // neither, so the first version of this read to the end of the file and
+    // compared each list with itself. It passed on a deliberately broken tree,
+    // which is the only reason it was caught.
+    //
+    // Matched on the ACCESSOR, not on the provider name. The snapshot also
+    // watches `buildDateProvider` and `clockProvider`, which are plain
+    // `Provider`s — they carry no `AsyncValue` and so have no error for the
+    // twin to check. What must line up is the set read with `.value` against
+    // the set asked `.hasError`.
+    List<String> watchedIn(String declaration, String accessor) {
+      final from = source.indexOf(declaration);
+      final rest = source.substring(from + declaration.length);
+      final next = rest.indexOf(RegExp(r'^(final|const)\s', multiLine: true));
+      final body = next == -1 ? rest : rest.substring(0, next);
+      return RegExp('ref\\s*\\.?\\s*watch\\(\\s*(\\w+)[^;]*?\\.$accessor')
+          .allMatches(body)
+          .map((m) => m.group(1)!)
+          .where((name) => name != 'vehicleDueSnapshotProvider')
+          .toSet()
+          .toList()
+        ..sort();
+    }
+
+    final checked = watchedIn(
+      'vehicleStoreUnreadableProvider = Provider',
+      'hasError',
+    );
+    final composed = watchedIn(
+      'vehicleDueSnapshotProvider = Provider',
+      'value',
+    );
+
+    expect(checked, isNotEmpty);
+    expect(
+      checked,
+      composed,
+      reason: 'the unreadable check must cover every snapshot input',
     );
   });
 }

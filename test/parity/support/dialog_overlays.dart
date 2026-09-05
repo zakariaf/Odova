@@ -28,7 +28,7 @@ import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
 import 'package:odova/ui/dialogs/snooze_dialog.dart';
 
-import 'dialog_backdrop.dart';
+import 'dialog_copy.dart';
 
 /// The scrim the three dialogs sit on.
 ///

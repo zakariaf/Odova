@@ -29,6 +29,7 @@ import 'package:odova/data/db/degraded_mode.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
+import 'package:odova/features/home/ui/home_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 
 import '../data/support/rows.dart';
@@ -326,6 +327,10 @@ void main() {
         return 'firstrun.vehicle';
       }
       if (find.byType(VehiclesScreen).evaluate().isNotEmpty) return 'vehicles';
+      // EPIC-10 made Home real, so it no longer answers through the
+      // placeholder. Every screen this helper knows about is one that has been
+      // built; the fall-through is for the ones that have not.
+      if (find.byType(HomeScreen).evaluate().isNotEmpty) return 'home';
       return tester
           .widget<PlaceholderScreen>(find.byType(PlaceholderScreen))
           .screenId;

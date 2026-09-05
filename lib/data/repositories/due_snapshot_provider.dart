@@ -1,15 +1,17 @@
 // One vehicle's due state, composed from the four streams it needs.
 //
 // `recomputeVehicle` is a pure function taking a vehicle, its items, its
-// records, its reading series and the settings. This is the wiring — and it is
-// in `lib/features/vehicles/` rather than in `lib/data/` because it computes
-// rather than persists, and `lib/data/repositories/providers.dart` is a list of
-// things that read rows.
+// records, its reading series and the settings. This is the wiring.
 //
-// **Wanted by more than the garage.** EPIC-10's `home` needs the same snapshot
-// for the active vehicle, and `vehicle.switcher` needs it for every vehicle in
-// the sheet. Composing it once here is the difference between one answer and
-// three that drift.
+// **Wanted by more than the garage.** It was written beside the garage that
+// first needed it, in `lib/features/vehicles/`. EPIC-10's `home` needs the same
+// snapshot for the active vehicle, `vehicle.switcher` needs it for every
+// vehicle in the sheet, and `structure_test.dart` refuses one feature importing
+// another — "two features share code by lifting it down to core/ or data/, or
+// they meet via a route". Every input is a repository stream and the output is
+// a pure-domain value, so this is the composition seam between the data layer
+// and any screen that needs a due state. Composing it once is the difference
+// between one answer and three that drift.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderFamily;
 import 'package:odova/app/providers.dart';
@@ -18,6 +20,41 @@ import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
+
+/// Whether one vehicle's inputs could not be READ, as opposed to not having
+/// arrived.
+///
+/// SPEC.md §9's *Error* state turns on the difference: "If the store cannot be
+/// read, Home renders no cards and one full-width message." A null snapshot
+/// cannot say which — it collapses loading and failure on purpose, because §8's
+/// garage row draws the same hollow dot for both — so the one screen that needs
+/// them apart asks separately.
+///
+/// A SNAPSHOT is proof the store was read, so it short-circuits before any of
+/// the six are touched. Not an optimisation: without it this subscribes six
+/// drift streams of its own, and a caller that supplied the snapshot outright —
+/// every widget test and every parity capture — gets them back through the side
+/// door, hangs on streams that never deliver under `testWidgets`, and leaves a
+/// timer that fails the NEXT test.
+///
+/// Below that, the SAME six streams the snapshot composes, in the same order.
+/// Two lists is one that can be edited without the other; they are adjacent so
+/// that a seventh input is obviously two edits rather than one.
+final ProviderFamily<bool, VehicleId> vehicleStoreUnreadableProvider = Provider
+    .autoDispose
+    .family((ref, vehicleId) {
+      final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicleId));
+      if (snapshot != null) {
+        return false;
+      }
+
+      return ref.watch(vehiclesProvider).hasError ||
+          ref.watch(serviceItemsProvider(vehicleId)).hasError ||
+          ref.watch(serviceRecordsProvider(vehicleId)).hasError ||
+          ref.watch(odometerReadingsProvider(vehicleId)).hasError ||
+          ref.watch(odometerCorrectionsProvider(vehicleId)).hasError ||
+          ref.watch(settingsProvider).hasError;
+    });
 
 /// The date the app was built, for SPEC.md §3's clock-suspicion check.
 ///
@@ -35,9 +72,8 @@ final buildDateProvider = Provider<CivilDate>(
 /// Null rather than an `AsyncValue`, because every caller draws the same thing
 /// for "loading" and for "the engine could not answer" — SPEC.md §8's hollow
 /// dot and "Couldn't work out what's due". Collapsing them here means no screen
-/// has
-/// to decide twice, and `garageStatusOf` already takes a nullable summary for
-/// the same reason.
+/// has to decide twice, and `garageStatusOf` already takes a nullable summary
+/// for the same reason.
 final ProviderFamily<VehicleDueSnapshot?, VehicleId>
 vehicleDueSnapshotProvider = Provider.autoDispose.family((ref, vehicleId) {
   final vehicles = ref.watch(vehiclesProvider).value;

@@ -11,6 +11,7 @@ import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_button.dart';
+import 'package:odova/ui/calm/calm_icon_button.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
@@ -18,6 +19,29 @@ import 'package:odova/ui/calm/calm_surface.dart';
 /// odova.css §13: the primary card fades from the state tint to the surface at
 /// 78%, so the status line's ink must clear 4.5:1 on BOTH stops.
 const double kCalmDueCardTintStop = 0.78;
+
+/// `.due-card--primary` — "148pt+, tinted, the eye lands here first."
+///
+/// A FLOOR, not a fixed height: six languages and an unclamped text scaler mean
+/// nothing on a Calm screen may depend on fitting. It exists because SPEC.md
+/// §9's fold budget — 56 + 64 + 148 + 2 × 72 + 48 = 460 on a 375 × 667 screen —
+/// is arithmetic over these two numbers, and a card that sized purely to its
+/// content would move the see-all row above or below the fold depending on how
+/// long the item's name happened to be.
+const double kCalmDueCardPrimaryHeight = 148;
+
+/// `.due-card--secondary { min-height: 72px }`.
+const double kCalmDueCardSecondaryHeight = 72;
+
+/// The `⋯` inside `.due-card__actions`.
+///
+/// A key rather than a finder on the icon: SPEC.md §9's overflow is the one
+/// control on the card that carries no word, so there is nothing else to find
+/// it by that would not also match a decorative glyph somebody adds later.
+const Key kCalmDueCardMoreKey = Key('calm.dueCard.more');
+
+/// `.due-card__more` paints 44 square; Calm's tap floor is still `touchMin`.
+const double kCalmDueCardMorePaint = 44;
 
 /// The two densities Home uses.
 enum CalmDueDensity {
@@ -44,6 +68,7 @@ class CalmDueView {
     required this.title,
     required this.statusLine,
     required this.actionLabel,
+    this.actionIcon,
     this.anchorLine,
     this.snoozeLine,
     this.progress,
@@ -68,6 +93,9 @@ class CalmDueView {
   /// `Log it`, or the update-odometer label for the two uncertain states.
   final String actionLabel;
 
+  /// The glyph beside it. `.btn` in the artboard carries one; null draws none.
+  final IconData? actionIcon;
+
   /// `Was due at 186,512 km · 12 August`. Null when nothing is certain.
   final String? anchorLine;
 
@@ -91,6 +119,7 @@ class CalmDueCard extends StatelessWidget {
     required this.onTap,
     required this.onAction,
     super.key,
+    this.more,
   });
 
   /// What to render.
@@ -104,6 +133,20 @@ class CalmDueCard extends StatelessWidget {
 
   /// Does the thing the card is asking for.
   final VoidCallback onAction;
+
+  /// Opens SPEC.md §9's four-item overflow, at primary density only.
+  ///
+  /// Null draws no `⋯`. The secondary density has no `.due-card__actions` row
+  /// to put one in — a 72pt line with a chevron has nowhere for a second
+  /// control — so it never draws one whatever this is.
+  ///
+  /// ONE field rather than an `onMore`/`moreLabel` pair guarded by an assert.
+  /// A control with no visible word needs an accessible name, and half of that
+  /// pair could be passed without the other — so the invariant was a runtime
+  /// check on a widget every future due surface will use. As a record it is
+  /// unrepresentable, and the call site names the condition once instead of
+  /// three times.
+  final ({VoidCallback onPressed, String label})? more;
 
   @override
   Widget build(BuildContext context) {
@@ -144,9 +187,23 @@ class CalmDueCard extends StatelessWidget {
         padding: EdgeInsetsDirectional.all(
           isPrimary ? space.s6 : space.s4,
         ),
-        child: isPrimary
-            ? _PrimaryBody(view: view, style: style, onAction: onAction)
-            : _SecondaryBody(view: view, style: style),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight:
+                (isPrimary
+                    ? kCalmDueCardPrimaryHeight
+                    : kCalmDueCardSecondaryHeight) -
+                (isPrimary ? space.s6 : space.s4) * 2,
+          ),
+          child: isPrimary
+              ? _PrimaryBody(
+                  view: view,
+                  style: style,
+                  onAction: onAction,
+                  more: more,
+                )
+              : _SecondaryBody(view: view, style: style),
+        ),
       ),
     );
 
@@ -160,11 +217,13 @@ class _PrimaryBody extends StatelessWidget {
     required this.view,
     required this.style,
     required this.onAction,
+    required this.more,
   });
 
   final CalmDueView view;
   final CalmStatusStyle style;
   final VoidCallback onAction;
+  final ({VoidCallback onPressed, String label})? more;
 
   @override
   Widget build(BuildContext context) {
@@ -212,14 +271,38 @@ class _PrimaryBody extends StatelessWidget {
           CalmProgressBar(value: progress, color: style.base),
         ],
         SizedBox(height: space.s3),
-        CalmButton(
-          label: view.actionLabel,
-          onPressed: onAction,
-          // The action takes the colour of the item it acts on, resolved
-          // through CalmStatusStyle rather than named here.
-          variant: CalmButtonVariant.onState,
-          dueState: view.state,
-          block: true,
+        // `.due-card__actions { justify-content: space-between }` — the
+        // button sizes to its WORDS and the overflow sits at the far edge.
+        // Not `block: true`: the reference draws a pill about a third of the
+        // card wide, and a full-width button next to a 52pt target overflows
+        // the row besides.
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: CalmButton(
+                label: view.actionLabel,
+                icon: view.actionIcon,
+                onPressed: onAction,
+                // The action takes the colour of the item it acts on, resolved
+                // through CalmStatusStyle rather than named here.
+                variant: CalmButtonVariant.onState,
+                dueState: view.state,
+              ),
+            ),
+            if (more case final more?) ...[
+              SizedBox(width: space.s3),
+              CalmIconButton(
+                key: kCalmDueCardMoreKey,
+                icon: Icons.more_horiz,
+                label: more.label,
+                onPressed: more.onPressed,
+                paintSize: kCalmDueCardMorePaint,
+                iconSize: space.iconMd,
+                color: colors.ink3,
+              ),
+            ],
+          ],
         ),
       ],
     );

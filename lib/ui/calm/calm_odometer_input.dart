@@ -65,14 +65,11 @@ class CalmOdometerInput extends StatelessWidget {
           label: l10n.odometerNowLabel,
           controller: controller,
           hint: l10n.odometerFirstRunHint,
-          errorText: switch (problem) {
-            null => null,
-            OdometerProblem.empty => emptyMessage,
-            OdometerProblem.notANumber => l10n.odometerNotANumberError,
-            // A WARNING sharing the one message slot with two errors. §8:
-            // "never a block", and Save stays live behind it.
-            OdometerProblem.implausible => l10n.odometerImplausibleWarning,
-          },
+          errorText: odometerProblemMessage(
+            l10n,
+            problem,
+            emptyMessage: emptyMessage,
+          ),
           affix: Text(distanceUnitLabel(l10n, entry.unit)),
           numeric: true,
           keyboardType: TextInputType.number,
@@ -92,3 +89,25 @@ class CalmOdometerInput extends StatelessWidget {
     );
   }
 }
+
+/// What the one message slot says about [problem], or null when it is silent.
+///
+/// The switch is here rather than in each widget because Home's staleness strip
+/// is the THIRD place that draws this field, and its copy of the arms was
+/// already a copy. The `implausible` case in particular is a WARNING sharing
+/// the slot with two errors — SPEC.md §8: "never a block" — and a rule that
+/// subtle stated three times is a rule that becomes two rules.
+///
+/// [emptyMessage] is null where saying nothing is right: `firstrun.vehicle`
+/// holds its empty message back until Start has been pressed and refused, and
+/// a screen with no such moment has nothing to hold back.
+String? odometerProblemMessage(
+  AppLocalizations l10n,
+  OdometerProblem? problem, {
+  String? emptyMessage,
+}) => switch (problem) {
+  null => null,
+  OdometerProblem.empty => emptyMessage,
+  OdometerProblem.notANumber => l10n.odometerNotANumberError,
+  OdometerProblem.implausible => l10n.odometerImplausibleWarning,
+};

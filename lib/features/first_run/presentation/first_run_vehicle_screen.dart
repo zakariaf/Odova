@@ -210,7 +210,7 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
             controller: _name,
             textInputAction: TextInputAction.next,
           ),
-          _Labelled(
+          CalmLabelled(
             label: l10n.vehicleFuelLabel,
             child: CalmChipBar(
               chips: [
@@ -285,25 +285,6 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
     );
     if (chosen == null || !mounted) return;
     ref.read(firstRunVehicleProvider.notifier).chooseFuel(chosen);
-  }
-}
-
-/// `.field` — a label above a control that is not a `CalmField`.
-class _Labelled extends StatelessWidget {
-  const _Labelled({required this.label, required this.child});
-
-  final String label;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final space = CalmSpace.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      spacing: space.s2,
-      children: [CalmFieldLabel(label), child],
-    );
   }
 }
 

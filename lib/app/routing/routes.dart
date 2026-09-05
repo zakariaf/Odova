@@ -136,8 +136,35 @@ abstract final class Routes {
   /// The reminder editor, creating.
   static const reminderNew = '/reminders/$kNewRecordId';
 
-  /// The log modal, on [type]'s segment.
-  static String log(LogType type) => '/log/${type.wire}';
+  /// The log modal, on [type]'s segment, optionally prefilled.
+  ///
+  /// The prefill travels in the QUERY, not in `extra`. SPEC.md §9's **Log it**
+  /// opens `log.service` "prefilled with this item, today, last known
+  /// odometer", and §16 routes a notification tap to the same place — so the
+  /// same three arguments have to survive a cold start from a deep link, which
+  /// `extra` does not: `state.extra` is null when the OS restarts the app and
+  /// the form would open blank on exactly the path that matters most.
+  ///
+  /// Canonical units, like everything else that crosses a boundary: metres, and
+  /// an ISO date. Formatting is the form's job at the other end.
+  static String log(
+    LogType type, {
+    String? itemId,
+    String? on,
+    int? odometerMetres,
+  }) {
+    final path = '/log/${type.wire}';
+    final query = <String, String>{
+      // `?item`, not `?itemId`: a URL is read by people, appears in a
+      // notification payload and is typed into a bug report.
+      'item': ?itemId,
+      'on': ?on,
+      if (odometerMetres != null) 'odometer_m': '$odometerMetres',
+    };
+    return query.isEmpty
+        ? path
+        : Uri(path: path, queryParameters: query).toString();
+  }
 
   /// The log modal, editing an existing entry.
   static String logEdit(LogType type, String entryId) =>

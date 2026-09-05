@@ -28,6 +28,32 @@ String formatWithUnit(
   String formatsTag, {
   required CalmNumerals numerals,
   int? decimalDigits,
+}) => isolate(
+  withUnitUnisolated(
+    value,
+    label,
+    formatsTag,
+    numerals: numerals,
+    decimalDigits: decimalDigits,
+  ),
+);
+
+/// The same pair, WITHOUT the isolate around it.
+///
+/// For the one case that has something to add before the isolate closes: an
+/// estimated value carries a `~`, and SPEC.md §9 says the mark "sits inside the
+/// isolated numeric run so it hugs the number in both directions". A caller
+/// that took [formatWithUnit] and prefixed the tilde put it in FRONT of the
+/// FSI, which in Arabic lands it at the far end of the line — the exact failure
+/// the isolate exists to prevent, and one that reads correctly in English.
+///
+/// Every caller of this must isolate the result itself.
+String withUnitUnisolated(
+  num value,
+  String label,
+  String formatsTag, {
+  required CalmNumerals numerals,
+  int? decimalDigits,
 }) {
   final digits = formatForDisplay(
     value,
@@ -35,5 +61,5 @@ String formatWithUnit(
     numerals: numerals,
     decimalDigits: decimalDigits,
   );
-  return isolate('$digits $label');
+  return '$digits $label';
 }

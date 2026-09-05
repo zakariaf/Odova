@@ -33,7 +33,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unitVolumeGallon => 'جالون';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'ل/$n كم';
   }
 
@@ -762,4 +762,530 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return 'متأخّر بمقدار $distance';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return 'متأخّر بمقدار $duration';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return 'متأخّر بمقدار $distance و$duration';
+  }
+
+  @override
+  String get homeDueNow => 'مستحقّ الآن';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'بعد $distance تقريبًا';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'يحتاج قراءة عدّاد';
+
+  @override
+  String get homeUnknownTitle => 'متى جرى هذا آخر مرّة؟';
+
+  @override
+  String get homeUnknownHint => 'أخبِرني لتتحوّل إلى تذكيرات.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText عنصر آخر',
+      many: '+ $nText عنصرًا آخر',
+      few: '+ $nText عناصر أخرى',
+      two: '+ عنصران آخران',
+      one: '+ عنصر واحد آخر',
+      zero: 'عرض الكل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'عرض الكل — $nText عنصر مستحقّ أو متأخّر',
+      many: 'عرض الكل — $nText عنصرًا مستحقًّا أو متأخّرًا',
+      few: 'عرض الكل — $nText عناصر أخرى مستحقّة أو متأخّرة',
+      two: 'عرض الكل — عنصران آخران مستحقّان أو متأخّران',
+      one: 'عرض الكل — عنصر واحد آخر مستحقّ أو متأخّر',
+      zero: 'كل التذكيرات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'مؤجَّل حتى $date';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'كل التذكيرات ($nText تذكير)',
+      many: 'كل التذكيرات ($nText تذكيرًا)',
+      few: 'كل التذكيرات ($nText تذكيرات)',
+      two: 'كل التذكيرات (تذكيران)',
+      one: 'كل التذكيرات (تذكير واحد)',
+      zero: 'كل التذكيرات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'تبدأ أودوفا بالأعمال المعتادة. دليلك هو المرجع — عدّل أي شيء هنا.';
+
+  @override
+  String get actionLogIt => 'سجّلها';
+
+  @override
+  String get actionUpdateOdometer => 'تحديث العدّاد';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText يوم',
+      many: '$nText يومًا',
+      few: '$nText أيام',
+      two: 'يومان',
+      one: 'يوم واحد',
+      zero: '$nText يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText أسبوع',
+      many: '$nText أسبوعًا',
+      few: '$nText أسابيع',
+      two: 'أسبوعان',
+      one: 'أسبوع واحد',
+      zero: '$nText أسبوع',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText شهر',
+      many: '$nText شهرًا',
+      few: '$nText أشهر',
+      two: 'شهران',
+      one: 'شهر واحد',
+      zero: '$nText شهر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeEnteredOn(String date) {
+    return 'أُدخِل $date';
+  }
+
+  @override
+  String homeEstimatedFrom(String rate, String date) {
+    return 'تقدير من نحو $rate يوميًا منذ $date.';
+  }
+
+  @override
+  String get homeEstimateExpired =>
+      'قراءتك الأخيرة قديمة جدًا، لذا توقّفت أودوفا عن التقدير. أدخِل ما يظهر على العدّاد الآن.';
+
+  @override
+  String get homeConsumptionPending =>
+      'يصل أول رقم استهلاك عند تعبئة الخزان بالكامل في المرّة القادمة.';
+
+  @override
+  String get homeLastFillUp => 'آخر تعبئة';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText تذكير متأخر',
+      many: '$name · $nText تذكيرًا متأخرًا',
+      few: '$name · $nText تذكيرات متأخرة',
+      two: '$name · تذكيران متأخران',
+      one: '$name · تذكير واحد متأخر',
+      zero: '$name · $nText تذكير متأخر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText تذكير مستحق',
+      many: '$name · $nText تذكيرًا مستحقًا',
+      few: '$name · $nText تذكيرات مستحقة',
+      two: '$name · تذكيران مستحقان',
+      one: '$name · تذكير واحد مستحق',
+      zero: '$name · $nText تذكير مستحق',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'لكل $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'شهريًا';
+
+  @override
+  String get homeMoreActions => 'إجراءات أخرى';
+
+  @override
+  String get actionSnooze => 'تأجيل';
+
+  @override
+  String get actionEditReminder => 'تعديل التذكير';
+
+  @override
+  String get actionTurnOff => 'إيقاف هذا التذكير';
+
+  @override
+  String homeTurnedOff(String item) {
+    return 'تم إيقاف $item';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'كم/ل';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'ك.و.س/$n كم';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'ميل/ك.و.س';
+
+  @override
+  String get unitEnergyKwh => 'ك.و.س';
+
+  @override
+  String get unitMassKg => 'كجم';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
+
+  @override
+  String homeWasDueAt(String odometer) {
+    return 'كان مستحقًا عند $odometer';
+  }
+
+  @override
+  String homeWasDueOn(String date) {
+    return 'كان مستحقًا في $date';
+  }
+
+  @override
+  String homeWasDueAtOn(String odometer, String date) {
+    return 'كان مستحقًا عند $odometer · $date';
+  }
+
+  @override
+  String homeDueAt(String odometer) {
+    return 'عند $odometer';
+  }
+
+  @override
+  String homeDueAtOn(String odometer, String date) {
+    return 'عند $odometer · $date';
+  }
+
+  @override
+  String homeAroundDate(String date) {
+    return 'حوالي $date';
+  }
+
+  @override
+  String homeLastEntered(String date) {
+    return 'آخر إدخال في $date';
+  }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'تم تحديث عداد المسافة قبل $nText يوم.',
+      many: 'تم تحديث عداد المسافة قبل $nText يومًا.',
+      few: 'تم تحديث عداد المسافة قبل $nText أيام.',
+      two: 'تم تحديث عداد المسافة قبل يومين.',
+      one: 'تم تحديث عداد المسافة أمس.',
+      zero: 'تم تحديث عداد المسافة قبل $nText يوم.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'إخفاء لمدة أسبوع';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'لقد وضعت علامة على $item كمنجَز في $date.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'سجّلت $odometer وبدون تكلفة.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'الاستحقاق التالي عند $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'أدخل الأرقام الحقيقية';
+
+  @override
+  String get actionThatsRight => 'هذا صحيح';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item أصبح متأخرًا في $date';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item مستحق في $date';
+  }
+
+  @override
+  String get homeDigestDismiss => 'إغلاق هذا الملخص';
+
+  @override
+  String get odometerSavedSnack => 'تم حفظ عداد المسافة';
+
+  @override
+  String get homeNothingDue => 'لا شيء مستحق';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'التالي: $item، $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'منذ آخر $item:';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'أعدّ تذكيراتك — أخبرني متى تم كل شيء آخر مرة';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'سجّل تعبئة وقود ويبدأ استهلاكك من هنا.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'هذه المركبة مُعلَّمة كمباعة ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return 'ملكية $duration · $distance مقطوعة';
+  }
+
+  @override
+  String get homeErrorTitle => 'لا يستطيع أودوفا قراءة بياناتك.';
+
+  @override
+  String get actionOpenBackup => 'فتح النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get homeRowBroken => 'هناك خطأ ما في هذا التذكير';
+
+  @override
+  String get remindersTitle => 'التذكيرات';
+
+  @override
+  String get remindersGroupPaused => 'موقوف مؤقتًا';
+
+  @override
+  String get remindersGroupNotTracked => 'غير متتبَّع';
+
+  @override
+  String get remindersTrack => '+ تتبُّع';
+
+  @override
+  String get remindersPausedStatus => 'موقوف';
+
+  @override
+  String get remindersEmpty => 'لا توجد تذكيرات بعد.';
+
+  @override
+  String get remindersNothingTracked => 'لا يتم تتبع أي شيء لهذه المركبة.';
+
+  @override
+  String get remindersWhenLastDone => 'متى تم هذا آخر مرة';
+
+  @override
+  String get actionDoneToday => 'تم اليوم';
+
+  @override
+  String get actionTurnOffShort => 'إيقاف';
+
+  @override
+  String get actionSnoozeShort => 'تأجيل';
+
+  @override
+  String get reminderEditTitle => 'تذكير';
+
+  @override
+  String get reminderNewTitle => 'تذكير جديد';
+
+  @override
+  String get reminderName => 'الاسم';
+
+  @override
+  String get reminderEveryDistance => 'كل';
+
+  @override
+  String get reminderEveryMonths => 'كل … أشهر';
+
+  @override
+  String get reminderOnceAtOdometer => 'أو مرة واحدة، عند العداد';
+
+  @override
+  String get reminderOnceOnDate => 'أو مرة واحدة، في تاريخ';
+
+  @override
+  String get reminderLastDoneDate => 'آخر مرة — التاريخ';
+
+  @override
+  String get reminderLastDoneOdometer => 'آخر مرة — العداد';
+
+  @override
+  String get reminderNotify => 'أبلغني';
+
+  @override
+  String get reminderNoticeAhead => 'أخبرني قبل هذا القدر';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'الفراغ يعني تلقائي — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'الأولوية';
+
+  @override
+  String get reminderPrioritySafety => 'السلامة';
+
+  @override
+  String get reminderPriorityNormal => 'عادية';
+
+  @override
+  String get reminderPriorityLow => 'منخفضة';
+
+  @override
+  String get reminderRollover => 'عند التكرار، احسب من';
+
+  @override
+  String get reminderRolloverActual => 'يوم إنجازه';
+
+  @override
+  String get reminderRolloverDue => 'يوم استحقاقه';
+
+  @override
+  String get reminderRepeats => 'يتكرر';
+
+  @override
+  String get reminderNotes => 'ملاحظات';
+
+  @override
+  String get reminderNoScheduleError =>
+      'حدّد فاصلًا أو تاريخًا مستهدفًا — وإلا فلا شيء لأذكّرك به.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'هذا أقل من أقدم قراءة لهذه المركبة.';
+
+  @override
+  String get reminderBaselineFutureError =>
+      'لا يمكن أن يكون العمل قد تم في المستقبل.';
+
+  @override
+  String get reminderNameError => 'امنح هذا التذكير اسمًا.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return 'تم حذف $item';
+  }
+
+  @override
+  String get reminderNotTrackedBanner => 'غير متتبَّع — لن يتم تذكيرك';
+
+  @override
+  String get reminderStartTracking => 'ابدأ التتبع';
+
+  @override
+  String get reminderTurnBackOn => 'أعد التشغيل';
+
+  @override
+  String get reminderTurnThisOff => 'أوقف هذا التذكير';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خدمة مسجلة على هذا. الإيقاف يبقيها.',
+      many: '$nText خدمةً مسجلة على هذا. الإيقاف يبقيها.',
+      few: '$nText خدمات مسجلة على هذا. الإيقاف يبقيها.',
+      two: 'خدمتان مسجلتان على هذا. الإيقاف يبقيهما.',
+      one: 'خدمة واحدة مسجلة على هذا. الإيقاف يبقيها.',
+      zero: '$nText خدمة مسجلة على هذا. الإيقاف يبقيها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'آخر مرات';
+
+  @override
+  String get reminderNoticeAheadDays => 'أخبرني قبل هذا القدر — أيام';
 }

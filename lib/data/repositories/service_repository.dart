@@ -170,6 +170,126 @@ class ServiceRepository {
         return Ok(item);
       });
 
+  /// Turns one service item on or off.
+  ///
+  /// A targeted UPDATE of two columns, not a read-modify-write of the row. The
+  /// difference matters for the same reason it does in `SettingsRepository`:
+  /// "turn this off" from Home and an edit open in `reminders.edit` can be in
+  /// flight at once, and a write that carries the whole row back puts every
+  /// stale field with it — an interval the user just changed, silently reverted
+  /// by a switch somewhere else.
+  ///
+  /// [NotFound] when no row matched, rather than a silent success: the caller
+  /// shows an Undo, and an Undo for something that did not happen is worse than
+  /// an error.
+  Future<Result<void, PersistFailure>> setItemActive(
+    ServiceItemId id, {
+    required bool isActive,
+    required int updatedAtUtcMs,
+  }) => _updateItem(
+    id,
+    ServiceItemsCompanion(
+      isActive: Value(isActive),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    ),
+  );
+
+  /// Switches one service item on or off in the catalogue.
+  ///
+  /// SPEC.md §9's `+ Track`: it "sets `is_tracked = true` and opens
+  /// `reminders.edit`, because a tracked item with no anchor is just another
+  /// `unknown`". A targeted UPDATE for the reason [setItemActive] gives — the
+  /// editor may be open on the same row, and a read-modify-write would put
+  /// every stale field back with it.
+  Future<Result<void, PersistFailure>> setItemTracked(
+    ServiceItemId id, {
+    required bool isTracked,
+    required int updatedAtUtcMs,
+  }) => _updateItem(
+    id,
+    ServiceItemsCompanion(
+      isTracked: Value(isTracked),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    ),
+  );
+
+  /// A targeted UPDATE of one item, `NotFound` when no row matched.
+  ///
+  /// The three public writes above and below it were the same six lines with a
+  /// different `Companion` in the middle. The contract they share is the part
+  /// worth having in one place: **`NotFound` on zero rows, never a silent
+  /// success**, because every caller of these shows an Undo and an Undo for
+  /// something that did not happen is worse than an error. Written out per
+  /// method, a fourth flag is a fourth chance to leave that off.
+  ///
+  /// [liveOnly] adds the soft-delete predicate, which only the delete needs:
+  /// deleting an already-deleted row must report `NotFound` rather than
+  /// stamping a second timestamp on it.
+  Future<Result<void, PersistFailure>> _updateItem(
+    ServiceItemId id,
+    ServiceItemsCompanion values, {
+    bool liveOnly = false,
+  }) => guardPersist(() async {
+    final rows =
+        await (_db.update(_db.serviceItems)..where(
+              (i) => liveOnly
+                  ? i.id.equals(id.toString()) & i.deletedAtUtcMs.isNull()
+                  : i.id.equals(id.toString()),
+            ))
+            .write(values);
+    if (rows == 0) return Err(NotFound(id.toString()));
+    return const Ok(null);
+  });
+
+  /// One service item, or `NotFound`.
+  Future<Result<ServiceItem, PersistFailure>> findItemById(
+    ServiceItemId id,
+  ) => guardPersist(() async {
+    final row =
+        await (_db.select(_db.serviceItems)..where(
+              (i) => i.id.equals(id.toString()) & i.deletedAtUtcMs.isNull(),
+            ))
+            .getSingleOrNull();
+    if (row == null) return Err(NotFound(id.toString()));
+    return Ok(serviceItemFromRow(row));
+  });
+
+  /// How many service LINES name this item.
+  ///
+  /// SPEC.md §9's delete rule turns on it: an item never referenced deletes
+  /// outright, and a referenced one is not deletable at all — the destructive
+  /// control becomes "Turn this reminder off", because deleting it would orphan
+  /// the records that name it and §2 puts eight years of service history above
+  /// every feature.
+  Future<Result<int, PersistFailure>> countLinesFor(
+    ServiceItemId id,
+  ) => guardPersist(() async {
+    final rows = await _db
+        .customSelect(
+          'SELECT COUNT(*) AS n FROM service_lines WHERE service_item_id = ?',
+          variables: [Variable<String>(id.toString())],
+        )
+        .getSingle();
+    return Ok(rows.read<int>('n'));
+  });
+
+  /// Soft-deletes one item, for the Undo the snackbar offers.
+  Future<Result<void, PersistFailure>> deleteItem(
+    ServiceItemId id, {
+    required int deletedAtUtcMs,
+  }) => _updateItem(
+    id,
+    ServiceItemsCompanion(deletedAtUtcMs: Value(deletedAtUtcMs)),
+    liveOnly: true,
+  );
+
+  /// Puts back what [deleteItem] removed.
+  Future<Result<void, PersistFailure>> undeleteItem(ServiceItemId id) =>
+      _updateItem(
+        id,
+        const ServiceItemsCompanion(deletedAtUtcMs: Value(null)),
+      );
+
   /// Reads one record with its lines.
   Future<Result<ServiceRecord, PersistFailure>> findRecordById(
     ServiceRecordId id,

@@ -15,7 +15,6 @@ import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
-import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 
@@ -50,28 +49,18 @@ class CalmAnnualBandField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final space = CalmSpace.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      spacing: space.s2,
-      children: [
-        CalmFieldLabel(
-          unit == DistanceUnit.mi
-              ? l10n.annualBandLabelMi
-              : l10n.annualBandLabelKm,
-        ),
-        CalmSegmented(
-          labels: [
-            for (final band in AnnualBand.values) _label(l10n, band),
-          ],
-          numeric: true,
-          // -1 is "none of them", which `CalmSegmented` draws as no selection.
-          index: selected == null ? -1 : AnnualBand.values.indexOf(selected!),
-          onChanged: (i) => onChanged(AnnualBand.values[i]),
-        ),
-      ],
+    return CalmLabelled(
+      label: unit == DistanceUnit.mi
+          ? l10n.annualBandLabelMi
+          : l10n.annualBandLabelKm,
+      child: CalmSegmented(
+        labels: [for (final band in AnnualBand.values) _label(l10n, band)],
+        numeric: true,
+        // -1 is "none of them", which `CalmSegmented` draws as no selection.
+        index: selected == null ? -1 : AnnualBand.values.indexOf(selected!),
+        onChanged: (i) => onChanged(AnnualBand.values[i]),
+      ),
     );
   }
 

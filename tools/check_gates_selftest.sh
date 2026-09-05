@@ -380,6 +380,25 @@ assert 1 "check_component_hygiene is red on a border in another component" \
   bash "$HYGIENE" lib
 restore_all
 
+# The gate greps for BOTH decorations. It grepped for `BoxDecoration(` only
+# until EPIC-10's estimate popover assembled a Calm surface in the feature layer
+# out of a `ShapeDecoration` — same colour, same radius, same shadow, no sheen —
+# and the check reported clean. A gate that catches one spelling of a mistake
+# says nothing about the other one.
+write_scratch lib/features/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: a Calm surface assembled outside lib/ui/calm/, spelt
+/// with the decoration the gate used not to look for.
+Widget probe() => DecoratedBox(
+  decoration: ShapeDecoration(color: Colors.white, shape: CircleBorder()),
+  child: const SizedBox.shrink(),
+);
+PROBE
+assert 1 "check_component_hygiene is red on a ShapeDecoration in a feature" \
+  bash "$HYGIENE" lib
+restore_all
+
 assert 0 "check_touch_targets is green" bash "$TARGETS" lib test
 write_scratch lib/ui/selftest_probe.dart <<'PROBE'
 import 'package:flutter/material.dart';
@@ -549,6 +568,41 @@ assert 0 "check_status_encoding is green again once removed" bash "$STATUS" lib
 # other gates prove it — so this probe could not compile there, and that is
 # exactly the point: the exemption is safe BECAUSE of the purity gate, and if
 # the purity gate ever went away this arm is where it would show.
+# EPIC-10 widened the SWITCH exemption from `lib/core/` to any `domain/`
+# directory and to `*_copy.dart`, because Home's presentation model orders the
+# due stack by severity and its copy mapper picks an ICU message per state —
+# both reason about a state and neither asks what colour it is. These two arms
+# are what stop that widening becoming a hole: the exemption is for SWITCHING,
+# and a file that takes it may still not read a colour slot.
+#
+# `lib/core/` could not carry this probe at all — it cannot import Flutter, and
+# two other gates prove it. A feature's `domain/` directory CAN, which is
+# exactly why this arm had to be added in the same commit as the widening.
+write_scratch lib/features/home/domain/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
+
+/// A planted violation: a domain file may switch on a state, never read one's
+/// colour.
+Color probe(CalmColors c) => c.overdue.tint;
+PROBE
+assert 1 "check_status_encoding is red on a domain file reading a slot" \
+  bash "$STATUS" lib
+restore_all
+
+write_scratch lib/features/home/ui/probe_copy.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
+
+/// A planted violation: a copy mapper maps to WORDS, never to a colour.
+Color probe(CalmColors c) => c.dueSoon.base;
+PROBE
+assert 1 "check_status_encoding is red on a copy mapper reading a slot" \
+  bash "$STATUS" lib
+restore_all
+assert 0 "check_status_encoding is green again once both are removed" \
+  bash "$STATUS" lib
+
 # EPIC-09 added `calm_swipe_actions.dart` to the slot allow-list, on the same
 # grounds as the field ring and the destructive snackbar: a `CalmSwipeTone` is
 # chosen when the action is DECLARED, so there is no DueState to resolve. This
@@ -601,6 +655,61 @@ PROBE
 assert 1 "check_status_encoding is red on an == comparison in a widget" \
   bash "$STATUS" lib
 restore_all
+
+# The TILDE rule had no arm at all until EPIC-10, and it was the one that was
+# actually being broken: `odometer_strip.dart` shipped `'~$figure'` against an
+# already-isolated string, which puts the mark in FRONT of the FSI and renders
+# it at the far end of an Arabic line. It reads correctly in English, so only
+# the gate could find it — and the gate was never run, because a rule with no
+# self-test is a rule nobody trusts enough to run.
+write_scratch lib/ui/selftest_probe3.dart <<'PROBE'
+/// A planted violation: the estimate mark concatenated in Dart.
+String probe(String figure) => '~$figure';
+PROBE
+assert 1 "check_status_encoding is red on a tilde built in Dart" \
+  bash "$STATUS" lib
+restore_all
+
+# And the same violation with the other quote, because the pattern is a
+# character class and a one-quote arm proves half of it.
+write_scratch lib/ui/selftest_probe4.dart <<'PROBE'
+/// A planted violation: the estimate mark, double-quoted.
+String probe(String figure) => "~$figure";
+PROBE
+assert 1 "check_status_encoding is red on a double-quoted tilde" \
+  bash "$STATUS" lib
+restore_all
+
+# The CONDITIONAL spelling, which the pattern did not match until EPIC-10's
+# /simplify pass found it shipping in `vehicle_status_line.dart`. Same mistake,
+# same consequence, written as a ternary instead of a prefix — and a gate that
+# catches only the spelling it was written against is a gate whose coverage
+# nobody can state.
+write_scratch lib/ui/selftest_probe4b.dart <<'PROBE'
+/// A planted violation: the estimate mark, chosen by a conditional.
+String probe(String digits, {required bool projected}) =>
+    '${projected ? '~' : ''}$digits';
+PROBE
+assert 1 "check_status_encoding is red on a conditional tilde" \
+  bash "$STATUS" lib
+restore_all
+
+# The slot allow-list is per FILE, never per directory. EPIC-10 added
+# `calm_notice.dart` to it — a `.notice--warn` tint is picked when the strip is
+# written, exactly like the field's error ring — and a list read as
+# "lib/ui/calm/ may read slots" would let the next widget resolve a due state
+# from one with nothing to stop it.
+write_scratch lib/ui/calm/selftest_probe5.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
+
+/// A planted violation: an ordinary Calm widget reading a status slot.
+Color probe(CalmColors colors) => colors.dueSoon.tint;
+PROBE
+assert 1 "check_status_encoding is red on a slot read in an ordinary Calm file" \
+  bash "$STATUS" lib
+restore_all
+
 assert 0 "check_status_encoding is green on the real tree once more" \
   bash "$STATUS" lib
 

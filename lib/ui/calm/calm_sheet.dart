@@ -59,11 +59,21 @@ class CalmSheet extends StatelessWidget {
 
   /// Opens a sheet.
   ///
-  /// The call site never reaches for `showModalBottomSheet` directly: four of
+  /// The call site never reaches for `showModalBottomSheet` directly: five of
   /// its arguments are decisions this app makes once — the sheet is scroll
   /// controlled, its own background is transparent because [CalmSheet] paints
-  /// the surface, the barrier is `colors.scrim`, and the safe area is honoured
-  /// so a sheet does not run under the home indicator.
+  /// the surface, the barrier is `colors.scrim`, the safe area is honoured so a
+  /// sheet does not run under the home indicator, and it opens on the ROOT
+  /// navigator.
+  ///
+  /// That last one is not a preference. A sheet opened from a tab root with the
+  /// default navigator lands inside that tab's branch — and `AppShell` draws
+  /// the tab bar as a later sibling of the branch in a `Stack`, so the bar and
+  /// its 62pt centre `+` paint OVER the sheet and swallow taps on its bottom
+  /// rows. `find.text` still finds those rows and `tester.tap` only warns, so
+  /// the test that caught it did so by asserting the write rather than the tap:
+  /// the card overflow's last item is "Turn this off", and it sat exactly under
+  /// the `+`.
   static Future<T?> show<T>(
     BuildContext context, {
     required WidgetBuilder builder,
@@ -76,6 +86,7 @@ class CalmSheet extends StatelessWidget {
       context: context,
       builder: builder,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
       barrierColor: colors.scrim,
       useSafeArea: true,

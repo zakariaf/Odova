@@ -148,11 +148,11 @@ abstract class AppLocalizations {
   /// **'gal'**
   String get unitVolumeGallon;
 
-  /// Fuel consumption as volume per distance, e.g. "L/100 km". {n} is the hundred, as a PLACEHOLDER rather than a literal, so the active numbering system shapes it like every other number.
+  /// Fuel consumption as volume per distance, e.g. "L/100 km". {n} is the hundred, as a PLACEHOLDER rather than a literal, and a String rather than an int: gen-l10n interpolates a bare int in Latin digits, and SPEC.md §5 shapes every number through `formatForDisplay` against the FORMATS tag, which follows the device region rather than the UI language.
   ///
   /// In en, this message translates to:
   /// **'L/{n} km'**
-  String unitConsumptionPerDistance(int n);
+  String unitConsumptionPerDistance(String n);
 
   /// Fuel consumption as distance per volume: miles per gallon.
   ///
@@ -1058,6 +1058,678 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, one{{item} due in {countText} day} other{{item} due in {countText} days}}'**
   String vehicleStatusDueInDays(int n, String item, String countText);
+
+  /// Home's status line when the distance axis drove the overdue. SPEC.md §9: overdue uses its own POSITIVE string — never "in −1,400 km". The distance and its unit arrive as one already-isolated run.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue by {distance}'**
+  String homeOverdueByDistance(String distance);
+
+  /// The same line when the time axis drove it.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue by {duration}'**
+  String homeOverdueByTime(String duration);
+
+  /// Both axes overdue. §9: "distance phrasing wins when both axes are overdue, because a kilometre figure is checkable against the dash and a date is not" — so the distance leads.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue by {distance} and {duration}'**
+  String homeOverdueByBoth(String distance, String duration);
+
+  /// The `due` status line. No number: §9 gives this state a bare statement, because a figure would suggest a precision the grace window does not have.
+  ///
+  /// In en, this message translates to:
+  /// **'Due now'**
+  String get homeDueNow;
+
+  /// `due_soon` driven by distance, at `measured` or `assumed` confidence only. At `default` the card says `homeDueSoonNoConfidence` instead and shows no figure at all.
+  ///
+  /// In en, this message translates to:
+  /// **'in about {distance}'**
+  String homeDueSoonDistance(String distance);
+
+  /// The `needs_odometer` status line. §9: "a request, not an accusation" — the app has lost track of the distance axis and is asking, not blaming.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs an odometer reading'**
+  String get homeNeedsOdometer;
+
+  /// The unknown-anchor card's heading. §9: a used car must not open on eleven cards shouting OVERDUE, so every item anchored on purchase or the first reading collapses into this one card.
+  ///
+  /// In en, this message translates to:
+  /// **'When were these last done?'**
+  String get homeUnknownTitle;
+
+  /// The line under the named items on the unknown-anchor card. It says what answering buys, rather than nagging.
+  ///
+  /// In en, this message translates to:
+  /// **'Telling me turns them into reminders.'**
+  String get homeUnknownHint;
+
+  /// How many unknown-anchored items the card did not name. The =0 case is the card's row WITHOUT a count — the screen draws no "+ 0 more", and a zero branch that rendered empty would be indistinguishable from a branch somebody emptied by mistake.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{See all} one{+ {nText} more} other{+ {nText} more}}'**
+  String homeUnknownMore(int n, String nText);
+
+  /// The red see-all row under the stack, counting the due or overdue items that did not fit in three cards. At =0 nothing is left over and the screen uses `remindersSeeAll` instead; this branch is the honest fallback rather than an empty string.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{See all reminders} one{See all — {nText} more due or overdue} other{See all — {nText} more due or overdue}}'**
+  String homeMoreDue(int n, String nText);
+
+  /// A snoozed item's fourth line. §9: it stays on Home and stays red — the snooze is a note, not a state.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozed until {date}'**
+  String homeSnoozedUntil(String date);
+
+  /// The see-all row, counting ALL tracked items rather than the due ones — §9 is explicit, and counting the due ones would make the row disagree with the screen it opens. At =0 the vehicle has nothing tracked and §9 does not draw the row at all.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{See all reminders} one{See all reminders ({nText})} other{See all reminders ({nText})}}'**
+  String remindersSeeAll(int n, String nText);
+
+  /// The header on `reminders.list` and on first run's seeded catalogue — SPEC.md §4.8's own sentence, and the same key in both places so the two cannot drift.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova starts you off with the usual jobs. Your handbook wins — edit anything here.'**
+  String get remindersDisclaimer;
+
+  /// The primary card's button for every state the user can act on directly.
+  ///
+  /// In en, this message translates to:
+  /// **'Log it'**
+  String get actionLogIt;
+
+  /// The primary button when the app needs a reading before it can say anything — `needs_odometer`, and `due_soon` by distance at default confidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Update odometer'**
+  String get actionUpdateOdometer;
+
+  /// How far past due, as a bare quantity. SPEC.md §9 supplies the word "overdue" around it, so this carries no direction — the overshoot is positive and the sentence says which way it points.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} day} other{{nText} days}}'**
+  String homeDurationDays(int n, String nText);
+
+  /// See homeDurationDays. The buckets are `bucketRelativeDays` read forwards, so "21 days overdue" reads as "3 weeks".
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} week} other{{nText} weeks}}'**
+  String homeDurationWeeks(int n, String nText);
+
+  /// See homeDurationDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} month} other{{nText} months}}'**
+  String homeDurationMonths(int n, String nText);
+
+  /// The odometer strip's second line when the number is a READING the user typed. SPEC.md §9 keeps entered and projected visibly different, and this is half of that: an entered value has no tilde and says when it was entered.
+  ///
+  /// In en, this message translates to:
+  /// **'entered {date}'**
+  String homeEnteredOn(String date);
+
+  /// The popover behind an estimated value. §9 allows exactly one sentence and one action, and no percentage, no bar and no tier name — "the tilde and the word 'about' are the whole vocabulary".
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated from about {rate} a day since {date}.'**
+  String homeEstimatedFrom(String rate, String date);
+
+  /// The popover when `estimateOdometer` has stopped projecting — past 180 days. §9: "Ten thousand kilometres of invented number is worse than a blank." It says the app stopped rather than pretending it did not.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last reading is too old, so Odova has stopped guessing. Enter what the dash says now.'**
+  String get homeEstimateExpired;
+
+  /// The popover behind the consumption tile before there are two full fill-ups. §9 makes this one dismissal-only: there is nothing for the user to do but drive and fill up.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first consumption figure arrives at your next full fill-up.'**
+  String get homeConsumptionPending;
+
+  /// The 56pt read-out row under the glance tiles. A heading, not a link — SPEC.md §9 gives the row no action.
+  ///
+  /// In en, this message translates to:
+  /// **'Last fill-up'**
+  String get homeLastFillUp;
+
+  /// The last fill-up row's second line: when it happened and how much went in. Both parts are formatted upstream; the separator is the only copy here.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {volume}'**
+  String homeLastFillUpDetail(String date, String volume);
+
+  /// The other-vehicles row when another car has overdue work. It names the VEHICLE and the count, never the job — SPEC.md §9: "Home shows whose problem it is, not what it is."
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{name} · {nText} overdue} other{{name} · {nText} overdue}}'**
+  String homeOtherVehicleOverdue(int n, String nText, String name);
+
+  /// The other-vehicles row when another car has work due but nothing overdue. A separate key from homeOtherVehicleOverdue because the two words are not interchangeable.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{name} · {nText} due} other{{name} · {nText} due}}'**
+  String homeOtherVehicleDue(int n, String nText, String name);
+
+  /// The second glance tile's two-line label — cost per kilometre or mile. {unit} is the abbreviation from the unit keys, never spelled out here.
+  ///
+  /// In en, this message translates to:
+  /// **'per {unit}'**
+  String homeTilePerDistance(String unit);
+
+  /// The third glance tile's two-line label — what the vehicle costs in a month.
+  ///
+  /// In en, this message translates to:
+  /// **'per month'**
+  String get homeTilePerMonth;
+
+  /// The accessible name of the due card's ⋯ button. It carries no visible word, so this is the only thing a screen reader can announce.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get homeMoreActions;
+
+  /// The card overflow's second item, opening dialog.snooze. A verb: it is what the tap does, not what the state is called.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze'**
+  String get actionSnooze;
+
+  /// The card overflow's third item, opening reminders.edit for this item.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reminder'**
+  String get actionEditReminder;
+
+  /// The card overflow's last item. It sets is_active = false on the item — it does not delete anything, which is why the wording is "turn off" rather than "remove".
+  ///
+  /// In en, this message translates to:
+  /// **'Turn this off'**
+  String get actionTurnOff;
+
+  /// The snackbar after Turn this off. It carries an Undo, so it names the item rather than saying "done".
+  ///
+  /// In en, this message translates to:
+  /// **'{item} turned off'**
+  String homeTurnedOff(String item);
+
+  /// Consumption as distance per volume — the inverse direction, where HIGHER is better. Its own key rather than a reversal of unitConsumptionPerDistance, which bakes the hundred in.
+  ///
+  /// In en, this message translates to:
+  /// **'km/L'**
+  String get unitConsumptionKmPerLitre;
+
+  /// Electric consumption as energy per distance. {n} is the hundred, as a PLACEHOLDER rather than a literal, for the same reason unitConsumptionPerDistance carries one — and a String for the same reason too: the shaping belongs to the formats tag, not to gen-l10n.
+  ///
+  /// In en, this message translates to:
+  /// **'kWh/{n} km'**
+  String unitConsumptionKwhPerDistance(String n);
+
+  /// Electric consumption as distance per energy, where HIGHER is better.
+  ///
+  /// In en, this message translates to:
+  /// **'mi/kWh'**
+  String get unitConsumptionMiPerKwh;
+
+  /// The energy abbreviation, for an electric fill-up. Ours rather than the platform's, like every other unit label — SPEC.md §5.
+  ///
+  /// In en, this message translates to:
+  /// **'kWh'**
+  String get unitEnergyKwh;
+
+  /// The mass abbreviation, for a CNG fill-up, which is sold by weight rather than by volume.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get unitMassKg;
+
+  /// An estimated figure, with the mark SPEC.md §1.4 gives it. The tilde is the marker in every locale, so the six values are identical today — the key exists so that the mark's SIDE is a translation decision rather than a Dart concatenation, and so it lands inside the number's bidi isolate instead of in front of it.
+  ///
+  /// In en, this message translates to:
+  /// **'~{value}'**
+  String commonEstimatedValue(String value);
+
+  /// The overdue card's anchor line when DISTANCE drove the status. SPEC.md §9: a kilometre figure is checkable against the dash and a date is not, so the distance leads whenever there is one.
+  ///
+  /// In en, this message translates to:
+  /// **'Was due at {odometer}'**
+  String homeWasDueAt(String odometer);
+
+  /// The overdue card's anchor line when TIME drove the status and there is no odometer to name.
+  ///
+  /// In en, this message translates to:
+  /// **'Was due {date}'**
+  String homeWasDueOn(String date);
+
+  /// The overdue card's anchor line when both axes are past. One message rather than two joined in Dart — SPEC.md §2 forbids assembling a sentence from parts, and the separator's side is a translation decision.
+  ///
+  /// In en, this message translates to:
+  /// **'Was due at {odometer} · {date}'**
+  String homeWasDueAtOn(String odometer, String date);
+
+  /// The due card's anchor line when only a distance is known. Present tense: the job is due now, not overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'At {odometer}'**
+  String homeDueAt(String odometer);
+
+  /// The due card's anchor line when both axes are known — SPEC.md §9's `At 192,000 km · 10 October`.
+  ///
+  /// In en, this message translates to:
+  /// **'At {odometer} · {date}'**
+  String homeDueAtOn(String odometer, String date);
+
+  /// A date PROJECTED from the distance axis, and the only vocabulary SPEC.md §9 allows for one: the word "around" and nothing else. Never used for a date the calendar produced, which is exact and reads plainly.
+  ///
+  /// In en, this message translates to:
+  /// **'around {date}'**
+  String homeAroundDate(String date);
+
+  /// The needs-odometer card's anchor line. It states what the app HAS rather than what it wants — an accusation the app cannot support is the thing SPEC.md §9 is most careful to avoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entered {date}'**
+  String homeLastEntered(String date);
+
+  /// The stale-odometer strip's first line. It states a fact about the APP rather than asking the user for something — SPEC.md §1: the app tells people things rather than asking them things, and the field underneath is the ask.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{Odometer last updated {nText} day ago.} other{Odometer last updated {nText} days ago.}}'**
+  String homeStripStale(int n, String nText);
+
+  /// The stale-odometer strip's ✕, as a screen reader hears it. The glyph carries no word, and "close" would understate it: SPEC.md §9 hides the strip for seven days on that vehicle, which is a decision rather than a dismissal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide this for a week'**
+  String get homeStripStaleDismiss;
+
+  /// The done-from-notification confirmation strip, first line. Second person, because the user did this and the app is confirming it back — not announcing it.
+  ///
+  /// In en, this message translates to:
+  /// **'You marked {item} done on {date}.'**
+  String homeStripDoneTitle(String item, String date);
+
+  /// The confirmation strip's second line. It names what the app GUESSED, so the estimate mark travels with the number — that is what "Add the real numbers" is offering to replace.
+  ///
+  /// In en, this message translates to:
+  /// **'I recorded {odometer} and no cost.'**
+  String homeStripDoneRecorded(String odometer);
+
+  /// The confirmation strip's third line — the consequence of the record, which is the thing the user actually wanted to know.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due at {odometer} · {date}.'**
+  String homeStripDoneNext(String odometer, String date);
+
+  /// The confirmation strip's first action. It opens log.service in edit mode on the record the notification wrote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the real numbers'**
+  String get actionAddRealNumbers;
+
+  /// The confirmation strip's second action. It clears odometer_estimated and cost_estimated on the record — the user has confirmed the app's guesses, so they stop being guesses.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s right'**
+  String get actionThatsRight;
+
+  /// One line of the away digest, for something that went past due while the app was closed. Past tense: it already happened.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} went overdue on {date}'**
+  String homeDigestOverdue(String item, String date);
+
+  /// One line of the away digest, for something coming up rather than past.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} is due {date}'**
+  String homeDigestDue(String item, String date);
+
+  /// The away digest's ✕, as a screen reader hears it.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss this summary'**
+  String get homeDigestDismiss;
+
+  /// The snackbar after the stale-odometer strip writes a reading. It carries an Undo, so it says what happened rather than thanking the user.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer saved'**
+  String get odometerSavedSnack;
+
+  /// The all-clear headline. Present tense, no exclamation mark, no praise: SPEC.md §9 makes this the most common state in the app and the one most apps waste.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing due'**
+  String get homeNothingDue;
+
+  /// The all-clear card's second line — the next item and its exact date, off the TIME axis. Without it the card is an assertion; with it, an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {item}, {date}'**
+  String homeNextIs(String item, String date);
+
+  /// The label above the all-clear's receipt line. The receipt is what turns a claim into evidence — SPEC.md §9 names the most recent service, whatever it was.
+  ///
+  /// In en, this message translates to:
+  /// **'Since the last {item}:'**
+  String homeSinceLast(String item);
+
+  /// The receipt itself — "3,120 km · 4 months". Both halves are formatted upstream; the separator is the only copy here.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} · {duration}'**
+  String homeSinceLastFigure(String distance, String duration);
+
+  /// The unknown-anchor card's headline on FIRST RUN, where the app knows nothing yet. An invitation, not the "When were these last done?" question it asks once it has a list.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your reminders — tell me when things were last done'**
+  String get homeFirstRunSetUp;
+
+  /// The one line under the first-run tiles. A STATEMENT and not a button — SPEC.md §9: "the + is already one tap away".
+  ///
+  /// In en, this message translates to:
+  /// **'Log a fill-up and your consumption starts here.'**
+  String get homeFirstRunConsumption;
+
+  /// The panel that REPLACES the due stack on a sold or archived vehicle. It states the fact rather than nagging: SPEC.md §9 gives such a vehicle no reminders, no notifications and no nudges.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle is marked sold ({date}).'**
+  String homeSoldTitle(String date);
+
+  /// The sold panel's ownership summary. Both figures come from records the user entered, which is why the panel keeps History and Costs fully available beneath it.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned {duration} · {distance} driven'**
+  String homeSoldOwned(String duration, String distance);
+
+  /// The whole of Home when the store cannot be read. One message and one button — SPEC.md §9: get the data out of the building before anything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova can\'t read your data.'**
+  String get homeErrorTitle;
+
+  /// The error state's only action. It goes to settings.backup, because the first thing to do with data that cannot be read is to get a copy of it out.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Backup & restore'**
+  String get actionOpenBackup;
+
+  /// One card whose derived state threw. SPEC.md §9: "one bad row never blanks the screen" — the card is grey, says so, and offers a chevron to the editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Something\'s wrong with this reminder'**
+  String get homeRowBroken;
+
+  /// The reminders.list app-bar title. The screen's own name, with the vehicle beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get remindersTitle;
+
+  /// The second group header on reminders.list — items with is_active = false. SPEC.md §9 makes the header carry the word for a group whose rows print no status of their own, so the screen needs no legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get remindersGroupPaused;
+
+  /// The third group header — catalogue rows the user has not switched on. They are excluded from the due engine, from Home and from notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tracked'**
+  String get remindersGroupNotTracked;
+
+  /// The action in place of a status on an untracked row. It sets is_tracked and opens the editor, because a tracked item with no anchor is just another unknown. It WRAPS to two lines rather than truncating — German is "+ Verfolgen".
+  ///
+  /// In en, this message translates to:
+  /// **'+ Track'**
+  String get remindersTrack;
+
+  /// A paused row's end text. The same word as its group header and a separate key, because a header names a group and this names one row — a translator may need different grammar for each.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get remindersPausedStatus;
+
+  /// The reminders.list empty state — every item deleted. One line and the +, never an illustration.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet.'**
+  String get remindersEmpty;
+
+  /// Shown above the Paused group when every item is paused. A statement of fact rather than a nag: the user turned them off on purpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is being tracked on this vehicle.'**
+  String get remindersNothingTracked;
+
+  /// The end text of a tracked row the app has no anchor for — SPEC.md §9's reminders.list drawing. A question, because that is what it is; the row opens the editor where the answer goes.
+  ///
+  /// In en, this message translates to:
+  /// **'When was this last done'**
+  String get remindersWhenLastDone;
+
+  /// The first swipe action on a reminders.list row. It writes a ServiceRecord through the logging mark-done path and offers an Undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Done today'**
+  String get actionDoneToday;
+
+  /// The third swipe action. Shorter than actionTurnOff because a swipe reveals a narrow tile, and a separate key because a swipe tile and a menu row have different room.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get actionTurnOffShort;
+
+  /// The snooze swipe tile's label. Shorter than actionSnooze for the reason actionTurnOffShort is: a swipe reveals an 88pt tile with a glyph above two lines of text, and the Persian "یادآوری بعداً" overflowed it by 4pt. A separate key rather than a shortened translation, because the menu row has the room and should keep the fuller phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze'**
+  String get actionSnoozeShort;
+
+  /// The reminders.edit modal head, in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get reminderEditTitle;
+
+  /// The reminders.edit modal head, in create mode.
+  ///
+  /// In en, this message translates to:
+  /// **'New reminder'**
+  String get reminderNewTitle;
+
+  /// The label field. A catalogue kind carries its own name; a custom item needs this one, and the `service_items` CHECK refuses it without.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get reminderName;
+
+  /// The distance-interval field label — "Every 10,000 km". The unit sits at the end INSIDE the field, never concatenated after it.
+  ///
+  /// In en, this message translates to:
+  /// **'Every'**
+  String get reminderEveryDistance;
+
+  /// The time-interval field label. MONTHS and never days — SPEC.md §3: "Manuals say 12 months. Calendar addition stops a 12-month service creeping earlier every year."
+  ///
+  /// In en, this message translates to:
+  /// **'Every … months'**
+  String get reminderEveryMonths;
+
+  /// The one-off odometer target. "Cambelt at 120,000 km."
+  ///
+  /// In en, this message translates to:
+  /// **'Or once, at odometer'**
+  String get reminderOnceAtOdometer;
+
+  /// The one-off date target. A FUTURE date is allowed here, unlike the baseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Or once, on date'**
+  String get reminderOnceOnDate;
+
+  /// Half the baseline. Prefilled from the newest ServiceRecord for this item.
+  ///
+  /// In en, this message translates to:
+  /// **'Last done — date'**
+  String get reminderLastDoneDate;
+
+  /// The other half of the baseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Last done — odometer'**
+  String get reminderLastDoneOdometer;
+
+  /// The notification switch. Off still shows on Home and still goes red; it just never posts — which is why the label is about notifying and not about tracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me'**
+  String get reminderNotify;
+
+  /// The two optional notice overrides. Blank means the automatic window, shown as a placeholder — SPEC.md §9, and the German is the reason labels sit ABOVE inputs rather than beside them.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me this far ahead'**
+  String get reminderNoticeAhead;
+
+  /// The hint UNDER the notice pair: the window the due engine would compute when both fields are blank. A hint rather than a placeholder in each field, which is what the artboard draws and what stops the same sentence appearing twice. A PLACEHOLDER-class value and never a stored one — SPEC.md §2 forbids persisting a derived number, and a notice window written into the row would survive an interval change and then be wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank means automatic — {distance} / {days}.'**
+  String reminderNoticeAutomatic(String distance, String days);
+
+  /// Safety, Normal or Low. It breaks ties when the notification cap coalesces.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get reminderPriority;
+
+  /// The highest priority — brakes, tyres, a timing belt.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety'**
+  String get reminderPrioritySafety;
+
+  /// The default priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get reminderPriorityNormal;
+
+  /// The lowest priority — a wiper blade, a cabin filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get reminderPriorityLow;
+
+  /// Which day the next interval starts from. SPEC.md §3: from the day it was DONE suits most jobs; from the day it was DUE suits an inspection that stays in April.
+  ///
+  /// In en, this message translates to:
+  /// **'When it repeats, count from'**
+  String get reminderRollover;
+
+  /// `from_actual` — the default.
+  ///
+  /// In en, this message translates to:
+  /// **'The day it was done'**
+  String get reminderRolloverActual;
+
+  /// `from_due` — for anything on a fixed calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'The day it was due'**
+  String get reminderRolloverDue;
+
+  /// Off makes it a one-off that goes `ok` after completion.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get reminderRepeats;
+
+  /// Free text, 500 characters. First-strong direction from the content, not from the UI language.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get reminderNotes;
+
+  /// The inline message under the interval block when none of the four scheduling fields is set. The `service_items` CHECK says the same thing in SQL; this is the sentence that stops the row reaching it.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an interval or a target date — otherwise there\'s nothing to remind you about.'**
+  String get reminderNoScheduleError;
+
+  /// The inline message under the baseline odometer. A service cannot have happened before the car had been that far.
+  ///
+  /// In en, this message translates to:
+  /// **'This is below the earliest reading for this vehicle.'**
+  String get reminderBaselineTooLowError;
+
+  /// The inline message under the baseline date. The TARGET date has no such rule — a future target is a plan.
+  ///
+  /// In en, this message translates to:
+  /// **'A job cannot have been done in the future.'**
+  String get reminderBaselineFutureError;
+
+  /// The inline message under Name when a CUSTOM reminder has none. The `service_items` CHECK is `kind <> 'custom' OR label IS NOT NULL`, so this is the one field a custom item cannot be saved without. It used to print the field's own LABEL, which told the user nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this reminder a name.'**
+  String get reminderNameError;
+
+  /// The snackbar after a reminder is deleted outright, with Undo beside it. Separate from homeTurnedOff: a deleted reminder is gone and a turned-off one is still on `reminders.list` under Paused, and saying the wrong one of those tells the user to look in the wrong place.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {item}'**
+  String reminderDeletedSnack(String item);
+
+  /// The banner on an untracked item, with Start tracking beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tracked — you won\'t be reminded'**
+  String get reminderNotTrackedBanner;
+
+  /// The action on the untracked banner. It sets is_tracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tracking'**
+  String get reminderStartTracking;
+
+  /// The action on the paused banner. It sets is_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn back on'**
+  String get reminderTurnBackOn;
+
+  /// What the destructive control becomes on an item that HAS been referenced by a service line. SPEC.md §9: such an item is not deletable, because deleting it would orphan the records that name it.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn this reminder off'**
+  String get reminderTurnThisOff;
+
+  /// The line under Turn this reminder off. It states what would be lost and that nothing will be — SPEC.md §2: eight years of service history is the most valuable object in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} service is recorded against this. Turning it off keeps it.} other{{nText} services are recorded against this. Turning it off keeps them.}}'**
+  String reminderCannotDelete(int n, String nText);
+
+  /// The heading above the five most recent service records for this item. SPEC.md §9 calls it "the evidence behind the anchor, so a user who thinks the app is wrong can check instead of argue."
+  ///
+  /// In en, this message translates to:
+  /// **'Last done'**
+  String get reminderLastDoneHeading;
+
+  /// The DAYS half of the notice override. Its label is not drawn — SPEC.md §9 asks the question once, above the pair — but it exists so that a screen-reader user can tell the two fields apart, which is the one thing a shared visible label takes away.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me this far ahead — days'**
+  String get reminderNoticeAheadDays;
 }
 
 class _AppLocalizationsDelegate

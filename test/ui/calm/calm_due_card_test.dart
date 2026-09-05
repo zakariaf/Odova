@@ -11,6 +11,7 @@ import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_due_card.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
@@ -41,12 +42,14 @@ CalmDueView _view({
 Widget _card({
   CalmDueView? view,
   CalmDueDensity density = CalmDueDensity.primary,
+  VoidCallback? onMore,
 }) => Center(
   child: CalmDueCard(
     view: view ?? _view(),
     density: density,
     onTap: () {},
     onAction: () {},
+    more: onMore == null ? null : (onPressed: onMore, label: 'More actions'),
   ),
 );
 
@@ -54,6 +57,67 @@ BoxDecoration _decoration(WidgetTester tester) =>
     calmDecorationOf<BoxDecoration>(tester, find.byType(CalmDueCard));
 
 void main() {
+  testWidgets('each density is the height and the type scale odova.css gives '
+      'it', (tester) async {
+    // The two numbers are SPEC.md §9's fold budget — 56 + 64 + 148 + 2 × 72 +
+    // 48 = 460 on a 375 × 667 screen — so a card that quietly sizes to its
+    // content moves the see-all row above or below the fold depending on how
+    // long the item's name is. The type scale is asserted with them because
+    // `--fs-body-lg` at 148 tall and `--fs-headline` at 148 tall are two
+    // different cards and only one of them is Calm's.
+    await pumpApp(tester, _card());
+
+    expect(
+      tester.getSize(find.byType(CalmDueCard)).height,
+      greaterThanOrEqualTo(kCalmDueCardPrimaryHeight),
+    );
+    expect(
+      tester.widget<Text>(find.text('Oil change')).style!.fontSize,
+      CalmType.latin.headline.fontSize,
+    );
+    expect(
+      tester.widget<Text>(find.text('Due now')).style!.fontSize,
+      CalmType.latin.titleLg.fontSize,
+    );
+
+    await pumpApp(tester, _card(density: CalmDueDensity.secondary));
+
+    expect(
+      tester.getSize(find.byType(CalmDueCard)).height,
+      greaterThanOrEqualTo(kCalmDueCardSecondaryHeight),
+    );
+    expect(
+      tester.widget<Text>(find.text('Oil change')).style!.fontSize,
+      CalmType.latin.body.fontSize,
+    );
+    expect(
+      tester.widget<Text>(find.text('Due now')).style!.fontSize,
+      CalmType.latin.caption.fontSize,
+    );
+  });
+
+  testWidgets('the overflow is on the primary card only, and only when it is '
+      'given something to do', (tester) async {
+    // `.due-card__more` is inside `.due-card__actions`, which the secondary
+    // density does not have at all: a 72pt row with a chevron has nowhere to
+    // put a second control and SPEC.md §9's card table gives it none.
+    var opened = 0;
+    await pumpApp(tester, _card(onMore: () => opened++));
+
+    expect(find.byKey(kCalmDueCardMoreKey), findsOneWidget);
+    await tester.tap(find.byKey(kCalmDueCardMoreKey));
+    expect(opened, 1);
+
+    await pumpApp(tester, _card());
+    expect(find.byKey(kCalmDueCardMoreKey), findsNothing);
+
+    await pumpApp(
+      tester,
+      _card(density: CalmDueDensity.secondary, onMore: () => opened++),
+    );
+    expect(find.byKey(kCalmDueCardMoreKey), findsNothing);
+  });
+
   testWidgets('the primary density is radius3xl on elev2 with a gradient, and '
       'the secondary is radiusXl on elev1', (tester) async {
     await pumpApp(tester, _card());

@@ -12,6 +12,7 @@ import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/launch_gate.dart';
+import 'package:odova/data/repositories/providers.dart';
 
 /// Pumps [child] inside everything a real Odova screen sits in.
 ///
@@ -141,6 +142,18 @@ List<Override> noLaunchGate() => [
       migrationFailed: false,
     ),
   ),
+  // The two streams `home` reads, SUPPLIED. EPIC-10 made Home a real screen,
+  // and this helper's whole job is to open the app at it — so every test that
+  // uses it now subscribes to two drift streams. A drift stream never delivers
+  // under `testWidgets` (the widget binding's fake async does not run its
+  // timers) and leaves a pending timer at teardown that fails the NEXT test
+  // rather than the one that opened it.
+  //
+  // Empty and null are the honest values for a test that is about the app
+  // ROOT rather than about Home: `homeStateProvider` answers null on its first
+  // line and touches nothing else.
+  settingsProvider.overrideWith((ref) => Stream.value(null)),
+  vehiclesProvider.overrideWith((ref) => Stream.value(const [])),
 ];
 
 /// The ARB files that are missing any of [keys].
