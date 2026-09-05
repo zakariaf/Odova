@@ -195,5 +195,12 @@
   "unitConsumptionMiPerKwh": "مایل/کیلووات‌ساعت",
   "unitEnergyKwh": "کیلووات‌ساعت",
   "unitMassKg": "کیلوگرم",
-  "commonEstimatedValue": "~{value}"
+  "commonEstimatedValue": "~{value}",
+  "homeWasDueAt": "موعدش {odometer} بود",
+  "homeWasDueOn": "موعدش {date} بود",
+  "homeWasDueAtOn": "موعدش {odometer} · {date} بود",
+  "homeDueAt": "در {odometer}",
+  "homeDueAtOn": "در {odometer} · {date}",
+  "homeAroundDate": "حدود {date}",
+  "homeLastEntered": "آخرین ثبت {date}"
 }

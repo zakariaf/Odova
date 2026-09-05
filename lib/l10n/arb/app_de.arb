@@ -195,5 +195,12 @@
   "unitConsumptionMiPerKwh": "mi/kWh",
   "unitEnergyKwh": "kWh",
   "unitMassKg": "kg",
-  "commonEstimatedValue": "~{value}"
+  "commonEstimatedValue": "~{value}",
+  "homeWasDueAt": "War fällig bei {odometer}",
+  "homeWasDueOn": "War fällig am {date}",
+  "homeWasDueAtOn": "War fällig bei {odometer} · {date}",
+  "homeDueAt": "Bei {odometer}",
+  "homeDueAtOn": "Bei {odometer} · {date}",
+  "homeAroundDate": "etwa {date}",
+  "homeLastEntered": "Zuletzt eingetragen am {date}"
 }

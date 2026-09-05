@@ -195,5 +195,12 @@
   "unitConsumptionMiPerKwh": "ميل/ك.و.س",
   "unitEnergyKwh": "ك.و.س",
   "unitMassKg": "كجم",
-  "commonEstimatedValue": "~{value}"
+  "commonEstimatedValue": "~{value}",
+  "homeWasDueAt": "كان مستحقًا عند {odometer}",
+  "homeWasDueOn": "كان مستحقًا في {date}",
+  "homeWasDueAtOn": "كان مستحقًا عند {odometer} · {date}",
+  "homeDueAt": "عند {odometer}",
+  "homeDueAtOn": "عند {odometer} · {date}",
+  "homeAroundDate": "حوالي {date}",
+  "homeLastEntered": "آخر إدخال في {date}"
 }

@@ -15,6 +15,7 @@ import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/l10n/relative_date.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
@@ -94,6 +95,83 @@ String homeStatusLine(
     // `unknown` into its own card, which carries no status line.
     DueState.ok || DueState.unknown => '',
   };
+}
+
+/// The card's THIRD line: what the status is measured against.
+///
+/// SPEC.md §9's card table, and the card's only checkable fact — "Overdue by
+/// 900 km" is a claim, "Was due at 186,512 km" is a number the user can hold
+/// against their own dash.
+///
+/// Null when the app cannot stand behind anything. §9's `default` confidence
+/// row gives the card "no date and no figure", and an anchor line would smuggle
+/// one back in under a different heading.
+String? homeAnchorLine(
+  AppLocalizations l10n,
+  String formatsTag,
+  DueAssessment assessment,
+  DistanceUnit unit,
+) {
+  final metres = assessment.dueAtOdometerMetres;
+  final odometer = metres == null
+      ? null
+      : formatWithUnit(
+          Distance(metres).inUnit(unit),
+          distanceUnitLabel(l10n, unit),
+          formatsTag,
+          numerals: CalmNumerals.auto,
+          decimalDigits: 0,
+        );
+  final on = assessment.dueOn;
+  final date = on == null ? null : formatLongDate(on.toString(), formatsTag);
+
+  return switch (assessment.state) {
+    DueState.overdue => switch ((odometer, date)) {
+      (final o?, final d?) => l10n.homeWasDueAtOn(o, d),
+      (final o?, null) => l10n.homeWasDueAt(o),
+      (null, final d?) => l10n.homeWasDueOn(d),
+      _ => null,
+    },
+    DueState.due => switch ((odometer, date)) {
+      (final o?, final d?) => l10n.homeDueAtOn(o, d),
+      (final o?, null) => l10n.homeDueAt(o),
+      (null, final d?) => d,
+      _ => null,
+    },
+    // §9: "Last entered 12 July". It states what the app HAS rather than what
+    // it wants — an accusation it cannot support is the thing this state exists
+    // to avoid making.
+    DueState.needsOdometer => date == null ? null : l10n.homeLastEntered(date),
+    DueState.dueSoon => _softDate(l10n, formatsTag, assessment, date),
+    // Neither reaches a card with an anchor: §9 keeps `ok` off Home and
+    // collapses `unknown` into a card that carries no lines of its own.
+    DueState.ok || DueState.unknown => null,
+  };
+}
+
+/// The `due_soon` anchor: a plain date from the calendar, a hedged one from the
+/// odometer, or nothing.
+///
+/// The time axis produces a date by calendar arithmetic and §9 renders it
+/// "exact and plain". The distance axis produces one by projecting a rate, and
+/// only at `measured` — a rate drawn from the user's own readings — may it be
+/// shown at all, hedged with the one word §9 allows.
+///
+/// `assumed` gets nothing here, though §9 gives it a MONTH-precision phrase
+/// ("around mid-October"). Nothing in the app formats a month-precision date
+/// yet, and inventing a day for it would be the exact substitution this
+/// function exists to refuse. Recorded in epics/progress/EPIC-10.md.
+String? _softDate(
+  AppLocalizations l10n,
+  String formatsTag,
+  DueAssessment assessment,
+  String? date,
+) {
+  if (assessment.driver != DueDriver.distance) return date;
+  if (assessment.confidence != RateConfidence.measured) return null;
+  final projected = assessment.projectedDueDate;
+  if (projected == null) return null;
+  return l10n.homeAroundDate(formatLongDate(projected.toString(), formatsTag));
 }
 
 /// `Today`, `Tomorrow`, `in 5 days`, `in about 3 weeks`, `in about 5 months`.

@@ -66,6 +66,7 @@ class CalmScaffold extends StatelessWidget {
     this.bodyGap,
     this.bodyPadBlock,
     this.footPadBlock,
+    this.controller,
   });
 
   /// The bar at the top. An ordinary widget in a Column, never
@@ -124,6 +125,15 @@ class CalmScaffold extends StatelessWidget {
   /// stylesheet's s4/s5.
   final ({double top, double bottom})? footPadBlock;
 
+  /// The body's scroll controller, for a screen that has to drive it.
+  ///
+  /// SPEC.md §7: a second tap on the active tab pops that tab to its root AND
+  /// scrolls the root to the top. The pop belongs to the shell; the scroll
+  /// belongs to whichever screen is at the root, and it cannot reach a
+  /// controller the frame owns privately. Null keeps the default — a screen
+  /// that never needs to move its own body should not have to make one.
+  final ScrollController? controller;
+
   /// `.screen--brand` — the wash behind `firstrun.language` and
   /// `settings.about`.
   ///
@@ -153,6 +163,7 @@ class CalmScaffold extends StatelessWidget {
                 ?appBar,
                 Expanded(
                   child: ListView.separated(
+                    controller: controller,
                     padding: EdgeInsetsDirectional.fromSTEB(
                       space.screenPad,
                       bodyPadBlock?.top ?? space.s5,

@@ -13,6 +13,7 @@ import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/features/home/ui/home_screen.dart';
 
 import '../../support/source_tree.dart';
 import 'shell_harness.dart';
@@ -187,10 +188,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(RouteNotFoundScreen), findsNothing);
-    final screen = tester.widget<PlaceholderScreen>(
-      find.byType(PlaceholderScreen),
-    );
-    expect(screen.screenId, 'home');
+    // Home is a real screen since EPIC-10, so the arrival is asserted by its
+    // type rather than by a placeholder's id.
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 
   testWidgets('an id-bearing log route opens ONE modal, not two', (

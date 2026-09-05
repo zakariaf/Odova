@@ -9,10 +9,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/ids/record_id.dart';
-import 'package:odova/features/vehicles/due_snapshot_provider.dart';
+import 'package:odova/data/repositories/due_snapshot_provider.dart';
 
-import '../../data/support/rows.dart';
 import '../../support/provider_harness.dart';
+import '../support/rows.dart';
 
 const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 final VehicleId _id = VehicleId.tryParse(_golf)!;

@@ -912,4 +912,39 @@ class AppLocalizationsFa extends AppLocalizations {
   String commonEstimatedValue(String value) {
     return '~$value';
   }
+
+  @override
+  String homeWasDueAt(String odometer) {
+    return 'موعدش $odometer بود';
+  }
+
+  @override
+  String homeWasDueOn(String date) {
+    return 'موعدش $date بود';
+  }
+
+  @override
+  String homeWasDueAtOn(String odometer, String date) {
+    return 'موعدش $odometer · $date بود';
+  }
+
+  @override
+  String homeDueAt(String odometer) {
+    return 'در $odometer';
+  }
+
+  @override
+  String homeDueAtOn(String odometer, String date) {
+    return 'در $odometer · $date';
+  }
+
+  @override
+  String homeAroundDate(String date) {
+    return 'حدود $date';
+  }
+
+  @override
+  String homeLastEntered(String date) {
+    return 'آخرین ثبت $date';
+  }
 }

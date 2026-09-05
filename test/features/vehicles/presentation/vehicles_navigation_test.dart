@@ -51,6 +51,7 @@ void main() {
     await pumpShell(
       tester,
       Routes.vehicles,
+      liveStreams: true,
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
         clockProvider.overrideWithValue(
@@ -85,6 +86,7 @@ void main() {
     await pumpShell(
       tester,
       Routes.vehicles,
+      liveStreams: true,
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
         clockProvider.overrideWithValue(

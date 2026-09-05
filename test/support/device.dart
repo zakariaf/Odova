@@ -26,6 +26,10 @@ class Device {
   /// text scale breaks first.
   static const compact = Device('compact_320', Size(320, 640), 2);
 
+  /// 375x667 — SPEC.md §9's "floor screen", where the fold guarantee is
+  /// stated and therefore where it is measured.
+  static const floor = Device('floor_375', Size(375, 667), 2);
+
   /// 360x800 — the commonest Android width.
   static const small = Device('small_360', Size(360, 800), 3);
 

@@ -1002,4 +1002,39 @@ class AppLocalizationsAr extends AppLocalizations {
   String commonEstimatedValue(String value) {
     return '~$value';
   }
+
+  @override
+  String homeWasDueAt(String odometer) {
+    return 'كان مستحقًا عند $odometer';
+  }
+
+  @override
+  String homeWasDueOn(String date) {
+    return 'كان مستحقًا في $date';
+  }
+
+  @override
+  String homeWasDueAtOn(String odometer, String date) {
+    return 'كان مستحقًا عند $odometer · $date';
+  }
+
+  @override
+  String homeDueAt(String odometer) {
+    return 'عند $odometer';
+  }
+
+  @override
+  String homeDueAtOn(String odometer, String date) {
+    return 'عند $odometer · $date';
+  }
+
+  @override
+  String homeAroundDate(String date) {
+    return 'حوالي $date';
+  }
+
+  @override
+  String homeLastEntered(String date) {
+    return 'آخر إدخال في $date';
+  }
 }

@@ -195,5 +195,12 @@
   "unitConsumptionMiPerKwh": "مایل/ک.و.س",
   "unitEnergyKwh": "ک.و.س",
   "unitMassKg": "کگم",
-  "commonEstimatedValue": "~{value}"
+  "commonEstimatedValue": "~{value}",
+  "homeWasDueAt": "کاتی لە {odometer} بوو",
+  "homeWasDueOn": "کاتی لە {date} بوو",
+  "homeWasDueAtOn": "کاتی لە {odometer} · {date} بوو",
+  "homeDueAt": "لە {odometer}",
+  "homeDueAtOn": "لە {odometer} · {date}",
+  "homeAroundDate": "نزیکەی {date}",
+  "homeLastEntered": "دوایین تۆمار {date}"
 }

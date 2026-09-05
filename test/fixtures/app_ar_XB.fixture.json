@@ -195,5 +195,12 @@
   "unitConsumptionMiPerKwh": "‏hWk/im",
   "unitEnergyKwh": "‏hWk",
   "unitMassKg": "‏gk",
-  "commonEstimatedValue": "‏~{value}"
+  "commonEstimatedValue": "‏~{value}",
+  "homeWasDueAt": "‏ ta eud saW{odometer}",
+  "homeWasDueOn": "‏ eud saW{date}",
+  "homeWasDueAtOn": "‏ ta eud saW{odometer} · {date}",
+  "homeDueAt": "‏ tA{odometer}",
+  "homeDueAtOn": "‏ tA{odometer} · {date}",
+  "homeAroundDate": "‏ dnuora{date}",
+  "homeLastEntered": "‏ deretne tsaL{date}"
 }

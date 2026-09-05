@@ -170,6 +170,36 @@ class ServiceRepository {
         return Ok(item);
       });
 
+  /// Turns one service item on or off.
+  ///
+  /// A targeted UPDATE of two columns, not a read-modify-write of the row. The
+  /// difference matters for the same reason it does in `SettingsRepository`:
+  /// "turn this off" from Home and an edit open in `reminders.edit` can be in
+  /// flight at once, and a write that carries the whole row back puts every
+  /// stale field with it — an interval the user just changed, silently reverted
+  /// by a switch somewhere else.
+  ///
+  /// [NotFound] when no row matched, rather than a silent success: the caller
+  /// shows an Undo, and an Undo for something that did not happen is worse than
+  /// an error.
+  Future<Result<void, PersistFailure>> setItemActive(
+    ServiceItemId id, {
+    required bool isActive,
+    required int updatedAtUtcMs,
+  }) => guardPersist(() async {
+    final rows =
+        await (_db.update(
+          _db.serviceItems,
+        )..where((i) => i.id.equals(id.toString()))).write(
+          ServiceItemsCompanion(
+            isActive: Value(isActive),
+            updatedAtUtcMs: Value(updatedAtUtcMs),
+          ),
+        );
+    if (rows == 0) return Err(NotFound(id.toString()));
+    return const Ok(null);
+  });
+
   /// Reads one record with its lines.
   Future<Result<ServiceRecord, PersistFailure>> findRecordById(
     ServiceRecordId id,

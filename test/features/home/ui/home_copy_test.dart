@@ -11,6 +11,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/l10n/bidi.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/features/home/ui/home_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
@@ -23,6 +24,9 @@ DueAssessment _assessment({
   RateConfidence confidence = RateConfidence.measured,
   int? remainingMetres,
   int? remainingDays,
+  int? dueAtOdometerMetres,
+  String? dueOn,
+  String? projectedDueDate,
 }) => DueAssessment(
   state: state,
   driver: driver,
@@ -30,6 +34,11 @@ DueAssessment _assessment({
   progress: 1,
   remainingMetres: remainingMetres,
   remainingDays: remainingDays,
+  dueAtOdometerMetres: dueAtOdometerMetres,
+  dueOn: dueOn == null ? null : CivilDate.tryParse(dueOn),
+  projectedDueDate: projectedDueDate == null
+      ? null
+      : CivilDate.tryParse(projectedDueDate),
 );
 
 void main() {
@@ -42,6 +51,137 @@ void main() {
 
   String status(DueAssessment a, {String tag = 'en-GB'}) =>
       stripBidi(homeStatusLine(en, tag, a, DistanceUnit.km));
+
+  String? anchor(DueAssessment a, {String tag = 'en-GB'}) {
+    final line = homeAnchorLine(en, tag, a, DistanceUnit.km);
+    return line == null ? null : stripBidi(line);
+  }
+
+  group('the anchor line — what the status is measured against', () {
+    // SPEC.md §9's card table, one row at a time. The anchor is the card's
+    // THIRD line and its only checkable fact: "Overdue by 900 km" is a claim
+    // and "Was due at 186,512 km" is the number a user can compare against
+    // their own dash.
+    test('overdue by distance names the odometer', () {
+      expect(
+        anchor(
+          _assessment(
+            state: DueState.overdue,
+            driver: DueDriver.distance,
+            remainingMetres: -900000,
+            dueAtOdometerMetres: 186512000,
+          ),
+        ),
+        'Was due at 186,512 km',
+      );
+    });
+
+    test('overdue by time names the date', () {
+      expect(
+        anchor(
+          _assessment(
+            state: DueState.overdue,
+            driver: DueDriver.time,
+            remainingDays: -24,
+            dueOn: '2026-08-12',
+          ),
+        ),
+        'Was due 12 August 2026',
+      );
+    });
+
+    test('overdue on both axes names both, distance first', () {
+      // The ORDER is the assertion. §9 puts the distance first for the same
+      // reason the status line does, and a message that reversed them would
+      // read correctly and mean something slightly different.
+      expect(
+        anchor(
+          _assessment(
+            state: DueState.overdue,
+            driver: DueDriver.both,
+            remainingMetres: -900000,
+            remainingDays: -24,
+            dueAtOdometerMetres: 186512000,
+            dueOn: '2026-08-12',
+          ),
+        ),
+        'Was due at 186,512 km · 12 August 2026',
+      );
+    });
+
+    test('due reads in the present tense', () {
+      expect(
+        anchor(
+          _assessment(
+            state: DueState.due,
+            driver: DueDriver.both,
+            dueAtOdometerMetres: 192000000,
+            dueOn: '2026-10-10',
+          ),
+        ),
+        'At 192,000 km · 10 October 2026',
+      );
+    });
+
+    test('dueSoon by time is the plain date, with no hedge', () {
+      // Calendar arithmetic, not a guess — §9: "Exact and plain: 10 October."
+      // The word "around" belongs to a PROJECTION and nowhere else.
+      expect(
+        anchor(
+          _assessment(
+            state: DueState.dueSoon,
+            driver: DueDriver.time,
+            remainingDays: 21,
+            dueOn: '2026-10-10',
+          ),
+        ),
+        '10 October 2026',
+      );
+    });
+
+    test('dueSoon by distance carries a fuzzy date only at measured', () {
+      DueAssessment soon(RateConfidence confidence) => _assessment(
+        state: DueState.dueSoon,
+        driver: DueDriver.distance,
+        confidence: confidence,
+        remainingMetres: 5000000,
+        projectedDueDate: '2026-10-22',
+      );
+
+      expect(anchor(soon(RateConfidence.measured)), 'around 22 October 2026');
+      // At `assumed` and `default` the projection is the app's own guess about
+      // a car it barely knows. §9 gives `assumed` a MONTH-precision phrase
+      // ("around mid-October") which nothing formats yet, and `default` no
+      // date at all — so both answer nothing rather than dressing a guess up
+      // as a day. See epics/progress/EPIC-10.md.
+      expect(anchor(soon(RateConfidence.assumed)), isNull);
+      expect(anchor(soon(RateConfidence.defaulted)), isNull);
+    });
+
+    test('needsOdometer states what the app has, not what it wants', () {
+      expect(
+        anchor(
+          _assessment(
+            state: DueState.needsOdometer,
+            driver: DueDriver.distance,
+            dueOn: '2026-07-12',
+          ),
+        ),
+        'Last entered 12 July 2026',
+      );
+    });
+
+    test('an assessment with nothing to point at has no anchor line', () {
+      // §9's `default` confidence row "gives the card no date and no number",
+      // and an anchor line would smuggle one back under a different heading.
+      expect(
+        anchor(
+          _assessment(state: DueState.overdue, driver: DueDriver.distance),
+        ),
+        isNull,
+      );
+    });
+  });
 
   test('overdue by distance reads a positive overshoot', () {
     // Never "in −1,400 km". §9: overdue "uses its own positive string".

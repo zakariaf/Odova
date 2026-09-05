@@ -35,6 +35,7 @@ void main() {
     await pumpShell(
       tester,
       '/settings/vehicles/$_golf',
+      liveStreams: true,
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
         // `clockProvider` throws until `bootstrap()` overrides it — the year
@@ -69,6 +70,7 @@ void main() {
     await pumpShell(
       tester,
       '/settings/vehicles/not-an-id',
+      liveStreams: true,
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
         // `clockProvider` throws until `bootstrap()` overrides it — the year
@@ -109,6 +111,7 @@ void main() {
     await pumpShell(
       tester,
       Routes.vehicleNew,
+      liveStreams: true,
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
         clockProvider.overrideWithValue(

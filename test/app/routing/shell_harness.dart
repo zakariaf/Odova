@@ -21,6 +21,9 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/app_shell.dart';
 import 'package:odova/app/routing/launch_gate.dart';
+import 'package:odova/core/domain/models/settings.dart';
+import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
@@ -39,6 +42,20 @@ Future<ProviderContainer> pumpShell(
     liveVehicleCount: 1,
     migrationFailed: false,
   ),
+  // SUPPLIED unless the caller brings a real database, and named for the same
+  // reason `facts` is: Riverpod refuses two overrides of one provider, so a
+  // caller cannot add its own on top of a default this harness inserts.
+  //
+  // They exist because EPIC-10 made `home` a real screen, and every test that
+  // opens the app now subscribes to the two streams it reads. Without a
+  // database behind them those subscriptions leave a pending timer at teardown
+  // — which fails the NEXT test rather than the one that opened it.
+  //
+  // A test that DOES bring a database wants the real streams over it, so it
+  // passes `liveStreams: true` and supplies its own rows.
+  AppSettings? settings,
+  List<Vehicle> vehicles = const [],
+  bool liveStreams = false,
 }) async {
   await tester.pumpWidget(const SizedBox.shrink());
 
@@ -53,6 +70,10 @@ Future<ProviderContainer> pumpShell(
       // test that needed a fresh install could not simply pass another — it
       // got "Tried to override a provider twice" from inside the harness.
       initialLaunchFactsProvider.overrideWithValue(facts),
+      if (!liveStreams) ...[
+        settingsProvider.overrideWith((ref) => Stream.value(settings)),
+        vehiclesProvider.overrideWith((ref) => Stream.value(vehicles)),
+      ],
       ...overrides,
     ],
   );

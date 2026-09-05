@@ -195,5 +195,12 @@
   "unitConsumptionMiPerKwh": "[ḿī/ķẆħ ǃǃǃ]",
   "unitEnergyKwh": "[ķẆħ ǃǃ]",
   "unitMassKg": "[ķḡ ǃ]",
-  "commonEstimatedValue": "[~{value} ǃ]"
+  "commonEstimatedValue": "[~{value} ǃ]",
+  "homeWasDueAt": "[Ẇáŝ ḍǔḗ áţ {odometer} ǃǃǃǃǃ]",
+  "homeWasDueOn": "[Ẇáŝ ḍǔḗ {date} ǃǃǃǃ]",
+  "homeWasDueAtOn": "[Ẇáŝ ḍǔḗ áţ {odometer} · {date} ǃǃǃǃǃǃ]",
+  "homeDueAt": "[Áţ {odometer} ǃǃ]",
+  "homeDueAtOn": "[Áţ {odometer} · {date} ǃǃǃ]",
+  "homeAroundDate": "[ářǿǔǹḍ {date} ǃǃǃ]",
+  "homeLastEntered": "[Ŀáŝţ ḗǹţḗřḗḍ {date} ǃǃǃǃǃǃ]"
 }

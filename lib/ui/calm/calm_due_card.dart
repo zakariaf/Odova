@@ -67,6 +67,7 @@ class CalmDueView {
     required this.title,
     required this.statusLine,
     required this.actionLabel,
+    this.actionIcon,
     this.anchorLine,
     this.snoozeLine,
     this.progress,
@@ -90,6 +91,9 @@ class CalmDueView {
 
   /// `Log it`, or the update-odometer label for the two uncertain states.
   final String actionLabel;
+
+  /// The glyph beside it. `.btn` in the artboard carries one; null draws none.
+  final IconData? actionIcon;
 
   /// `Was due at 186,512 km · 12 August`. Null when nothing is certain.
   final String? anchorLine;
@@ -269,21 +273,23 @@ class _PrimaryBody extends StatelessWidget {
           CalmProgressBar(value: progress, color: style.base),
         ],
         SizedBox(height: space.s3),
-        // `.due-card__actions` — the button and the overflow on one row, which
-        // is why the button is Expanded rather than `block: true`: `block`
-        // stretches to the CARD, and a full-width button beside a 52pt target
-        // overflows the row it is in.
+        // `.due-card__actions { justify-content: space-between }` — the
+        // button sizes to its WORDS and the overflow sits at the far edge.
+        // Not `block: true`: the reference draws a pill about a third of the
+        // card wide, and a full-width button next to a 52pt target overflows
+        // the row besides.
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
+            Flexible(
               child: CalmButton(
                 label: view.actionLabel,
+                icon: view.actionIcon,
                 onPressed: onAction,
                 // The action takes the colour of the item it acts on, resolved
                 // through CalmStatusStyle rather than named here.
                 variant: CalmButtonVariant.onState,
                 dueState: view.state,
-                block: true,
               ),
             ),
             if (onMore case final onMore?) ...[

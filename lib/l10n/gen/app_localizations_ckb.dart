@@ -916,4 +916,39 @@ class AppLocalizationsCkb extends AppLocalizations {
   String commonEstimatedValue(String value) {
     return '~$value';
   }
+
+  @override
+  String homeWasDueAt(String odometer) {
+    return 'کاتی لە $odometer بوو';
+  }
+
+  @override
+  String homeWasDueOn(String date) {
+    return 'کاتی لە $date بوو';
+  }
+
+  @override
+  String homeWasDueAtOn(String odometer, String date) {
+    return 'کاتی لە $odometer · $date بوو';
+  }
+
+  @override
+  String homeDueAt(String odometer) {
+    return 'لە $odometer';
+  }
+
+  @override
+  String homeDueAtOn(String odometer, String date) {
+    return 'لە $odometer · $date';
+  }
+
+  @override
+  String homeAroundDate(String date) {
+    return 'نزیکەی $date';
+  }
+
+  @override
+  String homeLastEntered(String date) {
+    return 'دوایین تۆمار $date';
+  }
 }

@@ -1292,6 +1292,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'~{value}'**
   String commonEstimatedValue(String value);
+
+  /// The overdue card's anchor line when DISTANCE drove the status. SPEC.md §9: a kilometre figure is checkable against the dash and a date is not, so the distance leads whenever there is one.
+  ///
+  /// In en, this message translates to:
+  /// **'Was due at {odometer}'**
+  String homeWasDueAt(String odometer);
+
+  /// The overdue card's anchor line when TIME drove the status and there is no odometer to name.
+  ///
+  /// In en, this message translates to:
+  /// **'Was due {date}'**
+  String homeWasDueOn(String date);
+
+  /// The overdue card's anchor line when both axes are past. One message rather than two joined in Dart — SPEC.md §2 forbids assembling a sentence from parts, and the separator's side is a translation decision.
+  ///
+  /// In en, this message translates to:
+  /// **'Was due at {odometer} · {date}'**
+  String homeWasDueAtOn(String odometer, String date);
+
+  /// The due card's anchor line when only a distance is known. Present tense: the job is due now, not overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'At {odometer}'**
+  String homeDueAt(String odometer);
+
+  /// The due card's anchor line when both axes are known — SPEC.md §9's `At 192,000 km · 10 October`.
+  ///
+  /// In en, this message translates to:
+  /// **'At {odometer} · {date}'**
+  String homeDueAtOn(String odometer, String date);
+
+  /// A date PROJECTED from the distance axis, and the only vocabulary SPEC.md §9 allows for one: the word "around" and nothing else. Never used for a date the calendar produced, which is exact and reads plainly.
+  ///
+  /// In en, this message translates to:
+  /// **'around {date}'**
+  String homeAroundDate(String date);
+
+  /// The needs-odometer card's anchor line. It states what the app HAS rather than what it wants — an accusation the app cannot support is the thing SPEC.md §9 is most careful to avoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entered {date}'**
+  String homeLastEntered(String date);
 }
 
 class _AppLocalizationsDelegate
