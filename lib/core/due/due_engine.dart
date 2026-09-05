@@ -38,6 +38,7 @@ class DueAssessment with ValueEquality {
     required this.driver,
     required this.confidence,
     required this.progress,
+    this.anchor = DueAnchor.none,
     this.remainingMetres,
     this.remainingDays,
     this.dueAtOdometerMetres,
@@ -47,6 +48,16 @@ class DueAssessment with ValueEquality {
 
   /// The state a card renders.
   final DueState state;
+
+  /// What this conclusion was measured from, rungs and all.
+  ///
+  /// Carried out because SPEC.md §9's Home rule turns on WHICH rung anchored
+  /// the item — "Home renders any item anchored on the `purchase` or
+  /// `first_reading` rung as `unknown`, whatever the due engine returns". The
+  /// engine resolves the anchor, reasons from it, and used to drop it; a
+  /// presentation layer that re-walked the ladder to recover it could reach a
+  /// different answer than the engine did about the item it is drawing.
+  final DueAnchor anchor;
 
   /// Which axis produced it. Selects the copy pattern, never the colour.
   final DueDriver driver;
@@ -84,6 +95,7 @@ class DueAssessment with ValueEquality {
   List<Object?> get props => [
     state,
     driver,
+    anchor,
     remainingMetres,
     remainingDays,
     dueAtOdometerMetres,
@@ -185,6 +197,7 @@ DueAssessment computeDueState(
     return DueAssessment(
       state: DueState.unknown,
       driver: DueDriver.none,
+      anchor: anchor,
       dueAtOdometerMetres: distance.dueAt,
       dueOn: time.dueOn,
       confidence: rate.confidence,
@@ -214,6 +227,7 @@ DueAssessment computeDueState(
   return DueAssessment(
     state: state,
     driver: _driver(distanceState, time.state, state),
+    anchor: anchor,
     remainingMetres: distance.remaining,
     remainingDays: time.remaining,
     dueAtOdometerMetres: distance.dueAt,
