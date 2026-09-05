@@ -30,6 +30,7 @@ import 'package:odova/ui/calm/calm_status_dot.dart';
 import 'package:odova/ui/calm/calm_swipe_actions.dart';
 
 import '../../../app/routing/shell_harness.dart';
+import '../../../support/device.dart';
 import '../../../support/fonts.dart';
 import '../../home/home_fixture.dart';
 
@@ -40,10 +41,19 @@ Future<ProviderContainer> _pump(
   List<AssessedItem> assessed = const [],
   Locale? locale = const Locale('en'),
   AppDatabase? database,
+  TextScaler? textScaler,
 }) => pumpShell(
   tester,
   Routes.reminders,
   locale: locale,
+  wrap: textScaler == null
+      ? null
+      : (child) => Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+            child: child,
+          ),
+        ),
   settings: homeSettings(golfId),
   vehicles: [homeVehicle(golfId, 'The Golf')],
   overrides: <Override>[
@@ -335,6 +345,62 @@ void main() {
     expect(find.text('Paused'), findsWidgets);
     expect(find.text('Not tracked'), findsNothing);
     expect(find.byType(CalmListRow), findsNWidgets(2));
+  });
+
+  testWidgets('at text scale 2.0 nothing is clipped and the groups keep '
+      'their order', (tester) async {
+    // The screen's own 200% case. `calm_overflow_matrix_test` covers the
+    // COMPONENTS at 3.0 — a row, a swipe tile, a group — and a screen is not
+    // its components: three groups with two headers between them, and a swipe
+    // opened over them, is a composition no component test assembles.
+    tester.useDevice(Device.tallForm);
+
+    await _pump(
+      tester,
+      textScaler: const TextScaler.linear(2),
+      items: [
+        homeItem('Oil and filter'),
+        homeItem('Brake fluid', suffix: 'B', isActive: false),
+        homeItem('Timing belt', suffix: 'C', isTracked: false),
+      ],
+      assessed: [
+        (
+          homeItem('Oil and filter'),
+          homeAssessment(state: DueState.overdue, dueOn: '2026-08-12'),
+        ),
+      ],
+    );
+
+    // `pumpApp`'s harness turns an overflow into a test failure, so reaching
+    // here is half the assertion.
+    expect(tester.takeException(), isNull);
+    expect(
+      _titles(tester),
+      containsAllInOrder(['Oil and filter', 'Brake fluid', 'Timing belt']),
+      reason: 'a screen that reorders at 200% is a different screen',
+    );
+
+    // And it SCROLLS rather than fitting by shrinking something.
+    final body = find.descendant(
+      of: find.byType(CalmScaffold),
+      matching: find.byType(Scrollable),
+    );
+    await tester.drag(body.first, const Offset(0, -200));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    // And the swipe actions still open and still carry their three labels at
+    // twice the size. What this does NOT pin is the tile's HEIGHT: the row is
+    // inside a scroll view, so an over-tall tile scrolls rather than
+    // overflowing, and both a too-small and a too-large
+    // `calmSwipeActionMinHeight` were planted here and passed. The height is
+    // `calm_overflow_matrix_test`'s and F-10.6's measurement; this asserts the
+    // labels survive the scale, which the matrix cannot see because it has no
+    // swipe to open.
+    await tester.drag(find.text('Oil and filter'), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Done today'), findsOneWidget);
   });
 
   testWidgets('twenty-six items all render and the list scrolls', (
