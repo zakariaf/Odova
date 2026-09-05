@@ -135,8 +135,13 @@ class OdometerStrip extends StatelessWidget {
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
     final projected = estimate.projection == OdometerProjection.projected;
-
     final shapes = CalmShapes.of(context);
+    final figure = EstimatedValueText(
+      estimate: estimate,
+      unit: unit,
+      formatsTag: formatsTag,
+      style: type.title,
+    );
 
     return CalmPressable(
       onTap: onTap,
@@ -175,24 +180,18 @@ class OdometerStrip extends StatelessWidget {
                     // estimate, and only then: §9 says "tapping an estimated
                     // value or a `—` opens a transient popover", and a plain
                     // reading has nothing to explain.
+                    // ONE construction, wrapped or not. Written out in both
+                    // arms, the four arguments were stated twice and the
+                    // non-projected arm is the one that gets forgotten —
+                    // the popover path is what the tests exercise.
                     if (projected)
                       CalmPressable(
                         onTap: onTapValue,
                         borderRadius: shapes.radiusSm,
-                        child: EstimatedValueText(
-                          estimate: estimate,
-                          unit: unit,
-                          formatsTag: formatsTag,
-                          style: type.title,
-                        ),
+                        child: figure,
                       )
                     else
-                      EstimatedValueText(
-                        estimate: estimate,
-                        unit: unit,
-                        formatsTag: formatsTag,
-                        style: type.title,
-                      ),
+                      figure,
                     Text(
                       _freshness(l10n),
                       style: type.caption.copyWith(color: colors.ink3),

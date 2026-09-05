@@ -19,6 +19,7 @@ import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_notice.dart';
+import 'package:odova/ui/calm/calm_odometer_input.dart';
 
 /// The stale-odometer strip, and the field it carries.
 ///
@@ -118,14 +119,11 @@ class _StalenessStripState extends State<StalenessStrip> {
                 label: l10n.odometerNowLabel,
                 showLabel: false,
                 controller: _controller,
-                errorText: switch (_entry.problem) {
-                  null || OdometerProblem.empty => null,
-                  OdometerProblem.notANumber => l10n.odometerNotANumberError,
-                  // A WARNING in the one message slot, and Save stays live
-                  // behind it — §8: "never a block".
-                  OdometerProblem.implausible =>
-                    l10n.odometerImplausibleWarning,
-                },
+                // The SHARED switch, with no empty message: an untouched
+                // strip says nothing, the way create mode does. §8's
+                // "never a block" lives in one place now, which is the point
+                // — this was the third widget to decide it.
+                errorText: odometerProblemMessage(l10n, _entry.problem),
                 affix: Text(distanceUnitLabel(l10n, widget.unit)),
                 numeric: true,
                 keyboardType: TextInputType.number,

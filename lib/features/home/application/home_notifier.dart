@@ -87,7 +87,7 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
     // which includes the unknown-anchor case, because that card is a stack
     // entry and not an absence of one.
     allClear: stack.cards.isEmpty && stack.unknown == null
-        ? _allClear(ref, vehicle, assessments, today)
+        ? _allClear(ref, vehicle, snapshot, assessments, today)
         : null,
     stack: stack,
     // §9: the switcher "exists only with ≥ 2 vehicles", and the rule lives in
@@ -109,9 +109,14 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
 /// line (distance and time since the most recent `ServiceRecord`, whatever it
 /// was)". Raw values only — the sentences are `home_states.dart`'s, because a
 /// locale is a presentation input.
+/// [snapshot] is PASSED, not re-watched. Its caller already holds it and
+/// `_strips` two functions up already takes it as a parameter — one of the two
+/// reaching for the provider again was an inconsistency that made the second
+/// subscription easy to miss.
 HomeAllClear _allClear(
   Ref ref,
   Vehicle vehicle,
+  VehicleDueSnapshot? snapshot,
   List<AssessedItem> items,
   CivilDate? today,
 ) {
@@ -135,7 +140,7 @@ HomeAllClear _allClear(
     }
   }
 
-  final estimate = ref.watch(vehicleDueSnapshotProvider(vehicle.id))?.estimate;
+  final estimate = snapshot?.estimate;
   final since = last?.odometer;
   final on = last == null ? null : CivilDate.tryParse(last.occurredOn);
 

@@ -34,6 +34,7 @@ import 'package:odova/features/home/application/home_notifier.dart';
 import 'package:odova/features/home/application/today.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 
+import '../../support/source_tree.dart';
 import 'home_fixture.dart';
 
 /// A clock the test moves.
@@ -102,6 +103,29 @@ void main() {
       // `bootstrap_launch_test.dart`-style source assertions cover.
       expect(_container(const []).read(todayTicksProvider), isFalse);
     });
+  });
+
+  test('and bootstrap switches it ON', () {
+    // The inert default is a TEST accommodation, and the feature only exists
+    // because `bootstrap()` remembers to override it. Deleting that one line
+    // silently turns off two of §9's seven recompute triggers — the midnight
+    // crossing and the app resume — and the whole suite stays green, because
+    // every test runs against the default.
+    //
+    // Read from the SOURCE, the way `providers_test` reads the stream
+    // declarations: `bootstrap()` opens a real database and a real application
+    // support directory, so there is nothing to call here.
+    final source = sourceWithoutLineComments(
+      dartFilesUnder(
+        'lib/app',
+      ).firstWhere((f) => f.path.endsWith('bootstrap.dart')),
+    );
+
+    expect(
+      source,
+      contains('todayTicksProvider.overrideWithValue(true)'),
+      reason: 'SPEC.md §9: midnight and resume are recompute triggers',
+    );
   });
 
   group('the five that arrive through a stream', () {

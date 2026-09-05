@@ -181,23 +181,37 @@ class RemindersEditNotifier extends Notifier<ReminderEditState> {
       return;
     }
 
-    final read = await ref.read(serviceRepositoryProvider).findItemById(id);
+    // All four STARTED before any of them is awaited. None depends on
+    // another's result — `countLinesFor` needs only the parsed id — and awaited
+    // in turn they were four serialised round trips with an empty scaffold on
+    // screen for the sum of them. The two stream reads do not even open their
+    // subscription until their turn comes, so they cannot overlap by accident.
+    // `bootstrap.dart` already starts its facts and its UI state this way.
+    final repository = ref.read(serviceRepositoryProvider);
+    final itemRead = repository.findItemById(id);
+    final linesRead = repository.countLinesFor(id);
+    final recordsRead = _records(vehicle.id);
+    final readingsRead = _readings(vehicle.id);
+
+    final read = await itemRead;
     if (!ref.mounted) return;
     if (read is! Ok<ServiceItem, PersistFailure>) {
       state = const ReminderEditMissing();
       return;
     }
     final item = read.value;
-
-    final lines = await ref.read(serviceRepositoryProvider).countLinesFor(id);
+    final lines = await linesRead;
+    final records = await recordsRead;
+    final readings = await readingsRead;
+    if (!ref.mounted) return;
 
     state = ReminderEditReady(
       ReminderDraft.of(item, unit: unit, groupingSeparator: separator),
       vehicle: vehicle,
       item: item,
-      records: _recentRecords(await _records(vehicle.id), id),
+      records: _recentRecords(records, id),
       lineCount: lines is Ok<int, PersistFailure> ? lines.value : 0,
-      firstReading: _firstReading(await _readings(vehicle.id)),
+      firstReading: _firstReading(readings),
     );
   }
 
