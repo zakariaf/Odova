@@ -155,19 +155,28 @@ class VehiclesScreen extends ConsumerWidget {
   /// says this screen never does. So it is OFFERED, in the one place an offer
   /// costs nothing to ignore.
   Future<void> _add(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final snackbars = CalmSnackbarHost.of(context);
+    // The CONTAINER's reader, not this widget's `ref.read`. The snackbar goes
+    // through `ScaffoldMessenger` and deliberately outlives the route, so
+    // "Switch to it" can be pressed after the user has left the garage — and a
+    // `WidgetRef.read` on an unmounted Consumer THROWS, not silently. The
+    // future is unawaited, so the user would tap, see the bar close, and
+    // believe they had switched cars: `setActiveVehicle`'s own dartdoc names
+    // that outcome — "the next fill-up against the wrong one".
+    final read = ProviderScope.containerOf(context, listen: false).read;
+
     // The whole ROW comes back, not its id. The form has it in hand after the
     // write, and reading it back to name the snackbar was a second query for a
     // string that had just been written — plus a fallback for a read that
     // failed after a write that had not.
     final added = await context.push<Vehicle>(Routes.vehicleNew);
-    if (added == null || !context.mounted) return;
+    if (added == null) return;
 
-    final l10n = AppLocalizations.of(context);
-    CalmSnackbar.show(
-      context,
+    snackbars.show(
       message: l10n.vehicleAddedSnack(added.name),
       actionLabel: l10n.vehicleSwitchToIt,
-      onAction: () => unawaited(setActiveVehicle(ref.read, added.id)),
+      onAction: () => unawaited(setActiveVehicle(read, added.id)),
     );
   }
 }

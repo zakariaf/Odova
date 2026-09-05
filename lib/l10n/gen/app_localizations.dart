@@ -315,6 +315,12 @@ abstract class AppLocalizations {
   /// **'Type {subject} to confirm'**
   String confirmDeleteTypeToConfirm(String subject);
 
+  /// Shown under the typed-confirmation field when what was typed does not match. SPEC.md §8 gives the wording: "That doesn't match The Golf." Without it the user who mistypes reads the instruction again and is never told they got it wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t match {subject}.'**
+  String confirmDeleteMismatch(String subject);
+
   /// The destructive action. Disabled until the typed name matches.
   ///
   /// In en, this message translates to:
@@ -704,6 +710,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mark as sold'**
   String get vehicleMarkAsSold;
+
+  /// SPEC.md §8 quotes this button verbatim in `dialog.confirmDelete`: `[ Keep it — mark it sold ]`. Deliberately NOT `vehicleMarkAsSold`, which is the row and the sheet's own title: the 'Keep it —' half is the reassurance, and §8 offers the sale before Delete because 'I sold the car' is what people mean most of the time they reach for Delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it — mark it sold'**
+  String get vehicleKeepItMarkSold;
 
   /// A destructive ROW, not a dialog title — it takes NO question mark, because a row does not ask. Deliberately NOT `confirmDeleteTitle`, which always ends in one.
   ///

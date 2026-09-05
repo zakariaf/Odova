@@ -13,6 +13,7 @@ import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/ids/ulid.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/core/reminders/service_item_catalogue.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/units/distance.dart';
@@ -345,17 +346,26 @@ class VehicleRepository {
       });
 
   /// Marks [id] sold, and touches nothing else.
+  ///
+  /// [soldPrice] carries its CURRENCY, and it has to. The two columns are one
+  /// fact: `row_mappers.moneyOrNull` returns null unless BOTH are present, so a
+  /// price written without its code reads back as no price at all — and then
+  /// the next ordinary save of that vehicle writes the null over the number,
+  /// because `toVehicle` carries `soldPrice: original.soldPrice`. SPEC.md §2's
+  /// storage rule is minor units PLUS an ISO 4217 code, and there is no CHECK
+  /// on the table pairing them, so nothing but this signature can enforce it.
   Future<Result<void, PersistFailure>> markSold(
     VehicleId id, {
     required String soldOn,
     required int updatedAtUtcMs,
-    int? soldPriceMinor,
+    Money? soldPrice,
   }) => _setStatus(
     id,
     VehiclesCompanion(
       status: Value(VehicleStatus.sold.wire),
       soldOn: Value(soldOn),
-      soldPriceMinor: Value(soldPriceMinor),
+      soldPriceMinor: Value(amountMinorColumnOrNull(soldPrice)),
+      soldPriceCurrency: Value(currencyColumnOrNull(soldPrice)),
       updatedAtUtcMs: Value(updatedAtUtcMs),
     ),
   );

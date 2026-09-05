@@ -11,7 +11,9 @@
 // vehicle, and nothing else. Nothing here writes the database itself — every
 // write goes through `VehiclesNotifier`, which is what `active_vehicle_test
 // .dart` polices.
-import 'package:flutter/widgets.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/routes.dart';
@@ -58,23 +60,28 @@ Future<VehicleActionOutcome> markVehicleSold(
   Vehicle vehicle,
 ) async {
   final l10n = AppLocalizations.of(context);
-  final sale = await showMarkAsSoldSheet(context, vehicleName: vehicle.name);
-  if (sale == null || !context.mounted) return VehicleActionOutcome.none;
+  // The SNACKBAR HOST, captured while this context is alive. The caller hands
+  // us the ROW's context, and the sale is what unmounts that row: it moves from
+  // the live group to the sold one, so by the time the write returns the
+  // element is gone and `context.mounted` is false. Every line after the await
+  // would then be skipped — including the confirmation this function exists to
+  // show.
+  final snackbars = CalmSnackbarHost.of(context);
+  final notifier = ref.read(vehiclesNotifierProvider.notifier);
 
-  final result = await ref
-      .read(vehiclesNotifierProvider.notifier)
-      .markSold(
-        vehicle.id,
-        soldOn: sale.soldOn,
-        soldPriceMinor: sale.soldPriceMinor,
-      );
-  if (!context.mounted) return VehicleActionOutcome.none;
+  final sale = await showMarkAsSoldSheet(context, vehicleName: vehicle.name);
+  if (sale == null) return VehicleActionOutcome.none;
+
+  final result = await notifier.markSold(
+    vehicle.id,
+    soldOn: sale.soldOn,
+    soldPrice: sale.soldPrice,
+  );
   // The FAILURE reaches the user. `guardPersist` wraps a full disk and a locked
   // database alike, and a swallowed one here leaves the row looking unchanged
   // with no reason given — SPEC.md §1's rule that the app never pretends
   // something happened.
-  CalmSnackbar.show(
-    context,
+  snackbars.show(
     message: result is Ok
         ? l10n.vehicleSoldSnack(vehicle.name)
         : l10n.saveDiskFullError,
@@ -100,9 +107,16 @@ Future<VehicleActionOutcome> confirmDeleteVehicle(
   // there and the launch gate counts it.
   final onlyVehicle =
       (ref.read(vehiclesProvider).value ?? const []).length == 1;
+  // Null is "could not be read", NOT "there is nothing". The provider answers
+  // null when the five COUNT(*)s FAIL — a busy or locked database — and
+  // falling back to zeros would remove the typed confirmation in precisely the
+  // case where the app could not verify there was nothing to lose. So it fails
+  // CLOSED: an unknown count is one entry, which is enough to make the dialog
+  // ask for the name. The breakdown reads "no fill-ups, no services…", which
+  // is what the app actually knows.
+  final read = await ref.read(vehicleEntryCountsProvider(vehicle.id).future);
   final counts =
-      await ref.read(vehicleEntryCountsProvider(vehicle.id).future) ??
-      (fillUps: 0, services: 0, costs: 0, trips: 0, reminders: 0);
+      read ?? (fillUps: 1, services: 0, costs: 0, trips: 0, reminders: 0);
   if (!context.mounted) return VehicleActionOutcome.none;
 
   final choice = await showConfirmDeleteDialog(
@@ -111,10 +125,13 @@ Future<VehicleActionOutcome> confirmDeleteVehicle(
     counts: counts,
     formatCount: (n) =>
         formatForDisplay(n, tag, numerals: CalmNumerals.auto, decimalDigits: 0),
-    // §8: "Keep it — mark it sold" is offered ABOVE Delete, because it is what
-    // people usually mean. A sold vehicle has no sale to offer.
+    // §8 quotes this button verbatim — "Keep it — mark it sold" — and the
+    // first half is the point: the sale is offered ABOVE Delete because "I
+    // sold the car" is what people mean most of the time they reach for
+    // Delete, and "Mark as sold" alone says what the button does without
+    // saying why it is there. A sold vehicle has no sale to offer.
     safeAlternativeLabel: vehicle.status == VehicleStatus.active
-        ? l10n.vehicleMarkAsSold
+        ? l10n.vehicleKeepItMarkSold
         : null,
     // §8's one-vehicle case: "its dialog carries the extra line 'This is your
     // only vehicle. Deleting it starts Odova over.'" It WARNS without
@@ -141,18 +158,27 @@ Future<VehicleActionOutcome> _deleteVehicle(
   Vehicle vehicle,
 ) async {
   final l10n = AppLocalizations.of(context);
+  // ALL THREE captured before the write, because the write is what takes the
+  // caller's context away. The row this was called from is in a list that is
+  // about to lose an element, and deleting the ACTIVE vehicle also resets all
+  // four tab stacks — either one unmounts the element while `delete` is still
+  // awaiting. A `context.mounted` guard afterwards then skips the Undo
+  // snackbar, and §8 calls those ten seconds the entire recovery window: after
+  // them "the only recovery left is the user's own exported backup". The bug
+  // was invisible in tests because the fixture list never shrinks.
+  final snackbars = CalmSnackbarHost.of(context);
+  final router = GoRouter.of(context);
   final notifier = ref.read(vehiclesNotifierProvider.notifier);
+
   final result = await notifier.delete(vehicle.id);
-  if (!context.mounted) return VehicleActionOutcome.none;
 
   if (result case Err()) {
-    CalmSnackbar.show(context, message: l10n.saveDiskFullError, danger: true);
+    snackbars.show(message: l10n.saveDiskFullError, danger: true);
     return VehicleActionOutcome.none;
   }
   final deletion = (result as Ok<VehicleDeletion, PersistFailure>).value;
 
-  CalmSnackbar.show(
-    context,
+  snackbars.show(
     message: l10n.vehicleDeletedSnack(vehicle.name),
     actionLabel: l10n.commonUndo,
     // TEN seconds, not the usual six. §8: "longer than the usual 6 because this
@@ -160,12 +186,30 @@ Future<VehicleActionOutcome> _deleteVehicle(
     // user's own exported backup.
     duration: kCalmDestructiveUndoWindow,
     danger: true,
-    onAction: () => notifier.undoDelete(deletion),
+    // AWAITED, and its failure reported. An arrow into a `VoidCallback` drops
+    // both the future and the `Result`: a restore that failed on a full disk
+    // looked exactly like one that worked, the snackbar closed, and the
+    // deletion token went with it — there is no second chance at an Undo.
+    onAction: () => unawaited(_undo(snackbars, l10n, notifier, deletion)),
   );
 
   // §8: "Deleting the last vehicle routes to `vehicle.edit` (firstRun) with the
-  // Undo snackbar above the modal." The snackbar goes through
-  // `ScaffoldMessenger`, so it survives the route change that follows.
-  if (deletion.wasLast) context.go(Routes.firstRunVehicle);
+  // Undo snackbar above the modal." Through the captured router, for the same
+  // reason as the snackbars: `context.go` on an unmounted element does nothing
+  // at all, and this is the line that stops the user staring at an empty
+  // garage.
+  if (deletion.wasLast) router.go(Routes.firstRunVehicle);
   return VehicleActionOutcome.deleted;
+}
+
+/// Puts back what [deletion] took, and says so if it could not.
+Future<void> _undo(
+  CalmSnackbarHost snackbars,
+  AppLocalizations l10n,
+  VehiclesNotifier notifier,
+  VehicleDeletion deletion,
+) async {
+  final restored = await notifier.undoDelete(deletion);
+  if (restored is Ok) return;
+  snackbars.show(message: l10n.saveDiskFullError, danger: true);
 }

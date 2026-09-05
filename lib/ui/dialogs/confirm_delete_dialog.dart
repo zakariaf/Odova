@@ -247,6 +247,14 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
               label: l10n.confirmDeleteTypeToConfirm(_isolatedSubject),
               controller: _typed,
               placeholder: widget.subject,
+              // Only once something has been typed. §8 gives the wording —
+              // "That doesn't match The Golf." — and an empty field has not
+              // failed to match anything yet; a form that says you got it
+              // wrong before you have typed is a form that is angry at you for
+              // arriving.
+              errorText: _typed.text.isEmpty || _matches
+                  ? null
+                  : l10n.confirmDeleteMismatch(_isolatedSubject),
               onChanged: (_) => setState(() {}),
             ),
           ),

@@ -20,6 +20,7 @@ import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -79,9 +80,9 @@ class _RecordingNotifier extends VehiclesNotifier {
   Future<Result<void, PersistFailure>> markSold(
     VehicleId id, {
     required String soldOn,
-    int? soldPriceMinor,
+    Money? soldPrice,
   }) async {
-    sold.add((id: id, soldOn: soldOn, minor: soldPriceMinor));
+    sold.add((id: id, soldOn: soldOn, minor: soldPrice?.amountMinor));
     return const Ok(null);
   }
 }
@@ -340,9 +341,12 @@ void main() {
     // this screen.
     final notifier = await _pump(tester);
     await _swipeDelete(tester, 'The Golf');
-    expect(find.text('Mark as sold'), findsOneWidget);
+    // §8 quotes the button verbatim, and the "Keep it —" half is the point:
+    // "Mark as sold" alone says what the button does without saying why it is
+    // being offered in a delete dialog.
+    expect(find.text('Keep it — mark it sold'), findsOneWidget);
 
-    await tester.tap(find.text('Mark as sold'));
+    await tester.tap(find.text('Keep it — mark it sold'));
     await tester.pumpAndSettle();
 
     expect(notifier.deleted, isEmpty);

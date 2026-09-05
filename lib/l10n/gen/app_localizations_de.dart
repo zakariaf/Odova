@@ -222,6 +222,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String confirmDeleteMismatch(String subject) {
+    return 'Das stimmt nicht mit $subject überein.';
+  }
+
+  @override
   String get confirmDeleteDelete => 'Löschen';
 
   @override
@@ -449,6 +454,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get vehicleMarkAsSold => 'Als verkauft markieren';
+
+  @override
+  String get vehicleKeepItMarkSold => 'Behalten — als verkauft markieren';
 
   @override
   String vehicleDeleteRow(String name, String countText) {

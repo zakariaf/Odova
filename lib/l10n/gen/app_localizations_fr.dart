@@ -233,6 +233,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String confirmDeleteMismatch(String subject) {
+    return 'Cela ne correspond pas à $subject.';
+  }
+
+  @override
   String get confirmDeleteDelete => 'Supprimer';
 
   @override
@@ -462,6 +467,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get vehicleMarkAsSold => 'Marquer comme vendu';
+
+  @override
+  String get vehicleKeepItMarkSold => 'Le garder — le marquer comme vendu';
 
   @override
   String vehicleDeleteRow(String name, String countText) {

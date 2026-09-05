@@ -283,6 +283,16 @@
       }
     }
   },
+  "confirmDeleteMismatch": "That doesn't match {subject}.",
+  "@confirmDeleteMismatch": {
+    "description": "Shown under the typed-confirmation field when what was typed does not match. SPEC.md §8 gives the wording: \"That doesn't match The Golf.\" Without it the user who mistypes reads the instruction again and is never told they got it wrong.",
+    "placeholders": {
+      "subject": {
+        "type": "String",
+        "example": "The Golf"
+      }
+    }
+  },
   "confirmDeleteDelete": "Delete",
   "@confirmDeleteDelete": {
     "description": "The destructive action. Disabled until the typed name matches."
@@ -621,6 +631,10 @@
   "vehicleMarkAsSold": "Mark as sold",
   "@vehicleMarkAsSold": {
     "description": "Opens the sale form. Offered before Delete because it is what people usually mean."
+  },
+  "vehicleKeepItMarkSold": "Keep it — mark it sold",
+  "@vehicleKeepItMarkSold": {
+    "description": "SPEC.md §8 quotes this button verbatim in `dialog.confirmDelete`: `[ Keep it — mark it sold ]`. Deliberately NOT `vehicleMarkAsSold`, which is the row and the sheet's own title: the 'Keep it —' half is the reassurance, and §8 offers the sale before Delete because 'I sold the car' is what people mean most of the time they reach for Delete."
   },
   "vehicleDeleteRow": "Delete {name} and its {countText} entries",
   "@vehicleDeleteRow": {

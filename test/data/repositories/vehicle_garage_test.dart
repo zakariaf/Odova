@@ -22,6 +22,7 @@ import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
+import 'package:odova/features/vehicles/vehicle_edit_draft.dart';
 
 import '../../support/values.dart';
 import '../support/rows.dart';
@@ -458,7 +459,7 @@ void main() {
         await repository.markSold(
           VehicleId.tryParse(_golf)!,
           soldOn: '2026-09-04',
-          soldPriceMinor: 850000,
+          soldPrice: Money(850000, isoCurrency('EUR')),
           updatedAtUtcMs: 5000,
         );
 
@@ -468,6 +469,11 @@ void main() {
         expect(after.read<String>('status'), VehicleStatus.sold.wire);
         expect(after.read<String>('sold_on'), '2026-09-04');
         expect(after.read<int>('sold_price_minor'), 850000);
+        // BOTH price columns. They are one fact: `moneyOrNull` returns null
+        // unless the code is there too, so a number without it reads back as
+        // no price at all — and this set is what an earlier version of the
+        // test asserted, with `sold_price_currency` left out of it.
+        expect(after.read<String>('sold_price_currency'), 'EUR');
         // Everything else, unchanged.
         final changed = <String>{};
         for (final key in before.data.keys) {
@@ -477,10 +483,41 @@ void main() {
           'status',
           'sold_on',
           'sold_price_minor',
+          'sold_price_currency',
           'updated_at_utc_ms',
         });
       },
     );
+
+    test('the sale price survives a later save of the vehicle', () async {
+      // The whole reason the currency has to travel with the number. Without
+      // it `Vehicle.soldPrice` reads back null, and the NEXT ordinary save —
+      // `toVehicle` carries `soldPrice: original.soldPrice` — writes that null
+      // over the number. The user sells the car for 8,500, corrects the plate a
+      // week later, and the price is gone from disk.
+      await insertVehicle(db, id: _golf);
+      final id = VehicleId.tryParse(_golf)!;
+
+      await repository.markSold(
+        id,
+        soldOn: '2026-09-04',
+        soldPrice: Money(850000, isoCurrency('EUR')),
+        updatedAtUtcMs: 5000,
+      );
+
+      final sold =
+          (await repository.findById(id) as Ok<Vehicle, PersistFailure>).value;
+      expect(sold.soldPrice, Money(850000, isoCurrency('EUR')));
+
+      // An ordinary edit of something else entirely, through the real path:
+      // `vehicle.edit`'s draft, which carries `soldPrice: original.soldPrice`.
+      await repository.save(
+        VehicleEditDraft.of(sold).copyWith(plate: 'M-AB 12').toVehicle(9000),
+      );
+      final again =
+          (await repository.findById(id) as Ok<Vehicle, PersistFailure>).value;
+      expect(again.soldPrice, Money(850000, isoCurrency('EUR')));
+    });
 
     test('archive writes status and leaves sold_on null', () async {
       // Archived is not sold. A vehicle put away in a garage for the winter has

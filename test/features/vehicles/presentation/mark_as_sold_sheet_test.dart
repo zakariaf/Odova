@@ -80,7 +80,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(captured, hasLength(1));
     expect(captured.single!.soldOn, '2026-11-20');
-    expect(captured.single!.soldPriceMinor, isNull);
+    expect(captured.single!.soldPrice?.amountMinor, isNull);
   });
 
   testWidgets('a price becomes minor units, never a rounded major', (
@@ -94,7 +94,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byWidget(_confirm(tester)));
     await tester.pumpAndSettle();
-    expect(captured.single!.soldPriceMinor, 850050);
+    expect(captured.single!.soldPrice?.amountMinor, 850050);
   });
 
   testWidgets('a half-cent rounds up, because a double cannot hold it', (
@@ -113,7 +113,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byWidget(_confirm(tester)));
     await tester.pumpAndSettle();
-    expect(captured.single!.soldPriceMinor, 850001);
+    expect(captured.single!.soldPrice?.amountMinor, 850001);
   });
 
   testWidgets('a price that is not a number blocks the sale, with a reason', (

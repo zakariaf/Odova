@@ -222,6 +222,11 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String confirmDeleteMismatch(String subject) {
+    return 'ئەمە لەگەڵ $subject یەک ناگرێتەوە.';
+  }
+
+  @override
   String get confirmDeleteDelete => 'سڕینەوە';
 
   @override
@@ -447,6 +452,9 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get vehicleMarkAsSold => 'نیشانەکردن وەک فرۆشراو';
+
+  @override
+  String get vehicleKeepItMarkSold => 'بیهێڵەوە — وەک فرۆشراو نیشانەی بکە';
 
   @override
   String vehicleDeleteRow(String name, String countText) {

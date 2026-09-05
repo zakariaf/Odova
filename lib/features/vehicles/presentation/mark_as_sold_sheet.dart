@@ -16,6 +16,7 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/core/l10n/numeric_input.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/minor_units.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/l10n/date_format.dart';
@@ -29,7 +30,13 @@ import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
 
 /// What the user agreed to.
-typedef MarkAsSoldResult = ({String soldOn, int? soldPriceMinor});
+///
+/// The price is a [Money], not a bare minor-unit integer: SPEC.md §2 stores an
+/// amount as minor units PLUS an ISO 4217 code, `vehicles` has no CHECK pairing
+/// its two columns, and `row_mappers.moneyOrNull` returns null unless both are
+/// there — so a number that travels without its currency is a number that
+/// silently is not read back.
+typedef MarkAsSoldResult = ({String soldOn, Money? soldPrice});
 
 /// The latest date the picker will offer, given [today].
 ///
@@ -84,22 +91,25 @@ class _MarkAsSoldSheetState extends ConsumerState<MarkAsSoldSheet> {
   ///
   /// A THIRD state — unparseable — is what blocks the sale, and it is the only
   /// thing on this form that can.
-  ({bool valid, int? minor}) _parsePrice(Currency currency, String tag) {
+  ({bool valid, Money? money}) _parsePrice(Currency currency, String tag) {
     final text = _price.text.trim();
-    if (text.isEmpty) return (valid: true, minor: null);
+    if (text.isEmpty) return (valid: true, money: null);
     final read = normalizeNumericInput(
       text,
       groupingSeparator: groupingSeparatorFor(tag),
     );
-    if (read is! NumericInputOk) return (valid: false, minor: null);
+    if (read is! NumericInputOk) return (valid: false, money: null);
     // String arithmetic, not `double.parse(...) * minorPerMajor`. That is what
     // this line used to be, and 8,500.005 — exactly half a cent — came back as
     // 850000 rather than 850001, because the double holding it is
     // 850000.49999999994. SPEC.md §3, and `value-objects-money-and-units` in
     // one sentence: money never travels through a double.
     final minor = minorUnitsFrom(read.canonical, currency);
-    if (minor == null || minor < 0) return (valid: false, minor: null);
-    return (valid: true, minor: minor);
+    if (minor == null || minor < 0) return (valid: false, money: null);
+    // The CURRENCY travels with the number, from here to the column. It is the
+    // app's default at the moment of the sale, which is the only currency the
+    // form showed the user.
+    return (valid: true, money: Money(minor, currency));
   }
 
   Future<void> _pickDate() async {
@@ -141,7 +151,7 @@ class _MarkAsSoldSheetState extends ConsumerState<MarkAsSoldSheet> {
           onPressed: price.valid
               ? () => Navigator.of(context).pop((
                   soldOn: CivilDate.isoDateOf(_soldOn),
-                  soldPriceMinor: price.minor,
+                  soldPrice: price.money,
                 ))
               : null,
         ),

@@ -16,6 +16,7 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
@@ -61,7 +62,7 @@ class VehiclesNotifier extends Notifier<void> {
   Future<Result<void, PersistFailure>> markSold(
     VehicleId id, {
     required String soldOn,
-    int? soldPriceMinor,
+    Money? soldPrice,
   }) async {
     final now = ref.read(clockProvider).now().millisecondsSinceEpoch;
     final marked = await ref
@@ -69,7 +70,7 @@ class VehiclesNotifier extends Notifier<void> {
         .markSold(
           id,
           soldOn: soldOn,
-          soldPriceMinor: soldPriceMinor,
+          soldPrice: soldPrice,
           updatedAtUtcMs: now,
         );
     if (marked case Err(failure: final f)) return Err(f);

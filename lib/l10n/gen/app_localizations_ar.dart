@@ -259,6 +259,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String confirmDeleteMismatch(String subject) {
+    return 'هذا لا يطابق $subject.';
+  }
+
+  @override
   String get confirmDeleteDelete => 'حذف';
 
   @override
@@ -483,6 +488,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vehicleMarkAsSold => 'تحديد كمباعة';
+
+  @override
+  String get vehicleKeepItMarkSold => 'احتفظ بها — وحدّدها كمباعة';
 
   @override
   String vehicleDeleteRow(String name, String countText) {

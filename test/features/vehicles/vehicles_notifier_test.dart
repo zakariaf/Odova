@@ -29,6 +29,7 @@ import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
 
 import '../../data/support/rows.dart';
+import '../../support/values.dart';
 
 const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 const _polo = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVB';
@@ -124,13 +125,14 @@ void main() {
       final result = await notifier().markSold(
         _id(_golf),
         soldOn: '2024-03-12',
-        soldPriceMinor: 850000,
+        soldPrice: Money(850000, isoCurrency('EUR')),
       );
 
       expect(result, isA<Ok<void, PersistFailure>>());
       final row = await db
           .customSelect(
-            'SELECT status, sold_on, sold_price_minor FROM vehicles '
+            'SELECT status, sold_on, sold_price_minor, sold_price_currency '
+            'FROM vehicles '
             'WHERE id = ?;',
             variables: [const Variable<String>(_golf)],
           )
