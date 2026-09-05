@@ -38,6 +38,7 @@ import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/ui/calm/calm_disclosure.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
@@ -569,6 +570,56 @@ void main() {
     // The live row still has both its lines and its dot.
     expect(_row(tester, 'The Golf').showChevron, isFalse);
     expect(_row(tester, 'The Golf').end, isNotNull);
+  });
+
+  testWidgets('above five, sold and archived collapse behind a header', (
+    tester,
+  ) async {
+    // SPEC.md §8's States table: "Many (tested to 50) — no cap; a plain
+    // scroller. 'Sold and archived' collapses to a header with a count above
+    // five." A garage of fifty with twenty sold is a wall the user scrolls
+    // past to reach the two cars they drive.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(_golf, 'The Golf'),
+        for (var i = 0; i < kCollapseSoldAbove + 1; i++)
+          _vehicle(
+            VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HC0$i')!,
+            'Sold $i',
+            status: VehicleStatus.sold,
+            soldOn: '2024-03-12',
+          ),
+      ],
+    );
+
+    expect(find.byType(CalmDisclosure), findsOneWidget);
+    expect(find.text('Sold 0'), findsNothing, reason: 'collapsed');
+
+    await tester.tap(find.text('Sold and archived'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sold 0'), findsOneWidget);
+  });
+
+  testWidgets('at five exactly it is still a plain section', (tester) async {
+    // The other side of the threshold. A disclosure over a handful of rows is
+    // a tap the user has to make for nothing.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(_golf, 'The Golf'),
+        for (var i = 0; i < kCollapseSoldAbove; i++)
+          _vehicle(
+            VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HC0$i')!,
+            'Sold $i',
+            status: VehicleStatus.sold,
+            soldOn: '2024-03-12',
+          ),
+      ],
+    );
+
+    expect(find.byType(CalmDisclosure), findsNothing);
+    expect(find.text('Sold 0'), findsOneWidget);
   });
 
   testWidgets('an ARCHIVED row is a live row, at the bottom', (tester) async {

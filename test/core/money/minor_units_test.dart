@@ -69,4 +69,13 @@ void main() {
     final exact = int.parse('12345678901234567');
     expect(minorUnitsFrom('123456789012345.67', _eur), exact);
   });
+
+  test('a value that cannot be rounded without wrapping is refused', () {
+    // `int.tryParse` refuses anything past the 64-bit range, but a magnitude
+    // sitting exactly ON the maximum wraps to the minimum when the half-up
+    // adds one — a large negative amount for a large positive number. The one
+    // caller today rejects negatives; the next one might not.
+    expect(minorUnitsFrom('92233720368547758.075', _eur), isNull);
+    expect(minorUnitsFrom('92233720368547758.07', _eur), isNotNull);
+  });
 }

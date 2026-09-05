@@ -34,6 +34,7 @@ import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/theme/calm/vehicle_swatch.dart';
+import 'package:odova/ui/calm/calm_disclosure.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
@@ -109,12 +110,26 @@ class VehiclesScreen extends ConsumerWidget {
               : null,
           rows: [for (final v in live) _GarageRow(vehicle: v)],
         ),
-        if (gone.isNotEmpty) ...[
+        // ABOVE FIVE it collapses. SPEC.md §8's States table: "Many (tested to
+        // 50) — no cap; a plain scroller. 'Sold and archived' collapses to a
+        // header with a count above five." A garage of fifty with twenty sold
+        // is a wall of rows the user has to scroll past to reach the two cars
+        // they drive, and §8 designed that away.
+        if (gone.length > kCollapseSoldAbove)
+          CalmDisclosure(
+            title: l10n.vehiclesSoldArchived,
+            children: [
+              CalmRowGroup(
+                tinted: true,
+                rows: [for (final v in gone) _GarageRow(vehicle: v)],
+              ),
+            ],
+          )
+        else if (gone.isNotEmpty) ...[
           // `.section__head`, a SIBLING of the group it names — that is how all
           // nine of the artboards that have one draw it. The count sits beside
           // the title rather than as "(1)" inside it, because it is a number
-          // and the title is a heading; above five SPEC.md §8 collapses the
-          // group to exactly this line.
+          // and the title is a heading.
           CalmSectionHead(
             title: l10n.vehiclesSoldArchived,
             hint: formatForDisplay(
@@ -180,6 +195,13 @@ class VehiclesScreen extends ConsumerWidget {
     );
   }
 }
+
+/// How many sold or archived vehicles fit before the group collapses.
+///
+/// SPEC.md §8: "'Sold and archived' collapses to a header with a count above
+/// five." Five is where a list stops being a few rows at the bottom and starts
+/// being something to scroll past.
+const int kCollapseSoldAbove = 5;
 
 /// One vehicle: silhouette, name, facts, and what it needs next.
 class _GarageRow extends ConsumerWidget {

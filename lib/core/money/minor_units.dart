@@ -49,12 +49,26 @@ int? minorUnitsFrom(String canonical, Currency currency) {
   final decider = padded.codeUnitAt(exponent) - _zero;
 
   final magnitude = int.tryParse('${whole.isEmpty ? '0' : whole}$kept');
+  // And the ROUNDING has to fit too. `int.tryParse` refuses anything past the
+  // 64-bit range, but a value sitting exactly on the maximum wraps to the
+  // minimum when the half-up adds one — a negative amount for a positive
+  // number, which the only caller today happens to reject and the next one
+  // might not.
   if (magnitude == null) return null;
-  final rounded = decider >= 5 ? magnitude + 1 : magnitude;
+  if (decider < 5) return negative ? -magnitude : magnitude;
+  // Only the ROUNDING can overflow, and only from the maximum: `int.tryParse`
+  // has already refused anything past the 64-bit range, but a magnitude
+  // sitting exactly on it wraps to the minimum when the half-up adds one — a
+  // large negative amount for a large positive number.
+  if (magnitude == _maxInt) return null;
+  final rounded = magnitude + 1;
   return negative ? -rounded : rounded;
 }
 
 const int _zero = 0x30;
+
+/// One past the largest magnitude the rounding step can add to.
+const int _maxInt = 9223372036854775807;
 
 bool _isDigits(String text) {
   for (var i = 0; i < text.length; i++) {
