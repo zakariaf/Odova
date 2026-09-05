@@ -33,7 +33,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unitVolumeGallon => 'جالون';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'ل/$n كم';
   }
 
@@ -917,4 +917,89 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get homeConsumptionPending =>
       'يصل أول رقم استهلاك عند تعبئة الخزان بالكامل في المرّة القادمة.';
+
+  @override
+  String get homeLastFillUp => 'آخر تعبئة';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText تذكير متأخر',
+      many: '$name · $nText تذكيرًا متأخرًا',
+      few: '$name · $nText تذكيرات متأخرة',
+      two: '$name · تذكيران متأخران',
+      one: '$name · تذكير واحد متأخر',
+      zero: '$name · $nText تذكير متأخر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText تذكير مستحق',
+      many: '$name · $nText تذكيرًا مستحقًا',
+      few: '$name · $nText تذكيرات مستحقة',
+      two: '$name · تذكيران مستحقان',
+      one: '$name · تذكير واحد مستحق',
+      zero: '$name · $nText تذكير مستحق',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'لكل $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'شهريًا';
+
+  @override
+  String get homeMoreActions => 'إجراءات أخرى';
+
+  @override
+  String get actionSnooze => 'تأجيل';
+
+  @override
+  String get actionEditReminder => 'تعديل التذكير';
+
+  @override
+  String get actionTurnOff => 'إيقاف هذا التذكير';
+
+  @override
+  String homeTurnedOff(String item) {
+    return 'تم إيقاف $item';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'كم/ل';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'ك.و.س/$n كم';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'ميل/ك.و.س';
+
+  @override
+  String get unitEnergyKwh => 'ك.و.س';
+
+  @override
+  String get unitMassKg => 'كجم';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
 }

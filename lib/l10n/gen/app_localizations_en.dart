@@ -32,7 +32,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unitVolumeGallon => 'gal';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'L/$n km';
   }
 
@@ -835,4 +835,81 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get homeConsumptionPending =>
       'Your first consumption figure arrives at your next full fill-up.';
+
+  @override
+  String get homeLastFillUp => 'Last fill-up';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText overdue',
+      one: '$name · $nText overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText due',
+      one: '$name · $nText due',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'per $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'per month';
+
+  @override
+  String get homeMoreActions => 'More actions';
+
+  @override
+  String get actionSnooze => 'Snooze';
+
+  @override
+  String get actionEditReminder => 'Edit reminder';
+
+  @override
+  String get actionTurnOff => 'Turn this off';
+
+  @override
+  String homeTurnedOff(String item) {
+    return '$item turned off';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'km/L';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'kWh/$n km';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'mi/kWh';
+
+  @override
+  String get unitEnergyKwh => 'kWh';
+
+  @override
+  String get unitMassKg => 'kg';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
 }

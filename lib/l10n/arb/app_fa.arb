@@ -178,5 +178,22 @@
   "homeEnteredOn": "ثبت‌شده {date}",
   "homeEstimatedFrom": "برآورد از حدود {rate} در روز از {date}.",
   "homeEstimateExpired": "آخرین عدد تو خیلی قدیمی است، پس اودووا دیگر حدس نمی‌زند. آنچه روی داشبورد است را وارد کن.",
-  "homeConsumptionPending": "اولین عدد مصرف تو در باک‌پرکردن کامل بعدی می‌آید."
+  "homeConsumptionPending": "اولین عدد مصرف تو در باک‌پرکردن کامل بعدی می‌آید.",
+  "homeLastFillUp": "آخرین سوخت‌گیری",
+  "homeLastFillUpDetail": "{date} · {volume}",
+  "homeOtherVehicleOverdue": "{n, plural, one{{name} · {nText} عقب‌افتاده} other{{name} · {nText} عقب‌افتاده}}",
+  "homeOtherVehicleDue": "{n, plural, one{{name} · {nText} سررسید} other{{name} · {nText} سررسید}}",
+  "homeTilePerDistance": "در هر {unit}",
+  "homeTilePerMonth": "در ماه",
+  "homeMoreActions": "اقدام‌های بیشتر",
+  "actionSnooze": "یادآوری بعداً",
+  "actionEditReminder": "ویرایش یادآور",
+  "actionTurnOff": "خاموش کردن این یادآور",
+  "homeTurnedOff": "{item} خاموش شد",
+  "unitConsumptionKmPerLitre": "کم/ل",
+  "unitConsumptionKwhPerDistance": "کیلووات‌ساعت/{n} کم",
+  "unitConsumptionMiPerKwh": "مایل/کیلووات‌ساعت",
+  "unitEnergyKwh": "کیلووات‌ساعت",
+  "unitMassKg": "کیلوگرم",
+  "commonEstimatedValue": "~{value}"
 }

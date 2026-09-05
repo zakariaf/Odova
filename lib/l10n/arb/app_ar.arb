@@ -178,5 +178,22 @@
   "homeEnteredOn": "أُدخِل {date}",
   "homeEstimatedFrom": "تقدير من نحو {rate} يوميًا منذ {date}.",
   "homeEstimateExpired": "قراءتك الأخيرة قديمة جدًا، لذا توقّفت أودوفا عن التقدير. أدخِل ما يظهر على العدّاد الآن.",
-  "homeConsumptionPending": "يصل أول رقم استهلاك عند تعبئة الخزان بالكامل في المرّة القادمة."
+  "homeConsumptionPending": "يصل أول رقم استهلاك عند تعبئة الخزان بالكامل في المرّة القادمة.",
+  "homeLastFillUp": "آخر تعبئة",
+  "homeLastFillUpDetail": "{date} · {volume}",
+  "homeOtherVehicleOverdue": "{n, plural, zero{{name} · {nText} تذكير متأخر} one{{name} · تذكير واحد متأخر} two{{name} · تذكيران متأخران} few{{name} · {nText} تذكيرات متأخرة} many{{name} · {nText} تذكيرًا متأخرًا} other{{name} · {nText} تذكير متأخر}}",
+  "homeOtherVehicleDue": "{n, plural, zero{{name} · {nText} تذكير مستحق} one{{name} · تذكير واحد مستحق} two{{name} · تذكيران مستحقان} few{{name} · {nText} تذكيرات مستحقة} many{{name} · {nText} تذكيرًا مستحقًا} other{{name} · {nText} تذكير مستحق}}",
+  "homeTilePerDistance": "لكل {unit}",
+  "homeTilePerMonth": "شهريًا",
+  "homeMoreActions": "إجراءات أخرى",
+  "actionSnooze": "تأجيل",
+  "actionEditReminder": "تعديل التذكير",
+  "actionTurnOff": "إيقاف هذا التذكير",
+  "homeTurnedOff": "تم إيقاف {item}",
+  "unitConsumptionKmPerLitre": "كم/ل",
+  "unitConsumptionKwhPerDistance": "ك.و.س/{n} كم",
+  "unitConsumptionMiPerKwh": "ميل/ك.و.س",
+  "unitEnergyKwh": "ك.و.س",
+  "unitMassKg": "كجم",
+  "commonEstimatedValue": "~{value}"
 }

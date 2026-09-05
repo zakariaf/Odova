@@ -33,7 +33,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get unitVolumeGallon => 'گالن';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'ل/$n کم';
   }
 
@@ -835,4 +835,81 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get homeConsumptionPending =>
       'اولین عدد مصرف تو در باک‌پرکردن کامل بعدی می‌آید.';
+
+  @override
+  String get homeLastFillUp => 'آخرین سوخت‌گیری';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText عقب‌افتاده',
+      one: '$name · $nText عقب‌افتاده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText سررسید',
+      one: '$name · $nText سررسید',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'در هر $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'در ماه';
+
+  @override
+  String get homeMoreActions => 'اقدام‌های بیشتر';
+
+  @override
+  String get actionSnooze => 'یادآوری بعداً';
+
+  @override
+  String get actionEditReminder => 'ویرایش یادآور';
+
+  @override
+  String get actionTurnOff => 'خاموش کردن این یادآور';
+
+  @override
+  String homeTurnedOff(String item) {
+    return '$item خاموش شد';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'کم/ل';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'کیلووات‌ساعت/$n کم';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'مایل/کیلووات‌ساعت';
+
+  @override
+  String get unitEnergyKwh => 'کیلووات‌ساعت';
+
+  @override
+  String get unitMassKg => 'کیلوگرم';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
 }

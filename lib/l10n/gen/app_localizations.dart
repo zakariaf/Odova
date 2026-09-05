@@ -148,11 +148,11 @@ abstract class AppLocalizations {
   /// **'gal'**
   String get unitVolumeGallon;
 
-  /// Fuel consumption as volume per distance, e.g. "L/100 km". {n} is the hundred, as a PLACEHOLDER rather than a literal, so the active numbering system shapes it like every other number.
+  /// Fuel consumption as volume per distance, e.g. "L/100 km". {n} is the hundred, as a PLACEHOLDER rather than a literal, and a String rather than an int: gen-l10n interpolates a bare int in Latin digits, and SPEC.md §5 shapes every number through `formatForDisplay` against the FORMATS tag, which follows the device region rather than the UI language.
   ///
   /// In en, this message translates to:
   /// **'L/{n} km'**
-  String unitConsumptionPerDistance(int n);
+  String unitConsumptionPerDistance(String n);
 
   /// Fuel consumption as distance per volume: miles per gallon.
   ///
@@ -1190,6 +1190,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your first consumption figure arrives at your next full fill-up.'**
   String get homeConsumptionPending;
+
+  /// The 56pt read-out row under the glance tiles. A heading, not a link — SPEC.md §9 gives the row no action.
+  ///
+  /// In en, this message translates to:
+  /// **'Last fill-up'**
+  String get homeLastFillUp;
+
+  /// The last fill-up row's second line: when it happened and how much went in. Both parts are formatted upstream; the separator is the only copy here.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {volume}'**
+  String homeLastFillUpDetail(String date, String volume);
+
+  /// The other-vehicles row when another car has overdue work. It names the VEHICLE and the count, never the job — SPEC.md §9: "Home shows whose problem it is, not what it is."
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{name} · {nText} overdue} other{{name} · {nText} overdue}}'**
+  String homeOtherVehicleOverdue(int n, String nText, String name);
+
+  /// The other-vehicles row when another car has work due but nothing overdue. A separate key from homeOtherVehicleOverdue because the two words are not interchangeable.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{name} · {nText} due} other{{name} · {nText} due}}'**
+  String homeOtherVehicleDue(int n, String nText, String name);
+
+  /// The second glance tile's two-line label — cost per kilometre or mile. {unit} is the abbreviation from the unit keys, never spelled out here.
+  ///
+  /// In en, this message translates to:
+  /// **'per {unit}'**
+  String homeTilePerDistance(String unit);
+
+  /// The third glance tile's two-line label — what the vehicle costs in a month.
+  ///
+  /// In en, this message translates to:
+  /// **'per month'**
+  String get homeTilePerMonth;
+
+  /// The accessible name of the due card's ⋯ button. It carries no visible word, so this is the only thing a screen reader can announce.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get homeMoreActions;
+
+  /// The card overflow's second item, opening dialog.snooze. A verb: it is what the tap does, not what the state is called.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze'**
+  String get actionSnooze;
+
+  /// The card overflow's third item, opening reminders.edit for this item.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reminder'**
+  String get actionEditReminder;
+
+  /// The card overflow's last item. It sets is_active = false on the item — it does not delete anything, which is why the wording is "turn off" rather than "remove".
+  ///
+  /// In en, this message translates to:
+  /// **'Turn this off'**
+  String get actionTurnOff;
+
+  /// The snackbar after Turn this off. It carries an Undo, so it names the item rather than saying "done".
+  ///
+  /// In en, this message translates to:
+  /// **'{item} turned off'**
+  String homeTurnedOff(String item);
+
+  /// Consumption as distance per volume — the inverse direction, where HIGHER is better. Its own key rather than a reversal of unitConsumptionPerDistance, which bakes the hundred in.
+  ///
+  /// In en, this message translates to:
+  /// **'km/L'**
+  String get unitConsumptionKmPerLitre;
+
+  /// Electric consumption as energy per distance. {n} is the hundred, as a PLACEHOLDER rather than a literal, for the same reason unitConsumptionPerDistance carries one — and a String for the same reason too: the shaping belongs to the formats tag, not to gen-l10n.
+  ///
+  /// In en, this message translates to:
+  /// **'kWh/{n} km'**
+  String unitConsumptionKwhPerDistance(String n);
+
+  /// Electric consumption as distance per energy, where HIGHER is better.
+  ///
+  /// In en, this message translates to:
+  /// **'mi/kWh'**
+  String get unitConsumptionMiPerKwh;
+
+  /// The energy abbreviation, for an electric fill-up. Ours rather than the platform's, like every other unit label — SPEC.md §5.
+  ///
+  /// In en, this message translates to:
+  /// **'kWh'**
+  String get unitEnergyKwh;
+
+  /// The mass abbreviation, for a CNG fill-up, which is sold by weight rather than by volume.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get unitMassKg;
+
+  /// An estimated figure, with the mark SPEC.md §1.4 gives it. The tilde is the marker in every locale, so the six values are identical today — the key exists so that the mark's SIDE is a translation decision rather than a Dart concatenation, and so it lands inside the number's bidi isolate instead of in front of it.
+  ///
+  /// In en, this message translates to:
+  /// **'~{value}'**
+  String commonEstimatedValue(String value);
 }
 
 class _AppLocalizationsDelegate

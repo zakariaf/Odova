@@ -178,5 +178,22 @@
   "homeEnteredOn": "[ḗǹţḗřḗḍ {date} ǃǃǃǃ]",
   "homeEstimatedFrom": "[Ḗŝţīḿáţḗḍ ƒřǿḿ áḅǿǔţ {rate} á ḍáẏ ŝīǹçḗ {date}. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "homeEstimateExpired": "[Ẏǿǔř ŀáŝţ řḗáḍīǹḡ īŝ ţǿǿ ǿŀḍ, ŝǿ Ǿḍǿṽá ħáŝ ŝţǿƥƥḗḍ ḡǔḗŝŝīǹḡ. Ḗǹţḗř ẇħáţ ţħḗ ḍáŝħ ŝáẏŝ ǹǿẇ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
-  "homeConsumptionPending": "[Ẏǿǔř ƒīřŝţ çǿǹŝǔḿƥţīǿǹ ƒīḡǔřḗ ářřīṽḗŝ áţ ẏǿǔř ǹḗẋţ ƒǔŀŀ ƒīŀŀ-ǔƥ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]"
+  "homeConsumptionPending": "[Ẏǿǔř ƒīřŝţ çǿǹŝǔḿƥţīǿǹ ƒīḡǔřḗ ářřīṽḗŝ áţ ẏǿǔř ǹḗẋţ ƒǔŀŀ ƒīŀŀ-ǔƥ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "homeLastFillUp": "[Ŀáŝţ ƒīŀŀ-ǔƥ ǃǃǃǃǃ]",
+  "homeLastFillUpDetail": "[{date} · {volume} ǃǃ]",
+  "homeOtherVehicleOverdue": "[{n, plural, one{{name} · {nText} ǿṽḗřḍǔḗ} other{{name} · {nText} ǿṽḗřḍǔḗ}} ǃǃǃǃǃǃǃǃǃ]",
+  "homeOtherVehicleDue": "[{n, plural, one{{name} · {nText} ḍǔḗ} other{{name} · {nText} ḍǔḗ}} ǃǃǃǃǃǃ]",
+  "homeTilePerDistance": "[ƥḗř {unit} ǃǃ]",
+  "homeTilePerMonth": "[ƥḗř ḿǿǹţħ ǃǃǃǃ]",
+  "homeMoreActions": "[Ḿǿřḗ áçţīǿǹŝ ǃǃǃǃǃ]",
+  "actionSnooze": "[Ŝǹǿǿżḗ ǃǃǃ]",
+  "actionEditReminder": "[Ḗḍīţ řḗḿīǹḍḗř ǃǃǃǃǃǃ]",
+  "actionTurnOff": "[Ţǔřǹ ţħīŝ ǿƒƒ ǃǃǃǃǃǃ]",
+  "homeTurnedOff": "[{item} ţǔřǹḗḍ ǿƒƒ ǃǃǃǃǃ]",
+  "unitConsumptionKmPerLitre": "[ķḿ/Ŀ ǃǃ]",
+  "unitConsumptionKwhPerDistance": "[ķẆħ/{n} ķḿ ǃǃǃ]",
+  "unitConsumptionMiPerKwh": "[ḿī/ķẆħ ǃǃǃ]",
+  "unitEnergyKwh": "[ķẆħ ǃǃ]",
+  "unitMassKg": "[ķḡ ǃ]",
+  "commonEstimatedValue": "[~{value} ǃ]"
 }

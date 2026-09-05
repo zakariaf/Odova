@@ -33,7 +33,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unitVolumeGallon => 'gal';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'l/$n km';
   }
 
@@ -865,4 +865,83 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get homeConsumptionPending =>
       'Votre première consommation arrivera au prochain plein.';
+
+  @override
+  String get homeLastFillUp => 'Dernier plein';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText en retard',
+      many: '$name · $nText en retard',
+      one: '$name · $nText en retard',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText à échéance',
+      many: '$name · $nText à échéance',
+      one: '$name · $nText à échéance',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'par $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'par mois';
+
+  @override
+  String get homeMoreActions => 'Plus d’actions';
+
+  @override
+  String get actionSnooze => 'Reporter';
+
+  @override
+  String get actionEditReminder => 'Modifier le rappel';
+
+  @override
+  String get actionTurnOff => 'Désactiver ce rappel';
+
+  @override
+  String homeTurnedOff(String item) {
+    return '$item désactivé';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'km/l';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'kWh/$n km';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'mi/kWh';
+
+  @override
+  String get unitEnergyKwh => 'kWh';
+
+  @override
+  String get unitMassKg => 'kg';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
 }

@@ -141,6 +141,12 @@ void main() {
 
     final size = tester.getSize(find.byType(OdometerStrip));
     expect(size.height, greaterThanOrEqualTo(48));
-    expect(size.height, kOdometerStripHeight);
+    // A FLOOR, not the height. `.odostrip` is `min-height: 72px` with its own
+    // padding, and the strip holds two stacked lines — the reading and its
+    // freshness — so it is taller than the minimum in every locale and taller
+    // again at 200%. Pinning the equality would make any translation that
+    // wraps a failure of the strip rather than of the fold, which is what the
+    // fold test is for.
+    expect(size.height, greaterThanOrEqualTo(kOdometerStripHeight));
   });
 }

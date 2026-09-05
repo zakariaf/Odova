@@ -33,7 +33,7 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get unitVolumeGallon => 'گاڵن';
 
   @override
-  String unitConsumptionPerDistance(int n) {
+  String unitConsumptionPerDistance(String n) {
     return 'ل/$n کم';
   }
 
@@ -839,4 +839,81 @@ class AppLocalizationsCkb extends AppLocalizations {
   @override
   String get homeConsumptionPending =>
       'یەکەم ژمارەی خەرجکردنت لە پڕکردنەوەی تەواوی داهاتوودا دێت.';
+
+  @override
+  String get homeLastFillUp => 'دوایین سووتەمەنی‌کردن';
+
+  @override
+  String homeLastFillUpDetail(String date, String volume) {
+    return '$date · $volume';
+  }
+
+  @override
+  String homeOtherVehicleOverdue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText دواکەوتوو',
+      one: '$name · $nText دواکەوتوو',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOtherVehicleDue(int n, String nText, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$name · $nText کاتی هاتووە',
+      one: '$name · $nText کاتی هاتووە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeTilePerDistance(String unit) {
+    return 'بۆ هەر $unit';
+  }
+
+  @override
+  String get homeTilePerMonth => 'لە مانگێکدا';
+
+  @override
+  String get homeMoreActions => 'کردارەکانی تر';
+
+  @override
+  String get actionSnooze => 'دواخستن';
+
+  @override
+  String get actionEditReminder => 'دەستکاری بیرخەرەوە';
+
+  @override
+  String get actionTurnOff => 'ئەم بیرخەرەوە بکوژێنەوە';
+
+  @override
+  String homeTurnedOff(String item) {
+    return '$item کوژێنرایەوە';
+  }
+
+  @override
+  String get unitConsumptionKmPerLitre => 'کم/ل';
+
+  @override
+  String unitConsumptionKwhPerDistance(String n) {
+    return 'ک.و.س/$n کم';
+  }
+
+  @override
+  String get unitConsumptionMiPerKwh => 'مایل/ک.و.س';
+
+  @override
+  String get unitEnergyKwh => 'ک.و.س';
+
+  @override
+  String get unitMassKg => 'کگم';
+
+  @override
+  String commonEstimatedValue(String value) {
+    return '~$value';
+  }
 }

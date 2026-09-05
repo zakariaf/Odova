@@ -178,5 +178,22 @@
   "homeEnteredOn": "تۆمارکراوە {date}",
   "homeEstimatedFrom": "خەمڵێنراو لە نزیکەی {rate} ڕۆژانە لە {date}ەوە.",
   "homeEstimateExpired": "دوایین خوێندنەوەت زۆر کۆنە، بۆیە ئۆدۆڤا وازی لە خەمڵاندن هێناوە. ئەوەی ئێستا لەسەر داشبۆردە بینووسە.",
-  "homeConsumptionPending": "یەکەم ژمارەی خەرجکردنت لە پڕکردنەوەی تەواوی داهاتوودا دێت."
+  "homeConsumptionPending": "یەکەم ژمارەی خەرجکردنت لە پڕکردنەوەی تەواوی داهاتوودا دێت.",
+  "homeLastFillUp": "دوایین سووتەمەنی‌کردن",
+  "homeLastFillUpDetail": "{date} · {volume}",
+  "homeOtherVehicleOverdue": "{n, plural, one{{name} · {nText} دواکەوتوو} other{{name} · {nText} دواکەوتوو}}",
+  "homeOtherVehicleDue": "{n, plural, one{{name} · {nText} کاتی هاتووە} other{{name} · {nText} کاتی هاتووە}}",
+  "homeTilePerDistance": "بۆ هەر {unit}",
+  "homeTilePerMonth": "لە مانگێکدا",
+  "homeMoreActions": "کردارەکانی تر",
+  "actionSnooze": "دواخستن",
+  "actionEditReminder": "دەستکاری بیرخەرەوە",
+  "actionTurnOff": "ئەم بیرخەرەوە بکوژێنەوە",
+  "homeTurnedOff": "{item} کوژێنرایەوە",
+  "unitConsumptionKmPerLitre": "کم/ل",
+  "unitConsumptionKwhPerDistance": "ک.و.س/{n} کم",
+  "unitConsumptionMiPerKwh": "مایل/ک.و.س",
+  "unitEnergyKwh": "ک.و.س",
+  "unitMassKg": "کگم",
+  "commonEstimatedValue": "~{value}"
 }

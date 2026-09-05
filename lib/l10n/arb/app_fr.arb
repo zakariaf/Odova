@@ -178,5 +178,22 @@
   "homeEnteredOn": "saisi {date}",
   "homeEstimatedFrom": "Estimé à partir d’environ {rate} par jour depuis le {date}.",
   "homeEstimateExpired": "Votre dernier relevé est trop ancien, Odova a cessé d’estimer. Saisissez ce qu’affiche le compteur.",
-  "homeConsumptionPending": "Votre première consommation arrivera au prochain plein."
+  "homeConsumptionPending": "Votre première consommation arrivera au prochain plein.",
+  "homeLastFillUp": "Dernier plein",
+  "homeLastFillUpDetail": "{date} · {volume}",
+  "homeOtherVehicleOverdue": "{n, plural, one{{name} · {nText} en retard} many{{name} · {nText} en retard} other{{name} · {nText} en retard}}",
+  "homeOtherVehicleDue": "{n, plural, one{{name} · {nText} à échéance} many{{name} · {nText} à échéance} other{{name} · {nText} à échéance}}",
+  "homeTilePerDistance": "par {unit}",
+  "homeTilePerMonth": "par mois",
+  "homeMoreActions": "Plus d’actions",
+  "actionSnooze": "Reporter",
+  "actionEditReminder": "Modifier le rappel",
+  "actionTurnOff": "Désactiver ce rappel",
+  "homeTurnedOff": "{item} désactivé",
+  "unitConsumptionKmPerLitre": "km/l",
+  "unitConsumptionKwhPerDistance": "kWh/{n} km",
+  "unitConsumptionMiPerKwh": "mi/kWh",
+  "unitEnergyKwh": "kWh",
+  "unitMassKg": "kg",
+  "commonEstimatedValue": "~{value}"
 }

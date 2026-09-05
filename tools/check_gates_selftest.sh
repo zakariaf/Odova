@@ -636,6 +636,31 @@ PROBE
 assert 1 "check_status_encoding is red on an == comparison in a widget" \
   bash "$STATUS" lib
 restore_all
+
+# The TILDE rule had no arm at all until EPIC-10, and it was the one that was
+# actually being broken: `odometer_strip.dart` shipped `'~$figure'` against an
+# already-isolated string, which puts the mark in FRONT of the FSI and renders
+# it at the far end of an Arabic line. It reads correctly in English, so only
+# the gate could find it — and the gate was never run, because a rule with no
+# self-test is a rule nobody trusts enough to run.
+write_scratch lib/ui/selftest_probe3.dart <<'PROBE'
+/// A planted violation: the estimate mark concatenated in Dart.
+String probe(String figure) => '~$figure';
+PROBE
+assert 1 "check_status_encoding is red on a tilde built in Dart" \
+  bash "$STATUS" lib
+restore_all
+
+# And the same violation with the other quote, because the pattern is a
+# character class and a one-quote arm proves half of it.
+write_scratch lib/ui/selftest_probe4.dart <<'PROBE'
+/// A planted violation: the estimate mark, double-quoted.
+String probe(String figure) => "~$figure";
+PROBE
+assert 1 "check_status_encoding is red on a double-quoted tilde" \
+  bash "$STATUS" lib
+restore_all
+
 assert 0 "check_status_encoding is green on the real tree once more" \
   bash "$STATUS" lib
 
