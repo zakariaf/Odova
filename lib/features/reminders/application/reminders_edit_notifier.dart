@@ -335,14 +335,33 @@ class RemindersEditNotifier extends Notifier<ReminderEditState> {
   }
 
   /// Whether the schedule or the baseline moved.
+  ///
+  /// Compared as the FORM shows them, not as the row stores them. §9 resets
+  /// `snooze_count`, `snoozed_until` and `snooze_until_odometer_m` when the
+  /// schedule changes, so this decides whether a user's deferral survives — and
+  /// it must answer "did they change anything?", not "does the round trip
+  /// agree?".
+  ///
+  /// Those are different questions the moment a metric interval is shown on a
+  /// miles vehicle. 10,000 km is 6,214 mi to the nearest whole mile, and
+  /// 6,214 mi is 10,000,463 m — so opening the editor, touching nothing and
+  /// pressing Save compared 10,000,000 against 10,000,463, called it a change,
+  /// and silently threw away a snooze the user had set. Re-rendering the stored
+  /// row through the same draft the form was built from makes the comparison
+  /// exact in the only representation the user ever saw.
   bool _scheduleChanged(ServiceItem? existing, ReminderDraft draft) {
     if (existing == null) return false;
-    return existing.intervalDistance != draft.intervalDistanceValue ||
-        existing.intervalMonths != draft.intervalMonthsValue ||
-        existing.targetOdometer != draft.targetOdometerValue ||
-        existing.targetDate != draft.targetDate?.toString() ||
-        existing.baselineDate != draft.baselineDate?.toString() ||
-        existing.baselineOdometer != draft.baselineOdometerValue;
+    final stored = ReminderDraft.of(
+      existing,
+      unit: draft.unit,
+      groupingSeparator: draft.groupingSeparator,
+    );
+    return stored.intervalDistance != draft.intervalDistance ||
+        stored.intervalMonths != draft.intervalMonths ||
+        stored.targetOdometer != draft.targetOdometer ||
+        stored.targetDate != draft.targetDate ||
+        stored.baselineDate != draft.baselineDate ||
+        stored.baselineOdometer != draft.baselineOdometer;
   }
 
   /// §9's delete: outright, with an Undo, and only when nothing names it.

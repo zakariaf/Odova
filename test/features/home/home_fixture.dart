@@ -314,6 +314,7 @@ Future<ProviderContainer> pumpHome(
   AppDatabase? database,
   Map<String, String> uiState = const {},
   List<ServiceRecord> records = const [],
+  List<ServiceItem>? items,
   bool unreadable = false,
 }) {
   final garage = vehicles ?? [homeVehicle(golfId, 'The Golf')];
@@ -379,6 +380,24 @@ Future<ProviderContainer> pumpHome(
         ),
       // The all-clear's receipt reads the most recent record. Supplied like
       // everything else the screen reads, so no drift stream is subscribed.
+      // The vehicle's CATALOGUE, for the see-all count — which counts every
+      // tracked item including the paused ones, so it cannot be derived from
+      // the snapshot's assessments. Defaults to the assessed items, which is
+      // what a vehicle with nothing paused looks like.
+      for (final v in garage)
+        serviceItemsProvider(v.id).overrideWith(
+          (ref) => Stream.value(
+            v.id == golfId
+                ? items ??
+                      [
+                        for (final (item, _)
+                            in snapshots[v.id]?.assessments ??
+                                const <AssessedItem>[])
+                          item,
+                      ]
+                : const <ServiceItem>[],
+          ),
+        ),
       for (final v in garage)
         serviceRecordsProvider(v.id).overrideWith(
           (ref) => Stream.value(

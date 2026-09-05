@@ -419,6 +419,34 @@ void main() {
     );
   });
 
+  testWidgets('the see-all count includes PAUSED items, and survives all of '
+      'them being paused', (tester) async {
+    // §9: the row reads "See all reminders (14)" — "all tracked items, not
+    // just due ones". `trackedCount` was counted over the snapshot's
+    // ASSESSMENTS, which `VehicleDueSnapshot` documents as one entry per
+    // ELIGIBLE item — tracked AND active — so a paused reminder was invisible
+    // to it and Home's count disagreed with the screen it opens.
+    //
+    // The second half is the one that strands a user: pause everything and the
+    // count was 0, the stack was empty, and `DueStack` drew neither the red row
+    // nor the see-all row. Home offered no route to `reminders.list` at all.
+    await pumpHome(
+      tester,
+      items: [
+        homeItem('Oil and filter'),
+        homeItem('Brake fluid', suffix: 'B', isActive: false),
+        homeItem('Timing belt', suffix: 'C', isActive: false),
+      ],
+      snapshots: {
+        golfId: homeSnapshot([
+          (homeItem('Oil and filter'), homeAssessment(state: DueState.ok)),
+        ]),
+      },
+    );
+
+    expect(find.text('See all reminders (3)'), findsOneWidget);
+  });
+
   testWidgets('the glance tiles are on the screen and explain their dashes', (
     tester,
   ) async {

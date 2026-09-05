@@ -22,11 +22,13 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/due/vehicle_due_snapshot.dart';
+import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/due_snapshot_provider.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -63,6 +65,25 @@ ProviderContainer _container(List<Override> overrides) {
   addTearDown(container.dispose);
   return container;
 }
+
+/// [buildHomeStack] with the catalogue derived from the assessments.
+///
+/// `allItems` is the vehicle's WHOLE catalogue — it feeds the see-all count,
+/// which includes paused items the assessments deliberately omit. Every test
+/// here is about the STACK, and a stack is built from assessed items, so this
+/// derives the catalogue from them and the tests that care about the count
+/// pass their own.
+HomeStack _stack({
+  required List<AssessedItem> items,
+  required CivilDate today,
+  List<ServiceItem>? allItems,
+  ServiceItemId? pinnedItemId,
+}) => buildHomeStack(
+  items: items,
+  allItems: allItems ?? [for (final (item, _) in items) item],
+  today: today,
+  pinnedItemId: pinnedItemId,
+);
 
 void main() {
   group('the two triggers that write no row', () {
@@ -304,7 +325,7 @@ void main() {
       container.read(pinnedHomeItemProvider.notifier).pin(inspection.id);
       expect(container.read(pinnedHomeItemProvider), inspection.id);
 
-      final stack = buildHomeStack(
+      final stack = _stack(
         items: [
           (oil, homeAssessment(state: DueState.overdue, dueOn: '2026-08-12')),
           (
@@ -344,11 +365,11 @@ void main() {
     final today = CivilDate.tryParse('2026-09-05')!;
 
     // Warm, then measured: the first call pays for the JIT.
-    buildHomeStack(items: items, today: today);
+    _stack(items: items, today: today);
 
     final watch = Stopwatch()..start();
     for (var run = 0; run < 100; run++) {
-      buildHomeStack(items: items, today: today);
+      _stack(items: items, today: today);
     }
     watch.stop();
 
@@ -366,7 +387,7 @@ void main() {
     // assessment as a VALUE beside the item; `ServiceItem` has no field for a
     // due date or a status, which is the only place one could be smuggled into
     // storage.
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         (homeItem('Oil and filter'), homeAssessment(state: DueState.overdue)),
       ],

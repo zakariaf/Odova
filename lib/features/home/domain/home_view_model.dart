@@ -124,16 +124,22 @@ class HomeStack {
 /// is still in force.
 HomeStack buildHomeStack({
   required List<AssessedItem> items,
+  required List<ServiceItem> allItems,
   required CivilDate today,
   ServiceItemId? pinnedItemId,
 }) {
   final unknownItems = <ServiceItem>[];
   final due = <DueCardModel>[];
-  var tracked = 0;
+
+  // Counted over EVERY item on the vehicle, not over the assessments.
+  // `VehicleDueSnapshot.assessments` is documented as one entry per ELIGIBLE
+  // item — tracked AND active — so a paused reminder is absent from it, and a
+  // count taken there disagreed with the screen the row opens. Pause them all
+  // and it was zero: no cards, no unknown card, no see-all row, and no route
+  // from Home to `reminders.list` at all.
+  final tracked = allItems.where((i) => i.isTracked).length;
 
   for (final (item, assessment) in items) {
-    if (item.isTracked) tracked++;
-
     // §9's *The unknown-anchor card*: "Only tracked items appear; untracked
     // catalogue rows live on `reminders.list`." The engine only assesses
     // eligible items, so an untracked one should not be here at all — but the

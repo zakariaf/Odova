@@ -68,11 +68,30 @@ AssessedItem _assessed(
   ),
 );
 
+/// [buildHomeStack] with the catalogue derived from the assessments.
+///
+/// `allItems` is the vehicle's WHOLE catalogue — it feeds the see-all count,
+/// which includes paused items the assessments deliberately omit. Every test
+/// here is about the STACK, and a stack is built from assessed items, so this
+/// derives the catalogue from them and the tests that care about the count
+/// pass their own.
+HomeStack _stack({
+  required List<AssessedItem> items,
+  required CivilDate today,
+  List<ServiceItem>? allItems,
+  ServiceItemId? pinnedItemId,
+}) => buildHomeStack(
+  items: items,
+  allItems: allItems ?? [for (final (item, _) in items) item],
+  today: today,
+  pinnedItemId: pinnedItemId,
+);
+
 void main() {
   test('sorts by projected due date ascending', () {
     // ONE sort key. Overdue items have past dates and float without a special
     // case; that is the point of §9's first ordering rule.
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         _assessed('B', state: DueState.dueSoon, projected: '2026-09-20'),
         _assessed('C', state: DueState.dueSoon, projected: '2026-10-10'),
@@ -89,7 +108,7 @@ void main() {
   });
 
   test('caps the stack at three cards however many are due', () {
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         for (var i = 0; i < 9; i++)
           _assessed(
@@ -109,7 +128,7 @@ void main() {
     // §9: "Home renders any item anchored on the `purchase` or `first_reading`
     // rung as `unknown`, whatever the due engine returns." A 2019 car entered
     // today would otherwise open on eleven cards shouting OVERDUE.
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         _assessed(
           'A',
@@ -127,7 +146,7 @@ void main() {
   });
 
   test('downgrades a first-reading-anchored item to unknown', () {
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         _assessed(
           'A',
@@ -144,7 +163,7 @@ void main() {
   });
 
   test('collapses unknown items into one card, always last', () {
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         for (var i = 0; i < 5; i++)
           _assessed(
@@ -169,7 +188,7 @@ void main() {
   test('needsOdometer never takes the primary slot while a time-driven due '
       'item exists', () {
     // §9: "an accusation the app can support beats one it cannot."
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         _assessed(
           'N',
@@ -193,7 +212,7 @@ void main() {
   });
 
   test('needsOdometer does take the primary slot when nothing else is due', () {
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         _assessed('N', state: DueState.needsOdometer, projected: '2026-08-01'),
         _assessed('S', state: DueState.dueSoon, projected: '2026-09-10'),
@@ -209,7 +228,7 @@ void main() {
     // 'Zzz' alphabetically, only the severity rule can put the `due` item
     // first. A fixture whose label order agreed with its severity order would
     // pass with the severity comparison deleted.
-    final bySeverity = buildHomeStack(
+    final bySeverity = _stack(
       items: [
         _assessed(
           'S',
@@ -229,7 +248,7 @@ void main() {
     expect(bySeverity.cards.map((c) => c.item.label), ['Zzz due', 'Aaa soon']);
 
     // Then the label. German: Ölfilter before Ölwechsel.
-    final byLabel = buildHomeStack(
+    final byLabel = _stack(
       items: [
         _assessed(
           'W',
@@ -250,7 +269,7 @@ void main() {
   });
 
   test('excludes ok and paused from the stack but counts them as tracked', () {
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         // 'Q', not 'O': Crockford base32 excludes I, L, O and U, and a ULID
         // body carrying one does not parse.
@@ -276,19 +295,19 @@ void main() {
       _assessed('A', state: DueState.overdue, projected: '2026-08-01'),
       _assessed('B', state: DueState.dueSoon, projected: '2026-10-10'),
     ];
-    final pinned = buildHomeStack(
+    final pinned = _stack(
       items: items,
       today: _day('2026-09-02'),
       pinnedItemId: items[1].$1.id,
     );
     expect(pinned.cards.first.item.label, 'Item B');
 
-    final natural = buildHomeStack(items: items, today: _day('2026-09-02'));
+    final natural = _stack(items: items, today: _day('2026-09-02'));
     expect(natural.cards.first.item.label, 'Item A');
   });
 
   test('a snoozed item keeps its state and gains a snoozed-until line', () {
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         (
           _item('A', snoozedUntil: '2026-10-12'),
@@ -311,7 +330,7 @@ void main() {
     //
     // This is what `today` is FOR. It was a required parameter of this
     // function that nothing in the body read.
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         (
           _item('A', snoozedUntil: '2026-09-01'),
@@ -329,7 +348,7 @@ void main() {
     // §3's clause is "`snoozed_until` in the future", which `isSnoozed` reads
     // as `until > today` — so the day the snooze names is the first day the
     // item is awake again, not the last day it sleeps.
-    final stack = buildHomeStack(
+    final stack = _stack(
       items: [
         (
           _item('A', snoozedUntil: '2026-09-02'),

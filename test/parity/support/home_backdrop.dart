@@ -101,6 +101,17 @@ Widget homeBackdrop({
     // And the second vehicle is QUIET. A van with work on it earns §9's
     // other-vehicles row, which the artboard does not draw and which would
     // be a second difference on top of the one being measured.
+    // The CATALOGUE, for the see-all count. Home watches it directly, and an
+    // un-overridden drift stream here never delivers inside a captured frame
+    // and leaves a timer that fails the NEXT test.
+    serviceItemsProvider(golfId).overrideWith(
+      (ref) => Stream.value([
+        for (final (item, _) in homeParityItems(rtl: rtl)) item,
+      ]),
+    ),
+    serviceItemsProvider(vanId).overrideWith(
+      (ref) => Stream.value(const []),
+    ),
     vehicleDueSnapshotProvider(vanId).overrideWithValue(homeSnapshot(const [])),
     vehicleDueSnapshotProvider(golfId).overrideWithValue(
       homeSnapshot(homeParityItems(rtl: rtl), estimate: homeEstimate(187412)),

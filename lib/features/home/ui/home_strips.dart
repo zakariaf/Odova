@@ -71,6 +71,33 @@ class _StalenessStripState extends State<StalenessStrip> {
     groupingSeparator: widget.groupingSeparator,
   );
 
+  /// The unit and the separator are the WIDGET's, and they change under it.
+  ///
+  /// `_entry` was `late` and initialised once. A user switching the app between
+  /// kilometres and miles — or the locale, which moves the grouping separator —
+  /// left the strip parsing what they typed with the unit it was built with,
+  /// while the affix beside the field had already redrawn with the new one.
+  /// `_entry.metres` then converted through the wrong unit and the canonical
+  /// metres column took a reading 1.6x out. SPEC.md §2: storage is canonical
+  /// and conversion happens on read — a conversion done on WRITE with a stale
+  /// unit is the one way that rule fails silently.
+  @override
+  void didUpdateWidget(StalenessStrip old) {
+    super.didUpdateWidget(old);
+    if (old.unit == widget.unit &&
+        old.groupingSeparator == widget.groupingSeparator) {
+      return;
+    }
+    // The TEXT is kept: the user typed those digits and the unit changing
+    // underneath them is not a reason to throw them away. It is re-parsed
+    // against the new unit, which is what they now mean.
+    _entry = OdometerEntry(
+      text: _entry.text,
+      unit: widget.unit,
+      groupingSeparator: widget.groupingSeparator,
+    );
+  }
+
   @override
   void dispose() {
     _controller.dispose();

@@ -5,6 +5,8 @@
 // reach through a form.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
+import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/features/reminders/domain/reminder_draft.dart';
@@ -31,6 +33,18 @@ ReminderDraft _draft({
   targetDate: targetDate == null ? null : CivilDate.tryParse(targetDate),
   baselineDate: baselineDate == null ? null : CivilDate.tryParse(baselineDate),
   baselineOdometer: baselineOdometer,
+);
+
+/// A stored row, for the draft that is built FROM one.
+ServiceItem _item({Distance? intervalDistance}) => ServiceItem(
+  id: ServiceItemId.tryParse('rem_01JQ8ZK3M7F0R6XN2E9TB4HCVA')!,
+  vehicleId: VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA')!,
+  kind: ServiceKind.oilAndFilter,
+  intervalDistance: intervalDistance,
+  priority: ServicePriority.normal,
+  rollover: ServiceRollover.fromActual,
+  createdAtUtcMs: 1000,
+  updatedAtUtcMs: 1000,
 );
 
 List<ReminderProblem> _check(
@@ -183,5 +197,40 @@ void main() {
     final draft = _draft(targetDate: '2029-03-14');
     expect(draft.copyWith(label: 'x').targetDate, isNotNull);
     expect(draft.copyWith(clearTargetDate: true).targetDate, isNull);
+  });
+
+  test('a metric interval on a miles vehicle is a whole number of miles', () {
+    // 10,000 km is 6213.711922373339 mi. The field accepts whole miles — the
+    // reader rounds — so printing the full double put fifteen decimals in a
+    // control the user is expected to edit, and a number they could not type
+    // back.
+    final draft = ReminderDraft.of(
+      _item(intervalDistance: const Distance.fromKm(10000)),
+      unit: DistanceUnit.mi,
+      groupingSeparator: ',',
+    );
+
+    expect(draft.intervalDistance, '6214');
+  });
+
+  test('re-rendering a row through the draft is stable', () {
+    // The property `_scheduleChanged` now depends on: open the editor, change
+    // nothing, and the draft must equal the draft the row makes. Without it a
+    // metric interval on a miles vehicle compares 10,000,000 m against the
+    // 10,000,463 m that 6,214 mi reads back as, calls that a schedule change,
+    // and resets a snooze the user set.
+    final item = _item(intervalDistance: const Distance.fromKm(10000));
+    final once = ReminderDraft.of(
+      item,
+      unit: DistanceUnit.mi,
+      groupingSeparator: ',',
+    );
+    final twice = ReminderDraft.of(
+      item,
+      unit: DistanceUnit.mi,
+      groupingSeparator: ',',
+    );
+
+    expect(once.intervalDistance, twice.intervalDistance);
   });
 }

@@ -73,6 +73,10 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
   final assessments = snapshot?.assessments ?? const <AssessedItem>[];
   final stack = buildHomeStack(
     items: assessments,
+    // The vehicle's WHOLE catalogue, for the see-all count. Already open —
+    // `vehicleDueSnapshotProvider` watches this same family — so the extra
+    // subscription is a memoised read, not a second query.
+    allItems: ref.watch(serviceItemsProvider(vehicle.id)).value ?? const [],
     today: today ?? CivilDate.epoch,
     pinnedItemId: ref.watch(pinnedHomeItemProvider),
   );

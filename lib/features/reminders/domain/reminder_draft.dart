@@ -235,12 +235,18 @@ class ReminderDraft {
     return read.value.round();
   }
 
+  /// A stored distance as the field shows it: a WHOLE number of [unit].
+  ///
+  /// Rounded, because [_distance] reads the field back with `.round()` — the
+  /// form accepts whole kilometres and whole miles and nothing finer. It used
+  /// to print `shown.toString()` for a non-whole value, which for a 10,000 km
+  /// interval on a miles vehicle is the literal string
+  /// `6213.711922373339`: fifteen decimals in a field the user is expected to
+  /// edit, and a number that cannot be typed back.
   static String _distanceText(Distance? value, DistanceUnit unit) {
     if (value == null) return '';
     final shown = unit == DistanceUnit.mi ? value.miles : value.km;
-    return shown == shown.roundToDouble()
-        ? shown.round().toString()
-        : shown.toString();
+    return shown.round().toString();
   }
 }
 
