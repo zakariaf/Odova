@@ -21,6 +21,8 @@ import 'package:odova/core/l10n/folded_name.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/core/units/distance.dart';
+import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_actions.dart';
@@ -34,6 +36,7 @@ import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/vehicle_swatch.dart';
+import 'package:odova/ui/calm/calm_annual_band_field.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
@@ -217,6 +220,15 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     VehicleId? id,
   ) {
     final draft = state.draft;
+    final tag = ref.watch(resolvedLocaleTagsProvider).formats;
+    // The APP's unit, which the vehicle's own override wins over where it has
+    // one — the same precedence `vehicle_status_line.dart` uses, and the
+    // reason the switcher shows each car in its own unit.
+    final globalUnit = ref.watch(
+      settingsProvider.select(
+        (settings) => settings.value?.distanceUnit ?? DistanceUnit.km,
+      ),
+    );
     return CalmScaffold(
       appBar: CalmAppBar.modal(
         // The VEHICLE'S NAME, not the word "Vehicle" — the artboard titles this
@@ -389,6 +401,32 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
               onTap: () => unawaited(_pickFuel()),
             ),
           ],
+        ),
+        // §8 lists `expected_annual_m` among the controls that "need no
+        // explanation", and it was the one on that list this form did not
+        // carry: a band chosen once during first run could never be corrected,
+        // and it is the projection's fallback until there is enough odometer
+        // history to measure — a wrong one gives a delivery driver and a
+        // pensioner the same guess for years.
+        //
+        // In the VEHICLE's unit when it has one, because that is the unit its
+        // odometer reads in.
+        CalmAnnualBandField(
+          unit: draft.distanceUnit ?? globalUnit,
+          selected: draft.expectedAnnual == null
+              ? null
+              : AnnualBand.forMetres(
+                  draft.expectedAnnual!.metres,
+                  draft.distanceUnit ?? globalUnit,
+                ),
+          formatsTag: tag,
+          onChanged: (band) => _notifier.edit(
+            (d) => d.copyWith(
+              expectedAnnual: Distance(
+                band.metresFor(d.distanceUnit ?? globalUnit),
+              ),
+            ),
+          ),
         ),
         // READ-ONLY in edit mode and an input in create mode. SPEC.md §8: a
         // facts form is the wrong place to write a DATED reading — someone

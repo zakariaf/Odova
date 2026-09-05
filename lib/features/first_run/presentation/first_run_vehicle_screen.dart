@@ -15,15 +15,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/file_picker.dart';
 import 'package:odova/core/domain/enums.dart';
-import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';
 import 'package:odova/features/first_run/presentation/first_run_save_failure.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
-import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/ui/calm/calm_annual_band_field.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_chip.dart';
 import 'package:odova/ui/calm/calm_field.dart';
@@ -246,19 +244,11 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
             // rectangle.
             emptyMessage: draft.startRefused ? l10n.odometerEmptyError : null,
           ),
-          _Labelled(
-            label: draft.unit == DistanceUnit.mi
-                ? l10n.annualBandLabelMi
-                : l10n.annualBandLabelKm,
-            child: CalmSegmented(
-              labels: [
-                for (final band in AnnualBand.values)
-                  _bandLabel(context, l10n, band, draft.unit),
-              ],
-              numeric: true,
-              index: AnnualBand.values.indexOf(draft.band),
-              onChanged: (i) => notifier.chooseBand(AnnualBand.values[i]),
-            ),
+          CalmAnnualBandField(
+            unit: draft.unit,
+            selected: draft.band,
+            onChanged: notifier.chooseBand,
+            formatsTag: ref.watch(resolvedLocaleTagsProvider).formats,
           ),
         ],
       ),
@@ -295,34 +285,6 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
     );
     if (chosen == null || !mounted) return;
     ref.read(firstRunVehicleProvider.notifier).chooseFuel(chosen);
-  }
-
-  /// One band's chip label, with its numbers shaped by the active system.
-  ///
-  /// The numbers are formatted HERE and passed in as strings, because the ARB
-  /// gate refuses a literal digit in a value — and it refuses it for the same
-  /// reason the design needs this: `۱۰–۲۰` is what a Persian reader must see,
-  /// and a hard-coded "10" renders Latin in every locale.
-  String _bandLabel(
-    BuildContext context,
-    AppLocalizations l10n,
-    AnnualBand band,
-    DistanceUnit unit,
-  ) {
-    final tag = ref.watch(resolvedLocaleTagsProvider).formats;
-    String n(int value) =>
-        formatForDisplay(value.toDouble(), tag, numerals: CalmNumerals.auto);
-
-    final edges = band.edgesFor(unit);
-    return switch (edges) {
-      (min: null, max: final max?) => l10n.annualBandUnder(n(max)),
-      (min: final min?, max: null) => l10n.annualBandOver(n(min)),
-      (min: final min?, max: final max?) => l10n.annualBandRange(
-        n(min),
-        n(max),
-      ),
-      _ => '',
-    };
   }
 }
 

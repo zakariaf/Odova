@@ -56,6 +56,7 @@ class VehicleEditDraft {
     this.consumptionUnit,
     this.noticeDistance,
     this.noticeDays,
+    this.expectedAnnual,
   });
 
   /// A draft that starts as [vehicle] is.
@@ -84,6 +85,7 @@ class VehicleEditDraft {
     consumptionUnit: vehicle.consumptionUnit,
     noticeDistance: vehicle.noticeDistance,
     noticeDays: vehicle.noticeDays,
+    expectedAnnual: vehicle.expectedAnnual,
   );
 
   /// A draft for a vehicle that does not exist yet — SPEC.md §8's create mode.
@@ -179,6 +181,16 @@ class VehicleEditDraft {
   /// See [currency].
   final int? noticeDays;
 
+  /// Roughly how far this vehicle goes in a year — `AnnualBand`'s answer.
+  ///
+  /// SPEC.md §8 lists `expected_annual_m` among the controls that "need no
+  /// explanation", and it was the one on that list the form did not carry: a
+  /// band chosen once during first run could never be corrected. The
+  /// projection's fallback until there is enough odometer history to measure
+  /// it, which makes a wrong one a delivery driver and a pensioner getting the
+  /// same guess for years.
+  final Distance? expectedAnnual;
+
   /// Whether anything has changed since the form opened.
   ///
   /// Compared as `Vehicle`s rather than field by field, so a field added later
@@ -225,7 +237,7 @@ class VehicleEditDraft {
     purchasePrice: purchasePrice,
     soldOn: original.soldOn,
     soldPrice: original.soldPrice,
-    expectedAnnual: original.expectedAnnual,
+    expectedAnnual: expectedAnnual,
     tankCapacityMl: original.tankCapacityMl,
     sortOrder: original.sortOrder,
     currency: currency,
@@ -265,6 +277,7 @@ class VehicleEditDraft {
     ConsumptionUnit? consumptionUnit,
     Distance? noticeDistance,
     int? noticeDays,
+    Distance? expectedAnnual,
     Set<VehicleField> clear = const {},
   }) => VehicleEditDraft(
     original: original,
@@ -327,6 +340,12 @@ class VehicleEditDraft {
       VehicleField.noticeDays,
       noticeDays,
       this.noticeDays,
+      clear,
+    ),
+    expectedAnnual: _pick(
+      VehicleField.expectedAnnual,
+      expectedAnnual,
+      this.expectedAnnual,
       clear,
     ),
   );
@@ -396,4 +415,7 @@ enum VehicleField {
 
   /// [VehicleEditDraft.noticeDays] — cleared means **Automatic**.
   noticeDays,
+
+  /// [VehicleEditDraft.expectedAnnual].
+  expectedAnnual,
 }

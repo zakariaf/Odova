@@ -97,4 +97,50 @@ void main() {
       );
     }
   });
+
+  test('forMetres is the reverse of metresFor, exactly', () {
+    // The common case: the value in the column was written by `metresFor`, so
+    // every band round-trips in both units.
+    for (final unit in DistanceUnit.values) {
+      for (final band in AnnualBand.values) {
+        expect(
+          AnnualBand.forMetres(band.metresFor(unit), unit),
+          band,
+          reason: '$band in $unit',
+        );
+      }
+    }
+  });
+
+  test('a figure from somewhere else falls into the band it belongs to', () {
+    // §2's import REPLACES and does not validate a figure like this, and a
+    // backup from a future version can hold anything. 12,000 km is nobody's
+    // band value and is squarely inside `lower`.
+    expect(
+      AnnualBand.forMetres(
+        const Distance.fromKm(12000).metres,
+        DistanceUnit.km,
+      ),
+      AnnualBand.lower,
+    );
+    expect(
+      AnnualBand.forMetres(const Distance.fromKm(1).metres, DistanceUnit.km),
+      AnnualBand.lowest,
+      reason: 'the open lower edge catches everything above zero',
+    );
+    expect(
+      AnnualBand.forMetres(
+        const Distance.fromKm(500000).metres,
+        DistanceUnit.km,
+      ),
+      AnnualBand.highest,
+      reason: 'and the open upper edge catches everything above thirty',
+    );
+  });
+
+  test('a negative belongs to no band at all', () {
+    // Which a control draws as no selection, rather than picking one for a
+    // number the app did not put there.
+    expect(AnnualBand.forMetres(-1000, DistanceUnit.km), isNull);
+  });
 }

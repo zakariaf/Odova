@@ -73,6 +73,35 @@ enum AnnualBand {
   /// The stored value in whole miles. See [km].
   final int mi;
 
+  /// The band a stored `expected_annual_m` belongs to, or null.
+  ///
+  /// The reverse of [metresFor], and it needs both halves. An EXACT match is
+  /// the common case, because the value was written by [metresFor] in the
+  /// first place — but a vehicle restored from a backup, or written by a
+  /// future version, can hold anything, and §2's import REPLACES without
+  /// validating a figure like this. So a value that matches no band exactly
+  /// falls back to the band whose EDGES contain it, in the unit being asked
+  /// about.
+  ///
+  /// Null means "no band claims this". Both outer edges are open, so only a
+  /// NEGATIVE gets there — and it is refused explicitly rather than falling
+  /// into `lowest` on the open lower edge, because a control showing no
+  /// selection is the honest drawing of a number the app did not put there.
+  static AnnualBand? forMetres(int metres, DistanceUnit unit) {
+    if (metres < 0) return null;
+    for (final band in values) {
+      if (band.metresFor(unit) == metres) return band;
+    }
+    final shown = Distance(metres).inUnit(unit);
+    for (final band in values) {
+      final edges = band.edgesFor(unit);
+      final aboveMin = edges.min == null || shown >= edges.min! * 1000;
+      final belowMax = edges.max == null || shown < edges.max! * 1000;
+      if (aboveMin && belowMax) return band;
+    }
+    return null;
+  }
+
   /// What this band writes to `Vehicle.expected_annual_m`, in metres.
   ///
   /// The round number in the user's own unit, converted ONCE and exactly on the

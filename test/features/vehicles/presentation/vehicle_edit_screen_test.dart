@@ -16,6 +16,7 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
@@ -26,6 +27,7 @@ import 'package:odova/features/vehicles/vehicle_edit_notifier.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/ui/calm/calm_annual_band_field.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
@@ -88,6 +90,11 @@ Future<AppDatabase> _pump(
       // opened it — `provider_harness.dart`'s rule, arriving here the moment a
       // second provider was watched.
       vehiclesProvider.overrideWith((ref) => Stream.value(garage)),
+      // SUPPLIED for the same reason as the garage: the annual-band field
+      // reads the app's distance unit, and a real drift stream under
+      // `testWidgets` leaves a pending timer at teardown that fails the NEXT
+      // test rather than this one.
+      settingsProvider.overrideWith((ref) => Stream.value(null)),
     ],
   );
   // The notifier loads asynchronously; let it land.
@@ -131,7 +138,11 @@ Future<AppDatabase> _pumpHosted(
   WidgetTester tester, {
   bool instantDelete = false,
 }) async {
-  tester.view.physicalSize = const Size(780, 2600);
+  // Tall enough that the lazy `ListView` builds the rows at the FOOT of the
+  // form, which is what these tests press. Not a device anyone owns — it is a
+  // way of asking "is the row there at all", which is a different question
+  // from "does it fit".
+  tester.view.physicalSize = const Size(780, 3600);
   tester.view.devicePixelRatio = kReferenceDpr;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -250,6 +261,7 @@ extension type VehicleEditDraftReader(VehicleEditState state) {
   int? get year => _ready.draft.year;
   VehicleColour? get colour => _ready.draft.colour;
   VehicleType get vehicleType => _ready.draft.vehicleType;
+  Distance? get expectedAnnual => _ready.draft.expectedAnnual;
   bool get isDirty => _ready.draft.isDirty;
 }
 
@@ -568,6 +580,41 @@ void main() {
       }
     },
   );
+
+  testWidgets('the annual band can be corrected, in the vehicle own unit', (
+    tester,
+  ) async {
+    // SPEC.md §8 lists `expected_annual_m` among the controls that "need no
+    // explanation", and it was the one on that list this form did not carry:
+    // a band chosen once during first run could never be corrected. It is the
+    // projection's fallback until there is enough odometer history to measure,
+    // so a wrong one gives a delivery driver and a pensioner the same guess.
+    await _pump(tester, tall: true);
+
+    // The vehicle has no figure yet, so nothing is selected — the control does
+    // not invent a band for a number the app did not write.
+    // Found through the band FIELD: the type segmented control also has four
+    // labels, so a count is not a finder.
+    final field = tester.widget<CalmSegmented>(
+      find.descendant(
+        of: find.byType(CalmAnnualBandField),
+        matching: find.byType(CalmSegmented),
+      ),
+    );
+    expect(field.index, -1);
+
+    // By the control's OWN label, so the test does not have to reproduce the
+    // locale's number shaping to press a button.
+    await tester.tap(find.text(field.labels.last));
+    await tester.pumpAndSettle();
+
+    // Written in KILOMETRES, the unit the field is labelled in: §4.8 says a
+    // seeded default belongs to the unit system rather than being converted.
+    expect(
+      _draft(tester).expectedAnnual,
+      Distance(AnnualBand.highest.metresFor(DistanceUnit.km)),
+    );
+  });
 
   testWidgets('a duplicate name is noted, not refused', (tester) async {
     // SPEC.md §8: "duplicates allowed, with the note 'You already have a

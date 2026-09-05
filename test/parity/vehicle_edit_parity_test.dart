@@ -97,6 +97,10 @@ void main() {
             // notice a duplicate name, and this capture's garage holds only
             // the car it is photographing.
             vehiclesProvider.overrideWith((ref) => const Stream.empty()),
+            // And the settings, for the same reason: the annual-band field
+            // reads the app's distance unit, and a live drift stream leaves a
+            // pending timer this capture is torn down before.
+            settingsProvider.overrideWith((ref) => const Stream.empty()),
           ],
           child: VehicleEditScreen(vehicleId: _id),
         ),
