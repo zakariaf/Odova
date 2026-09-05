@@ -10,7 +10,6 @@
 // what keeps `ServiceRepository` the single write path rather than one of two.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/providers.dart';
-import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/failures/persist_failure.dart';
@@ -25,23 +24,19 @@ class ReminderActivation extends Notifier<void> {
   @override
   void build() {}
 
-  /// Turns [item] on or off.
-  Future<Result<void, PersistFailure>> setActive(
-    ServiceItem item, {
-    required bool active,
-  }) => _write(item.id, active: active);
-
-  /// Puts back what [setActive] changed.
+  /// Sets `is_active` on [id].
   ///
-  /// It takes the id and the PREVIOUS value rather than re-reading the row: an
-  /// undo that reads first would restore whatever the row says now, which after
-  /// a second change is not what the user is undoing.
-  Future<Result<void, PersistFailure>> undo(
-    ServiceItemId id, {
-    required bool wasActive,
-  }) => _write(id, active: wasActive);
-
-  Future<Result<void, PersistFailure>> _write(
+  /// ONE method, and the Undo is the same call with the previous value. It was
+  /// three — `setActive(ServiceItem, {active})`, `undo(id, {wasActive})` and a
+  /// private `_write(id, {active})` they both forwarded to — which is two names
+  /// and two signatures for one UPDATE. The sibling notifier on
+  /// `reminders.list` has had exactly this signature all along and uses it for
+  /// its own Undo.
+  ///
+  /// The id and not the row: an undo that re-read the item would restore
+  /// whatever it says NOW, which after a second change is not what the user is
+  /// undoing.
+  Future<Result<void, PersistFailure>> setActive(
     ServiceItemId id, {
     required bool active,
   }) => ref

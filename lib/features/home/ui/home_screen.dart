@@ -159,17 +159,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           // ABOVE the odometer strip and above the cards, capped at two by
           // `homeStripQueue`. §9: "A conditional strip pushes the tiles
           // below the fold, never the cards."
+          // The screen's OWN context, not a Builder's. `CalmSnackbarHost.of`
+          // reads `CalmChromeScope` for the bottom inset, and F-10.2 was that
+          // no scaffold on a tab root published one — a snackbar from here
+          // believed there was no tab bar, floated 108pt too low, and had its
+          // Undo swallowed by the `+`. That was fixed in `AppShell`, which
+          // publishes the scope ABOVE every branch, so every context in a tab
+          // root resolves it and the ritual of reaching for one lower down is
+          // over. `home_screen_test` asserts the inset clears the bar.
           for (final strip in state.strips)
-            // A Builder, so the callbacks capture a context INSIDE the
-            // scaffold. `CalmSnackbarHost.of` reads `CalmChromeScope` for
-            // the bottom inset, and the screen's own context sits ABOVE
-            // `CalmScaffold` — so a snackbar shown from there believed there
-            // was no tab bar, floated 108pt too low, and had its Undo
-            // swallowed by the `+`. The write happened and the recovery
-            // window did not exist.
-            Builder(
-              builder: (context) => _strip(context, strip, state, unit, tag),
-            ),
+            _strip(context, strip, state, unit, tag),
           if (state.estimate case final estimate?)
             OdometerStrip(
               estimate: estimate,
@@ -256,25 +255,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// The due stack, with its callbacks bound to a context inside the scaffold.
+  /// The due stack.
   Widget _dueStack(
     HomeState state,
     DistanceUnit unit,
     String tag, {
     bool showCards = true,
-  }) => Builder(
-    builder: (context) => DueStack(
-      stack: state.stack,
-      showCards: showCards,
-      unit: unit,
-      formatsTag: tag,
-      onOpenItem: _openItem,
-      onAct: (card) => _act(card, state),
-      // Same reason as the strips: "Turn this off" shows an Undo, and an Undo
-      // under the tab bar is a write with no way back.
-      onMore: (card) => _more(context, card, state),
-      onSeeAll: () => unawaited(this.context.push(Routes.reminders)),
-    ),
+  }) => DueStack(
+    stack: state.stack,
+    showCards: showCards,
+    unit: unit,
+    formatsTag: tag,
+    onOpenItem: _openItem,
+    onAct: (card) => _act(card, state),
+    onMore: (card) => _more(context, card, state),
+    onSeeAll: () => unawaited(context.push(Routes.reminders)),
   );
 
   /// `Next: Inspection, 14 March` — the exact date, off the TIME axis.
@@ -486,7 +481,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ) async {
     final activation = ref.read(reminderActivationProvider.notifier);
 
-    final result = await activation.setActive(card.item, active: false);
+    final result = await activation.setActive(card.item.id, active: false);
     if (result is! Ok) {
       // The failure reaches the user. A swallowed one leaves the reminder
       // looking off until the next rebuild puts it back with no explanation.
@@ -498,7 +493,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       message: l10n.homeTurnedOff(card.item.label ?? ''),
       actionLabel: l10n.commonUndo,
       onAction: () => unawaited(
-        activation.undo(card.item.id, wasActive: true),
+        activation.setActive(card.item.id, active: true),
       ),
     );
   }

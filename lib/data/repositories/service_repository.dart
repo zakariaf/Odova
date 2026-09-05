@@ -186,19 +186,13 @@ class ServiceRepository {
     ServiceItemId id, {
     required bool isActive,
     required int updatedAtUtcMs,
-  }) => guardPersist(() async {
-    final rows =
-        await (_db.update(
-          _db.serviceItems,
-        )..where((i) => i.id.equals(id.toString()))).write(
-          ServiceItemsCompanion(
-            isActive: Value(isActive),
-            updatedAtUtcMs: Value(updatedAtUtcMs),
-          ),
-        );
-    if (rows == 0) return Err(NotFound(id.toString()));
-    return const Ok(null);
-  });
+  }) => _updateItem(
+    id,
+    ServiceItemsCompanion(
+      isActive: Value(isActive),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    ),
+  );
 
   /// Switches one service item on or off in the catalogue.
   ///
@@ -211,16 +205,38 @@ class ServiceRepository {
     ServiceItemId id, {
     required bool isTracked,
     required int updatedAtUtcMs,
+  }) => _updateItem(
+    id,
+    ServiceItemsCompanion(
+      isTracked: Value(isTracked),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    ),
+  );
+
+  /// A targeted UPDATE of one item, `NotFound` when no row matched.
+  ///
+  /// The three public writes above and below it were the same six lines with a
+  /// different `Companion` in the middle. The contract they share is the part
+  /// worth having in one place: **`NotFound` on zero rows, never a silent
+  /// success**, because every caller of these shows an Undo and an Undo for
+  /// something that did not happen is worse than an error. Written out per
+  /// method, a fourth flag is a fourth chance to leave that off.
+  ///
+  /// [liveOnly] adds the soft-delete predicate, which only the delete needs:
+  /// deleting an already-deleted row must report `NotFound` rather than
+  /// stamping a second timestamp on it.
+  Future<Result<void, PersistFailure>> _updateItem(
+    ServiceItemId id,
+    ServiceItemsCompanion values, {
+    bool liveOnly = false,
   }) => guardPersist(() async {
     final rows =
-        await (_db.update(
-          _db.serviceItems,
-        )..where((i) => i.id.equals(id.toString()))).write(
-          ServiceItemsCompanion(
-            isTracked: Value(isTracked),
-            updatedAtUtcMs: Value(updatedAtUtcMs),
-          ),
-        );
+        await (_db.update(_db.serviceItems)..where(
+              (i) => liveOnly
+                  ? i.id.equals(id.toString()) & i.deletedAtUtcMs.isNull()
+                  : i.id.equals(id.toString()),
+            ))
+            .write(values);
     if (rows == 0) return Err(NotFound(id.toString()));
     return const Ok(null);
   });
@@ -261,29 +277,18 @@ class ServiceRepository {
   Future<Result<void, PersistFailure>> deleteItem(
     ServiceItemId id, {
     required int deletedAtUtcMs,
-  }) => guardPersist(() async {
-    final rows =
-        await (_db.update(_db.serviceItems)..where(
-              (i) => i.id.equals(id.toString()) & i.deletedAtUtcMs.isNull(),
-            ))
-            .write(
-              ServiceItemsCompanion(deletedAtUtcMs: Value(deletedAtUtcMs)),
-            );
-    if (rows == 0) return Err(NotFound(id.toString()));
-    return const Ok(null);
-  });
+  }) => _updateItem(
+    id,
+    ServiceItemsCompanion(deletedAtUtcMs: Value(deletedAtUtcMs)),
+    liveOnly: true,
+  );
 
   /// Puts back what [deleteItem] removed.
-  Future<Result<void, PersistFailure>> undeleteItem(
-    ServiceItemId id,
-  ) => guardPersist(() async {
-    await (_db.update(
-      _db.serviceItems,
-    )..where((i) => i.id.equals(id.toString()))).write(
-      const ServiceItemsCompanion(deletedAtUtcMs: Value(null)),
-    );
-    return const Ok(null);
-  });
+  Future<Result<void, PersistFailure>> undeleteItem(ServiceItemId id) =>
+      _updateItem(
+        id,
+        const ServiceItemsCompanion(deletedAtUtcMs: Value(null)),
+      );
 
   /// Reads one record with its lines.
   Future<Result<ServiceRecord, PersistFailure>> findRecordById(

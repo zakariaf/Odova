@@ -132,7 +132,11 @@ void main() {
         if (entry.value.contains('.family')) entry.key: entry.value,
     };
 
-    expect(families, hasLength(7), reason: 'one per vehicle-scoped stream');
+    // EIGHT: seven per-vehicle lists plus `latestFillUpProvider`, which is a
+    // `LIMIT 1` over the same table as `fillUpsProvider` because Home draws one
+    // fill-up and reading the whole history to find it was both the wrong row
+    // and an unbounded read on the first frame.
+    expect(families, hasLength(8), reason: 'one per vehicle-scoped stream');
     for (final MapEntry(key: name, value: body) in families.entries) {
       expect(
         body,

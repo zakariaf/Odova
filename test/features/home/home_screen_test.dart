@@ -20,6 +20,7 @@ import 'package:odova/features/home/ui/glance_tiles.dart';
 import 'package:odova/features/home/ui/home_screen.dart';
 import 'package:odova/features/home/ui/last_fillup_row.dart';
 import 'package:odova/features/home/ui/other_vehicles_row.dart';
+import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_due_card.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
@@ -399,6 +400,23 @@ void main() {
     expect(rows.single.id, 'rem_01JQ8ZK3M7F0R6XN2E9TB4HCVA');
     expect(rows.single.isActive, isFalse);
     expect(find.text('Undo'), findsOneWidget);
+
+    // And it clears the tab bar. This is F-10.2: `CalmSnackbarHost.of` reads
+    // `CalmChromeScope` for the bottom inset, and until `AppShell` published
+    // one above every branch, a snackbar shown from a tab ROOT believed there
+    // was no tab bar — it floated 108pt too low and the `+` swallowed its
+    // Undo. The write happened and the recovery window did not exist.
+    //
+    // Asserted on the margin rather than on a pixel, because the margin is
+    // what the inset becomes.
+    final bar = tester.widget<SnackBar>(find.byType(SnackBar));
+    final margin = bar.margin! as EdgeInsetsDirectional;
+    expect(
+      margin.bottom,
+      greaterThanOrEqualTo(
+        CalmSpace.of(tester.element(find.byType(CalmTabBar))).tabbarH,
+      ),
+    );
   });
 
   testWidgets('the glance tiles are on the screen and explain their dashes', (
