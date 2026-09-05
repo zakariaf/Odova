@@ -51,6 +51,7 @@ import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_all_clear.dart';
+import 'package:odova/ui/calm/calm_popover.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_snackbar.dart';
 
@@ -178,9 +179,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onTapValue: () => unawaited(
                 showEstimatePopover(
                   context,
-                  body: EstimatePopover(
+                  body: CalmPopover(
                     message: l10n.homeEstimateExpired,
-                    action: EstimatePopoverAction(
+                    action: (
                       label: l10n.actionUpdateOdometer,
                       onPressed: () => Navigator.of(context).pop(),
                     ),

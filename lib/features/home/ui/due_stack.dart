@@ -81,8 +81,9 @@ class DueStack extends StatelessWidget {
                   : CalmDueDensity.secondary,
               onTap: () => onOpenItem(card),
               onAction: () => onAct(card),
-              onMore: index == 0 ? () => onMore(card) : null,
-              moreLabel: index == 0 ? l10n.homeMoreActions : null,
+              more: index == 0
+                  ? (onPressed: () => onMore(card), label: l10n.homeMoreActions)
+                  : null,
             ),
         if (stack.moreDueCount > 0)
           CalmRowGroup(

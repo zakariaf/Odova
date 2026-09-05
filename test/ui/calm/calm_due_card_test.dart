@@ -49,8 +49,7 @@ Widget _card({
     density: density,
     onTap: () {},
     onAction: () {},
-    onMore: onMore,
-    moreLabel: onMore == null ? null : 'More actions',
+    more: onMore == null ? null : (onPressed: onMore, label: 'More actions'),
   ),
 );
 

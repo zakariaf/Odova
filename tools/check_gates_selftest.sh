@@ -380,6 +380,25 @@ assert 1 "check_component_hygiene is red on a border in another component" \
   bash "$HYGIENE" lib
 restore_all
 
+# The gate greps for BOTH decorations. It grepped for `BoxDecoration(` only
+# until EPIC-10's estimate popover assembled a Calm surface in the feature layer
+# out of a `ShapeDecoration` — same colour, same radius, same shadow, no sheen —
+# and the check reported clean. A gate that catches one spelling of a mistake
+# says nothing about the other one.
+write_scratch lib/features/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: a Calm surface assembled outside lib/ui/calm/, spelt
+/// with the decoration the gate used not to look for.
+Widget probe() => DecoratedBox(
+  decoration: ShapeDecoration(color: Colors.white, shape: CircleBorder()),
+  child: const SizedBox.shrink(),
+);
+PROBE
+assert 1 "check_component_hygiene is red on a ShapeDecoration in a feature" \
+  bash "$HYGIENE" lib
+restore_all
+
 assert 0 "check_touch_targets is green" bash "$TARGETS" lib test
 write_scratch lib/ui/selftest_probe.dart <<'PROBE'
 import 'package:flutter/material.dart';

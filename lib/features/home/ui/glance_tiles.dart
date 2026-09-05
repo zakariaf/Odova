@@ -17,6 +17,7 @@ import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/ui/calm/calm_popover.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_tile.dart';
 
@@ -158,7 +159,7 @@ class _Tile extends StatelessWidget {
         // place.
         onTap: () => showEstimatePopover(
           context,
-          body: EstimatePopover(message: explanation),
+          body: CalmPopover(message: explanation),
         ),
         semanticLabel: label,
         semanticsValue: kGlanceDash,

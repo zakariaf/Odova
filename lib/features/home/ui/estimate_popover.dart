@@ -6,77 +6,7 @@
 // are the whole vocabulary." A confidence bar would invite the user to reason
 // about a number the app is already telling them not to trust.
 import 'package:flutter/material.dart';
-import 'package:odova/theme/calm/calm_colors.dart';
-import 'package:odova/theme/calm/calm_shapes.dart';
-import 'package:odova/theme/calm/calm_space.dart';
-import 'package:odova/theme/calm/calm_type.dart';
-import 'package:odova/ui/calm/calm_button.dart';
-
-/// What a popover offers, if anything.
-///
-/// Dismissal-only is a real answer and the consumption tile's: §9 gives that
-/// one no button, because there is nothing to do but drive and fill up, and a
-/// button that only closes a popover is a control that does nothing.
-@immutable
-class EstimatePopoverAction {
-  /// Creates an action.
-  const EstimatePopoverAction({required this.label, required this.onPressed});
-
-  /// The button's words, already localised.
-  final String label;
-
-  /// What it does.
-  final VoidCallback onPressed;
-}
-
-/// The popover body.
-class EstimatePopover extends StatelessWidget {
-  /// Creates the popover.
-  const EstimatePopover({required this.message, super.key, this.action});
-
-  /// The one sentence.
-  final String message;
-
-  /// The one action, or null for dismissal only.
-  final EstimatePopoverAction? action;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = CalmColors.of(context);
-    final shapes = CalmShapes.of(context);
-    final space = CalmSpace.of(context);
-    final type = CalmType.of(context);
-    final action = this.action;
-
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 280),
-      padding: EdgeInsetsDirectional.all(space.s4),
-      decoration: ShapeDecoration(
-        color: colors.surface,
-        shadows: shapes.elev2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(shapes.radiusLg),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        spacing: space.s3,
-        children: [
-          Text(message, style: type.body.copyWith(color: colors.ink2)),
-          if (action != null)
-            CalmButton(
-              label: action.label,
-              variant: CalmButtonVariant.tonal,
-              size: CalmButtonSize.sm,
-              block: true,
-              onPressed: action.onPressed,
-            ),
-        ],
-      ),
-    );
-  }
-}
+import 'package:odova/ui/calm/calm_popover.dart';
 
 /// Shows [body] anchored under the widget at [context].
 ///
@@ -85,7 +15,7 @@ class EstimatePopover extends StatelessWidget {
 /// question is.
 Future<void> showEstimatePopover(
   BuildContext context, {
-  required EstimatePopover body,
+  required CalmPopover body,
 }) {
   final box = context.findRenderObject()! as RenderBox;
   final overlay =

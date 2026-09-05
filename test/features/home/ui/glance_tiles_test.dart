@@ -14,8 +14,8 @@ import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/units/volume.dart';
-import 'package:odova/features/home/ui/estimate_popover.dart';
 import 'package:odova/features/home/ui/glance_tiles.dart';
+import 'package:odova/ui/calm/calm_popover.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_tile.dart';
 
@@ -72,7 +72,7 @@ void main() {
     await tester.tap(find.byKey(kGlanceConsumptionKey));
     await tester.pumpAndSettle();
 
-    expect(find.byType(EstimatePopover), findsOneWidget);
+    expect(find.byType(CalmPopover), findsOneWidget);
     expect(
       find.text(
         'Your first consumption figure arrives at your next full fill-up.',

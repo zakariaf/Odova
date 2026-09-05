@@ -12,7 +12,7 @@ import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
-import 'package:odova/ui/calm/calm_pressable.dart';
+import 'package:odova/ui/calm/calm_icon_button.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
 
 /// `.notice__close` paints 32; Calm's tap floor is still `touchMin`.
@@ -109,47 +109,19 @@ class CalmNotice extends StatelessWidget {
               ),
             ),
             if (onClose case final onClose?)
-              _Close(onPressed: onClose, label: closeLabel!, ink: ink),
+              CalmIconButton(
+                icon: Icons.close,
+                label: closeLabel!,
+                onPressed: onClose,
+                paintSize: kCalmNoticeClosePaint,
+                iconSize: space.iconSm,
+                // `.notice__close { opacity: 0.7 }`. On the INK, not on the
+                // whole control: an Opacity around the tap target would fade
+                // the focus ring with it, and SPEC.md §17 has no dimmed-focus
+                // exemption.
+                color: ink.withValues(alpha: 0.7),
+              ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// `.notice__close` — 32 painted, [CalmSpace.touchMin] hit.
-class _Close extends StatelessWidget {
-  const _Close({
-    required this.onPressed,
-    required this.label,
-    required this.ink,
-  });
-
-  final VoidCallback onPressed;
-  final String label;
-  final Color ink;
-
-  @override
-  Widget build(BuildContext context) {
-    final space = CalmSpace.of(context);
-
-    return CalmPressable(
-      onTap: onPressed,
-      borderRadius: kCalmNoticeClosePaint / 2,
-      semanticLabel: label,
-      child: CalmTapTarget(
-        minSize: Size.square(space.touchMin),
-        child: SizedBox(
-          width: kCalmNoticeClosePaint,
-          height: kCalmNoticeClosePaint,
-          // `.notice__close { opacity: 0.7 }`. On the ink, not on the whole
-          // control: an Opacity around the tap target would fade the focus ring
-          // with it, and SPEC.md §17 has no dimmed-focus exemption.
-          child: Icon(
-            Icons.close,
-            size: space.iconSm,
-            color: ink.withValues(alpha: 0.7),
-          ),
         ),
       ),
     );

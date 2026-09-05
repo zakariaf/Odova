@@ -5,14 +5,14 @@
 // reason about a number the app is already telling them not to trust.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/features/home/ui/estimate_popover.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
+import 'package:odova/ui/calm/calm_popover.dart';
 
 import '../../../support/pump_app.dart';
 
 AppLocalizations _l10n(WidgetTester tester) =>
-    AppLocalizations.of(tester.element(find.byType(EstimatePopover)));
+    AppLocalizations.of(tester.element(find.byType(CalmPopover)));
 
 void main() {
   testWidgets('the estimated case offers Update odometer', (tester) async {
@@ -21,11 +21,11 @@ void main() {
       tester,
       Builder(
         builder: (context) => Center(
-          child: EstimatePopover(
+          child: CalmPopover(
             message: AppLocalizations.of(
               context,
             ).homeEstimatedFrom('41 km', '12 July'),
-            action: EstimatePopoverAction(
+            action: (
               label: AppLocalizations.of(context).actionUpdateOdometer,
               onPressed: () => pressed++,
             ),
@@ -50,9 +50,9 @@ void main() {
       tester,
       Builder(
         builder: (context) => Center(
-          child: EstimatePopover(
+          child: CalmPopover(
             message: AppLocalizations.of(context).homeEstimateExpired,
-            action: EstimatePopoverAction(
+            action: (
               label: AppLocalizations.of(context).actionUpdateOdometer,
               onPressed: () {},
             ),
@@ -72,7 +72,7 @@ void main() {
       tester,
       Builder(
         builder: (context) => Center(
-          child: EstimatePopover(
+          child: CalmPopover(
             message: AppLocalizations.of(context).homeConsumptionPending,
           ),
         ),
@@ -92,7 +92,7 @@ void main() {
       tester,
       Builder(
         builder: (context) => Center(
-          child: EstimatePopover(
+          child: CalmPopover(
             message: AppLocalizations.of(
               context,
             ).homeEstimatedFrom('41 km', '12 July'),

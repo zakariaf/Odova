@@ -11,6 +11,7 @@ import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_button.dart';
+import 'package:odova/ui/calm/calm_icon_button.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
@@ -118,12 +119,8 @@ class CalmDueCard extends StatelessWidget {
     required this.onTap,
     required this.onAction,
     super.key,
-    this.onMore,
-    this.moreLabel,
-  }) : assert(
-         onMore == null || moreLabel != null,
-         'a control with no word needs an accessible name',
-       );
+    this.more,
+  });
 
   /// What to render.
   final CalmDueView view;
@@ -142,10 +139,14 @@ class CalmDueCard extends StatelessWidget {
   /// Null draws no `⋯`. The secondary density has no `.due-card__actions` row
   /// to put one in — a 72pt line with a chevron has nowhere for a second
   /// control — so it never draws one whatever this is.
-  final VoidCallback? onMore;
-
-  /// The overflow's accessible name. Localised by the feature layer.
-  final String? moreLabel;
+  ///
+  /// ONE field rather than an `onMore`/`moreLabel` pair guarded by an assert.
+  /// A control with no visible word needs an accessible name, and half of that
+  /// pair could be passed without the other — so the invariant was a runtime
+  /// check on a widget every future due surface will use. As a record it is
+  /// unrepresentable, and the call site names the condition once instead of
+  /// three times.
+  final ({VoidCallback onPressed, String label})? more;
 
   @override
   Widget build(BuildContext context) {
@@ -199,8 +200,7 @@ class CalmDueCard extends StatelessWidget {
                   view: view,
                   style: style,
                   onAction: onAction,
-                  onMore: onMore,
-                  moreLabel: moreLabel,
+                  more: more,
                 )
               : _SecondaryBody(view: view, style: style),
         ),
@@ -217,15 +217,13 @@ class _PrimaryBody extends StatelessWidget {
     required this.view,
     required this.style,
     required this.onAction,
-    required this.onMore,
-    required this.moreLabel,
+    required this.more,
   });
 
   final CalmDueView view;
   final CalmStatusStyle style;
   final VoidCallback onAction;
-  final VoidCallback? onMore;
-  final String? moreLabel;
+  final ({VoidCallback onPressed, String label})? more;
 
   @override
   Widget build(BuildContext context) {
@@ -292,46 +290,21 @@ class _PrimaryBody extends StatelessWidget {
                 dueState: view.state,
               ),
             ),
-            if (onMore case final onMore?) ...[
+            if (more case final more?) ...[
               SizedBox(width: space.s3),
-              _MoreButton(onPressed: onMore, label: moreLabel!),
+              CalmIconButton(
+                key: kCalmDueCardMoreKey,
+                icon: Icons.more_horiz,
+                label: more.label,
+                onPressed: more.onPressed,
+                paintSize: kCalmDueCardMorePaint,
+                iconSize: space.iconMd,
+                color: colors.ink3,
+              ),
             ],
           ],
         ),
       ],
-    );
-  }
-}
-
-/// `.due-card__more` — 44 painted, [CalmSpace.touchMin] hit.
-class _MoreButton extends StatelessWidget {
-  const _MoreButton({required this.onPressed, required this.label});
-
-  final VoidCallback onPressed;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = CalmColors.of(context);
-    final space = CalmSpace.of(context);
-
-    return CalmPressable(
-      key: kCalmDueCardMoreKey,
-      onTap: onPressed,
-      borderRadius: kCalmDueCardMorePaint / 2,
-      semanticLabel: label,
-      child: CalmTapTarget(
-        minSize: Size.square(space.touchMin),
-        child: SizedBox(
-          width: kCalmDueCardMorePaint,
-          height: kCalmDueCardMorePaint,
-          child: Icon(
-            Icons.more_horiz,
-            size: space.iconMd,
-            color: colors.ink3,
-          ),
-        ),
-      ),
     );
   }
 }
