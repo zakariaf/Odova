@@ -20,7 +20,6 @@ import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/folded_name.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -39,6 +38,7 @@ import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
+import 'package:odova/ui/calm/calm_odometer_input.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
@@ -395,32 +395,17 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         // checked in March, and that corrupts the series the whole app depends
         // on. A create has no series to corrupt and no other way to get its
         // first reading, which the domain contract requires (§3).
-        // `problem` ONCE. Reading it parses the field — eleven `replaceAll`
-        // passes and two fresh `RegExp`s — and the message and the affordance
-        // below both ask. `mark_as_sold_sheet` computes its price the same way,
-        // once per build.
-        if (state.odometer case final odometer?) ...[
-          CalmField(
-            label: l10n.odometerNowLabel,
+        if (state.odometer case final odometer?)
+          CalmOdometerInput(
+            entry: odometer,
             controller: _odometer,
-            hint: l10n.odometerFirstRunHint,
-            errorText: _odometerMessage(l10n, odometer.problem),
-            affix: Text(distanceUnitLabel(l10n, odometer.unit)),
-            numeric: true,
-            keyboardType: TextInputType.number,
             onChanged: _notifier.typeOdometer,
-          ),
-          if (odometer.problem == OdometerProblem.implausible)
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: CalmButton(
-                label: l10n.commonUseItAnyway,
-                variant: CalmButtonVariant.quiet,
-                size: CalmButtonSize.sm,
-                onPressed: _notifier.useItAnyway,
-              ),
-            ),
-        ] else if (id != null)
+            onUseAnyway: _notifier.useItAnyway,
+            // NOTHING on empty. First run holds its message until Start has
+            // been pressed and refused; there is no refused press here,
+            // because Save is simply not offered until a reading exists.
+          )
+        else if (id != null)
           _OdometerRow(vehicleId: id, unit: draft.distanceUnit),
         // ABSENT in create mode, not disabled: there is nothing to sell and
         // nothing to delete, and a destructive row on a car that does not
@@ -548,19 +533,6 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     // vehicle that no longer exists.
     Navigator.of(context).pop();
   }
-
-  /// What the odometer field says under itself, or nothing.
-  ///
-  /// The implausible case is a WARNING (§8: "never a block"), and it shares
-  /// this one message slot with the two that are errors. Empty says nothing at
-  /// all: a form that scolds before anything is typed is a form that is angry
-  /// at the user for arriving, and here Save is simply not offered yet.
-  String? _odometerMessage(AppLocalizations l10n, OdometerProblem? problem) =>
-      switch (problem) {
-        null || OdometerProblem.empty => null,
-        OdometerProblem.notANumber => l10n.odometerNotANumberError,
-        OdometerProblem.implausible => l10n.odometerImplausibleWarning,
-      };
 
   /// This year, from the INJECTED clock.
   ///

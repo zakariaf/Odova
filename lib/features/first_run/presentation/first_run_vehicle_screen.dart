@@ -16,7 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/file_picker.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';
 import 'package:odova/features/first_run/presentation/first_run_save_failure.dart';
@@ -28,6 +27,7 @@ import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_chip.dart';
 import 'package:odova/ui/calm/calm_field.dart';
+import 'package:odova/ui/calm/calm_odometer_input.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
@@ -233,26 +233,19 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
               ],
             ),
           ),
-          CalmField(
-            label: l10n.odometerNowLabel,
+          CalmOdometerInput(
+            entry: draft.odometer,
             controller: _odometer,
-            hint: l10n.odometerFirstRunHint,
-            errorText: _odometerError(l10n, draft),
-            affix: Text(distanceUnitLabel(l10n, draft.unit)),
-            numeric: true,
-            keyboardType: TextInputType.number,
             onChanged: notifier.typeOdometer,
+            onUseAnyway: notifier.useItAnyway,
+            // Only once Start has been pressed and refused. SPEC.md §8 puts
+            // this message under "Empty on Save" and pairs it with "tapping it
+            // flashes the odometer hint" — a form that scolds you before you
+            // have typed is a form that is angry at you for arriving, and a
+            // disabled button that does nothing at all when tapped is a dead
+            // rectangle.
+            emptyMessage: draft.startRefused ? l10n.odometerEmptyError : null,
           ),
-          if (draft.problem == OdometerProblem.implausible)
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: CalmButton(
-                label: l10n.commonUseItAnyway,
-                variant: CalmButtonVariant.quiet,
-                size: CalmButtonSize.sm,
-                onPressed: notifier.useItAnyway,
-              ),
-            ),
           _Labelled(
             label: draft.unit == DistanceUnit.mi
                 ? l10n.annualBandLabelMi
@@ -303,21 +296,6 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
     if (chosen == null || !mounted) return;
     ref.read(firstRunVehicleProvider.notifier).chooseFuel(chosen);
   }
-
-  String? _odometerError(AppLocalizations l10n, FirstRunVehicleDraft draft) =>
-      switch (draft.problem) {
-        null => null,
-        // Empty says nothing until Start has been pressed and refused. SPEC.md
-        // §8 puts this message under "Empty on Save" and pairs it with "tapping
-        // it flashes the odometer hint" — a form that scolds you before you
-        // have typed is a form that is angry at you for arriving, and a
-        // disabled button that does nothing at all when tapped is a dead
-        // rectangle.
-        OdometerProblem.empty =>
-          draft.startRefused ? l10n.odometerEmptyError : null,
-        OdometerProblem.notANumber => l10n.odometerNotANumberError,
-        OdometerProblem.implausible => l10n.odometerImplausibleWarning,
-      };
 
   /// One band's chip label, with its numbers shaped by the active system.
   ///
