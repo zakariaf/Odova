@@ -549,6 +549,41 @@ assert 0 "check_status_encoding is green again once removed" bash "$STATUS" lib
 # other gates prove it — so this probe could not compile there, and that is
 # exactly the point: the exemption is safe BECAUSE of the purity gate, and if
 # the purity gate ever went away this arm is where it would show.
+# EPIC-10 widened the SWITCH exemption from `lib/core/` to any `domain/`
+# directory and to `*_copy.dart`, because Home's presentation model orders the
+# due stack by severity and its copy mapper picks an ICU message per state —
+# both reason about a state and neither asks what colour it is. These two arms
+# are what stop that widening becoming a hole: the exemption is for SWITCHING,
+# and a file that takes it may still not read a colour slot.
+#
+# `lib/core/` could not carry this probe at all — it cannot import Flutter, and
+# two other gates prove it. A feature's `domain/` directory CAN, which is
+# exactly why this arm had to be added in the same commit as the widening.
+write_scratch lib/features/home/domain/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
+
+/// A planted violation: a domain file may switch on a state, never read one's
+/// colour.
+Color probe(CalmColors c) => c.overdue.tint;
+PROBE
+assert 1 "check_status_encoding is red on a domain file reading a slot" \
+  bash "$STATUS" lib
+restore_all
+
+write_scratch lib/features/home/ui/probe_copy.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
+
+/// A planted violation: a copy mapper maps to WORDS, never to a colour.
+Color probe(CalmColors c) => c.dueSoon.base;
+PROBE
+assert 1 "check_status_encoding is red on a copy mapper reading a slot" \
+  bash "$STATUS" lib
+restore_all
+assert 0 "check_status_encoding is green again once both are removed" \
+  bash "$STATUS" lib
+
 # EPIC-09 added `calm_swipe_actions.dart` to the slot allow-list, on the same
 # grounds as the field ring and the destructive snackbar: a `CalmSwipeTone` is
 # chosen when the action is DECLARED, so there is no DueState to resolve. This

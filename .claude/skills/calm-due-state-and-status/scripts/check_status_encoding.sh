@@ -20,7 +20,22 @@ OWNER='theme/calm/calm_status.dart'          # the ONE file allowed to RESOLVE
 # gate protects is unchanged — a state must become a COLOUR in exactly one
 # place — and `lib/core/due/due_state.dart`'s own header states the same split:
 # what a state IS belongs to the domain, what it LOOKS LIKE belongs to the theme.
-DOMAIN_RE='^lib/core/'                       # may switch; may never read a slot
+# May SWITCH on a state; may never read a colour slot. `lib/core/` is the due
+# engine, which answers domain questions by switching. EPIC-10 widened it twice
+# and both are the same principle rather than a convenience:
+#
+#   * any `domain/` directory — a feature's presentation MODEL is pure Dart
+#     reasoning about states, and `home_view_model.dart` orders the due stack by
+#     severity without ever asking what colour a state is;
+#   * a `*_copy.dart` mapper — the copy for a card is a question about the
+#     ASSESSMENT (which axis, how far past, how much the rate is trusted), and
+#     `CalmStatusStyle` sees none of those. Moving the mapper into the theme
+#     would drag `DueAssessment` in with it, which is a worse answer than this
+#     line.
+#
+# The gate's contract is unchanged and is enforced below for all three: the
+# COLOUR resolves once, in calm_status.dart, and none of these may read a slot.
+DOMAIN_RE='^lib/core/|/domain/|_copy\.dart$'
 # Allowlist for a DIRECT slot read (rule 3's carve-out). The theme directory
 # declares the ramps and resolves them; CalmField reads `overdue` for its error
 # ring and CalmSnackbar's destructive variant reads `danger` — both states are

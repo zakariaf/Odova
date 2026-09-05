@@ -725,4 +725,126 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return 'En retard de $distance';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return 'En retard de $duration';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return 'En retard de $distance et $duration';
+  }
+
+  @override
+  String get homeDueNow => 'À faire maintenant';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'dans environ $distance';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'Besoin d’un relevé du compteur';
+
+  @override
+  String get homeUnknownTitle => 'Quand cela a-t-il été fait ?';
+
+  @override
+  String get homeUnknownHint => 'Dites-le-moi et cela devient des rappels.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText autres',
+      many: '+ $nText autres',
+      one: '+ $nText autre',
+      zero: 'Tout voir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Tout voir — $nText autres à faire ou en retard',
+      many: 'Tout voir — $nText autres à faire ou en retard',
+      one: 'Tout voir — $nText autre à faire ou en retard',
+      zero: 'Tous les rappels',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'Reporté jusqu’au $date';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Tous les rappels ($nText)',
+      many: 'Tous les rappels ($nText)',
+      one: 'Tous les rappels ($nText)',
+      zero: 'Tous les rappels',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'Odova commence par les travaux habituels. Votre manuel prime — modifiez tout ici.';
+
+  @override
+  String get actionLogIt => 'Enregistrer';
+
+  @override
+  String get actionUpdateOdometer => 'Mettre à jour le compteur';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText jours',
+      many: '$nText jours',
+      one: '$nText jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText semaines',
+      many: '$nText semaines',
+      one: '$nText semaine',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText mois',
+      many: '$nText mois',
+      one: '$nText mois',
+    );
+    return '$_temp0';
+  }
 }

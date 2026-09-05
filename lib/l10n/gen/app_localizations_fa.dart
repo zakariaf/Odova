@@ -701,4 +701,120 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return '$distance گذشته';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return '$duration گذشته';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return '$distance و $duration گذشته';
+  }
+
+  @override
+  String get homeDueNow => 'همین حالا موعدش است';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'حدود $distance دیگر';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'به کیلومتر نیاز دارد';
+
+  @override
+  String get homeUnknownTitle => 'اینها آخرین بار کی انجام شدند؟';
+
+  @override
+  String get homeUnknownHint => 'بگو تا به یادآور تبدیل شوند.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText مورد دیگر',
+      one: '+ $nText مورد دیگر',
+      zero: 'دیدن همه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'دیدن همه — $nText مورد دیگر رسیده یا گذشته',
+      one: 'دیدن همه — $nText مورد دیگر رسیده یا گذشته',
+      zero: 'همهٔ یادآورها',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'تا $date به تعویق افتاد';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'همهٔ یادآورها ($nText)',
+      one: 'همهٔ یادآورها ($nText)',
+      zero: 'همهٔ یادآورها',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'اودووا با کارهای معمول شروع می‌کند. دفترچهٔ خودت مرجع است — هر چیزی را اینجا تغییر بده.';
+
+  @override
+  String get actionLogIt => 'ثبت کن';
+
+  @override
+  String get actionUpdateOdometer => 'به‌روزرسانی کیلومتر';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText روز',
+      one: '$nText روز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText هفته',
+      one: '$nText هفته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ماه',
+      one: '$nText ماه',
+    );
+    return '$_temp0';
+  }
 }

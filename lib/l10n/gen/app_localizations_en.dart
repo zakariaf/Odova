@@ -701,4 +701,120 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return 'Overdue by $distance';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return 'Overdue by $duration';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return 'Overdue by $distance and $duration';
+  }
+
+  @override
+  String get homeDueNow => 'Due now';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'in about $distance';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'Needs an odometer reading';
+
+  @override
+  String get homeUnknownTitle => 'When were these last done?';
+
+  @override
+  String get homeUnknownHint => 'Telling me turns them into reminders.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText more',
+      one: '+ $nText more',
+      zero: 'See all',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'See all — $nText more due or overdue',
+      one: 'See all — $nText more due or overdue',
+      zero: 'See all reminders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'Snoozed until $date';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'See all reminders ($nText)',
+      one: 'See all reminders ($nText)',
+      zero: 'See all reminders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'Odova starts you off with the usual jobs. Your handbook wins — edit anything here.';
+
+  @override
+  String get actionLogIt => 'Log it';
+
+  @override
+  String get actionUpdateOdometer => 'Update odometer';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText days',
+      one: '$nText day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText weeks',
+      one: '$nText week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText months',
+      one: '$nText month',
+    );
+    return '$_temp0';
+  }
 }

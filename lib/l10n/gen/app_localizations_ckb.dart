@@ -705,4 +705,120 @@ class AppLocalizationsCkb extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return '$distance دواکەوتووە';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return '$duration دواکەوتووە';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return '$distance و $duration دواکەوتووە';
+  }
+
+  @override
+  String get homeDueNow => 'ئێستا کاتیەتی';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'نزیکەی $distance تر';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'پێویستی بە خوێندنەوەی کیلۆمەترە';
+
+  @override
+  String get homeUnknownTitle => 'ئەمانە دواجار کەی کران؟';
+
+  @override
+  String get homeUnknownHint => 'پێم بڵێ تا ببنە بیرخەرەوە.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText تری',
+      one: '+ $nText تری',
+      zero: 'هەموویان ببینە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'هەموویان ببینە — $nText تری کاتیەتی یان دواکەوتووە',
+      one: 'هەموویان ببینە — $nText تری کاتیەتی یان دواکەوتووە',
+      zero: 'هەموو بیرخەرەوەکان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'دواخراوە هەتا $date';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'هەموو بیرخەرەوەکان ($nText)',
+      one: 'هەموو بیرخەرەوەکان ($nText)',
+      zero: 'هەموو بیرخەرەوەکان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'ئۆدۆڤا بە کارە ئاساییەکان دەست پێدەکات. ڕێنمای خۆت سەرەکییە — هەرچی لێرە بگۆڕە.';
+
+  @override
+  String get actionLogIt => 'تۆماری بکە';
+
+  @override
+  String get actionUpdateOdometer => 'نوێکردنەوەی کیلۆمەتر';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ڕۆژ',
+      one: '$nText ڕۆژ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText هەفتە',
+      one: '$nText هەفتە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مانگ',
+      one: '$nText مانگ',
+    );
+    return '$_temp0';
+  }
 }

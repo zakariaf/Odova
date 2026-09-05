@@ -1058,6 +1058,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, one{{item} due in {countText} day} other{{item} due in {countText} days}}'**
   String vehicleStatusDueInDays(int n, String item, String countText);
+
+  /// Home's status line when the distance axis drove the overdue. SPEC.md §9: overdue uses its own POSITIVE string — never "in −1,400 km". The distance and its unit arrive as one already-isolated run.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue by {distance}'**
+  String homeOverdueByDistance(String distance);
+
+  /// The same line when the time axis drove it.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue by {duration}'**
+  String homeOverdueByTime(String duration);
+
+  /// Both axes overdue. §9: "distance phrasing wins when both axes are overdue, because a kilometre figure is checkable against the dash and a date is not" — so the distance leads.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue by {distance} and {duration}'**
+  String homeOverdueByBoth(String distance, String duration);
+
+  /// The `due` status line. No number: §9 gives this state a bare statement, because a figure would suggest a precision the grace window does not have.
+  ///
+  /// In en, this message translates to:
+  /// **'Due now'**
+  String get homeDueNow;
+
+  /// `due_soon` driven by distance, at `measured` or `assumed` confidence only. At `default` the card says `homeDueSoonNoConfidence` instead and shows no figure at all.
+  ///
+  /// In en, this message translates to:
+  /// **'in about {distance}'**
+  String homeDueSoonDistance(String distance);
+
+  /// The `needs_odometer` status line. §9: "a request, not an accusation" — the app has lost track of the distance axis and is asking, not blaming.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs an odometer reading'**
+  String get homeNeedsOdometer;
+
+  /// The unknown-anchor card's heading. §9: a used car must not open on eleven cards shouting OVERDUE, so every item anchored on purchase or the first reading collapses into this one card.
+  ///
+  /// In en, this message translates to:
+  /// **'When were these last done?'**
+  String get homeUnknownTitle;
+
+  /// The line under the named items on the unknown-anchor card. It says what answering buys, rather than nagging.
+  ///
+  /// In en, this message translates to:
+  /// **'Telling me turns them into reminders.'**
+  String get homeUnknownHint;
+
+  /// How many unknown-anchored items the card did not name. The =0 case is the card's row WITHOUT a count — the screen draws no "+ 0 more", and a zero branch that rendered empty would be indistinguishable from a branch somebody emptied by mistake.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{See all} one{+ {nText} more} other{+ {nText} more}}'**
+  String homeUnknownMore(int n, String nText);
+
+  /// The red see-all row under the stack, counting the due or overdue items that did not fit in three cards. At =0 nothing is left over and the screen uses `remindersSeeAll` instead; this branch is the honest fallback rather than an empty string.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{See all reminders} one{See all — {nText} more due or overdue} other{See all — {nText} more due or overdue}}'**
+  String homeMoreDue(int n, String nText);
+
+  /// A snoozed item's fourth line. §9: it stays on Home and stays red — the snooze is a note, not a state.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozed until {date}'**
+  String homeSnoozedUntil(String date);
+
+  /// The see-all row, counting ALL tracked items rather than the due ones — §9 is explicit, and counting the due ones would make the row disagree with the screen it opens. At =0 the vehicle has nothing tracked and §9 does not draw the row at all.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{See all reminders} one{See all reminders ({nText})} other{See all reminders ({nText})}}'**
+  String remindersSeeAll(int n, String nText);
+
+  /// The header on `reminders.list` and on first run's seeded catalogue — SPEC.md §4.8's own sentence, and the same key in both places so the two cannot drift.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova starts you off with the usual jobs. Your handbook wins — edit anything here.'**
+  String get remindersDisclaimer;
+
+  /// The primary card's button for every state the user can act on directly.
+  ///
+  /// In en, this message translates to:
+  /// **'Log it'**
+  String get actionLogIt;
+
+  /// The primary button when the app needs a reading before it can say anything — `needs_odometer`, and `due_soon` by distance at default confidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Update odometer'**
+  String get actionUpdateOdometer;
+
+  /// How far past due, as a bare quantity. SPEC.md §9 supplies the word "overdue" around it, so this carries no direction — the overshoot is positive and the sentence says which way it points.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} day} other{{nText} days}}'**
+  String homeDurationDays(int n, String nText);
+
+  /// See homeDurationDays. The buckets are `bucketRelativeDays` read forwards, so "21 days overdue" reads as "3 weeks".
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} week} other{{nText} weeks}}'**
+  String homeDurationWeeks(int n, String nText);
+
+  /// See homeDurationDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} month} other{{nText} months}}'**
+  String homeDurationMonths(int n, String nText);
 }
 
 class _AppLocalizationsDelegate

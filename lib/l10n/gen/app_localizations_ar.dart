@@ -762,4 +762,141 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return 'متأخّر بمقدار $distance';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return 'متأخّر بمقدار $duration';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return 'متأخّر بمقدار $distance و$duration';
+  }
+
+  @override
+  String get homeDueNow => 'مستحقّ الآن';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'بعد $distance تقريبًا';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'يحتاج قراءة عدّاد';
+
+  @override
+  String get homeUnknownTitle => 'متى جرى هذا آخر مرّة؟';
+
+  @override
+  String get homeUnknownHint => 'أخبِرني لتتحوّل إلى تذكيرات.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText عنصر آخر',
+      many: '+ $nText عنصرًا آخر',
+      few: '+ $nText عناصر أخرى',
+      two: '+ عنصران آخران',
+      one: '+ عنصر واحد آخر',
+      zero: 'عرض الكل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'عرض الكل — $nText عنصر مستحقّ أو متأخّر',
+      many: 'عرض الكل — $nText عنصرًا مستحقًّا أو متأخّرًا',
+      few: 'عرض الكل — $nText عناصر أخرى مستحقّة أو متأخّرة',
+      two: 'عرض الكل — عنصران آخران مستحقّان أو متأخّران',
+      one: 'عرض الكل — عنصر واحد آخر مستحقّ أو متأخّر',
+      zero: 'كل التذكيرات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'مؤجَّل حتى $date';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'كل التذكيرات ($nText تذكير)',
+      many: 'كل التذكيرات ($nText تذكيرًا)',
+      few: 'كل التذكيرات ($nText تذكيرات)',
+      two: 'كل التذكيرات (تذكيران)',
+      one: 'كل التذكيرات (تذكير واحد)',
+      zero: 'كل التذكيرات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'تبدأ أودوفا بالأعمال المعتادة. دليلك هو المرجع — عدّل أي شيء هنا.';
+
+  @override
+  String get actionLogIt => 'سجّلها';
+
+  @override
+  String get actionUpdateOdometer => 'تحديث العدّاد';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText يوم',
+      many: '$nText يومًا',
+      few: '$nText أيام',
+      two: 'يومان',
+      one: 'يوم واحد',
+      zero: '$nText يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText أسبوع',
+      many: '$nText أسبوعًا',
+      few: '$nText أسابيع',
+      two: 'أسبوعان',
+      one: 'أسبوع واحد',
+      zero: '$nText أسبوع',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText شهر',
+      many: '$nText شهرًا',
+      few: '$nText أشهر',
+      two: 'شهران',
+      one: 'شهر واحد',
+      zero: '$nText شهر',
+    );
+    return '$_temp0';
+  }
 }

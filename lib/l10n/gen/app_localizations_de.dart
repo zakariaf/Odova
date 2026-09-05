@@ -706,4 +706,121 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String homeOverdueByDistance(String distance) {
+    return '$distance überfällig';
+  }
+
+  @override
+  String homeOverdueByTime(String duration) {
+    return '$duration überfällig';
+  }
+
+  @override
+  String homeOverdueByBoth(String distance, String duration) {
+    return '$distance und $duration überfällig';
+  }
+
+  @override
+  String get homeDueNow => 'Jetzt fällig';
+
+  @override
+  String homeDueSoonDistance(String distance) {
+    return 'in etwa $distance';
+  }
+
+  @override
+  String get homeNeedsOdometer => 'Braucht einen Kilometerstand';
+
+  @override
+  String get homeUnknownTitle => 'Wann wurde das zuletzt gemacht?';
+
+  @override
+  String get homeUnknownHint =>
+      'Sagen Sie es mir, und daraus werden Erinnerungen.';
+
+  @override
+  String homeUnknownMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '+ $nText weitere',
+      one: '+ $nText weiteres',
+      zero: 'Alle anzeigen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeMoreDue(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Alle anzeigen — $nText weitere fällig oder überfällig',
+      one: 'Alle anzeigen — $nText weiteres fällig oder überfällig',
+      zero: 'Alle Erinnerungen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeSnoozedUntil(String date) {
+    return 'Zurückgestellt bis $date';
+  }
+
+  @override
+  String remindersSeeAll(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Alle Erinnerungen ($nText)',
+      one: 'Alle Erinnerungen ($nText)',
+      zero: 'Alle Erinnerungen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersDisclaimer =>
+      'Odova beginnt mit den üblichen Arbeiten. Ihr Handbuch zählt — ändern Sie hier alles.';
+
+  @override
+  String get actionLogIt => 'Eintragen';
+
+  @override
+  String get actionUpdateOdometer => 'Kilometerstand aktualisieren';
+
+  @override
+  String homeDurationDays(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Tage',
+      one: '$nText Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationWeeks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Wochen',
+      one: '$nText Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDurationMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Monate',
+      one: '$nText Monat',
+    );
+    return '$_temp0';
+  }
 }

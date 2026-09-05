@@ -44,6 +44,16 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       // five is legal ICU. The matrix drives one of them at a time and pins the
       // other four at 2, which is the category most likely to be forgotten in
       // Arabic and the one a `few`/`many` mistake shows up against.
+      // Home's three counts. All carry an explicit empty zero branch — a
+      // see-all row for nothing is a row that is not drawn — so the matrix
+      // asserts they RENDER, and `plural_matrix.dart` allows the empty string
+      // at n = 0 for exactly these.
+      'homeDurationDays' => l10n.homeDurationDays(n, nText),
+      'homeDurationWeeks' => l10n.homeDurationWeeks(n, nText),
+      'homeDurationMonths' => l10n.homeDurationMonths(n, nText),
+      'homeMoreDue' => l10n.homeMoreDue(n, nText),
+      'homeUnknownMore' => l10n.homeUnknownMore(n, nText),
+      'remindersSeeAll' => l10n.remindersSeeAll(n, nText),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(
         n,
