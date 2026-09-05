@@ -3,6 +3,7 @@
 // The validation lives on `VehicleEditDraft` and the lifecycle on its notifier.
 // This file is about what the screen draws and what a tap does.
 import 'package:clock/clock.dart';
+import 'package:drift/drift.dart' show Variable;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,13 +14,16 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
 import 'package:odova/features/vehicles/vehicle_edit_notifier.dart';
+import 'package:odova/features/vehicles/vehicles_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/ui/calm/calm_field.dart';
@@ -91,12 +95,42 @@ Future<AppDatabase> _pump(
   return db;
 }
 
+/// A garage notifier whose delete answers at once.
+///
+/// The real one awaits `watchGarage().first` to decide `wasLast`, and a drift
+/// stream never delivers under `testWidgets` — the widget binding's fake async
+/// does not run its timers, so the outcome never arrives and the modal never
+/// hears that it may leave. The DELETE itself is covered over a real database
+/// in `vehicles_notifier_test.dart`; this is about the screen.
+class _InstantDelete extends VehiclesNotifier {
+  @override
+  Future<Result<VehicleDeletion, PersistFailure>> delete(VehicleId id) async {
+    await ref
+        .read(appDatabaseProvider)
+        .customUpdate(
+          'UPDATE vehicles SET deleted_at_utc_ms = 5000 WHERE id = ?;',
+          variables: [Variable<String>(id.toString())],
+          updates: {ref.read(appDatabaseProvider).vehicles},
+        );
+    return Ok((
+      deletedAtUtcMs: 5000,
+      deleted: id,
+      previousActive: id,
+      promoted: null,
+      wasLast: false,
+    ));
+  }
+}
+
 /// Pumps `vehicle.edit` PUSHED over a host, so it has somewhere to dismiss to.
 ///
 /// [_pump] puts the screen at `/`, where a pop has nothing under it — fine for
 /// everything that only reads the form, wrong for the two rows at its foot,
 /// which end by leaving.
-Future<AppDatabase> _pumpHosted(WidgetTester tester) async {
+Future<AppDatabase> _pumpHosted(
+  WidgetTester tester, {
+  bool instantDelete = false,
+}) async {
   tester.view.physicalSize = const Size(780, 2600);
   tester.view.devicePixelRatio = kReferenceDpr;
   addTearDown(tester.view.resetPhysicalSize);
@@ -109,14 +143,20 @@ Future<AppDatabase> _pumpHosted(WidgetTester tester) async {
 
   await pumpApp(
     tester,
+    // A SCAFFOLD under it: `ScaffoldMessenger.showSnackBar` has nothing to
+    // present to without one, so a bare host silently swallows the Undo this
+    // flow exists to offer — and a test written against that would assert
+    // nothing while looking like it did.
     Builder(
-      builder: (context) => TextButton(
-        onPressed: () => Navigator.of(context).push<void>(
-          MaterialPageRoute(
-            builder: (_) => VehicleEditScreen(vehicleId: _id),
+      builder: (context) => Scaffold(
+        body: TextButton(
+          onPressed: () => Navigator.of(context).push<void>(
+            MaterialPageRoute(
+              builder: (_) => VehicleEditScreen(vehicleId: _id),
+            ),
           ),
+          child: const Text('open'),
         ),
-        child: const Text('open'),
       ),
     ),
     overrides: [
@@ -133,6 +173,8 @@ Future<AppDatabase> _pumpHosted(WidgetTester tester) async {
       vehiclesProvider.overrideWith(
         (ref) => Stream.value([_garageRow('The Golf')]),
       ),
+      if (instantDelete)
+        vehiclesNotifierProvider.overrideWith(_InstantDelete.new),
     ],
   );
   await tester.tap(find.text('open'));
@@ -454,6 +496,30 @@ void main() {
     expect(row.subtitle, l10n.vehicleOdometerRowHint(l10n.dateToday));
   });
 
+  testWidgets('a future-dated reading says today, not a negative age', (
+    tester,
+  ) async {
+    // `bucketDaysAgo` maps everything `<= 0` to today, which is where the
+    // clamp lives — one place, shared with the garage, rather than a second
+    // one on this side that no test could tell from its absence.
+    await _pump(tester, readings: _history('2026-09-06'), tall: true);
+    final l10n = _l10n(tester);
+    final row = _row(tester, l10n.vehicleOdometerRow);
+    expect(row.subtitle, l10n.vehicleOdometerRowHint(l10n.dateToday));
+  });
+
+  testWidgets('a reading whose date will not parse says today, not nothing', (
+    tester,
+  ) async {
+    // The row's job is to DRAW. §8's "the row never disappears" covers its
+    // sub-line for the same reason it covers the count, and a date that
+    // survived an import in some other format is not worth an exception.
+    await _pump(tester, readings: _history('not-a-date'), tall: true);
+    final l10n = _l10n(tester);
+    final row = _row(tester, l10n.vehicleOdometerRow);
+    expect(row.subtitle, l10n.vehicleOdometerRowHint(l10n.dateToday));
+  });
+
   testWidgets('a vehicle with no readings shows the row and no number', (
     tester,
   ) async {
@@ -585,6 +651,36 @@ void main() {
     final row = await db.select(db.vehicles).getSingle();
     expect(row.deletedAtUtcMs, isNull);
     expect(find.byType(VehicleEditScreen), findsOneWidget, reason: 'still up');
+  });
+
+  testWidgets('Delete goes through, and the modal leaves with the vehicle', (
+    tester,
+  ) async {
+    // The other half of the Cancel test. `_delete` pops on anything but
+    // `none`, and a modal left open over a row that no longer exists is a form
+    // whose Save writes a vehicle back into the garage.
+    final db = await _pumpHosted(tester, instantDelete: true);
+    final l10n = _l10n(tester);
+
+    final deleteRow = find.text(l10n.vehicleDeleteRowEmpty('The Golf'));
+    await tester.ensureVisible(deleteRow);
+    await tester.pumpAndSettle();
+    await tester.tap(deleteRow);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(l10n.confirmDeleteDelete));
+    // The delete awaits its promotion queries before the outcome comes back,
+    // and those resolve on microtasks that schedule no frame of their own.
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await tester.pumpAndSettle();
+
+    final row = await db.select(db.vehicles).getSingle();
+    expect(row.deletedAtUtcMs, isNotNull, reason: 'soft-deleted');
+    expect(find.byType(VehicleEditScreen), findsNothing, reason: 'dismissed');
+    // And the ten seconds §8 calls the recovery window are open.
+    expect(find.text(l10n.commonUndo), findsOneWidget);
   });
 
   group('create mode', () {

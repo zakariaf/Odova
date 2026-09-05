@@ -705,12 +705,13 @@ class _OdometerRow extends ConsumerWidget {
     final taken = CivilDate.tryParse(occurredOn);
     final today = CivilDate.fromDateTime(ref.read(clockProvider).now());
     if (taken == null || today == null) return 0;
-    // CLAMPED at zero, exactly as `OdometerEstimate.staleDays` clamps it. The
-    // garage renders the same age from that field, and a reading dated in the
-    // future would otherwise read "in -2 days" here and "today" there — two
-    // answers about one row, one tap apart.
-    final days = taken.daysUntil(today);
-    return days < 0 ? 0 : days;
+    // NOT clamped here, and that is deliberate rather than an omission:
+    // `bucketDaysAgo` maps everything `<= 0` to `today`, so a future-dated
+    // reading already renders the same word the garage renders from
+    // `OdometerEstimate.staleDays`. A second clamp on this side would be a
+    // line no test could observe, defended by a comment about a disagreement
+    // that cannot happen.
+    return taken.daysUntil(today);
   }
 }
 

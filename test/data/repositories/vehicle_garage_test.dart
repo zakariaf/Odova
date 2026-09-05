@@ -258,8 +258,11 @@ void main() {
     });
 
     test('the seeded set follows the facts, not a default', () async {
-      // A business van seeds shorter intervals (§4.8.4) and a van's catalogue,
-      // both read off the row the form built.
+      // The CATALOGUE follows the row's `vehicle_type`: a motorcycle gets
+      // chain lube, which no car catalogue contains. `_create` reads type,
+      // fuel and business off the vehicle it is about to insert rather than
+      // off a `VehicleDraft`, and this is the assertion that it reads the
+      // right one.
       await insertSettings(db);
       final created = await repository.createVehicle(
         const Vehicle(
@@ -334,6 +337,41 @@ void main() {
         ]);
       },
     );
+
+    test('the seeded intervals are stored in the vehicle own unit', () async {
+      // `seedUnit` is `vehicle.distanceUnit ?? odometerUnit`, and the two are
+      // deliberately different here: a reading typed in KILOMETRES on a
+      // vehicle whose own unit is MILES stores mile intervals, because
+      // SPEC.md §4.8 says a seeded default belongs to the vehicle's unit
+      // system rather than to whatever the user happened to type once.
+      await insertSettings(db);
+      final created = await repository.createVehicle(
+        const Vehicle(
+          id: kUnsavedVehicleId,
+          status: VehicleStatus.active,
+          createdAtUtcMs: 1,
+          updatedAtUtcMs: 1,
+          name: 'The Transit',
+          vehicleType: VehicleType.car,
+          fuelKindDefault: FuelKind.petrol,
+          distanceUnit: DistanceUnit.mi,
+        ),
+        odometer: const Distance(1000),
+        odometerUnit: DistanceUnit.km,
+        occurredOn: '2026-09-04',
+        nowUtcMs: 7000,
+      );
+      final id = (created as Ok<Vehicle, PersistFailure>).value.id;
+
+      final units = await db
+          .customSelect(
+            'SELECT DISTINCT interval_distance_unit AS u FROM service_items '
+            'WHERE vehicle_id = ? AND interval_distance_m IS NOT NULL;',
+            variables: [Variable<String>(id.toString())],
+          )
+          .get();
+      expect(units.map((r) => r.read<String>('u')), [DistanceUnit.mi.wire]);
+    });
 
     test('it does not touch the active vehicle', () async {
       // Task 9.6: "add from the vehicles + appends the vehicle, does not make
