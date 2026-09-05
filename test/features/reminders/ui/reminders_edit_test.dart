@@ -230,6 +230,40 @@ void main() {
     },
   );
 
+  testWidgets('the caret survives a rebuild', (tester) async {
+    // The controllers are created once through `putIfAbsent`. The TEXT would
+    // survive without that — every keystroke publishes it to the draft and the
+    // draft is what seeds a controller — so the thing at risk is the caret:
+    // a controller rebuilt from `TextEditingController(text:)` comes back with
+    // its selection collapsed at the end, and typing into the middle of a name
+    // then jumps the cursor on the next keystroke.
+    //
+    // This is the property a `_seeded` flag and a second list of the eight
+    // field keys were written to protect. It holds without them, and it is
+    // asserted here rather than assumed.
+    tester.useDevice(Device.tallForm);
+    await _pump(tester, db: await _seeded(_oil()));
+
+    await _type(tester, l10nOf(tester).reminderName, 'My own words');
+    _field(
+      tester,
+      l10nOf(tester).reminderName,
+    ).controller.selection = const TextSelection.collapsed(
+      offset: 2,
+    );
+
+    // A rebuild with a NEW state object: every keystroke publishes one, so
+    // typing into a SECOND field is the most ordinary rebuild this form has.
+    // Not Save — a valid draft saves and pops, and a popped form proves
+    // nothing about a controller.
+    await _type(tester, l10nOf(tester).reminderEveryMonths, '9');
+    await tester.pump();
+
+    final name = _field(tester, l10nOf(tester).reminderName).controller;
+    expect(name.text, 'My own words');
+    expect(name.selection.baseOffset, 2);
+  });
+
   testWidgets('a blank notice field shows the automatic window as a '
       'placeholder', (tester) async {
     // §9, for a 10,000 km / 12-month item: `Automatic — 1,000 km / 30 days`,

@@ -52,9 +52,6 @@ class ReminderGroups {
   /// untracked has not had anything turned off; it has not turned anything on,
   /// which is first run and a different sentence.
   bool get allPaused => active.isEmpty && paused.isNotEmpty;
-
-  /// How many rows there are, for the header count.
-  int get length => active.length + paused.length + notTracked.length;
 }
 
 /// Groups [items], attaching each tracked-and-active one's assessment.

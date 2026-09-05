@@ -271,7 +271,3 @@ class AwayDigestStrip extends StatelessWidget {
     );
   }
 }
-
-/// The unit label beside the odometer field, for a caller that wants it.
-String stripUnitLabel(AppLocalizations l10n, DistanceUnit unit) =>
-    distanceUnitLabel(l10n, unit);

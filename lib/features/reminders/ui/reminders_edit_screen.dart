@@ -57,8 +57,20 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
   // controller rebuilt on every frame loses the cursor position on every
   // keystroke.
   final Map<String, TextEditingController> _controllers = {};
-  bool _seeded = false;
 
+  /// The controller for [key], created on first use and never re-created.
+  ///
+  /// `putIfAbsent` is the whole seeding rule. A second pass that pre-created
+  /// all eight before the form was built used to sit above `build`, guarded by
+  /// a `_seeded` flag — it created the same eight keys with the same initial
+  /// values the form creates them with, so it did nothing except keep a second
+  /// list of the field names to fall out of date.
+  ///
+  /// [initial] is read only the FIRST time. Not because the text would
+  /// otherwise be lost — every keystroke publishes it to the draft, which is
+  /// what seeds a controller — but because a rebuilt controller comes back with
+  /// its selection collapsed at the end, and the caret jumps out of the middle
+  /// of a word on the next keystroke.
   TextEditingController _controller(String key, String initial) =>
       _controllers.putIfAbsent(key, () => TextEditingController(text: initial));
 
@@ -129,20 +141,6 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
     // this screen would own a second copy of the rules the notifier exists to
     // hold.
     final problems = ready.problems;
-
-    // Seeded ONCE, when the row arrives. Re-seeding on every build would put
-    // the stored value back over whatever the user is typing.
-    if (!_seeded) {
-      _seeded = true;
-      _controller('label', draft.label);
-      _controller('intervalDistance', draft.intervalDistance);
-      _controller('intervalMonths', draft.intervalMonths);
-      _controller('targetOdometer', draft.targetOdometer);
-      _controller('baselineOdometer', draft.baselineOdometer);
-      _controller('noticeDistance', draft.noticeDistance);
-      _controller('noticeDays', draft.noticeDays);
-      _controller('notes', draft.notes);
-    }
 
     final notice = _automaticNotice(ready, l10n, tag);
 
@@ -222,24 +220,22 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
           label: l10n.reminderOnceOnDate,
           value: draft.targetDate,
           tag: tag,
-          onChanged: (date) => _edit(
-            (d) => date == null
-                ? d.copyWith(clearTargetDate: true)
-                : d.copyWith(targetDate: date),
+          controller: _controller(
+            'targetDate',
+            _dateText(draft.targetDate, tag),
           ),
         ),
         _DateRow(
           label: l10n.reminderLastDoneDate,
           value: draft.baselineDate,
           tag: tag,
+          controller: _controller(
+            'baselineDate',
+            _dateText(draft.baselineDate, tag),
+          ),
           errorText: problems.contains(ReminderProblem.baselineInFuture)
               ? l10n.reminderBaselineFutureError
               : null,
-          onChanged: (date) => _edit(
-            (d) => date == null
-                ? d.copyWith(clearBaselineDate: true)
-                : d.copyWith(baselineDate: date),
-          ),
         ),
         CalmField(
           label: l10n.reminderLastDoneOdometer,
@@ -491,27 +487,36 @@ final ServiceItemId _placeholderId = ServiceItemId.tryParse(
 )!;
 
 /// A labelled date row. The label sits ABOVE, like every other field.
+/// A date, drawn as a disabled field until EPIC-11 brings the picker.
+///
+/// It took an `onChanged` that its body never called — two closures at the
+/// call sites that could not fire, and that read as working date-clearing
+/// logic. They were also the only production users of `ReminderDraft`'s
+/// `clearTargetDate` and `clearBaselineDate` flags. Wiring the picker means
+/// adding the callback back; it does not mean trusting one that was there.
+///
+/// The controller comes from the STATE now, not from `build`. A
+/// `TextEditingController` built inside a `build` is created afresh on every
+/// frame and never disposed.
 class _DateRow extends StatelessWidget {
   const _DateRow({
     required this.label,
     required this.value,
     required this.tag,
-    required this.onChanged,
+    required this.controller,
     this.errorText,
   });
 
   final String label;
   final CivilDate? value;
   final String tag;
+  final TextEditingController controller;
   final String? errorText;
-  final ValueChanged<CivilDate?> onChanged;
 
   @override
   Widget build(BuildContext context) => CalmField(
     label: label,
-    controller: TextEditingController(
-      text: value == null ? '' : formatLongDate(value.toString(), tag),
-    ),
+    controller: controller,
     errorText: errorText,
     // READ-ONLY, and the picker is EPIC-11's: §10 owns the date control every
     // logging form shares, and a second one built here would be the second
@@ -519,6 +524,10 @@ class _DateRow extends StatelessWidget {
     enabled: false,
   );
 }
+
+/// A date as the field prints it, or blank.
+String _dateText(CivilDate? date, String tag) =>
+    date == null ? '' : formatLongDate(date.toString(), tag);
 
 /// A labelled segmented control, with the label above it.
 class _Segmented<T> extends StatelessWidget {

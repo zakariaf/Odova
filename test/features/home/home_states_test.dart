@@ -345,6 +345,50 @@ void main() {
     expect(find.byType(CalmDueCard), findsNothing);
   });
 
+  testWidgets('a sold vehicle says how long it was owned and how far', (
+    tester,
+  ) async {
+    // §9's `homeSoldOwned` — "Owned {duration} · {distance} driven". The panel
+    // took `owned` and `driven` as REQUIRED parameters and the one call site
+    // passed null for both, so the line it exists to draw could not appear and
+    // an ICU key translated into six locales was unreachable.
+    await pumpHome(
+      tester,
+      vehicles: [
+        homeVehicle(
+          golfId,
+          'The Golf',
+          status: VehicleStatus.sold,
+          soldOn: '2026-06-14',
+          purchaseDate: '2020-06-14',
+          purchaseOdometer: const Distance.fromKm(42000),
+        ),
+      ],
+      snapshots: {
+        golfId: homeSnapshot(const [], estimate: homeEstimate(187412)),
+      },
+    );
+
+    // "72 months", not "6 years": `homeDurationLine`'s ladder tops out at
+    // months, because §9 built it for an overshoot and a service receipt —
+    // spans of weeks. Ownership is the first span measured in years, and a
+    // years bucket is a copy decision across six locales and a shared ladder
+    // that also words every due date. Recorded rather than invented here.
+    final line = tester
+        .widgetList<Text>(
+          find.descendant(
+            of: find.byType(SoldVehiclePanel),
+            matching: find.byType(Text),
+          ),
+        )
+        .map((t) => t.data)
+        .last;
+    // The distance carries its bidi isolate, as every figure beside a unit
+    // does — so this reads around it rather than pinning the marks.
+    expect(line, startsWith('Owned 72 months'));
+    expect(line, contains('145,412 km'));
+    expect(line, endsWith('driven'));
+  });
   testWidgets('an unreadable store renders one message and one button', (
     tester,
   ) async {

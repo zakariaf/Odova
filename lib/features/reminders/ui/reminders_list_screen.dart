@@ -14,7 +14,6 @@ import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
-import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/reminders/application/reminders_list_notifier.dart';
@@ -22,7 +21,6 @@ import 'package:odova/features/reminders/domain/reminders_groups.dart';
 import 'package:odova/l10n/due_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
-import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
@@ -323,7 +321,3 @@ class _Note extends StatelessWidget {
     return Text(text, style: type.caption.copyWith(color: colors.ink2));
   }
 }
-
-/// Formats a count for a header, for a caller that needs one.
-String remindersCountText(int n, String tag) =>
-    formatForDisplay(n, tag, numerals: CalmNumerals.auto, decimalDigits: 0);

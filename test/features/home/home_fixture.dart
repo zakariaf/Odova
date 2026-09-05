@@ -72,6 +72,8 @@ Vehicle homeVehicle(
   String name, {
   VehicleStatus status = VehicleStatus.active,
   String? soldOn,
+  String? purchaseDate,
+  Distance? purchaseOdometer,
 }) => Vehicle(
   id: id,
   name: name,
@@ -79,6 +81,8 @@ Vehicle homeVehicle(
   fuelKindDefault: FuelKind.diesel,
   status: status,
   soldOn: soldOn,
+  purchaseDate: purchaseDate,
+  purchaseOdometer: purchaseOdometer,
   createdAtUtcMs: 1000,
   updatedAtUtcMs: 1000,
 );

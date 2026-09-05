@@ -19,6 +19,7 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/app/routing/tab_reselected.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -196,8 +197,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           if (state.vehicle.status != VehicleStatus.active)
             SoldVehiclePanel(
               soldOn: formatLongDate(state.vehicle.soldOn ?? '', tag),
-              owned: null,
-              driven: null,
+              // Both halves come from records the user entered. §1 forbids
+              // inventing either, so a vehicle bought before the app existed
+              // shows the sale date alone — which is the common case and not
+              // worth a guess.
+              owned: _ownedFor(l10n, tag, state.vehicle),
+              driven: _drivenBy(l10n, tag, state, unit),
             )
           // §9's unknown-anchor card. It takes the PRIMARY slot when there
           // is nothing else, and sits at the foot of the stack when there is
@@ -497,4 +502,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
+}
+
+/// How long the vehicle was owned, or null when the purchase date is unknown.
+String? _ownedFor(AppLocalizations l10n, String tag, Vehicle vehicle) {
+  final bought = CivilDate.tryParseOrNull(vehicle.purchaseDate);
+  final sold = CivilDate.tryParseOrNull(vehicle.soldOn);
+  if (bought == null || sold == null || sold < bought) return null;
+  return homeDurationLine(l10n, tag, bought.daysUntil(sold));
+}
+
+/// How far it went, or null when either end of the span is unknown.
+///
+/// The last estimate is the far end even when it is PROJECTED: a sold vehicle
+/// stopped being driven, so the projection is the odometer at the sale as
+/// nearly as the app can know it. It carries no `~` here because the figure is
+/// inside a sentence about the past, and §9 spends the tilde on values the user
+/// might act on.
+String? _drivenBy(
+  AppLocalizations l10n,
+  String tag,
+  HomeState state,
+  DistanceUnit unit,
+) {
+  final from = state.vehicle.purchaseOdometer?.metres;
+  final to = state.estimate?.metres;
+  if (from == null || to == null || to < from) return null;
+  return formatWithUnit(
+    Distance(to - from).inUnit(unit),
+    distanceUnitLabel(l10n, unit),
+    tag,
+    numerals: CalmNumerals.auto,
+    decimalDigits: 0,
+  );
 }
