@@ -22,7 +22,16 @@ int compareAssessedItems(AssessedItem a, AssessedItem b) {
   );
   if (byDate != 0) return byDate;
 
-  final bySeverity = dueSeverity(a.$2.state).compareTo(dueSeverity(b.$2.state));
+  // `attentionRank`, DESCENDING, and not a ladder of its own. `due_state.dart`
+  // predicted this commit in as many words — "EPIC-11's notification ranking
+  // and EPIC-12's home sort are the next consumers of this idea, and each will
+  // reach for whichever function is nearer its import" — and the first draft
+  // of this file did exactly that, with a third ladder that put `unknown`
+  // ABOVE `ok` where `attentionRank` puts it below. Two orders that disagree
+  // about which item to name first is the bug that rule exists to prevent.
+  final bySeverity = attentionRank(
+    b.$2.state,
+  ).compareTo(attentionRank(a.$2.state));
   if (bySeverity != 0) return bySeverity;
 
   return (a.$1.label ?? '').compareTo(b.$1.label ?? '');
@@ -39,14 +48,3 @@ int compareDueDates(CivilDate? a, CivilDate? b) {
   if (b == null) return -1;
   return a.compareTo(b);
 }
-
-/// Worst first. Only an ORDERING, never a colour — the colour is
-/// `CalmStatusStyle`'s and nothing here asks for one.
-int dueSeverity(DueState state) => switch (state) {
-  DueState.overdue => 0,
-  DueState.due => 1,
-  DueState.needsOdometer => 2,
-  DueState.dueSoon => 3,
-  DueState.unknown => 4,
-  DueState.ok => 5,
-};

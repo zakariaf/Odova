@@ -10,14 +10,12 @@
 // Pure Dart, no Flutter import. The eligibility of each strip is a fact the
 // screen supplies; what to do with three facts is arithmetic, and arithmetic
 // belongs where it can be tested at a boundary.
+import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 
 /// §9's cap. Two, and the third waits for the next appearance of Home.
 const int kHomeStripCap = 2;
-
-/// `stale_days >= 60` on its own is enough.
-const int kStaleOdometerDays = 60;
 
 /// `stale_days >= 30` plus drift is enough.
 const int kStaleOdometerDaysWithDrift = 30;
@@ -27,10 +25,10 @@ const int kStaleOdometerDaysWithDrift = 30;
 /// Two numbers rather than one converted, because §9 gives both and they are
 /// not each other: 300 mi is 483 km, and rounding one into the other would move
 /// the threshold for half the users by 17 km.
-const Distance kStaleOdometerDriftKm = Distance(500000);
+const Distance kStaleOdometerDriftKm = Distance.fromKm(500);
 
 /// The mile-side threshold — 300 mi.
-const Distance kStaleOdometerDriftMi = Distance(482803);
+const Distance kStaleOdometerDriftMi = Distance.fromMiles(300);
 
 /// How long §9's `✕` hides the staleness strip: "7 days, this vehicle".
 const int kStalenessDismissalDays = 7;

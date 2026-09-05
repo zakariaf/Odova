@@ -72,7 +72,7 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
   final assessments = snapshot?.assessments ?? const <AssessedItem>[];
   final stack = buildHomeStack(
     items: assessments,
-    today: today ?? CivilDate.fromDateTime(DateTime(1970))!,
+    today: today ?? CivilDate.epoch,
     pinnedItemId: ref.watch(pinnedHomeItemProvider),
   );
 

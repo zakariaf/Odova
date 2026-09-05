@@ -301,4 +301,44 @@ void main() {
     expect(stack.cards.single.state, DueState.overdue);
     expect(stack.cards.single.snoozedUntil, _day('2026-10-12'));
   });
+
+  test('a snooze that has already run out draws no line', () {
+    // §9 gives a snoozed card a fourth line reading "Snoozed until <date>".
+    // `snoozed_until` is not cleared when it passes — nothing writes a row at
+    // midnight — so the column still holds yesterday's date, and a card that
+    // read it back unconditionally told the user it was snoozed until a day
+    // that has already been and gone.
+    //
+    // This is what `today` is FOR. It was a required parameter of this
+    // function that nothing in the body read.
+    final stack = buildHomeStack(
+      items: [
+        (
+          _item('A', snoozedUntil: '2026-09-01'),
+          _assessed('A', state: DueState.overdue, projected: '2026-08-01').$2,
+        ),
+      ],
+      today: _day('2026-09-02'),
+    );
+
+    expect(stack.cards.single.state, DueState.overdue);
+    expect(stack.cards.single.snoozedUntil, isNull);
+  });
+
+  test('a snooze ending TODAY has run out', () {
+    // §3's clause is "`snoozed_until` in the future", which `isSnoozed` reads
+    // as `until > today` — so the day the snooze names is the first day the
+    // item is awake again, not the last day it sleeps.
+    final stack = buildHomeStack(
+      items: [
+        (
+          _item('A', snoozedUntil: '2026-09-02'),
+          _assessed('A', state: DueState.overdue, projected: '2026-08-01').$2,
+        ),
+      ],
+      today: _day('2026-09-02'),
+    );
+
+    expect(stack.cards.single.snoozedUntil, isNull);
+  });
 }

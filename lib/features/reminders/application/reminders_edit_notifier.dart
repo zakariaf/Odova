@@ -50,7 +50,7 @@ final class ReminderEditReady extends ReminderEditState {
     this.records = const [],
     this.lineCount = 0,
     this.firstReading,
-    this.showProblems = false,
+    this.problems = const [],
     this.saving = false,
   });
 
@@ -75,12 +75,17 @@ final class ReminderEditReady extends ReminderEditState {
   /// The vehicle's earliest reading, for the baseline rule.
   final Distance? firstReading;
 
-  /// Whether a refused Save has happened yet.
+  /// What the last refused Save objected to, and empty until one happens.
   ///
   /// §9: "Save is never silently disabled." So the messages appear when Save is
   /// PRESSED, not while the user is still typing — a form that scolds you
   /// before you have finished is a form that is angry at you for arriving.
-  final bool showProblems;
+  ///
+  /// keeping only "there were some"; the form re-ran the identical validation
+  /// in `build` to find out what they were, against a second reading of the
+  /// clock taken at a different moment. Two answers to one question, and only
+  /// one of them decided whether the row was written.
+  final List<ReminderProblem> problems;
 
   /// A write is in flight.
   final bool saving;
@@ -94,7 +99,7 @@ final class ReminderEditReady extends ReminderEditState {
   /// A copy with the given changes.
   ReminderEditReady copyWith({
     ReminderDraft? draft,
-    bool? showProblems,
+    List<ReminderProblem>? problems,
     bool? saving,
   }) => ReminderEditReady(
     draft ?? this.draft,
@@ -103,7 +108,7 @@ final class ReminderEditReady extends ReminderEditState {
     records: records,
     lineCount: lineCount,
     firstReading: firstReading,
-    showProblems: showProblems ?? this.showProblems,
+    problems: problems ?? this.problems,
     saving: saving ?? this.saving,
   );
 }
@@ -255,11 +260,11 @@ class RemindersEditNotifier extends Notifier<ReminderEditState> {
     final today = CivilDate.fromDateTime(ref.read(clockProvider).now());
     final problems = validateReminderDraft(
       current.draft,
-      today: today ?? CivilDate.fromDateTime(DateTime(1970))!,
+      today: today ?? CivilDate.epoch,
       firstReading: current.firstReading,
     );
     if (problems.isNotEmpty) {
-      state = current.copyWith(showProblems: true);
+      state = current.copyWith(problems: problems);
       return null;
     }
 

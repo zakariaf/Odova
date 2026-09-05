@@ -10,7 +10,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
@@ -124,15 +123,12 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
     final draft = ready.draft;
     final space = CalmSpace.of(context);
     final unit = distanceUnitLabel(l10n, draft.unit);
-    final problems = ready.showProblems
-        ? validateReminderDraft(
-            draft,
-            today:
-                CivilDate.fromDateTime(ref.read(clockProvider).now()) ??
-                CivilDate.fromDateTime(DateTime(1970))!,
-            firstReading: ready.firstReading,
-          )
-        : const <ReminderProblem>[];
+    // Read, never recomputed. `save()` already validated this draft, against
+    // the clock reading that decided whether the row was written; validating
+    // again here would answer the same question at a different moment, and
+    // this screen would own a second copy of the rules the notifier exists to
+    // hold.
+    final problems = ready.problems;
 
     // Seeded ONCE, when the row arrives. Re-seeding on every build would put
     // the stored value back over whatever the user is typing.

@@ -120,7 +120,8 @@ class HomeStack {
 ///
 /// PURE: no clock, no repository, no `BuildContext`. [today] is an argument
 /// because §3 says time is one, and because a stack that read the clock could
-/// not be tested at a boundary.
+/// not be tested at a boundary. It decides one thing: whether a card's snooze
+/// is still in force.
 HomeStack buildHomeStack({
   required List<AssessedItem> items,
   required CivilDate today,
@@ -158,7 +159,13 @@ HomeStack buildHomeStack({
       DueCardModel(
         item: item,
         assessment: assessment,
-        snoozedUntil: CivilDate.tryParseOrNull(item.snoozedUntil),
+        // Only while it is still in force. §3's clause is "`snoozed_until`
+        // in the FUTURE", and nothing clears the column when that day
+        // arrives — no row is written at midnight — so an unconditional read
+        // told the user an item was snoozed until a date already past.
+        // `until > today`, the same comparison `isSnoozed` makes, so the day
+        // the snooze names is the first day the item is awake again.
+        snoozedUntil: _snoozeInForce(item.snoozedUntil, today),
       ),
     );
   }
@@ -191,6 +198,16 @@ HomeStack buildHomeStack({
             ),
           ),
   );
+}
+
+/// The snooze date to print, or null once it has run out.
+///
+/// Deliberately NOT `isSnoozed`: that predicate answers §3's two clauses, and
+/// the odometer clause has no date to draw. This is only the fourth LINE, and
+/// the line is a date.
+CivilDate? _snoozeInForce(String? snoozedUntil, CivilDate today) {
+  final until = CivilDate.tryParseOrNull(snoozedUntil);
+  return until != null && until > today ? until : null;
 }
 
 /// §9 rule 5: "A deep-linked item is pinned to the primary slot for that one
