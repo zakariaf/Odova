@@ -661,6 +661,22 @@ assert 1 "check_status_encoding is red on a double-quoted tilde" \
   bash "$STATUS" lib
 restore_all
 
+# The slot allow-list is per FILE, never per directory. EPIC-10 added
+# `calm_notice.dart` to it — a `.notice--warn` tint is picked when the strip is
+# written, exactly like the field's error ring — and a list read as
+# "lib/ui/calm/ may read slots" would let the next widget resolve a due state
+# from one with nothing to stop it.
+write_scratch lib/ui/calm/selftest_probe5.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
+
+/// A planted violation: an ordinary Calm widget reading a status slot.
+Color probe(CalmColors colors) => colors.dueSoon.tint;
+PROBE
+assert 1 "check_status_encoding is red on a slot read in an ordinary Calm file" \
+  bash "$STATUS" lib
+restore_all
+
 assert 0 "check_status_encoding is green on the real tree once more" \
   bash "$STATUS" lib
 

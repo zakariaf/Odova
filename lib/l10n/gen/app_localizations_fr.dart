@@ -979,4 +979,56 @@ class AppLocalizationsFr extends AppLocalizations {
   String homeLastEntered(String date) {
     return 'Dernière saisie le $date';
   }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Compteur mis à jour il y a $nText jours.',
+      many: 'Compteur mis à jour il y a $nText jours.',
+      one: 'Compteur mis à jour il y a $nText jour.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'Masquer pendant une semaine';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'Vous avez marqué $item comme fait le $date.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'J\'ai enregistré $odometer et aucun coût.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'Prochaine échéance à $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'Saisir les vraies valeurs';
+
+  @override
+  String get actionThatsRight => 'C\'est exact';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item est en retard depuis le $date';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item est à échéance le $date';
+  }
+
+  @override
+  String get homeDigestDismiss => 'Fermer ce résumé';
+
+  @override
+  String get odometerSavedSnack => 'Compteur enregistré';
 }

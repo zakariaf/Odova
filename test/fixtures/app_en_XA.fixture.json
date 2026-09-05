@@ -202,5 +202,16 @@
   "homeDueAt": "[Áţ {odometer} ǃǃ]",
   "homeDueAtOn": "[Áţ {odometer} · {date} ǃǃǃ]",
   "homeAroundDate": "[ářǿǔǹḍ {date} ǃǃǃ]",
-  "homeLastEntered": "[Ŀáŝţ ḗǹţḗřḗḍ {date} ǃǃǃǃǃǃ]"
+  "homeLastEntered": "[Ŀáŝţ ḗǹţḗřḗḍ {date} ǃǃǃǃǃǃ]",
+  "homeStripStale": "[{n, plural, one{Ǿḍǿḿḗţḗř ŀáŝţ ǔƥḍáţḗḍ {nText} ḍáẏ áḡǿ.} other{Ǿḍǿḿḗţḗř ŀáŝţ ǔƥḍáţḗḍ {nText} ḍáẏŝ áḡǿ.}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "homeStripStaleDismiss": "[Ħīḍḗ ţħīŝ ƒǿř á ẇḗḗķ ǃǃǃǃǃǃǃǃ]",
+  "homeStripDoneTitle": "[Ẏǿǔ ḿářķḗḍ {item} ḍǿǹḗ ǿǹ {date}. ǃǃǃǃǃǃǃǃǃ]",
+  "homeStripDoneRecorded": "[Ī řḗçǿřḍḗḍ {odometer} áǹḍ ǹǿ çǿŝţ. ǃǃǃǃǃǃǃǃǃǃ]",
+  "homeStripDoneNext": "[Ǹḗẋţ ḍǔḗ áţ {odometer} · {date}. ǃǃǃǃǃǃǃ]",
+  "actionAddRealNumbers": "[Áḍḍ ţħḗ řḗáŀ ǹǔḿḅḗřŝ ǃǃǃǃǃǃǃǃ]",
+  "actionThatsRight": "[Ţħáţ'ŝ řīḡħţ ǃǃǃǃǃ]",
+  "homeDigestOverdue": "[{item} ẇḗǹţ ǿṽḗřḍǔḗ ǿǹ {date} ǃǃǃǃǃǃǃ]",
+  "homeDigestDue": "[{item} īŝ ḍǔḗ {date} ǃǃǃǃ]",
+  "homeDigestDismiss": "[Ḍīŝḿīŝŝ ţħīŝ ŝǔḿḿářẏ ǃǃǃǃǃǃǃǃ]",
+  "odometerSavedSnack": "[Ǿḍǿḿḗţḗř ŝáṽḗḍ ǃǃǃǃǃǃ]"
 }

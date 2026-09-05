@@ -61,6 +61,7 @@ class CalmField extends StatefulWidget {
     this.affix,
     this.lead,
     this.size = CalmFieldSize.md,
+    this.showLabel = true,
     this.numeric = false,
     this.code = false,
     this.computed = false,
@@ -77,6 +78,16 @@ class CalmField extends StatefulWidget {
   /// Sits ABOVE the field, not beside it: German `Kraftstoffart` and Sorani
   /// labels blow up a side label, and a stacked one survives 200%.
   final String label;
+
+  /// Whether [label] is DRAWN. It is always announced.
+  ///
+  /// False for a field inside something too short to hold a stacked label —
+  /// SPEC.md §9's staleness strip is two lines and the second one is the field,
+  /// the unit and Save. The label still reaches a screen reader through the
+  /// `Semantics` wrapper above, which is why this hides a visual and not a
+  /// name: a field with no accessible name is one a screen-reader user cannot
+  /// identify, and that is never a layout decision.
+  final bool showLabel;
 
   /// The text being edited. The caller owns it and disposes it.
   final TextEditingController controller;
@@ -284,13 +295,15 @@ class _CalmFieldState extends State<CalmField> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            ExcludeSemantics(
-              child: CalmFieldLabel(
-                widget.label,
-                computed: widget.computed,
+            if (widget.showLabel) ...[
+              ExcludeSemantics(
+                child: CalmFieldLabel(
+                  widget.label,
+                  computed: widget.computed,
+                ),
               ),
-            ),
-            SizedBox(height: space.s2),
+              SizedBox(height: space.s2),
+            ],
             Stack(
               children: [
                 AnimatedContainer(

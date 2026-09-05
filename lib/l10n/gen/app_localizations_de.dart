@@ -953,4 +953,55 @@ class AppLocalizationsDe extends AppLocalizations {
   String homeLastEntered(String date) {
     return 'Zuletzt eingetragen am $date';
   }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Kilometerstand zuletzt vor $nText Tagen aktualisiert.',
+      one: 'Kilometerstand zuletzt vor $nText Tag aktualisiert.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'Eine Woche ausblenden';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'Sie haben $item am $date als erledigt markiert.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'Ich habe $odometer und keine Kosten erfasst.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'Nächste Fälligkeit bei $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'Echte Werte eintragen';
+
+  @override
+  String get actionThatsRight => 'Stimmt so';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item ist am $date überfällig geworden';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item ist am $date fällig';
+  }
+
+  @override
+  String get homeDigestDismiss => 'Diese Übersicht schließen';
+
+  @override
+  String get odometerSavedSnack => 'Kilometerstand gespeichert';
 }

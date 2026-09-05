@@ -202,5 +202,16 @@
   "homeDueAt": "‏ tA{odometer}",
   "homeDueAtOn": "‏ tA{odometer} · {date}",
   "homeAroundDate": "‏ dnuora{date}",
-  "homeLastEntered": "‏ deretne tsaL{date}"
+  "homeLastEntered": "‏ deretne tsaL{date}",
+  "homeStripStale": "‏{n, plural, one{ detadpu tsal retemodO{nText}.oga yad } other{ detadpu tsal retemodO{nText}.oga syad }}",
+  "homeStripStaleDismiss": "‏keew a rof siht ediH",
+  "homeStripDoneTitle": "‏ dekram uoY{item} no enod {date}.",
+  "homeStripDoneRecorded": "‏ dedrocer I{odometer}.tsoc on dna ",
+  "homeStripDoneNext": "‏ ta eud txeN{odometer} · {date}.",
+  "actionAddRealNumbers": "‏srebmun laer eht ddA",
+  "actionThatsRight": "‏thgir s'tahT",
+  "homeDigestOverdue": "‏{item} no eudrevo tnew {date}",
+  "homeDigestDue": "‏{item} eud si {date}",
+  "homeDigestDismiss": "‏yrammus siht ssimsiD",
+  "odometerSavedSnack": "‏devas retemodO"
 }

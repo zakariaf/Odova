@@ -22,20 +22,26 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/data/ui_state/ui_state_provider.dart';
+import 'package:odova/data/ui_state/ui_state_store.dart';
 import 'package:odova/features/home/application/home_notifier.dart';
 import 'package:odova/features/home/application/home_state.dart';
 import 'package:odova/features/home/application/reminder_activation.dart';
+import 'package:odova/features/home/application/strip_odometer_save.dart';
+import 'package:odova/features/home/domain/home_strips.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 import 'package:odova/features/home/ui/card_overflow_sheet.dart';
 import 'package:odova/features/home/ui/due_stack.dart';
 import 'package:odova/features/home/ui/estimate_popover.dart';
 import 'package:odova/features/home/ui/glance_tiles.dart';
 import 'package:odova/features/home/ui/home_copy.dart';
+import 'package:odova/features/home/ui/home_strips.dart';
 import 'package:odova/features/home/ui/last_fillup_row.dart';
 import 'package:odova/features/home/ui/odometer_strip.dart';
 import 'package:odova/features/home/ui/other_vehicles_row.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -131,6 +137,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onTapVehicle: state.showsSwitcher ? _openSwitcher : null,
       ),
       children: [
+        // ABOVE the odometer strip and above the cards, capped at two by
+        // `homeStripQueue`. §9: "A conditional strip pushes the tiles below the
+        // fold, never the cards."
+        for (final strip in state.strips)
+          // A Builder, so the callbacks capture a context INSIDE the scaffold.
+          // `CalmSnackbarHost.of` reads `CalmChromeScope` for the bottom
+          // inset, and the screen's own context sits ABOVE `CalmScaffold` — so
+          // a snackbar shown from there believed there was no tab bar, floated
+          // 108pt too low, and had its Undo swallowed by the `+`. The write
+          // happened and the recovery window did not exist.
+          Builder(
+            builder: (context) => _strip(context, strip, state, unit, tag),
+          ),
         if (state.estimate case final estimate?)
           OdometerStrip(
             estimate: estimate,
@@ -150,14 +169,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
-        DueStack(
-          stack: state.stack,
-          unit: unit,
-          formatsTag: tag,
-          onOpenItem: _openItem,
-          onAct: (card) => _act(card, state),
-          onMore: (card) => _more(card, state),
-          onSeeAll: () => unawaited(context.push(Routes.reminders)),
+        Builder(
+          builder: (context) => DueStack(
+            stack: state.stack,
+            unit: unit,
+            formatsTag: tag,
+            onOpenItem: _openItem,
+            onAct: (card) => _act(card, state),
+            // Same reason as the strips: "Turn this off" shows an Undo, and an
+            // Undo under the tab bar is a write with no way back.
+            onMore: (card) => _more(context, card, state),
+            onSeeAll: () => unawaited(this.context.push(Routes.reminders)),
+          ),
         ),
         GlanceTiles(
           // Null until EPIC-13 composes the fuel segments — see `HomeState`.
@@ -180,6 +203,80 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
       ],
     );
+  }
+
+  /// One conditional strip, by kind.
+  ///
+  /// Two of the three cannot be eligible yet — their triggers arrive with
+  /// EPIC-16 — but they are built here rather than left to a `default`, so the
+  /// day the trigger lands the drawing is already done and the switch is a
+  /// compile-time list of three.
+  Widget _strip(
+    BuildContext context,
+    HomeStripKind kind,
+    HomeState state,
+    DistanceUnit unit,
+    String tag,
+  ) => switch (kind) {
+    HomeStripKind.staleOdometer => StalenessStrip(
+      staleDays: state.estimate?.staleDays ?? 0,
+      unit: unit,
+      groupingSeparator: groupingSeparatorFor(tag),
+      formatsTag: tag,
+      onSave: (metres) => unawaited(_saveReading(context, state, metres)),
+      onDismiss: () => unawaited(_dismissStaleness(state)),
+    ),
+    // EPIC-16 writes the record these two report on. Until then they are
+    // never queued, and a placeholder here would be a strip nobody can see
+    // pretending to be one nobody built.
+    HomeStripKind.doneConfirmation ||
+    HomeStripKind.awayDigest => const SizedBox.shrink(),
+  };
+
+  /// §9's inline Save: a reading, a snackbar with Undo, or the full modal.
+  Future<void> _saveReading(
+    BuildContext context,
+    HomeState state,
+    int metres,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final snackbars = CalmSnackbarHost.of(context);
+    final router = GoRouter.of(context);
+    final saver = ref.read(stripOdometerSaveProvider.notifier);
+
+    final outcome = await saver.save(state.vehicle, metres);
+    switch (outcome) {
+      case StripSaveWritten(:final reading):
+        snackbars.show(
+          message: l10n.odometerSavedSnack,
+          actionLabel: l10n.commonUndo,
+          onAction: () => unawaited(saver.undo(reading)),
+        );
+      // §9: "On a violation the strip yields to the full `log.odometer` modal,
+      // which owns the typo/correction/backdate dialogue." Through the captured
+      // router: the strip disappears the moment the reading lands, so the
+      // element this ran from may already be gone.
+      case StripSaveYieldsToModal(:final metres):
+        unawaited(
+          router.push<void>(
+            Routes.log(LogType.odometer, odometerMetres: metres),
+          ),
+        );
+      case StripSaveFailed():
+        snackbars.show(message: l10n.saveDiskFullError, danger: true);
+    }
+  }
+
+  /// §9's `✕`: "hides for 7 days, this vehicle".
+  Future<void> _dismissStaleness(HomeState state) async {
+    final today = CivilDate.fromDateTime(ref.read(clockProvider).now());
+    if (today == null) return;
+    await ref
+        .read(uiStateProvider.notifier)
+        .set(
+          uiKeyStalenessDismissedUntil(state.vehicle.id.toString()),
+          stalenessDismissedUntil(today).toString(),
+        );
   }
 
   void _openSwitcher() => unawaited(context.push(Routes.vehicleSwitcher));
@@ -214,7 +311,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Future<void> _more(DueCardModel card, HomeState state) async {
+  Future<void> _more(
+    BuildContext context,
+    DueCardModel card,
+    HomeState state,
+  ) async {
+    // Captured BEFORE the sheet is awaited. The sheet is a route: while it is
+    // open this element can be rebuilt or removed, and `CalmSnackbarHost`
+    // exists precisely so that what a context could see is read while it can
+    // still see it.
+    final snackbars = CalmSnackbarHost.of(context);
+    final l10n = AppLocalizations.of(context);
+
     final chosen = await showCardOverflowSheet(context, title: card.item.label);
     if (!mounted || chosen == null) return;
 
@@ -230,7 +338,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       case CardOverflowAction.edit:
         _openItem(card);
       case CardOverflowAction.turnOff:
-        await _turnOff(card);
+        await _turnOff(snackbars, l10n, card);
     }
   }
 
@@ -242,9 +350,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// write returns and every line after it, including the Undo the user needs,
   /// would be skipped. That is the exact bug EPIC-09 found in the vehicle
   /// delete flow.
-  Future<void> _turnOff(DueCardModel card) async {
-    final l10n = AppLocalizations.of(context);
-    final snackbars = CalmSnackbarHost.of(context);
+  Future<void> _turnOff(
+    CalmSnackbarHost snackbars,
+    AppLocalizations l10n,
+    DueCardModel card,
+  ) async {
     final activation = ref.read(reminderActivationProvider.notifier);
 
     final result = await activation.setActive(card.item, active: false);

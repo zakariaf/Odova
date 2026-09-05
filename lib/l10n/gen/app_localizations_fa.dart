@@ -947,4 +947,55 @@ class AppLocalizationsFa extends AppLocalizations {
   String homeLastEntered(String date) {
     return 'آخرین ثبت $date';
   }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'کیلومترشمار $nText روز پیش به‌روز شد.',
+      one: 'کیلومترشمار $nText روز پیش به‌روز شد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'یک هفته پنهان کن';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'شما $item را در $date انجام‌شده علامت زدید.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'من $odometer و بدون هزینه ثبت کردم.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'موعد بعدی $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'عددهای واقعی را وارد کن';
+
+  @override
+  String get actionThatsRight => 'درست است';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item در $date عقب‌افتاده شد';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item در $date سررسید می‌شود';
+  }
+
+  @override
+  String get homeDigestDismiss => 'بستن این خلاصه';
+
+  @override
+  String get odometerSavedSnack => 'کیلومترشمار ذخیره شد';
 }

@@ -10,6 +10,7 @@ import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/units/consumption.dart';
+import 'package:odova/features/home/domain/home_strips.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 
 /// Another vehicle with work on it, and how much.
@@ -27,6 +28,7 @@ class HomeState {
     required this.vehicle,
     required this.stack,
     required this.showsSwitcher,
+    this.strips = const [],
     this.estimate,
     this.lastFillUp,
     this.consumption,
@@ -38,6 +40,14 @@ class HomeState {
 
   /// The due stack, already ordered and capped.
   final HomeStack stack;
+
+  /// The conditional strips to draw, already ordered and capped at two.
+  ///
+  /// §9: "A conditional strip pushes the tiles below the fold, never the cards
+  /// — strips are capped at two, and the primary card is never displaced." The
+  /// cap is applied in `home_strips.dart`; carrying the RESULT here is what
+  /// keeps the screen from re-deciding it.
+  final List<HomeStripKind> strips;
 
   /// Whether the title is a control at all.
   ///

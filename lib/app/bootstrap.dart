@@ -9,7 +9,10 @@ import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/settings_repository.dart';
+import 'package:odova/data/ui_state/ui_state_provider.dart';
+import 'package:odova/data/ui_state/ui_state_store.dart';
 import 'package:odova/theme/calm/font_licences.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Builds the real infrastructure once and returns it as provider overrides.
 ///
@@ -45,6 +48,11 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
   // 2.0s cold-launch budget in SPEC.md §17 is the reason to care.
   final database = AppDatabase();
   final facts = readLaunchFacts(database);
+  // Beside the database, in the application SUPPORT directory, and started with
+  // it: SPEC.md §9's dismissal keys are read on the FIRST build of Home, so a
+  // store that opened later would draw a strip the user already dismissed and
+  // then take it away.
+  final uiState = _openUiState();
 
   await initializeDateFormatting();
 
@@ -57,8 +65,18 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     // see a writer's committed row.
     appDatabaseProvider.overrideWithValue(database),
     initialLaunchFactsProvider.overrideWithValue(await facts),
+    uiStateProviderStore.overrideWithValue(await uiState),
   ];
 }
+
+/// The UI-state store, in the same directory as the database file.
+///
+/// The application SUPPORT directory and not Documents, for the reason
+/// `connection.dart` gives about the database: Documents is user-visible and
+/// iCloud-backed on iOS, and this file is neither the user's business nor worth
+/// syncing.
+Future<UiStateStore> _openUiState() async =>
+    UiStateStore.open(await getApplicationSupportDirectory());
 
 /// Reads the three launch facts from [database], before the first frame.
 ///

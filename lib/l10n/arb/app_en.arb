@@ -1411,5 +1411,105 @@
         "example": "12 July"
       }
     }
+  },
+  "homeStripStale": "{n, plural, one{Odometer last updated {nText} day ago.} other{Odometer last updated {nText} days ago.}}",
+  "@homeStripStale": {
+    "description": "The stale-odometer strip's first line. It states a fact about the APP rather than asking the user for something — SPEC.md §1: the app tells people things rather than asking them things, and the field underneath is the ask.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "68"
+      },
+      "nText": {
+        "type": "String",
+        "example": "68"
+      }
+    }
+  },
+  "homeStripStaleDismiss": "Hide this for a week",
+  "@homeStripStaleDismiss": {
+    "description": "The stale-odometer strip's ✕, as a screen reader hears it. The glyph carries no word, and \"close\" would understate it: SPEC.md §9 hides the strip for seven days on that vehicle, which is a decision rather than a dismissal."
+  },
+  "homeStripDoneTitle": "You marked {item} done on {date}.",
+  "@homeStripDoneTitle": {
+    "description": "The done-from-notification confirmation strip, first line. Second person, because the user did this and the app is confirming it back — not announcing it.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 September"
+      }
+    }
+  },
+  "homeStripDoneRecorded": "I recorded {odometer} and no cost.",
+  "@homeStripDoneRecorded": {
+    "description": "The confirmation strip's second line. It names what the app GUESSED, so the estimate mark travels with the number — that is what \"Add the real numbers\" is offering to replace.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "~187,400 km"
+      }
+    }
+  },
+  "homeStripDoneNext": "Next due at {odometer} · {date}.",
+  "@homeStripDoneNext": {
+    "description": "The confirmation strip's third line — the consequence of the record, which is the thing the user actually wanted to know.",
+    "placeholders": {
+      "odometer": {
+        "type": "String",
+        "example": "202,400 km"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 September 2026"
+      }
+    }
+  },
+  "actionAddRealNumbers": "Add the real numbers",
+  "@actionAddRealNumbers": {
+    "description": "The confirmation strip's first action. It opens log.service in edit mode on the record the notification wrote."
+  },
+  "actionThatsRight": "That's right",
+  "@actionThatsRight": {
+    "description": "The confirmation strip's second action. It clears odometer_estimated and cost_estimated on the record — the user has confirmed the app's guesses, so they stop being guesses."
+  },
+  "homeDigestOverdue": "{item} went overdue on {date}",
+  "@homeDigestOverdue": {
+    "description": "One line of the away digest, for something that went past due while the app was closed. Past tense: it already happened.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 August"
+      }
+    }
+  },
+  "homeDigestDue": "{item} is due {date}",
+  "@homeDigestDue": {
+    "description": "One line of the away digest, for something coming up rather than past.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Inspection"
+      },
+      "date": {
+        "type": "String",
+        "example": "14 March"
+      }
+    }
+  },
+  "homeDigestDismiss": "Dismiss this summary",
+  "@homeDigestDismiss": {
+    "description": "The away digest's ✕, as a screen reader hears it."
+  },
+  "odometerSavedSnack": "Odometer saved",
+  "@odometerSavedSnack": {
+    "description": "The snackbar after the stale-odometer strip writes a reading. It carries an Undo, so it says what happened rather than thanking the user."
   }
 }

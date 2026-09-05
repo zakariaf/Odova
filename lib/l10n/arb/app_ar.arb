@@ -202,5 +202,16 @@
   "homeDueAt": "عند {odometer}",
   "homeDueAtOn": "عند {odometer} · {date}",
   "homeAroundDate": "حوالي {date}",
-  "homeLastEntered": "آخر إدخال في {date}"
+  "homeLastEntered": "آخر إدخال في {date}",
+  "homeStripStale": "{n, plural, zero{تم تحديث عداد المسافة قبل {nText} يوم.} one{تم تحديث عداد المسافة أمس.} two{تم تحديث عداد المسافة قبل يومين.} few{تم تحديث عداد المسافة قبل {nText} أيام.} many{تم تحديث عداد المسافة قبل {nText} يومًا.} other{تم تحديث عداد المسافة قبل {nText} يوم.}}",
+  "homeStripStaleDismiss": "إخفاء لمدة أسبوع",
+  "homeStripDoneTitle": "لقد وضعت علامة على {item} كمنجَز في {date}.",
+  "homeStripDoneRecorded": "سجّلت {odometer} وبدون تكلفة.",
+  "homeStripDoneNext": "الاستحقاق التالي عند {odometer} · {date}.",
+  "actionAddRealNumbers": "أدخل الأرقام الحقيقية",
+  "actionThatsRight": "هذا صحيح",
+  "homeDigestOverdue": "{item} أصبح متأخرًا في {date}",
+  "homeDigestDue": "{item} مستحق في {date}",
+  "homeDigestDismiss": "إغلاق هذا الملخص",
+  "odometerSavedSnack": "تم حفظ عداد المسافة"
 }

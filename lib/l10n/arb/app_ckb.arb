@@ -202,5 +202,16 @@
   "homeDueAt": "لە {odometer}",
   "homeDueAtOn": "لە {odometer} · {date}",
   "homeAroundDate": "نزیکەی {date}",
-  "homeLastEntered": "دوایین تۆمار {date}"
+  "homeLastEntered": "دوایین تۆمار {date}",
+  "homeStripStale": "{n, plural, one{کیلۆمەترپێو {nText} ڕۆژ لەمەوبەر نوێ کرایەوە.} other{کیلۆمەترپێو {nText} ڕۆژ لەمەوبەر نوێ کرایەوە.}}",
+  "homeStripStaleDismiss": "بۆ هەفتەیەک بیشارەوە",
+  "homeStripDoneTitle": "تۆ {item} ت لە {date} بە کراو نیشانە کرد.",
+  "homeStripDoneRecorded": "من {odometer} و بێ تێچوو تۆمارم کرد.",
+  "homeStripDoneNext": "داهاتوو لە {odometer} · {date}.",
+  "actionAddRealNumbers": "ژمارە ڕاستەکان بنووسە",
+  "actionThatsRight": "ڕاستە",
+  "homeDigestOverdue": "{item} لە {date} دواکەوت",
+  "homeDigestDue": "{item} لە {date} کاتی دێت",
+  "homeDigestDismiss": "داخستنی ئەم کورتەیە",
+  "odometerSavedSnack": "کیلۆمەترپێو پاشەکەوت کرا"
 }

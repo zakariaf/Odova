@@ -14,11 +14,15 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/due_state.dart';
+import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/due_snapshot_provider.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/data/ui_state/ui_state_provider.dart';
+import 'package:odova/data/ui_state/ui_state_store.dart';
 import 'package:odova/features/home/application/home_state.dart';
+import 'package:odova/features/home/domain/home_strips.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 
 /// §9 rule 5: pinned "for that one appearance of Home".
@@ -62,6 +66,7 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
   return HomeState(
     vehicle: vehicle,
     estimate: snapshot?.estimate,
+    strips: _strips(ref, vehicle, snapshot, today),
     stack: buildHomeStack(
       items: snapshot?.assessments ?? const [],
       today: today ?? CivilDate.fromDateTime(DateTime(1970))!,
@@ -79,6 +84,49 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
     ),
   );
 });
+
+/// Which conditional strips are eligible, capped and ordered by §9's priority.
+///
+/// **Two of the three cannot fire yet.** The done-from-notification
+/// confirmation is written by a notification ACTION and the away digest needs
+/// the notification permission state and a last-opened timestamp — all three
+/// arrive with EPIC-16. Their widgets are built and tested; what is missing is
+/// the trigger, and inventing one here would mean a strip that fires on a fact
+/// nobody records.
+List<HomeStripKind> _strips(
+  Ref ref,
+  Vehicle vehicle,
+  VehicleDueSnapshot? snapshot,
+  CivilDate? today,
+) {
+  final estimate = snapshot?.estimate;
+  if (estimate == null || today == null) return const [];
+
+  final unit =
+      vehicle.distanceUnit ??
+      ref.watch(settingsProvider).value?.distanceUnit ??
+      DistanceUnit.km;
+
+  // The drift is the RATE times the staleness, which is what "projected drift"
+  // means: how far the app believes the car has gone since anybody looked. A
+  // vehicle that has not moved has no drift and earns no strip at thirty days,
+  // which is the whole point of §9's second threshold.
+  final drift = snapshot!.rate.metresPerDay * estimate.staleDays;
+  final stale =
+      isOdometerStale(
+        staleDays: estimate.staleDays,
+        driftMetres: drift,
+        unit: unit,
+      ) &&
+      !isStalenessDismissed(
+        ref.watch(uiStateProvider)[uiKeyStalenessDismissedUntil(
+          vehicle.id.toString(),
+        )],
+        today,
+      );
+
+  return homeStripQueue({if (stale) HomeStripKind.staleOdometer});
+}
 
 /// The first OTHER vehicle with a due or overdue item, in garage order.
 ///

@@ -40,15 +40,19 @@ DOMAIN_RE='^lib/core/|/domain/|_copy\.dart$'
 # declares the ramps and resolves them; CalmField reads `overdue` for its error
 # ring and CalmSnackbar's destructive variant reads `danger` — both states are
 # fixed when the widget is written and neither is resolved from a DueState.
-# FOUR widgets read a state slot at AUTHORING time rather than resolving one from
+# FIVE widgets read a state slot at AUTHORING time rather than resolving one from
 # a DueState, so CalmStatusStyle has nothing to resolve: the field error ring is
 # always `overdue`, the destructive snackbar is always `danger`, all-clear is
-# always `ok`, and a swipe action's tone is a `CalmSwipeTone` chosen when the
-# action is declared — SPEC.md §8 names them, "Mark as sold (amber), Delete
-# (red)". Anything that switches on a DueState still goes through
-# CalmStatusStyle, including in these four files: the allowance is for reading a
-# slot, never for resolving one.
-SLOT_ALLOW_RE='/theme/calm/|/calm_field\.dart$|/calm_snackbar\.dart$|/calm_all_clear\.dart$|/calm_swipe_actions\.dart$'
+# always `ok`, a swipe action's tone is a `CalmSwipeTone` chosen when the action
+# is declared — SPEC.md §8 names them, "Mark as sold (amber), Delete (red)" —
+# and a notice's tone is a `CalmNoticeTone`, which odova.css declares as
+# `.notice--info`, `--warn` and `--ok`: three fixed tints, picked when the strip
+# is written and never from a due state. Anything that switches on a DueState
+# still goes through CalmStatusStyle, including in these five files: the
+# allowance is for reading a slot, never for resolving one, and the arm below
+# plants a slot read in an ordinary `lib/ui/calm/` file to prove the list is per
+# FILE rather than per directory.
+SLOT_ALLOW_RE='/theme/calm/|/calm_field\.dart$|/calm_snackbar\.dart$|/calm_all_clear\.dart$|/calm_swipe_actions\.dart$|/calm_notice\.dart$'
 if [ ! -d "$TARGET" ]; then echo "note: '$TARGET' not found."; exit 0; fi
 
 # Generated code and the generated localisations legitimately carry both the

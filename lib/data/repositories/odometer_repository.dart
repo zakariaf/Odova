@@ -144,6 +144,39 @@ class OdometerRepository {
     return Ok(SavedReading(reading, verdict.warnings));
   });
 
+  /// Soft-deletes one MANUAL reading, for the Undo beside the strip's Save.
+  ///
+  /// Scoped by vehicle as well as by id, for the reason `deleteCorrection`
+  /// gives: a mismatched pair would otherwise delete another car's reading.
+  ///
+  /// And scoped by SOURCE. A derived reading belongs to the record that
+  /// produced it — §3 says it "follows its parent and is not directly editable"
+  /// — so an Undo that could reach one would leave a fill-up whose odometer had
+  /// silently vanished from the distance history.
+  ///
+  /// [deletedAtUtcMs] is the Undo key, as everywhere else.
+  Future<Result<void, PersistFailure>> deleteReading(
+    OdometerReadingId id,
+    VehicleId vehicleId, {
+    required int deletedAtUtcMs,
+  }) => guardPersist(() async {
+    final rows =
+        await (_db.update(_db.odometerReadings)..where(
+              (r) =>
+                  r.id.equals(id.toString()) &
+                  r.vehicleId.equals(vehicleId.toString()) &
+                  r.source.equals(OdometerSource.manual.wire) &
+                  r.deletedAtUtcMs.isNull(),
+            ))
+            .write(
+              OdometerReadingsCompanion(
+                deletedAtUtcMs: Value(deletedAtUtcMs),
+              ),
+            );
+    if (rows == 0) return Err(NotFound(id.toString()));
+    return const Ok(null);
+  });
+
   /// Writes [correction].
   Future<Result<OdometerCorrection, PersistFailure>> saveCorrection(
     OdometerCorrection correction,

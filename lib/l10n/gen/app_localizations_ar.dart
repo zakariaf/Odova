@@ -1037,4 +1037,59 @@ class AppLocalizationsAr extends AppLocalizations {
   String homeLastEntered(String date) {
     return 'آخر إدخال في $date';
   }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'تم تحديث عداد المسافة قبل $nText يوم.',
+      many: 'تم تحديث عداد المسافة قبل $nText يومًا.',
+      few: 'تم تحديث عداد المسافة قبل $nText أيام.',
+      two: 'تم تحديث عداد المسافة قبل يومين.',
+      one: 'تم تحديث عداد المسافة أمس.',
+      zero: 'تم تحديث عداد المسافة قبل $nText يوم.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'إخفاء لمدة أسبوع';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'لقد وضعت علامة على $item كمنجَز في $date.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'سجّلت $odometer وبدون تكلفة.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'الاستحقاق التالي عند $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'أدخل الأرقام الحقيقية';
+
+  @override
+  String get actionThatsRight => 'هذا صحيح';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item أصبح متأخرًا في $date';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item مستحق في $date';
+  }
+
+  @override
+  String get homeDigestDismiss => 'إغلاق هذا الملخص';
+
+  @override
+  String get odometerSavedSnack => 'تم حفظ عداد المسافة';
 }

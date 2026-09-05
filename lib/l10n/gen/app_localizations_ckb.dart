@@ -951,4 +951,55 @@ class AppLocalizationsCkb extends AppLocalizations {
   String homeLastEntered(String date) {
     return 'دوایین تۆمار $date';
   }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'کیلۆمەترپێو $nText ڕۆژ لەمەوبەر نوێ کرایەوە.',
+      one: 'کیلۆمەترپێو $nText ڕۆژ لەمەوبەر نوێ کرایەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'بۆ هەفتەیەک بیشارەوە';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'تۆ $item ت لە $date بە کراو نیشانە کرد.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'من $odometer و بێ تێچوو تۆمارم کرد.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'داهاتوو لە $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'ژمارە ڕاستەکان بنووسە';
+
+  @override
+  String get actionThatsRight => 'ڕاستە';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item لە $date دواکەوت';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item لە $date کاتی دێت';
+  }
+
+  @override
+  String get homeDigestDismiss => 'داخستنی ئەم کورتەیە';
+
+  @override
+  String get odometerSavedSnack => 'کیلۆمەترپێو پاشەکەوت کرا';
 }

@@ -947,4 +947,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeLastEntered(String date) {
     return 'Last entered $date';
   }
+
+  @override
+  String homeStripStale(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Odometer last updated $nText days ago.',
+      one: 'Odometer last updated $nText day ago.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeStripStaleDismiss => 'Hide this for a week';
+
+  @override
+  String homeStripDoneTitle(String item, String date) {
+    return 'You marked $item done on $date.';
+  }
+
+  @override
+  String homeStripDoneRecorded(String odometer) {
+    return 'I recorded $odometer and no cost.';
+  }
+
+  @override
+  String homeStripDoneNext(String odometer, String date) {
+    return 'Next due at $odometer · $date.';
+  }
+
+  @override
+  String get actionAddRealNumbers => 'Add the real numbers';
+
+  @override
+  String get actionThatsRight => 'That\'s right';
+
+  @override
+  String homeDigestOverdue(String item, String date) {
+    return '$item went overdue on $date';
+  }
+
+  @override
+  String homeDigestDue(String item, String date) {
+    return '$item is due $date';
+  }
+
+  @override
+  String get homeDigestDismiss => 'Dismiss this summary';
+
+  @override
+  String get odometerSavedSnack => 'Odometer saved';
 }

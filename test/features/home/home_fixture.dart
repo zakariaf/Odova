@@ -47,9 +47,12 @@ import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/due_snapshot_provider.dart';
+import 'package:odova/data/repositories/odometer_repository.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/data/repositories/service_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
+import 'package:odova/data/ui_state/ui_state_provider.dart';
+import 'package:odova/data/ui_state/ui_state_store.dart';
 
 import '../../app/routing/shell_harness.dart';
 
@@ -150,9 +153,15 @@ DueAssessment homeAssessment({
 }
 
 /// A snapshot over [items], with a summary derived from them.
+///
+/// [metresPerDay] is the vehicle's rate. It matters for the staleness strip:
+/// §9's second threshold is 30 days AND projected drift, and the drift is the
+/// rate times the staleness — so a fixture that left the rate alone could not
+/// express "thirty days and the car did not move".
 VehicleDueSnapshot homeSnapshot(
   List<AssessedItem> items, {
   OdometerEstimate? estimate,
+  int metresPerDay = 40000,
 }) {
   final counts = <DueState, int>{};
   for (final (_, assessment) in items) {
@@ -166,21 +175,46 @@ VehicleDueSnapshot homeSnapshot(
       worst: items.isEmpty ? null : items.first.$2,
       worstItem: items.isEmpty ? null : items.first.$1,
     ),
-    rate: const DailyDistance(
-      metresPerDay: 40000,
+    rate: DailyDistance(
+      metresPerDay: metresPerDay,
       confidence: RateConfidence.measured,
     ),
     clock: ClockSuspicion(isSuspect: false, observedToday: homeToday),
   );
 }
 
-/// An entered reading of [km], taken today.
-OdometerEstimate homeEstimate(int km) => OdometerEstimate(
+/// An entered reading of [km], taken [staleDays] ago.
+OdometerEstimate homeEstimate(int km, {int staleDays = 0}) => OdometerEstimate(
   metres: km * 1000,
-  asOf: homeToday,
-  projection: OdometerProjection.entered,
-  staleDays: 0,
+  asOf: homeToday.addDays(-staleDays),
+  projection: staleDays == 0
+      ? OdometerProjection.entered
+      : OdometerProjection.projected,
+  staleDays: staleDays,
 );
+
+/// Puts one manual reading in [db], for the monotonicity case.
+Future<void> seedReading(
+  AppDatabase db, {
+  required int metres,
+  required String occurredOn,
+  String suffix = 'A',
+}) async {
+  final saved = await OdometerRepository(db).saveReading(
+    OdometerReading(
+      id: OdometerReadingId.tryParse('odo_01JQ8ZK3M7F0R6XN2E9TB4HCV$suffix')!,
+      vehicleId: golfId,
+      occurredOn: occurredOn,
+      odometer: Distance(metres),
+      odometerUnit: DistanceUnit.km,
+      source: OdometerSource.manual,
+      createdAtUtcMs: 1000,
+      updatedAtUtcMs: 1000,
+    ),
+    vehicleUnit: DistanceUnit.km,
+  );
+  expect(saved, isA<Ok<SavedReading, PersistFailure>>());
+}
 
 /// A fill-up of [litres] on [occurredOn] costing [cents].
 FillUp homeFillUp({
@@ -264,6 +298,7 @@ Future<ProviderContainer> pumpHome(
   TextScaler? textScaler,
   VehicleId? active,
   AppDatabase? database,
+  Map<String, String> uiState = const {},
 }) {
   final garage = vehicles ?? [homeVehicle(golfId, 'The Golf')];
   return pumpShell(
@@ -287,6 +322,10 @@ Future<ProviderContainer> pumpHome(
           ),
     overrides: <Override>[
       if (database != null) appDatabaseProvider.overrideWithValue(database),
+      // In memory, seeded. The real one is a file `bootstrap()` opens, and a
+      // widget test has neither a bootstrap nor an application support
+      // directory.
+      uiStateProviderStore.overrideWithValue(UiStateStore.inMemory(uiState)),
       // Fixed, and at [homeToday]. Home reads the clock to build its stack, so
       // a suite run on a different day would order the same fixture
       // differently — the kind of test that passes for eleven months.

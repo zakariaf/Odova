@@ -202,5 +202,16 @@
   "homeDueAt": "در {odometer}",
   "homeDueAtOn": "در {odometer} · {date}",
   "homeAroundDate": "حدود {date}",
-  "homeLastEntered": "آخرین ثبت {date}"
+  "homeLastEntered": "آخرین ثبت {date}",
+  "homeStripStale": "{n, plural, one{کیلومترشمار {nText} روز پیش به‌روز شد.} other{کیلومترشمار {nText} روز پیش به‌روز شد.}}",
+  "homeStripStaleDismiss": "یک هفته پنهان کن",
+  "homeStripDoneTitle": "شما {item} را در {date} انجام‌شده علامت زدید.",
+  "homeStripDoneRecorded": "من {odometer} و بدون هزینه ثبت کردم.",
+  "homeStripDoneNext": "موعد بعدی {odometer} · {date}.",
+  "actionAddRealNumbers": "عددهای واقعی را وارد کن",
+  "actionThatsRight": "درست است",
+  "homeDigestOverdue": "{item} در {date} عقب‌افتاده شد",
+  "homeDigestDue": "{item} در {date} سررسید می‌شود",
+  "homeDigestDismiss": "بستن این خلاصه",
+  "odometerSavedSnack": "کیلومترشمار ذخیره شد"
 }

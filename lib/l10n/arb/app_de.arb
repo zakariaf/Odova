@@ -202,5 +202,16 @@
   "homeDueAt": "Bei {odometer}",
   "homeDueAtOn": "Bei {odometer} · {date}",
   "homeAroundDate": "etwa {date}",
-  "homeLastEntered": "Zuletzt eingetragen am {date}"
+  "homeLastEntered": "Zuletzt eingetragen am {date}",
+  "homeStripStale": "{n, plural, one{Kilometerstand zuletzt vor {nText} Tag aktualisiert.} other{Kilometerstand zuletzt vor {nText} Tagen aktualisiert.}}",
+  "homeStripStaleDismiss": "Eine Woche ausblenden",
+  "homeStripDoneTitle": "Sie haben {item} am {date} als erledigt markiert.",
+  "homeStripDoneRecorded": "Ich habe {odometer} und keine Kosten erfasst.",
+  "homeStripDoneNext": "Nächste Fälligkeit bei {odometer} · {date}.",
+  "actionAddRealNumbers": "Echte Werte eintragen",
+  "actionThatsRight": "Stimmt so",
+  "homeDigestOverdue": "{item} ist am {date} überfällig geworden",
+  "homeDigestDue": "{item} ist am {date} fällig",
+  "homeDigestDismiss": "Diese Übersicht schließen",
+  "odometerSavedSnack": "Kilometerstand gespeichert"
 }

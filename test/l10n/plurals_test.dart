@@ -63,6 +63,7 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
         'Van',
       ),
       'homeOtherVehicleDue' => l10n.homeOtherVehicleDue(n, nText, 'Van'),
+      'homeStripStale' => l10n.homeStripStale(n, nText),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(
         n,

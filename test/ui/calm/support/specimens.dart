@@ -15,6 +15,7 @@ import 'package:odova/ui/calm/calm_due_card.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
+import 'package:odova/ui/calm/calm_notice.dart';
 import 'package:odova/ui/calm/calm_number_pad.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
@@ -594,6 +595,33 @@ List<CalmSpecimen> calmSpecimens() => [
           density: CalmDueDensity.secondary,
           onTap: () {},
           onAction: () {},
+        ),
+    ],
+  ),
+  CalmSpecimen(
+    'notice',
+    ({required rtl}) => [
+      // All four tones, and both close states. `.notice__close` paints 32
+      // inside a 52pt target, which is what the touch-target sweep is here to
+      // measure — and the confirmation strip has NO close at all, which is
+      // what makes "not dismissible" a shape rather than a disabled control.
+      for (final tone in CalmNoticeTone.values)
+        CalmNotice(
+          icon: Icons.info_outline,
+          tone: tone,
+          onClose: tone == CalmNoticeTone.brand ? null : () {},
+          closeLabel: tone == CalmNoticeTone.brand
+              ? null
+              : _t(rtl: rtl, latin: 'Dismiss', persian: 'بستن'),
+          children: [
+            Text(
+              _t(
+                rtl: rtl,
+                latin: 'Odometer last updated 68 days ago.',
+                persian: 'کیلومترشمار ۶۸ روز پیش به‌روز شد.',
+              ),
+            ),
+          ],
         ),
     ],
   ),

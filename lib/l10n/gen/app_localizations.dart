@@ -1334,6 +1334,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last entered {date}'**
   String homeLastEntered(String date);
+
+  /// The stale-odometer strip's first line. It states a fact about the APP rather than asking the user for something — SPEC.md §1: the app tells people things rather than asking them things, and the field underneath is the ask.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{Odometer last updated {nText} day ago.} other{Odometer last updated {nText} days ago.}}'**
+  String homeStripStale(int n, String nText);
+
+  /// The stale-odometer strip's ✕, as a screen reader hears it. The glyph carries no word, and "close" would understate it: SPEC.md §9 hides the strip for seven days on that vehicle, which is a decision rather than a dismissal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide this for a week'**
+  String get homeStripStaleDismiss;
+
+  /// The done-from-notification confirmation strip, first line. Second person, because the user did this and the app is confirming it back — not announcing it.
+  ///
+  /// In en, this message translates to:
+  /// **'You marked {item} done on {date}.'**
+  String homeStripDoneTitle(String item, String date);
+
+  /// The confirmation strip's second line. It names what the app GUESSED, so the estimate mark travels with the number — that is what "Add the real numbers" is offering to replace.
+  ///
+  /// In en, this message translates to:
+  /// **'I recorded {odometer} and no cost.'**
+  String homeStripDoneRecorded(String odometer);
+
+  /// The confirmation strip's third line — the consequence of the record, which is the thing the user actually wanted to know.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due at {odometer} · {date}.'**
+  String homeStripDoneNext(String odometer, String date);
+
+  /// The confirmation strip's first action. It opens log.service in edit mode on the record the notification wrote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the real numbers'**
+  String get actionAddRealNumbers;
+
+  /// The confirmation strip's second action. It clears odometer_estimated and cost_estimated on the record — the user has confirmed the app's guesses, so they stop being guesses.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s right'**
+  String get actionThatsRight;
+
+  /// One line of the away digest, for something that went past due while the app was closed. Past tense: it already happened.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} went overdue on {date}'**
+  String homeDigestOverdue(String item, String date);
+
+  /// One line of the away digest, for something coming up rather than past.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} is due {date}'**
+  String homeDigestDue(String item, String date);
+
+  /// The away digest's ✕, as a screen reader hears it.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss this summary'**
+  String get homeDigestDismiss;
+
+  /// The snackbar after the stale-odometer strip writes a reading. It carries an Undo, so it says what happened rather than thanking the user.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer saved'**
+  String get odometerSavedSnack;
 }
 
 class _AppLocalizationsDelegate

@@ -84,7 +84,15 @@ class AppShell extends ConsumerWidget {
   Widget _body(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     return Stack(
       children: [
-        Positioned.fill(child: navigationShell),
+        // The branch is told a tab bar is under it. The bar belongs to the
+        // SHELL, not to any screen — no tab root passes `tabBar:` to
+        // `CalmScaffold` — so without this every screen inside a branch
+        // believed there was nothing below, and a snackbar shown from one
+        // floated 62pt too low: under the bar, with its Undo swallowed by the
+        // `+`. The write happened and the recovery window did not exist.
+        Positioned.fill(
+          child: CalmChromeScope(hasTabBar: true, child: navigationShell),
+        ),
         PositionedDirectional(
           start: 0,
           end: 0,

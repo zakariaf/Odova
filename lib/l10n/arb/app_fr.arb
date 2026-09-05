@@ -202,5 +202,16 @@
   "homeDueAt": "À {odometer}",
   "homeDueAtOn": "À {odometer} · {date}",
   "homeAroundDate": "vers le {date}",
-  "homeLastEntered": "Dernière saisie le {date}"
+  "homeLastEntered": "Dernière saisie le {date}",
+  "homeStripStale": "{n, plural, one{Compteur mis à jour il y a {nText} jour.} many{Compteur mis à jour il y a {nText} jours.} other{Compteur mis à jour il y a {nText} jours.}}",
+  "homeStripStaleDismiss": "Masquer pendant une semaine",
+  "homeStripDoneTitle": "Vous avez marqué {item} comme fait le {date}.",
+  "homeStripDoneRecorded": "J'ai enregistré {odometer} et aucun coût.",
+  "homeStripDoneNext": "Prochaine échéance à {odometer} · {date}.",
+  "actionAddRealNumbers": "Saisir les vraies valeurs",
+  "actionThatsRight": "C'est exact",
+  "homeDigestOverdue": "{item} est en retard depuis le {date}",
+  "homeDigestDue": "{item} est à échéance le {date}",
+  "homeDigestDismiss": "Fermer ce résumé",
+  "odometerSavedSnack": "Compteur enregistré"
 }
