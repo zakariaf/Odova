@@ -18,6 +18,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/vehicle_edit_draft.dart';
@@ -508,16 +509,7 @@ class _OdometerRow extends ConsumerWidget {
                   formatDaysAgo(
                     l10n,
                     tag,
-                    DateUtils.dateOnly(
-                          ref.read(clockProvider).now(),
-                        )
-                        .difference(
-                          DateUtils.dateOnly(
-                            DateTime.tryParse(latest.occurredOn) ??
-                                ref.read(clockProvider).now(),
-                          ),
-                        )
-                        .inDays,
+                    _daysSince(ref, latest.occurredOn),
                   ),
                 ),
           showChevron: true,
@@ -529,7 +521,26 @@ class _OdometerRow extends ConsumerWidget {
     );
   }
 
-  /// How long ago the reading was taken, as a phrase.
+  /// Whole calendar days from [occurredOn] to the clock's today.
+  ///
+  /// Through `CivilDate`, which is the only thing in the repo allowed to count
+  /// days. This row used to subtract two `DateUtils.dateOnly` values and read
+  /// `.inDays` off the `Duration`, which counts ELAPSED TIME: two dates two
+  /// calendar days apart across a spring-forward differ by 47 hours and
+  /// truncate to 1, so "3 days ago" rendered as "2 days ago" for every user in
+  /// Europe on the last Sunday in March. `CivilDate.daysUntil`'s own dartdoc
+  /// documents that exact failure, `monotonicity.dart` shipped it once, and a
+  /// suite running in UTC — which CI does — cannot see it.
+  ///
+  /// An unparseable date counts as today rather than throwing: the row's job
+  /// is to draw, and SPEC.md §8's "the row never disappears" covers its
+  /// sub-line for the same reason it covers the count.
+  int _daysSince(WidgetRef ref, String occurredOn) {
+    final taken = CivilDate.tryParse(occurredOn);
+    final today = CivilDate.fromDateTime(ref.read(clockProvider).now());
+    if (taken == null || today == null) return 0;
+    return taken.daysUntil(today);
+  }
 }
 
 /// Two fields side by side, as the artboard pairs Make/Model and Year/Plate.
