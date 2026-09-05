@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/due/due_engine.dart';
-import 'package:odova/features/home/ui/home_copy.dart';
+import 'package:odova/l10n/due_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
@@ -102,7 +102,7 @@ void main() {
                       driver: _assessmentFor(state).driver,
                       confidence: _assessmentFor(state).confidence,
                       title: 'Oil and filter',
-                      statusLine: homeStatusLine(
+                      statusLine: dueStatusLine(
                         l10n,
                         'en-GB',
                         _assessmentFor(state),
@@ -155,7 +155,7 @@ void main() {
     // Signal 2 — the words. Five sentences, each on screen exactly once.
     final sentences = <String>{};
     for (final state in _onHome) {
-      final line = homeStatusLine(
+      final line = dueStatusLine(
         l10n,
         'en-GB',
         _assessmentFor(state),

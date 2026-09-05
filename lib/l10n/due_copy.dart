@@ -1,5 +1,13 @@
-// Every sentence Home says about one card, chosen from what the engine
+// Every sentence the app says about a due item, chosen from what the engine
 // concluded.
+//
+// In `lib/l10n/` rather than beside Home, which is where it was written.
+// `reminders.list` says the same things — SPEC.md §9: "the same dot/colour/
+// wording vocabulary, so no legend is needed", and "status wording, counts and
+// group headers reuse Home's ICU keys" — and `structure_test.dart` refuses one
+// feature importing another. Two copies of this mapper would be two
+// vocabularies for one set of states, which is exactly the legend §9 says the
+// screen must not need.
 //
 // A MAPPER, never a string builder. SPEC.md §2 forbids assembling a sentence
 // from parts, because a sentence built in Dart is a sentence no translator can
@@ -25,7 +33,7 @@ import 'package:odova/l10n/vehicle_labels.dart';
 ///
 /// An enum rather than a route string, because the destination is EPIC-11's and
 /// the copy is this file's — and the two should not have to change together.
-enum HomeAction {
+enum DueActionKind {
   /// Record that the job was done. §9's default for anything actionable.
   logIt,
 
@@ -36,10 +44,10 @@ enum HomeAction {
 }
 
 /// Which button [assessment] earns.
-HomeAction homeActionKey(DueAssessment assessment) =>
+DueActionKind dueActionKey(DueAssessment assessment) =>
     assessment.state == DueState.needsOdometer || _mustAskForReading(assessment)
-    ? HomeAction.updateOdometer
-    : HomeAction.logIt;
+    ? DueActionKind.updateOdometer
+    : DueActionKind.logIt;
 
 /// Whether the card may print a figure or a date at all.
 ///
@@ -53,7 +61,7 @@ bool _mustAskForReading(DueAssessment assessment) =>
     assessment.confidence == RateConfidence.defaulted;
 
 /// The status line one card shows, already shaped and isolated.
-String homeStatusLine(
+String dueStatusLine(
   AppLocalizations l10n,
   String formatsTag,
   DueAssessment assessment,
@@ -106,7 +114,7 @@ String homeStatusLine(
 /// Null when the app cannot stand behind anything. §9's `default` confidence
 /// row gives the card "no date and no figure", and an anchor line would smuggle
 /// one back in under a different heading.
-String? homeAnchorLine(
+String? dueAnchorLine(
   AppLocalizations l10n,
   String formatsTag,
   DueAssessment assessment,

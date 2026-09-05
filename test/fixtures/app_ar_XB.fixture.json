@@ -234,5 +234,6 @@
   "remindersNothingTracked": "‏.elcihev siht no dekcart gnieb si gnihtoN",
   "remindersWhenLastDone": "‏enod tsal siht saw nehW",
   "actionDoneToday": "‏yadot enoD",
-  "actionTurnOffShort": "‏ffo nruT"
+  "actionTurnOffShort": "‏ffo nruT",
+  "actionSnoozeShort": "‏ezoonS"
 }

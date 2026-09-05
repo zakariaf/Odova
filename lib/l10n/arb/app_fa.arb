@@ -234,5 +234,6 @@
   "remindersNothingTracked": "برای این خودرو چیزی پیگیری نمی‌شود.",
   "remindersWhenLastDone": "آخرین‌بار کی انجام شد",
   "actionDoneToday": "امروز انجام شد",
-  "actionTurnOffShort": "خاموش"
+  "actionTurnOffShort": "خاموش",
+  "actionSnoozeShort": "تعویق"
 }

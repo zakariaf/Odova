@@ -1073,4 +1073,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get actionTurnOffShort => 'خاموش';
+
+  @override
+  String get actionSnoozeShort => 'تعویق';
 }

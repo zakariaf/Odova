@@ -1167,4 +1167,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get actionTurnOffShort => 'إيقاف';
+
+  @override
+  String get actionSnoozeShort => 'تأجيل';
 }

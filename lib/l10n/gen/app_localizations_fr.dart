@@ -1106,4 +1106,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get actionTurnOffShort => 'Désactiver';
+
+  @override
+  String get actionSnoozeShort => 'Reporter';
 }

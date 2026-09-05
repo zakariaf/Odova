@@ -1080,4 +1080,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get actionTurnOffShort => 'Ausschalten';
+
+  @override
+  String get actionSnoozeShort => 'Später';
 }

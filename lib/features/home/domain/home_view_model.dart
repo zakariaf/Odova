@@ -12,6 +12,7 @@
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/due/due_engine.dart';
+import 'package:odova/core/due/due_order.dart';
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/due/resolve_anchor.dart';
@@ -162,7 +163,15 @@ HomeStack buildHomeStack({
     );
   }
 
-  due.sort(_byDueThenSeverityThenLabel);
+  // §9's ordering, from `lib/core/due/due_order.dart` — the same comparator
+  // `reminders.list` sorts its first group with, because §9 says that screen is
+  // sorted "exactly as Home sorts" and two comparators would be two orders.
+  due.sort(
+    (a, b) => compareAssessedItems(
+      (a.item, a.assessment),
+      (b.item, b.assessment),
+    ),
+  );
   _floatPinned(due, pinnedItemId);
   _demoteNeedsOdometer(due);
 
@@ -183,47 +192,6 @@ HomeStack buildHomeStack({
           ),
   );
 }
-
-/// §9's ordering rules 1 and 4, in one comparator.
-///
-/// ONE sort key — the projected due date — and overdue items float on it
-/// because their dates are in the past. That is the whole reason the engine
-/// projects a date for the distance axis: without it, "overdue by 1,400 km"
-/// and "due in three weeks" cannot be ordered against each other at all.
-///
-/// An item with NO projected date sorts last. It has no place on the axis the
-/// rest are ordered by, and putting it first would give the primary slot to
-/// the item the app knows least about.
-int _byDueThenSeverityThenLabel(DueCardModel a, DueCardModel b) {
-  final byDate = _compareDates(
-    a.assessment.projectedDueDate,
-    b.assessment.projectedDueDate,
-  );
-  if (byDate != 0) return byDate;
-
-  final bySeverity = _severity(a.state).compareTo(_severity(b.state));
-  if (bySeverity != 0) return bySeverity;
-
-  return (a.item.label ?? '').compareTo(b.item.label ?? '');
-}
-
-int _compareDates(CivilDate? a, CivilDate? b) {
-  if (a == null && b == null) return 0;
-  if (a == null) return 1;
-  if (b == null) return -1;
-  return a.compareTo(b);
-}
-
-/// Worst first. Only an ORDERING, never a colour — the colour is
-/// `CalmStatusStyle`'s and this file never asks for one.
-int _severity(DueState state) => switch (state) {
-  DueState.overdue => 0,
-  DueState.due => 1,
-  DueState.needsOdometer => 2,
-  DueState.dueSoon => 3,
-  DueState.unknown => 4,
-  DueState.ok => 5,
-};
 
 /// §9 rule 5: "A deep-linked item is pinned to the primary slot for that one
 /// appearance of Home."

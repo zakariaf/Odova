@@ -319,3 +319,64 @@ goes to the design sweep with F-10.1.
   `costPerDistance` are **EPIC-13's**, like the two cost tiles. The panel prints
   the ownership line only when BOTH its halves are known — "Owned 6 years · —
   driven" is a sentence with a hole in it.
+
+## Task 10.7 — `reminders.list` ✅ (parity blocked, and named)
+
+`reminders_groups.dart` in `domain/` partitions and sorts; the screen composes
+`CalmRowGroup`s of `CalmListRow`s with `CalmSwipeActions` around each. 6 domain
+tests, 2 provider tests, 14 screen tests, 4 parity captures.
+
+**`due_copy.dart` moved to `lib/l10n/`.** §9 says this screen speaks "the same
+dot/colour/wording vocabulary" as Home and "reuses Home's ICU keys", and
+`structure_test.dart` refuses one feature importing another. Two copies of that
+mapper would be two vocabularies for one set of states — which is exactly the
+legend §9 says the screen must not need. `homeStatusLine` → `dueStatusLine`, and
+the same for the anchor line and the action key.
+
+**The ORDER moved to `lib/core/due/due_order.dart`** for the same reason: §9
+says this screen sorts "exactly as Home sorts", and two comparators would be two
+orders — the second one always being the one a user notices.
+
+### F-10.5 — the artboard groups by DUE STATE; §9's prose groups by tracking
+
+The reference draws five groups with counts — `Overdue 1`, `Due soon 2`,
+`On track 1`, `Never recorded 1`, `Not tracked 8 of 14` — each its own card.
+§9's *Groups, in order* names three: tracked-and-active sorted by date, then
+**Paused**, then **Not tracked**. They are different screens, not different
+paint: the artboard's grouping is by STATUS and would put a paused item nowhere,
+while §9's is by TRACKING and puts every `ok` item in one long first group.
+
+§9's prose is what this epic built, because it is the product decision stated in
+words and it accounts for every row. The artboard's version has something the
+prose does not — a count per group — and it goes to the design sweep with F-10.1
+and F-10.4 rather than being chosen here by whoever typed last.
+
+Bands: 46/96, 42/98, 46/97, 40/94 against a 75% floor. Colour and theme pass in
+all four.
+
+### F-10.6 — a swipe row was 16pt taller than its design
+
+`CalmSwipeActions` stretches its action tiles to the ROW's height, so a row
+shorter than a tile overflows it — which a 64pt reminder row did against a
+two-line Persian "امروز انجام شد", by 4pt. The fix is a minimum height on the
+row derived from the tokens; the FIRST version of it added `s2` above and below
+"for breathing room" and made every swipeable row 16pt taller than its design,
+visible immediately against this screen's reference. It is now exactly the
+content, with each caption line CEILED — a line box is laid out in whole logical
+pixels, and the 0.8 two of them gain is the whole overflow.
+
+### Deferred, deliberately
+
+- **Sticky group separators.** §9's "26 items" state pins the headers as the
+  list scrolls. The list renders all 26 and scrolls; the pinning is a
+  `SliverPersistentHeader` inside `CalmScaffold`'s `ListView`, which is a change
+  to the frame every screen shares and is not worth making for one screen's
+  polish in this epic.
+- **The swipe tiles are all `caution`.** §9 assigns no tones, Calm has exactly
+  two, and `danger` is reserved for "destructive, and behind a confirmation of
+  its own" — none of these three is. A third, quieter tone is a design question.
+- **`Snooze` does nothing yet.** `dialog.snooze` is EPIC-08's global dialog and
+  the snooze WRITE is task 10.8's. Named in the switch rather than defaulted.
+- **`Done today` pushes `log.service` with the item.** EPIC-11 owns the
+  destination; the assertion is the route name plus arguments, which is the
+  whole navigation contract this epic can keep.

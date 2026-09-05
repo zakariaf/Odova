@@ -13,10 +13,10 @@ import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
-import 'package:odova/features/home/ui/home_copy.dart';
+import 'package:odova/l10n/due_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 
-import '../../../support/source_tree.dart';
+import '../support/source_tree.dart';
 
 DueAssessment _assessment({
   required DueState state,
@@ -50,10 +50,10 @@ void main() {
   });
 
   String status(DueAssessment a, {String tag = 'en-GB'}) =>
-      stripBidi(homeStatusLine(en, tag, a, DistanceUnit.km));
+      stripBidi(dueStatusLine(en, tag, a, DistanceUnit.km));
 
   String? anchor(DueAssessment a, {String tag = 'en-GB'}) {
-    final line = homeAnchorLine(en, tag, a, DistanceUnit.km);
+    final line = dueAnchorLine(en, tag, a, DistanceUnit.km);
     return line == null ? null : stripBidi(line);
   }
 
@@ -264,7 +264,7 @@ void main() {
 
     expect(status(a), en.homeDueSoonNoConfidence);
     expect(status(a), isNot(contains('5')), reason: 'no figure at all');
-    expect(homeActionKey(a), HomeAction.updateOdometer);
+    expect(dueActionKey(a), DueActionKind.updateOdometer);
   });
 
   test('dueSoon by distance above default carries the figure', () {
@@ -287,16 +287,16 @@ void main() {
       driver: DueDriver.distance,
     );
     expect(status(a), 'Needs an odometer reading');
-    expect(homeActionKey(a), HomeAction.updateOdometer);
+    expect(dueActionKey(a), DueActionKind.updateOdometer);
   });
 
   test('every other state offers Log it', () {
     for (final state in [DueState.overdue, DueState.due, DueState.dueSoon]) {
       expect(
-        homeActionKey(
+        dueActionKey(
           _assessment(state: state, driver: DueDriver.time),
         ),
-        HomeAction.logIt,
+        DueActionKind.logIt,
         reason: '$state',
       );
     }
@@ -337,7 +337,7 @@ void main() {
 
   test('the figure and its unit travel in one bidi isolate', () {
     // §9's RTL rule: `۱٬۴۰۰ کیلومتر` never splits across the mirror.
-    final line = homeStatusLine(
+    final line = dueStatusLine(
       en,
       'fa-IR',
       _assessment(

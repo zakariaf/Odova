@@ -200,6 +200,31 @@ class ServiceRepository {
     return const Ok(null);
   });
 
+  /// Switches one service item on or off in the catalogue.
+  ///
+  /// SPEC.md §9's `+ Track`: it "sets `is_tracked = true` and opens
+  /// `reminders.edit`, because a tracked item with no anchor is just another
+  /// `unknown`". A targeted UPDATE for the reason [setItemActive] gives — the
+  /// editor may be open on the same row, and a read-modify-write would put
+  /// every stale field back with it.
+  Future<Result<void, PersistFailure>> setItemTracked(
+    ServiceItemId id, {
+    required bool isTracked,
+    required int updatedAtUtcMs,
+  }) => guardPersist(() async {
+    final rows =
+        await (_db.update(
+          _db.serviceItems,
+        )..where((i) => i.id.equals(id.toString()))).write(
+          ServiceItemsCompanion(
+            isTracked: Value(isTracked),
+            updatedAtUtcMs: Value(updatedAtUtcMs),
+          ),
+        );
+    if (rows == 0) return Err(NotFound(id.toString()));
+    return const Ok(null);
+  });
+
   /// Reads one record with its lines.
   Future<Result<ServiceRecord, PersistFailure>> findRecordById(
     ServiceRecordId id,

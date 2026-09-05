@@ -1526,6 +1526,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn off'**
   String get actionTurnOffShort;
+
+  /// The snooze swipe tile's label. Shorter than actionSnooze for the reason actionTurnOffShort is: a swipe reveals an 88pt tile with a glyph above two lines of text, and the Persian "یادآوری بعداً" overflowed it by 4pt. A separate key rather than a shortened translation, because the menu row has the room and should keep the fuller phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze'**
+  String get actionSnoozeShort;
 }
 
 class _AppLocalizationsDelegate

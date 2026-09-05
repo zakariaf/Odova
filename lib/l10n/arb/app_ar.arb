@@ -234,5 +234,6 @@
   "remindersNothingTracked": "لا يتم تتبع أي شيء لهذه المركبة.",
   "remindersWhenLastDone": "متى تم هذا آخر مرة",
   "actionDoneToday": "تم اليوم",
-  "actionTurnOffShort": "إيقاف"
+  "actionTurnOffShort": "إيقاف",
+  "actionSnoozeShort": "تأجيل"
 }

@@ -1,4 +1,4 @@
-// Turning one reminder off, and putting it back.
+// Turning one reminder off or on, and putting it back.
 //
 // SPEC.md §9's card overflow: "**Turn this off** (`is_active = false`, snackbar
 // with **Undo**)". Both halves are here — a write with no Undo beside it is the

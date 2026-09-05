@@ -234,5 +234,6 @@
   "remindersNothingTracked": "هیچ شتێک بۆ ئەم ئۆتۆمبێلە شوێن ناکرێت.",
   "remindersWhenLastDone": "دوایین جار کەی کرا",
   "actionDoneToday": "ئەمڕۆ کرا",
-  "actionTurnOffShort": "کوژاندنەوە"
+  "actionTurnOffShort": "کوژاندنەوە",
+  "actionSnoozeShort": "دواخستن"
 }

@@ -234,5 +234,6 @@
   "remindersNothingTracked": "[Ǹǿţħīǹḡ īŝ ḅḗīǹḡ ţřáçķḗḍ ǿǹ ţħīŝ ṽḗħīçŀḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "remindersWhenLastDone": "[Ẇħḗǹ ẇáŝ ţħīŝ ŀáŝţ ḍǿǹḗ ǃǃǃǃǃǃǃǃǃǃ]",
   "actionDoneToday": "[Ḍǿǹḗ ţǿḍáẏ ǃǃǃǃ]",
-  "actionTurnOffShort": "[Ţǔřǹ ǿƒƒ ǃǃǃǃ]"
+  "actionTurnOffShort": "[Ţǔřǹ ǿƒƒ ǃǃǃǃ]",
+  "actionSnoozeShort": "[Ŝǹǿǿżḗ ǃǃǃ]"
 }

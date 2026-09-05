@@ -1078,4 +1078,7 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get actionTurnOffShort => 'کوژاندنەوە';
+
+  @override
+  String get actionSnoozeShort => 'دواخستن';
 }

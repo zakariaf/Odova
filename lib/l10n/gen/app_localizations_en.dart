@@ -1074,4 +1074,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionTurnOffShort => 'Turn off';
+
+  @override
+  String get actionSnoozeShort => 'Snooze';
 }

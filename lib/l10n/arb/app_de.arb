@@ -234,5 +234,6 @@
   "remindersNothingTracked": "Für dieses Fahrzeug wird nichts verfolgt.",
   "remindersWhenLastDone": "Wann war das zuletzt",
   "actionDoneToday": "Heute erledigt",
-  "actionTurnOffShort": "Ausschalten"
+  "actionTurnOffShort": "Ausschalten",
+  "actionSnoozeShort": "Später"
 }

@@ -63,6 +63,32 @@ class CalmSwipeAction {
 /// The width one action occupies once revealed.
 const kCalmSwipeActionWidth = 88.0;
 
+/// The height a revealed action needs: a glyph, a gap and two lines of caption.
+///
+/// A FUNCTION of the tokens, not a number. The tiles are stretched to the row's
+/// height, so a row shorter than this overflows them — and pinning it to a
+/// literal would leave the two to drift the first time the caption scale
+/// changed.
+///
+/// EXACTLY the content, with no padding of its own. The first version added
+/// `s2` above and below "for breathing room", which made every swipeable row
+/// 16pt taller than its design — visible against the `reminders.list`
+/// reference, where a 64pt row came out at 82. The tile is centred in whatever
+/// height it gets; this is the floor at which it stops overflowing, not a
+/// comfortable size for it.
+double calmSwipeActionMinHeight(BuildContext context) {
+  final space = CalmSpace.of(context);
+  final caption = CalmType.of(context).caption;
+  final line =
+      (caption.fontSize ?? 13) *
+      (caption.height ?? 1.4) *
+      MediaQuery.textScalerOf(context).scale(1);
+  // CEILED per line. A text line box is laid out in whole logical pixels, so
+  // `13 * 1.4` occupies 19 and not 18.2 — and the 0.8 the two of them gain is
+  // exactly the overflow this function exists to prevent.
+  return space.iconSm + space.s1 + line.ceilToDouble() * 2;
+}
+
 /// How far the row must travel before it stays open.
 ///
 /// Half of one action. Below it the row springs back: a row left ajar is a row
@@ -164,16 +190,29 @@ class _CalmSwipeActionsState extends State<CalmSwipeActions>
                 end: 0,
                 child: _EndActions(actions: widget.endActions, onRun: _run),
               ),
-            AnimatedSlide(
-              duration: calmDuration(context, motion.quick),
-              curve: motion.easeOut,
-              // Logical, so the row travels toward the start edge in both
-              // directions without this widget knowing which one that is.
-              offset: Offset(
-                (rtl ? 1 : -1) * _offset / _rowWidth(context),
-                0,
+            // The ROW is at least as tall as the tallest action it reveals.
+            //
+            // The tiles are stretched to the row's height by the
+            // `PositionedDirectional` above, so a row shorter than its own
+            // actions overflows THEM — which is what a 64pt reminder row did
+            // against a two-line Persian "امروز انجام شد", by 4pt. Measured
+            // from the tokens rather than pinned to a number, so a change to
+            // the caption scale moves both together.
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: calmSwipeActionMinHeight(context),
               ),
-              child: widget.child,
+              child: AnimatedSlide(
+                duration: calmDuration(context, motion.quick),
+                curve: motion.easeOut,
+                // Logical, so the row travels toward the start edge in both
+                // directions without this widget knowing which one that is.
+                offset: Offset(
+                  (rtl ? 1 : -1) * _offset / _rowWidth(context),
+                  0,
+                ),
+                child: widget.child,
+              ),
             ),
           ],
         ),

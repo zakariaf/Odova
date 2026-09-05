@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
-import 'package:odova/features/home/ui/home_copy.dart';
 import 'package:odova/l10n/date_format.dart';
+import 'package:odova/l10n/due_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -133,20 +133,20 @@ class DueStack extends StatelessWidget {
     driver: card.assessment.driver,
     confidence: card.assessment.confidence,
     title: card.item.label ?? '',
-    statusLine: homeStatusLine(l10n, formatsTag, card.assessment, unit),
-    actionLabel: switch (homeActionKey(card.assessment)) {
-      HomeAction.logIt => l10n.actionLogIt,
-      HomeAction.updateOdometer => l10n.actionUpdateOdometer,
+    statusLine: dueStatusLine(l10n, formatsTag, card.assessment, unit),
+    actionLabel: switch (dueActionKey(card.assessment)) {
+      DueActionKind.logIt => l10n.actionLogIt,
+      DueActionKind.updateOdometer => l10n.actionUpdateOdometer,
     },
     // The artboard draws a check inside `Log it`. The other action asks for a
     // reading rather than recording work, so it takes the odometer's own
     // glyph — the same one the strip uses, so the two controls that lead to
     // `log.odometer` look like each other.
-    actionIcon: switch (homeActionKey(card.assessment)) {
-      HomeAction.logIt => Icons.check,
-      HomeAction.updateOdometer => Icons.speed_outlined,
+    actionIcon: switch (dueActionKey(card.assessment)) {
+      DueActionKind.logIt => Icons.check,
+      DueActionKind.updateOdometer => Icons.speed_outlined,
     },
-    anchorLine: homeAnchorLine(l10n, formatsTag, card.assessment, unit),
+    anchorLine: dueAnchorLine(l10n, formatsTag, card.assessment, unit),
     snoozeLine: card.snoozedUntil == null
         ? null
         : l10n.homeSnoozedUntil(

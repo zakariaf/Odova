@@ -36,13 +36,13 @@ import 'package:odova/features/home/ui/card_overflow_sheet.dart';
 import 'package:odova/features/home/ui/due_stack.dart';
 import 'package:odova/features/home/ui/estimate_popover.dart';
 import 'package:odova/features/home/ui/glance_tiles.dart';
-import 'package:odova/features/home/ui/home_copy.dart';
 import 'package:odova/features/home/ui/home_states.dart';
 import 'package:odova/features/home/ui/home_strips.dart';
 import 'package:odova/features/home/ui/last_fillup_row.dart';
 import 'package:odova/features/home/ui/odometer_strip.dart';
 import 'package:odova/features/home/ui/other_vehicles_row.dart';
 import 'package:odova/l10n/date_format.dart';
+import 'package:odova/l10n/due_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
@@ -413,12 +413,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// travels in the QUERY rather than in `extra` — see `Routes.log` — so the
   /// same push works from a notification on a cold start.
   void _act(DueCardModel card, HomeState state) {
-    // Through `homeActionKey`, not through a `DueState` comparison. It is the
+    // Through `dueActionKey`, not through a `DueState` comparison. It is the
     // same function that chose the button's WORD, so "Update odometer" and
     // "goes to log.odometer" cannot disagree — and the two uncertain cases §9
     // names are `needs_odometer` AND a distance-driven `due_soon` at
     // `confidence = default`, which an equality test on the state misses.
-    if (homeActionKey(card.assessment) == HomeAction.updateOdometer) {
+    if (dueActionKey(card.assessment) == DueActionKind.updateOdometer) {
       unawaited(context.push(Routes.log(LogType.odometer)));
       return;
     }

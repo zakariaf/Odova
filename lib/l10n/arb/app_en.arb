@@ -1637,5 +1637,9 @@
   "actionTurnOffShort": "Turn off",
   "@actionTurnOffShort": {
     "description": "The third swipe action. Shorter than actionTurnOff because a swipe reveals a narrow tile, and a separate key because a swipe tile and a menu row have different room."
+  },
+  "actionSnoozeShort": "Snooze",
+  "@actionSnoozeShort": {
+    "description": "The snooze swipe tile's label. Shorter than actionSnooze for the reason actionTurnOffShort is: a swipe reveals an 88pt tile with a glyph above two lines of text, and the Persian \"یادآوری بعداً\" overflowed it by 4pt. A separate key rather than a shortened translation, because the menu row has the room and should keep the fuller phrase."
   }
 }
