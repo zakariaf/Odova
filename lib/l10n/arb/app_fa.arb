@@ -97,7 +97,7 @@
   "vehicleBusinessLabel": "از این خودرو برای کار استفاده می‌کنید؟",
   "vehicleMuteLabel": "ساکت کردن یادآورهای این خودرو",
   "vehicleOdometerRow": "کیلومترشمار",
-  "vehicleOdometerRowHint": "{age} ثبت شده · برای به‌روزرسانی ضربه بزنید",
+  "vehicleOdometerRowHint": "{age} ثبت شده",
   "vehicleMarkAsSold": "ثبت به‌عنوان فروخته‌شده",
   "vehicleKeepItMarkSold": "نگهش دار — به‌عنوان فروخته‌شده ثبتش کن",
   "vehicleDeleteRow": "حذف {name} و {countText} رکوردش",

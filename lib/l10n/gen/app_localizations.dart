@@ -699,10 +699,10 @@ abstract class AppLocalizations {
   /// **'Odometer'**
   String get vehicleOdometerRow;
 
-  /// Subtitle under the odometer row. {age} is an already-formatted relative age. German puts it FIRST, so the formatter must supply a capitalised past-tense phrase — "Heute", "Vor 3 Tagen".
+  /// The odometer row's sub-line on `vehicle.edit`: how old the reading is. It used to end '· tap to update', which promised a tap the row does not have — EPIC-11 owns `log.odometer`, and until it exists the row is inert. EPIC-11 puts the invitation back when the destination does. SPEC.md §8's rule for the disclosure groups is the same rule: a control that lies is worse than one that is absent.
   ///
   /// In en, this message translates to:
-  /// **'entered {age} · tap to update'**
+  /// **'entered {age}'**
   String vehicleOdometerRowHint(String age);
 
   /// Opens the sale form. Offered before Delete because it is what people usually mean.

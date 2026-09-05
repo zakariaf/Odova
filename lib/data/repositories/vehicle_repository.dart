@@ -141,13 +141,19 @@ class VehicleRepository {
   /// asking it to flatten twenty fields into a `VehicleDraft` and then unpack
   /// them again would be two lists of the same columns, kept in step by hand.
   ///
-  /// Four fields on [facts] are IGNORED, because they are this method's to
-  /// decide: `id`, `status`, `createdAtUtcMs` and `updatedAtUtcMs`. The id is
-  /// ASSERTED to be `kUnsavedVehicleId` rather than merely documented — a
-  /// caller holding a real one was editing a vehicle, not creating one. A new
-  /// vehicle is active and stamped now, whatever the caller built. `sortOrder`
-  /// is NOT among them: a new row leaves it at 0 and the garage's `(sortOrder,
-  /// id)` order puts it last on its ULID, which is what "append" means here.
+  /// FIVE fields on [facts] are ignored, because they are this method's to
+  /// decide: `id`, `status`, `sortOrder`, `createdAtUtcMs` and
+  /// `updatedAtUtcMs`. The id is ASSERTED to be `kUnsavedVehicleId` rather than
+  /// merely documented — a caller holding a real one was editing a vehicle,
+  /// not creating one.
+  ///
+  /// `sortOrder` is `max + 1`, and an earlier version of this comment argued
+  /// it did not need to be: a new row at 0 sorts last on its ULID under the
+  /// garage's `(sortOrder, id)` order. That holds only while EVERY row is
+  /// still at 0. `reorder` writes `0, 1, 2, …`, so after one drag a new
+  /// vehicle lands SECOND — behind whichever car holds index 0 — and task
+  /// 9.6's "appends the vehicle" and its "Switch to it" snackbar both stop
+  /// describing what the user sees.
   ///
   /// [liquidCooled] is not on `Vehicle` because Odova stores no cooling field;
   /// §4.8.3 seeds `coolant` on a liquid-cooled motorcycle and nowhere else, so
@@ -193,7 +199,9 @@ class VehicleRepository {
     required bool asFirstVehicle,
     required bool liquidCooled,
   }) async {
-    final vehicle = _asNew(facts, nowUtcMs);
+    // Read INSIDE the transaction, so two creates cannot both see the same
+    // max and land on the same index.
+    final vehicle = _asNew(facts, nowUtcMs, await _nextSortOrder());
     // The reading is stored in the unit it was TYPED in, and the seeded
     // intervals in the vehicle's own unit when it has one — the same
     // precedence `create` used, now reading it off the row.
@@ -397,7 +405,8 @@ class VehicleRepository {
     return const Ok(null);
   });
 
-  /// [facts] as a brand-new row: this repository's id, active, stamped now.
+  /// `facts` as a brand-new row: this repository's id, active, stamped now,
+  /// and sorted last.
   ///
   /// Written out rather than through `copyWith`, and the reason is the same one
   /// `VehicleEditDraft` exists for — a `copyWith` over twenty nullable fields
@@ -410,7 +419,20 @@ class VehicleRepository {
   /// here as quietly as anywhere else. What the list buys is a single place to
   /// look, next to the four fields this method decides — which is worth
   /// stating accurately rather than overstating.
-  Vehicle _asNew(Vehicle facts, int nowUtcMs) => Vehicle(
+  /// One past the last row's `sort_order`, or 0 for the first vehicle.
+  ///
+  /// Soft-deleted rows COUNT: a gap in the sequence is harmless, and skipping
+  /// them would let a create reuse the index of a vehicle the user can still
+  /// undo back into the garage.
+  Future<int> _nextSortOrder() async {
+    final row = await _db
+        .customSelect('SELECT MAX(sort_order) AS m FROM vehicles;')
+        .getSingle();
+    final max = row.read<int?>('m');
+    return max == null ? 0 : max + 1;
+  }
+
+  Vehicle _asNew(Vehicle facts, int nowUtcMs, int sortOrder) => Vehicle(
     id: VehicleId.tryParse('veh_${_ids.next()}')!,
     status: VehicleStatus.active,
     createdAtUtcMs: nowUtcMs,
@@ -433,7 +455,7 @@ class VehicleRepository {
     expectedAnnual: facts.expectedAnnual,
     colour: facts.colour,
     notes: facts.notes,
-    sortOrder: facts.sortOrder,
+    sortOrder: sortOrder,
     notificationsMuted: facts.notificationsMuted,
     currency: facts.currency,
     distanceUnit: facts.distanceUnit,

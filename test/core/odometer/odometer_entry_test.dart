@@ -79,6 +79,24 @@ void main() {
     );
   });
 
+  test('a number too big to convert is refused, not wrapped', () {
+    // `double.round()` clamps to `int` max instead of throwing, and
+    // `Distance.fromKm` then multiplies by a thousand in wrapping 64-bit
+    // arithmetic. Every one of these came back as a small or NEGATIVE metre
+    // count with no problem reported, so Save was offered on a reading the app
+    // had silently invented.
+    for (final text in [
+      '18446744073709551', // wrapped to 384 metres
+      '9223372036854776', // wrapped negative
+      '1234567890123456789',
+    ]) {
+      final entry = _entry(text);
+      expect(entry.metres, isNull, reason: text);
+      expect(entry.problem, OdometerProblem.notANumber, reason: text);
+      expect(entry.usable, isFalse, reason: text);
+    }
+  });
+
   test('three million exactly is not implausible', () {
     // The boundary is ABOVE three million. A reading of exactly the limit is a
     // number the app has no reason to doubt.

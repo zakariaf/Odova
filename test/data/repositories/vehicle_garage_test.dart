@@ -291,6 +291,50 @@ void main() {
       );
     });
 
+    test(
+      'a new vehicle sorts last, even after the garage was reordered',
+      () async {
+        // `reorder` writes 0, 1, 2 — so a new row left at 0 lands SECOND,
+        // behind whichever car holds index 0, and task 9.6's "appends the
+        // vehicle" and its "Switch to it" snackbar both stop describing what
+        // the user sees. The
+        // claim that a ULID tiebreak handles this holds only while every row is
+        // still at 0.
+        await insertSettings(db);
+        await insertVehicle(db, id: _golf);
+        await insertVehicle(db, id: _polo, name: 'The Polo');
+        await repository.reorder([
+          VehicleId.tryParse(_polo)!,
+          VehicleId.tryParse(_golf)!,
+        ]);
+
+        final created = await repository.createVehicle(
+          const Vehicle(
+            id: kUnsavedVehicleId,
+            status: VehicleStatus.active,
+            createdAtUtcMs: 1,
+            updatedAtUtcMs: 1,
+            name: 'The Transit',
+            vehicleType: VehicleType.van,
+            fuelKindDefault: FuelKind.diesel,
+          ),
+          odometer: const Distance(1000),
+          odometerUnit: DistanceUnit.km,
+          occurredOn: '2026-09-04',
+          nowUtcMs: 7000,
+        );
+        final id = (created as Ok<Vehicle, PersistFailure>).value.id;
+
+        final garage = await repository.watchGarage().first;
+        expect(garage.last.id, id, reason: 'appended, not inserted');
+        expect(garage.map((v) => v.name), [
+          'The Polo',
+          'The Golf',
+          'The Transit',
+        ]);
+      },
+    );
+
     test('it does not touch the active vehicle', () async {
       // Task 9.6: "add from the vehicles + appends the vehicle, does not make
       // it active". The SCREEN decides whether to switch, and it decides

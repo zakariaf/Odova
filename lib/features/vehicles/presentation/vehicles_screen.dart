@@ -202,11 +202,17 @@ class _GarageRow extends ConsumerWidget {
     );
     final lead = _Silhouette(vehicle: vehicle);
 
-    // A SOLD row is a different row, not a live one with a field blanked.
-    // SPEC.md §8: it says what it IS rather than what is due — compact height,
-    // one sub-line, no status dot because there is no status, and the chevron
-    // in its place because the row still opens the vehicle.
-    if (vehicle.status != VehicleStatus.active) {
+    // SOLD only, and ARCHIVED is deliberately not here. SPEC.md §8 gives them
+    // one sentence each and they are opposites: "A sold vehicle computes no
+    // reminders, and its row says what it is rather than what is due… An
+    // archived one still computes reminders and shows them in-app." This read
+    // `!= active`, so a SORNed winter bike drew the sold row — and with no
+    // `sold_on` to put in the sub-line it drew a name and a chevron and
+    // nothing else, no odometer and no due line, for a vehicle the user has
+    // every intention of driving again in April.
+    //
+    // Both still sort to the bottom group; that part §8 does say "regardless".
+    if (vehicle.status == VehicleStatus.sold) {
       final counts = ref.watch(vehicleEntryCountsProvider(vehicle.id)).value;
       // No sale action on a car that is already sold: its only outcome is
       // overwriting a sale date the user entered.

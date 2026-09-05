@@ -447,7 +447,7 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String vehicleOdometerRowHint(String age) {
-    return '$age تۆمارکراوە · بۆ نوێکردنەوە دەستی لێبدە';
+    return '$age تۆمارکراوە';
   }
 
   @override

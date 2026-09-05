@@ -657,10 +657,12 @@ class _OdometerRow extends ConsumerWidget {
                     _daysSince(ref, latest.occurredOn),
                   ),
                 ),
-          showChevron: true,
-          // EPIC-11 owns `log.odometer`. Until it exists the row is INERT —
-          // `CalmListRow` draws an inert row without a tap target, so this is
-          // an absent control rather than a chevron that navigates nowhere.
+          // NO CHEVRON, and the sub-line no longer says "tap to update".
+          // EPIC-11 owns `log.odometer`; until it exists the row is INERT, and
+          // a chevron plus an invitation is a control that lies about where it
+          // goes. `CalmListRow` draws an inert row without a tap target, so
+          // this is an absent control rather than a dead one. EPIC-11 puts
+          // both back when the destination exists.
         ),
       ],
     );

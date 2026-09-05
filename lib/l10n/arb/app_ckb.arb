@@ -97,7 +97,7 @@
   "vehicleBusinessLabel": "ئەمە بۆ کار لێدەخوڕیت؟",
   "vehicleMuteLabel": "بێدەنگکردنی بیرخەرەوەکانی ئەم ئۆتۆمبێلە",
   "vehicleOdometerRow": "ژمارەی کیلۆمێتر",
-  "vehicleOdometerRowHint": "{age} تۆمارکراوە · بۆ نوێکردنەوە دەستی لێبدە",
+  "vehicleOdometerRowHint": "{age} تۆمارکراوە",
   "vehicleMarkAsSold": "نیشانەکردن وەک فرۆشراو",
   "vehicleKeepItMarkSold": "بیهێڵەوە — وەک فرۆشراو نیشانەی بکە",
   "vehicleDeleteRow": "سڕینەوەی {name} و {countText} تۆمارەکەی",

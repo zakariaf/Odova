@@ -97,7 +97,7 @@
   "vehicleBusinessLabel": "‏?krow rof siht evird uoy oD",
   "vehicleMuteLabel": "‏elcihev siht rof srednimer etuM",
   "vehicleOdometerRow": "‏retemodO",
-  "vehicleOdometerRowHint": "‏ deretne{age}etadpu ot pat · ",
+  "vehicleOdometerRowHint": "‏ deretne{age}",
   "vehicleMarkAsSold": "‏dlos sa kraM",
   "vehicleKeepItMarkSold": "‏dlos ti kram — ti peeK",
   "vehicleDeleteRow": "‏ eteleD{name} sti dna {countText}seirtne ",

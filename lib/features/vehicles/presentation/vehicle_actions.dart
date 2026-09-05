@@ -190,7 +190,9 @@ Future<VehicleActionOutcome> _deleteVehicle(
     // both the future and the `Result`: a restore that failed on a full disk
     // looked exactly like one that worked, the snackbar closed, and the
     // deletion token went with it — there is no second chance at an Undo.
-    onAction: () => unawaited(_undo(snackbars, l10n, notifier, deletion)),
+    onAction: () => unawaited(
+      _undo(snackbars, l10n, notifier, deletion, router, deletion.wasLast),
+    ),
   );
 
   // §8: "Deleting the last vehicle routes to `vehicle.edit` (firstRun) with the
@@ -203,13 +205,26 @@ Future<VehicleActionOutcome> _deleteVehicle(
 }
 
 /// Puts back what [deletion] took, and says so if it could not.
+///
+/// [wasLast] brings the user back with it. SPEC.md §8's last-vehicle sentence
+/// has two halves and only the first was built: "Deleting the last vehicle
+/// routes to `vehicle.edit` (firstRun) with the Undo snackbar above the modal;
+/// **Undo restores everything and returns to `vehicles`**." Without the return
+/// the restored row exists and the user is looking at the first-run form —
+/// which the launch gate then bounces to Home, because onboarding is done and
+/// a vehicle exists. They end up on Home wondering where their car went.
 Future<void> _undo(
   CalmSnackbarHost snackbars,
   AppLocalizations l10n,
   VehiclesNotifier notifier,
   VehicleDeletion deletion,
+  GoRouter router,
+  bool wasLast,
 ) async {
   final restored = await notifier.undoDelete(deletion);
-  if (restored is Ok) return;
-  snackbars.show(message: l10n.saveDiskFullError, danger: true);
+  if (restored is! Ok) {
+    snackbars.show(message: l10n.saveDiskFullError, danger: true);
+    return;
+  }
+  if (wasLast) router.go(Routes.vehicles);
 }

@@ -34,6 +34,14 @@ enum OdometerProblem {
 /// The three million kilometres beyond which a reading is doubted.
 const kImplausibleOdometre = Distance(3000000000);
 
+/// The largest typed value `OdometerEntry` will convert.
+///
+/// A thousand times the implausible threshold, which is three orders of
+/// magnitude of headroom above any reading a dash can show and still eleven
+/// digits clear of the wrap. Above it the multiplication into metres is no
+/// longer arithmetic, so the number is refused rather than converted.
+const double _readableLimit = 3000000000;
+
 /// What the user typed into an odometer field, and what it means.
 @immutable
 class OdometerEntry {
@@ -93,6 +101,18 @@ class OdometerEntry {
     // An odometer is a whole number of km or miles. A fractional reading is
     // not a dash reading, it is a decimal separator read the other way round.
     if (read.value < 0 || read.value != read.value.roundToDouble()) return null;
+    // And it has to survive the conversion. `double.round()` CLAMPS to
+    // `int` max rather than throwing, and `Distance.fromKm` then multiplies by
+    // a thousand in wrapping 64-bit arithmetic — so `18446744073709551` came
+    // back as 384 metres, with no error and no implausible warning, and Save
+    // wrote a brand-new car as having done 384 m. A digit further on it wraps
+    // NEGATIVE and the insert dies on the odometer's own CHECK, showing the
+    // user a disk-full message for a number they typed.
+    //
+    // The bound is the implausible threshold with room to spare, which is
+    // where a reading this size belongs anyway: not a number the app can
+    // read, so [problem] answers `notANumber` and says "Digits only".
+    if (read.value > _readableLimit) return null;
     final whole = read.value.round();
     return unit == DistanceUnit.mi
         ? Distance.fromMiles(whole).metres

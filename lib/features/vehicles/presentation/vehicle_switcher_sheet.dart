@@ -217,7 +217,10 @@ class _SwitcherRow extends ConsumerWidget {
       ),
     );
     final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicle.id));
-    final sold = vehicle.status != VehicleStatus.active;
+    // SOLD only. §8: "An archived one still computes reminders and shows them
+    // in-app" — a winter bike behind the disclosure still says what it needs,
+    // and `garageStatusOf(sold: true)` would answer the em dash for it.
+    final sold = vehicle.status == VehicleStatus.sold;
     final status = garageStatusOf(snapshot?.summary, sold: sold);
 
     return CalmListRow(

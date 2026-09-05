@@ -97,7 +97,7 @@
   "vehicleBusinessLabel": "Conduisez-vous ce véhicule pour le travail ?",
   "vehicleMuteLabel": "Mettre en sourdine les rappels de ce véhicule",
   "vehicleOdometerRow": "Compteur",
-  "vehicleOdometerRowHint": "saisi {age} · appuyez pour mettre à jour",
+  "vehicleOdometerRowHint": "saisi {age}",
   "vehicleMarkAsSold": "Marquer comme vendu",
   "vehicleKeepItMarkSold": "Le garder — le marquer comme vendu",
   "vehicleDeleteRow": "Supprimer {name} et ses {countText} entrées",

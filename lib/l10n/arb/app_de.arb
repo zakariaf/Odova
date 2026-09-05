@@ -97,7 +97,7 @@
   "vehicleBusinessLabel": "Fahren Sie damit beruflich?",
   "vehicleMuteLabel": "Erinnerungen für dieses Fahrzeug stummschalten",
   "vehicleOdometerRow": "Kilometerstand",
-  "vehicleOdometerRowHint": "{age} erfasst · zum Aktualisieren tippen",
+  "vehicleOdometerRowHint": "{age} erfasst",
   "vehicleMarkAsSold": "Als verkauft markieren",
   "vehicleKeepItMarkSold": "Behalten — als verkauft markieren",
   "vehicleDeleteRow": "{name} und seine {countText} Einträge löschen",

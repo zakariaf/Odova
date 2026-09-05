@@ -97,7 +97,7 @@
   "vehicleBusinessLabel": "هل تستخدم هذه المركبة في العمل؟",
   "vehicleMuteLabel": "كتم تذكيرات هذه المركبة",
   "vehicleOdometerRow": "العدّاد",
-  "vehicleOdometerRowHint": "أُدخِل {age} · اضغط للتحديث",
+  "vehicleOdometerRowHint": "أُدخِل {age}",
   "vehicleMarkAsSold": "تحديد كمباعة",
   "vehicleKeepItMarkSold": "احتفظ بها — وحدّدها كمباعة",
   "vehicleDeleteRow": "حذف {name} و{countText} من سجلاته",

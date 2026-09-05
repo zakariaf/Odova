@@ -443,7 +443,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String vehicleOdometerRowHint(String age) {
-    return '$age ثبت شده · برای به‌روزرسانی ضربه بزنید';
+    return '$age ثبت شده';
   }
 
   @override

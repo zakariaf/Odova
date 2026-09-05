@@ -563,12 +563,38 @@ void main() {
     expect(sold.detail, isNull, reason: 'one sub-line, not two');
     // 1,000 + 100 + 50 + 34. The twenty reminders are destroyed with the bike
     // but are not entries: the app seeded them, the user did not enter them
-    // (`DeleteCountsEntries.total`, F-9.26).
+    // (`DeleteCountsEntries.entries`, F-9.26).
     expect(sold.subtitle, contains('1,184'));
     expect(sold.subtitle, contains('12'), reason: 'the sale date');
     // The live row still has both its lines and its dot.
     expect(_row(tester, 'The Golf').showChevron, isFalse);
     expect(_row(tester, 'The Golf').end, isNotNull);
+  });
+
+  testWidgets('an ARCHIVED row is a live row, at the bottom', (tester) async {
+    // SPEC.md §8 gives sold and archived one sentence each and they are
+    // opposites: "A sold vehicle computes no reminders, and its row says what
+    // it is rather than what is due… An archived one still computes reminders
+    // and shows them in-app." The screen read `!= active`, so a SORNed winter
+    // bike drew the sold row — and with no `sold_on` for its sub-line it drew a
+    // name, a chevron, and nothing else at all.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(_golf, 'The Golf'),
+        _vehicle(_polo, 'Yamaha MT-07', status: VehicleStatus.archived),
+      ],
+    );
+
+    final archived = _row(tester, 'Yamaha MT-07');
+    expect(archived.size, isNot(CalmRowSize.compact));
+    expect(archived.showChevron, isFalse, reason: 'not a sold row');
+    expect(
+      archived.end,
+      isNotNull,
+      reason: 'it still computes reminders, so it still has a status dot',
+    );
+    expect(archived.subtitle, isNotNull, reason: 'and it still says something');
   });
 
   testWidgets('the sold group is tinted and its header carries a count', (

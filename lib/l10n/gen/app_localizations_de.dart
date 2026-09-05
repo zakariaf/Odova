@@ -449,7 +449,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String vehicleOdometerRowHint(String age) {
-    return '$age erfasst · zum Aktualisieren tippen';
+    return '$age erfasst';
   }
 
   @override
