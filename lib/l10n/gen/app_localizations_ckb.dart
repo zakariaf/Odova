@@ -1081,4 +1081,110 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get actionSnoozeShort => 'دواخستن';
+
+  @override
+  String get reminderEditTitle => 'بیرخەرەوە';
+
+  @override
+  String get reminderNewTitle => 'بیرخەرەوەی نوێ';
+
+  @override
+  String get reminderName => 'ناو';
+
+  @override
+  String get reminderEveryDistance => 'هەموو';
+
+  @override
+  String get reminderEveryMonths => 'هەموو … مانگ';
+
+  @override
+  String get reminderOnceAtOdometer => 'یان جارێک، لە کیلۆمەترپێو';
+
+  @override
+  String get reminderOnceOnDate => 'یان جارێک، لە بەروار';
+
+  @override
+  String get reminderLastDoneDate => 'دوایین جار — بەروار';
+
+  @override
+  String get reminderLastDoneOdometer => 'دوایین جار — کیلۆمەترپێو';
+
+  @override
+  String get reminderNotify => 'ئاگادارم بکەوە';
+
+  @override
+  String get reminderNoticeAhead => 'ئەوەندە پێشتر پێم بڵێ';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'بەتاڵ واتە خۆکار — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'پێشینە';
+
+  @override
+  String get reminderPrioritySafety => 'سەلامەتی';
+
+  @override
+  String get reminderPriorityNormal => 'ئاسایی';
+
+  @override
+  String get reminderPriorityLow => 'نزم';
+
+  @override
+  String get reminderRollover => 'کاتی دووبارەبوونەوە، بژمێرە لە';
+
+  @override
+  String get reminderRolloverActual => 'ئەو ڕۆژەی کرا';
+
+  @override
+  String get reminderRolloverDue => 'ئەو ڕۆژەی کاتی بوو';
+
+  @override
+  String get reminderRepeats => 'دووبارە دەبێتەوە';
+
+  @override
+  String get reminderNotes => 'تێبینی';
+
+  @override
+  String get reminderNoScheduleError =>
+      'ماوەیەک یان بەروارێکی ئامانج دیاری بکە — ئەگەرنا هیچ شتێک نییە بیرت بخەمەوە.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'ئەمە کەمترە لە کۆنترین خوێندنەوەی ئەم ئۆتۆمبێلە.';
+
+  @override
+  String get reminderBaselineFutureError => 'کارێک ناکرێت لە داهاتوودا کرابێت.';
+
+  @override
+  String get reminderNotTrackedBanner => 'شوێن‌ناکرێت — بیرت ناخرێتەوە';
+
+  @override
+  String get reminderStartTracking => 'دەستپێکردنی شوێن‌کەوتن';
+
+  @override
+  String get reminderTurnBackOn => 'دووبارە دایبگرسێنە';
+
+  @override
+  String get reminderTurnThisOff => 'ئەم بیرخەرەوەیە بکوژێنەوە';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText خزمەتگوزاری بۆ ئەمە تۆمار کراوە. کوژاندنەوەی دەیانپارێزێت.',
+      one: '$nText خزمەتگوزاری بۆ ئەمە تۆمار کراوە. کوژاندنەوەی دەیپارێزێت.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'دوایین جارەکان';
+
+  @override
+  String get reminderNoticeAheadDays => 'ئەوەندە پێشتر پێم بڵێ — ڕۆژ';
 }

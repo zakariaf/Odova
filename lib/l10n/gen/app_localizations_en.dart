@@ -1077,4 +1077,111 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionSnoozeShort => 'Snooze';
+
+  @override
+  String get reminderEditTitle => 'Reminder';
+
+  @override
+  String get reminderNewTitle => 'New reminder';
+
+  @override
+  String get reminderName => 'Name';
+
+  @override
+  String get reminderEveryDistance => 'Every';
+
+  @override
+  String get reminderEveryMonths => 'Every … months';
+
+  @override
+  String get reminderOnceAtOdometer => 'Or once, at odometer';
+
+  @override
+  String get reminderOnceOnDate => 'Or once, on date';
+
+  @override
+  String get reminderLastDoneDate => 'Last done — date';
+
+  @override
+  String get reminderLastDoneOdometer => 'Last done — odometer';
+
+  @override
+  String get reminderNotify => 'Notify me';
+
+  @override
+  String get reminderNoticeAhead => 'Tell me this far ahead';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'Blank means automatic — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'Priority';
+
+  @override
+  String get reminderPrioritySafety => 'Safety';
+
+  @override
+  String get reminderPriorityNormal => 'Normal';
+
+  @override
+  String get reminderPriorityLow => 'Low';
+
+  @override
+  String get reminderRollover => 'When it repeats, count from';
+
+  @override
+  String get reminderRolloverActual => 'The day it was done';
+
+  @override
+  String get reminderRolloverDue => 'The day it was due';
+
+  @override
+  String get reminderRepeats => 'Repeats';
+
+  @override
+  String get reminderNotes => 'Notes';
+
+  @override
+  String get reminderNoScheduleError =>
+      'Set an interval or a target date — otherwise there\'s nothing to remind you about.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'This is below the earliest reading for this vehicle.';
+
+  @override
+  String get reminderBaselineFutureError =>
+      'A job cannot have been done in the future.';
+
+  @override
+  String get reminderNotTrackedBanner => 'Not tracked — you won\'t be reminded';
+
+  @override
+  String get reminderStartTracking => 'Start tracking';
+
+  @override
+  String get reminderTurnBackOn => 'Turn back on';
+
+  @override
+  String get reminderTurnThisOff => 'Turn this reminder off';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText services are recorded against this. Turning it off keeps them.',
+      one: '$nText service is recorded against this. Turning it off keeps it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'Last done';
+
+  @override
+  String get reminderNoticeAheadDays => 'Tell me this far ahead — days';
 }

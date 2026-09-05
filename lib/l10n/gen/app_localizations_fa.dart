@@ -1076,4 +1076,111 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get actionSnoozeShort => 'تعویق';
+
+  @override
+  String get reminderEditTitle => 'یادآور';
+
+  @override
+  String get reminderNewTitle => 'یادآور تازه';
+
+  @override
+  String get reminderName => 'نام';
+
+  @override
+  String get reminderEveryDistance => 'هر';
+
+  @override
+  String get reminderEveryMonths => 'هر … ماه';
+
+  @override
+  String get reminderOnceAtOdometer => 'یا یک‌بار، در کیلومترشمار';
+
+  @override
+  String get reminderOnceOnDate => 'یا یک‌بار، در تاریخ';
+
+  @override
+  String get reminderLastDoneDate => 'آخرین‌بار — تاریخ';
+
+  @override
+  String get reminderLastDoneOdometer => 'آخرین‌بار — کیلومترشمار';
+
+  @override
+  String get reminderNotify => 'به من اطلاع بده';
+
+  @override
+  String get reminderNoticeAhead => 'چقدر زودتر بگویم';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'خالی یعنی خودکار — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'اولویت';
+
+  @override
+  String get reminderPrioritySafety => 'ایمنی';
+
+  @override
+  String get reminderPriorityNormal => 'عادی';
+
+  @override
+  String get reminderPriorityLow => 'کم';
+
+  @override
+  String get reminderRollover => 'هنگام تکرار، بشمار از';
+
+  @override
+  String get reminderRolloverActual => 'روزی که انجام شد';
+
+  @override
+  String get reminderRolloverDue => 'روز سررسید';
+
+  @override
+  String get reminderRepeats => 'تکرار می‌شود';
+
+  @override
+  String get reminderNotes => 'یادداشت';
+
+  @override
+  String get reminderNoScheduleError =>
+      'یک بازه یا تاریخ هدف تعیین کنید — وگرنه چیزی برای یادآوری نیست.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'این کمتر از قدیمی‌ترین عدد ثبت‌شدهٔ این خودرو است.';
+
+  @override
+  String get reminderBaselineFutureError =>
+      'کاری نمی‌تواند در آینده انجام شده باشد.';
+
+  @override
+  String get reminderNotTrackedBanner => 'پیگیری نمی‌شود — یادآوری نخواهید شد';
+
+  @override
+  String get reminderStartTracking => 'شروع پیگیری';
+
+  @override
+  String get reminderTurnBackOn => 'دوباره روشن کن';
+
+  @override
+  String get reminderTurnThisOff => 'این یادآور را خاموش کن';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText سرویس برای این ثبت شده است. خاموش کردن آن‌ها را نگه می‌دارد.',
+      one: '$nText سرویس برای این ثبت شده است. خاموش کردن آن را نگه می‌دارد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'آخرین‌بارها';
+
+  @override
+  String get reminderNoticeAheadDays => 'چقدر زودتر بگویم — روز';
 }

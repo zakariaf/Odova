@@ -1083,4 +1083,113 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get actionSnoozeShort => 'Später';
+
+  @override
+  String get reminderEditTitle => 'Erinnerung';
+
+  @override
+  String get reminderNewTitle => 'Neue Erinnerung';
+
+  @override
+  String get reminderName => 'Name';
+
+  @override
+  String get reminderEveryDistance => 'Alle';
+
+  @override
+  String get reminderEveryMonths => 'Alle … Monate';
+
+  @override
+  String get reminderOnceAtOdometer => 'Oder einmalig, bei Kilometerstand';
+
+  @override
+  String get reminderOnceOnDate => 'Oder einmalig, am Datum';
+
+  @override
+  String get reminderLastDoneDate => 'Zuletzt gemacht — Datum';
+
+  @override
+  String get reminderLastDoneOdometer => 'Zuletzt gemacht — Kilometerstand';
+
+  @override
+  String get reminderNotify => 'Benachrichtigen';
+
+  @override
+  String get reminderNoticeAhead =>
+      'Wie weit im Voraus soll ich Bescheid sagen?';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'Leer bedeutet automatisch — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'Priorität';
+
+  @override
+  String get reminderPrioritySafety => 'Sicherheit';
+
+  @override
+  String get reminderPriorityNormal => 'Normal';
+
+  @override
+  String get reminderPriorityLow => 'Niedrig';
+
+  @override
+  String get reminderRollover => 'Bei Wiederholung zählen ab';
+
+  @override
+  String get reminderRolloverActual => 'Dem Tag der Erledigung';
+
+  @override
+  String get reminderRolloverDue => 'Dem Fälligkeitstag';
+
+  @override
+  String get reminderRepeats => 'Wiederholt sich';
+
+  @override
+  String get reminderNotes => 'Notizen';
+
+  @override
+  String get reminderNoScheduleError =>
+      'Legen Sie ein Intervall oder ein Zieldatum fest — sonst gibt es nichts, woran ich erinnern könnte.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'Das liegt unter dem ältesten Kilometerstand dieses Fahrzeugs.';
+
+  @override
+  String get reminderBaselineFutureError =>
+      'Eine Arbeit kann nicht in der Zukunft erledigt worden sein.';
+
+  @override
+  String get reminderNotTrackedBanner =>
+      'Nicht verfolgt — Sie werden nicht erinnert';
+
+  @override
+  String get reminderStartTracking => 'Verfolgung starten';
+
+  @override
+  String get reminderTurnBackOn => 'Wieder einschalten';
+
+  @override
+  String get reminderTurnThisOff => 'Diese Erinnerung ausschalten';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Services sind hierzu erfasst. Ausschalten behält sie.',
+      one: '$nText Service ist hierzu erfasst. Ausschalten behält ihn.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'Zuletzt gemacht';
+
+  @override
+  String get reminderNoticeAheadDays =>
+      'Wie viele Tage im Voraus soll ich Bescheid sagen?';
 }

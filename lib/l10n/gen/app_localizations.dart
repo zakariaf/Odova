@@ -1532,6 +1532,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Snooze'**
   String get actionSnoozeShort;
+
+  /// The reminders.edit modal head, in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get reminderEditTitle;
+
+  /// The reminders.edit modal head, in create mode.
+  ///
+  /// In en, this message translates to:
+  /// **'New reminder'**
+  String get reminderNewTitle;
+
+  /// The label field. A catalogue kind carries its own name; a custom item needs this one, and the `service_items` CHECK refuses it without.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get reminderName;
+
+  /// The distance-interval field label — "Every 10,000 km". The unit sits at the end INSIDE the field, never concatenated after it.
+  ///
+  /// In en, this message translates to:
+  /// **'Every'**
+  String get reminderEveryDistance;
+
+  /// The time-interval field label. MONTHS and never days — SPEC.md §3: "Manuals say 12 months. Calendar addition stops a 12-month service creeping earlier every year."
+  ///
+  /// In en, this message translates to:
+  /// **'Every … months'**
+  String get reminderEveryMonths;
+
+  /// The one-off odometer target. "Cambelt at 120,000 km."
+  ///
+  /// In en, this message translates to:
+  /// **'Or once, at odometer'**
+  String get reminderOnceAtOdometer;
+
+  /// The one-off date target. A FUTURE date is allowed here, unlike the baseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Or once, on date'**
+  String get reminderOnceOnDate;
+
+  /// Half the baseline. Prefilled from the newest ServiceRecord for this item.
+  ///
+  /// In en, this message translates to:
+  /// **'Last done — date'**
+  String get reminderLastDoneDate;
+
+  /// The other half of the baseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Last done — odometer'**
+  String get reminderLastDoneOdometer;
+
+  /// The notification switch. Off still shows on Home and still goes red; it just never posts — which is why the label is about notifying and not about tracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me'**
+  String get reminderNotify;
+
+  /// The two optional notice overrides. Blank means the automatic window, shown as a placeholder — SPEC.md §9, and the German is the reason labels sit ABOVE inputs rather than beside them.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me this far ahead'**
+  String get reminderNoticeAhead;
+
+  /// The hint UNDER the notice pair: the window the due engine would compute when both fields are blank. A hint rather than a placeholder in each field, which is what the artboard draws and what stops the same sentence appearing twice. A PLACEHOLDER-class value and never a stored one — SPEC.md §2 forbids persisting a derived number, and a notice window written into the row would survive an interval change and then be wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank means automatic — {distance} / {days}.'**
+  String reminderNoticeAutomatic(String distance, String days);
+
+  /// Safety, Normal or Low. It breaks ties when the notification cap coalesces.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get reminderPriority;
+
+  /// The highest priority — brakes, tyres, a timing belt.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety'**
+  String get reminderPrioritySafety;
+
+  /// The default priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get reminderPriorityNormal;
+
+  /// The lowest priority — a wiper blade, a cabin filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get reminderPriorityLow;
+
+  /// Which day the next interval starts from. SPEC.md §3: from the day it was DONE suits most jobs; from the day it was DUE suits an inspection that stays in April.
+  ///
+  /// In en, this message translates to:
+  /// **'When it repeats, count from'**
+  String get reminderRollover;
+
+  /// `from_actual` — the default.
+  ///
+  /// In en, this message translates to:
+  /// **'The day it was done'**
+  String get reminderRolloverActual;
+
+  /// `from_due` — for anything on a fixed calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'The day it was due'**
+  String get reminderRolloverDue;
+
+  /// Off makes it a one-off that goes `ok` after completion.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get reminderRepeats;
+
+  /// Free text, 500 characters. First-strong direction from the content, not from the UI language.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get reminderNotes;
+
+  /// The inline message under the interval block when none of the four scheduling fields is set. The `service_items` CHECK says the same thing in SQL; this is the sentence that stops the row reaching it.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an interval or a target date — otherwise there\'s nothing to remind you about.'**
+  String get reminderNoScheduleError;
+
+  /// The inline message under the baseline odometer. A service cannot have happened before the car had been that far.
+  ///
+  /// In en, this message translates to:
+  /// **'This is below the earliest reading for this vehicle.'**
+  String get reminderBaselineTooLowError;
+
+  /// The inline message under the baseline date. The TARGET date has no such rule — a future target is a plan.
+  ///
+  /// In en, this message translates to:
+  /// **'A job cannot have been done in the future.'**
+  String get reminderBaselineFutureError;
+
+  /// The banner on an untracked item, with Start tracking beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tracked — you won\'t be reminded'**
+  String get reminderNotTrackedBanner;
+
+  /// The action on the untracked banner. It sets is_tracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tracking'**
+  String get reminderStartTracking;
+
+  /// The action on the paused banner. It sets is_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn back on'**
+  String get reminderTurnBackOn;
+
+  /// What the destructive control becomes on an item that HAS been referenced by a service line. SPEC.md §9: such an item is not deletable, because deleting it would orphan the records that name it.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn this reminder off'**
+  String get reminderTurnThisOff;
+
+  /// The line under Turn this reminder off. It states what would be lost and that nothing will be — SPEC.md §2: eight years of service history is the most valuable object in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} service is recorded against this. Turning it off keeps it.} other{{nText} services are recorded against this. Turning it off keeps them.}}'**
+  String reminderCannotDelete(int n, String nText);
+
+  /// The heading above the five most recent service records for this item. SPEC.md §9 calls it "the evidence behind the anchor, so a user who thinks the app is wrong can check instead of argue."
+  ///
+  /// In en, this message translates to:
+  /// **'Last done'**
+  String get reminderLastDoneHeading;
+
+  /// The DAYS half of the notice override. Its label is not drawn — SPEC.md §9 asks the question once, above the pair — but it exists so that a screen-reader user can tell the two fields apart, which is the one thing a shared visible label takes away.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me this far ahead — days'**
+  String get reminderNoticeAheadDays;
 }
 
 class _AppLocalizationsDelegate

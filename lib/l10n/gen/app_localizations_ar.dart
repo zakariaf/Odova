@@ -1170,4 +1170,114 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get actionSnoozeShort => 'تأجيل';
+
+  @override
+  String get reminderEditTitle => 'تذكير';
+
+  @override
+  String get reminderNewTitle => 'تذكير جديد';
+
+  @override
+  String get reminderName => 'الاسم';
+
+  @override
+  String get reminderEveryDistance => 'كل';
+
+  @override
+  String get reminderEveryMonths => 'كل … أشهر';
+
+  @override
+  String get reminderOnceAtOdometer => 'أو مرة واحدة، عند العداد';
+
+  @override
+  String get reminderOnceOnDate => 'أو مرة واحدة، في تاريخ';
+
+  @override
+  String get reminderLastDoneDate => 'آخر مرة — التاريخ';
+
+  @override
+  String get reminderLastDoneOdometer => 'آخر مرة — العداد';
+
+  @override
+  String get reminderNotify => 'أبلغني';
+
+  @override
+  String get reminderNoticeAhead => 'أخبرني قبل هذا القدر';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'الفراغ يعني تلقائي — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'الأولوية';
+
+  @override
+  String get reminderPrioritySafety => 'السلامة';
+
+  @override
+  String get reminderPriorityNormal => 'عادية';
+
+  @override
+  String get reminderPriorityLow => 'منخفضة';
+
+  @override
+  String get reminderRollover => 'عند التكرار، احسب من';
+
+  @override
+  String get reminderRolloverActual => 'يوم إنجازه';
+
+  @override
+  String get reminderRolloverDue => 'يوم استحقاقه';
+
+  @override
+  String get reminderRepeats => 'يتكرر';
+
+  @override
+  String get reminderNotes => 'ملاحظات';
+
+  @override
+  String get reminderNoScheduleError =>
+      'حدّد فاصلًا أو تاريخًا مستهدفًا — وإلا فلا شيء لأذكّرك به.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'هذا أقل من أقدم قراءة لهذه المركبة.';
+
+  @override
+  String get reminderBaselineFutureError =>
+      'لا يمكن أن يكون العمل قد تم في المستقبل.';
+
+  @override
+  String get reminderNotTrackedBanner => 'غير متتبَّع — لن يتم تذكيرك';
+
+  @override
+  String get reminderStartTracking => 'ابدأ التتبع';
+
+  @override
+  String get reminderTurnBackOn => 'أعد التشغيل';
+
+  @override
+  String get reminderTurnThisOff => 'أوقف هذا التذكير';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خدمة مسجلة على هذا. الإيقاف يبقيها.',
+      many: '$nText خدمةً مسجلة على هذا. الإيقاف يبقيها.',
+      few: '$nText خدمات مسجلة على هذا. الإيقاف يبقيها.',
+      two: 'خدمتان مسجلتان على هذا. الإيقاف يبقيهما.',
+      one: 'خدمة واحدة مسجلة على هذا. الإيقاف يبقيها.',
+      zero: '$nText خدمة مسجلة على هذا. الإيقاف يبقيها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'آخر مرات';
+
+  @override
+  String get reminderNoticeAheadDays => 'أخبرني قبل هذا القدر — أيام';
 }

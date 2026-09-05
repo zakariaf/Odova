@@ -225,6 +225,66 @@ class ServiceRepository {
     return const Ok(null);
   });
 
+  /// One service item, or `NotFound`.
+  Future<Result<ServiceItem, PersistFailure>> findItemById(
+    ServiceItemId id,
+  ) => guardPersist(() async {
+    final row =
+        await (_db.select(_db.serviceItems)..where(
+              (i) => i.id.equals(id.toString()) & i.deletedAtUtcMs.isNull(),
+            ))
+            .getSingleOrNull();
+    if (row == null) return Err(NotFound(id.toString()));
+    return Ok(serviceItemFromRow(row));
+  });
+
+  /// How many service LINES name this item.
+  ///
+  /// SPEC.md §9's delete rule turns on it: an item never referenced deletes
+  /// outright, and a referenced one is not deletable at all — the destructive
+  /// control becomes "Turn this reminder off", because deleting it would orphan
+  /// the records that name it and §2 puts eight years of service history above
+  /// every feature.
+  Future<Result<int, PersistFailure>> countLinesFor(
+    ServiceItemId id,
+  ) => guardPersist(() async {
+    final rows = await _db
+        .customSelect(
+          'SELECT COUNT(*) AS n FROM service_lines WHERE service_item_id = ?',
+          variables: [Variable<String>(id.toString())],
+        )
+        .getSingle();
+    return Ok(rows.read<int>('n'));
+  });
+
+  /// Soft-deletes one item, for the Undo the snackbar offers.
+  Future<Result<void, PersistFailure>> deleteItem(
+    ServiceItemId id, {
+    required int deletedAtUtcMs,
+  }) => guardPersist(() async {
+    final rows =
+        await (_db.update(_db.serviceItems)..where(
+              (i) => i.id.equals(id.toString()) & i.deletedAtUtcMs.isNull(),
+            ))
+            .write(
+              ServiceItemsCompanion(deletedAtUtcMs: Value(deletedAtUtcMs)),
+            );
+    if (rows == 0) return Err(NotFound(id.toString()));
+    return const Ok(null);
+  });
+
+  /// Puts back what [deleteItem] removed.
+  Future<Result<void, PersistFailure>> undeleteItem(
+    ServiceItemId id,
+  ) => guardPersist(() async {
+    await (_db.update(
+      _db.serviceItems,
+    )..where((i) => i.id.equals(id.toString()))).write(
+      const ServiceItemsCompanion(deletedAtUtcMs: Value(null)),
+    );
+    return const Ok(null);
+  });
+
   /// Reads one record with its lines.
   Future<Result<ServiceRecord, PersistFailure>> findRecordById(
     ServiceRecordId id,

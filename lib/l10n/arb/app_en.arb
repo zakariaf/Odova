@@ -1641,5 +1641,149 @@
   "actionSnoozeShort": "Snooze",
   "@actionSnoozeShort": {
     "description": "The snooze swipe tile's label. Shorter than actionSnooze for the reason actionTurnOffShort is: a swipe reveals an 88pt tile with a glyph above two lines of text, and the Persian \"یادآوری بعداً\" overflowed it by 4pt. A separate key rather than a shortened translation, because the menu row has the room and should keep the fuller phrase."
+  },
+  "reminderEditTitle": "Reminder",
+  "@reminderEditTitle": {
+    "description": "The reminders.edit modal head, in edit mode."
+  },
+  "reminderNewTitle": "New reminder",
+  "@reminderNewTitle": {
+    "description": "The reminders.edit modal head, in create mode."
+  },
+  "reminderName": "Name",
+  "@reminderName": {
+    "description": "The label field. A catalogue kind carries its own name; a custom item needs this one, and the `service_items` CHECK refuses it without."
+  },
+  "reminderEveryDistance": "Every",
+  "@reminderEveryDistance": {
+    "description": "The distance-interval field label — \"Every 10,000 km\". The unit sits at the end INSIDE the field, never concatenated after it."
+  },
+  "reminderEveryMonths": "Every … months",
+  "@reminderEveryMonths": {
+    "description": "The time-interval field label. MONTHS and never days — SPEC.md §3: \"Manuals say 12 months. Calendar addition stops a 12-month service creeping earlier every year.\""
+  },
+  "reminderOnceAtOdometer": "Or once, at odometer",
+  "@reminderOnceAtOdometer": {
+    "description": "The one-off odometer target. \"Cambelt at 120,000 km.\""
+  },
+  "reminderOnceOnDate": "Or once, on date",
+  "@reminderOnceOnDate": {
+    "description": "The one-off date target. A FUTURE date is allowed here, unlike the baseline."
+  },
+  "reminderLastDoneDate": "Last done — date",
+  "@reminderLastDoneDate": {
+    "description": "Half the baseline. Prefilled from the newest ServiceRecord for this item."
+  },
+  "reminderLastDoneOdometer": "Last done — odometer",
+  "@reminderLastDoneOdometer": {
+    "description": "The other half of the baseline."
+  },
+  "reminderNotify": "Notify me",
+  "@reminderNotify": {
+    "description": "The notification switch. Off still shows on Home and still goes red; it just never posts — which is why the label is about notifying and not about tracking."
+  },
+  "reminderNoticeAhead": "Tell me this far ahead",
+  "@reminderNoticeAhead": {
+    "description": "The two optional notice overrides. Blank means the automatic window, shown as a placeholder — SPEC.md §9, and the German is the reason labels sit ABOVE inputs rather than beside them."
+  },
+  "reminderNoticeAutomatic": "Blank means automatic — {distance} / {days}.",
+  "@reminderNoticeAutomatic": {
+    "description": "The hint UNDER the notice pair: the window the due engine would compute when both fields are blank. A hint rather than a placeholder in each field, which is what the artboard draws and what stops the same sentence appearing twice. A PLACEHOLDER-class value and never a stored one — SPEC.md §2 forbids persisting a derived number, and a notice window written into the row would survive an interval change and then be wrong.",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "1,000 km"
+      },
+      "days": {
+        "type": "String",
+        "example": "30 days"
+      }
+    }
+  },
+  "reminderPriority": "Priority",
+  "@reminderPriority": {
+    "description": "Safety, Normal or Low. It breaks ties when the notification cap coalesces."
+  },
+  "reminderPrioritySafety": "Safety",
+  "@reminderPrioritySafety": {
+    "description": "The highest priority — brakes, tyres, a timing belt."
+  },
+  "reminderPriorityNormal": "Normal",
+  "@reminderPriorityNormal": {
+    "description": "The default priority."
+  },
+  "reminderPriorityLow": "Low",
+  "@reminderPriorityLow": {
+    "description": "The lowest priority — a wiper blade, a cabin filter."
+  },
+  "reminderRollover": "When it repeats, count from",
+  "@reminderRollover": {
+    "description": "Which day the next interval starts from. SPEC.md §3: from the day it was DONE suits most jobs; from the day it was DUE suits an inspection that stays in April."
+  },
+  "reminderRolloverActual": "The day it was done",
+  "@reminderRolloverActual": {
+    "description": "`from_actual` — the default."
+  },
+  "reminderRolloverDue": "The day it was due",
+  "@reminderRolloverDue": {
+    "description": "`from_due` — for anything on a fixed calendar."
+  },
+  "reminderRepeats": "Repeats",
+  "@reminderRepeats": {
+    "description": "Off makes it a one-off that goes `ok` after completion."
+  },
+  "reminderNotes": "Notes",
+  "@reminderNotes": {
+    "description": "Free text, 500 characters. First-strong direction from the content, not from the UI language."
+  },
+  "reminderNoScheduleError": "Set an interval or a target date — otherwise there's nothing to remind you about.",
+  "@reminderNoScheduleError": {
+    "description": "The inline message under the interval block when none of the four scheduling fields is set. The `service_items` CHECK says the same thing in SQL; this is the sentence that stops the row reaching it."
+  },
+  "reminderBaselineTooLowError": "This is below the earliest reading for this vehicle.",
+  "@reminderBaselineTooLowError": {
+    "description": "The inline message under the baseline odometer. A service cannot have happened before the car had been that far."
+  },
+  "reminderBaselineFutureError": "A job cannot have been done in the future.",
+  "@reminderBaselineFutureError": {
+    "description": "The inline message under the baseline date. The TARGET date has no such rule — a future target is a plan."
+  },
+  "reminderNotTrackedBanner": "Not tracked — you won't be reminded",
+  "@reminderNotTrackedBanner": {
+    "description": "The banner on an untracked item, with Start tracking beside it."
+  },
+  "reminderStartTracking": "Start tracking",
+  "@reminderStartTracking": {
+    "description": "The action on the untracked banner. It sets is_tracked."
+  },
+  "reminderTurnBackOn": "Turn back on",
+  "@reminderTurnBackOn": {
+    "description": "The action on the paused banner. It sets is_active."
+  },
+  "reminderTurnThisOff": "Turn this reminder off",
+  "@reminderTurnThisOff": {
+    "description": "What the destructive control becomes on an item that HAS been referenced by a service line. SPEC.md §9: such an item is not deletable, because deleting it would orphan the records that name it."
+  },
+  "reminderCannotDelete": "{n, plural, one{{nText} service is recorded against this. Turning it off keeps it.} other{{nText} services are recorded against this. Turning it off keeps them.}}",
+  "@reminderCannotDelete": {
+    "description": "The line under Turn this reminder off. It states what would be lost and that nothing will be — SPEC.md §2: eight years of service history is the most valuable object in the app.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "2"
+      },
+      "nText": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "reminderLastDoneHeading": "Last done",
+  "@reminderLastDoneHeading": {
+    "description": "The heading above the five most recent service records for this item. SPEC.md §9 calls it \"the evidence behind the anchor, so a user who thinks the app is wrong can check instead of argue.\""
+  },
+  "reminderNoticeAheadDays": "Tell me this far ahead — days",
+  "@reminderNoticeAheadDays": {
+    "description": "The DAYS half of the notice override. Its label is not drawn — SPEC.md §9 asks the question once, above the pair — but it exists so that a screen-reader user can tell the two fields apart, which is the one thing a shared visible label takes away."
   }
 }

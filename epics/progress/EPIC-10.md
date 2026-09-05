@@ -380,3 +380,64 @@ pixels, and the 0.8 two of them gain is the whole overflow.
 - **`Done today` pushes `log.service` with the item.** EPIC-11 owns the
   destination; the assertion is the route name plus arguments, which is the
   whole navigation contract this epic can keep.
+
+## Task 10.8 — `reminders.edit` ✅ (parity blocked, and named)
+
+`reminder_draft.dart` in `domain/` holds the form and validates it as a pure
+function; `reminders_edit_notifier.dart` loads, saves and deletes;
+`reminders_edit_screen.dart` draws §9's field table in its order. 12 domain
+tests, 12 screen tests, 4 parity captures.
+
+**`ref.read(streamProvider.future)` hangs with no subscriber.** The notifier's
+first version read `.value` in `build()` — null on the first frame, which it
+turned into `Missing`: the editor reported that the reminder did not exist, on
+every open, before anything had been read. Awaiting the future instead hung,
+because a `StreamProvider` nobody listens to never delivers. It now `listen`s
+and then awaits — for settings and the garage in `build`, and for the records
+and readings once the vehicle id is known. **This is the drift-stream rule from
+the other side**: EPIC-09's version was a stream that delivers and leaves a
+timer; this one is a stream that never starts.
+
+**The two notice fields shared one accessible name.** §9 asks the question once,
+above the pair — but two fields with one name are two a screen-reader user
+cannot tell apart, so the days half has `reminderNoticeAheadDays` and no visible
+label. A shared visible label is a layout decision; a shared accessible name is
+not.
+
+Two changes taken straight from the reference, because both are content and not
+just paint: the modal head carries the ITEM's name rather than the word
+"Reminder", and the automatic notice window is ONE hint under the pair rather
+than the same sentence inside two placeholders.
+
+### F-10.7 — the artboard's form is paired and grouped; §9's prose is a stack
+
+The reference draws `Every 15,000 km` beside `Or every 12 months` under the hint
+"Whichever comes first."; **Last done** as a two-row `CalmRowGroup` with a
+calendar and an odometer glyph; the notice pair side by side; and both switches
+carrying a subtitle ("Off still shows on Home", "Counting from the day it was
+done"). §9's prose says only that "labels sit above inputs, never beside them",
+which the app satisfies — as a single column.
+
+The single column is what shipped: it is what the prose states, it survives
+German at 200% on a 375pt screen, and pairing every field is a layout decision
+across fourteen rows rather than a bug. Bands 34/99, 31/99, 37/101, 32/101; the
+question goes to the design sweep with F-10.1, F-10.4 and F-10.5.
+
+### Deferred, deliberately
+
+- **`dialog.discard` on a dirty dismiss.** §9 requires it; the draft carries no
+  dirty flag yet, and adding one means comparing the draft to the row on every
+  keystroke or tracking edits — a real decision, and EPIC-08's dialog is already
+  built and waiting. A dismiss closes and writes nothing either way.
+- **The date pickers are read-only.** §10 owns the date control every logging
+  form shares, and a second calendar built here would be the second in an app
+  that ships three. The two date fields render what is stored and are wired to
+  the draft.
+- **The catalogue picker in create mode.** §9 opens create "with the catalogue
+  picker focused"; the form opens with a free-text name and `kind: custom`,
+  which is the case the `service_items` CHECK is strictest about. The picker is
+  a list of the twenty-five catalogue kinds with their default intervals, and it
+  belongs with the seeding EPIC-09 built rather than as a fourteenth control on
+  this form.
+- **The *Last done* rows do not open the history entry.** §9 makes each "a row
+  into the history entry detail" — `history.detail` is EPIC-12's.

@@ -1109,4 +1109,114 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get actionSnoozeShort => 'Reporter';
+
+  @override
+  String get reminderEditTitle => 'Rappel';
+
+  @override
+  String get reminderNewTitle => 'Nouveau rappel';
+
+  @override
+  String get reminderName => 'Nom';
+
+  @override
+  String get reminderEveryDistance => 'Tous les';
+
+  @override
+  String get reminderEveryMonths => 'Tous les … mois';
+
+  @override
+  String get reminderOnceAtOdometer => 'Ou une fois, au compteur';
+
+  @override
+  String get reminderOnceOnDate => 'Ou une fois, à la date';
+
+  @override
+  String get reminderLastDoneDate => 'Dernière fois — date';
+
+  @override
+  String get reminderLastDoneOdometer => 'Dernière fois — compteur';
+
+  @override
+  String get reminderNotify => 'Me notifier';
+
+  @override
+  String get reminderNoticeAhead => 'Prévenez-moi à l’avance de';
+
+  @override
+  String reminderNoticeAutomatic(String distance, String days) {
+    return 'Vide signifie automatique — $distance / $days.';
+  }
+
+  @override
+  String get reminderPriority => 'Priorité';
+
+  @override
+  String get reminderPrioritySafety => 'Sécurité';
+
+  @override
+  String get reminderPriorityNormal => 'Normale';
+
+  @override
+  String get reminderPriorityLow => 'Faible';
+
+  @override
+  String get reminderRollover => 'À la répétition, compter à partir de';
+
+  @override
+  String get reminderRolloverActual => 'Du jour où c’était fait';
+
+  @override
+  String get reminderRolloverDue => 'Du jour de l’échéance';
+
+  @override
+  String get reminderRepeats => 'Se répète';
+
+  @override
+  String get reminderNotes => 'Notes';
+
+  @override
+  String get reminderNoScheduleError =>
+      'Définissez un intervalle ou une date cible — sinon il n’y a rien à rappeler.';
+
+  @override
+  String get reminderBaselineTooLowError =>
+      'C’est en dessous du relevé le plus ancien de ce véhicule.';
+
+  @override
+  String get reminderBaselineFutureError =>
+      'Un entretien ne peut pas avoir été fait dans le futur.';
+
+  @override
+  String get reminderNotTrackedBanner =>
+      'Non suivi — vous ne serez pas rappelé';
+
+  @override
+  String get reminderStartTracking => 'Commencer le suivi';
+
+  @override
+  String get reminderTurnBackOn => 'Réactiver';
+
+  @override
+  String get reminderTurnThisOff => 'Désactiver ce rappel';
+
+  @override
+  String reminderCannotDelete(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText entretiens sont enregistrés ici. Le désactiver les conserve.',
+      many:
+          '$nText entretiens sont enregistrés ici. Le désactiver les conserve.',
+      one: '$nText entretien est enregistré ici. Le désactiver le conserve.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderLastDoneHeading => 'Dernières fois';
+
+  @override
+  String get reminderNoticeAheadDays => 'Prévenez-moi à l’avance de — jours';
 }

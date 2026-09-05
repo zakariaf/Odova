@@ -254,7 +254,8 @@ AppDatabase homeDatabase() {
   return db;
 }
 
-/// Puts [vehicle] and [items] in [db], so a targeted UPDATE has a row to find.
+/// Puts a vehicle and the given items in a database, so a targeted UPDATE has
+/// a row to find.
 ///
 /// `setItemActive` writes two columns of an EXISTING row and answers
 /// `NotFound` when there is none — the right behaviour, and why this exists: a
@@ -265,12 +266,18 @@ AppDatabase homeDatabase() {
 /// foreign key to `vehicles`, so an item inserted on its own is refused —
 /// `guardPersist` turns that into an `Err` the caller can ignore, and ignoring
 /// it leaves the same empty table with no sign of why.
+/// The id factory the fixtures write with.
+///
+/// Seeded, so two runs of a test mint the same ids and a failure names the
+/// same row twice.
+UlidFactory homeIds() => UlidFactory(clock: const Clock(), random: Random(7));
+
 Future<void> seedItems(
   AppDatabase db,
   List<ServiceItem> items, {
   Vehicle? vehicle,
 }) async {
-  final ids = UlidFactory(clock: const Clock(), random: Random(7));
+  final ids = homeIds();
   final saved = await VehicleRepository(
     db,
     ids,
