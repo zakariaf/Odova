@@ -616,3 +616,92 @@ None of the four passes. What is left is what the screens themselves fail on:
 6pt-short reference. A dialog capture cannot be better than the wall behind it —
 and now the wall is the real one, so those numbers measure one thing instead of
 two.
+
+## `/code-review` — fifteen findings, fourteen of them defects
+
+Ten angles plus a sweep, over this epic's diff. **This pass was worth more than
+`/simplify`**: it found nine things that were wrong rather than untidy, three of
+which a user would have hit on an ordinary path and two of which wrote bad data.
+
+### Applied
+
+**Data**
+
+- **The staleness strip converted with a stale unit.** `_entry` was `late` and
+  built once; no `didUpdateWidget`. Change the distance unit or the locale while
+  Home is open and the field's affix redraws while the parser keeps the old
+  unit — a reading 1.6x out into the canonical metres column. §2's "convert on
+  read, never on write", broken on the write.
+- **A metric interval shown in miles did not round-trip.** `_distanceText`
+  printed `6213.711922373339`; `_distance` reads it back with `.round()`. Open
+  the editor, change nothing, press Save: 10,000,000 m compared against
+  10,000,463 m, called a schedule change, and `snooze_count`, `snoozed_until`
+  and `snooze_until_odometer_m` all reset on an item the user only looked at.
+  Fixed in two halves — the text is a whole number of the displayed unit, and
+  `_scheduleChanged` compares the draft against the row re-rendered through the
+  same draft. The question is "did the user change anything?", not "does the
+  round trip agree?".
+
+**Dead ends a user reaches**
+
+- **Home could offer no route to `reminders.list` at all.** `trackedCount` was
+  counted over the snapshot's assessments, which exclude paused items. Pause
+  everything: count 0, stack empty, and `DueStack` drew neither row.
+- **The delete Undo called a disposed notifier.** `remindersEditProvider` is
+  `autoDispose.family` and the delete pops the screen first, so Undo threw a
+  `StateError` inside a snackbar action. `undoDelete` moved to the list's
+  notifier, which is not auto-disposed — which is why every other Undo in this
+  epic already lives on one.
+- **The popover's "Update odometer" did nothing.** It popped the SHELL BRANCH
+  rather than the root navigator the dialog was on, so the popover stayed open,
+  and it navigated nowhere.
+- **The banners reloaded the form under the user's hands.** `ref.invalidate` on
+  the editor re-ran `_load` and replaced the draft while the controllers kept
+  what had been typed; Save then wrote the stored value.
+
+**Things that said the wrong thing**
+
+- **`reminders.list` drew a blank where `ok` rows say their next due** — the one
+  behaviour §9 calls "the difference between this screen and Home". The test
+  that covered it asserted the dot and never the text.
+- **The odometer popover could only ever show the wrong sentence.** Two
+  estimated states, opposite meanings; only `projected` was tappable and the
+  copy was hard-coded to the `expired` one. `homeEstimatedFrom` was translated
+  into six locales and shown to nobody.
+- **A custom reminder with no name printed the word "Name"** under a field
+  labelled "Name" — no `reminderName*Error` key had ever been written.
+- **The delete snackbar said "turned off"**, which sends the user to look under
+  **Paused** for a row that is gone.
+- **The all-clear contradicted itself** — its date from `projectedDueDate`, its
+  fuzzy line from the time axis alone.
+- **`homeUnknownMore` rendered Latin digits** on the one count that skipped
+  `formatForDisplay`.
+
+**Correctness under the surface**
+
+- **`save()` wrote a pre-await snapshot back over the state**: a Cancel mid-write
+  threw, stale problems came back onto a successfully written row, and in create
+  mode a second Save could insert a DUPLICATE.
+- **`calmSwipeActionMinHeight` treated a `TextScaler` as a ratio.**
+  `scale(1) * fontSize` is not `scale(fontSize)` — the system scaler is
+  non-linear on Android 14+, so the floor was too low at exactly the setting it
+  exists for.
+- **The popover laid out 14pt off the screen in RTL**, unclamped and anchored on
+  the physical left.
+
+### Answered, not applied
+
+- **A `needs_odometer` item with no projected date sorts last and can be pushed
+  out of the three cards.** Real, and narrow: it needs a DISTANCE-ONLY item
+  whose estimate has expired, because `projectDueDate` suppresses the distance
+  projection then and there is no `dueOn` to fall back to. §9's ordering rule 1
+  is the projected due date, and an item with none has no position on that axis;
+  putting it first would hand the primary slot to the item the app knows least
+  about, which is what `compareDueDates` already says in a comment. Rule 2 —
+  "`needs_odometer` never takes the primary slot" — implies it belongs in the
+  stack, so the two rules do genuinely pull against each other for an item with
+  no key to sort on. **They cannot both be satisfied by one sort key, and which
+  gives way is a spec decision rather than a code fix.** What makes it tolerable
+  today: the odometer strip is directly above the stack, showing the expired
+  state, and tapping it now says so and offers the reading — so the user is not
+  left without the ask, only without that particular card.
