@@ -571,6 +571,11 @@ List<CalmSpecimen> calmSpecimens() => [
         density: CalmDueDensity.primary,
         onTap: () {},
         onAction: () {},
+        // The overflow rides on the FIRST specimen only: it is the same button
+        // whatever the state, and the touch-target and overflow-matrix sweeps
+        // both run every specimen at five text scales in two directions.
+        onMore: () {},
+        moreLabel: _t(rtl: rtl, latin: 'More', persian: 'بیشتر'),
       ),
       CalmDueCard(
         view: _due(

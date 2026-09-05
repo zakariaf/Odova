@@ -19,6 +19,29 @@ import 'package:odova/ui/calm/calm_surface.dart';
 /// 78%, so the status line's ink must clear 4.5:1 on BOTH stops.
 const double kCalmDueCardTintStop = 0.78;
 
+/// `.due-card--primary` — "148pt+, tinted, the eye lands here first."
+///
+/// A FLOOR, not a fixed height: six languages and an unclamped text scaler mean
+/// nothing on a Calm screen may depend on fitting. It exists because SPEC.md
+/// §9's fold budget — 56 + 64 + 148 + 2 × 72 + 48 = 460 on a 375 × 667 screen —
+/// is arithmetic over these two numbers, and a card that sized purely to its
+/// content would move the see-all row above or below the fold depending on how
+/// long the item's name happened to be.
+const double kCalmDueCardPrimaryHeight = 148;
+
+/// `.due-card--secondary { min-height: 72px }`.
+const double kCalmDueCardSecondaryHeight = 72;
+
+/// The `⋯` inside `.due-card__actions`.
+///
+/// A key rather than a finder on the icon: SPEC.md §9's overflow is the one
+/// control on the card that carries no word, so there is nothing else to find
+/// it by that would not also match a decorative glyph somebody adds later.
+const Key kCalmDueCardMoreKey = Key('calm.dueCard.more');
+
+/// `.due-card__more` paints 44 square; Calm's tap floor is still `touchMin`.
+const double kCalmDueCardMorePaint = 44;
+
 /// The two densities Home uses.
 enum CalmDueDensity {
   /// The one big thing on Home: `radius3xl`, `elev2`, a gradient, an action.
@@ -91,7 +114,12 @@ class CalmDueCard extends StatelessWidget {
     required this.onTap,
     required this.onAction,
     super.key,
-  });
+    this.onMore,
+    this.moreLabel,
+  }) : assert(
+         onMore == null || moreLabel != null,
+         'a control with no word needs an accessible name',
+       );
 
   /// What to render.
   final CalmDueView view;
@@ -104,6 +132,16 @@ class CalmDueCard extends StatelessWidget {
 
   /// Does the thing the card is asking for.
   final VoidCallback onAction;
+
+  /// Opens SPEC.md §9's four-item overflow, at primary density only.
+  ///
+  /// Null draws no `⋯`. The secondary density has no `.due-card__actions` row
+  /// to put one in — a 72pt line with a chevron has nowhere for a second
+  /// control — so it never draws one whatever this is.
+  final VoidCallback? onMore;
+
+  /// The overflow's accessible name. Localised by the feature layer.
+  final String? moreLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -144,9 +182,24 @@ class CalmDueCard extends StatelessWidget {
         padding: EdgeInsetsDirectional.all(
           isPrimary ? space.s6 : space.s4,
         ),
-        child: isPrimary
-            ? _PrimaryBody(view: view, style: style, onAction: onAction)
-            : _SecondaryBody(view: view, style: style),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight:
+                (isPrimary
+                    ? kCalmDueCardPrimaryHeight
+                    : kCalmDueCardSecondaryHeight) -
+                (isPrimary ? space.s6 : space.s4) * 2,
+          ),
+          child: isPrimary
+              ? _PrimaryBody(
+                  view: view,
+                  style: style,
+                  onAction: onAction,
+                  onMore: onMore,
+                  moreLabel: moreLabel,
+                )
+              : _SecondaryBody(view: view, style: style),
+        ),
       ),
     );
 
@@ -160,11 +213,15 @@ class _PrimaryBody extends StatelessWidget {
     required this.view,
     required this.style,
     required this.onAction,
+    required this.onMore,
+    required this.moreLabel,
   });
 
   final CalmDueView view;
   final CalmStatusStyle style;
   final VoidCallback onAction;
+  final VoidCallback? onMore;
+  final String? moreLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -212,16 +269,63 @@ class _PrimaryBody extends StatelessWidget {
           CalmProgressBar(value: progress, color: style.base),
         ],
         SizedBox(height: space.s3),
-        CalmButton(
-          label: view.actionLabel,
-          onPressed: onAction,
-          // The action takes the colour of the item it acts on, resolved
-          // through CalmStatusStyle rather than named here.
-          variant: CalmButtonVariant.onState,
-          dueState: view.state,
-          block: true,
+        // `.due-card__actions` — the button and the overflow on one row, which
+        // is why the button is Expanded rather than `block: true`: `block`
+        // stretches to the CARD, and a full-width button beside a 52pt target
+        // overflows the row it is in.
+        Row(
+          children: [
+            Expanded(
+              child: CalmButton(
+                label: view.actionLabel,
+                onPressed: onAction,
+                // The action takes the colour of the item it acts on, resolved
+                // through CalmStatusStyle rather than named here.
+                variant: CalmButtonVariant.onState,
+                dueState: view.state,
+                block: true,
+              ),
+            ),
+            if (onMore case final onMore?) ...[
+              SizedBox(width: space.s3),
+              _MoreButton(onPressed: onMore, label: moreLabel!),
+            ],
+          ],
         ),
       ],
+    );
+  }
+}
+
+/// `.due-card__more` — 44 painted, [CalmSpace.touchMin] hit.
+class _MoreButton extends StatelessWidget {
+  const _MoreButton({required this.onPressed, required this.label});
+
+  final VoidCallback onPressed;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
+
+    return CalmPressable(
+      key: kCalmDueCardMoreKey,
+      onTap: onPressed,
+      borderRadius: kCalmDueCardMorePaint / 2,
+      semanticLabel: label,
+      child: CalmTapTarget(
+        minSize: Size.square(space.touchMin),
+        child: SizedBox(
+          width: kCalmDueCardMorePaint,
+          height: kCalmDueCardMorePaint,
+          child: Icon(
+            Icons.more_horiz,
+            size: space.iconMd,
+            color: colors.ink3,
+          ),
+        ),
+      ),
     );
   }
 }
