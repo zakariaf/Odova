@@ -107,6 +107,7 @@ String _line(
   int metres = 187412000,
   OdometerProjection projection = OdometerProjection.entered,
   int staleDays = 0,
+  GarageStatus status = GarageStatus.allGood,
 }) => stripBidi(
   vehicleOdometerAndStatus(
     l10n: l10n,
@@ -117,7 +118,7 @@ String _line(
       projection: projection,
       staleDays: staleDays,
     ),
-    status: GarageStatus.allGood,
+    status: status,
     globalUnit: globalUnit,
   ),
 );
@@ -133,6 +134,33 @@ void main() {
     await initializeDateFormatting();
     l10n = await AppLocalizations.delegate.load(const Locale('en'));
     l10nFa = await AppLocalizations.delegate.load(const Locale('fa'));
+  });
+
+  test('a sold vehicle says the em dash, however old its reading is', () {
+    // SPEC.md §8: "a sold vehicle computes no reminders and its card shows —".
+    // `garageStatusOf` checks sold FIRST, before anything is computed, and
+    // this line did not: the two branches above the status — the expired
+    // reading and the stale one — answered first. So every sold vehicle in the
+    // switcher read "Odometer last updated 8 months ago", which is both true
+    // and beside the point. A car nobody drives has a stale odometer by
+    // definition; that is not news about it.
+    for (final (projection, staleDays) in [
+      (OdometerProjection.entered, 0),
+      (OdometerProjection.projected, 400),
+      (OdometerProjection.expired, 400),
+    ]) {
+      expect(
+        _line(
+          l10n,
+          globalUnit: DistanceUnit.km,
+          projection: projection,
+          staleDays: staleDays,
+          status: GarageStatus.sold,
+        ),
+        endsWith('· —'),
+        reason: '$projection after $staleDays days',
+      );
+    }
   });
 
   test("a vehicle's own unit wins over the global one", () {

@@ -55,6 +55,19 @@ String vehicleOdometerAndStatus({
 }) {
   final estimate = snapshot?.estimate;
   final words = switch (estimate?.projection) {
+    // SOLD outranks both odometer branches below, the same way `garageStatusOf`
+    // checks sold before it computes anything. A car nobody drives has a stale
+    // odometer by definition, so "Odometer last updated 8 months ago" on one is
+    // true and beside the point — and it displaced §8's "a sold vehicle
+    // computes no reminders and its card shows —" on every sold row in the
+    // switcher, which is to say on all of them.
+    _ when status == GarageStatus.sold => _statusLine(
+      l10n,
+      tag,
+      status,
+      null,
+      null,
+    ),
     // Past 180 days Odova stops guessing and quotes the reading's own date.
     OdometerProjection.expired => l10n.vehicleOdometerLastEntered(
       formatLongDate(estimate!.asOf.toString(), tag),
