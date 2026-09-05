@@ -604,6 +604,11 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String vehicleStatusDue(String item) {
+    return '$item موعدش رسیده';
+  }
+
+  @override
   String get vehicleStatusItemGeneric => 'سرویس';
 
   @override

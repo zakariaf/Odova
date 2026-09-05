@@ -136,6 +136,7 @@
   "vehicleOdometerStale": "Kilometerstand zuletzt aktualisiert: {age}",
   "vehicleOdometerLastEntered": "zuletzt erfasst am {date}",
   "vehicleStatusOverdue": "{item} überfällig",
+  "vehicleStatusDue": "{item} fällig",
   "vehicleStatusItemGeneric": "Wartung",
   "vehiclesOnlyOneWarning": "Das ist Ihr einziges Fahrzeug. Wenn Sie es löschen, beginnt Odova von vorn.",
   "vehicleSwitchToIt": "Wechseln",

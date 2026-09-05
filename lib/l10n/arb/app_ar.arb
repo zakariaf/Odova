@@ -136,6 +136,7 @@
   "vehicleOdometerStale": "آخر تحديث لعداد المسافة {age}",
   "vehicleOdometerLastEntered": "آخر إدخال في {date}",
   "vehicleStatusOverdue": "فات موعد {item}",
+  "vehicleStatusDue": "{item} مستحقة",
   "vehicleStatusItemGeneric": "صيانة",
   "vehiclesOnlyOneWarning": "هذه مركبتك الوحيدة. حذفها يعيد أودوفا إلى نقطة البداية.",
   "vehicleSwitchToIt": "التبديل إليها",

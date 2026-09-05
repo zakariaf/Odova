@@ -654,6 +654,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String vehicleStatusDue(String item) {
+    return '$item مستحقة';
+  }
+
+  @override
   String get vehicleStatusItemGeneric => 'صيانة';
 
   @override

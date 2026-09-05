@@ -28,6 +28,18 @@ enum GarageStatus {
   /// `{item} due in {n} days` — the worst item has a countdown.
   dueInDays,
 
+  /// `{item} due` — due, with no number to count down.
+  ///
+  /// A DISTANCE-ONLY item has no `remainingDays`: five seeded kinds
+  /// (`chainLube`, `chainAndSprockets`, `valveClearance`, `forkOil`,
+  /// `reductionGearboxOil`) carry an interval in metres and none in months.
+  /// This used to fall through to [overdue], which told a motorbike
+  /// owner 200 km
+  /// from a chain lube that it was overdue — in words and in overdue-red —
+  /// for
+  /// an item the engine had just called `dueSoon`. SPEC.md §2's rule, inverted.
+  due,
+
   /// `All good` — everything tracked is fine.
   allGood,
 
@@ -63,12 +75,14 @@ GarageStatus garageStatusOf(DueSummary? summary, {bool sold = false}) {
     DueState.unknown => GarageStatus.unknown,
     DueState.needsOdometer => GarageStatus.needsOdometer,
     DueState.ok => GarageStatus.allGood,
-    // A countdown needs a NUMBER. Without one, "due in ? days" is worse than
-    // naming the item and leaving it at that — SPEC.md §2 forbids guessing in a
-    // way that looks like fact, and a missing day count is exactly that gap.
-    DueState.due || DueState.dueSoon || DueState.overdue =>
-      worst.remainingDays == null
-          ? GarageStatus.overdue
-          : GarageStatus.dueInDays,
+    // OVERDUE is overdue with or without a count: the engine has already said
+    // the date or the distance has passed.
+    DueState.overdue => GarageStatus.overdue,
+    // A countdown needs a NUMBER. Without one the line names the item and the
+    // state and stops — SPEC.md §2 forbids guessing in a way that looks like
+    // fact, and "due in ? days" is that gap. It must not become OVERDUE either:
+    // that is a different claim about the same item, and a louder one.
+    DueState.due || DueState.dueSoon =>
+      worst.remainingDays == null ? GarageStatus.due : GarageStatus.dueInDays,
   };
 }

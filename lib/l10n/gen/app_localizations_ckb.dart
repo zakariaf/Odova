@@ -608,6 +608,11 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String vehicleStatusDue(String item) {
+    return '$item کاتی هاتووە';
+  }
+
+  @override
   String get vehicleStatusItemGeneric => 'خزمەتگوزاری';
 
   @override

@@ -128,7 +128,7 @@ String formatDaysAgo(AppLocalizations l10n, String tag, int staleDays) {
 
 DueState vehicleDotState(GarageStatus status) => switch (status) {
   GarageStatus.overdue => DueState.overdue,
-  GarageStatus.dueInDays => DueState.due,
+  GarageStatus.due || GarageStatus.dueInDays => DueState.due,
   GarageStatus.allGood => DueState.ok,
   GarageStatus.needsOdometer => DueState.needsOdometer,
   GarageStatus.noReminders ||
@@ -158,6 +158,10 @@ String _statusLine(
   // overdue; only its name is missing, and a generic noun says exactly that
   // much and no more.
   GarageStatus.overdue => l10n.vehicleStatusOverdue(
+    worst?.label ?? l10n.vehicleStatusItemGeneric,
+  ),
+  // Named, and no number — the engine gave none and this line invents nothing.
+  GarageStatus.due => l10n.vehicleStatusDue(
     worst?.label ?? l10n.vehicleStatusItemGeneric,
   ),
   GarageStatus.dueInDays => l10n.vehicleStatusDueInDays(

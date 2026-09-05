@@ -625,6 +625,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String vehicleStatusDue(String item) {
+    return '$item à faire';
+  }
+
+  @override
   String get vehicleStatusItemGeneric => 'Entretien';
 
   @override

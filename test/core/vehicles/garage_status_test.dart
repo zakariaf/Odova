@@ -47,14 +47,22 @@ void main() {
   test('dueSoon is a countdown, and due without days is not', () {
     // `dueInDays` needs a NUMBER. A "due in ? days" line is worse than "due",
     // and SPEC.md §2 forbids guessing in a way that looks like fact.
+    //
+    // This test used to assert `overdue` for the second case, with the reason
+    // "due with no countdown reads as the worst item needing doing" — which was
+    // a defect wearing a justification. It is a LOUDER claim than the engine
+    // made, not a shorter one: `remainingDays` is null for every distance-only
+    // reminder, so a motorbike owner 200 km from a chain lube was told it
+    // was
+    // overdue, in overdue-red, about an item the engine had called `dueSoon`.
     expect(
       garageStatusOf(_summary(DueState.dueSoon, days: 12)),
       GarageStatus.dueInDays,
     );
     expect(
       garageStatusOf(_summary(DueState.due)),
-      GarageStatus.overdue,
-      reason: 'due with no countdown reads as the worst item needing doing',
+      GarageStatus.due,
+      reason: 'due with no countdown says due, and claims no number',
     );
   });
 
@@ -88,5 +96,52 @@ void main() {
     for (final state in DueState.values) {
       expect(garageStatusOf(_summary(state)), isNotNull, reason: '$state');
     }
+  });
+
+  group('a due item with no day count', () {
+    // `DueAssessment.remainingDays` is "Null when there is no time axis" — and
+    // five seeded kinds are distance-only (`chainLube`, `chainAndSprockets`,
+    // `valveClearance`, `forkOil`, `reductionGearboxOil`). Collapsing a missing
+    // count to `overdue` told a motorbike owner 200 km from a chain lube
+    // that it
+    // was OVERDUE, in words and in overdue-red ink, for an item the engine had
+    // just called `dueSoon`.
+    DueSummary summaryOf(DueState state, {int? days}) => DueSummary(
+      counts: {state: 1},
+      worst: DueAssessment(
+        state: state,
+        driver: DueDriver.distance,
+        confidence: RateConfidence.measured,
+        progress: 0.9,
+        remainingDays: days,
+      ),
+    );
+
+    test('is DUE, not overdue, when the engine said due or dueSoon', () {
+      for (final state in [DueState.due, DueState.dueSoon]) {
+        expect(
+          garageStatusOf(summaryOf(state)),
+          GarageStatus.due,
+          reason: '$state with no day count',
+        );
+      }
+    });
+
+    test('still counts down when there IS a day count', () {
+      expect(
+        garageStatusOf(summaryOf(DueState.due, days: 3)),
+        GarageStatus.dueInDays,
+      );
+    });
+
+    test('an OVERDUE item is overdue with or without a count', () {
+      // The one state where the missing number changes nothing: the engine has
+      // already said the date or the distance has passed.
+      expect(garageStatusOf(summaryOf(DueState.overdue)), GarageStatus.overdue);
+      expect(
+        garageStatusOf(summaryOf(DueState.overdue, days: 4)),
+        GarageStatus.overdue,
+      );
+    });
   });
 }

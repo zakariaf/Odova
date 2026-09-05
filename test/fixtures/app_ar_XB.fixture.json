@@ -136,6 +136,7 @@
   "vehicleOdometerStale": "‏ detadpu tsal retemodO{age}",
   "vehicleOdometerLastEntered": "‏ deretne tsal{date}",
   "vehicleStatusOverdue": "‏{item}eudrevo ",
+  "vehicleStatusDue": "‏{item}eud ",
   "vehicleStatusItemGeneric": "‏ecivreS",
   "vehiclesOnlyOneWarning": "‏.revo avodO strats ti gniteleD .elcihev ylno ruoy si sihT",
   "vehicleSwitchToIt": "‏ti ot hctiwS",

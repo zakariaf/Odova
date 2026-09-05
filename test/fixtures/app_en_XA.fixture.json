@@ -136,6 +136,7 @@
   "vehicleOdometerStale": "[Ǿḍǿḿḗţḗř ŀáŝţ ǔƥḍáţḗḍ {age} ǃǃǃǃǃǃǃǃǃ]",
   "vehicleOdometerLastEntered": "[ŀáŝţ ḗǹţḗřḗḍ {date} ǃǃǃǃǃǃ]",
   "vehicleStatusOverdue": "[{item} ǿṽḗřḍǔḗ ǃǃǃǃ]",
+  "vehicleStatusDue": "[{item} ḍǔḗ ǃǃ]",
   "vehicleStatusItemGeneric": "[Ŝḗřṽīçḗ ǃǃǃ]",
   "vehiclesOnlyOneWarning": "[Ţħīŝ īŝ ẏǿǔř ǿǹŀẏ ṽḗħīçŀḗ. Ḍḗŀḗţīǹḡ īţ ŝţářţŝ Ǿḍǿṽá ǿṽḗř. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "vehicleSwitchToIt": "[Ŝẇīţçħ ţǿ īţ ǃǃǃǃǃ]",

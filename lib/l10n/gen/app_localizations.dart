@@ -933,6 +933,12 @@ abstract class AppLocalizations {
   /// **'{item} overdue'**
   String vehicleStatusOverdue(String item);
 
+  /// The garage's third line for an item that is DUE with no day count. A distance-only reminder has no remainingDays, and vehicleStatusDueInDays cannot render without one — SPEC.md §2 forbids inventing the number, and falling through to vehicleStatusOverdue makes a louder claim than the engine did.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} due'**
+  String vehicleStatusDue(String item);
+
   /// The {item} in vehicleStatusOverdue and vehicleStatusDueInDays when the app cannot name the item. A catalogue ServiceItem's label comes from the 28 kind strings EPIC-10 owns, and until they exist the garage would otherwise pair a red dot with "Couldn't work out what's due" — two contradictory statements. This is a generic noun, not a guess: something tracked really is overdue, and only its name is missing.
   ///
   /// In en, this message translates to:

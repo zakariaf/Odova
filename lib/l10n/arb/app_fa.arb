@@ -136,6 +136,7 @@
   "vehicleOdometerStale": "کیلومترشمار {age} به‌روزرسانی شده",
   "vehicleOdometerLastEntered": "آخرین ثبت {date}",
   "vehicleStatusOverdue": "{item} عقب‌افتاده",
+  "vehicleStatusDue": "{item} موعدش رسیده",
   "vehicleStatusItemGeneric": "سرویس",
   "vehiclesOnlyOneWarning": "این تنها خودروی شماست. با حذف آن، اودووا از نو شروع می‌شود.",
   "vehicleSwitchToIt": "همین را نشان بده",
