@@ -72,6 +72,18 @@ class RemindersListNotifier extends Notifier<void> {
         isActive: active,
         updatedAtUtcMs: ref.read(clockProvider).now().millisecondsSinceEpoch,
       );
+
+  /// Puts back a soft-deleted reminder, for the Undo `reminders.edit` offers.
+  ///
+  /// **Here rather than on the editor's own notifier, and that is the point.**
+  /// `remindersEditProvider` is `autoDispose.family`, and a delete pops the
+  /// screen — so by the time the user reaches for Undo, the notifier holding
+  /// the callback has been disposed and `ref.read` on it throws. The reminder
+  /// stayed deleted with no way back, and the throw landed inside a snackbar
+  /// action where nothing surfaces it. This notifier is not auto-disposed, for
+  /// the same reason `reminderActivationProvider` is not.
+  Future<Result<void, PersistFailure>> undoDelete(ServiceItemId id) =>
+      ref.read(serviceRepositoryProvider).undeleteItem(id);
 }
 
 /// The one way `reminders.list` writes.

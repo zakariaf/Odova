@@ -1748,6 +1748,20 @@
   "@reminderBaselineFutureError": {
     "description": "The inline message under the baseline date. The TARGET date has no such rule — a future target is a plan."
   },
+  "reminderNameError": "Give this reminder a name.",
+  "@reminderNameError": {
+    "description": "The inline message under Name when a CUSTOM reminder has none. The `service_items` CHECK is `kind <> 'custom' OR label IS NOT NULL`, so this is the one field a custom item cannot be saved without. It used to print the field's own LABEL, which told the user nothing."
+  },
+  "reminderDeletedSnack": "Deleted {item}",
+  "@reminderDeletedSnack": {
+    "description": "The snackbar after a reminder is deleted outright, with Undo beside it. Separate from homeTurnedOff: a deleted reminder is gone and a turned-off one is still on `reminders.list` under Paused, and saying the wrong one of those tells the user to look in the wrong place.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Oil and filter"
+      }
+    }
+  },
   "reminderNotTrackedBanner": "Not tracked — you won't be reminded",
   "@reminderNotTrackedBanner": {
     "description": "The banner on an untracked item, with Start tracking beside it."

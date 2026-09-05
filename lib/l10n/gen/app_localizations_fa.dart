@@ -1155,6 +1155,14 @@ class AppLocalizationsFa extends AppLocalizations {
       'کاری نمی‌تواند در آینده انجام شده باشد.';
 
   @override
+  String get reminderNameError => 'برای این یادآور نامی بگذارید.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return '$item حذف شد';
+  }
+
+  @override
   String get reminderNotTrackedBanner => 'پیگیری نمی‌شود — یادآوری نخواهید شد';
 
   @override

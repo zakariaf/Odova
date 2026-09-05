@@ -260,6 +260,8 @@
   "reminderNoScheduleError": "Legen Sie ein Intervall oder ein Zieldatum fest — sonst gibt es nichts, woran ich erinnern könnte.",
   "reminderBaselineTooLowError": "Das liegt unter dem ältesten Kilometerstand dieses Fahrzeugs.",
   "reminderBaselineFutureError": "Eine Arbeit kann nicht in der Zukunft erledigt worden sein.",
+  "reminderNameError": "Geben Sie dieser Erinnerung einen Namen.",
+  "reminderDeletedSnack": "{item} gelöscht",
   "reminderNotTrackedBanner": "Nicht verfolgt — Sie werden nicht erinnert",
   "reminderStartTracking": "Verfolgung starten",
   "reminderTurnBackOn": "Wieder einschalten",

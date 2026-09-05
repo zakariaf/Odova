@@ -1163,6 +1163,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Eine Arbeit kann nicht in der Zukunft erledigt worden sein.';
 
   @override
+  String get reminderNameError => 'Geben Sie dieser Erinnerung einen Namen.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return '$item gelöscht';
+  }
+
+  @override
   String get reminderNotTrackedBanner =>
       'Nicht verfolgt — Sie werden nicht erinnert';
 

@@ -260,6 +260,8 @@
   "reminderNoScheduleError": "[Ŝḗţ áǹ īǹţḗřṽáŀ ǿř á ţářḡḗţ ḍáţḗ — ǿţħḗřẇīŝḗ ţħḗřḗ'ŝ ǹǿţħīǹḡ ţǿ řḗḿīǹḍ ẏǿǔ áḅǿǔţ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "reminderBaselineTooLowError": "[Ţħīŝ īŝ ḅḗŀǿẇ ţħḗ ḗářŀīḗŝţ řḗáḍīǹḡ ƒǿř ţħīŝ ṽḗħīçŀḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "reminderBaselineFutureError": "[Á ĵǿḅ çáǹǹǿţ ħáṽḗ ḅḗḗǹ ḍǿǹḗ īǹ ţħḗ ƒǔţǔřḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "reminderNameError": "[Ḡīṽḗ ţħīŝ řḗḿīǹḍḗř á ǹáḿḗ. ǃǃǃǃǃǃǃǃǃǃǃ]",
+  "reminderDeletedSnack": "[Ḍḗŀḗţḗḍ {item} ǃǃǃǃ]",
   "reminderNotTrackedBanner": "[Ǹǿţ ţřáçķḗḍ — ẏǿǔ ẇǿǹ'ţ ḅḗ řḗḿīǹḍḗḍ ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "reminderStartTracking": "[Ŝţářţ ţřáçķīǹḡ ǃǃǃǃǃǃ]",
   "reminderTurnBackOn": "[Ţǔřǹ ḅáçķ ǿǹ ǃǃǃǃǃ]",

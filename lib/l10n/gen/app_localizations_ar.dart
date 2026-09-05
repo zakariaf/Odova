@@ -1249,6 +1249,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يمكن أن يكون العمل قد تم في المستقبل.';
 
   @override
+  String get reminderNameError => 'امنح هذا التذكير اسمًا.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return 'تم حذف $item';
+  }
+
+  @override
   String get reminderNotTrackedBanner => 'غير متتبَّع — لن يتم تذكيرك';
 
   @override

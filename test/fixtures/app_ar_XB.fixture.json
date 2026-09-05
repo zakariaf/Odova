@@ -260,6 +260,8 @@
   "reminderNoScheduleError": "‏.tuoba uoy dnimer ot gnihton s'ereht esiwrehto — etad tegrat a ro lavretni na teS",
   "reminderBaselineTooLowError": "‏.elcihev siht rof gnidaer tseilrae eht woleb si sihT",
   "reminderBaselineFutureError": "‏.erutuf eht ni enod neeb evah tonnac boj A",
+  "reminderNameError": "‏.eman a rednimer siht eviG",
+  "reminderDeletedSnack": "‏ deteleD{item}",
   "reminderNotTrackedBanner": "‏dednimer eb t'now uoy — dekcart toN",
   "reminderStartTracking": "‏gnikcart tratS",
   "reminderTurnBackOn": "‏no kcab nruT",

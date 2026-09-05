@@ -191,10 +191,16 @@ VehicleDueSnapshot homeSnapshot(
 }
 
 /// An entered reading of [km], taken [staleDays] ago.
-OdometerEstimate homeEstimate(int km, {int staleDays = 0}) => OdometerEstimate(
+OdometerEstimate homeEstimate(
+  int km, {
+  int staleDays = 0,
+  bool expired = false,
+}) => OdometerEstimate(
   metres: km * 1000,
   asOf: homeToday.addDays(-staleDays),
-  projection: staleDays == 0
+  projection: expired
+      ? OdometerProjection.expired
+      : staleDays == 0
       ? OdometerProjection.entered
       : OdometerProjection.projected,
   staleDays: staleDays,

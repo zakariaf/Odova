@@ -1156,6 +1156,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'A job cannot have been done in the future.';
 
   @override
+  String get reminderNameError => 'Give this reminder a name.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return 'Deleted $item';
+  }
+
+  @override
   String get reminderNotTrackedBanner => 'Not tracked — you won\'t be reminded';
 
   @override

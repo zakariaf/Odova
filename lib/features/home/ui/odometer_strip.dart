@@ -134,7 +134,12 @@ class OdometerStrip extends StatelessWidget {
     final colors = CalmColors.of(context);
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
-    final projected = estimate.projection == OdometerProjection.projected;
+    // §9: "Tapping an ESTIMATED value or a `—` opens a transient popover."
+    // Estimated is both non-entered states — `projected` and `expired` — and
+    // this used to be `== projected` alone, which made the one state whose
+    // whole message is "Odova has stopped guessing" the one state that could
+    // not be tapped to hear it.
+    final estimated = estimate.projection != OdometerProjection.entered;
     final shapes = CalmShapes.of(context);
     final figure = EstimatedValueText(
       estimate: estimate,
@@ -184,7 +189,7 @@ class OdometerStrip extends StatelessWidget {
                     // arms, the four arguments were stated twice and the
                     // non-projected arm is the one that gets forgotten —
                     // the popover path is what the tests exercise.
-                    if (projected)
+                    if (estimated)
                       CalmPressable(
                         onTap: onTapValue,
                         borderRadius: shapes.radiusSm,

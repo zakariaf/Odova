@@ -100,12 +100,13 @@ final class ReminderEditReady extends ReminderEditState {
   /// A copy with the given changes.
   ReminderEditReady copyWith({
     ReminderDraft? draft,
+    ServiceItem? item,
     List<ReminderProblem>? problems,
     bool? saving,
   }) => ReminderEditReady(
     draft ?? this.draft,
     vehicle: vehicle,
-    item: item,
+    item: item ?? this.item,
     records: records,
     lineCount: lineCount,
     firstReading: firstReading,
@@ -330,7 +331,25 @@ class RemindersEditNotifier extends Notifier<ReminderEditState> {
     );
 
     final written = await ref.read(serviceRepositoryProvider).saveItem(item);
-    state = current.copyWith(saving: false);
+    // Read the state AGAIN. `current` was captured before the await, so
+    // writing it back discarded anything typed during the write and restored
+    // the problems a previous refused Save had left on it — an error line
+    // under a field on the row that had just been written successfully. And
+    // without the guard, a Cancel while the write is in flight disposes this
+    // auto-dispose notifier and `state =` throws.
+    if (!ref.mounted) return null;
+    final live = state;
+    if (live is ReminderEditReady) {
+      // The saved ITEM goes back on the state. In create mode it was null and
+      // stayed null, so a second Save — after one that succeeded without
+      // popping, which is what a deep link opened as the first route does —
+      // minted a fresh id and inserted a DUPLICATE reminder.
+      state = live.copyWith(
+        item: written is Ok<ServiceItem, PersistFailure> ? item : null,
+        problems: const [],
+        saving: false,
+      );
+    }
     return written is Ok<ServiceItem, PersistFailure> ? item : null;
   }
 
@@ -364,6 +383,52 @@ class RemindersEditNotifier extends Notifier<ReminderEditState> {
         stored.baselineOdometer != draft.baselineOdometer;
   }
 
+  /// The banner's **Start tracking** and **Turn back on**.
+  ///
+  /// Owned here, and the state updated in place, because the screen used to
+  /// write through the list notifier and then `ref.invalidate` this provider.
+  /// That re-ran `_load` and replaced the DRAFT from the database while
+  /// `_controllers` — a `putIfAbsent` map on the State — kept whatever the user
+  /// had typed. The field went on showing `15000` while the draft behind it had
+  /// reverted, and Save then wrote the stored value and threw the typing away.
+  /// `build`'s own comment says the form is read ONCE for exactly this reason.
+  ///
+  /// Only the ITEM changes here, which is all the two banners read.
+  Future<Result<void, PersistFailure>> setFlags({
+    bool? tracked,
+    bool? active,
+  }) async {
+    final current = state;
+    final item = current is ReminderEditReady ? current.item : null;
+    if (item == null) return const Err(NotFound('no item'));
+
+    final now = ref.read(clockProvider).now().millisecondsSinceEpoch;
+    final repository = ref.read(serviceRepositoryProvider);
+    final written = tracked != null
+        ? await repository.setItemTracked(
+            item.id,
+            isTracked: tracked,
+            updatedAtUtcMs: now,
+          )
+        : await repository.setItemActive(
+            item.id,
+            isActive: active!,
+            updatedAtUtcMs: now,
+          );
+    if (!ref.mounted || written is! Ok) return written;
+
+    // Re-read the ROW, not the whole screen. `ServiceItem` has no `copyWith`
+    // and inventing one here would be a second place that knows which columns
+    // a flag write touches. One targeted query; the draft is untouched.
+    final read = await repository.findItemById(item.id);
+    if (!ref.mounted) return written;
+    final live = state;
+    if (live is ReminderEditReady && read is Ok<ServiceItem, PersistFailure>) {
+      state = live.copyWith(item: read.value);
+    }
+    return written;
+  }
+
   /// §9's delete: outright, with an Undo, and only when nothing names it.
   Future<Result<void, PersistFailure>> delete() async {
     final current = state;
@@ -379,8 +444,6 @@ class RemindersEditNotifier extends Notifier<ReminderEditState> {
   }
 
   /// Puts back what [delete] removed.
-  Future<Result<void, PersistFailure>> undoDelete(ServiceItemId id) =>
-      ref.read(serviceRepositoryProvider).undeleteItem(id);
 }
 
 /// One editor per reminder id, `new` included.

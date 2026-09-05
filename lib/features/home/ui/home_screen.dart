@@ -20,6 +20,7 @@ import 'package:odova/app/routing/routes.dart';
 import 'package:odova/app/routing/tab_reselected.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -175,14 +176,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               formatsTag: tag,
               onTap: () =>
                   unawaited(context.push(Routes.log(LogType.odometer))),
+              // The message follows the STATE. It was hard-coded to the
+              // expired sentence — "Odova has stopped guessing" — on a strip
+              // that only made the value tappable while it was still guessing,
+              // so the one copy reachable was the one that was wrong, and
+              // `homeEstimatedFrom` was translated into six locales and never
+              // shown.
               onTapValue: () => unawaited(
                 showEstimatePopover(
                   context,
                   body: CalmPopover(
-                    message: l10n.homeEstimateExpired,
+                    message: _estimateExplanation(l10n, tag, state, unit),
                     action: (
                       label: l10n.actionUpdateOdometer,
-                      onPressed: () => Navigator.of(context).pop(),
+                      // The ROOT navigator: `showDialog` put the popover
+                      // there, and `Navigator.of(context)` from the screen
+                      // resolves to the shell BRANCH — which left the popover
+                      // open and asked the branch to pop its own initial
+                      // route. And it goes somewhere: a control labelled
+                      // "Update odometer" that only closes a popover is the
+                      // control this file's own comment calls one that does
+                      // nothing.
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        unawaited(context.push(Routes.log(LogType.odometer)));
+                      },
                     ),
                   ),
                 ),
@@ -528,5 +546,37 @@ String? _drivenBy(
     tag,
     numerals: CalmNumerals.auto,
     decimalDigits: 0,
+  );
+}
+
+/// §9's popover sentence for an estimated odometer.
+///
+/// Two states reach it. `projected` is a live guess, and it says what it is
+/// guessing FROM — the rate, and the date of the last reading — so the user
+/// can judge it. `expired` is the app having stopped: the last reading is
+/// too old to extrapolate from at all, and the sentence says so rather than
+/// dressing a stale number up as a current one.
+String _estimateExplanation(
+  AppLocalizations l10n,
+  String tag,
+  HomeState state,
+  DistanceUnit unit,
+) {
+  final estimate = state.estimate;
+  final rate = state.rate;
+  if (estimate == null ||
+      estimate.projection == OdometerProjection.expired ||
+      rate == null) {
+    return l10n.homeEstimateExpired;
+  }
+  return l10n.homeEstimatedFrom(
+    formatWithUnit(
+      Distance(rate.metresPerDay).inUnit(unit),
+      distanceUnitLabel(l10n, unit),
+      tag,
+      numerals: CalmNumerals.auto,
+      decimalDigits: 0,
+    ),
+    formatLongDate(estimate.asOf.toString(), tag),
   );
 }

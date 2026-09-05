@@ -182,8 +182,14 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
         CalmField(
           label: l10n.reminderName,
           controller: _controller('label', draft.label),
+          // The ERROR, not the field's own label. This printed
+          // `l10n.reminderName` — the word "Name" in red under a field already
+          // labelled "Name" — because no `reminderName*Error` key had been
+          // written. §9: "Save is never silently disabled", and every rejection
+          // is one inline sentence; a rejection that repeats the label is a
+          // rejection that says nothing.
           errorText: problems.contains(ReminderProblem.customNeedsLabel)
-              ? l10n.reminderName
+              ? l10n.reminderNameError
               : null,
           onChanged: (text) => _edit((d) => d.copyWith(label: text)),
         ),
@@ -441,19 +447,20 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
     if (router.canPop()) router.pop();
   }
 
-  Future<void> _setTracked(ServiceItem item, bool tracked) async {
-    await ref
-        .read(remindersListNotifierProvider.notifier)
-        .setTracked(item.id, tracked: tracked);
-    ref.invalidate(remindersEditProvider(widget.reminderId));
-  }
+  /// The banner writes, through the editor's own notifier.
+  ///
+  /// It used to write through the LIST's notifier and then
+  /// `ref.invalidate(remindersEditProvider(...))`, which re-ran `_load` and
+  /// replaced the draft from the database — while `_controllers` kept whatever
+  /// the user had typed. The field went on showing it and Save wrote the stored
+  /// value instead.
+  Future<void> _setTracked(ServiceItem item, bool tracked) => ref
+      .read(remindersEditProvider(widget.reminderId).notifier)
+      .setFlags(tracked: tracked);
 
-  Future<void> _setActive(ServiceItem item, bool active) async {
-    await ref
-        .read(remindersListNotifierProvider.notifier)
-        .setActive(item.id, active: active);
-    ref.invalidate(remindersEditProvider(widget.reminderId));
-  }
+  Future<void> _setActive(ServiceItem item, bool active) => ref
+      .read(remindersEditProvider(widget.reminderId).notifier)
+      .setFlags(active: active);
 
   Future<void> _delete(ServiceItem item) async {
     final l10n = AppLocalizations.of(context);
@@ -462,6 +469,10 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
     final notifier = ref.read(
       remindersEditProvider(widget.reminderId).notifier,
     );
+    // The UNDO comes off the LIST's notifier, which is not auto-disposed. The
+    // pop below disposes this screen's, and a callback that outlives its
+    // notifier throws where nothing can see it.
+    final undo = ref.read(remindersListNotifierProvider.notifier);
 
     final removed = await notifier.delete();
     if (removed is! Ok) {
@@ -470,9 +481,12 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
     }
     if (router.canPop()) router.pop();
     snackbars.show(
-      message: l10n.homeTurnedOff(item.label ?? ''),
+      // DELETED, not "turned off". A deleted reminder is gone; a turned-off
+      // one is still on `reminders.list` under Paused. Saying the wrong one
+      // sends the user to look in the wrong place.
+      message: l10n.reminderDeletedSnack(item.label ?? ''),
       actionLabel: l10n.commonUndo,
-      onAction: () => unawaited(notifier.undoDelete(item.id)),
+      onAction: () => unawaited(undo.undoDelete(item.id)),
     );
   }
 }

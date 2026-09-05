@@ -84,6 +84,7 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
   return HomeState(
     vehicle: vehicle,
     estimate: snapshot?.estimate,
+    rate: snapshot?.rate,
     strips: _strips(ref, vehicle, snapshot, today),
     storeUnreadable: ref.watch(vehicleStoreUnreadableProvider(vehicle.id)),
     // §9 makes the two exclusive: the all-clear REPLACES the stack rather than

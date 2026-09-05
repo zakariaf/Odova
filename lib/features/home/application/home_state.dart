@@ -8,6 +8,7 @@
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/units/consumption.dart';
@@ -54,6 +55,7 @@ class HomeState {
     this.storeUnreadable = false,
     this.allClear,
     this.estimate,
+    this.rate,
     this.lastFillUp,
     this.consumption,
     this.otherVehicleNeedingAttention,
@@ -81,6 +83,10 @@ class HomeState {
 
   /// The current odometer, however Odova knows it. Null before any reading.
   final OdometerEstimate? estimate;
+
+  /// The vehicle's daily distance, for §9's "Estimated from about {rate} a
+  /// day" popover. Null when the engine could not answer.
+  final DailyDistance? rate;
 
   /// The most recent fill-up, for the 56pt row under the tiles.
   final FillUp? lastFillUp;

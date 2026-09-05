@@ -19,10 +19,12 @@ import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/features/home/ui/glance_tiles.dart';
 import 'package:odova/features/home/ui/home_screen.dart';
 import 'package:odova/features/home/ui/last_fillup_row.dart';
+import 'package:odova/features/home/ui/odometer_strip.dart';
 import 'package:odova/features/home/ui/other_vehicles_row.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_due_card.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
+import 'package:odova/ui/calm/calm_popover.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_tile.dart';
 
@@ -445,6 +447,64 @@ void main() {
     );
 
     expect(find.text('See all reminders (3)'), findsOneWidget);
+  });
+
+  testWidgets('the odometer popover says which kind of estimate it is', (
+    tester,
+  ) async {
+    // §9: "Tapping an estimated value or a `—` opens a transient popover — one
+    // sentence, one action." There are TWO estimated states and they mean
+    // opposite things: `projected` is a live guess that says what it is
+    // guessing from, `expired` is the app having stopped guessing. The strip
+    // used to make only `projected` tappable while the popover hard-coded the
+    // EXPIRED sentence — so the only copy a user could ever reach was the
+    // wrong one, and `homeEstimatedFrom` was translated into six locales and
+    // shown to nobody.
+    await pumpHome(
+      tester,
+      snapshots: {
+        golfId: homeSnapshot(
+          [
+            (homeItem('Oil and filter'), homeAssessment(state: DueState.ok)),
+          ],
+          estimate: homeEstimate(187412, staleDays: 12),
+        ),
+      },
+    );
+
+    await tester.tap(find.byType(EstimatedValueText));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CalmPopover), findsOneWidget);
+    expect(
+      find.textContaining('Estimated from about'),
+      findsOneWidget,
+      reason: 'a live projection explains what it is projecting from',
+    );
+  });
+
+  testWidgets('an EXPIRED estimate is tappable and says Odova has stopped '
+      'guessing', (tester) async {
+    await pumpHome(
+      tester,
+      snapshots: {
+        golfId: homeSnapshot(
+          [
+            (homeItem('Oil and filter'), homeAssessment(state: DueState.ok)),
+          ],
+          estimate: homeEstimate(187412, staleDays: 200, expired: true),
+        ),
+      },
+    );
+
+    await tester.tap(find.byType(EstimatedValueText));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('stopped guessing'),
+      findsOneWidget,
+      reason: 'the state whose whole message is this one could not be tapped',
+    );
   });
 
   testWidgets('the glance tiles are on the screen and explain their dashes', (

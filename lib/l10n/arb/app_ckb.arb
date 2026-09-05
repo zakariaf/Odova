@@ -260,6 +260,8 @@
   "reminderNoScheduleError": "ماوەیەک یان بەروارێکی ئامانج دیاری بکە — ئەگەرنا هیچ شتێک نییە بیرت بخەمەوە.",
   "reminderBaselineTooLowError": "ئەمە کەمترە لە کۆنترین خوێندنەوەی ئەم ئۆتۆمبێلە.",
   "reminderBaselineFutureError": "کارێک ناکرێت لە داهاتوودا کرابێت.",
+  "reminderNameError": "ناوێک بدە بەم بیرخەرەوەیە.",
+  "reminderDeletedSnack": "{item} سڕایەوە",
   "reminderNotTrackedBanner": "شوێن‌ناکرێت — بیرت ناخرێتەوە",
   "reminderStartTracking": "دەستپێکردنی شوێن‌کەوتن",
   "reminderTurnBackOn": "دووبارە دایبگرسێنە",

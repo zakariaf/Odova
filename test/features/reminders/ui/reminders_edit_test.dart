@@ -264,6 +264,30 @@ void main() {
     expect(name.selection.baseOffset, 2);
   });
 
+  testWidgets('a custom reminder with no name says WHY it was refused', (
+    tester,
+  ) async {
+    // §9: "Save is never silently disabled" — every rejection is one inline
+    // sentence. This one printed `l10n.reminderName`, the field's own label:
+    // the word "Name" in red under a field already labelled "Name". The user
+    // was told nothing, and no `reminderName*Error` key existed in any ARB
+    // file for it to say.
+    tester.useDevice(Device.tallForm);
+    await _pump(tester, db: await _seeded(_oil()));
+
+    await _type(tester, l10nOf(tester).reminderName, '');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    final field = _field(tester, l10nOf(tester).reminderName);
+    expect(field.errorText, 'Give this reminder a name.');
+    expect(
+      field.errorText,
+      isNot(l10nOf(tester).reminderName),
+      reason: 'a rejection that repeats the label says nothing',
+    );
+  });
+
   testWidgets('a blank notice field shows the automatic window as a '
       'placeholder', (tester) async {
     // §9, for a 10,000 km / 12-month item: `Automatic — 1,000 km / 30 days`,

@@ -260,6 +260,8 @@
   "reminderNoScheduleError": "Définissez un intervalle ou une date cible — sinon il n’y a rien à rappeler.",
   "reminderBaselineTooLowError": "C’est en dessous du relevé le plus ancien de ce véhicule.",
   "reminderBaselineFutureError": "Un entretien ne peut pas avoir été fait dans le futur.",
+  "reminderNameError": "Donnez un nom à ce rappel.",
+  "reminderDeletedSnack": "{item} supprimé",
   "reminderNotTrackedBanner": "Non suivi — vous ne serez pas rappelé",
   "reminderStartTracking": "Commencer le suivi",
   "reminderTurnBackOn": "Réactiver",

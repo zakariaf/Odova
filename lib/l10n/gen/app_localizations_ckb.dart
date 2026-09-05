@@ -1159,6 +1159,14 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get reminderBaselineFutureError => 'کارێک ناکرێت لە داهاتوودا کرابێت.';
 
   @override
+  String get reminderNameError => 'ناوێک بدە بەم بیرخەرەوەیە.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return '$item سڕایەوە';
+  }
+
+  @override
   String get reminderNotTrackedBanner => 'شوێن‌ناکرێت — بیرت ناخرێتەوە';
 
   @override

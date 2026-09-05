@@ -260,6 +260,8 @@
   "reminderNoScheduleError": "یک بازه یا تاریخ هدف تعیین کنید — وگرنه چیزی برای یادآوری نیست.",
   "reminderBaselineTooLowError": "این کمتر از قدیمی‌ترین عدد ثبت‌شدهٔ این خودرو است.",
   "reminderBaselineFutureError": "کاری نمی‌تواند در آینده انجام شده باشد.",
+  "reminderNameError": "برای این یادآور نامی بگذارید.",
+  "reminderDeletedSnack": "{item} حذف شد",
   "reminderNotTrackedBanner": "پیگیری نمی‌شود — یادآوری نخواهید شد",
   "reminderStartTracking": "شروع پیگیری",
   "reminderTurnBackOn": "دوباره روشن کن",

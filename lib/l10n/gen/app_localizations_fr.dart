@@ -1188,6 +1188,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Un entretien ne peut pas avoir été fait dans le futur.';
 
   @override
+  String get reminderNameError => 'Donnez un nom à ce rappel.';
+
+  @override
+  String reminderDeletedSnack(String item) {
+    return '$item supprimé';
+  }
+
+  @override
   String get reminderNotTrackedBanner =>
       'Non suivi — vous ne serez pas rappelé';
 

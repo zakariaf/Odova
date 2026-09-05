@@ -260,6 +260,8 @@
   "reminderNoScheduleError": "حدّد فاصلًا أو تاريخًا مستهدفًا — وإلا فلا شيء لأذكّرك به.",
   "reminderBaselineTooLowError": "هذا أقل من أقدم قراءة لهذه المركبة.",
   "reminderBaselineFutureError": "لا يمكن أن يكون العمل قد تم في المستقبل.",
+  "reminderNameError": "امنح هذا التذكير اسمًا.",
+  "reminderDeletedSnack": "تم حذف {item}",
   "reminderNotTrackedBanner": "غير متتبَّع — لن يتم تذكيرك",
   "reminderStartTracking": "ابدأ التتبع",
   "reminderTurnBackOn": "أعد التشغيل",
