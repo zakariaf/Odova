@@ -8,6 +8,14 @@
 // "Colour is never the only signal" (§8), so every one of these has words. The
 // dot is the second channel, never the first.
 //
+// In `lib/core/`, and the gate is what put it there. `check_status_encoding.sh`
+// allows the DOMAIN to switch on a `DueState` and forbids presentation from
+// doing it — "what a state IS belongs to the domain, what it LOOKS LIKE belongs
+// to the theme" — and it draws that line at `lib/core/`, because a file there is
+// provably Flutter-free and so provably cannot resolve a colour. This function
+// picks a SENTENCE, never a colour, so it belongs on the domain side of that
+// line and was sitting on the wrong one.
+//
 // Pure Dart, no Flutter import.
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/due_summary.dart';

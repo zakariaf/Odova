@@ -79,6 +79,17 @@ class CalmRowGroup extends StatelessWidget {
           row
         else
           DecoratedBox(
+            // A FOREGROUND top border: zero layout height, painted over the
+            // row's own ground rather than under it.
+            //
+            // Two other spellings were tried and both are worse. A
+            // `SizedBox(height: 1)` takes a point of height and made every row
+            // 1pt too tall. And `BoxShadow(offset: Offset(0, -1))` — which is
+            // literally what `box-shadow: 0 -1px 0` says in the CSS — does not
+            // mean the same thing in Flutter: CSS clips a shadow to outside the
+            // border box, Flutter paints the whole silhouette, so each row drew
+            // a full-size rectangle in the divider colour behind the row above
+            // and the selected row's tint bled down over the next four.
             position: DecorationPosition.foreground,
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: colors.divider)),

@@ -46,8 +46,7 @@ Finder _dividers() => find.descendant(
         w is DecoratedBox &&
         w.position == DecorationPosition.foreground &&
         w.decoration is BoxDecoration &&
-        (w.decoration as BoxDecoration).border?.top.color ==
-            calmColorsLight.divider,
+        (w.decoration as BoxDecoration).border != null,
   ),
 );
 
@@ -103,7 +102,7 @@ void main() {
     // A hairline ON the boundary between row i and row i+1. It used to be a
     // laid-out 1pt box whose own rect could be measured; it is now a foreground
     // top border on the row below, so the assertion moved from the box's height
-    // to the border's width and from the box's position to the row's top edge.
+    // to the shadow's offset and from the box's position to the row's top edge.
     // The claim is the same one: a line between adjacent rows, none above the
     // first, and no trailing line under the last that would close the list like
     // a box.

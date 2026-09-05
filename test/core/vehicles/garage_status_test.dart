@@ -9,7 +9,7 @@
 import 'package:odova/core/due/due_engine.dart';
 import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/due_summary.dart';
-import 'package:odova/features/vehicles/garage_status.dart';
+import 'package:odova/core/vehicles/garage_status.dart';
 import 'package:test/test.dart';
 
 DueAssessment _worst(DueState state, {int? days}) => DueAssessment(

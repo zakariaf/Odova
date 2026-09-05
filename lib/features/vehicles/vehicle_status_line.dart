@@ -22,7 +22,7 @@ import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/l10n/relative_past.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/estimate_rounding.dart';
-import 'package:odova/features/vehicles/garage_status.dart';
+import 'package:odova/core/vehicles/garage_status.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';

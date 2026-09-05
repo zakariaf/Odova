@@ -5,9 +5,11 @@
 // `lead` slot of a row rather than a thing you press.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/theme/calm/vehicle_swatch.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_tile.dart';
@@ -291,6 +293,126 @@ void main() {
           icon: Icons.local_shipping_outlined,
           business: true,
           brand: true,
+        ),
+        throwsAssertionError,
+      );
+    });
+  });
+
+  group('a painted tile', () {
+    // The garage's silhouette sits on the vehicle's own colour. It was built by
+    // hand in the screen — a `DecoratedBox`, a `SizedBox.square` and a raw
+    // hex pair —
+    // which duplicated `CalmIconTile.dimension`, turned
+    // `check_component_hygiene` red on a `BoxDecoration`
+    // outside `lib/ui/calm/`,
+    // and dropped the `ExcludeSemantics` this component exists to carry, so
+    // every coloured row gained a screen-reader stop.
+    testWidgets('takes the paint as its ground and reads on it', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        Center(
+          child: CalmIconTile(
+            icon: Icons.directions_car_outlined,
+            paint: calmVehicleSwatch(VehicleColour.white),
+          ),
+        ),
+      );
+      final decoration = calmDecorationOf<BoxDecoration>(
+        tester,
+        find.byType(CalmIconTile),
+      );
+      expect(decoration.color, calmVehicleSwatch(VehicleColour.white));
+      expect(
+        tester.widget<Icon>(find.byType(Icon)).color,
+        calmVehicleSwatchInk(calmVehicleSwatch(VehicleColour.white)!),
+        reason: 'dark ink on a white car',
+      );
+    });
+
+    testWidgets('a dark paint flips the ink, in BOTH themes', (tester) async {
+      // Chosen by the PAINT's luminance, never by the theme: a black car needs
+      // light ink at noon and at midnight, and a `CalmColors` slot would flip
+      // every night.
+      for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+        await pumpApp(
+          tester,
+          Center(
+            child: CalmIconTile(
+              icon: Icons.directions_car_outlined,
+              paint: calmVehicleSwatch(VehicleColour.black),
+            ),
+          ),
+          themeMode: mode,
+        );
+        expect(
+          tester.widget<Icon>(find.byType(Icon)).color,
+          calmVehicleSwatchInk(calmVehicleSwatch(VehicleColour.black)!),
+          reason: '$mode',
+        );
+      }
+    });
+
+    testWidgets('it is a circle, and it is excluded from semantics', (
+      tester,
+    ) async {
+      // §8: the silhouette is a round swatch of the vehicle's
+      // paint. And it says
+      // nothing to a screen reader — the row's title already names the car, and
+      // a second stop reading "image" is noise on every row.
+      await pumpApp(
+        tester,
+        Center(
+          child: CalmIconTile(
+            icon: Icons.directions_car_outlined,
+            paint: calmVehicleSwatch(VehicleColour.red),
+          ),
+        ),
+      );
+      expect(
+        calmDecorationOf<BoxDecoration>(
+          tester,
+          find.byType(CalmIconTile),
+        ).shape,
+        BoxShape.circle,
+      );
+      // Excluded from semantics: the row's title already names the car, and a
+      // second stop reading "image" is noise on every row. `Icon` contributes
+      // one of its own, so this asserts the EXCLUSION holds rather than
+      // counting the widgets that implement it.
+      expect(
+        tester
+            .widgetList<ExcludeSemantics>(
+              find.descendant(
+                of: find.byType(CalmIconTile),
+                matching: find.byType(ExcludeSemantics),
+              ),
+            )
+            .any((w) => w.excluding),
+        isTrue,
+      );
+      // The tile's fixed size — a lead slot in a row of a known height, so it
+      // does not grow with text scale; the row does. Measured on the SizedBox
+      // it sets, because the widget itself takes whatever the parent gives it.
+      // The tile's fixed size — a lead slot in a row of a known height, so it
+      // does not grow with text scale; the row does. Under a `Center`, because
+      // tight constraints from a stretching parent are the parent's decision.
+      expect(
+        tester.getSize(find.byType(CalmIconTile)),
+        const Size.square(CalmIconTile.dimension),
+      );
+    });
+
+    testWidgets('paint and any other ground are refused together', (
+      tester,
+    ) async {
+      expect(
+        () => CalmIconTile(
+          icon: Icons.directions_car_outlined,
+          paint: calmVehicleSwatch(VehicleColour.red),
+          business: true,
         ),
         throwsAssertionError,
       );

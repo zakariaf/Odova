@@ -28,18 +28,17 @@ import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
-import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/vehicle_swatch.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
-import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
+import 'package:odova/ui/calm/calm_swatch.dart';
 import 'package:odova/ui/calm/calm_switch.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
 
@@ -420,11 +419,9 @@ class _ColourRow extends StatelessWidget {
   final ValueChanged<VehicleColour> onChanged;
 
   /// `.swatch { width: 26px; height: 26px }`.
-  static const double _swatch = 26;
 
   @override
   Widget build(BuildContext context) {
-    final colors = CalmColors.of(context);
     final space = CalmSpace.of(context);
     final l10n = AppLocalizations.of(context);
 
@@ -439,14 +436,10 @@ class _ColourRow extends StatelessWidget {
               spacing: space.s2,
               children: [
                 for (final colour in VehicleColour.values)
-                  _Swatch(
-                    colour: colour,
+                  CalmSwatch(
                     paint: calmVehicleSwatch(colour),
                     selected: colour == selected,
                     label: _colourLabel(l10n, colour),
-                    size: _swatch,
-                    ring: colors.brand,
-                    outline: colors.divider,
                     onTap: () => onChanged(colour),
                   ),
               ],
@@ -469,55 +462,6 @@ class _ColourRow extends StatelessWidget {
         VehicleColour.yellow => l10n.colourYellow,
         VehicleColour.other => l10n.colourOther,
       };
-}
-
-class _Swatch extends StatelessWidget {
-  const _Swatch({
-    required this.colour,
-    required this.paint,
-    required this.selected,
-    required this.label,
-    required this.size,
-    required this.ring,
-    required this.outline,
-    required this.onTap,
-  });
-
-  final VehicleColour colour;
-  final Color? paint;
-  final bool selected;
-  final String label;
-  final double size;
-  final Color ring;
-  final Color outline;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return CalmPressable(
-      onTap: onTap,
-      borderRadius: size / 2,
-      // The NAME, because a circle of colour has no text and a screen reader
-      // would otherwise announce nine identical buttons.
-      semanticLabel: label,
-      toggled: selected,
-      child: SizedBox.square(
-        dimension: size,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: paint,
-            shape: BoxShape.circle,
-            border: Border.all(
-              // A paint gets a hairline so white reads against white; `other`
-              // gets the same hairline and no fill, which IS its drawing.
-              color: selected ? ring : outline,
-              width: selected ? 2.5 : 1.5,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 /// The latest reading and how old it is, as a row that opens `log.odometer`.

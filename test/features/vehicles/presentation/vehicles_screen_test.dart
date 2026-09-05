@@ -38,6 +38,7 @@ import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_swipe_actions.dart';
@@ -842,5 +843,25 @@ void main() {
 
       expect(reordered, isEmpty);
     });
+  });
+
+  testWidgets('a business vehicle with no PAINT still reads as one', (
+    tester,
+  ) async {
+    // `VehicleColour.other` has no swatch by design (F-9.18) — the app does not
+    // invent a colour it was not given. So a business van saved as `other` has
+    // no paint, and the business tint is what is left to say it is a work
+    // vehicle. Keying the fallback off the COLOUR rather than the resolved
+    // PAINT lost that: `other` is a colour, so the tint never applied.
+    await _pump(
+      tester,
+      vehicles: [
+        _vehicle(_golf, 'Transit', colour: 'other', business: true),
+      ],
+      due: {_golf: DueState.ok},
+    );
+    final tile = tester.widget<CalmIconTile>(find.byType(CalmIconTile).first);
+    expect(tile.paint, isNull, reason: 'other has no swatch');
+    expect(tile.business, isTrue);
   });
 }

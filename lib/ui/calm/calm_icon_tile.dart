@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_status.dart';
+import 'package:odova/theme/calm/vehicle_swatch.dart';
 
 /// A 44pt rounded square carrying one glyph.
 class CalmIconTile extends StatelessWidget {
@@ -18,11 +19,18 @@ class CalmIconTile extends StatelessWidget {
     this.round = false,
     this.brand = false,
     this.business = false,
+    this.paint,
   }) : assert(
          !brand || state == null,
          'CalmIconTile was asked for both the brand tint and a status tint. '
          'Two tints is one too many, and the second is whichever the reader '
          'did not expect.',
+       ),
+       assert(
+         paint == null || (state == null && !brand && !business),
+         'CalmIconTile was asked for a vehicle paint and another ground. The '
+         "car's own colour IS the ground; a second one is whichever the "
+         'reader did not expect.',
        ),
        assert(
          !business || (state == null && !brand),
@@ -62,6 +70,20 @@ class CalmIconTile extends StatelessWidget {
   /// work" is not a status.
   final bool business;
 
+  /// The vehicle's own colour, as the ground.
+  ///
+  /// SPEC.md §8: "the avatar — a silhouette from `vehicle_type` on the
+  /// vehicle's COLOUR". The ink comes from the paint's own luminance, through
+  /// `calmVehicleSwatchInk` and never from the theme — a black car needs light
+  /// ink at noon and at midnight.
+  ///
+  /// Here rather than in the garage row, which built it by hand from a
+  /// `DecoratedBox`, a duplicated [dimension] and a raw hex pair — and dropped
+  /// the [ExcludeSemantics] this component carries, so every
+  /// coloured row gained
+  /// a screen-reader stop that said "image".
+  final Color? paint;
+
   /// The tile's fixed size. It is a lead slot in a row of a known height, so
   /// it does not grow with text scale — the row does.
   static const double dimension = 44;
@@ -77,6 +99,7 @@ class CalmIconTile extends StatelessWidget {
     // places and the second is the one that gets forgotten.
     final (Color ground, Color ink) = switch (style) {
       final s? => (s.tint, s.ink),
+      _ when paint != null => (paint!, calmVehicleSwatchInk(paint!)),
       _ when brand => (colours.brandSoft, colours.brandSoftInk),
       _ when business => (colours.business.tint, colours.business.ink),
       _ => (colours.surface2, colours.ink2),
@@ -90,8 +113,14 @@ class CalmIconTile extends StatelessWidget {
             color: ground,
             // radiusPill only ever reaches a StadiumBorder; a circle here is
             // an explicit shape rather than a 999 radius.
-            shape: round ? BoxShape.circle : BoxShape.rectangle,
-            borderRadius: round ? null : BorderRadius.circular(shapes.radiusMd),
+            // A painted tile is always a circle: it is a swatch of the car's
+            // own colour, and a rounded square reads as an icon chip.
+            shape: round || paint != null
+                ? BoxShape.circle
+                : BoxShape.rectangle,
+            borderRadius: round || paint != null
+                ? null
+                : BorderRadius.circular(shapes.radiusMd),
           ),
           child: Center(
             child: Icon(

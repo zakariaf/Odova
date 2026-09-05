@@ -16,12 +16,12 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/vehicles/delete_counts.dart';
+import 'package:odova/core/vehicles/garage_status.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/entry_counts_provider.dart';
-import 'package:odova/features/vehicles/garage_status.dart';
 import 'package:odova/features/vehicles/presentation/mark_as_sold_sheet.dart';
 import 'package:odova/features/vehicles/vehicle_status_line.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
@@ -435,33 +435,25 @@ class _Silhouette extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The resolved PAINT, not the colour name. `VehicleColour.other` is a
+    // colour with no swatch — F-9.18 keeps it outlined rather than inventing
+    // one — so keying the fallback off `colour == null` lost the business tint
+    // for every work vehicle saved as `other`.
     final colour = VehicleColour.tryParse(vehicle.colour);
     final paint = colour == null ? null : calmVehicleSwatch(colour);
-    if (paint == null) {
+    // The TILE paints itself. This built a `DecoratedBox`, a second copy of
+    // `CalmIconTile.dimension` and a raw hex pair by hand — which turned
+    // `check_component_hygiene` red on a `BoxDecoration` outside `lib/ui/calm/`
+    // and dropped the `ExcludeSemantics` the component carries, so every
+    // coloured row gained a screen-reader stop that said "image".
+    return CalmIconTile(
+      icon: vehicleSilhouette(vehicle.vehicleType),
       // No colour chosen, or `other`, which has no paint by design (F-9.18).
-      // The BUSINESS tint stands in — `icon-tile--business` in the artboard,
-      // which is how the Transit reads as a work vehicle at a glance without
-      // spending the third line's fourth slot twice.
-      return CalmIconTile(
-        icon: vehicleSilhouette(vehicle.vehicleType),
-        business: vehicle.isBusiness,
-      );
-    }
-    return DecoratedBox(
-      decoration: BoxDecoration(color: paint, shape: BoxShape.circle),
-      child: SizedBox.square(
-        dimension: CalmIconTile.dimension,
-        child: Icon(
-          vehicleSilhouette(vehicle.vehicleType),
-          size: 22,
-          // Readable on both a white car and a black one, decided by the
-          // paint's own luminance rather than by the theme — the ink on a
-          // silhouette is about the silhouette. Resolved in `lib/theme/calm/`
-          // beside the paints, which is the one directory allowed to name a
-          // colour and the reason `check_raw_values.sh` was red on this file.
-          color: calmVehicleSwatchInk(paint),
-        ),
-      ),
+      // The BUSINESS tint stands in then — `icon-tile--business` in the
+      // artboard, which is how the Transit reads as a work vehicle at a glance
+      // without spending the second line's fourth slot twice.
+      paint: paint,
+      business: paint == null && vehicle.isBusiness,
     );
   }
 }
