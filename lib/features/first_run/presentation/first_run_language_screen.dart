@@ -10,9 +10,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/file_picker.dart';
+import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
 import 'package:odova/features/first_run/first_run_language_notifier.dart';
+import 'package:odova/features/first_run/presentation/first_run_save_failure.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
@@ -28,6 +31,23 @@ class FirstRunLanguageScreen extends ConsumerWidget {
   /// Creates the screen.
   const FirstRunLanguageScreen({super.key});
 
+  /// SPEC.md §8: "Continue — Commits `Settings`, pushes `vehicle.edit`
+  /// (firstRun)."
+  ///
+  /// The navigation is the half that was missing, and no test on either screen
+  /// could see it: `Settings.onboarding_done` stays FALSE until a vehicle
+  /// exists — §8 says so, so a kill between the two steps replays from here —
+  /// which means `appRedirect` rule 3 pins the user on this screen until
+  /// something moves them. Nothing did, so a fresh install could not create a
+  /// vehicle at all.
+  ///
+  /// `go`, not `push`. §8: "No back edge"; there is nothing behind this screen
+  /// and a back stack would let the user return to a decision they have made.
+  static Future<void> _continue(BuildContext context, WidgetRef ref) async {
+    final ok = await ref.read(firstRunLanguageProvider.notifier).commit();
+    if (ok && context.mounted) context.go(Routes.firstRunVehicle);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = CalmColors.of(context);
@@ -39,6 +59,8 @@ class FirstRunLanguageScreen extends ConsumerWidget {
         .watch(deviceLocalesProvider)
         .map((l) => l.toLanguageTag())
         .toList();
+
+    final status = ref.watch(firstRunLanguageProvider);
 
     return PopScope(
       // SPEC.md §8 Navigation: "No back edge; Android system back exits the
@@ -58,14 +80,20 @@ class FirstRunLanguageScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: space.s3,
           children: [
+            // SPEC.md §8's Error state, which this screen showed nowhere: the
+            // notifier set `failed`, nothing watched it, and a user on a full
+            // disk tapped Continue forever with no message and no error.
+            if (status == FirstRunLanguageStatus.failed)
+              FirstRunSaveFailure(
+                onRetry: () => unawaited(_continue(context, ref)),
+              ),
             CalmButton(
               label: l10n.commonContinue,
               size: CalmButtonSize.lg,
               block: true,
               // Never disabled: nothing on this screen can be invalid, and
               // `System` is a real answer.
-              onPressed: () =>
-                  ref.read(firstRunLanguageProvider.notifier).commit(),
+              onPressed: () => unawaited(_continue(context, ref)),
             ),
             Text(
               l10n.firstRunRestorePrompt,
