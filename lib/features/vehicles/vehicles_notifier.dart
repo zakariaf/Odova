@@ -73,7 +73,11 @@ class VehiclesNotifier extends Notifier<void> {
           updatedAtUtcMs: now,
         );
     if (marked case Err(failure: final f)) return Err(f);
-    await _promoteAwayFrom(id);
+    // `mustLeave: false`. The row is still there and still readable, so if the
+    // only alternative is another sold car there is nothing to gain by moving
+    // — and a silent switch between two sold vehicles is a switch the user did
+    // not ask for on the screen whose whole rule is that it never switches.
+    await _promoteAwayFrom(id, mustLeave: false);
     return const Ok(null);
   }
 
@@ -95,7 +99,9 @@ class VehiclesNotifier extends Notifier<void> {
     );
     if (removed case Err(failure: final f)) return Err(f);
 
-    final promoted = await _promoteAwayFrom(id);
+    // `mustLeave: true`: [id] is a tombstone now. Any live vehicle, sold
+    // included, beats an active_vehicle_id pointing at a deleted row.
+    final promoted = await _promoteAwayFrom(id, mustLeave: true);
     final remaining = await _liveVehicles();
     return Ok((
       deletedAtUtcMs: deletedAtUtcMs,
@@ -131,16 +137,35 @@ class VehiclesNotifier extends Notifier<void> {
 
   /// Moves the active vehicle off [id], and says which one it landed on.
   ///
-  /// Null when [id] was not active, or when there is nowhere to go.
-  Future<VehicleId?> _promoteAwayFrom(VehicleId id) async {
+  /// Null when [id] was not active, or when the garage is empty.
+  ///
+  /// Two preferences, in order, and both come from one sentence in SPEC.md §8:
+  /// "an archived vehicle CAN be active; a sold one only by explicit
+  /// selection".
+  ///
+  /// So a promotion prefers anything not sold — active or archived, in the
+  /// user's own `sort_order`. This used to read `status == active`, which
+  /// skipped archived as well, and a user with a daily driver and a SORNed
+  /// winter bike who deleted the driver kept `active_vehicle_id` pointing at
+  /// the row that had just been deleted.
+  ///
+  /// A garage of nothing but sold vehicles is where [mustLeave] decides. A
+  /// DELETE has to move — [id] is a tombstone, and every scoped screen in all
+  /// four stacks would be reading it — so it takes the first sold vehicle and
+  /// accepts the banner §8 draws for that state. A SALE does not: the row is
+  /// still there and still readable, and swapping one sold car for another is
+  /// a switch nobody asked for. [markSold] settled the same question the same
+  /// way for a garage of one — "null would mean 'no vehicle selected' on a
+  /// device that owns one".
+  Future<VehicleId?> _promoteAwayFrom(
+    VehicleId id, {
+    required bool mustLeave,
+  }) async {
     if (await _activeVehicleId() != id) return null;
-    final live = await _liveVehicles();
-    // ACTIVE only, never sold or archived. §8: "a sold one only by explicit
-    // selection", and a promotion is the app choosing — the opposite of
-    // explicit.
-    final next = live
-        .where((v) => v.id != id && v.status == VehicleStatus.active)
-        .firstOrNull;
+    final live = (await _liveVehicles()).where((v) => v.id != id);
+    final next =
+        live.where((v) => v.status != VehicleStatus.sold).firstOrNull ??
+        (mustLeave ? live.firstOrNull : null);
     if (next == null) return null;
     // Through `active_vehicle.dart`'s function, never
     // `SettingsRepository.setActiveVehicle` — SPEC.md §8 requires the promotion

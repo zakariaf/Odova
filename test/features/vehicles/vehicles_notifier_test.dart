@@ -171,6 +171,44 @@ void main() {
 
       expect(await activeVehicle(), _golf);
     });
+
+    test('selling into a garage of sold cars stays put', () async {
+      // A SALE does not have to move, and moving would be a switch nobody
+      // asked for: both cars are sold, both draw §8's Home banner, and the row
+      // just sold is still there and still readable. Only a DELETE is forced
+      // to move, because its row is a tombstone.
+      await insertSettings(db, activeVehicleId: _golf);
+      await insertVehicle(db, id: _golf);
+      await insertVehicle(
+        db,
+        id: _polo,
+        name: 'The Polo',
+        sortOrder: 1,
+        status: 'sold',
+      );
+
+      await notifier().markSold(_id(_golf), soldOn: '2024-03-12');
+
+      expect(await activeVehicle(), _golf);
+    });
+
+    test('selling the driver promotes the archived winter bike', () async {
+      // §8: "an archived vehicle CAN be active". It is off the home screen and
+      // off notifications, not off the app.
+      await insertSettings(db, activeVehicleId: _golf);
+      await insertVehicle(db, id: _golf);
+      await insertVehicle(
+        db,
+        id: _polo,
+        name: 'The Polo',
+        sortOrder: 1,
+        status: 'archived',
+      );
+
+      await notifier().markSold(_id(_golf), soldOn: '2024-03-12');
+
+      expect(await activeVehicle(), _polo);
+    });
   });
 
   group('delete', () {
@@ -231,6 +269,68 @@ void main() {
       await notifier().delete(_id(_golf));
 
       expect(await activeVehicle(), _transit);
+    });
+
+    test('an ARCHIVED vehicle is promoted, because it can be active', () async {
+      // The other half of the same sentence in §8: "an archived vehicle can be
+      // active; a sold one only by explicit selection". The filter read
+      // `status == active`, which skipped archived too — so a user with a
+      // daily driver and a SORNed winter bike, deleting the driver, was left
+      // pointed at a row that no longer exists.
+      // The sold Polo sorts FIRST, so a promotion that had merely stopped
+      // excluding sold vehicles would land on it. Archived beats sold; only an
+      // empty field falls through to sold at all.
+      await insertSettings(db, activeVehicleId: _golf);
+      await insertVehicle(db, id: _golf);
+      await insertVehicle(
+        db,
+        id: _polo,
+        name: 'The Polo',
+        sortOrder: 1,
+        status: 'sold',
+      );
+      await insertVehicle(
+        db,
+        id: _transit,
+        name: 'Transit',
+        sortOrder: 2,
+        status: 'archived',
+      );
+
+      await notifier().delete(_id(_golf));
+
+      expect(await activeVehicle(), _transit);
+    });
+
+    test('deleting the last live car falls back to a sold one', () async {
+      // The end of the road. With nothing but a sold vehicle left there is no
+      // promotion that is not the app choosing — but the alternative is
+      // leaving `active_vehicle_id` pointing at the row just deleted, which is
+      // every scoped screen in all four stacks reading a tombstone.
+      //
+      // `markSold` already settled this exact question the same way: "Selling
+      // the ONLY vehicle leaves it active. There is nothing to promote to, and
+      // null would mean 'no vehicle selected' on a device that owns one; a
+      // garage of one is also the most explicit selection there is." §8 draws
+      // the banner Home shows for it.
+      await insertSettings(db, activeVehicleId: _golf);
+      await insertVehicle(db, id: _golf);
+      await insertVehicle(
+        db,
+        id: _polo,
+        name: 'The Polo',
+        sortOrder: 1,
+        status: 'sold',
+      );
+
+      final result = await notifier().delete(_id(_golf));
+
+      expect(await activeVehicle(), _polo);
+      expect(
+        (result as Ok<VehicleDeletion, PersistFailure>).value.wasLast,
+        isFalse,
+        reason: 'a sold vehicle is still a vehicle: the garage is not empty',
+      );
     });
 
     test(
