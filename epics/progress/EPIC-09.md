@@ -658,6 +658,12 @@ The same definition governs the garage's sold row. Proved from a real
   variant has no drawn home; it stays unused rather than being invented into
   one.
 - **`dateTomorrow`, `unitVolume*`, `unitConsumption*`, `unitPerDistance`,
-  `commonBack`, `commonEstimatedA11y`, `homeDueSoonNoConfidence`.** EPIC-10 and
-  EPIC-11's, translated ahead of time on purpose — six locales in one commit is
-  cheaper than six locales in six.
+  `commonBack`, `commonEstimatedA11y`, `homeDueSoonNoConfidence`,
+  `vehicleColourLabel`.** EPIC-10 and EPIC-11's, translated ahead of time on
+  purpose — six locales in one commit is cheaper than six locales in six.
+  (`vehicleColourLabel` is the one that is not a future epic's: the swatch row
+  is drawn with no label in the artboard, and the key stays for the day a
+  screen reader needs the group named — F-9.16's territory, EPIC-17.)
+
+**Nineteen keys have no caller at the close of this epic**, down from
+twenty-two. Each is accounted for above; none is an accident.
