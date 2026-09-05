@@ -667,3 +667,100 @@ The same definition governs the garage's sold row. Proved from a real
 
 **Nineteen keys have no caller at the close of this epic**, down from
 twenty-two. Each is accounted for above; none is an accident.
+
+
+---
+
+## The `/simplify` pass, second run — four angles over the create-mode work
+
+`/simplify` ran again over everything after the code-review commits, because
+create mode, `vehicle_actions.dart`, `minor_units.dart`, `OdometerEntry` and
+the promotion fix all landed after the first pass. Four agents, nineteen
+findings. Applied and answered below; none was dropped.
+
+### Two were defects, not untidiness
+
+- **`OdometerEntry.copyWith` dropped an accepted warning on any copy.** It read
+  `warningAccepted: text == null && (…)`, so only a copy that restated the flag
+  kept it — and `VehicleEditNotifier.edit` re-units the entry on every
+  keystroke in every other field. Accepting "Use it anyway" and then typing one
+  letter of the make brought the warning straight back. It now clears on a new
+  text OR a new unit (3,000,001 mi is not the number 3,000,001 km was) and
+  carries forward otherwise. Both arms tested.
+- **The guard for that found a second one.** `_reunit`'s unit argument
+  evaluated `_defaultUnit`, which reads `settingsProvider`, on the EDIT path
+  too. The `?.` form it replaced short-circuited its own argument; a plain call
+  does not. Edit mode had grown a drift subscription it never had, visible as a
+  pending-timer failure in the test AFTER the one that opened it.
+
+### Four things the repo already had, written again
+
+`distanceUnitLabel` (this was the fourth and fifth copy; its own dartdoc says
+it exists because the line "was written three times"), the epoch-fallback ISO
+date (three copies, now `CivilDate.isoDateOf`), the switcher's
+switch-and-dismiss (twice in one new file), and the name comparison — the
+delete dialog and the duplicate-name note folded differently, so "Golf ۲۰۱۹"
+was one vehicle to one of them and two to the other. `foldedName` is the one
+answer now, and it folds case as well: a keyboard that auto-capitalises would
+otherwise lock the owner of a van called `van` out of the delete gate for a
+letter they did not type.
+
+The odometer FIELD was the fifth: `OdometerEntry` shared the model and the
+widget was copied. `CalmOdometerInput` shares it, with the one deliberate
+difference — first run's empty message waits for a refused Start, create mode
+has no refused press — as an argument rather than a second widget.
+
+### `CalmListRow.switchRow` takes a bool
+
+The assert added during the code-review pass policed a mistake the signature
+could refuse. The row builds its own `CalmSwitch` with `onChanged: null`, so
+there is no wrong thing left to pass: the assert, its five-line message, its
+non-const constructor and the test whose only job was to watch it fire are all
+gone. A test that exists to guard an API shape is the signal the shape was
+wrong.
+
+### Two claims corrected rather than kept
+
+`_asNew`'s comment said listing 25 fields makes a newly added column a compile
+error. `Vehicle`'s constructor is optional-named, so it does not — the comment
+now says what the list actually buys. And `createVehicle`'s "the id is ignored"
+is an assert now: a caller holding a real id was editing a vehicle, not
+creating one, and a discard nobody sees is not a contract. The `.inDays` gate
+says out loud that it refuses a spelling and not the class (`.inHours ~/ 24`
+walks past it).
+
+### Answered, not applied
+
+- **A sealed `VehicleEditTarget` replacing `{mode, vehicleId}` and
+  `kUnsavedVehicleId`.** The right shape, and both the altitude and
+  simplification passes named it. Deferred deliberately, on the altitude
+  agent's own reasoning: it touches the router, the screen, the notifier, the
+  provider family's key type, `VehicleEditDraft.blank()` and about twenty test
+  call sites, on a branch that is green with a parity capture already taken —
+  and the failure it prevents is a confusing read, not lost data. **EPIC-10
+  inherits it**: every screen after this one has the same create/edit pair, and
+  the fourth copy of the pattern is the one that will hurt. The one-line slice
+  was taken now (the sentinel comparison is `!state.creating`), so the sentinel
+  is no longer load-bearing anywhere but the repository's assert.
+- **`VehicleActionOutcome` could be a `bool`.** Only `none` is compared today.
+  Kept: `confirmDeleteVehicle` returns `sold` when the user takes "Keep it —
+  mark it sold" from the delete dialog, and a bool would erase which of the two
+  things happened at the moment a caller most needs to know. The altitude pass
+  independently defended it.
+- **Renaming `RelativeDateBucket.inDays` to delete the gate's lookbehind.** The
+  five members of that enum are named after the five ARB keys they select —
+  `inDays`→`dateInDays`, `inAboutWeeks`→`dateInAboutWeeks`. Breaking that
+  mirror for a regex is the worse trade; the carve-out is one documented line.
+- **`vehiclesProvider.select` for the duplicate-name note.** Correct, and not
+  worth spending: `vehicles` emits only when a vehicle row changes, which while
+  an edit modal is open is essentially never. The `ref.watch` did move above the
+  empty-name guard, so the screen's dependency set no longer flips as the field
+  crosses empty.
+- **Consolidating the three widget harnesses in `vehicle_edit_screen_test.dart`,
+  and the sixth private `Vehicle` builder across the vehicle tests.** Both real.
+  Left for the epic that next touches those files: a test-harness refactor on a
+  green branch buys nothing a reader can see, and the cross-file builder is a
+  five-file change for one helper.
+- **Five `COUNT(*)`s awaited in sequence; `delete()` reading the garage twice.**
+  Both pre-existing, both behind a confirm dialog, both over a handful of rows.
+  The efficiency pass measured them and said not to. Recorded for EPIC-16.
