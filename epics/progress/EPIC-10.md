@@ -484,3 +484,135 @@ unit they are shown in, so the model does not re-sort. The test says so.
   a plain test. A memo keyed on a generation counter is a cache with an
   invalidation rule, and §2's "nothing derived is persisted" is the reason this
   epic would rather recompute than hold one. Revisit if a profile ever says so.
+
+## `/simplify` — what four agents found, and what was done
+
+Four agents over this epic's `lib/` and `tools/` diff — reuse, simplification,
+efficiency, altitude. **Two findings were defects rather than tidiness**, and one
+of them had shipped.
+
+### Applied
+
+- **The last fill-up row was showing the FIRST fill-up.** `fillUpsProvider` is
+  ordered `occurred_on DESC, id DESC` — its own doc says "newest first" — and
+  Home took `fillUps.last`. On a car with eight years of history the row read
+  out a tank of diesel bought in 2018, correctly formatted. Every fixture
+  supplied one fill-up, and in a one-element list `first` and `last` are the
+  same row. Fixed as `watchLatestForVehicle`, a `LIMIT 1` over the same index,
+  so there is no end of a list to pick — and Home stops subscribing an unbounded
+  history to draw a 56pt read-out. The ordering is asserted where the `ORDER BY`
+  is, against a real database.
+- **A snooze that had run out never stopped saying so.** `buildHomeStack` took
+  `required CivilDate today` and its body never read it; the card's fourth line
+  came from `snoozedUntil` unconditionally. Nothing clears `snoozed_until` when
+  it passes — no row is written at midnight — so a card snoozed until 4
+  September read "Snoozed until 4 September" for ever after. `until > today`
+  now, the same clause `isSnoozed` reads from §3.
+- **`ShapeDecoration` walked through the component-hygiene gate.**
+  `estimate_popover.dart` assembled a Calm surface in the feature layer and lost
+  the sheen doing it; the gate grepped for `BoxDecoration(` only. It greps for
+  both now, with a self-test arm that plants the other spelling, and the popover
+  is `CalmPopover` on `CalmSurface`.
+- **The estimate mark was built two ways.** `odometer_strip` routes the `~`
+  through `commonEstimatedValue`; `vehicle_status_line`, one tap away about the
+  same reading, still concatenated `'${projected ? '~' : ''}'` in Dart.
+  `check_status_encoding.sh` has a rule for exactly this and its pattern matched
+  only the prefix spelling. One `formatDistanceFigure`; the pattern takes both;
+  a new arm plants the conditional form.
+- **F-10.2 was fixed and never asserted.** `home_screen_test` now reads the
+  `SnackBar`'s bottom margin and requires it to clear `tabbarH`; deleting
+  `AppShell`'s `CalmChromeScope` takes it from 62pt to 12pt. With that pinned,
+  the two `Builder`s that existed only to reach the scope from lower down are
+  gone.
+- **`todayTicksProvider` had nothing asserting the production side.** Deleting
+  one line in `bootstrap()` turned off two of §9's seven recompute triggers with
+  the suite still green. Asserted from `bootstrap.dart`'s source.
+- **The two lists in `due_snapshot_provider.dart`** — the six streams the
+  snapshot composes and the six the unreadable check asks `hasError` — are
+  gated by a source test rather than by adjacency. They cannot be collapsed:
+  the short-circuit on a non-null snapshot is what stops a test that SUPPLIED
+  the snapshot from subscribing six drift streams through the side door.
+- **`SoldVehiclePanel.owned` and `driven` were required and always null**, so
+  `homeSoldOwned` — translated into six locales — was unreachable. Both are
+  computed from `purchase_date`/`purchase_odometer` now.
+- **`_DateRow.onChanged` was required and never called**, and the row built a
+  `TextEditingController` in `build` that was never disposed. **`_seeded`
+  guarded nothing** that `putIfAbsent` did not already guarantee. **Three public
+  helpers had no callers.** **`dueSeverity` was a third severity ladder** that
+  disagreed with `attentionRank` about `ok` versus `unknown`. **`kStaleOdometerDays`
+  was declared twice.** **`?? CivilDate.fromDateTime(DateTime(1970))!` was
+  inlined three more times** — `CivilDate.epoch` names it once.
+- **Four serialised reads in `reminders.edit`** now start together;
+  `ReminderEditReady` carries the problems `save()` computed instead of the
+  screen recomputing them against a second clock read; `CalmIconButton`,
+  `CalmLabelled` and `_updateItem` each replace three or four copies.
+
+### Answered, not applied
+
+- **Home builds a due snapshot for every other vehicle to draw one row.**
+  `_otherNeedingAttention` walks the garage, and the common case — nothing due
+  elsewhere — is the worst case, because proving that requires checking all of
+  them. §4.2.1 requires the row and the arithmetic; there is no cheaper way to
+  know than to ask. The scan short-circuits on the first vehicle with work, a
+  sold or archived vehicle is skipped outright, and every snapshot it builds is
+  memoised and already warm the moment the user switches to that vehicle. The
+  garage this app is written for is "a plumber with two vans" (§1), not fifty.
+  **A large garage is the case to profile**, and if it costs anything the fix is
+  to resolve the row after the first frame rather than to compute it differently.
+- **`reminders.edit` reads the whole record and reading history** to show five
+  rows and one minimum. A `LIMIT 5` join and a `SELECT MIN` would be cheaper on
+  the cold deep-link path — but those two streams are the ones Home already has
+  open, so on the common path the current code costs nothing and the targeted
+  queries would open two NEW subscriptions beside two warm ones. The trade is
+  real and it points the other way once EPIC-16's notification path exists to
+  measure. Recorded there rather than guessed at here.
+- **The form re-derives on every keystroke** — the automatic-notice window and
+  the five last-done rows are rebuilt although neither can change while the form
+  is open. Tens of microseconds, on a screen with thirteen controls. The
+  reporting agent called it the lowest-value item in its own list and said it
+  would take it only if the file were being touched anyway. It was, and it still
+  is not worth a field on the State to cache a `Text`.
+- **`homeDurationLine` has no years bucket**, so a six-year ownership reads
+  "Owned 72 months". The ladder tops out at months because §9 built it for an
+  overshoot and a service receipt — spans of weeks — and ownership is the first
+  span this app measures in years. A years bucket is six ARB files with their
+  plural categories, on a ladder that also words every due date and every
+  overdue card. **That is a copy decision and a re-shoot, not a cleanup**, and it
+  belongs with the other copy questions rather than in a `/simplify` commit.
+
+### F-8.2 — closed. Both stand-ins were lying, one by a whole tab bar
+
+EPIC-08 shot three dialogs and the vehicle switcher over screens that did not
+exist yet, hand-built `HomeBackdrop` and `VehiclesBackdrop` for them, and wrote
+the test that would settle it: *"EPIC-09 and EPIC-10 replace them with the real
+screens and re-run the three captures. If the parity result CHANGES when they
+do, this stand-in was lying — and that is a finding then, not a shrug."*
+EPIC-09 did not do its half. This epic did both.
+
+Band edges absent, stand-in → real screen:
+
+| capture | light-ltr | light-rtl | dark-ltr | dark-rtl |
+|---|---|---|---|---|
+| `vehicle.switcher` | 40% → **30%** | 62% → **58%** | 42% → **30%** | 69% → **64%** |
+| `dialog.confirmDelete` | 65% → **59%** | 61% → **53%** | 68% → **64%** | 65% → **60%** |
+| `dialog.discard` | 32% → 36% | 37% → 41% | 35% → 34% | 43% → 40% |
+| `dialog.snooze` | 36% → 38% | 34% → 38% | 35% → 35% | 36% → 38% |
+
+Three readings, and the middle row is the one worth having done this for.
+
+**`VehiclesBackdrop` drew no tab bar.** The `dialog.confirmDelete` artboard has
+one with the fourth item active, and the capture passed no `tab:` — so ten icons
+and ten labels' worth of band edges were absent from every confirm-delete
+capture and were being attributed to the dialog. That is a stand-in inventing a
+screen, and it is worth six points on every combination.
+
+**`HomeBackdrop` was a good forgery of the top of the screen**, which is what
+the two dialogs sit over, so they move four points either way — noise.
+`vehicle.switcher` is the sheet at the BOTTOM, over the part the forgery got
+wrong, and it improves by ten points in LTR.
+
+None of the four passes. What is left is what the screens themselves fail on:
+`home` is F-10.1's three design divergences, and RTL still carries F-9.25's
+6pt-short reference. A dialog capture cannot be better than the wall behind it —
+and now the wall is the real one, so those numbers measure one thing instead of
+two.
