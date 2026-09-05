@@ -62,9 +62,10 @@ enum GarageStatus {
 /// renders, with a hollow dot and an admission. A null here is that failure
 /// arriving as data rather than as an exception nobody caught.
 GarageStatus garageStatusOf(DueSummary? summary, {bool sold = false}) {
-  // Checked FIRST, before anything is computed. §8: "a sold vehicle computes no
-  // reminders and its card shows —". Saying "All good" about a car the user no
-  // longer owns is claiming an answer nobody asked for.
+  // Checked FIRST, before anything is computed. §8: "A sold vehicle computes
+  // no reminders, and its row says what it is rather than what is due."
+  // Saying "All good" about a car the user no longer owns is claiming an
+  // answer nobody asked for.
   if (sold) return GarageStatus.sold;
   if (summary == null) return GarageStatus.unknown;
 

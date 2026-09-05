@@ -764,3 +764,114 @@ walks past it).
 - **Five `COUNT(*)`s awaited in sequence; `delete()` reading the garage twice.**
   Both pre-existing, both behind a confirm dialog, both over a handful of rows.
   The efficiency pass measured them and said not to. Recorded for EPIC-16.
+
+
+---
+
+## The `/code-review` pass, second run — and what it found that /simplify could not
+
+The `/code-review` skill's own runner stalled out at its watchdog with no
+findings, so the review ran directly as four agents over the same range:
+correctness, async and lifecycle, spec conformance against SPEC.md §8 line by
+line, and test quality. It found more than the first pass did, and the worst of
+it was in code written two hours earlier.
+
+### Four bugs that reported success the app did not have
+
+- **The Undo snackbar never opened on a real device.** A delete's Undo and its
+  last-vehicle route both hung off the context of the ROW being deleted, and
+  the delete is what unmounts that row — `CalmRowGroup` keys positionally, and
+  deleting the ACTIVE vehicle also resets all four tab stacks. The
+  `context.mounted` guard afterwards skipped both. §8 calls those ten seconds
+  the entire recovery window. The suite could not see it because the fixture
+  garage never shrinks. `CalmSnackbarHost` holds VALUES now — the messenger and
+  both insets, read where the CALLER stands, because the bottom inset depends
+  on what is UNDER the caller and a tab bar plus a home indicator is 108pt the
+  messenger cannot see from above the shell.
+- **A sale price was written without its currency**, and `moneyOrNull` returns
+  null unless both columns are present — so the price read back as null from
+  the moment of the sale, and the next ordinary save wrote that null over the
+  number. Sell for 8,500, correct the plate a week later, and it is gone.
+  `markSold` takes a `Money` now. The test that covered it asserted the bug: its
+  "nothing else changed" set left `sold_price_currency` out.
+- **"Switch to it" threw on a disposed ref**, swallowed by `unawaited`. The
+  snackbar deliberately outlives the route, and `WidgetRef.read` on an
+  unmounted Consumer is a real `StateError`.
+- **A failed count query disarmed the delete confirmation.** The provider
+  answers null when the five `COUNT(*)`s FAIL, and a fallback of all-zeros
+  removed the type-the-name gate on a vehicle with 1,204 entries. It fails
+  closed now.
+
+### Four more, and one of them was in the fix for another
+
+`_asNew` left `sort_order` at 0 and relied on the ULID tiebreak, which holds
+only until the first reorder writes 0, 1, 2 — after that a new car lands
+SECOND. An odometer above the readable limit wrapped in 64-bit arithmetic and
+wrote 384 metres for a brand-new car with no warning. `minorUnitsFrom` could
+wrap on its rounding from exactly the maximum. And `OdometerEntry.copyWith`'s
+guard, added by /simplify, made `edit()` evaluate `_defaultUnit` — which reads
+`settingsProvider` — on the EDIT path too, where the `?.` form it replaced had
+short-circuited: edit mode grew a drift subscription it had never had.
+
+### Spec conformance, §8 line by line
+
+Fixed: **archived was drawn as sold** (§8 gives them one sentence each and they
+are opposites — "an archived one still computes reminders and shows them
+in-app"); **Undo of a last-vehicle delete landed on Home** rather than
+returning to `vehicles`, which is the second half of §8's sentence; **the safe
+alternative said "Mark as sold"** where §8 quotes "Keep it — mark it sold";
+**the mismatch message did not exist**, so a user who mistyped read the
+instruction again; **the odometer row promised "tap to update"** over an inert
+row; **`expected_annual_m` had no control**, the only one of §8's
+"controls that need no explanation" the form did not carry; and **"Sold and
+archived" never collapsed above five**.
+
+### Answered, not applied
+
+- **`tank_capacity_ml` has no control anywhere.** §8's field table gives it
+  "numeric + unit", and the unit half is part of the deferred units-and-currency
+  group. Its only consumer is the over-tank volume warning, which EPIC-12 owns
+  along with fill-ups; a capacity with nothing to warn about is a field that
+  does nothing. It lands with the group.
+- **The row overflow menu, and with it Archive.** §8's interaction table lists
+  "Row overflow | Edit · Mark as sold · Archive · Delete", and this epic built
+  only the swipe actions the artboard draws. So `VehicleStatus.archived` cannot
+  be produced by any user action in v1 — it is reachable only through a
+  restore, `status` being round-tripped by the backup file. Deferred because the
+  affordance has no drawn home: inventing a "…" button would fail the parity
+  gate against a reference that does not have one, and long-press is already
+  spent on drag-to-reorder. It needs a design decision, not an engineering one.
+  **This is the largest deliberate gap in the epic** and the archived display
+  bug above was found because of it.
+- **What a sold row shows in `vehicle.switcher`.** §8 says what the GARAGE's
+  sold row reads and is silent about the switcher's. F-9.24 deleted the
+  sentence three comments were quoting for the em dash, so the choice is ours:
+  the switcher's line is "odometer · status", and for a car that computes
+  nothing the status IS nothing. Repeating the sale date there would do the
+  garage's job on the screen whose only purpose is switching. Recorded, and the
+  three stale citations are corrected.
+- **The active switcher row carries three markers**, where §8's prose says "a
+  checkmark on the end edge and nothing else" — the selected ground and the
+  brand tile as well. The artboard draws all three and CLAUDE.md §7 makes the
+  reference authoritative for layout. Genuine prose-versus-drawing tension,
+  named here rather than settled quietly. Same for the delete dialog's action
+  ORDER, where §8's sketch puts Cancel before Delete and the artboard does not.
+- **VIN is not monospaced.** §8's field table says "mono";
+  `calm-typography-and-rtl` forbids monospace anywhere. CLAUDE.md says the spec
+  wins over a skill, so this is a real conflict and the code picked the skill
+  silently. Recorded for EPIC-17 to settle in one direction or the other.
+- **There is no way to set a per-vehicle `distance_unit`.** A consequence of two
+  separately-correct decisions — F-9.17 moved the odometer affix off
+  `firstrun.vehicle`, and `vehicle.edit`'s six overrides are in the deferred
+  disclosure group — that nobody had written down as a consequence. It arrives
+  with the group.
+- **`_promoteAwayFrom` swallows a failed `setActiveVehicle`.** `delete` returns
+  `Ok` with `promoted: null` while `active_vehicle_id` points at the tombstone,
+  and the user sees the ordinary snackbar. Narrow — it is the failure of a
+  write inside the success of another — and `undoDelete` restores the correct
+  state from it. Building an error channel for it would be a third meaning for
+  `delete`'s `Result`; recorded instead.
+- **A save in flight discards keystrokes made during it.** The failure branch
+  restores the pre-save state. The window is one database write and nothing
+  disables the fields; worth a `saving` guard on the form when EPIC-11 gives
+  the modal a busy state to share.

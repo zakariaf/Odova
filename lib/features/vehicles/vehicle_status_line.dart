@@ -58,9 +58,8 @@ String vehicleOdometerAndStatus({
     // SOLD outranks both odometer branches below, the same way `garageStatusOf`
     // checks sold before it computes anything. A car nobody drives has a stale
     // odometer by definition, so "Odometer last updated 8 months ago" on one is
-    // true and beside the point — and it displaced §8's "a sold vehicle
-    // computes no reminders and its card shows —" on every sold row in the
-    // switcher, which is to say on all of them.
+    // true and beside the point — and it displaced the em dash on every sold
+    // row in the switcher, which is to say on all of them.
     _ when status == GarageStatus.sold => _statusLine(
       l10n,
       tag,
@@ -156,8 +155,16 @@ String _statusLine(
   ServiceItem? worst,
   int? days,
 ) => switch (status) {
-  // The em dash, alone. §8: "a sold vehicle computes no reminders and its
-  // card shows —".
+  // The em dash, alone.
+  //
+  // §8 says what the GARAGE's sold row reads — "Sold 12 March 2024 · 1,204
+  // entries" — and says nothing about the switcher's, which is the only place
+  // this line renders for a sold car. F-9.24 removed the sentence an earlier
+  // version of this comment quoted, so the choice is ours and it is written
+  // down: the switcher's line is "odometer · status", and for a car that
+  // computes nothing the status IS nothing. An em dash says that. Repeating
+  // the sale date here would do the garage's job on the screen whose only
+  // purpose is switching, and it would say it twice to anyone who opens both.
   GarageStatus.sold => '—',
   GarageStatus.allGood => l10n.vehicleStatusAllGood,
   GarageStatus.noReminders => l10n.vehicleStatusNoReminders,
