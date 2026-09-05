@@ -70,7 +70,14 @@ SWITCH_RE='(case[[:space:]]+DueState\.|DueState\.[A-Za-z]+[[:space:]]*(\|\|[[:sp
 SLOT_RE='\.(overdue|due|dueSoon|ok|unknown|needsOdometer)\.(base|ink|tint|edge)\b'
 BARE_RE='CalmColors[^;]*\.(overdue|due|dueSoon|ok|unknown|needsOdometer)\b'
 COPY_RE='Odova needs a reading'
-TILDE_RE="[\"']~\\\$"
+# A Dart-side `~` glued to a figure, in EITHER spelling. It matched only
+# `'~$…` — a tilde immediately before an interpolation — until EPIC-10 found
+# `'${projected ? '~' : ''}$digits'` sitting unseen in `vehicle_status_line`,
+# which is the same mistake written as a conditional. The mark belongs in
+# `commonEstimatedValue` so a translator decides which side of the figure it
+# sits on; a Dart concatenation takes that away and reads correctly in
+# English while it does so.
+TILDE_RE="[\"']~[\"']|[\"']~\\\$"
 fail=0
 report() { echo "== $1 =="; printf '%s\n' "$2"; fail=1; }
 

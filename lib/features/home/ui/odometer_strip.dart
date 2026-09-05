@@ -12,13 +12,10 @@
 // user in bright sunlight with a contrast setting on will never see.
 import 'package:flutter/material.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
-import 'package:odova/core/l10n/bidi.dart';
-import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/estimate_rounding.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
-import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
@@ -80,22 +77,15 @@ class EstimatedValueText extends StatelessWidget {
     final shown = isProjected
         ? roundEstimateForDisplay(Distance(estimate.metres), unit)
         : Distance(estimate.metres);
-    // UNISOLATED, then marked, then isolated — in that order and for that
-    // reason. §9 puts the `~` "inside the isolated numeric run so it hugs the
-    // number in both directions", and prefixing it to an already-isolated
-    // string puts it in FRONT of the FSI, where Arabic renders it at the far
-    // end of the line. That version read correctly in English, which is why it
-    // survived: `check_status_encoding.sh` greps for the concatenation rather
-    // than for the rendering.
-    final body = withUnitUnisolated(
-      shown.inUnit(unit),
-      distanceUnitLabel(l10n, unit),
+    // Through `formatDistanceFigure`: the mark goes inside the isolate, and it
+    // comes from an ARB key rather than a Dart `'~'`, for the three reasons
+    // that function states.
+    final figure = formatDistanceFigure(
+      l10n,
       formatsTag,
-      numerals: CalmNumerals.auto,
-      decimalDigits: 0,
-    );
-    final figure = isolate(
-      isProjected ? l10n.commonEstimatedValue(body) : body,
+      shown,
+      unit,
+      estimated: isProjected,
     );
 
     return Semantics(

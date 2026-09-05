@@ -21,6 +21,7 @@ import 'package:odova/features/reminders/domain/reminders_groups.dart';
 import 'package:odova/l10n/due_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
@@ -57,10 +58,10 @@ class RemindersListScreen extends ConsumerWidget {
     }
 
     final tag = ref.watch(resolvedLocaleTagsProvider).formats;
-    final unit =
-        vehicle.distanceUnit ??
-        ref.watch(settingsProvider).value?.distanceUnit ??
-        DistanceUnit.km;
+    final unit = effectiveDistanceUnit(
+      vehicle,
+      ref.watch(settingsProvider).value,
+    );
 
     return CalmScaffold(
       appBar: CalmAppBar(

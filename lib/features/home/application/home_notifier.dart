@@ -26,6 +26,7 @@ import 'package:odova/features/home/application/home_state.dart';
 import 'package:odova/features/home/application/today.dart';
 import 'package:odova/features/home/domain/home_strips.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 
 /// §9 rule 5: pinned "for that one appearance of Home".
 ///
@@ -168,10 +169,10 @@ List<HomeStripKind> _strips(
   final estimate = snapshot?.estimate;
   if (estimate == null || today == null) return const [];
 
-  final unit =
-      vehicle.distanceUnit ??
-      ref.watch(settingsProvider).value?.distanceUnit ??
-      DistanceUnit.km;
+  final unit = effectiveDistanceUnit(
+    vehicle,
+    ref.watch(settingsProvider).value,
+  );
 
   // The drift is the RATE times the staleness, which is what "projected drift"
   // means: how far the app believes the car has gone since anybody looked. A

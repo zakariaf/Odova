@@ -12,7 +12,13 @@
 // the fuel switch and two of the type switch shipped in EPIC-09 before this
 // file existed.
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/settings.dart';
+import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/l10n/bidi.dart';
+import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/unit_format.dart';
 
 /// What a [FuelKind] is called.
 String vehicleFuelLabel(AppLocalizations l10n, FuelKind kind) => switch (kind) {
@@ -48,3 +54,50 @@ String vehicleTypeLabel(AppLocalizations l10n, VehicleType type) =>
 /// greps for it first.
 String distanceUnitLabel(AppLocalizations l10n, DistanceUnit unit) =>
     unit == DistanceUnit.mi ? l10n.unitDistanceMi : l10n.unitDistanceKm;
+
+/// A distance with its unit, marked `~` when it is an estimate.
+///
+/// **The one place the estimate mark is applied.** SPEC.md §1 forbids guessing
+/// in a way that looks like fact, and §9 puts the mark "inside the isolated
+/// numeric run so it hugs the number in both directions" — three rules that
+/// have to be got right together and were being got right twice, separately:
+///
+///   * The mark goes INSIDE the isolate. Prefixing `~` to an already-isolated
+///     string puts it in front of the FSI, where Arabic renders it at the far
+///     end of the line. That version reads correctly in English, which is how
+///     it survives review.
+///   * The mark comes from an ARB key, not from a Dart `'~'`. Which SIDE of the
+///     figure it sits on is a translation decision, and a concatenation takes
+///     it away from the translator.
+///   * The number and the unit share ONE isolate, so `۱۸۷٬۴۱۲ کیلومتر` never
+///     splits.
+///
+/// `check_status_encoding.sh` greps for a Dart-side `'~'`, so the second rule
+/// is gated — but only for the spelling it knows. One function is what makes
+/// the gate's coverage total rather than approximate.
+String formatDistanceFigure(
+  AppLocalizations l10n,
+  String formatsTag,
+  Distance distance,
+  DistanceUnit unit, {
+  required bool estimated,
+}) {
+  final body = withUnitUnisolated(
+    distance.inUnit(unit),
+    distanceUnitLabel(l10n, unit),
+    formatsTag,
+    numerals: CalmNumerals.auto,
+    decimalDigits: 0,
+  );
+  return isolate(estimated ? l10n.commonEstimatedValue(body) : body);
+}
+
+/// The unit a vehicle's distances are shown in.
+///
+/// The VEHICLE's override where it has one, then the app's setting, then
+/// kilometres — SPEC.md §5's precedence, written out at four new call sites in
+/// EPIC-10 alone before it was one function. A car set to miles that reads in
+/// kilometres on one screen is the bug this prevents, and it is the kind that
+/// ships because each site is obviously correct on its own.
+DistanceUnit effectiveDistanceUnit(Vehicle? vehicle, AppSettings? settings) =>
+    vehicle?.distanceUnit ?? settings?.distanceUnit ?? DistanceUnit.km;

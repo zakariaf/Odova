@@ -680,6 +680,20 @@ assert 1 "check_status_encoding is red on a double-quoted tilde" \
   bash "$STATUS" lib
 restore_all
 
+# The CONDITIONAL spelling, which the pattern did not match until EPIC-10's
+# /simplify pass found it shipping in `vehicle_status_line.dart`. Same mistake,
+# same consequence, written as a ternary instead of a prefix — and a gate that
+# catches only the spelling it was written against is a gate whose coverage
+# nobody can state.
+write_scratch lib/ui/selftest_probe4b.dart <<'PROBE'
+/// A planted violation: the estimate mark, chosen by a conditional.
+String probe(String digits, {required bool projected}) =>
+    '${projected ? '~' : ''}$digits';
+PROBE
+assert 1 "check_status_encoding is red on a conditional tilde" \
+  bash "$STATUS" lib
+restore_all
+
 # The slot allow-list is per FILE, never per directory. EPIC-10 added
 # `calm_notice.dart` to it — a `.notice--warn` tint is picked when the strip is
 # written, exactly like the field's error ring — and a list read as

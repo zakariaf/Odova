@@ -122,8 +122,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // in miles on every screen that mentions it.
     final space = CalmSpace.of(context);
     final settings = ref.watch(settingsProvider).value;
-    final unit =
-        state.vehicle.distanceUnit ?? settings?.distanceUnit ?? DistanceUnit.km;
+    final unit = effectiveDistanceUnit(state.vehicle, settings);
     final consumptionUnit =
         state.vehicle.consumptionUnit ??
         settings?.consumptionUnit ??

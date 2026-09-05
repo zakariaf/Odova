@@ -22,6 +22,7 @@ import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/reminders/domain/reminder_draft.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 
 /// What the editor is doing.
 sealed class ReminderEditState {
@@ -160,8 +161,7 @@ class RemindersEditNotifier extends Notifier<ReminderEditState> {
       return;
     }
 
-    final unit =
-        vehicle.distanceUnit ?? settings?.distanceUnit ?? DistanceUnit.km;
+    final unit = effectiveDistanceUnit(vehicle, settings);
     final separator = groupingSeparatorFor(
       ref.read(resolvedLocaleTagsProvider).formats,
     );
