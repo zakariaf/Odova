@@ -11,6 +11,7 @@ import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/settings_repository.dart';
 import 'package:odova/data/ui_state/ui_state_provider.dart';
 import 'package:odova/data/ui_state/ui_state_store.dart';
+import 'package:odova/features/home/application/today.dart';
 import 'package:odova/theme/calm/font_licences.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -66,6 +67,12 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     appDatabaseProvider.overrideWithValue(database),
     initialLaunchFactsProvider.overrideWithValue(await facts),
     uiStateProviderStore.overrideWithValue(await uiState),
+    // The midnight timer, armed only in a running app. SPEC.md §9 lists the
+    // local midnight crossing as a recompute trigger; a timer set for up to 24
+    // hours outlives every widget test, and `testWidgets` fails the NEXT test
+    // over one still pending — so the default is inert and this is where it is
+    // switched on.
+    todayTicksProvider.overrideWithValue(true),
   ];
 }
 

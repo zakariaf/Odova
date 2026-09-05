@@ -10,7 +10,6 @@
 // midnight and app resume — are task 10.9's.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/active_vehicle.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
@@ -24,6 +23,7 @@ import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/data/ui_state/ui_state_provider.dart';
 import 'package:odova/data/ui_state/ui_state_store.dart';
 import 'package:odova/features/home/application/home_state.dart';
+import 'package:odova/features/home/application/today.dart';
 import 'package:odova/features/home/domain/home_strips.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 
@@ -63,7 +63,11 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
 
   final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicle.id));
   final fillUps = ref.watch(fillUpsProvider(vehicle.id)).value ?? const [];
-  final today = CivilDate.fromDateTime(ref.watch(clockProvider).now());
+  // WATCHED, not read from the clock. §9's *Recompute triggers* include the
+  // local midnight crossing and the app resuming, and neither writes a row —
+  // the calendar moves and the data does not. `todayProvider` is the value
+  // those two move, so watching it is what makes them triggers.
+  final today = ref.watch(todayProvider);
 
   final assessments = snapshot?.assessments ?? const <AssessedItem>[];
   final stack = buildHomeStack(

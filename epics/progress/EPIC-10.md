@@ -441,3 +441,46 @@ question goes to the design sweep with F-10.1, F-10.4 and F-10.5.
   this form.
 - **The *Last done* rows do not open the history entry.** §9 makes each "a row
   into the history entry detail" — `history.detail` is EPIC-12's.
+
+## Task 10.9 — recompute, deep links and the performance budget ✅
+
+10 tests. §9 lists seven recompute triggers; **five arrive through the streams
+the screen already watches** — a write, a switch, a settings change, an import
+commit and the first read are all rows moving — and this task built the two that
+do not.
+
+**Local midnight and app resume move a VALUE, not a row.** `todayProvider` holds
+the civil date; a timer set to the next local midnight advances it, and a resume
+re-reads it, because a phone asleep across midnight gets no timer callback and
+waking on yesterday's date is exactly the failure the trigger list exists to
+prevent. A duration to the next midnight rather than a periodic day: a periodic
+timer drifts across a daylight-saving change, and the one day of the year it is
+wrong is the day an hour of it does not exist.
+
+**Both schedulers are armed only in production**, behind `todayTicksProvider`,
+the same way the UI-state store is injected. A timer set for up to 24 hours
+outlives every widget test — `testWidgets` fails the NEXT test over one still
+pending — and `WidgetsBinding.instance` does not exist in a plain `test`, so an
+unguarded observer throws on dispose. The BEHAVIOUR is tested without either:
+advance the injected clock, call `refresh`, watch the day move.
+
+**A unit change does not churn the stack, and that is the finding.** §9 lists it
+as a recompute trigger; it reaches the screen through `settingsProvider`, which
+is what renders the unit — but the ORDER of due items does not depend on the
+unit they are shown in, so the model does not re-sort. The test says so.
+
+### Deferred, deliberately
+
+- **The deep-link HANDLER.** The pin is built and asserted — a pinned item takes
+  the primary slot ahead of an overdue one, and `clear` is a named call so the
+  pin cannot outlive its appearance. What is missing is the code that reads a
+  notification payload, sets `active_vehicle_id` from it and selects the Home
+  tab: **EPIC-16** owns the payload and the tap, and there is nothing yet to
+  parse. The three deep-link cases the task names — a reminder link, an odometer
+  nudge, a payload naming a deleted vehicle — are assertions about a handler
+  that has no input.
+- **Memoising `buildHomeStack` on a write generation.** The budget is met
+  without it: 26 items build in far under §9's 16 ms, measured over 100 runs in
+  a plain test. A memo keyed on a generation counter is a cache with an
+  invalidation rule, and §2's "nothing derived is persisted" is the reason this
+  epic would rather recompute than hold one. Revisit if a profile ever says so.
