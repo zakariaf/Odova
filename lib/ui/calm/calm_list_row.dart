@@ -12,6 +12,7 @@ import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
+import 'package:odova/ui/calm/calm_switch.dart';
 
 /// `.row.is-disabled { opacity: .42 }` — one of only three places Calm fades
 /// instead of swapping tokens. Never fade a whole card: its shadow smears.
@@ -89,7 +90,11 @@ class CalmListRow extends StatelessWidget {
   /// navigable, and the pair is one `MergeSemantics` node labelled by [title].
   /// A screen reader that reads "Reminders, switch, on" in one gesture is
   /// usable; four stops on every row of a settings screen is not.
-  const CalmListRow.switchRow({
+  // NOT const, alone among these constructors, so that its assert can read a
+  // property off `end` — an initializer-list assert in a const constructor is
+  // limited to potentially-constant expressions. No call site was const: a
+  // switch row carries an `onToggle` closure by definition.
+  CalmListRow.switchRow({
     required this.title,
     required Widget this.end,
     required VoidCallback this.onToggle,
@@ -99,7 +104,15 @@ class CalmListRow extends StatelessWidget {
     this.size = CalmRowSize.md,
     this.enabled = true,
     this.standalone = false,
-  }) : _isSwitch = true,
+  }) : assert(
+         end is! CalmSwitch || end.onChanged == null,
+         'The ROW is the tap target of a switch row, so its CalmSwitch must '
+         'pass onChanged: null. A live callback — a no-op included — makes '
+         'the switch a child recognizer, and a child beats its ancestor in '
+         'the gesture arena: the control the user actually presses stops '
+         'working while the rest of the row still toggles.',
+       ),
+       _isSwitch = true,
        // A settings toggle has one sub-line at most. `.row__main`'s second
        // span never appears next to a switch in any artboard, and a numeric
        // detail line beside an on/off control would be a fact the switch does

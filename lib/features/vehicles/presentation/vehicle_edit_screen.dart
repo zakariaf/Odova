@@ -292,20 +292,17 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
           rows: [
             CalmListRow.switchRow(
               title: l10n.vehicleBusinessLabel,
-              end: CalmSwitch(
-                value: draft.isBusiness,
-                onChanged: (_) {},
-              ),
+              // Null, not a no-op: the ROW toggles, and a live callback here
+              // would make the switch a child recognizer that wins the arena
+              // and does nothing.
+              end: CalmSwitch(value: draft.isBusiness, onChanged: null),
               onToggle: () => _notifier.edit(
                 (d) => d.copyWith(isBusiness: !d.isBusiness),
               ),
             ),
             CalmListRow.switchRow(
               title: l10n.vehicleMuteLabel,
-              end: CalmSwitch(
-                value: draft.notificationsMuted,
-                onChanged: (_) {},
-              ),
+              end: CalmSwitch(value: draft.notificationsMuted, onChanged: null),
               onToggle: () => _notifier.edit(
                 (d) => d.copyWith(
                   notificationsMuted: !d.notificationsMuted,

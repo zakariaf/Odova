@@ -25,6 +25,7 @@ import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
+import 'package:odova/ui/calm/calm_switch.dart';
 
 import '../../../data/support/rows.dart';
 import '../../../parity/support/parity_capture.dart'
@@ -396,4 +397,41 @@ void main() {
     expect(row.value, isNull);
     expect(row.subtitle, isNull);
   });
+
+  testWidgets(
+    'a tap on the switch itself toggles it, like the rest of the row',
+    (
+      tester,
+    ) async {
+      // `CalmSwitch.onChanged` null is the SANCTIONED arrangement inside a
+      // switch row — its own dartdoc says so — because the ROW is the tap
+      // target and the switch is paint. A no-op `(_) {}` instead of null is not
+      // "the same thing, spelled defensively": it makes the switch an active
+      // GestureDetector, and a child recognizer beats the ancestor's in the
+      // arena. So the one place the user is most likely to press — the control
+      // itself — was the one place that did nothing at all.
+      await _pump(tester, tall: true);
+      final l10n = _l10n(tester);
+
+      for (final title in [l10n.vehicleBusinessLabel, l10n.vehicleMuteLabel]) {
+        final row = find.ancestor(
+          of: find.text(title),
+          matching: find.byType(CalmListRow),
+        );
+        final knob = find.descendant(
+          of: row,
+          matching: find.byType(CalmSwitchTrack),
+        );
+        expect(tester.widget<CalmSwitchTrack>(knob).value, isFalse);
+
+        await tester.tap(knob);
+        await tester.pump();
+        expect(
+          tester.widget<CalmSwitchTrack>(knob).value,
+          isTrue,
+          reason: 'tapping the $title switch must toggle it',
+        );
+      }
+    },
+  );
 }

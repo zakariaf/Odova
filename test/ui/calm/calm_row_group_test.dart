@@ -16,6 +16,7 @@ import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
+import 'package:odova/ui/calm/calm_switch.dart';
 
 import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
@@ -369,6 +370,48 @@ void main() {
     expect(toggles, 1);
     expect(on, isTrue);
     expect(find.byIcon(Icons.chevron_right), findsNothing);
+  });
+
+  test('a switch row whose switch has its own callback is a defect', () {
+    // The arrangement `CalmSwitch.onChanged` documents — null inside a row —
+    // is not advice. A live callback makes the switch a child recognizer, and
+    // a child beats its ancestor in the gesture arena, so the row toggles
+    // everywhere EXCEPT on the control. `vehicle.edit` shipped exactly that
+    // with `(_) {}`, and it is invisible from a screenshot.
+    expect(
+      () => CalmListRow.switchRow(
+        title: 'Reminders',
+        onToggle: () {},
+        end: CalmSwitch(value: false, onChanged: (_) {}),
+      ),
+      throwsAssertionError,
+    );
+  });
+
+  testWidgets('a switch row whose switch defers to it is fine', (tester) async {
+    // The other arm: the same row, one word different, builds and toggles from
+    // a tap on the switch itself.
+    var toggles = 0;
+
+    await pumpApp(
+      tester,
+      Center(
+        child: CalmRowGroup(
+          rows: [
+            CalmListRow.switchRow(
+              title: 'Reminders',
+              onToggle: () => toggles++,
+              end: const CalmSwitch(value: false, onChanged: null),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.byType(CalmSwitchTrack));
+    await tester.pump();
+    expect(toggles, 1);
   });
 
   testWidgets('a lone CalmListRow outside a group is a visible defect', (
