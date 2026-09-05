@@ -93,6 +93,10 @@ void main() {
                 ),
               ]),
             ),
+            // Supplied for the same reason. The name field reads the garage to
+            // notice a duplicate name, and this capture's garage holds only
+            // the car it is photographing.
+            vehiclesProvider.overrideWith((ref) => const Stream.empty()),
           ],
           child: VehicleEditScreen(vehicleId: _id),
         ),

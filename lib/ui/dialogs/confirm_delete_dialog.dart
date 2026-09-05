@@ -56,6 +56,7 @@ Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
   required DeleteCounts counts,
   required String Function(int) formatCount,
   String? safeAlternativeLabel,
+  String? note,
 }) async {
   final choice = await CalmDialog.show<ConfirmDeleteChoice>(
     context,
@@ -64,6 +65,7 @@ Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
       counts: counts,
       formatCount: formatCount,
       safeAlternativeLabel: safeAlternativeLabel,
+      note: note,
       onChoice: (choice) => Navigator.of(context).pop(choice),
     ),
   );
@@ -84,6 +86,7 @@ class ConfirmDeleteDialogBody extends StatefulWidget {
     required this.onChoice,
     super.key,
     this.safeAlternativeLabel,
+    this.note,
   });
 
   /// What is being deleted.
@@ -102,6 +105,16 @@ class ConfirmDeleteDialogBody extends StatefulWidget {
 
   /// The safe alternative's label, or null when the caller has none.
   final String? safeAlternativeLabel;
+
+  /// One more sentence under the counts, or null.
+  ///
+  /// SPEC.md §8's only-vehicle case — "its dialog carries the extra line 'This
+  /// is your only vehicle. Deleting it starts Odova over.'" It is joined to the
+  /// body with a blank line, and that is NOT §2's forbidden sentence-building:
+  /// this is two complete sentences in one block, each translated as a unit and
+  /// each free to be rewritten whole. Assembling ONE sentence from fragments is
+  /// what §2 refuses, because no translator can reorder it.
+  final String? note;
 
   /// Reports the decision. `showConfirmDeleteDialog` pops the route with it.
   final ValueChanged<ConfirmDeleteChoice> onChoice;
@@ -168,6 +181,28 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
       _normalisedSubject.isNotEmpty &&
       _normalise(_typed.text) == _normalisedSubject;
 
+  /// The five counts, and the caller's extra line under them.
+  String _body(
+    AppLocalizations l10n,
+    DeleteCounts counts,
+    String Function(int) format,
+  ) {
+    final sentence = l10n.confirmDeleteBody(
+      counts.fillUps,
+      format(counts.fillUps),
+      counts.services,
+      format(counts.services),
+      counts.costs,
+      format(counts.costs),
+      counts.trips,
+      format(counts.trips),
+      counts.reminders,
+      format(counts.reminders),
+    );
+    final note = widget.note;
+    return note == null ? sentence : '$sentence\n\n$note';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -191,18 +226,7 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
         counts.total,
         format(counts.total),
       ),
-      body: l10n.confirmDeleteBody(
-        counts.fillUps,
-        format(counts.fillUps),
-        counts.services,
-        format(counts.services),
-        counts.costs,
-        format(counts.costs),
-        counts.trips,
-        format(counts.trips),
-        counts.reminders,
-        format(counts.reminders),
-      ),
+      body: _body(l10n, counts, format),
       actions: [
         // The safe alternative first, where there is one. The reference orders
         // it that way and §7's "no dialog is ever dismissed into a destructive

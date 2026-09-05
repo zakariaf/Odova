@@ -11,6 +11,7 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
+import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
@@ -42,6 +43,7 @@ Future<AppDatabase> _pump(
   Locale? locale,
   List<OdometerReading> readings = const [],
   bool tall = false,
+  List<Vehicle> garage = const [],
 }) async {
   tester.view.physicalSize = tall
       // Tall enough that the lazy ListView builds every child. Not a device
@@ -76,6 +78,12 @@ Future<AppDatabase> _pump(
       odometerReadingsProvider(
         _id,
       ).overrideWith((ref) => Stream.value(readings)),
+      // SUPPLIED, and not optional: the name field reads the garage to notice
+      // a duplicate, and a real drift stream under `testWidgets` leaves a
+      // pending timer at teardown that fails the test AFTER the one that
+      // opened it — `provider_harness.dart`'s rule, arriving here the moment a
+      // second provider was watched.
+      vehiclesProvider.overrideWith((ref) => Stream.value(garage)),
     ],
   );
   // The notifier loads asynchronously; let it land.
@@ -122,12 +130,26 @@ Future<AppDatabase> _pumpHosted(WidgetTester tester) async {
       odometerReadingsProvider(
         _id,
       ).overrideWith((ref) => Stream.value(const [])),
+      vehiclesProvider.overrideWith(
+        (ref) => Stream.value([_garageRow('The Golf')]),
+      ),
     ],
   );
   await tester.tap(find.text('open'));
   await tester.pumpAndSettle();
   return db;
 }
+
+/// A garage row, for the tests that need the app to know about other vehicles.
+Vehicle _garageRow(String name, {String id = _golf}) => Vehicle(
+  id: VehicleId.tryParse(id)!,
+  name: name,
+  vehicleType: VehicleType.car,
+  fuelKindDefault: FuelKind.petrol,
+  status: VehicleStatus.active,
+  createdAtUtcMs: 0,
+  updatedAtUtcMs: 0,
+);
 
 BuildContext _ctx(WidgetTester tester) =>
     tester.element(find.byType(VehicleEditScreen));
@@ -481,6 +503,38 @@ void main() {
     },
   );
 
+  testWidgets('a duplicate name is noted, not refused', (tester) async {
+    // SPEC.md §8: "duplicates allowed, with the note 'You already have a
+    // vehicle called Van'". A plumber with two identical Transits may well
+    // want them named the same and told apart by their plates, so the app says
+    // what it noticed and stops there — Save stays live.
+    await _pump(
+      tester,
+      garage: [
+        _garageRow('The Golf'),
+        _garageRow('Van', id: 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVB'),
+      ],
+    );
+    final l10n = _l10n(tester);
+    CalmField nameField() => tester
+        .widgetList<CalmField>(find.byType(CalmField))
+        .firstWhere((f) => f.label == l10n.vehicleNameLabel);
+
+    expect(nameField().hint, isNull, reason: 'its own name is not a duplicate');
+
+    await tester.enterText(find.byWidget(nameField()), '  van ');
+    await tester.pumpAndSettle();
+    expect(
+      nameField().hint,
+      l10n.vehicleDuplicateNameNote('Van'),
+      // Trimmed and case-folded: "van" and "Van " are the same answer to
+      // "what do you call it", and a note that only fires on an exact byte
+      // match is a note that mostly does not fire.
+      reason: 'whitespace and case are not what tells two vans apart',
+    );
+    expect(nameField().errorText, isNull, reason: 'a note, not an error');
+  });
+
   testWidgets('Mark as sold opens the sale form and dismisses the modal', (
     tester,
   ) async {
@@ -579,6 +633,10 @@ void main() {
           // async does not run its timers. Null is the honest first-frame
           // value, and the unit falls back to the pinned locale's — km.
           settingsProvider.overrideWith((ref) => Stream.value(null)),
+          // An EMPTY garage: this is the form for the car that does not exist
+          // yet, and supplying it keeps a real drift stream — whose teardown
+          // timer fails the NEXT test rather than this one — out of the way.
+          vehiclesProvider.overrideWith((ref) => Stream.value(const [])),
         ],
       );
       await tester.tap(find.text('open'));

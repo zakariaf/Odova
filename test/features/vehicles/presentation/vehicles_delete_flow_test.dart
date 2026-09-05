@@ -28,6 +28,7 @@ import 'package:odova/features/vehicles/entry_counts_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
+import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_swipe_actions.dart';
 
 import '../../../parity/support/parity_capture.dart'
@@ -270,6 +271,50 @@ void main() {
     // is what makes an Undo survive navigation, and a snackbar shown on the
     // old route's messenger would vanish with it.
     expect(find.text('Undo'), findsOneWidget);
+  });
+
+  testWidgets('the only vehicle is warned about, and still deletable', (
+    tester,
+  ) async {
+    // SPEC.md §8: "The delete row reads 'Delete The Golf' and its dialog
+    // carries the extra line 'This is your only vehicle. Deleting it starts
+    // Odova over.'" It WARNS without forbidding — §8 has a route for what
+    // happens next, so the line is information, not a gate.
+    await _pump(
+      tester,
+      vehicles: [_vehicle(_golf, 'The Golf')],
+      counts: (fillUps: 0, services: 0, costs: 0, trips: 0, reminders: 0),
+      wasLast: true,
+    );
+    await _swipeDelete(tester, 'The Golf');
+    expect(
+      find.textContaining('starts Odova over'),
+      findsOneWidget,
+      reason: 'the extra line',
+    );
+    // Enabled, not merely present: a zero-entry vehicle deletes in one tap and
+    // the warning must not have quietly become a gate.
+    expect(
+      tester
+          .widgetList<CalmButton>(find.byType(CalmButton))
+          .firstWhere((b) => b.label == 'Delete')
+          .onPressed,
+      isNotNull,
+      reason: 'warned, not forbidden',
+    );
+  });
+
+  testWidgets('a garage of two carries no only-vehicle warning', (
+    tester,
+  ) async {
+    // The other arm. Two cars means deleting one starts nothing over, and a
+    // warning that is always on is a warning nobody reads.
+    await _pump(
+      tester,
+      counts: (fillUps: 0, services: 0, costs: 0, trips: 0, reminders: 0),
+    );
+    await _swipeDelete(tester, 'The Golf');
+    expect(find.textContaining('starts Odova over'), findsNothing);
   });
 
   testWidgets('a delete that is NOT the last one stays on the garage', (

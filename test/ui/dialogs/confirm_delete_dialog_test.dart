@@ -142,6 +142,22 @@ void main() {
     );
   });
 
+  testWidgets('a caller can add one more line, and it is the last one', (
+    tester,
+  ) async {
+    // SPEC.md §8's only-vehicle case: "its dialog carries the extra line
+    // 'This is your only vehicle. Deleting it starts Odova over.'" Two whole
+    // sentences separated by a blank line, not a sentence assembled from
+    // parts — the caller's line is translated as a unit and a translator can
+    // rewrite all of it.
+    final probe = _Probe(counts: _golfCounts, note: 'Starts Odova over.');
+    await pumpApp(tester, probe.widget);
+    await probe.open(tester);
+
+    final body = _visible(tester, contains: 'go permanently');
+    expect(body, endsWith('\n\nStarts Odova over.'));
+  });
+
   testWidgets('zero entries gives a one-tap Delete with no typed field', (
     tester,
   ) async {
@@ -488,11 +504,17 @@ bool _enabled(WidgetTester tester, String label) =>
 
 /// A caller with a button, and a record of what came back.
 class _Probe {
-  _Probe({required this.counts, this.subject = 'The Golf', this.alternative});
+  _Probe({
+    required this.counts,
+    this.subject = 'The Golf',
+    this.alternative,
+    this.note,
+  });
 
   final DeleteCounts counts;
   final String subject;
   final String? alternative;
+  final String? note;
 
   /// What the dialog answered.
   ConfirmDeleteChoice? choice;
@@ -511,6 +533,7 @@ class _Probe {
               // caller passes the app's shaped formatter.
               formatCount: (n) => '$n',
               safeAlternativeLabel: alternative,
+              note: note,
             );
           },
           child: const Text('open'),

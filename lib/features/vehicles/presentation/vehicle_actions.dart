@@ -20,6 +20,7 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/entry_counts_provider.dart';
 import 'package:odova/features/vehicles/presentation/mark_as_sold_sheet.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
@@ -94,6 +95,11 @@ Future<VehicleActionOutcome> confirmDeleteVehicle(
 ) async {
   final l10n = AppLocalizations.of(context);
   final tag = ref.read(resolvedLocaleTagsProvider).formats;
+  // The GARAGE, not the live list: a user with one car and one sold one is not
+  // starting Odova over by deleting the car, because the sold one is still
+  // there and the launch gate counts it.
+  final onlyVehicle =
+      (ref.read(vehiclesProvider).value ?? const []).length == 1;
   final counts =
       await ref.read(vehicleEntryCountsProvider(vehicle.id).future) ??
       (fillUps: 0, services: 0, costs: 0, trips: 0, reminders: 0);
@@ -110,6 +116,11 @@ Future<VehicleActionOutcome> confirmDeleteVehicle(
     safeAlternativeLabel: vehicle.status == VehicleStatus.active
         ? l10n.vehicleMarkAsSold
         : null,
+    // §8's one-vehicle case: "its dialog carries the extra line 'This is your
+    // only vehicle. Deleting it starts Odova over.'" It WARNS without
+    // forbidding — the user may still delete it, and §8 routes them to first
+    // run with the Undo snackbar over the modal when they do.
+    note: onlyVehicle ? l10n.vehiclesOnlyOneWarning : null,
   );
   if (!context.mounted) return VehicleActionOutcome.none;
 

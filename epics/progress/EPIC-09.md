@@ -188,7 +188,8 @@ import screen and the package that opens a real dialog.
   To test state restoration, change the widget's KEY so the State is rebuilt
   under the same container.
 
-## Task 9.5 — `vehicle.edit` 🟡 PART BUILT
+## Task 9.5 — `vehicle.edit` 🟡 PART BUILT (create mode landed later; see the
+`/code-review` section at the end)
 
 **Not complete, and the parts that are missing are named below rather than
 stubbed.** What exists is tested and green: 11 screen tests, 7 notifier tests,
@@ -220,10 +221,13 @@ is one of those things.
   vehicle's units & currency` need a date picker, a money field and six override
   controls that do not exist. The groups are ABSENT from the screen rather than
   stubbed: a collapsed group that opens on nothing is a control that lies.
-- **The odometer read-only row**, which needs the latest reading and its age
-  wired through. `dateDaysAgo` is in the ARB and ready for it.
-- **Mark as sold** and its sale form; **Delete**, which wants task 9.6's
-  `showConfirmDeleteDialog`.
+- ~~**The odometer read-only row**~~ — built, and its age now counts calendar
+  days through `CivilDate` rather than a `Duration`.
+- ~~**Mark as sold** and its sale form; **Delete**~~ — both wired, through
+  `vehicle_actions.dart`, which the garage now shares.
+- ~~**Create mode**~~ — built. It was not on this list when the list was
+  written, which is how `Routes.vehicleNew` reached `/code-review` opening an
+  empty modal.
 - **The parity capture is taken and FAILS**, in all four combinations —
   30/94, 27/93, 24/90, 23/84 against a 75% floor, with colour and theme green.
   Two causes, both known and neither papered over. **F-9.16**: the swatches are
@@ -536,3 +540,124 @@ the hexes. Each pushed the fix one layer deeper than I had put it.
   this diff's scope, and a cache keyed wrongly (`grouped` mutates the instance)
   is worse than none. Recorded for EPIC-16's performance pass.
 
+
+
+---
+
+## The `/code-review` pass, and what task 9.5 still owed
+
+`/code-review` ran over the epic's changes before the PR, as CLAUDE.md §5
+requires. Twenty-one findings. What follows is every one of them, applied or
+answered — and four of them turned out not to be review findings at all but
+tasks 9.5 and 9.6 reporting themselves unfinished.
+
+### The two that could not be reached from the app at all
+
+- **`firstrun.language`'s Continue navigated nowhere.** It committed the
+  settings and stopped. With `onboarding_done` still false — deliberately, so a
+  kill between the two steps replays from the language step — the launch gate's
+  rule 3 pinned the user to the screen they had just finished. A fresh install
+  could never create a vehicle. Fixed with the edge that did not exist, plus the
+  save-failure surface the vehicle screen already had.
+- **`Routes.vehicleNew` opened an empty modal.** The router's only reading of
+  the path was `VehicleId.tryParse`, which answers null for the `new` sentinel
+  exactly as it does for `not-an-id` — so BOTH doors marked "+" opened the
+  bad-deep-link shell with a live Save wired to `() {}`. This was task 9.5's
+  create mode, unbuilt. It is built now: the odometer becomes an input, Mark as
+  sold and Delete disappear, and Save pops with the new `VehicleId` so the
+  caller can decide what it means. §8 gives the two doors opposite answers and
+  they now give them.
+
+### The rest, applied
+
+- **A `dueSoon` distance-only reminder was drawn as overdue, in red.**
+  `DueAssessment.remainingDays` is null for the five distance-only kinds, and
+  `garageStatusOf` collapsed a missing count into `overdue`. A chain lube 200 km
+  away read "Chain lube overdue". New `GarageStatus.due` — named, amber, no
+  number. The test that had asserted the bug carried a comment justifying it.
+- **The implausible-odometer warning BLOCKED Start**, against §8's "never a
+  block" and the enum's own dartdoc. `canStart` is `odometerMetres != null` now:
+  it asks whether the field holds a reading, not whether the app likes it.
+- **Both switch rows on `vehicle.edit` passed `onChanged: (_) {}`**, making the
+  switch a child recognizer that wins the gesture arena and does nothing. The
+  row toggled everywhere except on the control. `CalmListRow.switchRow` now
+  asserts it, in a non-const constructor so the assert can read the field.
+- **`entryCounts` counted seeded reminders**, so §8's "Zero entries: one-tap
+  Delete" had no reachable state — §4.8.3 seeds a set on every vehicle. See
+  F-9.26 below.
+- **A DST truncation in the odometer's age.** `DateUtils.dateOnly(a).difference
+  (b).inDays` counts elapsed time, and two calendar days across a spring-forward
+  are 47 hours. `CivilDate.daysUntil` documents the exact failure; a new gate,
+  `test/policy/no_local_day_arithmetic_test.dart`, refuses the spelling, because
+  a suite running in UTC — which CI does — cannot catch it.
+- **Deleting the last ACTIVE vehicle left `active_vehicle_id` on a tombstone.**
+  The promotion filter read `status == active`, which also excluded ARCHIVED
+  ones — and §8's sentence starts "an archived vehicle can be active". Two
+  orders of preference now, and delete and sale part company on a garage of
+  nothing but sold cars.
+- **Money conversion through a binary double.** 8,500.005 stored as 850000
+  rather than 850001. `lib/core/money/minor_units.dart` does it with string
+  arithmetic; replacing the body with the old double path fails three of its six
+  tests.
+- **A sold vehicle in the switcher reported its odometer's age** instead of §8's
+  em dash. The sold check now comes first, as `garageStatusOf` already did it.
+- **`vehicle.switcher` discarded `setActiveVehicle`'s `Result`**, closing the
+  sheet on a write that had not happened.
+- **`vehicle.edit`'s Mark as sold and Delete rows were inert**, with a comment
+  saying task 9.6 owned them. This is task 9.6. The garage's flows moved to
+  `vehicle_actions.dart` and both screens call them; the modal dismisses after a
+  sale, because `VehicleEditDraft` copies `status` from the row it loaded and
+  would write `active` back over the sale on the next Save.
+- **Fourteen unused ARB keys.** Six of them were task 9.5's and 9.6's own
+  unfinished work and are now rendered: `vehicleDuplicateNameNote`,
+  `vehiclesOnlyOneWarning`, `vehicleSwitchToIt`, and the two new keys the create
+  mode needed. The rest are named under "still deferred" below.
+
+### F-9.26 — an entry is something the USER entered
+
+SPEC.md §8 asks for two things that seeding puts in tension: "Zero entries:
+one-tap Delete", and a dialog whose body names "16 reminders" among what dies.
+Every vehicle is created with a seeded reminder set (§4.8.3), so a total that
+counts them is never zero and the one-tap case has no reachable state — a car
+added by mistake would demand its own name typed back twenty seconds later, to
+protect eight reminders the next car gets for free.
+
+**Decided:** `DeleteCountsTotal.total` counts the four LOGGED types. Reminders
+are settings the app put there, not entries the user made; they stay in the
+dialog's body, because the body says what is destroyed and they are destroyed.
+The same definition governs the garage's sold row. Proved from a real
+`create`: reminders > 0 and total == 0.
+
+### Answered, not applied
+
+- **`_asNew` lists twenty fields instead of using `copyWith`.** Deliberate, and
+  the reason is why `VehicleEditDraft` exists at all: a `copyWith` over twenty
+  nullable fields cannot say "clear this". A listed copy also makes the compiler
+  name any column added to `Vehicle` later rather than dropping it silently.
+- **`create` could take the extra facts on `VehicleDraft`.** Rejected: that is a
+  second list of `Vehicle`'s columns kept in step by hand. `createVehicle` takes
+  the row the form already knows how to build.
+- **The odometer field could re-interpret its digits when the vehicle's unit
+  override changes.** It does — and `OdometerEntry.copyWith` drops an accepted
+  implausible warning with the unit, because 3,000,001 mi is not the number
+  3,000,001 km was.
+
+### Still deferred, with reasons
+
+- **The two disclosure groups' contents** (`Purchase and sale`, `This vehicle's
+  units & currency`) and with them `vehiclePurchaseDate`, `vehiclePurchasePrice`,
+  `vehiclePurchaseOdometer`, `vehicleCurrencyChangeNote`, `commonAutomatic`.
+  They need a date picker, a money field and six override controls. ABSENT
+  rather than stubbed: a collapsed group that opens on nothing is a control that
+  lies.
+- **`vehicleFuelChangeNote`.** §8 pairs the fuel change with a one-time snackbar
+  offering `reminders.list`, which EPIC-10 owns. A snackbar action pointing at a
+  route that does not exist is worse than no snackbar.
+- **`vehicleDeleteRow`** (the count-carrying label). §8's one-vehicle case spells
+  the row "Delete The Golf", which is `vehicleDeleteRowEmpty`. The counted
+  variant has no drawn home; it stays unused rather than being invented into
+  one.
+- **`dateTomorrow`, `unitVolume*`, `unitConsumption*`, `unitPerDistance`,
+  `commonBack`, `commonEstimatedA11y`, `homeDueSoonNoConfidence`.** EPIC-10 and
+  EPIC-11's, translated ahead of time on purpose — six locales in one commit is
+  cheaper than six locales in six.

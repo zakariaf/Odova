@@ -257,6 +257,13 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         CalmField(
           label: l10n.vehicleNameLabel,
           controller: _name,
+          // A NOTE in the hint slot, not an error. SPEC.md §8: "duplicates
+          // allowed, with the note 'You already have a vehicle called Van'".
+          // Two vans called Van is the user's business — a plumber with two
+          // identical Transits may well want them named the same and told
+          // apart by their plates — so this says what the app noticed and
+          // stops there.
+          hint: _duplicateNote(l10n, draft.name),
           onChanged: (value) => _notifier.edit((d) => d.copyWith(name: value)),
         ),
         CalmSegmented(
@@ -488,6 +495,27 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     Navigator.of(
       context,
     ).pop(widget.mode == VehicleEditMode.create ? saved : null);
+  }
+
+  /// "You already have a vehicle called Van", or nothing.
+  ///
+  /// Compared case- and whitespace-insensitively, because "van" and "Van " are
+  /// the same answer to "what do you call it" and a note that only fires on an
+  /// exact byte match is a note that mostly does not fire.
+  ///
+  /// The form's OWN vehicle is excluded, or every edit of a saved car would
+  /// tell the user it already exists. Create mode has no id to exclude and
+  /// needs none: `kUnsavedVehicleId` matches nothing in the garage.
+  String? _duplicateNote(AppLocalizations l10n, String name) {
+    final typed = name.trim().toLowerCase();
+    if (typed.isEmpty) return null;
+    final garage = ref.watch(vehiclesProvider).value ?? const <Vehicle>[];
+    for (final other in garage) {
+      if (other.id == widget.vehicleId) continue;
+      if (other.name.trim().toLowerCase() != typed) continue;
+      return l10n.vehicleDuplicateNameNote(other.name);
+    }
+    return null;
   }
 
   /// Sells this vehicle, then leaves.
