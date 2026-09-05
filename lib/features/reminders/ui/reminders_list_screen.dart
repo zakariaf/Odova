@@ -279,17 +279,13 @@ class _Group extends StatelessWidget {
     // §9's `reminders.list` drawing gives a tracked item the app cannot date
     // the QUESTION rather than a blank: "When was this last done".
     if (assessment == null) return l10n.remindersWhenLastDone;
-    // §9: "`ok` items appear here with their next due, **which is the
-    // difference between this screen and Home**." `dueStatusLine` returns an
-    // empty string for `ok`, correctly — Home keeps `ok` off the screen
-    // entirely — so routing an `ok` row through it drew a blank end column and
-    // deleted the one behaviour that distinguishes this screen. The artboard's
-    // on-track row reads `in 8,600 km`, which is the same sentence a `due_soon`
-    // row gets.
-    if (assessment.state == DueState.ok) {
-      return dueLeadTimeLine(l10n, tag, assessment, unit);
-    }
-    return dueStatusLine(l10n, tag, assessment, unit);
+    // `remindersStatusLine`, not `dueStatusLine`: §9's "`ok` items appear here
+    // with their next due, **which is the difference between this screen and
+    // Home**". The two differ in exactly that one state, and the switch that
+    // decides it lives in `due_copy.dart` — a `DueState` resolved in a widget
+    // is the second place that decides what a state means, which is what
+    // `check_status_encoding.sh` refuses.
+    return remindersStatusLine(l10n, tag, assessment, unit);
   }
 }
 

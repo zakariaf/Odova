@@ -103,6 +103,28 @@ String dueStatusLine(
   };
 }
 
+/// The end column on `reminders.list`, for a tracked and active row.
+///
+/// §9: that group is "sorted by `projected_due_date` exactly as Home sorts and
+/// in the same dot/colour/wording vocabulary, so no legend is needed" — and
+/// "`ok` items appear here with their next due, **which is the difference
+/// between this screen and Home**".
+///
+/// So it is [dueStatusLine] plus the one state Home has no card for. It lives
+/// HERE and not in the screen because `check_status_encoding.sh` allows a
+/// `DueState` switch in `*_copy.dart` and nowhere else: a state resolved in a
+/// widget is the second place that decides what a colour or a word means, and
+/// this file is the first.
+String remindersStatusLine(
+  AppLocalizations l10n,
+  String formatsTag,
+  DueAssessment assessment,
+  DistanceUnit unit,
+) => switch (assessment.state) {
+  DueState.ok => dueLeadTimeLine(l10n, formatsTag, assessment, unit),
+  _ => dueStatusLine(l10n, formatsTag, assessment, unit),
+};
+
 /// How far away the next one is — `in about 1,800 km`, `in about 3 weeks`.
 ///
 /// The `due_soon` arm, extracted because `reminders.list` needs the same
