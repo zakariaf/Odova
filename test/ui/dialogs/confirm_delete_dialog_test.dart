@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/l10n/bidi.dart';
+import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_field.dart';
@@ -45,17 +46,52 @@ void main() {
     // U+2068 in the middle of an English sentence.
     expect(
       _visible(tester, contains: 'entries?'),
-      'Delete The Golf and its 156 entries?',
+      'Delete The Golf and its 140 entries?',
     );
   });
 
   testWidgets('the total is the sum, and no caller can disagree with it', (
     tester,
   ) async {
-    // 96 + 14 + 22 + 8 + 16. `DeleteCounts` has no `total` field to pass, so a
-    // dialog that said 412 while its body added to 156 is not expressible.
-    expect(_golfCounts.total, 156);
-    expect(_empty.total, 0);
+    // 96 + 14 + 22 + 8. `DeleteCounts` has no `total` field to pass, so a
+    // dialog that said 412 while its body added to 140 is not expressible.
+    expect(_golfCounts.entries, 140);
+    expect(_empty.entries, 0);
+  });
+
+  testWidgets('a vehicle with only its seeded reminders has no entries', (
+    tester,
+  ) async {
+    // An ENTRY is something the user entered. Reminders are not: SPEC.md
+    // §4.8.3 seeds a set on every vehicle at creation, so counting them would
+    // make §8's "Zero entries: one-tap Delete" unreachable — every car ever
+    // created would demand its own name typed back before it could go, twenty
+    // seconds after it was added by mistake.
+    //
+    // They are still named in the body, because they are still destroyed.
+    const seededOnly = (
+      fillUps: 0,
+      services: 0,
+      costs: 0,
+      trips: 0,
+      reminders: 8,
+    );
+    expect(seededOnly.entries, 0);
+
+    final probe = _Probe(counts: seededOnly);
+    await pumpApp(tester, probe.widget);
+    await probe.open(tester);
+
+    expect(find.byType(CalmField), findsNothing, reason: 'nothing to lose');
+    expect(_enabled(tester, 'Delete'), isTrue);
+    // 'Golf', not 'Delete The Golf': the subject travels in a first-strong
+    // isolate, so U+2068 sits between the two halves of the raw string.
+    expect(_visible(tester, contains: 'Golf'), 'Delete The Golf?');
+    expect(
+      _visible(tester, contains: 'reminders'),
+      'No fill-ups, no services, no costs, no trips and 8 reminders go '
+      'permanently.',
+    );
   });
 
   testWidgets('a zero-count title claims no history the car does not have', (
@@ -104,6 +140,22 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('a caller can add one more line, and it is the last one', (
+    tester,
+  ) async {
+    // SPEC.md §8's only-vehicle case: "its dialog carries the extra line
+    // 'This is your only vehicle. Deleting it starts Odova over.'" Two whole
+    // sentences separated by a blank line, not a sentence assembled from
+    // parts — the caller's line is translated as a unit and a translator can
+    // rewrite all of it.
+    final probe = _Probe(counts: _golfCounts, note: 'Starts Odova over.');
+    await pumpApp(tester, probe.widget);
+    await probe.open(tester);
+
+    final body = _visible(tester, contains: 'go permanently');
+    expect(body, endsWith('\n\nStarts Odova over.'));
   });
 
   testWidgets('zero entries gives a one-tap Delete with no typed field', (
@@ -363,14 +415,49 @@ void main() {
     }
   });
 
-  test('it is one shared widget', () {
+  test('it is one shared widget, and only listed screens call it', () {
+    // A second confirm-delete dialog in a feature is a second answer to "what
+    // exactly am I destroying", and the two will disagree about the counts.
+    //
+    // **An ALLOW-LIST, because the first version forbade too much** — the same
+    // correction `discard_dialog_test.dart` already carries, and for the same
+    // reason. Banning the symbols outright was right while nothing called them
+    // and wrong the moment a screen did: EPIC-09 task 9.6 says in so many words
+    // that the garage's "Delete calls **EPIC-08 task 8.9's
+    // `showConfirmDeleteDialog`**". The rule was never "nobody may call it"; it
+    // was "nobody may write a second one", and those are only the same test
+    // while the caller count is zero.
+    //
+    // Every screen that destroys a whole record earns a line here, and adding
+    // one is a moment where somebody says what their screen deletes.
+    const callers = {
+      // §8 offers the delete in two places — the garage's swipe actions and
+      // `vehicle.edit`'s row at the foot of the form — and BOTH go through
+      // this one file. That is the shape the rule was written to want: one
+      // caller, named here, rather than two screens each with their own idea
+      // of what "Keep it — mark it sold" and the ten-second Undo mean.
+      'lib/features/vehicles/presentation/vehicle_actions.dart',
+    };
+
     final offenders = <String>[];
     for (final file in dartFilesUnder('lib')) {
       if (file.path == 'lib/ui/dialogs/confirm_delete_dialog.dart') continue;
+      final source = sourceWithoutLineComments(file);
+      // DEFINING a second one stays banned outright, from everywhere. A
+      // DECLARATION, not a mention: `ConfirmDeleteChoice.delete` in a caller is
+      // reading the shared answer, which is the whole point of sharing it.
       if (RegExp(
-        'showConfirmDeleteDialog|ConfirmDeleteChoice',
-      ).hasMatch(sourceWithoutLineComments(file))) {
-        offenders.add(file.path);
+        r'(class|enum)\s+\w*ConfirmDelete\w*\b|'
+        r'Future<\w*ConfirmDeleteChoice\w*>\s+show\w*Delete',
+      ).hasMatch(source)) {
+        offenders.add(
+          '${file.path}: declares a confirm-delete dialog of its own',
+        );
+        continue;
+      }
+      if (RegExp('showConfirmDeleteDialog').hasMatch(source) &&
+          !callers.contains(file.path)) {
+        offenders.add('${file.path}: calls showConfirmDeleteDialog, unlisted');
       }
     }
     expect(offenders, isEmpty, reason: offenders.join('\n'));
@@ -417,11 +504,17 @@ bool _enabled(WidgetTester tester, String label) =>
 
 /// A caller with a button, and a record of what came back.
 class _Probe {
-  _Probe({required this.counts, this.subject = 'The Golf', this.alternative});
+  _Probe({
+    required this.counts,
+    this.subject = 'The Golf',
+    this.alternative,
+    this.note,
+  });
 
   final DeleteCounts counts;
   final String subject;
   final String? alternative;
+  final String? note;
 
   /// What the dialog answered.
   ConfirmDeleteChoice? choice;
@@ -440,6 +533,7 @@ class _Probe {
               // caller passes the app's shaped formatter.
               formatCount: (n) => '$n',
               safeAlternativeLabel: alternative,
+              note: note,
             );
           },
           child: const Text('open'),

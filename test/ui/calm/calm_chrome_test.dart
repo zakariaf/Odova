@@ -351,4 +351,187 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  // ---- three things the artboards need and CalmScaffold could not say
+
+  testWidgets('a screen can have no app bar at all', (tester) async {
+    // `firstrun.language` draws no app bar: SPEC.md §8 says "No app-bar, no
+    // back, no skip". `appBar` was `required` and non-nullable, so the only way
+    // to build this screen was to stop using the app's one screen skeleton —
+    // which is how a second, subtly different frame gets into a codebase.
+    await pumpApp(
+      tester,
+      const CalmScaffold(appBar: null, children: [Text('body')]),
+    );
+
+    expect(find.byType(CalmAppBar), findsNothing);
+
+    // And the body still starts where the scaffold's own top padding puts it,
+    // not 56pt further down behind an app bar that is not there.
+    final screen = tester.getRect(find.byType(CalmScaffold));
+    final body = tester.getRect(find.text('body'));
+    expect(body.top - screen.top, closeTo(calmSpace.s5, 0.01));
+  });
+
+  testWidgets('tight is the body gap 21 of the 28 artboards actually use', (
+    tester,
+  ) async {
+    // `.screen__body` is `gap: var(--space-5)` and `.screen__body--tight`
+    // overrides it to `var(--space-4)`. Every artboard except the seven forms
+    // (log.*, trips.edit, vehicle.edit, settings.import) carries `--tight`, and
+    // CalmScaffold hard-coded the default that only those seven use.
+    for (final (tight, gap) in [(false, calmSpace.s5), (true, calmSpace.s4)]) {
+      await pumpApp(
+        tester,
+        CalmScaffold(
+          appBar: null,
+          tight: tight,
+          children: const [Text('one'), Text('two')],
+        ),
+      );
+
+      expect(
+        tester.getRect(find.text('two')).top -
+            tester.getRect(find.text('one')).bottom,
+        closeTo(gap, 0.01),
+        reason: 'tight: $tight',
+      );
+    }
+  });
+
+  testWidgets('an artboard override wins over tight, like an inline style', (
+    tester,
+  ) async {
+    // 23 of the 28 artboards set `style="padding-block: …; gap: …"` on
+    // `.screen__body`, and nine of those use the token scale rather than raw
+    // pixels — `firstrun.vehicle` is `var(--space-1) var(--space-3)` with a
+    // `var(--space-3)` gap. The stylesheet's own 20/24/20 is used by five
+    // screens. So the override is not an exception, and CalmScaffold models the
+    // CSS cascade: the `--tight` class sets the gap, an inline style beats it.
+    await pumpApp(
+      tester,
+      CalmScaffold(
+        appBar: null,
+        tight: true,
+        bodyGap: calmSpace.s3,
+        bodyPadBlock: (top: calmSpace.s1, bottom: calmSpace.s3),
+        footPadBlock: (top: calmSpace.s3, bottom: calmSpace.s4),
+        footer: const Text('foot'),
+        children: const [Text('one'), Text('two')],
+      ),
+    );
+
+    final one = tester.getRect(find.text('one'));
+    final two = tester.getRect(find.text('two'));
+    final screen = tester.getRect(find.byType(CalmScaffold));
+    final foot = tester.getRect(find.text('foot'));
+
+    // The inline gap wins over `tight`'s s4.
+    expect(two.top - one.bottom, closeTo(calmSpace.s3, 0.01));
+    // And the body starts at s1, not the stylesheet's s5.
+    expect(one.top - screen.top, closeTo(calmSpace.s1, 0.01));
+    // The foot's own padding-block, above the text and below it.
+    expect(foot.top - one.bottom, greaterThan(0));
+    expect(screen.bottom - foot.bottom, closeTo(calmSpace.s4, 0.01));
+  });
+
+  testWidgets('brand paints the wash, and without it the ground is flat', (
+    tester,
+  ) async {
+    // `.screen--brand` is
+    // `radial-gradient(120% 70% at 50% 0%, brand-soft 0%, transparent 70%)`
+    // over `--color-bg`, on `firstrun.language` and `settings.about`. Asserted
+    // on the gradient rather than a screenshot because a flat `brandSoft`
+    // ground would also look "warm at the top" in a heatmap and is a different
+    // screen.
+    for (final brand in [true, false]) {
+      await pumpApp(
+        tester,
+        CalmScaffold(
+          appBar: null,
+          brand: brand,
+          children: const [Text('body')],
+        ),
+      );
+
+      final washes = tester
+          .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+          .map((d) => d.decoration)
+          .whereType<BoxDecoration>()
+          .map((d) => d.gradient)
+          .whereType<RadialGradient>()
+          .where((g) => g.center == Alignment.topCenter)
+          .toList();
+
+      if (!brand) {
+        expect(washes, isEmpty, reason: 'no wash without brand: true');
+        continue;
+      }
+
+      expect(washes, hasLength(1));
+      final wash = washes.single;
+      // Starts at brand-soft and fades to NOTHING — a transparent brand-soft,
+      // not a transparent black. Lerping to Colors.transparent walks the RGB
+      // through grey and greys the middle of the wash.
+      expect(wash.colors.first, calmColorsLight.brandSoft);
+      expect(wash.colors.last, calmColorsLight.brandSoft.withAlpha(0));
+      expect(wash.stops, [0.0, 0.7]); // 70%, per the CSS
+    }
+  });
+
+  testWidgets('a modal start action can be a glyph, and is still named', (
+    tester,
+  ) async {
+    // `vehicle.edit`'s close is an ✕, not the word Cancel — the artboard's
+    // `.modal-head__action--start` wraps an SVG with `aria-label="Close"`. The
+    // label stays REQUIRED and becomes the accessible name: a bare glyph with
+    // no name is the defect the required parameter was there to prevent, and
+    // what changes here is how it is drawn, not whether it is named.
+    await pumpApp(
+      tester,
+      CalmScaffold(
+        appBar: CalmAppBar.modal(
+          title: 'Vehicle',
+          startLabel: 'Close',
+          startIcon: Icons.close,
+          onStart: () {},
+          endLabel: 'Save',
+          onEnd: () {},
+        ),
+        children: const [Text('body')],
+      ),
+    );
+
+    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.text('Close'), findsNothing, reason: 'the glyph replaces it');
+    // Named all the same. Without this a screen reader announces "button" and
+    // the only way out of a full-screen modal is unlabelled.
+    expect(
+      tester.getSemantics(find.byIcon(Icons.close)).label,
+      'Close',
+    );
+
+    // The end action is still a word, and still primary.
+    expect(find.text('Save'), findsOneWidget);
+  });
+
+  testWidgets('a word start action is unchanged when no glyph is given', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      CalmScaffold(
+        appBar: CalmAppBar.modal(
+          title: 'Fill-up',
+          startLabel: 'Cancel',
+          onStart: () {},
+          endLabel: 'Save',
+          onEnd: () {},
+        ),
+        children: const [Text('body')],
+      ),
+    );
+    expect(find.text('Cancel'), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsNothing);
+  });
 }

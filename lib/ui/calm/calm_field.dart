@@ -62,6 +62,7 @@ class CalmField extends StatefulWidget {
     this.lead,
     this.size = CalmFieldSize.md,
     this.numeric = false,
+    this.code = false,
     this.computed = false,
     this.computedHint,
     this.enabled = true,
@@ -103,6 +104,17 @@ class CalmField extends StatefulWidget {
   /// Tabular lining figures, semibold — a column of readings that does not
   /// reflow as a digit changes.
   final bool numeric;
+
+  /// `.code` — forced LTR and start-aligned, whatever the screen's direction.
+  ///
+  /// SPEC.md §8: "Plate and VIN are forced LTR and start-aligned inside their
+  /// own fields even on an RTL screen." A VIN is a fixed seventeen characters
+  /// read left to right by every authority on earth, and a plate is stored
+  /// VERBATIM — an Iranian plate legitimately contains Persian digits AND a
+  /// Persian letter, and reordering it is rewriting somebody's own characters.
+  ///
+  /// The LABEL is unaffected: it is a word in the user's language, not a code.
+  final bool code;
 
   /// A value Odova worked out from two others.
   ///
@@ -219,7 +231,7 @@ class _CalmFieldState extends State<CalmField> {
     };
 
     final baseStyle = widget.size == CalmFieldSize.lg ? type.hero : type.bodyLg;
-    final textStyle = baseStyle.copyWith(
+    final plainStyle = baseStyle.copyWith(
       color: widget.enabled
           ? (widget.computed ? colors.ink2 : colors.ink)
           : colors.ink4,
@@ -234,12 +246,13 @@ class _CalmFieldState extends State<CalmField> {
       // than the type role's, and the difference is exactly what makes 56pt
       // land on 56 instead of 58.
       height: widget.size == CalmFieldSize.lg ? 1.1 : 1.4,
-      fontFeatures: widget.numeric
-          // Tabular lining figures so a column of readings aligns and a digit
-          // change does not reflow the string.
-          ? const [FontFeature.tabularFigures(), FontFeature.liningFigures()]
-          : null,
     );
+    // Tabular lining figures so a column of readings aligns and a digit change
+    // does not reflow the string — through `CalmType.tabular`, which owns
+    // `.num`'s two features for the whole system.
+    final textStyle = widget.numeric
+        ? CalmType.tabular(plainStyle)
+        : plainStyle;
 
     // `.inputgroup` reserves 76pt of end padding for the affix and 56pt of
     // start padding for the lead. The ring is painted INSIDE the box
@@ -272,26 +285,9 @@ class _CalmFieldState extends State<CalmField> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ExcludeSemantics(
-              child: Padding(
-                padding: EdgeInsetsDirectional.only(start: space.s1),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.label,
-                        style: type.label.copyWith(
-                          color: colors.ink2,
-                          fontWeight: type.semi,
-                        ),
-                      ),
-                    ),
-                    if (widget.computed) ...[
-                      SizedBox(width: space.s1),
-                      const _CalmComputedBadge(),
-                    ],
-                  ],
-                ),
+              child: CalmFieldLabel(
+                widget.label,
+                computed: widget.computed,
               ),
             ),
             SizedBox(height: space.s2),
@@ -335,6 +331,12 @@ class _CalmFieldState extends State<CalmField> {
                       minLines: widget.size == CalmFieldSize.multiline ? 4 : 1,
                       style: textStyle,
                       cursorColor: colors.brand,
+                      // `.code { direction: ltr; text-align: start }`. Left
+                      // rather than start, because `start` inside a forced-LTR
+                      // run resolves against the AMBIENT direction and would
+                      // push a plate to the right edge of a Persian form.
+                      textDirection: widget.code ? TextDirection.ltr : null,
+                      textAlign: widget.code ? TextAlign.left : TextAlign.start,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         isDense: true,
@@ -486,6 +488,54 @@ class _CalmFieldMessage extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// `.field__label` — the line above a control.
+///
+/// Public because two of `firstrun.vehicle`'s controls are not fields: the Fuel
+/// chipbar and the annual-band segmented both carry one. Feature code cannot
+/// draw it — `lib/features/` may not reach for a raw weight or colour — and a
+/// copy inside a screen would be a second place for the label style to be
+/// right. [CalmField] renders THIS widget rather than its own copy, so the two
+/// cannot drift.
+class CalmFieldLabel extends StatelessWidget {
+  /// Creates a label.
+  const CalmFieldLabel(this.label, {super.key, this.computed = false});
+
+  /// The text, already localised.
+  final String label;
+
+  /// Adds the `ƒ` badge — "Odova worked this one out".
+  final bool computed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
+    final type = CalmType.of(context);
+
+    return Padding(
+      padding: EdgeInsetsDirectional.only(start: space.s1),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              label,
+              style: type.label.copyWith(
+                color: colors.ink2,
+                fontWeight: type.semi,
+              ),
+            ),
+          ),
+          if (computed) ...[
+            SizedBox(width: space.s1),
+            const _CalmComputedBadge(),
+          ],
         ],
       ),
     );

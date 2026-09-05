@@ -315,6 +315,12 @@ abstract class AppLocalizations {
   /// **'Type {subject} to confirm'**
   String confirmDeleteTypeToConfirm(String subject);
 
+  /// Shown under the typed-confirmation field when what was typed does not match. SPEC.md §8 gives the wording: "That doesn't match The Golf." Without it the user who mistypes reads the instruction again and is never told they got it wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t match {subject}.'**
+  String confirmDeleteMismatch(String subject);
+
   /// The destructive action. Disabled until the typed name matches.
   ///
   /// In en, this message translates to:
@@ -374,6 +380,684 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get commonCancel;
+
+  /// Moves to the next step of first run. SPEC.md §8 gives the label in all six: Continue / Weiter / Continuer / ادامه / متابعة / بەردەوام بە. It is rendered in the language the user has just tapped, not the device's, so it wraps to two lines rather than shrinking — "Weiter" and "بەردەوام بە" are very different widths.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get commonContinue;
+
+  /// Opens the OS document picker on the way to settings.import. Offered on both first-run screens because the second-most-likely reason a stranger is on them is a new phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a backup'**
+  String get commonRestoreBackup;
+
+  /// The first row of the seven-row language list. The parenthesis names what `system` resolves to RIGHT NOW and updates live, so a de-DE device reads "System (Deutsch)". SPEC.md §5 Override.
+  ///
+  /// In en, this message translates to:
+  /// **'System ({language})'**
+  String settingsLanguageSystem(String language);
+
+  /// Sits under the language list when the device language is none of the six. SPEC.md §5 and §8. It deliberately takes NO placeholder — EPIC-09 F-9.8: nothing in the dependency set supplies a language's own name for an arbitrary tag, and a hand-written endonym table would put a misspelling of somebody's own language, in their own script, on the app's first screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova isn’t translated into your device’s language yet. Numbers, dates, units and money will still follow your region.'**
+  String get settingsLanguageNotTranslated;
+
+  /// One line under the wordmark on firstrun.language. It is in the artboard rather than in SPEC's prose, and CLAUDE.md §7 makes the reference the authority for what the screen says.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the one you read best.'**
+  String get firstRunLanguageTagline;
+
+  /// The caption between Continue and Restore a backup on firstrun.language. SPEC.md §8's wording wins over §14's — EPIC-09 F-9.3.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving from another phone?'**
+  String get firstRunRestorePrompt;
+
+  /// App bar title on `firstrun.vehicle`, the second and last screen of first run.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vehicle'**
+  String get firstRunVehicleTitle;
+
+  /// App bar subtitle. It promises how short the setup is, which is the screen's whole job — SPEC.md §8: one vehicle and one odometer reading in under thirty seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'One vehicle and one number. That is the whole setup.'**
+  String get firstRunVehicleSubtitle;
+
+  /// Vehicle type tile. The stored value is `car`; this is only the label. EPIC-09 F-9.11: three tiles, because §4.8's seeded set has three distinct outcomes and `truck` and `other` both take the car set.
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get vehicleTypeCar;
+
+  /// Vehicle type tile. The STORED value is `motorcycle` even though the English label is "Motorbike" — a UI label must never leak into the wire value.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorbike'**
+  String get vehicleTypeMotorcycle;
+
+  /// Vehicle type tile. A small COMMERCIAL van — the plumber's Transit, not a people carrier. German must not borrow "Van", which means an MPV there.
+  ///
+  /// In en, this message translates to:
+  /// **'Van'**
+  String get vehicleTypeVan;
+
+  /// Field label above the vehicle name input.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get vehicleNameLabel;
+
+  /// Prefilled vehicle name when the type is car. Pre-selected, so the first keystroke replaces it — SPEC.md §8.
+  ///
+  /// In en, this message translates to:
+  /// **'My car'**
+  String get vehicleNameDefaultCar;
+
+  /// Prefilled vehicle name when the type is motorbike. Follows the type tile.
+  ///
+  /// In en, this message translates to:
+  /// **'My motorbike'**
+  String get vehicleNameDefaultMotorcycle;
+
+  /// Prefilled vehicle name when the type is van. Follows the type tile.
+  ///
+  /// In en, this message translates to:
+  /// **'My van'**
+  String get vehicleNameDefaultVan;
+
+  /// Field label above the fuel chips. It covers electric too, which the English word strictly does not; the translations follow the English rather than repairing it.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get vehicleFuelLabel;
+
+  /// Fuel kind chip. Gasoline.
+  ///
+  /// In en, this message translates to:
+  /// **'Petrol'**
+  String get fuelPetrol;
+
+  /// Fuel kind chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Diesel'**
+  String get fuelDiesel;
+
+  /// Fuel kind chip. A battery electric vehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Electric'**
+  String get fuelElectric;
+
+  /// Fuel kind, in the More… sheet. Liquefied petroleum gas / autogas.
+  ///
+  /// In en, this message translates to:
+  /// **'LPG'**
+  String get fuelLpg;
+
+  /// Fuel kind, in the More… sheet. Compressed natural gas.
+  ///
+  /// In en, this message translates to:
+  /// **'CNG'**
+  String get fuelCng;
+
+  /// Fuel kind, in the More… sheet. Petrol-electric hybrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Hybrid'**
+  String get fuelHybrid;
+
+  /// Fuel kind, in the More… sheet. Anything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get fuelOther;
+
+  /// Opens a sheet with the remaining options. The ellipsis is ONE character, U+2026 — three full stops are three characters a screen reader reads out.
+  ///
+  /// In en, this message translates to:
+  /// **'More…'**
+  String get commonMore;
+
+  /// Field label above the odometer input. "Now" means the reading as of today, which is what makes this an observation rather than a vehicle fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer now'**
+  String get odometerNowLabel;
+
+  /// Hint under the odometer field. It is ALWAYS visible, and it is what stands in for the explanation a disabled button would otherwise owe the user — EPIC-09 F-9.10.
+  ///
+  /// In en, this message translates to:
+  /// **'Read it off the dash.'**
+  String get odometerFirstRunHint;
+
+  /// Inline error when Start is pressed with an empty odometer.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the number on your dash.'**
+  String get odometerEmptyError;
+
+  /// Inline error when the odometer cannot be parsed at all.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t look like a number. Digits only.'**
+  String get odometerNotANumberError;
+
+  /// A WARNING and never a block, shown above 3,000,000 km. SPEC.md §8 pairs it with "Use it anyway": the app doubts the number, it does not refuse it.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s higher than any car has driven. Check the number.'**
+  String get odometerImplausibleWarning;
+
+  /// Dismisses a warning and accepts the value exactly as typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it anyway'**
+  String get commonUseItAnyway;
+
+  /// Label above the four annual-distance bands, kilometre version. The unit lives in the LABEL so the chips carry none — EPIC-09 F-9.12, which is why they need no truncation budget in German.
+  ///
+  /// In en, this message translates to:
+  /// **'About how far a year? (thousand km)'**
+  String get annualBandLabelKm;
+
+  /// The same label for a miles vehicle. The bands are defined per unit system and are not converted (SPEC.md §4.8).
+  ///
+  /// In en, this message translates to:
+  /// **'About how far a year? (thousand miles)'**
+  String get annualBandLabelMi;
+
+  /// The lowest annual band. {max} is a number the app has already formatted in the active numbering system — never write a digit into this string, and never add a unit.
+  ///
+  /// In en, this message translates to:
+  /// **'under {max}'**
+  String annualBandUnder(String max);
+
+  /// A middle annual band. The separator is U+2013 EN DASH, not a hyphen and not an em dash. Both values arrive already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{min}–{max}'**
+  String annualBandRange(String min, String max);
+
+  /// The highest annual band, which is open-ended.
+  ///
+  /// In en, this message translates to:
+  /// **'over {min}'**
+  String annualBandOver(String min);
+
+  /// The primary button that finishes first-run setup and opens the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get commonStart;
+
+  /// Quiet button under Start, opening the OS document picker. Deliberately SHORTER than `firstrun.language`'s two-line offer: by this screen the user has already declined it once. Odova is the app name.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an Odova backup'**
+  String get firstRunHaveBackup;
+
+  /// Shown when the create transaction fails. SPEC.md §8: a disk write is the only thing that can fail on this screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Your phone may be out of space.'**
+  String get saveDiskFullError;
+
+  /// Tries the failed save again.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get commonRetry;
+
+  /// Modal title on the screen that edits every fact about one vehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get vehicleEditTitle;
+
+  /// Accessible name for the ✕ that dismisses a full-screen modal. NEVER drawn as text — a screen reader speaks it, which is why the label is required even when a glyph replaces it.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
+  /// The modal end action that commits the form.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get commonSave;
+
+  /// Vehicle type. Not a car, van or motorbike. `truck` has no segment — EPIC-09 F-9.21, raised rather than closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get vehicleTypeOther;
+
+  /// Field label. The manufacturer.
+  ///
+  /// In en, this message translates to:
+  /// **'Make'**
+  String get vehicleMakeLabel;
+
+  /// Field label. The model name.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get vehicleModelLabel;
+
+  /// Field label. Model year. German uses Baujahr, which is strictly build year — the everyday word, and what every German car form asks for.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get vehicleYearLabel;
+
+  /// Field label. The registration plate, stored VERBATIM — never digit-shaped, never uppercased, and forced LTR in its own field even on an RTL screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate'**
+  String get vehiclePlateLabel;
+
+  /// Field label. Vehicle identification number. German ships FIN, its own established abbreviation and the one printed on a German registration document; the other five keep VIN.
+  ///
+  /// In en, this message translates to:
+  /// **'VIN'**
+  String get vehicleVinLabel;
+
+  /// Field label above a scrolling row of paint swatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get vehicleColourLabel;
+
+  /// Field label. Free multiline text, taking direction from its content.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get vehicleNotesLabel;
+
+  /// Switch label. Turning it on splits this vehicle into the business side of the cost report.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you drive this for work?'**
+  String get vehicleBusinessLabel;
+
+  /// Switch label. Stops notifications for this vehicle only.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute reminders for this vehicle'**
+  String get vehicleMuteLabel;
+
+  /// A READ-ONLY row showing the latest reading; tapping it opens log.odometer. SPEC.md §8: a facts form is the wrong place to write a dated reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get vehicleOdometerRow;
+
+  /// The odometer row's sub-line on `vehicle.edit`: how old the reading is. It used to end '· tap to update', which promised a tap the row does not have — EPIC-11 owns `log.odometer`, and until it exists the row is inert. EPIC-11 puts the invitation back when the destination does. SPEC.md §8's rule for the disclosure groups is the same rule: a control that lies is worse than one that is absent.
+  ///
+  /// In en, this message translates to:
+  /// **'entered {age}'**
+  String vehicleOdometerRowHint(String age);
+
+  /// Opens the sale form. Offered before Delete because it is what people usually mean.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as sold'**
+  String get vehicleMarkAsSold;
+
+  /// SPEC.md §8 quotes this button verbatim in `dialog.confirmDelete`: `[ Keep it — mark it sold ]`. Deliberately NOT `vehicleMarkAsSold`, which is the row and the sheet's own title: the 'Keep it —' half is the reassurance, and §8 offers the sale before Delete because 'I sold the car' is what people mean most of the time they reach for Delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it — mark it sold'**
+  String get vehicleKeepItMarkSold;
+
+  /// A destructive ROW, not a dialog title — it takes NO question mark, because a row does not ask. Deliberately NOT `confirmDeleteTitle`, which always ends in one.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name} and its {countText} entries'**
+  String vehicleDeleteRow(String name, String countText);
+
+  /// The same row when the vehicle has no entries at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}'**
+  String vehicleDeleteRowEmpty(String name);
+
+  /// A disclosure group, collapsed by default, holding purchase date, purchase odometer, purchase price and the sale fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase and sale'**
+  String get vehiclePurchaseGroup;
+
+  /// A disclosure group, collapsed by default, holding the six per-vehicle overrides.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle\'s units & currency'**
+  String get vehicleUnitsGroup;
+
+  /// The option that writes NULL and lets the app-wide setting decide. Null is not "a value that matches the global" — it is an instruction to keep following it.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get commonAutomatic;
+
+  /// Field label. When the user bought the vehicle. Never later than today.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase date'**
+  String get vehiclePurchaseDate;
+
+  /// Field label. What they paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase price'**
+  String get vehiclePurchasePrice;
+
+  /// Field label. The reading when they bought it. A vehicle FACT and not an observation — it emits no odometer reading, because the series records what was seen on a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer at purchase'**
+  String get vehiclePurchaseOdometer;
+
+  /// Field label in the sale form. The date it was sold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold on'**
+  String get vehicleSoldOn;
+
+  /// Field label in the sale form. What it sold for.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold price'**
+  String get vehicleSoldPrice;
+
+  /// Inline error under the year field. Both values are already-formatted numbers. The upper bound is next year, because next year's models are on sale this year.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a year between {min} and {max}.'**
+  String vehicleYearRangeError(String min, String max);
+
+  /// A NOTE and not an error: the field still saves. Some pre-1981 and non-road vehicles have shorter numbers, and refusing theirs would mean refusing the vehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'A VIN is usually {countText} characters.'**
+  String vehicleVinLengthNote(String countText);
+
+  /// A NOTE and not an error: duplicates are allowed. Two vans with the same name is the user's business. No full stop, matching a label rather than a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a vehicle called {name}'**
+  String vehicleDuplicateNameNote(String name);
+
+  /// A PERMANENT line under the per-vehicle currency override. It promises that changing it rewrites no history — money already stored keeps the currency it was stored in.
+  ///
+  /// In en, this message translates to:
+  /// **'Only new entries use this. Nothing already saved changes.'**
+  String get vehicleCurrencyChangeNote;
+
+  /// Shown once when the fuel kind changes. It promises that petrol becoming diesel deletes and rewrites no reminder row, which would be deleting somebody’s history.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders keep the intervals they already have.'**
+  String get vehicleFuelChangeNote;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get colourWhite;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver'**
+  String get colourSilver;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get colourGrey;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get colourBlack;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get colourRed;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get colourBlue;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get colourGreen;
+
+  /// Vehicle paint colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow'**
+  String get colourYellow;
+
+  /// Not one of the eight paints. Drawn as an OUTLINED swatch with no fill — EPIC-09 F-9.18, which refused to invent a ninth hex.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get colourOther;
+
+  /// How long ago something was recorded. A PAST phrase, and deliberately not `dateDaysOverdue`, which is about a missed due date. German capitalises it, because `vehicleOdometerRowHint` places it first: "Vor 3 Tagen erfasst".
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} day ago} other{{nText} days ago}}'**
+  String dateDaysAgo(int n, String nText);
+
+  /// How long ago, in weeks, for a span of 14 to 55 days. SPEC.md §5: a rounded answer rather than a day count. German capitalises it because vehicleOdometerRowHint places it first.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{about {nText} week ago} other{about {nText} weeks ago}}'**
+  String dateAboutWeeksAgo(int n, String nText);
+
+  /// How long ago, in months, for a span of 56 days or more. SPEC.md §8: "Odometer last updated 4 months ago".
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{about {nText} month ago} other{about {nText} months ago}}'**
+  String dateAboutMonthsAgo(int n, String nText);
+
+  /// App bar title of the garage: the screen that lists, reorders, sells and deletes vehicles. Management only — NOT where the active vehicle is switched.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles'**
+  String get vehiclesTitle;
+
+  /// A caption at the top of the garage. It exists to stop people looking for the car switcher here; it lives on the Home title instead. German drops "garage", where the word means the building.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage the garage here. Switching cars happens from the Home title.'**
+  String get vehiclesIntro;
+
+  /// A caption at the foot of the garage, teaching two gestures. Hidden when there is only one vehicle, because neither gesture applies.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold a row to reorder. Swipe for sell and delete.'**
+  String get vehiclesReorderHint;
+
+  /// A collapsed group header at the bottom of the garage, holding vehicles the user no longer drives.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold and archived'**
+  String get vehiclesSoldArchived;
+
+  /// The third line of a garage row when nothing is due. Calm and final — a fact stated, never congratulation offered.
+  ///
+  /// In en, this message translates to:
+  /// **'All good'**
+  String get vehicleStatusAllGood;
+
+  /// The third line when the vehicle has no tracked reminders at all. A statement, not a prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet'**
+  String get vehicleStatusNoReminders;
+
+  /// The third line when the last reading is too old to project from. It names the action without commanding it.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer needs updating'**
+  String get vehicleStatusNeedsOdometer;
+
+  /// The third line when the due engine failed. The row never disappears — SPEC.md §2: the app admits it does not know rather than guessing. An admission, never an apology.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t work out what\'s due'**
+  String get vehicleStatusUnknown;
+
+  /// The status half of the garage row's third line when the last reading is over 60 days old. SPEC.md §8. {age} is a bucketed phrase from relative_past.dart — "4 months ago", never a day count.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer last updated {age}'**
+  String vehicleOdometerStale(String age);
+
+  /// The status half of the garage row's third line past the 180-day projection lifetime, when the figure shown is the ENTERED one and carries no ~. SPEC.md §8: "187,412 km · last entered 12 Jul 2025".
+  ///
+  /// In en, this message translates to:
+  /// **'last entered {date}'**
+  String vehicleOdometerLastEntered(String date);
+
+  /// The third line naming the worst item. {item} is an already-localised service name like "Oil and filter".
+  ///
+  /// In en, this message translates to:
+  /// **'{item} overdue'**
+  String vehicleStatusOverdue(String item);
+
+  /// The garage's third line for an item that is DUE with no day count. A distance-only reminder has no remainingDays, and vehicleStatusDueInDays cannot render without one — SPEC.md §2 forbids inventing the number, and falling through to vehicleStatusOverdue makes a louder claim than the engine did.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} due'**
+  String vehicleStatusDue(String item);
+
+  /// The {item} in vehicleStatusOverdue and vehicleStatusDueInDays when the app cannot name the item. A catalogue ServiceItem's label comes from the 28 kind strings EPIC-10 owns, and until they exist the garage would otherwise pair a red dot with "Couldn't work out what's due" — two contradictory statements. This is a generic noun, not a guess: something tracked really is overdue, and only its name is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get vehicleStatusItemGeneric;
+
+  /// Added to the delete confirmation when the garage holds one vehicle. It warns without forbidding — the user may still delete it.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your only vehicle. Deleting it starts Odova over.'**
+  String get vehiclesOnlyOneWarning;
+
+  /// A snackbar action after adding a vehicle from the garage. The new vehicle is NOT made active automatically; this offers it.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to it'**
+  String get vehicleSwitchToIt;
+
+  /// Title of `vehicle.edit` in CREATE mode, where there is no vehicle name to title it with. Deliberately its own key rather than `switcherAddVehicle`: that one is a button in a sheet, and a translator may want a different register for a modal's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add vehicle'**
+  String get vehicleAddTitle;
+
+  /// The snackbar after adding a vehicle from the garage. Paired with the `vehicleSwitchToIt` action, because SPEC.md §8 says the new vehicle does NOT become active — it is offered.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added'**
+  String vehicleAddedSnack(String name);
+
+  /// Title of the sheet that changes which vehicle the app is showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch vehicle'**
+  String get switcherTitle;
+
+  /// A subtitle under the switcher title, counting the LIVE vehicles — sold and archived ones are not in it.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} vehicle} other{{nText} vehicles}}'**
+  String switcherCount(int n, String nText);
+
+  /// A footer action in the switcher sheet. Opens the vehicle form over the sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add vehicle'**
+  String get switcherAddVehicle;
+
+  /// A footer action in the switcher sheet. Dismisses and opens the garage. SPEC.md §8 names the German wording for this one itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage vehicles'**
+  String get switcherManageVehicles;
+
+  /// A small badge on a vehicle driven for work. One word, on a chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get vehicleBusinessBadge;
+
+  /// Accessible name for the back chevron in an app bar. Never drawn as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get commonBack;
+
+  /// Accessible name for a + in an app bar. Never drawn as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get commonAdd;
+
+  /// A destructive action label. Deliberately the same word as `confirmDeleteDelete`, so a row and the dialog it opens cannot disagree.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// The snackbar action. SPEC.md §10: confirmation is a snackbar with Undo, never a dialog. French uses Annuler for both Cancel and Undo — they are different actions in English and the same word here, which is correct and worth knowing before somebody 'fixes' it.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get commonUndo;
+
+  /// The snackbar after a vehicle delete. SPEC.md §8 gives it a 10-second Undo rather than the usual 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {name}'**
+  String vehicleDeletedSnack(String name);
+
+  /// The snackbar after Mark as sold. No Undo: the sale is one row and the form that wrote it is one tap away, unlike a delete that takes five tables with it.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} marked as sold'**
+  String vehicleSoldSnack(String name);
+
+  /// The second line of a sold vehicle in the garage. {date} is an already-formatted ABSOLUTE date — a relative one would read "Sold Today". Written WITHOUT a plural first, which rendered "1 entries"; two translators caught it independently before any test did. SPEC.md §8 requires an explicit =0 case, and every locale carries one EXCEPT Arabic: CLDR's Arabic `zero` category is n = 0, so an =0 clause shadows it and the language renders five forms where it has six. Arabic already owns the slot, so the date-only sentence lives in `zero` there. `plurals_test.dart` caught this; it is not a thing a reviewer would see.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{Sold {date}} one{Sold {date} · {countText} entry} other{Sold {date} · {countText} entries}}'**
+  String vehicleSoldSummary(int n, String date, String countText);
+
+  /// The third line of a garage row when the worst reminder is due soon. {item} is an already-localised service name. Arabic's `one` and `two` branches carry NO {countText}, because Arabic encodes 1 and 2 in the noun itself — printing the numeral there would be the same defect as "1 entries", in Arabic.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{item} due in {countText} day} other{{item} due in {countText} days}}'**
+  String vehicleStatusDueInDays(int n, String item, String countText);
 }
 
 class _AppLocalizationsDelegate

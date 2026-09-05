@@ -13,7 +13,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:odova/core/l10n/bidi.dart';
-import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/l10n/folded_name.dart';
+import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_button.dart';
@@ -38,25 +39,6 @@ enum ConfirmDeleteChoice {
   cancel,
 }
 
-/// The five per-type counts SPEC.md §8's dialog names.
-///
-/// A record rather than five parameters, so no caller can pass a total that
-/// disagrees with its own breakdown — the total is computed by
-/// [DeleteCountsTotal.total] and cannot be supplied.
-typedef DeleteCounts = ({
-  int fillUps,
-  int services,
-  int costs,
-  int trips,
-  int reminders,
-});
-
-/// Everything that would be deleted.
-extension DeleteCountsTotal on DeleteCounts {
-  /// The number in the title.
-  int get total => fillUps + services + costs + trips + reminders;
-}
-
 /// Asks whether to delete [subject] and everything attached to it.
 ///
 /// [safeAlternativeLabel] is offered ABOVE Delete when the caller has one —
@@ -74,6 +56,7 @@ Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
   required DeleteCounts counts,
   required String Function(int) formatCount,
   String? safeAlternativeLabel,
+  String? note,
 }) async {
   final choice = await CalmDialog.show<ConfirmDeleteChoice>(
     context,
@@ -82,6 +65,7 @@ Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
       counts: counts,
       formatCount: formatCount,
       safeAlternativeLabel: safeAlternativeLabel,
+      note: note,
       onChoice: (choice) => Navigator.of(context).pop(choice),
     ),
   );
@@ -102,6 +86,7 @@ class ConfirmDeleteDialogBody extends StatefulWidget {
     required this.onChoice,
     super.key,
     this.safeAlternativeLabel,
+    this.note,
   });
 
   /// What is being deleted.
@@ -121,6 +106,16 @@ class ConfirmDeleteDialogBody extends StatefulWidget {
   /// The safe alternative's label, or null when the caller has none.
   final String? safeAlternativeLabel;
 
+  /// One more sentence under the counts, or null.
+  ///
+  /// SPEC.md §8's only-vehicle case — "its dialog carries the extra line 'This
+  /// is your only vehicle. Deleting it starts Odova over.'" It is joined to the
+  /// body with a blank line, and that is NOT §2's forbidden sentence-building:
+  /// this is two complete sentences in one block, each translated as a unit and
+  /// each free to be rewritten whole. Assembling ONE sentence from fragments is
+  /// what §2 refuses, because no translator can reorder it.
+  final String? note;
+
   /// Reports the decision. `showConfirmDeleteDialog` pops the route with it.
   final ValueChanged<ConfirmDeleteChoice> onChoice;
 
@@ -134,39 +129,32 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
 
   /// The subject, normalised and isolated.
   ///
+  /// Through `foldedName`, which is where "the same name" is decided — once,
+  /// for this gate and for `vehicle.edit`'s duplicate-name note, because two
+  /// spellings of the comparison make "Golf ۲۰۱۹" one vehicle to one of them
+  /// and two to the other.
+  ///
   /// Cached because `onChanged` rebuilds on every keystroke, and RECOMPUTED in
   /// [didUpdateWidget] because this is a public widget whose `subject` a
   /// composed caller can change while it is mounted — the version that computed
   /// them once left the field's label naming the old car while the title named
   /// the new one, and unlocked Delete on the wrong name.
-  late String _normalisedSubject = _normalise(widget.subject);
+  late String _foldedSubject = foldedName(widget.subject);
   late String _isolatedSubject = isolate(widget.subject);
 
   @override
   void didUpdateWidget(ConfirmDeleteDialogBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.subject == widget.subject) return;
-    _normalisedSubject = _normalise(widget.subject);
+    _foldedSubject = foldedName(widget.subject);
     _isolatedSubject = isolate(widget.subject);
   }
-
-  /// What a name has to match, from either side.
-  ///
-  /// Digits folded, so a Persian-keyboard user typing "Golf ۲۰۱۹" is not locked
-  /// out of deleting their own car by a numbering system they did not choose.
-  /// And bidi controls STRIPPED: `stripBidi` is what `lib/core/l10n/bidi.dart`
-  /// says goes into anything compared, and this is a comparison. A name that
-  /// arrived from an import carrying an invisible U+200F is a name no soft
-  /// keyboard can reproduce — Delete would be permanently disabled and the
-  /// vehicle permanently undeletable, with no other route to removing it.
-  static String _normalise(String text) =>
-      foldDigitsToAscii(stripBidi(text)).trim();
 
   /// Whether the typed confirmation is required at all.
   ///
   /// SPEC.md §8: only when there is something to lose. A one-tap Delete on an
   /// empty vehicle is not carelessness, it is the absence of a hostage.
-  bool get _needsTyping => widget.counts.total > 0;
+  bool get _needsTyping => widget.counts.entries > 0;
 
   @override
   void dispose() {
@@ -183,8 +171,29 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
   /// tap then destroyed 412 entries behind a confirmation that had confirmed
   /// nothing.
   bool get _matches =>
-      _normalisedSubject.isNotEmpty &&
-      _normalise(_typed.text) == _normalisedSubject;
+      _foldedSubject.isNotEmpty && foldedName(_typed.text) == _foldedSubject;
+
+  /// The five counts, and the caller's extra line under them.
+  String _body(
+    AppLocalizations l10n,
+    DeleteCounts counts,
+    String Function(int) format,
+  ) {
+    final sentence = l10n.confirmDeleteBody(
+      counts.fillUps,
+      format(counts.fillUps),
+      counts.services,
+      format(counts.services),
+      counts.costs,
+      format(counts.costs),
+      counts.trips,
+      format(counts.trips),
+      counts.reminders,
+      format(counts.reminders),
+    );
+    final note = widget.note;
+    return note == null ? sentence : '$sentence\n\n$note';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -206,21 +215,10 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
       // ours.
       title: l10n.confirmDeleteTitle(
         _isolatedSubject,
-        counts.total,
-        format(counts.total),
+        counts.entries,
+        format(counts.entries),
       ),
-      body: l10n.confirmDeleteBody(
-        counts.fillUps,
-        format(counts.fillUps),
-        counts.services,
-        format(counts.services),
-        counts.costs,
-        format(counts.costs),
-        counts.trips,
-        format(counts.trips),
-        counts.reminders,
-        format(counts.reminders),
-      ),
+      body: _body(l10n, counts, format),
       actions: [
         // The safe alternative first, where there is one. The reference orders
         // it that way and §7's "no dialog is ever dismissed into a destructive
@@ -249,6 +247,14 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
               label: l10n.confirmDeleteTypeToConfirm(_isolatedSubject),
               controller: _typed,
               placeholder: widget.subject,
+              // Only once something has been typed. §8 gives the wording —
+              // "That doesn't match The Golf." — and an empty field has not
+              // failed to match anything yet; a form that says you got it
+              // wrong before you have typed is a form that is angry at you for
+              // arriving.
+              errorText: _typed.text.isEmpty || _matches
+                  ? null
+                  : l10n.confirmDeleteMismatch(_isolatedSubject),
               onChanged: (_) => setState(() {}),
             ),
           ),

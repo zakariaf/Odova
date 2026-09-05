@@ -1,0 +1,79 @@
+// Reading a typed amount into minor units, with no double on the path.
+//
+// `NumericInputOk.canonical` is already the ASCII form — an optional `-`,
+// digits, at most one `.` — so the conversion is string arithmetic, and string
+// arithmetic is the only kind that is exact.
+//
+// The alternative shipped first and looked harmless: `double.parse(canonical) *
+// currency.minorPerMajor`, rounded once. 8,500.005 is 850,000.5 minor units
+// and rounds to 850001; as a binary double it is 850000.49999999994 and rounds
+// DOWN. So does every amount ending .005, .025, .045, .065 and .085 — the app
+// quietly taking half a cent off a number the user typed exactly.
+//
+// SPEC.md §2: storage is canonical, in minor units. `value-objects-money-and-
+// units` says the same thing as a rule: money never travels through a double.
+//
+// Pure Dart, no Flutter import.
+import 'package:odova/core/money/currency.dart';
+
+/// [canonical] as a whole number of [currency]'s minor units, or null.
+///
+/// [canonical] is `NumericInputOk.canonical` — ASCII, an optional leading `-`,
+/// digits and at most one `.`. Anything else returns null rather than a
+/// plausible wrong number: an amount the app cannot read exactly is an amount
+/// it refuses, the same way `normalizeNumericInput` refuses an ambiguous one.
+///
+/// More decimals than the currency has are rounded HALF AWAY FROM ZERO on the
+/// digit after the last one that fits: `8500.005` in EUR is `850001`, and
+/// `-8500.005` is `-850001`. Fewer are padded. A currency with no minor unit
+/// at all — JPY, IRR — takes the integer part, rounded the same way.
+int? minorUnitsFrom(String canonical, Currency currency) {
+  final negative = canonical.startsWith('-');
+  final digits = negative ? canonical.substring(1) : canonical;
+  if (digits.isEmpty) return null;
+
+  final point = digits.indexOf('.');
+  final whole = point == -1 ? digits : digits.substring(0, point);
+  final fraction = point == -1 ? '' : digits.substring(point + 1);
+  // Nothing but digits either side, which also settles the second `.`: it is
+  // code unit 0x2E, below `'0'`, so `_isDigits` rejects it. `int.parse` would
+  // accept `+5` and ` 5`, and `canonical` is documented to contain neither —
+  // but this function is public and its callers will not all be this file.
+  if (!_isDigits(whole) || !_isDigits(fraction)) return null;
+
+  final exponent = currency.exponent;
+  // Padded to one MORE digit than fits, because that extra digit is the one
+  // the rounding decision reads.
+  final padded = fraction.padRight(exponent + 1, '0');
+  final kept = padded.substring(0, exponent);
+  final decider = padded.codeUnitAt(exponent) - _zero;
+
+  final magnitude = int.tryParse('${whole.isEmpty ? '0' : whole}$kept');
+  // And the ROUNDING has to fit too. `int.tryParse` refuses anything past the
+  // 64-bit range, but a value sitting exactly on the maximum wraps to the
+  // minimum when the half-up adds one — a negative amount for a positive
+  // number, which the only caller today happens to reject and the next one
+  // might not.
+  if (magnitude == null) return null;
+  if (decider < 5) return negative ? -magnitude : magnitude;
+  // Only the ROUNDING can overflow, and only from the maximum: `int.tryParse`
+  // has already refused anything past the 64-bit range, but a magnitude
+  // sitting exactly on it wraps to the minimum when the half-up adds one — a
+  // large negative amount for a large positive number.
+  if (magnitude == _maxInt) return null;
+  final rounded = magnitude + 1;
+  return negative ? -rounded : rounded;
+}
+
+const int _zero = 0x30;
+
+/// One past the largest magnitude the rounding step can add to.
+const int _maxInt = 9223372036854775807;
+
+bool _isDigits(String text) {
+  for (var i = 0; i < text.length; i++) {
+    final unit = text.codeUnitAt(i);
+    if (unit < _zero || unit > _zero + 9) return false;
+  }
+  return true;
+}

@@ -38,6 +38,7 @@ Future<void> insertVehicle(
   String status = 'active',
   String fuelKind = 'diesel',
   int? tankCapacityMl,
+  int sortOrder = 0,
   int createdAtUtcMs = 1000,
   int? updatedAtUtcMs,
 }) => _write(
@@ -47,7 +48,7 @@ Future<void> insertVehicle(
       id, name, vehicle_type, is_business, fuel_kind_default, status,
       sort_order, notifications_muted, tank_capacity_ml,
       created_at_utc_ms, updated_at_utc_ms
-    ) VALUES (?, ?, ?, 0, ?, ?, 0, 0, ?, ?, ?);
+    ) VALUES (?, ?, ?, 0, ?, ?, ?, 0, ?, ?, ?);
   ''',
   [
     id,
@@ -55,6 +56,7 @@ Future<void> insertVehicle(
     vehicleType,
     fuelKind,
     status,
+    sortOrder,
     tankCapacityMl,
     createdAtUtcMs,
     updatedAtUtcMs ?? createdAtUtcMs,
@@ -202,6 +204,7 @@ Future<void> insertFillUp(
   int totalCostMinor = 7845,
   String currency = 'EUR',
   String? tripId,
+  int? deletedAtUtcMs,
 }) => _write(
   db,
   '''
@@ -209,9 +212,9 @@ Future<void> insertFillUp(
       id, vehicle_id, occurred_on, odometer_m, odometer_unit, fuel_kind,
       quantity_ml, quantity_g, energy_wh, quantity_unit, total_cost_minor,
       currency, is_full_tank, chain_broken, trip_id,
-      created_at_utc_ms, updated_at_utc_ms
+      created_at_utc_ms, updated_at_utc_ms, deleted_at_utc_ms
     ) VALUES (?, ?, ?, 186512000, 'km', ?, ?, ?, ?, 'l', ?, ?, 1, 0, ?,
-              1000, 1000);
+              1000, 1000, ?);
   ''',
   [
     id,
@@ -224,8 +227,30 @@ Future<void> insertFillUp(
     totalCostMinor,
     currency,
     tripId,
+    deletedAtUtcMs,
   ],
   {db.fillUps},
+);
+
+/// Inserts an odometer reading.
+Future<void> insertReading(
+  AppDatabase db, {
+  String id = 'odo_01K1C4V2H9B8N3Q7ZE5RY6TMWY',
+  String vehicleId = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+  String occurredOn = '2026-09-03',
+  int odometerM = 187412000,
+  String odometerUnit = 'km',
+  String source = 'manual',
+}) => _write(
+  db,
+  '''
+    INSERT INTO odometer_readings (
+      id, vehicle_id, occurred_on, odometer_m, odometer_unit, source,
+      created_at_utc_ms, updated_at_utc_ms
+    ) VALUES (?, ?, ?, ?, ?, ?, 1000, 1000);
+  ''',
+  [id, vehicleId, occurredOn, odometerM, odometerUnit, source],
+  {db.odometerReadings},
 );
 
 /// Inserts an expense.

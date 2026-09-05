@@ -1,6 +1,7 @@
 import 'package:clock/clock.dart';
 // Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:odova/app/error_handlers.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
@@ -29,8 +30,23 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
   // this costs nothing on the cold-launch path SPEC.md §17 budgets at 2.0s.
   registerFontLicences();
 
+  // ICU's date symbols, which are NOT compiled in the way its number symbols
+  // are. `DateFormat.yMMMMd('de')` throws `LocaleDataException` until this has
+  // run, and it runs once for the process — so it belongs on the cold-launch
+  // path rather than behind the first screen that formats a date, where the
+  // throw would land on a user instead of on a test.
+  //
+  // It is awaited but not slow: `date_symbol_data_local` is a compiled Dart
+  // table, not a file read, so nothing here touches the disk or a socket.
+  // Started FIRST, and awaited last. `readLaunchFacts` spawns drift's
+  // background isolate and opens the file; `initializeDateFormatting` is
+  // synchronous main-isolate CPU that builds ICU's symbol tables. Sequenced the
+  // other way they add up; overlapped they cost whichever is slower, and the
+  // 2.0s cold-launch budget in SPEC.md §17 is the reason to care.
   final database = AppDatabase();
-  final facts = await readLaunchFacts(database);
+  final facts = readLaunchFacts(database);
+
+  await initializeDateFormatting();
 
   return [
     crashSinkProvider.overrideWithValue(crashSink),
@@ -40,7 +56,7 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     // connections to one file is how a WAL ends up with a reader that cannot
     // see a writer's committed row.
     appDatabaseProvider.overrideWithValue(database),
-    initialLaunchFactsProvider.overrideWithValue(facts),
+    initialLaunchFactsProvider.overrideWithValue(await facts),
   ];
 }
 

@@ -361,6 +361,25 @@ PROBE
 assert 1 "check_component_hygiene is red on an InkWell" bash "$HYGIENE" lib
 restore_all
 
+# EPIC-09 added `calm_swatch.dart` to the border allow-list, because `.swatch` in
+# odova.css is `box-shadow: inset 0 0 0 1.5px` and Flutter has no inset shadow.
+# This arm is what stops that becoming a hole: a border in any OTHER component
+# is still caught, and the gate's own sentence — "Calm surfaces are never
+# bordered" — still holds.
+write_scratch lib/ui/calm/selftest_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+
+/// A planted violation: a bordered Calm surface, in a file that is not the
+/// field, the pressable or the swatch.
+Widget probe() => DecoratedBox(
+  decoration: BoxDecoration(border: Border.all()),
+  child: const SizedBox.shrink(),
+);
+PROBE
+assert 1 "check_component_hygiene is red on a border in another component" \
+  bash "$HYGIENE" lib
+restore_all
+
 assert 0 "check_touch_targets is green" bash "$TARGETS" lib test
 write_scratch lib/ui/selftest_probe.dart <<'PROBE'
 import 'package:flutter/material.dart';
@@ -530,6 +549,29 @@ assert 0 "check_status_encoding is green again once removed" bash "$STATUS" lib
 # other gates prove it — so this probe could not compile there, and that is
 # exactly the point: the exemption is safe BECAUSE of the purity gate, and if
 # the purity gate ever went away this arm is where it would show.
+# EPIC-09 added `calm_swipe_actions.dart` to the slot allow-list, on the same
+# grounds as the field ring and the destructive snackbar: a `CalmSwipeTone` is
+# chosen when the action is DECLARED, so there is no DueState to resolve. This
+# arm is what stops that becoming a hole — the allowance is for reading a slot,
+# and a file on the list may still not SWITCH on a state.
+write_scratch lib/ui/calm/calm_swipe_actions_probe.dart <<'PROBE'
+import 'package:flutter/material.dart';
+import 'package:odova/theme/calm/calm_status.dart';
+
+/// A planted violation: an allow-listed FILE may read a slot, never resolve one.
+Color probe(DueState state) => switch (state) {
+  DueState.overdue => const Color(0xFF000000),
+  DueState.due => const Color(0xFF000000),
+  DueState.dueSoon => const Color(0xFF000000),
+  DueState.ok => const Color(0xFF000000),
+  DueState.unknown => const Color(0xFF000000),
+  DueState.needsOdometer => const Color(0xFF000000),
+};
+PROBE
+assert 1 "check_status_encoding is red on a SWITCH in an allow-listed file" \
+  bash "$STATUS" lib
+restore_all
+
 write_scratch lib/core/selftest_probe.dart <<'PROBE'
 import 'package:odova/theme/calm/calm_colors.dart';
 

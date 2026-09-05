@@ -316,6 +316,91 @@ void main() {
     await tester.tap(find.text('mi'));
     expect(chosen, 1);
   });
+
+  testWidgets('a stacked segmented option puts its icon over its label', (
+    tester,
+  ) async {
+    // `.segmented--stack .segmented__opt` — `flex-direction: column; gap: 3px;
+    // min-height: 66px; font-size: var(--fs-caption)`. It is the vehicle-type
+    // control on `firstrun.vehicle`, and it is a variant rather than a
+    // composition: the base option is a fixed 46pt centred Row with no icon
+    // slot at all.
+    for (final locale in ['en', 'fa']) {
+      await pumpApp(
+        tester,
+        Center(
+          child: CalmSegmented(
+            labels: const ['Car', 'Motorbike', 'Van'],
+            icons: const [
+              Icons.directions_car_outlined,
+              Icons.two_wheeler_outlined,
+              Icons.local_shipping_outlined,
+            ],
+            index: 0,
+            onChanged: (_) {},
+          ),
+        ),
+        locale: Locale(locale),
+      );
+
+      expect(
+        tester.getSize(find.byType(CalmSegmentedOption).first).height,
+        66,
+        reason: 'min-height: 66px — $locale',
+      );
+
+      // The icon sits ABOVE the label, in both directions. A stack that turned
+      // into a row would still measure 66 inside the track and would look
+      // nothing like the reference.
+      final icon = tester.getRect(find.byIcon(Icons.directions_car_outlined));
+      final label = tester.getRect(find.text('Car'));
+      expect(icon.bottom, lessThanOrEqualTo(label.top), reason: locale);
+      // Centred on each other, not start-aligned.
+      expect(icon.center.dx, closeTo(label.center.dx, 0.5), reason: locale);
+    }
+  });
+
+  testWidgets(
+    'a numeric segmented control is tabular, so the pill cannot jitter',
+    (tester) async {
+      // `firstrun.vehicle`'s four annual bands are tagged `num` in the
+      // artboard, which is `font-feature-settings: 'tnum' 1, 'lnum' 1`.
+      // Without it the Eastern digits of `۱۰–۲۰` and `۲۰–۳۰` have different
+      // widths, so the selected pill changes size as the selection moves — on
+      // a control whose whole job is to sit still while it travels. CalmField
+      // already had this flag; CalmSegmented did not.
+      await pumpApp(
+        tester,
+        Center(
+          child: CalmSegmented(
+            labels: const ['under 10', '10–20', '20–30', 'over 30'],
+            numeric: true,
+            index: 1,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+
+      expect(
+        tester.widget<Text>(find.text('10–20')).style!.fontFeatures,
+        const [FontFeature.tabularFigures(), FontFeature.liningFigures()],
+      );
+
+      // Off by default: a control of words must not get lining figures it
+      // never asked for.
+      await pumpApp(
+        tester,
+        Center(
+          child: CalmSegmented(
+            labels: const ['Day', 'Week'],
+            index: 0,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+      expect(tester.widget<Text>(find.text('Day')).style!.fontFeatures, isNull);
+    },
+  );
 }
 
 Color _trackColour(WidgetTester tester) =>

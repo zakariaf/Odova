@@ -1105,7 +1105,9 @@ Match the **language subtag only** for strings, the full tag for formats: `de-AT
 | `fa-AF`, `prs`, `prs-AF` | `fa` | Dari is mutually intelligible in writing. |
 | `ar-*` (any region) | `ar` | One MSA string set; region affects only digits, month names, currency, week start. |
 
-**Override.** Seven rows: `System (English)` — the parenthesis naming what `system` resolves to right now, updated live — plus the six, each in its own language and script (`English`, `Deutsch`, `Français`, `فارسی`, `العربية`, `کوردیی ناوەندی`), never translated into the current UI language, because someone stuck in the wrong language has to find their own. `system` is a value of `settings.language`, not a seventh string set. When the device language is none of the six, `System (English)` is preselected and one line sits under the list: *"Odova isn't translated into {device_language} yet. Numbers, dates, units and money will still follow your region."* — an ICU message with the language name in its own language. The screen is in *Settings*.
+**Override.** Seven rows: `System (English)` — the parenthesis naming what `system` resolves to right now, updated live — plus the six, each in its own language and script (`English`, `Deutsch`, `Français`, `فارسی`, `العربية`, `کوردیی ناوەندی`), never translated into the current UI language, because someone stuck in the wrong language has to find their own. `system` is a value of `settings.language`, not a seventh string set. When the device language is none of the six, `System (English)` is preselected and one line sits under the list: *"Odova isn't translated into your device's language yet. Numbers, dates, units and money will still follow your region."* — a plain string, taking no placeholder. It named the device's language until EPIC-09 went looking for a way to fill it: nothing in the dependency set supplies a language's own name for an arbitrary tag (`intl` carries no locale display names, and `flutter_localizations` ships translations rather than language names), and the alternative is a hand-written endonym table. That table is unbounded — this line fires for any language on earth that is not one of the six — and every row of it is a factual datum in a script its author cannot check. §2 forbids guessing in a way that looks like fact, and a misspelling of somebody's own language, in their own script, on the app's first screen is the most expensive possible place to be wrong. The sentence does its whole job without the name: it explains why their language is missing and promises the formats still follow their region. If a bundled CLDR endonym source is ever added deliberately, the placeholder comes back with it. The screen is in *Settings*.
+
+**Register: formal, in the languages that distinguish.** German uses *Sie* and French *vous*, and the same choice carries into Arabic, Persian and Sorani wherever a register decision exists. Odova is addressing a stranger about their most expensive possession and their money, and the informal address is the one that assumes a relationship the app has not earned — it is the voice of marketing familiarity, which §1's calm reads as the opposite of. It is written down here because it is not visible in review: exactly one German string in the app had drifted to *du* and no reviewer on this project reads all six languages. `test/l10n/register_test.dart` now catches the next one.
 
 Six independent settings — language, numerals, calendar, first day of week, units, currency display — typed in *Domain model*, edited in *Settings*. Separate because they vary independently: an Iranian in Berlin wants Persian text, Persian digits, Jalali, km and euros.
 
@@ -2113,6 +2115,8 @@ Twenty-three addressable screens, four of which are tab roots, plus three global
 | `dialog.confirmDelete` | Delete? | dialog | Guards every destructive action, naming what dies ("Delete Golf and its 412 entries?"). |
 | `dialog.snooze` | Snooze | dialog | Push one reminder's notifications out by 3 days / 1 week / 1 month / after another 500 km (the distance option only when the item has a distance interval). |
 
+**The two first-run modes have no route id of their own, and two reference filenames.** `settings.language` and `vehicle.edit` each render a `firstRun` mode rather than a separate screen — the route ids above are the whole list, and nothing registers a `firstrun.*` route. But `design/reference/calm/` ships those two modes as `firstrun.language` and `firstrun.vehicle`, because a reference set is indexed by what was drawn and the two modes are drawn differently. So **route ids follow this table and parity capture filenames follow the reference set**: a capture named `settings.language` would have nothing to compare against, and a route named `firstrun.language` would be a screen this section does not list.
+
 **Not screens, deliberately.** OS file pickers, share sheets, date pickers and the notification-permission prompt are system UI; they are never wrapped in a screen of ours.
 
 ### What does not get a screen, and why
@@ -2330,7 +2334,7 @@ Two `Vehicle` fields carry the weight. `vehicle_type` decides the row icon, whic
 └────────────────────────────────────┘
 ```
 
-**Layout.** Wordmark, seven rows, one button, one text link. No app-bar, no back, no skip, no explanatory paragraph. `System (English)` names in its parenthesis whatever `system` resolves to right now; when the device language is none of the six it is preselected, and one line sits beneath the list: **"Odova isn't translated into {deviceLanguage} yet. Numbers, dates, units and money will still follow your region."**
+**Layout.** Wordmark, seven rows, one button, one text link. No app-bar, no back, no skip, no explanatory paragraph. `System (English)` names in its parenthesis whatever `system` resolves to right now; when the device language is none of the six it is preselected, and one line sits beneath the list: **"Odova isn't translated into your device's language yet. Numbers, dates, units and money will still follow your region."**
 
 **Interactions.**
 
@@ -2388,38 +2392,70 @@ Language comes from the tapped row; everything else from the device region, not 
 │  └────────────────────┴─────────┘  │
 │  Read it off the dash.             │
 │                                    │
-│  About how far a year?             │
-│  [<10k][10–20k][20–30k][30k+]      │
-│         ▔▔▔▔▔▔▔                    │
-│                                    │
-│  Do you drive this for work?  ( ○) │
+│  About how far a year? (thousand   │
+│  km)                               │
+│  [under 10][10–20][20–30][over 30] │
+│            ▔▔▔▔▔                   │
 │                                    │
 │           [      Start      ]      │
 │                                    │
-│  Moving from another phone?        │
-│  Restore a backup                  │
+│    I already have an Odova backup  │
 └────────────────────────────────────┘
 ```
 
 | Field | Control | Prefilled with |
 |---|---|---|
-| `vehicle_type` | 3 icon tiles + "Other" in the overflow | `car` |
+| `vehicle_type` | 3 tiles: car, motorbike, van | `car` |
 | `name` | text, pre-selected so typing replaces it | "My car" / "My motorbike" / "My van", following the type tile |
-| `fuel_kind_default` | 3 chips + **More…** (LPG, CNG, Hybrid, Other) | `petrol` |
+| `fuel_kind_default` | 3 chips + **More…**, which opens a sheet of LPG, CNG, Hybrid, Other | `petrol` |
 | `odometer_m` | numeric keypad + unit chip | empty — the whole tax, about six digits |
-| `expected_annual_m` | 4 bands | 10–20k |
-| `is_business` | switch | off; **on** when type = van |
+| `expected_annual_m` | 4 bands, the unit in the label | 10–20 |
 
-Six controls, one required entry, nine interactions on a realistic path. Everything else in `Vehicle` is nullable and asked later.
+**Five controls, one required entry, eight interactions on a realistic path.** Everything else in `Vehicle` is nullable and asked later — including `is_business`, which has no control here at all. It is still SET here: `vehicle_type = van` turns it on, exactly as before. What is gone is the question, and two things pay for it. A switch labelled *Do you drive this for work?* is a question nine users in ten answer no to, on the screen with the least room to spend; and the van tile has already answered it for the tenth, who is the plumber this app was written for. `vehicle.edit` carries the switch for everybody else, one screen later.
+
+**More… is a sheet.** Four values, picked one at a time, with nothing to type — which is what every other pick-one list in the app uses a sheet for, including `vehicle.switcher` and the currency list on `settings.units`. A menu would be a fourth overlay kind for four items, and §7 keeps no branch three deep.
+
+**Only three tiles, and `truck` and `other` lose nothing by their absence.** §4.8's seeded set is where the choice actually lands, and it has three distinct outcomes: the car set, the car set plus the van extras, and the motorcycle set. `truck` and `other` "take the car set unchanged", so a truck owner who taps **Car** gets precisely the rows a truck owner should get, and then corrects the type in `vehicle.edit` if the label matters to them. An overflow on this screen would buy a more accurate word and not one different reminder.
 
 The odometer is required because every projection hangs off the series: with no readings every reminder is `unknown`, and day one is a home screen full of dashes. It is also the one number every driver can read without leaving the car. The annual band is what the projection falls back on until there is enough history to measure — without it a delivery driver and a pensioner get the same guess — and four preselected bands buy `confidence = assumed` instead of `default`. We do not ask "when was the last oil change?": the most valuable question available and the most likely to end the session. Seeded items carry an assumed anchor until a service record or a baseline lands (*Reminders and notifications*).
+
+**The four bands, and what each writes.** The chips are labelled in the user's own unit system
+and are **not converted** — the same rule §4.8 states for the seeded intervals, and the same
+0.6 ratio its table already uses throughout (10,000 km ↔ 6,000 mi, 25,000 ↔ 15,000,
+60,000 ↔ 36,000). A miles user is offered `<6k`, not `<6,214`.
+
+| Band, km vehicle | Band, miles vehicle | `expected_annual_m` written | Daily rate it implies |
+|---|---|---|---|
+| `<10k` | `<6k` | `5000000` (km) · `4828032` (mi) | 13.7 km/day · 13.2 km/day |
+| `10–20k` *(default)* | `6–12k` | `15000000` (km) · `14484096` (mi) | 41.1 km/day · 39.7 km/day |
+| `20–30k` | `12–18k` | `25000000` (km) · `24140160` (mi) | 68.5 km/day · 66.1 km/day |
+| `30k+` | `18k+` | `40000000` (km) · `38624256` (mi) | 109.6 km/day · 105.8 km/day |
+
+A closed band writes its **midpoint**, which is the unbiased reading of "about how far a year?"
+and the only value in the range that cannot be argued to favour one end. The open top band has
+no midpoint, so it writes a stated representative a third above its floor: the population inside
+an open band thins out rather than spreading evenly, and of the two ways to be wrong here only
+one is dangerous. An assumed rate that is too **low** pushes every projected due date further
+out, and the reminder arrives after the service was needed; too **high** merely brings it
+forward. So the open band errs high, and the closed bands — where the user has already told us
+the range — do not, because an app that fires every reminder early is an app whose reminders get
+ignored.
+
+Every value is inside the projection's 5–500 km/day clamp, so no band is silently rewritten by
+it. Mile values are the round mile figure converted **once**, at exactly 1,609.344 m, on the way
+into storage — §2's canonical-units rule, not a second definition of the band.
+
+These four are what the *control* writes. The *field* is a nullable integer and import accepts
+any positive value, which is why §12's worked example carries `18000000`: a restored file may
+have been written by a hand, a future version or a different band table, and rejecting it would
+lose a vehicle to a number the app only ever uses as a fallback.
 
 **States.**
 
 | State | Behaviour |
 |---|---|
 | Loaded (the only entry state) | As drawn. Focus is **not** auto-placed in the odometer field — a keyboard over two thirds of the screen reads as a form to fill, not a question to answer. |
-| Save disabled | Until the odometer parses to a positive integer; visibly disabled, and tapping it flashes the odometer hint. The deliberate exception to "Save is never disabled", which scopes to the four `log.*` segments: one required field, hint always visible. |
+| Save disabled | Until the odometer parses to a positive integer; visibly disabled, and tapping it flashes the odometer hint. The deliberate exception to "Save is never disabled", which scopes to the four `log.*` segments: one required field, hint always visible. **Two mechanics follow from wanting both halves.** A disabled button normally owes the user an explanation printed beneath it; here the explanation is the field hint above, which is on screen whether or not the button is disabled, so the button DECLARES what stands in for that line rather than repeating it — a second copy of "Read it off the dash" under the button would be the same sentence twice on a screen with no room for it. And a disabled control cannot receive a tap, so the tap that flashes the hint is caught by the region AROUND the button, not by the button. |
 | Invalid odometer | Inline under the field. Empty on Save: **"Enter the number on your dash."** Unparseable: **"That doesn't look like a number. Digits only."** Zero: allowed — new cars exist. Above 3,000,000 km: **"That's higher than any car has driven. Check the number."** — a warning with a "Use it anyway" affordance, never a block. |
 | Backgrounded mid-entry | Form state survives in memory; nothing is written. A cold kill loses it and replays this screen — six digits is an acceptable loss, a draft row for a vehicle that does not exist is not. |
 | Error | Only a disk write can fail: **"Couldn't save. Your phone may be out of space."** with Retry. The screen never advances. |
@@ -2441,7 +2477,7 @@ All or nothing: a crash between the vehicle row and the reading row leaves a veh
 
 **Navigation.** In: `settings.language` (firstRun) via Continue; cold start with zero vehicles; deleting the last vehicle. Out: `home`, only via Start; `settings.import` via Restore a backup. No Cancel, no back, no swipe-to-dismiss, and Android system back is swallowed — a modal you can dismiss into an app with no data is a bug with a nice animation.
 
-**RTL and l10n.** The type tiles mirror; the silhouettes inside them never do. The odometer keeps its unit affix on the **end** edge in both directions, and number plus unit is one atomic run — `۱۸۷٬۴۱۲ کیلومتر` never splits. The field accepts every numbering system the app supports and normalises on blur. German is the long case: "Ungefähre Jahresfahrleistung" and "Fahren Sie damit beruflich?" sit above their controls and wrap to two lines; band chips carry a `maxChars` budget and read "<10 Tsd." rather than truncating.
+**RTL and l10n.** The type tiles mirror; the silhouettes inside them never do. The odometer keeps its unit affix on the **end** edge in both directions, and number plus unit is one atomic run — `۱۸۷٬۴۱۲ کیلومتر` never splits. The field accepts every numbering system the app supports and normalises on blur. German is the long case: "Ungefähre Jahresfahrleistung" sits above its control and wraps to two lines. The band chips need no truncation budget, because the unit is not on them — it is in the label, as "(thousand km)" / "(Tausend km)", and the chips themselves are two words at most: `under 10`, `10–20`, `20–30`, `over 30`. That is the fix for the problem an earlier draft answered with a `maxChars` number it never supplied.
 
 ---
 
@@ -2473,9 +2509,13 @@ All or nothing: a crash between the vehicle row and the reading row leaves a veh
 └────────────────────────────────────┘
 ```
 
+**The colour row scrolls, and brown is gone.** Two corrections, and the second is an admission rather than a decision. The row wrapped in an earlier draft, which meant the screen changed height as the palette grew — the kind of instability §9's calm exists to avoid, and a layout that a tenth colour silently rearranges. It scrolls now, like every other horizontal run of choices in the app.
+
+Brown goes because the design supplied eight paints and brown was not one of them, and the eight are hand-tuned against each other — a ninth hex chosen to sit beside them is design work, not engineering, and a brown that fights the other eight is worse than no brown. **`other` stays and is not a paint**: it is an outlined swatch with no fill, which is the honest drawing of "not one of these" and needs no colour invented for it. A user whose car is brown picks `other` and names the car; nothing in the app branches on the value.
+
 **Odometer is read-only here.** In create mode it is an input; in edit mode a row showing the latest reading and its age, tapping into `log.odometer`. A facts form is the wrong place to write a dated reading — someone correcting the plate would stamp today's date on a number they last checked in March, and that corrupts the series the whole app depends on.
 
-Controls that need no explanation: `name` (text, required), `vehicle_type` (segmented), `fuel_kind_default` (dropdown), `make`, `model`, `notes` (multiline, content-direction), `colour` (10 swatches — white, silver, grey, black, red, blue, green, yellow, brown, other), `expected_annual_m` (4 bands), `is_business` (switch), `notifications_muted` (switch, "Mute reminders for this vehicle"), `purchase_date` (calendar picker, ≤ today), `purchase_price` (money + currency), and `status`/`sold_on`/`sold_price` via **Mark as sold**. Under **Units & currency**, six overrides — `currency`, `distance_unit`, `volume_unit`, `consumption_unit`, `notice_distance_m`, `notice_days` — each with an **Automatic** option that writes null. The rest carry text:
+Controls that need no explanation: `name` (text, required), `vehicle_type` (segmented), `fuel_kind_default` (dropdown), `make`, `model`, `notes` (multiline, content-direction), `colour` (nine swatches — white, silver, grey, black, red, blue, green, yellow, other — in a row that SCROLLS rather than wraps), `expected_annual_m` (4 bands), `is_business` (switch), `notifications_muted` (switch, "Mute reminders for this vehicle"), `purchase_date` (calendar picker, ≤ today), `purchase_price` (money + currency), and `status`/`sold_on`/`sold_price` via **Mark as sold**. Under **Units & currency**, six overrides — `currency`, `distance_unit`, `volume_unit`, `consumption_unit`, `notice_distance_m`, `notice_days` — each with an **Automatic** option that writes null. The rest carry text:
 
 | Field | Control | What the screen says |
 |---|---|---|
@@ -2532,6 +2572,8 @@ The name wins the eye; the avatar — a silhouette from `vehicle_type` on the ve
 | all `ok` | small grey | "All good" |
 | any `needs_odometer` | hollow ring | "Odometer needs updating" |
 | all `unknown` / no items | hollow ring | "No reminders yet" |
+| the engine could not answer | hollow ring | "Couldn't work out what's due" |
+| `sold` | no dot — a chevron | *not a status line*: "Sold 12 March 2024 · 1,204 entries" |
 
 **States.**
 
@@ -2541,7 +2583,7 @@ The name wins the eye; the avatar — a silhouette from `vehicle_type` on the ve
 | One vehicle | No drag handles, no section header. The delete row reads "Delete The Golf" and its dialog carries the extra line **"This is your only vehicle. Deleting it starts Odova over."** |
 | Loaded, 2–6 | As drawn. Long-press to drag, writing `sort_order`. |
 | Many (tested to 50) | No cap; a plain scroller. "Sold and archived" collapses to a header with a count above five. |
-| Stale estimate | Latest reading over 60 days old: `~187,400 km` in the estimate treatment, rounded to the nearest 100 km / 50 mi, third line "Odometer last updated 4 months ago". |
+| Stale estimate | Latest reading over 60 days old: the third line reads `~187,400 km · Odometer last updated 4 months ago` — the figure in the estimate treatment, rounded to the nearest 100 km / 50 mi, and the status half replaced by the reading's age. The age is bucketed, not counted: "4 months ago", never "123 days ago" (§5). |
 | Expired estimate | Past 180 days Odova stops guessing: the entered figure and its date, `187,412 km · last entered 12 Jul 2025`, no approximation marker, hollow dot, and every distance axis on that vehicle reporting `needs_odometer`. |
 | Error | None. If a derived summary throws, the row still renders with a hollow dot and "Couldn't work out what's due" — the row never disappears. |
 
@@ -2555,7 +2597,7 @@ The name wins the eye; the avatar — a silhouette from `vehicle_type` on the ve
 | Swipe (end actions) | **Mark as sold** (amber), **Delete** (red). Declared as `endActions`; the physical direction flips in RTL. |
 | Row overflow | Edit · Mark as sold · Archive · Delete |
 
-**Sold and archived.** `sold` means gone; `archived` means off the road — stored, SORN, winter bike. A sold vehicle computes no reminders and its card shows `—`; an archived one still computes them and shows them in-app. Neither ever notifies, odometer nudges included, and neither is counted in the Costs all-vehicles view unless the user turns on **Include sold and archived** there. Both still accept new entries — late invoices arrive — and both are exported in full. An archived vehicle can be active; a sold one only by explicit selection, and Home then shows a banner.
+**Sold and archived.** `sold` means gone; `archived` means off the road — stored, SORN, winter bike. A sold vehicle computes no reminders, and its row says what it is rather than what is due: it drops to the compact height in a tinted group, its name goes to `ink-2`, its one sub-line reads **"Sold 12 March 2024 · 1,204 entries"**, and the status dot is replaced by a chevron. An archived one still computes reminders and shows them in-app. Neither ever notifies, odometer nudges included, and neither is counted in the Costs all-vehicles view unless the user turns on **Include sold and archived** there. Both still accept new entries — late invoices arrive — and both are exported in full. An archived vehicle can be active; a sold one only by explicit selection, and Home then shows a banner.
 
 **Mark as sold** opens a small form: sale date (default today, ≤ today) and sale price (optional). It is offered before Delete everywhere, because "I sold the car" is what people mean most of the time they reach for Delete, and the history they are about to destroy is what made the sale worth more.
 
@@ -4240,7 +4282,7 @@ No empty state and no loading state: every value is a constant or one indexed re
 
 No search, no flags — flags are wrong for ar (twenty-two countries), fa (two) and ckb (no state). Each name is in its own script and **never translated**: people scan for the shape of their own writing, not for "Persian" in German. The first row is `language = system`, the parenthesis naming what it resolves to, updated live. Subtag resolution is in *Languages, RTL and formats*.
 
-**States.** Loaded only. In **firstRun**: no back affordance, a full-width **Continue** pinned to the bottom, and beneath it a text button **"Moving from another phone? Restore a backup"** → OS document picker → `settings.import`, empty-device variant — offered here as well as on `vehicle.edit` because language is restored from the file anyway. The trailing paragraph is omitted; there is no Units screen to point at yet. When the device language is none of the six, `System (English)` is preselected with one line beneath the list: "Odova isn't translated into {device_language} yet. Numbers, dates, units and money will still follow your region." — an ICU message with the language name in its own language.
+**States.** Loaded only. In **firstRun**: no back affordance, a full-width **Continue** pinned to the bottom, and beneath it a text button **"Moving from another phone? Restore a backup"** → OS document picker → `settings.import`, empty-device variant — offered here as well as on `vehicle.edit` because language is restored from the file anyway. The trailing paragraph is omitted; there is no Units screen to point at yet. When the device language is none of the six, `System (English)` is preselected with one line beneath the list: "Odova isn't translated into your device's language yet. Numbers, dates, units and money will still follow your region." — a plain string with no placeholder; see §5 *Override* for why it does not name the language.
 
 **Interactions.** Tapping a row applies the language **immediately** in both modes — strings, direction, font stack, notification bodies. Not on Continue, not on back: the user must see the result while the list is still on screen. Applying also:
 
@@ -4612,7 +4654,7 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 **Vehicle stored or off the road** (winter bike, van between jobs). `status = archived`: same silence as sold, but it can be reactivated and it keeps earning reminders from the day it returns — intervals are not back-dated to cover the storage period.
 
-**Vehicle deleted by accident.** Delete is immediate behind a typed confirmation naming the vehicle and its entry count. Undo lives in the snackbar for 10 seconds. After that, recovery is Settings → Backup & restore → **Undo last change**, live for 30 days — one row that covers import, delete-all *and* vehicle delete. The last three safety copies are kept, not one, so a second mistake does not overwrite the escape route.
+**Vehicle deleted by accident.** Delete is immediate behind a typed confirmation naming the vehicle and its entry count. Undo lives in the snackbar for 10 seconds, and that is the whole of the recovery path in the app: **a vehicle delete writes no safety copy.** §4.4 keeps one copy per destructive operation kind and there are three kinds — migration, import, wipe — so there is no Undo row on `settings.backup` for this, and §2 has no trash and no 30-day bin. After the snackbar expires, recovery is the user’s own exported backup. *Why not a fourth kind:* a safety copy is a full copy of the store, and writing one every time a user tidies a sold car out of the garage spends the disk and the write budget of the three operations that genuinely replace everything. The typed confirmation naming the vehicle and its entry count is what stands in for it, and it is asked before the delete rather than offered after.
 
 **Last vehicle deleted.** Next launch routes straight to `vehicle.edit` in firstRun mode. The language step is not repeated.
 
@@ -4620,7 +4662,7 @@ Decisive rules. Each is a situation the app will meet in its first month.
 
 **Reminder the user wants gone.** An item that has never been referenced by a service line deletes outright. An item that *has* been is never deletable — the destructive control becomes **Turn this off**. Service history is never destroyed to tidy a reminder list, and every `service_item_id` still resolves.
 
-**Restore on a brand-new phone.** First run has an explicit escape: `vehicle.edit` (firstRun) carries a single text link, *I already have an Odova backup*, which opens `settings.import` in firstRun mode. Without it the most important journey in a no-account app requires inventing a fake vehicle and then wiping it. No new screen id.
+**Restore on a brand-new phone.** First run has an explicit escape: `vehicle.edit` (firstRun) carries a single text link, *I already have an Odova backup*, which opens `settings.import` in firstRun mode. That is a DIFFERENT string from `settings.language` (firstRun)'s two-line *Moving from another phone? / Restore a backup*, and deliberately so: by the time somebody reaches the vehicle screen they have already chosen a language and declined the offer once, so the second ask is the short one. Both are what `design/reference/calm/` draws. Without it the most important journey in a no-account app requires inventing a fake vehicle and then wiping it. No new screen id.
 
 ### Odometer and data integrity
 

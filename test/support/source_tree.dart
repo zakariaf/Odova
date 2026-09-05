@@ -25,9 +25,10 @@ import 'analysis_options_source.dart';
 /// [dartFilesUnder] fails on an empty walk unless the directory is named here,
 /// so "this gate currently checks nothing" is a decision written down rather
 /// than an accident. Each entry names the epic that fills it.
-const knownEmptyLibDirectories = {
-  'lib/features', // EPIC-09 — first run and the garage
-};
+///
+/// Empty today: EPIC-09 filled `lib/features` with the first-run screens, which
+/// is what the entry was there to predict.
+const knownEmptyLibDirectories = <String>{};
 
 /// Every hand-written `.dart` file under [path].
 ///

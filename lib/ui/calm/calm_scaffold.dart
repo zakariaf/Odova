@@ -61,11 +61,23 @@ class CalmScaffold extends StatelessWidget {
     super.key,
     this.tabBar,
     this.footer,
+    this.tight = false,
+    this.brand = false,
+    this.bodyGap,
+    this.bodyPadBlock,
+    this.footPadBlock,
   });
 
   /// The bar at the top. An ordinary widget in a Column, never
   /// `Scaffold.appBar`: `large` and `vehicle` are two lines tall.
-  final CalmAppBar appBar;
+  ///
+  /// **Nullable, and still required.** `firstrun.language` draws no app bar at
+  /// all — SPEC.md §8: "No app-bar, no back, no skip" — and a non-nullable
+  /// parameter left that screen with no way to use the app's one frame, which
+  /// is how a second, subtly different skeleton gets into a codebase. It stays
+  /// `required` rather than defaulting to null so dropping the bar is a
+  /// sentence somebody wrote, not a parameter they forgot.
+  final CalmAppBar? appBar;
 
   /// The scrolling body.
   ///
@@ -81,6 +93,45 @@ class CalmScaffold extends StatelessWidget {
   /// thumb's reach however far the body scrolls.
   final Widget? footer;
 
+  /// `.screen__body--tight` — s4 between children instead of s5.
+  ///
+  /// Twenty-one of the twenty-eight artboards carry it. The seven that do not
+  /// are all forms — the five `log.*`, `trips.edit`, `vehicle.edit` and
+  /// `settings.import` — where fields want the extra 4pt. The default here is
+  /// the CSS default for the same reason: `.screen__body` is the plain case and
+  /// `--tight` is opted into, even though the opt-in is the majority.
+  final bool tight;
+
+  /// `.screen__body`'s `gap`, when an artboard overrides it inline.
+  ///
+  /// Null takes [tight]'s answer, which takes the stylesheet's. That is the CSS
+  /// cascade and it is modelled rather than flattened because the artboards use
+  /// all three rungs: 21 of the 28 carry `--tight`, 23 additionally set an
+  /// inline `gap`, and five leave `.screen__body` alone entirely.
+  final double? bodyGap;
+
+  /// `.screen__body`'s `padding-block`, when an artboard overrides it.
+  ///
+  /// The INLINE padding never varies — it is `--screen-pad` on every screen —
+  /// so only the block axis is a parameter. Both values are `CalmSpace` tokens:
+  /// nine artboards override with `var(--space-N)` and the rest with raw pixels
+  /// off Calm's own scale, and only the first kind is a design decision.
+  final ({double top, double bottom})? bodyPadBlock;
+
+  /// `.screen__foot`'s `padding-block`, when an artboard overrides it.
+  ///
+  /// One screen does today — `firstrun.vehicle`, at s3/s4 against the
+  /// stylesheet's s4/s5.
+  final ({double top, double bottom})? footPadBlock;
+
+  /// `.screen--brand` — the wash behind `firstrun.language` and
+  /// `settings.about`.
+  ///
+  /// A radial gradient from `brand-soft` at the top centre, gone by 70% down.
+  /// Not a flat tint: a solid `brandSoft` ground is a different screen, and the
+  /// parity band check cannot tell them apart because neither draws an edge.
+  final bool brand;
+
   @override
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
@@ -93,40 +144,101 @@ class CalmScaffold extends StatelessWidget {
         // The odometer strip is typed into, and SPEC.md §10 forbids a primary
         // action under the keyboard. Scaffold reads MediaQuery.viewInsetsOf.
         resizeToAvoidBottomInset: true,
-        body: SafeArea(
-          bottom: tabBar == null, // the tab bar draws its own bottom inset
-          child: Column(
-            children: [
-              appBar,
-              Expanded(
-                child: ListView.separated(
-                  padding: EdgeInsetsDirectional.fromSTEB(
-                    space.screenPad,
-                    space.s5,
-                    space.screenPad,
-                    space.s6,
+        body: _CalmScreenGround(
+          brand: brand,
+          child: SafeArea(
+            bottom: tabBar == null, // the tab bar draws its own bottom inset
+            child: Column(
+              children: [
+                ?appBar,
+                Expanded(
+                  child: ListView.separated(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      space.screenPad,
+                      bodyPadBlock?.top ?? space.s5,
+                      space.screenPad,
+                      bodyPadBlock?.bottom ?? space.s6,
+                    ),
+                    itemCount: children.length,
+                    separatorBuilder: (_, _) => SizedBox(
+                      height: bodyGap ?? (tight ? space.s4 : space.s5),
+                    ),
+                    itemBuilder: (_, i) => children[i],
                   ),
-                  itemCount: children.length,
-                  separatorBuilder: (_, _) => SizedBox(height: space.s5),
-                  itemBuilder: (_, i) => children[i],
                 ),
-              ),
-              if (footer != null)
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(
-                    space.screenPad,
-                    space.s4,
-                    space.screenPad,
-                    space.s5,
+                if (footer != null)
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      space.screenPad,
+                      footPadBlock?.top ?? space.s4,
+                      space.screenPad,
+                      footPadBlock?.bottom ?? space.s5,
+                    ),
+                    child: footer,
                   ),
-                  child: footer,
-                ),
-              ?tabBar,
-            ],
+                ?tabBar,
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+/// `.screen--brand`, or nothing at all.
+///
+/// The CSS is
+/// `radial-gradient(120% 70% at 50% 0%, brand-soft 0%, transparent 70%)` — an
+/// ELLIPSE, 120% of the width across and 70% of the height down. Flutter's
+/// `RadialGradient.radius` is one number against the shortest side, so a bare
+/// `radius: 1.2` draws a circle 1.2 widths tall on a portrait screen where the
+/// design wants 0.7 heights, and the wash stops well short of where it should.
+/// [_EllipseY] squashes the circle back to the design's ellipse.
+class _CalmScreenGround extends StatelessWidget {
+  const _CalmScreenGround({required this.brand, required this.child});
+
+  final bool brand;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!brand) return child;
+    final colors = CalmColors.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.topCenter,
+          radius: 1.2, // 120% of the width
+          // brand-soft fading to a TRANSPARENT BRAND-SOFT, not to
+          // `Colors.transparent`: lerping to transparent black walks the RGB
+          // through grey and puts a grey haze across the middle of the wash.
+          colors: [colors.brandSoft, colors.brandSoft.withAlpha(0)],
+          stops: const [0, 0.7],
+          transform: const _EllipseY(),
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Squashes a [RadialGradient]'s circle into the CSS ellipse.
+///
+/// Scales Y about the gradient's centre so 1.2 widths of radius becomes 0.7
+/// heights, which is what `120% 70%` asks for.
+class _EllipseY extends GradientTransform {
+  const _EllipseY();
+
+  @override
+  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
+    if (bounds.width <= 0 || bounds.height <= 0) return null;
+    final scale = 0.7 * bounds.height / (1.2 * bounds.width);
+    // The centre is `Alignment.topCenter`, so Y scales about bounds.top.
+    return Matrix4.identity()
+      ..translateByDouble(0, bounds.top, 0, 1)
+      ..scaleByDouble(1, scale, 1, 1)
+      ..translateByDouble(0, -bounds.top, 0, 1);
   }
 }
 
@@ -159,6 +271,7 @@ class CalmAppBar extends StatelessWidget {
            : CalmAppBarShape.standard,
        subtitle = null,
        startLabel = null,
+       startIcon = null,
        onStart = null,
        endLabel = null,
        onEnd = null;
@@ -172,6 +285,7 @@ class CalmAppBar extends StatelessWidget {
   }) : shape = CalmAppBarShape.large,
        onTapVehicle = null,
        startLabel = null,
+       startIcon = null,
        onStart = null,
        endLabel = null,
        onEnd = null;
@@ -186,6 +300,7 @@ class CalmAppBar extends StatelessWidget {
   }) : shape = CalmAppBarShape.vehicle,
        subtitle = null,
        startLabel = null,
+       startIcon = null,
        onStart = null,
        endLabel = null,
        onEnd = null;
@@ -202,6 +317,7 @@ class CalmAppBar extends StatelessWidget {
     required String this.endLabel,
     required this.onEnd,
     super.key,
+    this.startIcon,
   }) : shape = CalmAppBarShape.modal,
        onTapVehicle = null,
        subtitle = null,
@@ -215,6 +331,15 @@ class CalmAppBar extends StatelessWidget {
 
   /// The caption under a [CalmAppBarShape.large] title.
   final String? subtitle;
+
+  /// Draws the start action as a GLYPH instead of a word.
+  ///
+  /// `vehicle.edit` closes with an ✕ where `log.fillup` closes with the word
+  /// Cancel — the artboard's `.modal-head__action--start` wraps an SVG. The
+  /// label stays required and becomes the accessible NAME: a bare glyph with no
+  /// name is the defect that required parameter exists to prevent, and this
+  /// changes how the action is drawn rather than whether it is named.
+  final IconData? startIcon;
 
   /// True only on the vehicle shape.
   ///
@@ -305,6 +430,7 @@ class CalmAppBar extends StatelessWidget {
                 child: CalmAppBarAction(
                   label: startLabel!,
                   onTap: onStart,
+                  icon: startIcon,
                 ),
               ),
             ),
@@ -428,10 +554,14 @@ class CalmAppBarAction extends StatelessWidget {
     required this.onTap,
     super.key,
     this.primary = false,
+    this.icon,
   });
 
-  /// The word, already localised.
+  /// The word, already localised — or, when [icon] is set, the glyph's name.
   final String label;
+
+  /// Drawn instead of [label], which then becomes the accessible name.
+  final IconData? icon;
 
   /// Null draws it disabled.
   final VoidCallback? onTap;
@@ -445,10 +575,18 @@ class CalmAppBarAction extends StatelessWidget {
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
 
+    final foreground = onTap == null
+        ? colors.ink4
+        : (primary ? colors.brand : colors.ink2);
+
     return CalmPressable(
       onTap: onTap,
       enabled: onTap != null,
       borderRadius: kCalmAppBarActionHeight / 2,
+      // The glyph carries no text, so the NAME has to come from here. A bare ✕
+      // announced as "button" leaves the only way out of a full-screen modal
+      // unlabelled.
+      semanticLabel: icon == null ? null : label,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           minHeight: kCalmAppBarActionHeight,
@@ -457,18 +595,18 @@ class CalmAppBarAction extends StatelessWidget {
           padding: EdgeInsetsDirectional.symmetric(horizontal: space.s2),
           child: Align(
             widthFactor: 1,
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              // No maxLines: "Abbrechen" at 200% is wider than a third of a
-              // 320pt modal head.
-              style: type.bodyLg.copyWith(
-                color: onTap == null
-                    ? colors.ink4
-                    : (primary ? colors.brand : colors.ink2),
-                fontWeight: primary ? type.semi : type.medium,
-              ),
-            ),
+            child: icon != null
+                ? Icon(icon, size: space.iconMd, color: foreground)
+                : Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    // No maxLines: "Abbrechen" at 200% is wider than a
+                    // third of a 320pt modal head.
+                    style: type.bodyLg.copyWith(
+                      color: foreground,
+                      fontWeight: primary ? type.semi : type.medium,
+                    ),
+                  ),
           ),
         ),
       ),

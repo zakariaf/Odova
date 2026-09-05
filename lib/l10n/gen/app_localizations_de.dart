@@ -139,7 +139,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String discardBody(String subject, String summary) {
-    return 'Deine Änderungen an $subject — $summary — wurden nicht gespeichert.';
+    return 'Ihre Änderungen an $subject — $summary — wurden nicht gespeichert.';
   }
 
   @override
@@ -222,6 +222,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String confirmDeleteMismatch(String subject) {
+    return 'Das stimmt nicht mit $subject überein.';
+  }
+
+  @override
   String get confirmDeleteDelete => 'Löschen';
 
   @override
@@ -265,4 +270,440 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get commonCancel => 'Abbrechen';
+
+  @override
+  String get commonContinue => 'Weiter';
+
+  @override
+  String get commonRestoreBackup => 'Backup wiederherstellen';
+
+  @override
+  String settingsLanguageSystem(String language) {
+    return 'System ($language)';
+  }
+
+  @override
+  String get settingsLanguageNotTranslated =>
+      'Odova ist noch nicht in die Sprache Ihres Geräts übersetzt. Zahlen, Datumsangaben, Einheiten und Beträge richten sich weiterhin nach Ihrer Region.';
+
+  @override
+  String get firstRunLanguageTagline =>
+      'Wählen Sie die, die Sie am besten lesen.';
+
+  @override
+  String get firstRunRestorePrompt => 'Wechseln Sie von einem anderen Telefon?';
+
+  @override
+  String get firstRunVehicleTitle => 'Ihr Fahrzeug';
+
+  @override
+  String get firstRunVehicleSubtitle =>
+      'Ein Fahrzeug und eine Zahl. Das ist schon die ganze Einrichtung.';
+
+  @override
+  String get vehicleTypeCar => 'Auto';
+
+  @override
+  String get vehicleTypeMotorcycle => 'Motorrad';
+
+  @override
+  String get vehicleTypeVan => 'Transporter';
+
+  @override
+  String get vehicleNameLabel => 'Name';
+
+  @override
+  String get vehicleNameDefaultCar => 'Mein Auto';
+
+  @override
+  String get vehicleNameDefaultMotorcycle => 'Mein Motorrad';
+
+  @override
+  String get vehicleNameDefaultVan => 'Mein Transporter';
+
+  @override
+  String get vehicleFuelLabel => 'Kraftstoff';
+
+  @override
+  String get fuelPetrol => 'Benzin';
+
+  @override
+  String get fuelDiesel => 'Diesel';
+
+  @override
+  String get fuelElectric => 'Elektro';
+
+  @override
+  String get fuelLpg => 'Autogas';
+
+  @override
+  String get fuelCng => 'Erdgas';
+
+  @override
+  String get fuelHybrid => 'Hybrid';
+
+  @override
+  String get fuelOther => 'Sonstiges';
+
+  @override
+  String get commonMore => 'Mehr…';
+
+  @override
+  String get odometerNowLabel => 'Aktueller Kilometerstand';
+
+  @override
+  String get odometerFirstRunHint => 'Lesen Sie ihn vom Tacho ab.';
+
+  @override
+  String get odometerEmptyError => 'Geben Sie die Zahl vom Tacho ein.';
+
+  @override
+  String get odometerNotANumberError =>
+      'Das sieht nicht nach einer Zahl aus. Nur Ziffern.';
+
+  @override
+  String get odometerImplausibleWarning =>
+      'So weit ist noch kein Auto gefahren. Prüfen Sie die Zahl.';
+
+  @override
+  String get commonUseItAnyway => 'Trotzdem verwenden';
+
+  @override
+  String get annualBandLabelKm =>
+      'Wie weit fahren Sie etwa im Jahr? (in Tausend km)';
+
+  @override
+  String get annualBandLabelMi =>
+      'Wie weit fahren Sie etwa im Jahr? (in Tausend Meilen)';
+
+  @override
+  String annualBandUnder(String max) {
+    return 'unter $max';
+  }
+
+  @override
+  String annualBandRange(String min, String max) {
+    return '$min–$max';
+  }
+
+  @override
+  String annualBandOver(String min) {
+    return 'über $min';
+  }
+
+  @override
+  String get commonStart => 'Starten';
+
+  @override
+  String get firstRunHaveBackup => 'Ich habe schon ein Odova-Backup';
+
+  @override
+  String get saveDiskFullError =>
+      'Speichern fehlgeschlagen. Vielleicht ist der Speicher Ihres Telefons voll.';
+
+  @override
+  String get commonRetry => 'Erneut versuchen';
+
+  @override
+  String get vehicleEditTitle => 'Fahrzeug';
+
+  @override
+  String get commonClose => 'Schließen';
+
+  @override
+  String get commonSave => 'Speichern';
+
+  @override
+  String get vehicleTypeOther => 'Sonstiges';
+
+  @override
+  String get vehicleMakeLabel => 'Marke';
+
+  @override
+  String get vehicleModelLabel => 'Modell';
+
+  @override
+  String get vehicleYearLabel => 'Baujahr';
+
+  @override
+  String get vehiclePlateLabel => 'Kennzeichen';
+
+  @override
+  String get vehicleVinLabel => 'FIN';
+
+  @override
+  String get vehicleColourLabel => 'Farbe';
+
+  @override
+  String get vehicleNotesLabel => 'Notizen';
+
+  @override
+  String get vehicleBusinessLabel => 'Fahren Sie damit beruflich?';
+
+  @override
+  String get vehicleMuteLabel =>
+      'Erinnerungen für dieses Fahrzeug stummschalten';
+
+  @override
+  String get vehicleOdometerRow => 'Kilometerstand';
+
+  @override
+  String vehicleOdometerRowHint(String age) {
+    return '$age erfasst';
+  }
+
+  @override
+  String get vehicleMarkAsSold => 'Als verkauft markieren';
+
+  @override
+  String get vehicleKeepItMarkSold => 'Behalten — als verkauft markieren';
+
+  @override
+  String vehicleDeleteRow(String name, String countText) {
+    return '$name und seine $countText Einträge löschen';
+  }
+
+  @override
+  String vehicleDeleteRowEmpty(String name) {
+    return '$name löschen';
+  }
+
+  @override
+  String get vehiclePurchaseGroup => 'Kauf und Verkauf';
+
+  @override
+  String get vehicleUnitsGroup => 'Einheiten & Währung dieses Fahrzeugs';
+
+  @override
+  String get commonAutomatic => 'Automatisch';
+
+  @override
+  String get vehiclePurchaseDate => 'Kaufdatum';
+
+  @override
+  String get vehiclePurchasePrice => 'Kaufpreis';
+
+  @override
+  String get vehiclePurchaseOdometer => 'Kilometerstand beim Kauf';
+
+  @override
+  String get vehicleSoldOn => 'Verkauft am';
+
+  @override
+  String get vehicleSoldPrice => 'Verkaufspreis';
+
+  @override
+  String vehicleYearRangeError(String min, String max) {
+    return 'Geben Sie ein Jahr zwischen $min und $max ein.';
+  }
+
+  @override
+  String vehicleVinLengthNote(String countText) {
+    return 'Eine FIN hat üblicherweise $countText Zeichen.';
+  }
+
+  @override
+  String vehicleDuplicateNameNote(String name) {
+    return 'Sie haben bereits ein Fahrzeug namens $name';
+  }
+
+  @override
+  String get vehicleCurrencyChangeNote =>
+      'Gilt nur für neue Einträge. Bereits Gespeichertes bleibt unverändert.';
+
+  @override
+  String get vehicleFuelChangeNote =>
+      'Erinnerungen behalten ihre bisherigen Intervalle.';
+
+  @override
+  String get colourWhite => 'Weiß';
+
+  @override
+  String get colourSilver => 'Silber';
+
+  @override
+  String get colourGrey => 'Grau';
+
+  @override
+  String get colourBlack => 'Schwarz';
+
+  @override
+  String get colourRed => 'Rot';
+
+  @override
+  String get colourBlue => 'Blau';
+
+  @override
+  String get colourGreen => 'Grün';
+
+  @override
+  String get colourYellow => 'Gelb';
+
+  @override
+  String get colourOther => 'Sonstige';
+
+  @override
+  String dateDaysAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Vor $nText Tagen',
+      one: 'Vor $nText Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateAboutWeeksAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Vor etwa $nText Wochen',
+      one: 'Vor etwa $nText Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateAboutMonthsAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Vor etwa $nText Monaten',
+      one: 'Vor etwa $nText Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vehiclesTitle => 'Fahrzeuge';
+
+  @override
+  String get vehiclesIntro =>
+      'Hier verwalten Sie Ihre Fahrzeuge. Das Fahrzeug wechseln Sie über den Titel auf der Startseite.';
+
+  @override
+  String get vehiclesReorderHint =>
+      'Halten Sie ein Fahrzeug gedrückt, um die Reihenfolge zu ändern. Wischen Sie zum Verkaufen und Löschen.';
+
+  @override
+  String get vehiclesSoldArchived => 'Verkauft und archiviert';
+
+  @override
+  String get vehicleStatusAllGood => 'Alles in Ordnung';
+
+  @override
+  String get vehicleStatusNoReminders => 'Noch keine Erinnerungen';
+
+  @override
+  String get vehicleStatusNeedsOdometer => 'Kilometerstand aktualisieren';
+
+  @override
+  String get vehicleStatusUnknown => 'Konnte nicht ermitteln, was fällig ist';
+
+  @override
+  String vehicleOdometerStale(String age) {
+    return 'Kilometerstand zuletzt aktualisiert: $age';
+  }
+
+  @override
+  String vehicleOdometerLastEntered(String date) {
+    return 'zuletzt erfasst am $date';
+  }
+
+  @override
+  String vehicleStatusOverdue(String item) {
+    return '$item überfällig';
+  }
+
+  @override
+  String vehicleStatusDue(String item) {
+    return '$item fällig';
+  }
+
+  @override
+  String get vehicleStatusItemGeneric => 'Wartung';
+
+  @override
+  String get vehiclesOnlyOneWarning =>
+      'Das ist Ihr einziges Fahrzeug. Wenn Sie es löschen, beginnt Odova von vorn.';
+
+  @override
+  String get vehicleSwitchToIt => 'Wechseln';
+
+  @override
+  String get vehicleAddTitle => 'Fahrzeug hinzufügen';
+
+  @override
+  String vehicleAddedSnack(String name) {
+    return '$name hinzugefügt';
+  }
+
+  @override
+  String get switcherTitle => 'Fahrzeug wechseln';
+
+  @override
+  String switcherCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Fahrzeuge',
+      one: '$nText Fahrzeug',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get switcherAddVehicle => 'Fahrzeug hinzufügen';
+
+  @override
+  String get switcherManageVehicles => 'Fahrzeuge verwalten';
+
+  @override
+  String get vehicleBusinessBadge => 'Beruflich';
+
+  @override
+  String get commonBack => 'Zurück';
+
+  @override
+  String get commonAdd => 'Hinzufügen';
+
+  @override
+  String get commonDelete => 'Löschen';
+
+  @override
+  String get commonUndo => 'Rückgängig';
+
+  @override
+  String vehicleDeletedSnack(String name) {
+    return '$name gelöscht';
+  }
+
+  @override
+  String vehicleSoldSnack(String name) {
+    return '$name als verkauft markiert';
+  }
+
+  @override
+  String vehicleSoldSummary(int n, String date, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Verkauft am $date · $countText Einträge',
+      one: 'Verkauft am $date · $countText Eintrag',
+      zero: 'Verkauft am $date',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vehicleStatusDueInDays(int n, String item, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$item in $countText Tagen fällig',
+      one: '$item in $countText Tag fällig',
+    );
+    return '$_temp0';
+  }
 }

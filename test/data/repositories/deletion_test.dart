@@ -172,7 +172,7 @@ void main() {
 
   setUp(() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
-    vehicles = VehicleRepository(db);
+    vehicles = VehicleRepository(db, testUlids());
     services = ServiceRepository(db, testIds());
     fillUps = FillUpRepository(db, testIds());
     odometer = OdometerRepository(db);

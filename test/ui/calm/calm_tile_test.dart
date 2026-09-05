@@ -5,13 +5,16 @@
 // `lead` slot of a row rather than a thing you press.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/theme/calm/vehicle_swatch.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_tile.dart';
 
+import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
 
 TextStyle _styleOf(WidgetTester tester, String text) =>
@@ -199,5 +202,220 @@ void main() {
     );
 
     handle.dispose();
+  });
+
+  testWidgets('a brand tile is brand-soft, and borrows no status colour', (
+    tester,
+  ) async {
+    // `.icon-tile--brand` — `background: var(--color-brand-soft); color:
+    // var(--color-brand-soft-ink)`. `vehicle.edit` leads its colour row with
+    // one, and there was no way to ask for it: the only tint knob was
+    // `DueState?`, where null gives the neutral surface2 pair and any non-null
+    // value borrows a STATUS colour. `calm-due-state-and-status` forbids that
+    // exactly — a tile that means "this is your car" must not be able to look
+    // like a tile that means "this is overdue".
+    await pumpApp(
+      tester,
+      const Center(
+        child: CalmIconTile(icon: Icons.directions_car_outlined, brand: true),
+      ),
+    );
+
+    final decoration = calmDecorationOf<BoxDecoration>(
+      tester,
+      find.byType(CalmIconTile),
+    );
+    expect(decoration.color, calmColorsLight.brandSoft);
+    expect(
+      tester.widget<Icon>(find.byType(Icon)).color,
+      calmColorsLight.brandSoftInk,
+    );
+  });
+
+  testWidgets('brand and a status are not both askable', (tester) async {
+    // Two tints is one too many, and the second is whichever the reader did not
+    // expect. An assertion rather than a precedence rule, because a precedence
+    // rule is a silent answer to a question somebody got wrong.
+    expect(
+      () => CalmIconTile(
+        icon: Icons.directions_car_outlined,
+        brand: true,
+        state: DueState.overdue,
+      ),
+      throwsAssertionError,
+    );
+  });
+
+  group('the business tile', () {
+    // `.icon-tile--business` — `--color-business-tint` under
+    // `--color-business-ink`. The garage's van wears it, which is how a work
+    // vehicle reads at a glance without spending the third line's fourth slot
+    // twice.
+    testWidgets('takes the business tint and ink, not the neutral pair', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        const CalmIconTile(
+          icon: Icons.local_shipping_outlined,
+          business: true,
+        ),
+      );
+      expect(
+        calmDecorationOf<BoxDecoration>(
+          tester,
+          find.byType(CalmIconTile),
+        ).color,
+        calmColorsLight.business.tint,
+      );
+      expect(
+        tester.widget<Icon>(find.byType(Icon)).color,
+        calmColorsLight.business.ink,
+      );
+    });
+
+    testWidgets('business and a status are refused together', (tester) async {
+      // The same rule `brand` already carries: two tints is one too many, and
+      // the second is whichever the reader did not expect. A van that is
+      // overdue reports OVERDUE — the business fact is on its second line.
+      expect(
+        () => CalmIconTile(
+          icon: Icons.local_shipping_outlined,
+          business: true,
+          state: DueState.overdue,
+        ),
+        throwsAssertionError,
+      );
+      // Not `const`: a const constructor's assertion fails at COMPILE time,
+      // and a compile error is not something `throwsAssertionError` can catch.
+      expect(
+        () => CalmIconTile(
+          icon: Icons.local_shipping_outlined,
+          business: true,
+          brand: true,
+        ),
+        throwsAssertionError,
+      );
+    });
+  });
+
+  group('a painted tile', () {
+    // The garage's silhouette sits on the vehicle's own colour. It was built by
+    // hand in the screen — a `DecoratedBox`, a `SizedBox.square` and a raw
+    // hex pair —
+    // which duplicated `CalmIconTile.dimension`, turned
+    // `check_component_hygiene` red on a `BoxDecoration`
+    // outside `lib/ui/calm/`,
+    // and dropped the `ExcludeSemantics` this component exists to carry, so
+    // every coloured row gained a screen-reader stop.
+    testWidgets('takes the paint as its ground and reads on it', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        Center(
+          child: CalmIconTile(
+            icon: Icons.directions_car_outlined,
+            paint: calmVehicleSwatch(VehicleColour.white),
+          ),
+        ),
+      );
+      final decoration = calmDecorationOf<BoxDecoration>(
+        tester,
+        find.byType(CalmIconTile),
+      );
+      expect(decoration.color, calmVehicleSwatch(VehicleColour.white));
+      expect(
+        tester.widget<Icon>(find.byType(Icon)).color,
+        calmVehicleSwatchInk(calmVehicleSwatch(VehicleColour.white)!),
+        reason: 'dark ink on a white car',
+      );
+    });
+
+    testWidgets('a dark paint flips the ink, in BOTH themes', (tester) async {
+      // Chosen by the PAINT's luminance, never by the theme: a black car needs
+      // light ink at noon and at midnight, and a `CalmColors` slot would flip
+      // every night.
+      for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+        await pumpApp(
+          tester,
+          Center(
+            child: CalmIconTile(
+              icon: Icons.directions_car_outlined,
+              paint: calmVehicleSwatch(VehicleColour.black),
+            ),
+          ),
+          themeMode: mode,
+        );
+        expect(
+          tester.widget<Icon>(find.byType(Icon)).color,
+          calmVehicleSwatchInk(calmVehicleSwatch(VehicleColour.black)!),
+          reason: '$mode',
+        );
+      }
+    });
+
+    testWidgets('it is a circle, and it is excluded from semantics', (
+      tester,
+    ) async {
+      // §8: the silhouette is a round swatch of the vehicle's
+      // paint. And it says
+      // nothing to a screen reader — the row's title already names the car, and
+      // a second stop reading "image" is noise on every row.
+      await pumpApp(
+        tester,
+        Center(
+          child: CalmIconTile(
+            icon: Icons.directions_car_outlined,
+            paint: calmVehicleSwatch(VehicleColour.red),
+          ),
+        ),
+      );
+      expect(
+        calmDecorationOf<BoxDecoration>(
+          tester,
+          find.byType(CalmIconTile),
+        ).shape,
+        BoxShape.circle,
+      );
+      // Excluded from semantics: the row's title already names the car, and a
+      // second stop reading "image" is noise on every row. `Icon` contributes
+      // one of its own, so this asserts the EXCLUSION holds rather than
+      // counting the widgets that implement it.
+      expect(
+        tester
+            .widgetList<ExcludeSemantics>(
+              find.descendant(
+                of: find.byType(CalmIconTile),
+                matching: find.byType(ExcludeSemantics),
+              ),
+            )
+            .any((w) => w.excluding),
+        isTrue,
+      );
+      // The tile's fixed size — a lead slot in a row of a known height, so it
+      // does not grow with text scale; the row does. Measured on the SizedBox
+      // it sets, because the widget itself takes whatever the parent gives it.
+      // The tile's fixed size — a lead slot in a row of a known height, so it
+      // does not grow with text scale; the row does. Under a `Center`, because
+      // tight constraints from a stretching parent are the parent's decision.
+      expect(
+        tester.getSize(find.byType(CalmIconTile)),
+        const Size.square(CalmIconTile.dimension),
+      );
+    });
+
+    testWidgets('paint and any other ground are refused together', (
+      tester,
+    ) async {
+      expect(
+        () => CalmIconTile(
+          icon: Icons.directions_car_outlined,
+          paint: calmVehicleSwatch(VehicleColour.red),
+          business: true,
+        ),
+        throwsAssertionError,
+      );
+    });
   });
 }

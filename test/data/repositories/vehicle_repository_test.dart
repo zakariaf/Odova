@@ -47,7 +47,7 @@ void main() {
 
   setUp(() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
-    repository = VehicleRepository(db);
+    repository = VehicleRepository(db, testUlids());
   });
   tearDown(() => db.close());
 
@@ -73,13 +73,16 @@ void main() {
       NativeDatabase(file, setup: applyPragmas),
     );
     final saved = _vehicle();
-    await VehicleRepository(writer).save(saved);
+    await VehicleRepository(writer, testUlids()).save(saved);
     await writer.close();
 
     final reader = AppDatabase.forTesting(
       NativeDatabase(file, setup: applyPragmas),
     );
-    final found = await VehicleRepository(reader).findById(saved.id);
+    final found = await VehicleRepository(
+      reader,
+      testUlids(),
+    ).findById(saved.id);
     await reader.close();
 
     expect((found as Ok<Vehicle, PersistFailure>).value, saved);
@@ -180,7 +183,10 @@ void main() {
     );
     addTearDown(broken.close);
 
-    final result = await VehicleRepository(broken).save(_vehicle());
+    final result = await VehicleRepository(
+      broken,
+      testUlids(),
+    ).save(_vehicle());
     expect(result, isA<Err<Vehicle, PersistFailure>>());
     expect(
       (result as Err<Vehicle, PersistFailure>).failure,

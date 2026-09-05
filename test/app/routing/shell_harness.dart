@@ -34,6 +34,11 @@ Future<ProviderContainer> pumpShell(
   Locale? locale = const Locale('en'),
   List<Override> overrides = const [],
   Widget Function(Widget)? wrap,
+  LaunchFacts facts = const LaunchFacts(
+    onboardingDone: true,
+    liveVehicleCount: 1,
+    migrationFailed: false,
+  ),
 }) async {
   await tester.pumpWidget(const SizedBox.shrink());
 
@@ -43,13 +48,11 @@ Future<ProviderContainer> pumpShell(
       // The one router, at the location this test starts from.
       routerProvider.overrideWithValue(buildRouter(initialLocation: location)),
       // What `bootstrap()` supplies in production; the app has no default.
-      initialLaunchFactsProvider.overrideWithValue(
-        const LaunchFacts(
-          onboardingDone: true,
-          liveVehicleCount: 1,
-          migrationFailed: false,
-        ),
-      ),
+      // A NAMED argument rather than something a caller adds to `overrides`.
+      // Riverpod refuses two overrides of one provider in a container, so a
+      // test that needed a fresh install could not simply pass another — it
+      // got "Tried to override a provider twice" from inside the harness.
+      initialLaunchFactsProvider.overrideWithValue(facts),
       ...overrides,
     ],
   );

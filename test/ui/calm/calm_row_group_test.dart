@@ -4,14 +4,19 @@
 // BETWEEN adjacent rows only. Per-row radius and per-row shadow produce the
 // striped, rattling list Calm rejects, and a divider under the last row is the
 // off-by-one that survives every review because it looks deliberate.
+import 'package:flutter/gestures.dart' show kLongPressTimeout;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
+import 'package:odova/ui/calm/calm_switch.dart';
 
 import '../../support/calm_finders.dart';
 import '../../support/pump_app.dart';
@@ -25,12 +30,24 @@ Finder _groupSurface() => find.descendant(
 BoxDecoration _decorationOf(WidgetTester tester, Finder surface) =>
     calmDecorationOf<BoxDecoration>(tester, surface);
 
-/// Divider hairlines, found by their token colour rather than by their type:
-/// `CalmSurface` paints the sheen with a `ColoredBox` too.
+/// Divider hairlines: a FOREGROUND top border in the divider token.
+///
+/// Found by colour and edge rather than by type, and both halves earn their
+/// keep. `CalmSurface` paints its sheen with a decoration too, so the colour
+/// separates them; and the border has to be `top` and `foreground`, because a
+/// bottom border would put the hairline under the last row and a background one
+/// would paint it beneath the row's own ground, where a selected row hides it.
+///
+/// This used to look for a `ColoredBox` in the divider colour, which is what
+/// the dividers were before they had to stop taking layout space.
 Finder _dividers() => find.descendant(
   of: find.byType(CalmRowGroup),
   matching: find.byWidgetPredicate(
-    (w) => w is ColoredBox && w.color == calmColorsLight.divider,
+    (w) =>
+        w is DecoratedBox &&
+        w.position == DecorationPosition.foreground &&
+        w.decoration is BoxDecoration &&
+        (w.decoration as BoxDecoration).border != null,
   ),
 );
 
@@ -40,14 +57,6 @@ Finder _dividers() => find.descendant(
 /// track geometry is the switch's business, not the row's. Material's `Switch`
 /// is not used here even as a stand-in — it needs a `Material` ancestor, which
 /// would put an ink surface inside a Calm row to test a Calm row.
-Widget _toggle({required bool value, required VoidCallback onChanged}) =>
-    Semantics(
-      toggled: value,
-      child: GestureDetector(
-        onTap: onChanged,
-        child: const SizedBox(width: 56, height: 34),
-      ),
-    );
 
 void main() {
   testWidgets('a group of three rows draws one radius, one shadow and two '
@@ -82,19 +91,27 @@ void main() {
       for (var i = 0; i < 3; i++)
         tester.getRect(find.byType(CalmListRow).at(i)),
     ];
-    final lines = [
-      for (var i = 0; i < 2; i++) tester.getRect(_dividers().at(i)),
-    ];
 
+    // A hairline ON the boundary between row i and row i+1. It used to be a
+    // laid-out 1pt box whose own rect could be measured; it is now a foreground
+    // top border on the row below, so the assertion moved from the box's height
+    // to the shadow's offset and from the box's position to the row's top edge.
+    // The claim is the same one: a line between adjacent rows, none above the
+    // first, and no trailing line under the last that would close the list like
+    // a box.
     for (var i = 0; i < 2; i++) {
-      expect(lines[i].height, 1, reason: 'divider $i is not a hairline');
-      // Strictly between row i and row i+1 — never above the first, and never
-      // the trailing line under the last that closes the list like a box.
-      expect(lines[i].top, greaterThanOrEqualTo(rows[i].top));
-      expect(lines[i].bottom, lessThanOrEqualTo(rows[i + 1].bottom));
+      final box = tester.widget<DecoratedBox>(_dividers().at(i));
+      final border = (box.decoration as BoxDecoration).border!;
+      expect(border.top.width, 1, reason: 'divider $i is not a hairline');
+      expect(border.bottom, BorderSide.none, reason: 'no line under a row');
+      expect(
+        tester.getRect(_dividers().at(i)).top,
+        rows[i + 1].top,
+        reason: 'divider $i is not on the boundary below row $i',
+      );
     }
-    expect(lines.first.top, greaterThan(rows.first.top));
-    expect(lines.last.bottom, lessThan(rows.last.bottom));
+    // The first row carries none, so the group's top edge is the surface's own.
+    expect(tester.getRect(_dividers().first).top, greaterThan(rows.first.top));
   });
 
   testWidgets('the group clips its children so the first and last rows inherit '
@@ -259,11 +276,8 @@ void main() {
             rows: [
               CalmListRow.switchRow(
                 title: 'Reminders',
+                value: on,
                 onToggle: () => setState(() => on = !on),
-                end: _toggle(
-                  value: on,
-                  onChanged: () => setState(() => on = !on),
-                ),
               ),
             ],
           ),
@@ -326,11 +340,11 @@ void main() {
             rows: [
               CalmListRow.switchRow(
                 title: 'Reminders',
+                value: on,
                 onToggle: () => setState(() {
                   toggles++;
                   on = !on;
                 }),
-                end: _toggle(value: on, onChanged: () {}),
               ),
             ],
           ),
@@ -345,6 +359,37 @@ void main() {
     expect(toggles, 1);
     expect(on, isTrue);
     expect(find.byIcon(Icons.chevron_right), findsNothing);
+  });
+
+  testWidgets('a switch row toggles from a tap on the switch itself', (
+    tester,
+  ) async {
+    // The row builds its own `CalmSwitch` with `onChanged: null`, so the
+    // switch is paint and the ROW is the tap target. `vehicle.edit` once
+    // passed one in with `onChanged: (_) {}` — a child recognizer, which beats
+    // its ancestor in the arena — and the row toggled everywhere EXCEPT on the
+    // control. The constructor no longer takes a widget, so that is
+    // unconstructible rather than asserted against.
+    var toggles = 0;
+
+    await pumpApp(
+      tester,
+      Center(
+        child: CalmRowGroup(
+          rows: [
+            CalmListRow.switchRow(
+              title: 'Reminders',
+              value: false,
+              onToggle: () => toggles++,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(CalmSwitchTrack));
+    await tester.pump();
+    expect(toggles, 1);
   });
 
   testWidgets('a lone CalmListRow outside a group is a visible defect', (
@@ -409,5 +454,488 @@ void main() {
     // IgnorePointer would let the tap fall through to whatever is behind the
     // row — on a settings screen that is the row underneath it.
     expect(behind, 0, reason: 'the tap fell through a disabled row');
+  });
+
+  // ---- .row / .row--compact / .row--lg, and .row__native
+
+  testWidgets('each row size takes its own CSS padding, in both scripts', (
+    tester,
+  ) async {
+    // odova.css: `.row { padding: var(--space-4) var(--space-5) }`,
+    // `.row--compact { padding-block: var(--space-3) }`,
+    // `.row--lg { padding-block: var(--space-5) }`. The widget applied s4 to
+    // all three, so a compact row was 17*1.5 + 32 = 57.5 in Latin and
+    // 17*1.72 + 32 = 61.2 in Arabic against a design that is 56 in both —
+    // and over the seven rows of `firstrun.language` that is 10px of drift in
+    // LTR and 37 in RTL, against a parity band tolerance of 4.
+    for (final locale in ['en', 'fa']) {
+      await pumpApp(
+        tester,
+        const CalmRowGroup(
+          rows: [
+            CalmListRow(title: 'C', size: CalmRowSize.compact),
+            CalmListRow(title: 'M'),
+            CalmListRow(title: 'L', size: CalmRowSize.lg),
+          ],
+        ),
+        locale: Locale(locale),
+      );
+
+      for (final (index, height) in [(0, 56.0), (1, 64.0), (2, 76.0)]) {
+        expect(
+          tester.getSize(find.byType(CalmListRow).at(index)).height,
+          height,
+          reason: '$locale row $index — the min-height must still win',
+        );
+      }
+    }
+
+    // The three heights above are all min-heights, so ANY padding at or below
+    // the right one produces them and the assertion cannot see the value. A
+    // row with a lead taller than the floor is where the padding starts
+    // showing — and that is not a contrived case: `vehicles` and
+    // `vehicle.switcher` both draw a silhouette avatar in the lead slot.
+    await pumpApp(
+      tester,
+      const CalmRowGroup(
+        rows: [
+          CalmListRow(
+            title: 'C',
+            size: CalmRowSize.compact,
+            lead: SizedBox.square(dimension: 40),
+          ),
+          CalmListRow(title: 'M', lead: SizedBox.square(dimension: 40)),
+          CalmListRow(
+            title: 'L',
+            size: CalmRowSize.lg,
+            lead: SizedBox.square(dimension: 40),
+          ),
+        ],
+      ),
+    );
+
+    for (final (index, pad) in [
+      (0, calmSpace.s3),
+      (1, calmSpace.s4),
+      (2, calmSpace.s5),
+    ]) {
+      expect(
+        tester.getSize(find.byType(CalmListRow).at(index)).height,
+        40 + 2 * pad,
+        reason: 'row $index takes its own padding-block once the lead is tall',
+      );
+    }
+  });
+
+  testWidgets('a native title is never re-weighted by selection', (
+    tester,
+  ) async {
+    // `.row--selected .row__title { font-weight: var(--fw-semi) }` — but the
+    // language rows are `.row__native`, which odova.css pins to
+    // `var(--fw-medium)` and never restyles on selection. So the chosen
+    // language reads at the same weight as the six below it; only the ground
+    // and the tick say it is chosen.
+    await pumpApp(
+      tester,
+      const CalmRowGroup(
+        rows: [
+          CalmListRow(title: 'plain', selected: true),
+          CalmListRow(
+            title: 'فارسی',
+            selected: true,
+            nativeTitleLanguage: 'fa',
+          ),
+          CalmListRow(title: 'العربية', nativeTitleLanguage: 'ar'),
+        ],
+      ),
+    );
+
+    expect(
+      tester.widget<Text>(find.text('plain')).style!.fontWeight,
+      CalmType.latin.semi,
+    );
+    expect(
+      tester.widget<Text>(find.text('فارسی')).style!.fontWeight,
+      CalmType.latin.medium,
+      reason: 'a selected native title must stay medium',
+    );
+    expect(
+      tester.widget<Text>(find.text('العربية')).style!.fontWeight,
+      CalmType.latin.medium,
+    );
+  });
+
+  testWidgets('the dividers paint over the rows and take no height', (
+    tester,
+  ) async {
+    // `.rowgroup .row + .row { box-shadow: 0 -1px 0 var(--color-divider) }` —
+    // an outset shadow, which occupies ZERO height in CSS. A laid-out 1px box
+    // per divider adds one logical pixel per boundary, and on
+    // `firstrun.language`'s seven rows that is six pixels of cumulative drift
+    // against a parity band tolerance of four. It shows in the side-by-side as
+    // hairlines that double and separate further down the list.
+    await pumpApp(
+      tester,
+      const Center(
+        child: CalmRowGroup(
+          rows: [
+            CalmListRow(title: 'A'),
+            CalmListRow(title: 'B'),
+            CalmListRow(title: 'C'),
+          ],
+        ),
+      ),
+    );
+
+    // Three 64pt rows and nothing else. The group's own surface adds no
+    // padding either.
+    expect(tester.getSize(find.byType(CalmRowGroup)).height, 3 * 64.0);
+
+    // And the hairlines are still drawn — a divider that takes no space and
+    // paints nothing is just a deletion.
+    expect(_dividers(), findsNWidgets(2));
+  });
+
+  testWidgets("a native title renders in ITS OWN script, not the UI's", (
+    tester,
+  ) async {
+    // The artboard tags each language row `lang="fa"` / `lang="ar"` /
+    // `lang="ckb"`, and the tag is load-bearing: under an ENGLISH UI the Latin
+    // type names no family, so it takes the platform font — which in a test
+    // harness, where only Roboto and Vazirmatn are registered, renders فارسی
+    // as three empty boxes. The parity capture found it as tofu.
+    //
+    // The rule is not "always Vazirmatn": SPEC.md §5 says the bundled family
+    // renders the WHOLE UI under fa/ar/ckb, Latin runs included, so a Persian
+    // UI keeps its own type for every row. Only an Arabic-script row under a
+    // Latin UI reaches across.
+    await pumpApp(
+      tester,
+      const CalmRowGroup(
+        rows: [
+          CalmListRow(title: 'English', nativeTitleLanguage: 'en'),
+          CalmListRow(title: 'فارسی', nativeTitleLanguage: 'fa'),
+          CalmListRow(title: 'کوردیی ناوەندی', nativeTitleLanguage: 'ckb'),
+        ],
+      ),
+      locale: const Locale('en'),
+    );
+
+    expect(tester.widget<Text>(find.text('English')).style!.fontFamily, isNull);
+    for (final title in ['فارسی', 'کوردیی ناوەندی']) {
+      expect(
+        tester.widget<Text>(find.text(title)).style!.fontFamily,
+        'Vazirmatn',
+        reason: '$title rendered in the Latin stack is tofu',
+      );
+    }
+
+    // Under a Persian UI every row is Vazirmatn, including the Latin ones —
+    // a vehicle name in Latin letters inside a Persian sentence is one line in
+    // one font, and the same holds for a list of language names.
+    await pumpApp(
+      tester,
+      const CalmRowGroup(
+        rows: [
+          CalmListRow(title: 'English', nativeTitleLanguage: 'en'),
+          CalmListRow(title: 'فارسی', nativeTitleLanguage: 'fa'),
+        ],
+      ),
+      locale: const Locale('fa'),
+    );
+    for (final title in ['English', 'فارسی']) {
+      expect(
+        tester.widget<Text>(find.text(title)).style!.fontFamily,
+        'Vazirmatn',
+        reason: title,
+      );
+    }
+  });
+
+  testWidgets('a native title carries the CSS line height, not the '
+      'script one', (tester) async {
+    // `.row__native { line-height: 1.4 }` overrides `--lh-body-lg` on purpose
+    // and does it in BOTH scripts: a language list is one line per row, so the
+    // Arabic ascender allowance that `bodyLg` carries everywhere else would
+    // make the Persian rows taller than the Latin ones in a list whose whole
+    // job is to look like one list.
+    for (final locale in ['en', 'fa']) {
+      await pumpApp(
+        tester,
+        const CalmRowGroup(
+          rows: [
+            CalmListRow(title: 'native', nativeTitleLanguage: 'en'),
+            CalmListRow(title: 'ordinary'),
+          ],
+        ),
+        locale: Locale(locale),
+      );
+
+      expect(
+        tester.widget<Text>(find.text('native')).style!.height,
+        1.4,
+        reason: locale,
+      );
+      expect(
+        tester.widget<Text>(find.text('ordinary')).style!.height,
+        isNot(1.4),
+        reason: '$locale — an ordinary title keeps the body-lg leading',
+      );
+    }
+  });
+
+  group('the second sub-line', () {
+    // `.row__main` holds TWO `.row__sub` spans on ten rows across six
+    // artboards — the garage, home, `vehicle.switcher`, `dialog.confirmDelete`
+    // and both scroll dialogs. It is a design-system fact, not a garage
+    // special case, so it lives on the row rather than being rebuilt by each
+    // screen that needs it.
+    Future<void> pumpDetail(
+      WidgetTester tester, {
+      DueState? state,
+    }) => pumpApp(
+      tester,
+      CalmRowGroup(
+        rows: [
+          CalmListRow(
+            title: 'The Golf',
+            subtitle: 'VW Golf VII · 2016 · diesel',
+            detail: '187,412 km · oil and filter overdue',
+            detailState: state,
+            size: CalmRowSize.lg,
+          ),
+        ],
+      ),
+    );
+
+    TextStyle styleOf(WidgetTester tester, String text) =>
+        tester.widget<Text>(find.text(text)).style!;
+
+    testWidgets('draws beneath the first, both of them present', (
+      tester,
+    ) async {
+      await pumpDetail(tester);
+      expect(find.text('VW Golf VII · 2016 · diesel'), findsOneWidget);
+      expect(find.text('187,412 km · oil and filter overdue'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('187,412 km · oil and filter overdue')).dy,
+        greaterThan(
+          tester.getTopLeft(find.text('VW Golf VII · 2016 · diesel')).dy,
+        ),
+      );
+    });
+
+    testWidgets('takes tabular, lining figures — the design .num does both', (
+      tester,
+    ) async {
+      // Every one of those ten second sub-lines carries `.num`, which sets
+      // `tabular-nums lining-nums`. Tabular alone lets a font with oldstyle
+      // figures by default draw 187,412 with a descending 4 — aligned columns
+      // of the wrong shape.
+      await pumpDetail(tester);
+      expect(
+        styleOf(tester, '187,412 km · oil and filter overdue').fontFeatures,
+        containsAll(const [
+          FontFeature.tabularFigures(),
+          FontFeature.liningFigures(),
+        ]),
+      );
+    });
+
+    testWidgets('a state colours it with that state ink, not ink-3', (
+      tester,
+    ) async {
+      // The artboard sets `color: var(--color-overdue-ink)` inline on the
+      // overdue row's second sub-line. It is the ink ramp, not the dot colour:
+      // `--color-overdue` on a caption would be a red that fails contrast on
+      // `surface`.
+      await pumpDetail(tester, state: DueState.overdue);
+      final context = tester.element(find.byType(CalmRowGroup));
+      expect(
+        styleOf(tester, '187,412 km · oil and filter overdue').color,
+        CalmStatusStyle.of(context, DueState.overdue).ink,
+      );
+      expect(
+        styleOf(tester, 'VW Golf VII · 2016 · diesel').color,
+        CalmColors.of(context).ink3,
+        reason: 'the FIRST sub-line is never restyled by the state',
+      );
+    });
+
+    testWidgets('no state leaves it the same ink-3 as the first', (
+      tester,
+    ) async {
+      await pumpDetail(tester);
+      final ink3 = CalmColors.of(
+        tester.element(find.byType(CalmRowGroup)),
+      ).ink3;
+      expect(
+        styleOf(tester, '187,412 km · oil and filter overdue').color,
+        ink3,
+      );
+      expect(styleOf(tester, 'VW Golf VII · 2016 · diesel').color, ink3);
+    });
+
+    testWidgets('the stacked lines sit flush, as the REFERENCE draws them', (
+      tester,
+    ) async {
+      // `odova.css` says `.row__main { gap: 2px }` and the 112 reference PNGs
+      // do not have it. CLAUDE.md §7 makes the drawing the authority: a
+      // three-line garage row measures 103-106pt there, 104 here flush, and
+      // 108 with the gap. The parity band profile went from 59/103 to 81/103
+      // the moment it came out — a whole screen's worth of edges, from 2pt.
+      //
+      // This assertion is the record of that, so the next reader of the
+      // stylesheet does not add it back.
+      await pumpDetail(tester);
+      final title = tester.getRect(find.text('The Golf'));
+      final sub = tester.getRect(find.text('VW Golf VII · 2016 · diesel'));
+      final detail = tester.getRect(
+        find.text('187,412 km · oil and filter overdue'),
+      );
+      expect(sub.top - title.bottom, closeTo(0, 0.01));
+      expect(detail.top - sub.bottom, closeTo(0, 0.01));
+      expect(
+        tester.getSize(find.byType(CalmListRow)).height,
+        104,
+        reason: 'the reference row is 103-106',
+      );
+    });
+  });
+
+  group('the section head', () {
+    testWidgets('is outside the group, not inside its surface', (tester) async {
+      // The failure this replaced: `CalmRowGroup.header` drew the title INSIDE
+      // the group's own ground, which put the garage's "Sold and archived"
+      // inside the tinted card instead of on the page above it. The parity band
+      // profile found it as 48 pixels of drift and everything below it missing.
+      await pumpApp(
+        tester,
+        const Column(
+          children: [
+            CalmSectionHead(title: 'Sold and archived', hint: '1'),
+            CalmRowGroup(
+              tinted: true,
+              rows: [CalmListRow(title: 'Yamaha MT-07')],
+            ),
+          ],
+        ),
+      );
+      expect(
+        find.descendant(
+          of: find.byType(CalmRowGroup),
+          matching: find.text('Sold and archived'),
+        ),
+        findsNothing,
+      );
+      expect(
+        tester.getBottomLeft(find.text('Sold and archived')).dy,
+        lessThanOrEqualTo(tester.getTopLeft(find.byType(CalmRowGroup)).dy),
+      );
+    });
+
+    // `.section__head` is a flex row: the title at the start, a
+    // `.section__hint` at the end. The garage spends the hint on the number of
+    // sold vehicles, which SPEC.md §8 collapses the whole group to above five.
+    //
+    // A SIBLING of the group, never inside it. Nine artboards put a
+    // `.section__head` immediately before a `.rowgroup` and none puts a title
+    // inside a group's surface.
+    testWidgets('sits at the end of the title, in caption ink-3', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        const CalmSectionHead(title: 'Sold and archived', hint: '7'),
+      );
+      final context = tester.element(find.byType(CalmSectionHead));
+      expect(find.text('7'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.text('7')).style!.color,
+        CalmColors.of(context).ink3,
+      );
+      // At the END edge, which is what makes it a hint beside a heading rather
+      // than a second heading.
+      expect(
+        tester.getTopRight(find.text('7')).dx,
+        greaterThan(tester.getTopRight(find.text('Sold and archived')).dx),
+      );
+    });
+
+    testWidgets('a head with no hint draws no empty slot', (tester) async {
+      await pumpApp(
+        tester,
+        const CalmSectionHead(title: 'Sold and archived'),
+      );
+      // Still one line high. A `SizedBox` standing in for an absent hint is a
+      // gap nobody can see and everybody has to lay out around.
+      expect(find.text('Sold and archived'), findsOneWidget);
+      expect(
+        tester.getSize(find.text('Sold and archived')).height,
+        lessThan(40),
+      );
+    });
+  });
+
+  group('a reorderable group', () {
+    // The garage composed one itself — `CalmRowGroup(rows: [ReorderableListView
+    // (...)])` — which passes ONE child, so the group drew ZERO hairlines
+    // between three vehicles while the sold group below it drew its own. The
+    // divider rule, the surface and the scope all belong to the group, so the
+    // drag does too.
+    Widget group({required bool reorderable}) => CalmRowGroup(
+      onReorder: reorderable ? (_, _) {} : null,
+      rows: const [
+        CalmListRow(title: 'The Golf'),
+        CalmListRow(title: 'The Polo'),
+        CalmListRow(title: 'Transit'),
+      ],
+    );
+
+    testWidgets('keeps its hairlines under a drag', (tester) async {
+      await pumpApp(tester, group(reorderable: true));
+      expect(_dividers(), findsNWidgets(2));
+    });
+
+    testWidgets('draws the same rows either way', (tester) async {
+      for (final reorderable in [true, false]) {
+        await pumpApp(tester, group(reorderable: reorderable));
+        expect(
+          find.byType(CalmListRow),
+          findsNWidgets(3),
+          reason: '$reorderable',
+        );
+        expect(_groupSurface(), findsOneWidget, reason: '$reorderable');
+      }
+    });
+
+    testWidgets('a group with no onReorder has no reorderable list', (
+      tester,
+    ) async {
+      await pumpApp(tester, group(reorderable: false));
+      expect(find.byType(ReorderableListView), findsNothing);
+    });
+
+    testWidgets('the lifted row keeps the group scope, so a row can assert', (
+      tester,
+    ) async {
+      // A drag proxy is built in an OVERLAY, outside the group — so it loses
+      // `CalmRowGroupScope` and `CalmListRow`'s "rows have no surface of their
+      // own" assertion fires mid-gesture. The group re-provides it, because the
+      // row really is still its row; it is simply being painted elsewhere for
+      // the length of a drag.
+      await pumpApp(tester, group(reorderable: true));
+      final drag = await tester.startGesture(
+        tester.getCenter(find.text('The Golf')),
+      );
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 100));
+      for (var i = 0; i < 4; i++) {
+        await drag.moveBy(const Offset(0, 30));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(tester.takeException(), isNull);
+      await drag.up();
+      await tester.pumpAndSettle();
+    });
   });
 }

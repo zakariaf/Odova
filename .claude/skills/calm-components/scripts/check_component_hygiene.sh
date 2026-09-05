@@ -9,9 +9,24 @@ TARGET="${1:-lib}"
 if [ ! -d "$TARGET" ]; then echo "note: '$TARGET' not found; nothing to scan."; exit 0; fi
 
 GEN_RE='\.g\.dart$|\.freezed\.dart$|\.gr\.dart$'
-# Exactly two files may draw a border: the field's rest/focus/error ring, and
-# the focus ring CalmPressable paints outside every control.
-BORDER_OK='/(calm_field|calm_pressable)\.dart$'
+# Exactly four files may draw a border, and not one of them borders a SURFACE —
+# which is the rule this gate states and still enforces everywhere else.
+#
+#   calm_field      the rest/focus/error ring
+#   calm_pressable  the focus ring painted outside every control
+#   calm_swatch     `.swatch`'s hairline. `box-shadow: inset 0 0 0 1.5px` in the
+#                   CSS, and Flutter has no inset shadow, so the only way to put
+#                   a line INSIDE a circle is a border. A 26pt mark, not a
+#                   surface.
+#   calm_row_group  the hairline BETWEEN adjacent rows. `box-shadow: 0 -1px 0`
+#                   in the CSS, and Flutter's BoxShadow is not CSS's: CSS clips
+#                   a shadow to outside the border box, Flutter paints the whole
+#                   silhouette, so the literal translation drew a full-size
+#                   rectangle behind every row and the selected row's tint bled
+#                   down over the next four. A `SizedBox(height: 1)` is the
+#                   other alternative and it takes a point of layout, which made
+#                   every row 1pt too tall.
+BORDER_OK='/(calm_field|calm_pressable|calm_swatch|calm_row_group)\.dart$'
 # Material components whose sizing, ripple and elevation model Calm replaces.
 SUBSTITUTES='(^|[^A-Za-z0-9_])(ElevatedButton|FilledButton|OutlinedButton|TextButton|IconButton|ListTile|SwitchListTile|SegmentedButton|BottomNavigationBar|NavigationBar|AppBar|AlertDialog|SnackBar|Card|Chip|Switch)\(|showModalBottomSheet\('
 LIVE_SPLASH='splashFactory:[[:space:]]*Ink(Ripple|Sparkle|Splash)'

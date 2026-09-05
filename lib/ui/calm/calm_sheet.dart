@@ -117,6 +117,11 @@ class CalmSheet extends StatelessWidget {
               ),
       ),
       child: Column(
+        // STRETCH. The default is `center`, which shrink-wrapped the head and
+        // floated the title in the middle of the sheet — `.sheet__head` is a
+        // full-width flex row and every artboard draws its title at the start
+        // edge. The `vehicle.switcher` parity capture is what showed it.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (!full) ...[
@@ -130,9 +135,24 @@ class CalmSheet extends StatelessWidget {
               space.s6,
               space.s3,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+            // A ROW, not a column. `.sheet__head` is
+            // `display: flex; align-items: baseline;
+            // justify-content: space-between` — the same shape `.section__head`
+            // has, with the title at the start edge and the subtitle at the
+            // end. Stacked, the count read as a second heading under the first.
+            // A `Wrap`, not a `Row`. `.sheet__head` is
+            // `justify-content: space-between` and `Wrap` reproduces that on
+            // one line — title at the start, subtitle at the end — and then
+            // DEGRADES the way Calm degrades everywhere else: at 200% on a
+            // 320pt screen the two do not fit beside each other, and a Row
+            // clips the subtitle where a Wrap moves it to a second line.
+            // SPEC.md §17 allows zero glyph clipping at 200%, and
+            // `calm_overflow_matrix_test` is what caught the Row.
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              spacing: space.s3,
+              runSpacing: space.s1,
               children: [
                 Text(
                   title,
@@ -141,13 +161,11 @@ class CalmSheet extends StatelessWidget {
                     fontWeight: type.semi,
                   ),
                 ),
-                if (subtitle != null) ...[
-                  SizedBox(height: space.s1),
+                if (subtitle != null)
                   Text(
                     subtitle!,
                     style: type.caption.copyWith(color: colors.ink3),
                   ),
-                ],
               ],
             ),
           ),

@@ -143,10 +143,14 @@ void main() {
     // travels in `extra` is identity that vanishes when the OS restarts the
     // app. The placeholder renders whatever the route read, so the assertion is
     // that the id reached the screen — not that a particular field was touched.
+    //
+    // `vehicle.edit` is NOT in this map any more: EPIC-09 gave it the real
+    // screen, which takes a parsed `VehicleId` rather than a string, so its
+    // path-reading is asserted by `vehicle_edit_route_test.dart` against the
+    // screen instead. Three placeholders remain and each still earns its line.
     const idBearing = {
       '/reminders/:reminderId': 'reminders.edit',
       '/costs/trips/:tripId': 'trips.edit',
-      '/settings/vehicles/:vehicleId': 'vehicle.edit',
       '/log/:type/:entryId': 'log.fillup',
     };
 
@@ -163,9 +167,9 @@ void main() {
       expect(screen.detail, id, reason: '$path did not read $id from the path');
     }
 
-    // And the graph declares exactly these four. A fifth added without a test
-    // is a fifth nobody proved reads its path.
-    expect(idBearing, hasLength(4));
+    // And the graph declares exactly these three plus `vehicle.edit`. A fifth
+    // added without a test is a fifth nobody proved reads its path.
+    expect(idBearing, hasLength(3));
   });
 
   testWidgets('an unknown location renders the error screen', (tester) async {

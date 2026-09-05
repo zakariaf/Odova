@@ -368,4 +368,44 @@ void main() {
       }
     });
   });
+
+  group('fromDateTime', () {
+    // The entry point the type was missing. Every caller starting from
+    // `clockProvider.now()` was string-building a `YYYY-MM-DD` and handing it
+    // straight back to `tryParse` — three copies in EPIC-09 alone.
+    test('takes the calendar date and drops the time', () {
+      expect(
+        CivilDate.fromDateTime(
+          DateTime.utc(2026, 9, 5, 23, 59, 59),
+        )!.toString(),
+        '2026-09-05',
+      );
+      expect(
+        CivilDate.fromDateTime(DateTime(2026, 1, 2))!.toString(),
+        '2026-01-02',
+        reason: 'single digits are padded',
+      );
+    });
+
+    test('round-trips through toString, which is the format it owns', () {
+      for (final when in [
+        DateTime.utc(1900),
+        DateTime.utc(2026, 2, 29 - 1),
+        DateTime.utc(9999, 12, 31),
+      ]) {
+        final date = CivilDate.fromDateTime(when)!;
+        expect(CivilDate.tryParse(date.toString()), date);
+      }
+    });
+
+    test('a year that has no four digits is null, not a guess', () {
+      // A device clock reading year 275760 is real — SPEC.md §3's
+      // clock-suspicion check exists because of clocks like it — and it has no
+      // `YYYY`. Null rather than a truncation that would silently file a
+      // reading under the year 7576.
+      expect(CivilDate.fromDateTime(DateTime.utc(275760, 9, 13)), isNull);
+      expect(CivilDate.fromDateTime(DateTime.utc(10000)), isNull);
+      expect(CivilDate.fromDateTime(DateTime.utc(9999, 12, 31)), isNotNull);
+    });
+  });
 }

@@ -92,7 +92,7 @@ void main() {
     // key — a failure that only appears when two kinds of record are written
     // in the same test, which is exactly what this one does.
     final ids = testIds();
-    vehicles = VehicleRepository(db);
+    vehicles = VehicleRepository(db, testUlids());
     fillUps = FillUpRepository(db, ids);
     expenses = ExpenseRepository(db, ids);
     trips = TripRepository(db, ids);

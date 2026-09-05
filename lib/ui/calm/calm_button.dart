@@ -72,13 +72,21 @@ class CalmButton extends StatelessWidget {
     this.block = false,
     this.loading = false,
     this.dueState,
-  });
+    this.disabledBecause,
+  }) : assert(
+         disabledBecause == null || disabledBecause != '',
+         'disabledBecause was given an empty string, which explains nothing. '
+         'It exists to make somebody articulate what stands in for the '
+         'CalmButtonExplain, and an empty sentence is the `// ignore:` it was '
+         'added to prevent.',
+       );
 
   /// The label. It wraps to two lines; it is never ellipsised.
   final String label;
 
   /// Null means disabled — and a disabled button owes the user a
-  /// [CalmButtonExplain] beneath it.
+  /// [CalmButtonExplain] beneath it, or a [disabledBecause] naming the line
+  /// that already says it.
   final VoidCallback? onPressed;
 
   /// The treatment.
@@ -95,6 +103,21 @@ class CalmButton extends StatelessWidget {
 
   /// Swaps the label for a spinner without changing the button's width.
   final bool loading;
+
+  /// Names the always-visible explanation that stands in for a
+  /// [CalmButtonExplain].
+  ///
+  /// SPEC.md §8's `firstrun.vehicle` is the case this exists for: Start is
+  /// visibly disabled until the odometer parses, and the field's own hint —
+  /// "Read it off the dash." — is on screen whether the button is disabled or
+  /// not. Printing it a second time under the button is the same sentence
+  /// twice on the screen with the least room for it.
+  ///
+  /// A SENTENCE rather than a bool, because the assertion it satisfies exists
+  /// to make somebody articulate the answer, and a `true` articulates nothing.
+  /// It is never rendered; it is read by whoever is deciding whether the
+  /// disabled state is honest.
+  final String? disabledBecause;
 
   /// The state [CalmButtonVariant.onState] takes its colour from.
   final DueState? dueState;
@@ -114,7 +137,9 @@ class CalmButton extends StatelessWidget {
     final enabled = onPressed != null;
     final interactive = enabled && !loading;
 
-    if (onPressed == null) _assertExplained(context);
+    if (onPressed == null && disabledBecause == null) {
+      _assertExplained(context);
+    }
 
     // .btn--lg 60 / .btn--md 52 / .btn--sm 42
     final height = switch (size) {

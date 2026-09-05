@@ -8,6 +8,8 @@
 // written for.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// `ProviderListenable` lives in misc.dart in Riverpod 3.x, like `Override`.
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/tab_stack_reset.dart';
@@ -73,6 +75,16 @@ final costsAllVehiclesProvider = NotifierProvider<CostsAllVehicles, bool>(
   CostsAllVehicles.new,
 );
 
+/// Reads a provider. `ProviderContainer.read` and `Ref.read` both satisfy it.
+///
+/// The reason [setActiveVehicle] takes one of these rather than a
+/// [ProviderContainer]: a `Notifier` cannot hand out its container — Riverpod
+/// 3 marks that accessor `@internal` — so a container parameter locked the one
+/// sanctioned way to switch vehicles out of the layer where the decision to
+/// switch is actually made. `VehiclesNotifier` promotes a vehicle after a
+/// delete and could not call this at all.
+typedef ProviderReader = T Function<T>(ProviderListenable<T> provider);
+
 /// Makes [id] the active vehicle.
 ///
 /// Two effects and no third: it writes one `Settings` field, and it asks task
@@ -80,23 +92,21 @@ final costsAllVehiclesProvider = NotifierProvider<CostsAllVehicles, bool>(
 /// now showing the wrong car's data. `selectHome: false`, per SPEC.md §7:
 /// switching vehicles changes WHAT is shown, not where the user was looking.
 ///
-/// Takes a [ProviderContainer] rather than a `Ref`. Both callers SPEC.md §7
-/// allows — the switcher sheet and the deep-link handler — have one, and a
-/// function this important should be callable from a test without a widget
-/// tree.
+/// Takes a [ProviderReader] rather than a `Ref` or a container, so it is
+/// callable from a widget, from a notifier, and from a test with neither.
+/// `active_vehicle_test.dart` asserts that nothing else in `lib/` writes the
+/// field, and this signature is what lets that stay true.
 Future<Result<void, PersistFailure>> setActiveVehicle(
-  ProviderContainer ref,
+  ProviderReader read,
   VehicleId id,
 ) async {
   // A targeted UPDATE, not a read-modify-write: `SettingsRepository` explains
   // why the difference matters, and it is the difference between "writes one
   // field" being a promise and being an accident.
-  final written = await ref
-      .read(settingsRepositoryProvider)
-      .setActiveVehicle(
-        id,
-        updatedAtUtcMs: ref.read(clockProvider).now().millisecondsSinceEpoch,
-      );
+  final written = await read(settingsRepositoryProvider).setActiveVehicle(
+    id,
+    updatedAtUtcMs: read(clockProvider).now().millisecondsSinceEpoch,
+  );
 
   // The failure is RETURNED, not swallowed. `guardPersist` wraps a thrown
   // UPDATE as well as a missing row — a full disk, a locked database, a
@@ -106,6 +116,6 @@ Future<Result<void, PersistFailure>> setActiveVehicle(
   // has to say so.
   if (written is! Ok) return written;
 
-  ref.read(tabStackResetProvider.notifier).resetAllTabStacks(selectHome: false);
+  read(tabStackResetProvider.notifier).resetAllTabStacks(selectHome: false);
   return const Ok(null);
 }

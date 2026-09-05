@@ -222,6 +222,11 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String confirmDeleteMismatch(String subject) {
+    return 'ئەمە لەگەڵ $subject یەک ناگرێتەوە.';
+  }
+
+  @override
   String get confirmDeleteDelete => 'سڕینەوە';
 
   @override
@@ -265,4 +270,439 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get commonCancel => 'پاشگەزبوونەوە';
+
+  @override
+  String get commonContinue => 'بەردەوام بە';
+
+  @override
+  String get commonRestoreBackup => 'پاشەکەوتیک بگەڕێنەوە';
+
+  @override
+  String settingsLanguageSystem(String language) {
+    return 'سیستەم ($language)';
+  }
+
+  @override
+  String get settingsLanguageNotTranslated =>
+      'ئۆدۆڤا هێشتا بۆ زمانی ئامێرەکەت وەرنەگێڕدراوە. ژمارە، بەروار، یەکە و بڕی پارە هێشتا بەپێی هەرێمەکەت دەبن.';
+
+  @override
+  String get firstRunLanguageTagline =>
+      'ئەو زمانە هەڵبژێرە کە باشتر دەیخوێنیتەوە.';
+
+  @override
+  String get firstRunRestorePrompt => 'لە مۆبایلێکی تر هاتوویت؟';
+
+  @override
+  String get firstRunVehicleTitle => 'ئۆتۆمبێلەکەت';
+
+  @override
+  String get firstRunVehicleSubtitle =>
+      'یەک ئۆتۆمبێل و یەک ژمارە. هەموو ئامادەکارییەکە هەر ئەوەیە.';
+
+  @override
+  String get vehicleTypeCar => 'ئۆتۆمبێل';
+
+  @override
+  String get vehicleTypeMotorcycle => 'مۆتۆرسیکل';
+
+  @override
+  String get vehicleTypeVan => 'ڤان';
+
+  @override
+  String get vehicleNameLabel => 'ناو';
+
+  @override
+  String get vehicleNameDefaultCar => 'ئۆتۆمبێلەکەم';
+
+  @override
+  String get vehicleNameDefaultMotorcycle => 'مۆتۆرسیکلەکەم';
+
+  @override
+  String get vehicleNameDefaultVan => 'ڤانەکەم';
+
+  @override
+  String get vehicleFuelLabel => 'سووتەمەنی';
+
+  @override
+  String get fuelPetrol => 'بەنزین';
+
+  @override
+  String get fuelDiesel => 'دیزل';
+
+  @override
+  String get fuelElectric => 'کارەبایی';
+
+  @override
+  String get fuelLpg => 'LPG';
+
+  @override
+  String get fuelCng => 'CNG';
+
+  @override
+  String get fuelHybrid => 'هایبرید';
+
+  @override
+  String get fuelOther => 'هیتر';
+
+  @override
+  String get commonMore => 'زیاتر…';
+
+  @override
+  String get odometerNowLabel => 'ژمارەی ئێستای کیلۆمێتر';
+
+  @override
+  String get odometerFirstRunHint => 'لە داشبۆردەکەوە بیخوێنەوە.';
+
+  @override
+  String get odometerEmptyError => 'ئەو ژمارەیە بنووسە کە لەسەر داشبۆردەکەتە.';
+
+  @override
+  String get odometerNotANumberError =>
+      'ئەمە لە ژمارە ناچێت. تەنها ڕەقەم بنووسە.';
+
+  @override
+  String get odometerImplausibleWarning =>
+      'ئەمە لەو مەودایە زیاترە کە هیچ ئۆتۆمبێلێک بڕیبێتی. ژمارەکە بپشکنە.';
+
+  @override
+  String get commonUseItAnyway => 'هەر بەکاری بهێنە';
+
+  @override
+  String get annualBandLabelKm => 'ساڵانە نزیکەی چەند ڕێگا دەبڕیت؟ (هەزار کم)';
+
+  @override
+  String get annualBandLabelMi =>
+      'ساڵانە نزیکەی چەند ڕێگا دەبڕیت؟ (هەزار مایل)';
+
+  @override
+  String annualBandUnder(String max) {
+    return 'کەمتر لە $max';
+  }
+
+  @override
+  String annualBandRange(String min, String max) {
+    return '$min–$max';
+  }
+
+  @override
+  String annualBandOver(String min) {
+    return 'زیاتر لە $min';
+  }
+
+  @override
+  String get commonStart => 'دەستپێبکە';
+
+  @override
+  String get firstRunHaveBackup => 'پێشتر پاشەکەوتێکی ئۆدۆڤام هەیە';
+
+  @override
+  String get saveDiskFullError =>
+      'پاشەکەوت نەکرا. لەوانەیە بۆشایی مۆبایلەکەت نەمابێت.';
+
+  @override
+  String get commonRetry => 'دووبارە هەوڵبدە';
+
+  @override
+  String get vehicleEditTitle => 'ئۆتۆمبێل';
+
+  @override
+  String get commonClose => 'داخستن';
+
+  @override
+  String get commonSave => 'پاشەکەوتکردن';
+
+  @override
+  String get vehicleTypeOther => 'هیتر';
+
+  @override
+  String get vehicleMakeLabel => 'مارکە';
+
+  @override
+  String get vehicleModelLabel => 'مۆدێل';
+
+  @override
+  String get vehicleYearLabel => 'ساڵ';
+
+  @override
+  String get vehiclePlateLabel => 'پلاک';
+
+  @override
+  String get vehicleVinLabel => 'VIN';
+
+  @override
+  String get vehicleColourLabel => 'ڕەنگ';
+
+  @override
+  String get vehicleNotesLabel => 'تێبینی';
+
+  @override
+  String get vehicleBusinessLabel => 'ئەمە بۆ کار لێدەخوڕیت؟';
+
+  @override
+  String get vehicleMuteLabel => 'بێدەنگکردنی بیرخەرەوەکانی ئەم ئۆتۆمبێلە';
+
+  @override
+  String get vehicleOdometerRow => 'ژمارەی کیلۆمێتر';
+
+  @override
+  String vehicleOdometerRowHint(String age) {
+    return '$age تۆمارکراوە';
+  }
+
+  @override
+  String get vehicleMarkAsSold => 'نیشانەکردن وەک فرۆشراو';
+
+  @override
+  String get vehicleKeepItMarkSold => 'بیهێڵەوە — وەک فرۆشراو نیشانەی بکە';
+
+  @override
+  String vehicleDeleteRow(String name, String countText) {
+    return 'سڕینەوەی $name و $countText تۆمارەکەی';
+  }
+
+  @override
+  String vehicleDeleteRowEmpty(String name) {
+    return 'سڕینەوەی $name';
+  }
+
+  @override
+  String get vehiclePurchaseGroup => 'کڕین و فرۆشتن';
+
+  @override
+  String get vehicleUnitsGroup => 'یەکە و دراوی ئەم ئۆتۆمبێلە';
+
+  @override
+  String get commonAutomatic => 'خۆکار';
+
+  @override
+  String get vehiclePurchaseDate => 'بەرواری کڕین';
+
+  @override
+  String get vehiclePurchasePrice => 'نرخی کڕین';
+
+  @override
+  String get vehiclePurchaseOdometer => 'ژمارەی کیلۆمێتر لە کاتی کڕین';
+
+  @override
+  String get vehicleSoldOn => 'بەرواری فرۆشتن';
+
+  @override
+  String get vehicleSoldPrice => 'نرخی فرۆشتن';
+
+  @override
+  String vehicleYearRangeError(String min, String max) {
+    return 'ساڵێک لە نێوان $min و $max بنووسە.';
+  }
+
+  @override
+  String vehicleVinLengthNote(String countText) {
+    return 'بەزۆری VIN لە $countText پیت پێکدێت.';
+  }
+
+  @override
+  String vehicleDuplicateNameNote(String name) {
+    return 'پێشتر ئۆتۆمبێلێکت بە ناوی $name هەیە';
+  }
+
+  @override
+  String get vehicleCurrencyChangeNote =>
+      'تەنها تۆمارە نوێیەکان ئەمە بەکاردەهێنن. ئەوەی پێشتر پاشەکەوت کراوە ناگۆڕێت.';
+
+  @override
+  String get vehicleFuelChangeNote =>
+      'ماوەکانی بیرخەرەوەکان وەک خۆیان دەمێننەوە.';
+
+  @override
+  String get colourWhite => 'سپی';
+
+  @override
+  String get colourSilver => 'زیوی';
+
+  @override
+  String get colourGrey => 'خۆڵەمێشی';
+
+  @override
+  String get colourBlack => 'ڕەش';
+
+  @override
+  String get colourRed => 'سوور';
+
+  @override
+  String get colourBlue => 'شین';
+
+  @override
+  String get colourGreen => 'سەوز';
+
+  @override
+  String get colourYellow => 'زەرد';
+
+  @override
+  String get colourOther => 'هیتر';
+
+  @override
+  String dateDaysAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ڕۆژ لەمەوبەر',
+      one: '$nText ڕۆژ لەمەوبەر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateAboutWeeksAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'نزیکەی $nText هەفتە لەمەوبەر',
+      one: 'نزیکەی $nText هەفتە لەمەوبەر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateAboutMonthsAgo(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'نزیکەی $nText مانگ لەمەوبەر',
+      one: 'نزیکەی $nText مانگ لەمەوبەر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vehiclesTitle => 'ئۆتۆمبێلەکان';
+
+  @override
+  String get vehiclesIntro =>
+      'لێرەدا ئۆتۆمبێلەکانت بەڕێوە دەبەیت. گۆڕینی ئۆتۆمبێل لە ناونیشانی پەڕەی ماڵەوە ئەنجام دەدرێت.';
+
+  @override
+  String get vehiclesReorderHint =>
+      'بۆ گۆڕینی ڕیزبەندی، دەستت لەسەر ڕیزێک ڕابگرە. بۆ فرۆشتن و سڕینەوە، ڕیزەکە بەلایەکدا بکێشە.';
+
+  @override
+  String get vehiclesSoldArchived => 'فرۆشراو و ئەرشیفکراو';
+
+  @override
+  String get vehicleStatusAllGood => 'هەموو شتێک باشە';
+
+  @override
+  String get vehicleStatusNoReminders => 'هێشتا هیچ بیرخەرەوەیەک نییە';
+
+  @override
+  String get vehicleStatusNeedsOdometer =>
+      'ژمارەی کیلۆمێتر پێویستی بە نوێکردنەوەیە';
+
+  @override
+  String get vehicleStatusUnknown => 'نەزانرا چی کاتی هاتووە';
+
+  @override
+  String vehicleOdometerStale(String age) {
+    return 'کیلۆمەتری $age نوێکراوەتەوە';
+  }
+
+  @override
+  String vehicleOdometerLastEntered(String date) {
+    return 'دوایین تۆمار $date';
+  }
+
+  @override
+  String vehicleStatusOverdue(String item) {
+    return '$item دواکەوتووە';
+  }
+
+  @override
+  String vehicleStatusDue(String item) {
+    return '$item کاتی هاتووە';
+  }
+
+  @override
+  String get vehicleStatusItemGeneric => 'خزمەتگوزاری';
+
+  @override
+  String get vehiclesOnlyOneWarning =>
+      'ئەمە تاکە ئۆتۆمبێلتە. ئەگەر بیسڕیتەوە، ئۆدۆڤا لە سەرەتاوە دەست پێدەکاتەوە.';
+
+  @override
+  String get vehicleSwitchToIt => 'بۆی بگۆڕە';
+
+  @override
+  String get vehicleAddTitle => 'زیادکردنی ئۆتۆمبێل';
+
+  @override
+  String vehicleAddedSnack(String name) {
+    return '$name زیادکرا';
+  }
+
+  @override
+  String get switcherTitle => 'گۆڕینی ئۆتۆمبێل';
+
+  @override
+  String switcherCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ئۆتۆمبێل',
+      one: '$nText ئۆتۆمبێل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get switcherAddVehicle => 'زیادکردنی ئۆتۆمبێل';
+
+  @override
+  String get switcherManageVehicles => 'بەڕێوەبردنی ئۆتۆمبێلەکان';
+
+  @override
+  String get vehicleBusinessBadge => 'کار';
+
+  @override
+  String get commonBack => 'گەڕانەوە';
+
+  @override
+  String get commonAdd => 'زیادکردن';
+
+  @override
+  String get commonDelete => 'سڕینەوە';
+
+  @override
+  String get commonUndo => 'گەڕانەوە';
+
+  @override
+  String vehicleDeletedSnack(String name) {
+    return '$name سڕایەوە';
+  }
+
+  @override
+  String vehicleSoldSnack(String name) {
+    return '$name وەک فرۆشراو نیشانە کرا';
+  }
+
+  @override
+  String vehicleSoldSummary(int n, String date, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'فرۆشراوە لە $date · $countText تۆمار',
+      one: 'فرۆشراوە لە $date · $countText تۆمار',
+      zero: 'فرۆشراوە $date',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vehicleStatusDueInDays(int n, String item, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$item لە $countText ڕۆژی دیکەدا پێویستە',
+      one: '$item لە $countText ڕۆژی دیکەدا پێویستە',
+    );
+    return '$_temp0';
+  }
 }

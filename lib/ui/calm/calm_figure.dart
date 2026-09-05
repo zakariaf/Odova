@@ -8,6 +8,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 
 /// A number on screen, in the active digit block.
 ///
@@ -85,11 +86,10 @@ class CalmFigure extends StatelessWidget {
     return Text(
       text,
       semanticsLabel: semanticsLabel,
-      style: (style ?? const TextStyle()).copyWith(
-        // A column of figures that jitters as a digit changes reads as broken
-        // rather than as live.
-        fontFeatures: const [FontFeature.tabularFigures()],
-      ),
+      // A column of figures that jitters as a digit changes reads as broken
+      // rather than as live. Through `CalmType.tabular` rather than an inline
+      // feature list, so `.num`'s two features have ONE definition.
+      style: CalmType.tabular(style ?? const TextStyle()),
     );
   }
 }

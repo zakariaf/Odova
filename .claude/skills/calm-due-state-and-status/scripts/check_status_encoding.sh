@@ -25,12 +25,15 @@ DOMAIN_RE='^lib/core/'                       # may switch; may never read a slot
 # declares the ramps and resolves them; CalmField reads `overdue` for its error
 # ring and CalmSnackbar's destructive variant reads `danger` — both states are
 # fixed when the widget is written and neither is resolved from a DueState.
-# Three widgets read a state slot at AUTHORING time rather than resolving one from
+# FOUR widgets read a state slot at AUTHORING time rather than resolving one from
 # a DueState, so CalmStatusStyle has nothing to resolve: the field error ring is
-# always `overdue`, the destructive snackbar is always `danger`, and all-clear is
-# always `ok` — that is what the screen means. Anything that switches on a
-# DueState still goes through CalmStatusStyle.
-SLOT_ALLOW_RE='/theme/calm/|/calm_field\.dart$|/calm_snackbar\.dart$|/calm_all_clear\.dart$'
+# always `overdue`, the destructive snackbar is always `danger`, all-clear is
+# always `ok`, and a swipe action's tone is a `CalmSwipeTone` chosen when the
+# action is declared — SPEC.md §8 names them, "Mark as sold (amber), Delete
+# (red)". Anything that switches on a DueState still goes through
+# CalmStatusStyle, including in these four files: the allowance is for reading a
+# slot, never for resolving one.
+SLOT_ALLOW_RE='/theme/calm/|/calm_field\.dart$|/calm_snackbar\.dart$|/calm_all_clear\.dart$|/calm_swipe_actions\.dart$'
 if [ ! -d "$TARGET" ]; then echo "note: '$TARGET' not found."; exit 0; fi
 
 # Generated code and the generated localisations legitimately carry both the

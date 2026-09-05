@@ -407,9 +407,15 @@ void main() {
       );
     });
 
-    test('DirtyModalGuard is the only PopScope outside the shell', () {
+    test('only the four sanctioned files own a PopScope', () {
       // Two implementations of "what happens on back" is one too many, and the
-      // second is always the one a lost draft came from.
+      // second is always the one a lost draft came from. The list is an
+      // allow-list rather than a ban because the first-run screens genuinely
+      // answer back differently and neither is guarding a draft: SPEC.md §8
+      // has `firstrun.language` EXIT the app, because there is nothing behind
+      // it, while `firstrun.vehicle` SWALLOWS back, because dismissing into an
+      // app with no data is a bug with a nice animation. Adding a fourth entry
+      // is a decision somebody makes here, in front of that sentence.
       final owners = <String>[];
       for (final file in dartFilesUnder('lib')) {
         if (RegExp('PopScope[<(]').hasMatch(sourceWithoutLineComments(file))) {
@@ -419,6 +425,8 @@ void main() {
       expect(owners..sort(), [
         'lib/app/routing/app_shell.dart',
         'lib/app/routing/dirty_modal_guard.dart',
+        'lib/features/first_run/presentation/first_run_language_screen.dart',
+        'lib/features/first_run/presentation/first_run_vehicle_screen.dart',
       ]);
     });
   });

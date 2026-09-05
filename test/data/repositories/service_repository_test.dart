@@ -50,7 +50,7 @@ void main() {
   setUp(() async {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     repository = ServiceRepository(db, testIds());
-    await VehicleRepository(db).save(
+    await VehicleRepository(db, testUlids()).save(
       Vehicle(
         id: _vehicleId,
         name: 'The Golf',
@@ -167,7 +167,7 @@ void main() {
     // four vehicles in a household that is four times the work for one useful
     // answer — and it wakes a screen that has not changed.
     final otherId = VehicleId.tryParse('veh_01JV7B5X4G2K9M6P0S3D8FNRTC')!;
-    await VehicleRepository(db).save(
+    await VehicleRepository(db, testUlids()).save(
       Vehicle(
         id: otherId,
         name: 'Van',

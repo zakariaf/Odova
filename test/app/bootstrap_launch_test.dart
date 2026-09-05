@@ -27,6 +27,9 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/degraded_mode.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
+import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
+import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 
 import '../data/support/rows.dart';
 import '../support/provider_harness.dart';
@@ -310,9 +313,23 @@ void main() {
     /// screens are in the tree and only the top one is on stage — a finder that
     /// took the first match would report `settings` and call the destination
     /// wrong for a reason that has nothing to do with the gate.
-    String screen(WidgetTester tester) => tester
-        .widget<PlaceholderScreen>(find.byType(PlaceholderScreen))
-        .screenId;
+    /// EPIC-09 replaced three of these routes' placeholders with the real
+    /// screens, so the id is read from the WIDGET TYPE where one exists and
+    /// from `PlaceholderScreen.screenId` where it does not. The point of the
+    /// test is unchanged — which destination got PAINTED — and it now proves it
+    /// against the screen the user actually sees.
+    String screen(WidgetTester tester) {
+      if (find.byType(FirstRunLanguageScreen).evaluate().isNotEmpty) {
+        return 'firstrun.language';
+      }
+      if (find.byType(FirstRunVehicleScreen).evaluate().isNotEmpty) {
+        return 'firstrun.vehicle';
+      }
+      if (find.byType(VehiclesScreen).evaluate().isNotEmpty) return 'vehicles';
+      return tester
+          .widget<PlaceholderScreen>(find.byType(PlaceholderScreen))
+          .screenId;
+    }
 
     const returning = LaunchFacts(
       onboardingDone: true,
