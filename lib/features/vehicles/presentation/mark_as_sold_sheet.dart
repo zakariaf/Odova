@@ -102,15 +102,6 @@ class _MarkAsSoldSheetState extends ConsumerState<MarkAsSoldSheet> {
     return (valid: true, minor: minor);
   }
 
-  /// `YYYY-MM-DD`. Through `CivilDate`, which owns the format.
-  ///
-  /// The picker cannot offer a year outside 1900..today, so the fallback is
-  /// unreachable from the UI — it exists because `fromDateTime` is honest about
-  /// a clock that has no four-digit year.
-  String _isoDate(DateTime date) =>
-      (CivilDate.fromDateTime(date) ?? CivilDate.fromDateTime(DateTime(1970))!)
-          .toString();
-
   Future<void> _pickDate() async {
     final today = markAsSoldLastDate(ref.read(clockProvider).now().toLocal());
     final picked = await showDatePicker(
@@ -149,7 +140,7 @@ class _MarkAsSoldSheetState extends ConsumerState<MarkAsSoldSheet> {
           disabledBecause: price.valid ? null : l10n.odometerNotANumberError,
           onPressed: price.valid
               ? () => Navigator.of(context).pop((
-                  soldOn: _isoDate(_soldOn),
+                  soldOn: CivilDate.isoDateOf(_soldOn),
                   soldPriceMinor: price.minor,
                 ))
               : null,
@@ -160,7 +151,7 @@ class _MarkAsSoldSheetState extends ConsumerState<MarkAsSoldSheet> {
           rows: [
             CalmListRow(
               title: l10n.vehicleSoldOn,
-              value: formatLongDate(_isoDate(_soldOn), tag),
+              value: formatLongDate(CivilDate.isoDateOf(_soldOn), tag),
               onTap: _pickDate,
               showChevron: true,
             ),

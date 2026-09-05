@@ -16,7 +16,6 @@ import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
-import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/vehicle_edit_draft.dart';
 import 'package:odova/l10n/locale_controller.dart';
@@ -164,18 +163,33 @@ class VehicleEditNotifier extends Notifier<VehicleEditState> {
     final current = state;
     if (current is! VehicleEditReady) return;
     final draft = change(current.draft);
+    final odometer = current.odometer;
     state = current.copyWith(
       draft: draft,
       // The odometer field follows this vehicle's own unit override, because
       // the field's affix is what says which unit the digits are in. Changing
       // it is a new question, and `OdometerEntry.copyWith` drops an accepted
       // warning with it: 3,000,001 mi is not the number 3,000,001 km was.
-      odometer: current.odometer?.copyWith(
-        unit: draft.distanceUnit ?? _defaultUnit,
-      ),
+      // GUARDED, and the guard is what keeps `_defaultUnit` — which reads
+      // `settingsProvider` — off the edit-mode path entirely. The `?.` form
+      // this replaced short-circuited its own argument; a plain call does not,
+      // and edit mode grew a stream subscription it had never had.
+      odometer: odometer == null
+          ? null
+          : _reunit(odometer, draft.distanceUnit ?? _defaultUnit),
       failed: false,
     );
   }
+
+  /// [entry] in [unit], or [entry] itself when it is already in it.
+  ///
+  /// The identity case matters: `copyWith(unit:)` on an unchanged unit still
+  /// allocates, and — because a new unit is a new question — it would clear an
+  /// accepted implausible warning. `edit` runs on every keystroke in every
+  /// other field on the form, so an unguarded re-unit brought the warning back
+  /// when the user typed one letter of the make.
+  static OdometerEntry _reunit(OdometerEntry entry, DistanceUnit unit) =>
+      entry.unit == unit ? entry : entry.copyWith(unit: unit);
 
   /// Records what the user typed into create mode's odometer, exactly.
   void typeOdometer(String text) {
@@ -196,8 +210,15 @@ class VehicleEditNotifier extends Notifier<VehicleEditState> {
     );
   }
 
-  /// Writes the draft back. Returns whether the form may close.
-  Future<VehicleId?> save() async {
+  /// Writes the draft back, and answers with the row that is now on disk.
+  ///
+  /// The ROW, not its id: the garage's + names the new vehicle in a snackbar,
+  /// and reading it back through `findById` was a second query for a string
+  /// this method already holds — plus a fallback path for a read that failed
+  /// after a write that had not.
+  ///
+  /// Null means the form may not close: refused, or the write failed.
+  Future<Vehicle?> save() async {
     final current = state;
     if (current is! VehicleEditReady) return null;
     if (current.saving || !current.canSave) return null;
@@ -207,7 +228,7 @@ class VehicleEditNotifier extends Notifier<VehicleEditState> {
 
     // Clean and closable: pressing Save on a form nobody touched is a way of
     // saying "I am done", not a reason to write a row and move `updated_at`.
-    if (!current.draft.isDirty) return editing;
+    if (!current.draft.isDirty) return current.draft.original;
 
     state = current.copyWith(saving: true, failed: false);
     final now = ref.read(clockProvider).now().millisecondsSinceEpoch;
@@ -216,13 +237,14 @@ class VehicleEditNotifier extends Notifier<VehicleEditState> {
         .save(current.draft.toVehicle(now));
     if (!ref.mounted) return null;
 
-    final ok = written is Ok<Vehicle, PersistFailure>;
-    state = ok
-        // Re-based on what was written, so the form is clean afterwards and a
-        // dismiss does not ask about changes that are already on disk.
-        ? VehicleEditReady(VehicleEditDraft.of(current.draft.toVehicle(now)))
-        : current.copyWith(saving: false, failed: true);
-    return ok ? editing : null;
+    if (written case Ok(:final value)) {
+      // Re-based on what was written, so the form is clean afterwards and a
+      // dismiss does not ask about changes that are already on disk.
+      state = VehicleEditReady(VehicleEditDraft.of(value));
+      return value;
+    }
+    state = current.copyWith(saving: false, failed: true);
+    return null;
   }
 
   /// Writes a brand-new vehicle, its first reading and its seeded set.
@@ -235,16 +257,20 @@ class VehicleEditNotifier extends Notifier<VehicleEditState> {
   /// + appends the vehicle, does not make it active", while add-from-switcher
   /// does the opposite — so the decision belongs to whichever screen opened
   /// this form, and it is handed the new id to make it with.
-  Future<VehicleId?> _create(VehicleEditReady current) async {
+  Future<Vehicle?> _create(VehicleEditReady current) async {
     state = current.copyWith(saving: true, failed: false);
-    final now = ref.read(clockProvider).now().millisecondsSinceEpoch;
+    // ONE read of the clock. Two reads is two instants, and the reading's date
+    // and the row's `created_at` disagreeing across a midnight is a vehicle
+    // whose first reading predates it.
+    final at = ref.read(clockProvider).now();
+    final now = at.millisecondsSinceEpoch;
     final written = await ref
         .read(vehicleRepositoryProvider)
         .createVehicle(
           current.draft.toVehicle(now),
           odometer: Distance(current.odometer!.metres!),
           odometerUnit: current.odometer!.unit,
-          occurredOn: _today(ref.read(clockProvider).now()),
+          occurredOn: CivilDate.isoDateOf(at),
           nowUtcMs: now,
         );
     if (!ref.mounted) return null;
@@ -253,21 +279,11 @@ class VehicleEditNotifier extends Notifier<VehicleEditState> {
       // Re-based on the row that was written, id and all, so the form is clean
       // and a dismiss on the way out asks about nothing.
       state = VehicleEditReady(VehicleEditDraft.of(value));
-      return value.id;
+      return value;
     }
     state = current.copyWith(saving: false, failed: true);
     return null;
   }
-
-  /// `YYYY-MM-DD`, in the device's own day.
-  ///
-  /// Through `CivilDate`, which owns the format and counts no elapsed time. A
-  /// clock with no four-digit year falls back to the epoch's date rather than
-  /// refusing the reading — the odometer is required, and losing it would
-  /// leave a vehicle the domain contract forbids.
-  static String _today(DateTime now) =>
-      (CivilDate.fromDateTime(now) ?? CivilDate.fromDateTime(DateTime(1970))!)
-          .toString();
 }
 
 /// One vehicle's edit form.

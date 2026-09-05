@@ -177,9 +177,12 @@ void main() {
       // said about it.
       await insertSettings(db);
       final created = await repository.createVehicle(
-        Vehicle(
-          // Ignored, all four: the repository owns identity and lifecycle.
-          id: VehicleId.tryParse(_polo)!,
+        const Vehicle(
+          // Three of these are ignored — the repository owns lifecycle — and
+          // the fourth is asserted: `kUnsavedVehicleId` is how a caller says
+          // out loud that it has no id, rather than passing a real one and
+          // having it silently discarded.
+          id: kUnsavedVehicleId,
           status: VehicleStatus.sold,
           createdAtUtcMs: 1,
           updatedAtUtcMs: 1,
@@ -203,7 +206,11 @@ void main() {
       );
 
       final vehicle = (created as Ok<Vehicle, PersistFailure>).value;
-      expect(vehicle.id.toString(), isNot(_polo), reason: 'the repo owns ids');
+      expect(
+        vehicle.id,
+        isNot(kUnsavedVehicleId),
+        reason: 'the repository mints the real one',
+      );
       expect(vehicle.status, VehicleStatus.active);
       expect(vehicle.createdAtUtcMs, 7000);
 
@@ -225,13 +232,37 @@ void main() {
       expect(await _count(db, 'service_items'), greaterThan(0));
     });
 
+    test('a caller holding a real id is refused, not silently ignored', () {
+      // The id is the one field `createVehicle` will not take from a caller,
+      // and "ignored" in a dartdoc is a discard nobody sees. A caller with a
+      // real id was editing a vehicle, not creating one.
+      expect(
+        () => repository.createVehicle(
+          Vehicle(
+            id: VehicleId.tryParse(_polo)!,
+            status: VehicleStatus.active,
+            createdAtUtcMs: 1,
+            updatedAtUtcMs: 1,
+            name: 'The Polo',
+            vehicleType: VehicleType.car,
+            fuelKindDefault: FuelKind.petrol,
+          ),
+          odometer: const Distance(1000),
+          odometerUnit: DistanceUnit.km,
+          occurredOn: '2026-09-04',
+          nowUtcMs: 7000,
+        ),
+        throwsAssertionError,
+      );
+    });
+
     test('the seeded set follows the facts, not a default', () async {
       // A business van seeds shorter intervals (§4.8.4) and a van's catalogue,
       // both read off the row the form built.
       await insertSettings(db);
       final created = await repository.createVehicle(
-        Vehicle(
-          id: VehicleId.tryParse(_polo)!,
+        const Vehicle(
+          id: kUnsavedVehicleId,
           status: VehicleStatus.active,
           createdAtUtcMs: 1,
           updatedAtUtcMs: 1,
@@ -267,8 +298,8 @@ void main() {
       await insertVehicle(db, id: _golf);
 
       await repository.createVehicle(
-        Vehicle(
-          id: VehicleId.tryParse(_polo)!,
+        const Vehicle(
+          id: kUnsavedVehicleId,
           status: VehicleStatus.active,
           createdAtUtcMs: 1,
           updatedAtUtcMs: 1,
@@ -321,7 +352,7 @@ void main() {
       final counts = await repository.entryCounts(id);
       final value = (counts as Ok<DeleteCounts, PersistFailure>).value;
       expect(value.reminders, greaterThan(0), reason: 'the seeded set');
-      expect(value.total, 0, reason: 'the user has entered nothing');
+      expect(value.entries, 0, reason: 'the user has entered nothing');
     });
 
     test('counts only this vehicle', () async {

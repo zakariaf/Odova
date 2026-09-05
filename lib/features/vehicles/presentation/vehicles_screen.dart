@@ -14,13 +14,10 @@ import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
-import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/result.dart';
 import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/core/vehicles/garage_status.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
-import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/entry_counts_provider.dart';
@@ -158,29 +155,20 @@ class VehiclesScreen extends ConsumerWidget {
   /// says this screen never does. So it is OFFERED, in the one place an offer
   /// costs nothing to ignore.
   Future<void> _add(BuildContext context, WidgetRef ref) async {
-    final added = await context.push<VehicleId>(Routes.vehicleNew);
+    // The whole ROW comes back, not its id. The form has it in hand after the
+    // write, and reading it back to name the snackbar was a second query for a
+    // string that had just been written — plus a fallback for a read that
+    // failed after a write that had not.
+    final added = await context.push<Vehicle>(Routes.vehicleNew);
     if (added == null || !context.mounted) return;
 
     final l10n = AppLocalizations.of(context);
-    final name = await _nameOf(ref, added);
-    if (!context.mounted) return;
     CalmSnackbar.show(
       context,
-      message: l10n.vehicleAddedSnack(name),
+      message: l10n.vehicleAddedSnack(added.name),
       actionLabel: l10n.vehicleSwitchToIt,
-      onAction: () => unawaited(setActiveVehicle(ref.read, added)),
+      onAction: () => unawaited(setActiveVehicle(ref.read, added.id)),
     );
-  }
-
-  /// What the row calls the vehicle that was just added.
-  ///
-  /// Read back rather than carried through the pop: the form trims the name it
-  /// writes, and a snackbar naming an untrimmed one would disagree with the
-  /// row directly above it. An unreadable row falls back to the empty string,
-  /// which the message tolerates — a snackbar is not worth a failure path.
-  Future<String> _nameOf(WidgetRef ref, VehicleId id) async {
-    final read = await ref.read(vehicleRepositoryProvider).findById(id);
-    return read is Ok<Vehicle, PersistFailure> ? read.value.name : '';
   }
 }
 
@@ -222,10 +210,10 @@ class _GarageRow extends ConsumerWidget {
           subtitle: counts == null || vehicle.soldOn == null
               ? null
               : l10n.vehicleSoldSummary(
-                  counts.total,
+                  counts.entries,
                   formatLongDate(vehicle.soldOn!, tag),
                   formatForDisplay(
-                    counts.total,
+                    counts.entries,
                     tag,
                     numerals: CalmNumerals.auto,
                     decimalDigits: 0,

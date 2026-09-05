@@ -17,6 +17,7 @@ import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/l10n/folded_name.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/odometer/odometer_entry.dart';
@@ -43,7 +44,6 @@ import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
 import 'package:odova/ui/calm/calm_swatch.dart';
-import 'package:odova/ui/calm/calm_switch.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
 
 /// The four segments, in the order the artboard draws them.
@@ -360,17 +360,14 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
           rows: [
             CalmListRow.switchRow(
               title: l10n.vehicleBusinessLabel,
-              // Null, not a no-op: the ROW toggles, and a live callback here
-              // would make the switch a child recognizer that wins the arena
-              // and does nothing.
-              end: CalmSwitch(value: draft.isBusiness, onChanged: null),
+              value: draft.isBusiness,
               onToggle: () => _notifier.edit(
                 (d) => d.copyWith(isBusiness: !d.isBusiness),
               ),
             ),
             CalmListRow.switchRow(
               title: l10n.vehicleMuteLabel,
-              end: CalmSwitch(value: draft.notificationsMuted, onChanged: null),
+              value: draft.notificationsMuted,
               onToggle: () => _notifier.edit(
                 (d) => d.copyWith(
                   notificationsMuted: !d.notificationsMuted,
@@ -398,13 +395,17 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         // checked in March, and that corrupts the series the whole app depends
         // on. A create has no series to corrupt and no other way to get its
         // first reading, which the domain contract requires (§3).
+        // `problem` ONCE. Reading it parses the field — eleven `replaceAll`
+        // passes and two fresh `RegExp`s — and the message and the affordance
+        // below both ask. `mark_as_sold_sheet` computes its price the same way,
+        // once per build.
         if (state.odometer case final odometer?) ...[
           CalmField(
             label: l10n.odometerNowLabel,
             controller: _odometer,
             hint: l10n.odometerFirstRunHint,
-            errorText: _odometerMessage(l10n, odometer),
-            affix: Text(_unitLabel(l10n, odometer.unit)),
+            errorText: _odometerMessage(l10n, odometer.problem),
+            affix: Text(distanceUnitLabel(l10n, odometer.unit)),
             numeric: true,
             keyboardType: TextInputType.number,
             onChanged: _notifier.typeOdometer,
@@ -424,7 +425,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         // ABSENT in create mode, not disabled: there is nothing to sell and
         // nothing to delete, and a destructive row on a car that does not
         // exist is a control that can only lie.
-        if (state.draft.original.id != kUnsavedVehicleId)
+        if (!state.creating)
           CalmRowGroup(
             rows: [
               // The garage's flows, not copies of them. `vehicle_actions.dart`
@@ -494,25 +495,27 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     // add-from-switcher makes it active and dismisses the sheet as well.
     Navigator.of(
       context,
-    ).pop(widget.mode == VehicleEditMode.create ? saved : null);
+    ).pop<Vehicle?>(widget.mode == VehicleEditMode.create ? saved : null);
   }
 
   /// "You already have a vehicle called Van", or nothing.
   ///
-  /// Compared case- and whitespace-insensitively, because "van" and "Van " are
-  /// the same answer to "what do you call it" and a note that only fires on an
-  /// exact byte match is a note that mostly does not fire.
+  /// Through `foldedName`, which is where "the same name" is decided — the
+  /// same fold `dialog.confirmDelete` unlocks Delete with. Two spellings of it
+  /// make "Golf ۲۰۱۹" one vehicle to the dialog and two to this note.
   ///
   /// The form's OWN vehicle is excluded, or every edit of a saved car would
   /// tell the user it already exists. Create mode has no id to exclude and
   /// needs none: `kUnsavedVehicleId` matches nothing in the garage.
   String? _duplicateNote(AppLocalizations l10n, String name) {
-    final typed = name.trim().toLowerCase();
-    if (typed.isEmpty) return null;
+    // WATCHED before the guard, so the screen's dependency set does not flip
+    // subscribed and unsubscribed as the name field crosses empty.
     final garage = ref.watch(vehiclesProvider).value ?? const <Vehicle>[];
+    final typed = foldedName(name);
+    if (typed.isEmpty) return null;
     for (final other in garage) {
       if (other.id == widget.vehicleId) continue;
-      if (other.name.trim().toLowerCase() != typed) continue;
+      if (foldedName(other.name) != typed) continue;
       return l10n.vehicleDuplicateNameNote(other.name);
     }
     return null;
@@ -552,15 +555,12 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
   /// this one message slot with the two that are errors. Empty says nothing at
   /// all: a form that scolds before anything is typed is a form that is angry
   /// at the user for arriving, and here Save is simply not offered yet.
-  String? _odometerMessage(AppLocalizations l10n, OdometerEntry odometer) =>
-      switch (odometer.problem) {
+  String? _odometerMessage(AppLocalizations l10n, OdometerProblem? problem) =>
+      switch (problem) {
         null || OdometerProblem.empty => null,
         OdometerProblem.notANumber => l10n.odometerNotANumberError,
         OdometerProblem.implausible => l10n.odometerImplausibleWarning,
       };
-
-  String _unitLabel(AppLocalizations l10n, DistanceUnit unit) =>
-      unit == DistanceUnit.mi ? l10n.unitDistanceMi : l10n.unitDistanceKm;
 
   /// This year, from the INJECTED clock.
   ///
@@ -668,9 +668,7 @@ class _OdometerRow extends ConsumerWidget {
               ? null
               : formatWithUnit(
                   latest.odometer.inUnit(shown),
-                  shown == DistanceUnit.mi
-                      ? l10n.unitDistanceMi
-                      : l10n.unitDistanceKm,
+                  distanceUnitLabel(l10n, shown),
                   tag,
                   numerals: CalmNumerals.auto,
                   decimalDigits: 0,
@@ -714,7 +712,12 @@ class _OdometerRow extends ConsumerWidget {
     final taken = CivilDate.tryParse(occurredOn);
     final today = CivilDate.fromDateTime(ref.read(clockProvider).now());
     if (taken == null || today == null) return 0;
-    return taken.daysUntil(today);
+    // CLAMPED at zero, exactly as `OdometerEstimate.staleDays` clamps it. The
+    // garage renders the same age from that field, and a reading dated in the
+    // future would otherwise read "in -2 days" here and "today" there — two
+    // answers about one row, one tap apart.
+    final days = taken.daysUntil(today);
+    return days < 0 ? 0 : days;
   }
 }
 

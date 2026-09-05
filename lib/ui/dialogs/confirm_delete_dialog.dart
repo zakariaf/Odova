@@ -13,7 +13,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:odova/core/l10n/bidi.dart';
-import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/l10n/folded_name.dart';
 import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -129,39 +129,32 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
 
   /// The subject, normalised and isolated.
   ///
+  /// Through `foldedName`, which is where "the same name" is decided — once,
+  /// for this gate and for `vehicle.edit`'s duplicate-name note, because two
+  /// spellings of the comparison make "Golf ۲۰۱۹" one vehicle to one of them
+  /// and two to the other.
+  ///
   /// Cached because `onChanged` rebuilds on every keystroke, and RECOMPUTED in
   /// [didUpdateWidget] because this is a public widget whose `subject` a
   /// composed caller can change while it is mounted — the version that computed
   /// them once left the field's label naming the old car while the title named
   /// the new one, and unlocked Delete on the wrong name.
-  late String _normalisedSubject = _normalise(widget.subject);
+  late String _foldedSubject = foldedName(widget.subject);
   late String _isolatedSubject = isolate(widget.subject);
 
   @override
   void didUpdateWidget(ConfirmDeleteDialogBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.subject == widget.subject) return;
-    _normalisedSubject = _normalise(widget.subject);
+    _foldedSubject = foldedName(widget.subject);
     _isolatedSubject = isolate(widget.subject);
   }
-
-  /// What a name has to match, from either side.
-  ///
-  /// Digits folded, so a Persian-keyboard user typing "Golf ۲۰۱۹" is not locked
-  /// out of deleting their own car by a numbering system they did not choose.
-  /// And bidi controls STRIPPED: `stripBidi` is what `lib/core/l10n/bidi.dart`
-  /// says goes into anything compared, and this is a comparison. A name that
-  /// arrived from an import carrying an invisible U+200F is a name no soft
-  /// keyboard can reproduce — Delete would be permanently disabled and the
-  /// vehicle permanently undeletable, with no other route to removing it.
-  static String _normalise(String text) =>
-      foldDigitsToAscii(stripBidi(text)).trim();
 
   /// Whether the typed confirmation is required at all.
   ///
   /// SPEC.md §8: only when there is something to lose. A one-tap Delete on an
   /// empty vehicle is not carelessness, it is the absence of a hostage.
-  bool get _needsTyping => widget.counts.total > 0;
+  bool get _needsTyping => widget.counts.entries > 0;
 
   @override
   void dispose() {
@@ -178,8 +171,7 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
   /// tap then destroyed 412 entries behind a confirmation that had confirmed
   /// nothing.
   bool get _matches =>
-      _normalisedSubject.isNotEmpty &&
-      _normalise(_typed.text) == _normalisedSubject;
+      _foldedSubject.isNotEmpty && foldedName(_typed.text) == _foldedSubject;
 
   /// The five counts, and the caller's extra line under them.
   String _body(
@@ -223,8 +215,8 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
       // ours.
       title: l10n.confirmDeleteTitle(
         _isolatedSubject,
-        counts.total,
-        format(counts.total),
+        counts.entries,
+        format(counts.entries),
       ),
       body: _body(l10n, counts, format),
       actions: [

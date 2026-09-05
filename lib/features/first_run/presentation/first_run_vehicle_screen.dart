@@ -238,7 +238,7 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
             controller: _odometer,
             hint: l10n.odometerFirstRunHint,
             errorText: _odometerError(l10n, draft),
-            affix: Text(_unitLabel(l10n, draft.unit)),
+            affix: Text(distanceUnitLabel(l10n, draft.unit)),
             numeric: true,
             keyboardType: TextInputType.number,
             onChanged: notifier.typeOdometer,
@@ -318,9 +318,6 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
         OdometerProblem.notANumber => l10n.odometerNotANumberError,
         OdometerProblem.implausible => l10n.odometerImplausibleWarning,
       };
-
-  String _unitLabel(AppLocalizations l10n, DistanceUnit unit) =>
-      unit == DistanceUnit.mi ? l10n.unitDistanceMi : l10n.unitDistanceKm;
 
   /// One band's chip label, with its numbers shaped by the active system.
   ///

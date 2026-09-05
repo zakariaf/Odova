@@ -191,7 +191,7 @@ List<CalmSpecimen> calmSpecimens() => [
           CalmListRow.switchRow(
             title: _t(rtl: rtl, latin: 'Notifications', persian: 'اعلان‌ها'),
             onToggle: () {},
-            end: const CalmSwitch(value: true, onChanged: null),
+            value: true,
           ),
           CalmListRow(
             title: _t(rtl: rtl, latin: 'Compact', persian: 'فشرده'),

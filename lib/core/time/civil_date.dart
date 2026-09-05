@@ -46,6 +46,21 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
       ? null
       : CivilDate._(when.year, when.month, when.day);
 
+  /// [when]'s calendar date as `YYYY-MM-DD`, falling back to the epoch's.
+  ///
+  /// [fromDateTime] is nullable and every caller that writes a DATE COLUMN had
+  /// to answer the same question about that null — three of them in EPIC-09
+  /// alone, each with the same `?? fromDateTime(DateTime(1970))!` and the same
+  /// paragraph explaining it. The answer is one decision, so it lives here.
+  ///
+  /// The epoch rather than a throw, and rather than skipping the write: the
+  /// odometer reading is REQUIRED (SPEC.md §3 forbids a vehicle without one),
+  /// so a clock reading year 275760 costs the user a wrong date rather than a
+  /// vehicle the domain contract will not have. A date column can be corrected;
+  /// a missing row cannot be invented back.
+  static String isoDateOf(DateTime when) =>
+      (fromDateTime(when) ?? fromDateTime(DateTime(1970))!).toString();
+
   /// Reads `YYYY-MM-DD`, or null.
   ///
   /// Null and never a guess: `2026-02-30` is not "2 March", it is a value that

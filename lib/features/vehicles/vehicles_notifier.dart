@@ -73,11 +73,11 @@ class VehiclesNotifier extends Notifier<void> {
           updatedAtUtcMs: now,
         );
     if (marked case Err(failure: final f)) return Err(f);
-    // `mustLeave: false`. The row is still there and still readable, so if the
+    // `allowSold: false`. The row is still there and still readable, so if the
     // only alternative is another sold car there is nothing to gain by moving
     // — and a silent switch between two sold vehicles is a switch the user did
     // not ask for on the screen whose whole rule is that it never switches.
-    await _promoteAwayFrom(id, mustLeave: false);
+    await _promoteAwayFrom(id, allowSold: false);
     return const Ok(null);
   }
 
@@ -99,9 +99,9 @@ class VehiclesNotifier extends Notifier<void> {
     );
     if (removed case Err(failure: final f)) return Err(f);
 
-    // `mustLeave: true`: [id] is a tombstone now. Any live vehicle, sold
+    // `allowSold: true`: [id] is a tombstone now. Any live vehicle, sold
     // included, beats an active_vehicle_id pointing at a deleted row.
-    final promoted = await _promoteAwayFrom(id, mustLeave: true);
+    final promoted = await _promoteAwayFrom(id, allowSold: true);
     final remaining = await _liveVehicles();
     return Ok((
       deletedAtUtcMs: deletedAtUtcMs,
@@ -149,7 +149,7 @@ class VehiclesNotifier extends Notifier<void> {
   /// winter bike who deleted the driver kept `active_vehicle_id` pointing at
   /// the row that had just been deleted.
   ///
-  /// A garage of nothing but sold vehicles is where [mustLeave] decides. A
+  /// A garage of nothing but sold vehicles is where [allowSold] decides. A
   /// DELETE has to move — [id] is a tombstone, and every scoped screen in all
   /// four stacks would be reading it — so it takes the first sold vehicle and
   /// accepts the banner §8 draws for that state. A SALE does not: the row is
@@ -159,13 +159,13 @@ class VehiclesNotifier extends Notifier<void> {
   /// device that owns one".
   Future<VehicleId?> _promoteAwayFrom(
     VehicleId id, {
-    required bool mustLeave,
+    required bool allowSold,
   }) async {
     if (await _activeVehicleId() != id) return null;
     final live = (await _liveVehicles()).where((v) => v.id != id);
     final next =
         live.where((v) => v.status != VehicleStatus.sold).firstOrNull ??
-        (mustLeave ? live.firstOrNull : null);
+        (allowSold ? live.firstOrNull : null);
     if (next == null) return null;
     // Through `active_vehicle.dart`'s function, never
     // `SettingsRepository.setActiveVehicle` — SPEC.md §8 requires the promotion

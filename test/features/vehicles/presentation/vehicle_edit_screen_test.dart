@@ -590,7 +590,7 @@ void main() {
   group('create mode', () {
     /// Pushes `vehicle.edit` in create mode over a host screen, and collects
     /// what it pops with.
-    Future<(AppDatabase, List<VehicleId?>)> pumpCreate(
+    Future<(AppDatabase, List<Vehicle?>)> pumpCreate(
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(780, 2600);
@@ -602,13 +602,13 @@ void main() {
       addTearDown(db.close);
       await insertSettings(db);
 
-      final popped = <VehicleId?>[];
+      final popped = <Vehicle?>[];
       await pumpApp(
         tester,
         Builder(
           builder: (context) => TextButton(
             onPressed: () async => popped.add(
-              await Navigator.of(context).push<VehicleId>(
+              await Navigator.of(context).push<Vehicle>(
                 MaterialPageRoute(
                   builder: (_) => const VehicleEditScreen(
                     vehicleId: null,
@@ -705,7 +705,12 @@ void main() {
 
       // The id travels back with the pop, because the CALLER decides whether
       // to switch to it — the garage offers, the switcher does it.
-      expect(popped.single.toString(), row.id);
+      expect(popped.single!.id.toString(), row.id);
+      expect(
+        popped.single!.name,
+        'The Transit',
+        reason: 'the whole row travels back, so the caller can name it',
+      );
     });
 
     testWidgets('an implausible reading warns and still saves', (tester) async {

@@ -141,7 +141,9 @@ class VehicleRepository {
   /// them again would be two lists of the same columns, kept in step by hand.
   ///
   /// Four fields on [facts] are IGNORED, because they are this method's to
-  /// decide: `id`, `status`, `createdAtUtcMs` and `updatedAtUtcMs`. A new
+  /// decide: `id`, `status`, `createdAtUtcMs` and `updatedAtUtcMs`. The id is
+  /// ASSERTED to be `kUnsavedVehicleId` rather than merely documented — a
+  /// caller holding a real one was editing a vehicle, not creating one. A new
   /// vehicle is active and stamped now, whatever the caller built. `sortOrder`
   /// is NOT among them: a new row leaves it at 0 and the garage's `(sortOrder,
   /// id)` order puts it last on its ULID, which is what "append" means here.
@@ -157,21 +159,29 @@ class VehicleRepository {
     required int nowUtcMs,
     bool asFirstVehicle = false,
     bool liquidCooled = false,
-  }) => guardPersist(() async {
-    try {
-      return await _create(
-        facts,
-        odometer: odometer,
-        odometerUnit: odometerUnit,
-        occurredOn: occurredOn,
-        nowUtcMs: nowUtcMs,
-        asFirstVehicle: asFirstVehicle,
-        liquidCooled: liquidCooled,
-      );
-    } on _MissingSettings {
-      return const Err(NotFound(AppSettings.id));
-    }
-  });
+  }) {
+    assert(
+      facts.id == kUnsavedVehicleId,
+      'createVehicle mints the id. A caller that had a real one was editing a '
+      'vehicle, not creating one — pass `kUnsavedVehicleId` so the discard is '
+      'visible at the call site rather than only in this dartdoc.',
+    );
+    return guardPersist(() async {
+      try {
+        return await _create(
+          facts,
+          odometer: odometer,
+          odometerUnit: odometerUnit,
+          occurredOn: occurredOn,
+          nowUtcMs: nowUtcMs,
+          asFirstVehicle: asFirstVehicle,
+          liquidCooled: liquidCooled,
+        );
+      } on _MissingSettings {
+        return const Err(NotFound(AppSettings.id));
+      }
+    });
+  }
 
   Future<Result<Vehicle, PersistFailure>> _create(
     Vehicle facts, {
@@ -382,8 +392,14 @@ class VehicleRepository {
   /// Written out rather than through `copyWith`, and the reason is the same one
   /// `VehicleEditDraft` exists for — a `copyWith` over twenty nullable fields
   /// cannot express "clear this", so a partial copy is a class of bug rather
-  /// than a shortcut. Listing the fields means the compiler names any column
-  /// added to `Vehicle` and never silently dropped from a create.
+  /// than a shortcut.
+  ///
+  /// It does NOT make a newly added column a compile error, and an earlier
+  /// version of this comment claimed it did: `Vehicle`'s constructor makes all
+  /// but seven fields optional-named, so a new nullable one would be dropped
+  /// here as quietly as anywhere else. What the list buys is a single place to
+  /// look, next to the four fields this method decides — which is worth
+  /// stating accurately rather than overstating.
   Vehicle _asNew(Vehicle facts, int nowUtcMs) => Vehicle(
     id: VehicleId.tryParse('veh_${_ids.next()}')!,
     status: VehicleStatus.active,

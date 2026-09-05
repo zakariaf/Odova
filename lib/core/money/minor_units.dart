@@ -35,12 +35,11 @@ int? minorUnitsFrom(String canonical, Currency currency) {
   final point = digits.indexOf('.');
   final whole = point == -1 ? digits : digits.substring(0, point);
   final fraction = point == -1 ? '' : digits.substring(point + 1);
-  // One `.` at most, and nothing but digits either side. `int.parse` would
+  // Nothing but digits either side, which also settles the second `.`: it is
+  // code unit 0x2E, below `'0'`, so `_isDigits` rejects it. `int.parse` would
   // accept `+5` and ` 5`, and `canonical` is documented to contain neither —
   // but this function is public and its callers will not all be this file.
-  if (fraction.contains('.') || !_isDigits(whole) || !_isDigits(fraction)) {
-    return null;
-  }
+  if (!_isDigits(whole) || !_isDigits(fraction)) return null;
 
   final exponent = currency.exponent;
   // Padded to one MORE digit than fits, because that extra digit is the one

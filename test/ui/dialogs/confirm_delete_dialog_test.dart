@@ -55,8 +55,8 @@ void main() {
   ) async {
     // 96 + 14 + 22 + 8. `DeleteCounts` has no `total` field to pass, so a
     // dialog that said 412 while its body added to 140 is not expressible.
-    expect(_golfCounts.total, 140);
-    expect(_empty.total, 0);
+    expect(_golfCounts.entries, 140);
+    expect(_empty.entries, 0);
   });
 
   testWidgets('a vehicle with only its seeded reminders has no entries', (
@@ -76,7 +76,7 @@ void main() {
       trips: 0,
       reminders: 8,
     );
-    expect(seededOnly.total, 0);
+    expect(seededOnly.entries, 0);
 
     final probe = _Probe(counts: seededOnly);
     await pumpApp(tester, probe.widget);

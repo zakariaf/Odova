@@ -14,6 +14,11 @@
 // assertion in it. So the fix is not a better test; it is having no timezone on
 // the path at all, and the only way to keep it that way is to refuse the
 // spelling.
+//
+// The SPELLING, and the limit is worth stating: `.inHours ~/ 24` walks
+// straight past this. The gate refuses the one that actually shipped, twice,
+// which is what a gate can do — it does not refuse the class. A day counted off
+// a `Duration` by any route is the same bug.
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/source_gates.dart';

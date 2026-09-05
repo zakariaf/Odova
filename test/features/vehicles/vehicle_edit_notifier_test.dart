@@ -242,11 +242,12 @@ void main() {
           ),
         );
 
-      final id = await form.save();
-      expect(id, isNotNull);
+      final saved = await form.save();
+      expect(saved, isNotNull);
 
       final row = await h.db.select(h.db.vehicles).getSingle();
-      expect(row.id, id.toString());
+      expect(row.id, saved!.id.toString());
+      expect(saved.name, 'The Transit', reason: 'the row, not just its id');
       expect(row.name, 'The Transit');
       expect(row.make, 'Ford');
       expect(row.colour, 'blue');

@@ -90,13 +90,15 @@ class CalmListRow extends StatelessWidget {
   /// navigable, and the pair is one `MergeSemantics` node labelled by [title].
   /// A screen reader that reads "Reminders, switch, on" in one gesture is
   /// usable; four stops on every row of a settings screen is not.
-  // NOT const, alone among these constructors, so that its assert can read a
-  // property off `end` — an initializer-list assert in a const constructor is
-  // limited to potentially-constant expressions. No call site was const: a
-  // switch row carries an `onToggle` closure by definition.
+  /// It takes the switch's VALUE, not a switch. `vehicle.edit` handed one in
+  /// with `onChanged: (_) {}`, which makes it a child gesture recognizer — and
+  /// a child beats its ancestor in the arena, so the row toggled everywhere
+  /// except on the 56x34 control the user is most likely to press. Building
+  /// the switch here, always with `onChanged: null`, makes that unconstructible
+  /// rather than asserted: there is no longer a wrong thing to pass.
   CalmListRow.switchRow({
     required this.title,
-    required Widget this.end,
+    required bool value,
     required VoidCallback this.onToggle,
     super.key,
     this.subtitle,
@@ -104,14 +106,7 @@ class CalmListRow extends StatelessWidget {
     this.size = CalmRowSize.md,
     this.enabled = true,
     this.standalone = false,
-  }) : assert(
-         end is! CalmSwitch || end.onChanged == null,
-         'The ROW is the tap target of a switch row, so its CalmSwitch must '
-         'pass onChanged: null. A live callback — a no-op included — makes '
-         'the switch a child recognizer, and a child beats its ancestor in '
-         'the gesture arena: the control the user actually presses stops '
-         'working while the rest of the row still toggles.',
-       ),
+  }) : end = CalmSwitch(value: value, onChanged: null, enabled: enabled),
        _isSwitch = true,
        // A settings toggle has one sub-line at most. `.row__main`'s second
        // span never appears next to a switch in any artboard, and a numeric

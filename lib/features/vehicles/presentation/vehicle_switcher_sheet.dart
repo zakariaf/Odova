@@ -156,19 +156,44 @@ class VehicleSwitcherSheet extends ConsumerWidget {
   /// the user back on the old car with no way to know the switch failed, on a
   /// screen whose only purpose is to have switched.
   Future<void> _addVehicle(BuildContext context, WidgetRef ref) async {
-    final added = await context.push<VehicleId>(Routes.vehicleNew);
+    final added = await context.push<Vehicle>(Routes.vehicleNew);
     if (added == null || !context.mounted) return;
-
-    final navigator = Navigator.of(context);
-    final l10n = AppLocalizations.of(context);
-    final switched = await setActiveVehicle(ref.read, added);
-    if (!context.mounted) return;
-    if (switched is! Ok<void, PersistFailure>) {
-      CalmSnackbar.show(context, message: l10n.saveDiskFullError, danger: true);
-      return;
-    }
-    navigator.pop();
+    await switchToAndDismiss(context, ref, added.id);
   }
+}
+
+/// Makes [id] active and closes the sheet, or says why it could not.
+///
+/// A null [id] is "already active": nothing is written and the sheet still
+/// closes, because the user picked the car they are on.
+///
+/// The sheet is popped only AFTER the write lands. Popping first would leave
+/// the user back on the old car with no way to know the switch failed, on a
+/// screen whose only purpose is to have switched — which is exactly what
+/// happened while this discarded `setActiveVehicle`'s `Result`.
+///
+/// Everything else a switch causes — resetting all four tab stacks, the
+/// history filters and the Costs range with them — belongs to
+/// `setActiveVehicle`, the one sanctioned way to switch. This sheet writes no
+/// field of its own, and `active_vehicle_test.dart` refuses the direct write
+/// that would let it.
+@visibleForTesting
+Future<void> switchToAndDismiss(
+  BuildContext context,
+  WidgetRef ref,
+  VehicleId? id,
+) async {
+  final navigator = Navigator.of(context);
+  final l10n = AppLocalizations.of(context);
+  final switched = id == null
+      ? const Ok<void, PersistFailure>(null)
+      : await setActiveVehicle(ref.read, id);
+  if (!context.mounted) return;
+  if (switched is! Ok<void, PersistFailure>) {
+    CalmSnackbar.show(context, message: l10n.saveDiskFullError, danger: true);
+    return;
+  }
+  navigator.pop();
 }
 
 class _SwitcherRow extends ConsumerWidget {
@@ -230,30 +255,9 @@ class _SwitcherRow extends ConsumerWidget {
           if (active) const Icon(Icons.check, size: 20),
         ],
       ),
-      onTap: () async {
-        final navigator = Navigator.of(context);
-        final l10n = AppLocalizations.of(context);
-        // A write that sets the field to what it already holds still resets
-        // four tab stacks, which throws away the user's place for nothing.
-        final switched = active
-            ? const Ok<void, PersistFailure>(null)
-            : await setActiveVehicle(ref.read, vehicle.id);
-        if (switched is! Ok<void, PersistFailure>) {
-          // The Result used to be discarded, and the sheet closed on a write
-          // that had not happened — leaving the app on the old car with a tick
-          // the user had just seen move. A disk that cannot take one field is
-          // a disk the user needs told about.
-          if (context.mounted) {
-            CalmSnackbar.show(
-              context,
-              message: l10n.saveDiskFullError,
-              danger: true,
-            );
-          }
-          return;
-        }
-        navigator.pop();
-      },
+      // A write that sets the field to what it already holds still resets four
+      // tab stacks, which throws away the user's place for nothing.
+      onTap: () => switchToAndDismiss(context, ref, active ? null : vehicle.id),
     );
   }
 }

@@ -41,7 +41,10 @@ String vehicleTypeLabel(AppLocalizations l10n, VehicleType type) =>
 
 /// `km` or `mi`.
 ///
-/// A one-line ternary that was written three times: SPEC.md §5 gives the app
+/// A one-line ternary that was written FIVE times: SPEC.md §5 gives the app
 /// two distance units and every screen that shows a distance needs the word.
+/// `firstrun.vehicle` and `vehicle.edit` each grew a private `_unitLabel`
+/// after this existed, which is what a shared helper looks like when nobody
+/// greps for it first.
 String distanceUnitLabel(AppLocalizations l10n, DistanceUnit unit) =>
     unit == DistanceUnit.mi ? l10n.unitDistanceMi : l10n.unitDistanceKm;

@@ -200,7 +200,7 @@ class FirstRunVehicleNotifier extends Notifier<FirstRunVehicleDraft> {
             fuelKindDefault: draft.fuel,
             odometer: Distance(draft.odometerMetres!),
             odometerUnit: draft.unit,
-            occurredOn: _today(clock),
+            occurredOn: CivilDate.isoDateOf(clock),
             isBusiness: draft.type == VehicleType.van,
             expectedAnnual: Distance(draft.band.metresFor(draft.unit)),
             // Not asked, and F-9.15 says why: SPEC.md §4.8.3 seeds `coolant`
@@ -224,16 +224,6 @@ class FirstRunVehicleNotifier extends Notifier<FirstRunVehicleDraft> {
     state = state.copyWith(saving: false, saveFailed: !ok);
     return ok;
   }
-
-  /// `YYYY-MM-DD`, in the device's own day.
-  ///
-  /// Through `CivilDate`, which owns the format. A clock with no four-digit
-  /// year falls back to the epoch's date rather than writing a reading the
-  /// database cannot store — the odometer is required and losing it would leave
-  /// a vehicle the domain contract forbids.
-  static String _today(DateTime now) =>
-      (CivilDate.fromDateTime(now) ?? CivilDate.fromDateTime(DateTime(1970))!)
-          .toString();
 }
 
 /// The first-run vehicle draft.

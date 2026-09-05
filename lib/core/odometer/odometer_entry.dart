@@ -112,17 +112,31 @@ class OdometerEntry {
 
   /// A copy with the given changes.
   ///
-  /// New [text] clears [warningAccepted] and the caller does not get to keep
-  /// it: a new number is a new question, and "Use it anyway" applied to
-  /// 30,000,001 must not silently apply to the 300,000,001 typed after it.
+  /// A new [text] or a new [unit] clears [warningAccepted], and the caller does
+  /// not get to keep it: a new number is a new question. "Use it anyway"
+  /// applied to 30,000,001 must not silently apply to the 300,000,001 typed
+  /// after it, and 3,000,001 MILES is not the number 3,000,001 km was.
+  ///
+  /// Every other copy carries the acceptance forward. The first version read
+  /// `text == null && (warningAccepted ?? false)`, which dropped it on any copy
+  /// that did not restate it — and `VehicleEditNotifier.edit` re-units the
+  /// entry on every keystroke in every other field, so accepting the warning
+  /// and then typing one letter of the make brought it straight back.
   OdometerEntry copyWith({
     DistanceUnit? unit,
     String? text,
     bool? warningAccepted,
-  }) => OdometerEntry(
-    unit: unit ?? this.unit,
-    groupingSeparator: groupingSeparator,
-    text: text ?? this.text,
-    warningAccepted: text == null && (warningAccepted ?? false),
-  );
+  }) {
+    final fresh =
+        (text != null && text != this.text) ||
+        (unit != null && unit != this.unit);
+    return OdometerEntry(
+      unit: unit ?? this.unit,
+      groupingSeparator: groupingSeparator,
+      text: text ?? this.text,
+      warningAccepted: fresh
+          ? (warningAccepted ?? false)
+          : (warningAccepted ?? this.warningAccepted),
+    );
+  }
 }

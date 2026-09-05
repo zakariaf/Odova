@@ -57,14 +57,6 @@ Finder _dividers() => find.descendant(
 /// track geometry is the switch's business, not the row's. Material's `Switch`
 /// is not used here even as a stand-in — it needs a `Material` ancestor, which
 /// would put an ink surface inside a Calm row to test a Calm row.
-Widget _toggle({required bool value, required VoidCallback onChanged}) =>
-    Semantics(
-      toggled: value,
-      child: GestureDetector(
-        onTap: onChanged,
-        child: const SizedBox(width: 56, height: 34),
-      ),
-    );
 
 void main() {
   testWidgets('a group of three rows draws one radius, one shadow and two '
@@ -284,11 +276,8 @@ void main() {
             rows: [
               CalmListRow.switchRow(
                 title: 'Reminders',
+                value: on,
                 onToggle: () => setState(() => on = !on),
-                end: _toggle(
-                  value: on,
-                  onChanged: () => setState(() => on = !on),
-                ),
               ),
             ],
           ),
@@ -351,11 +340,11 @@ void main() {
             rows: [
               CalmListRow.switchRow(
                 title: 'Reminders',
+                value: on,
                 onToggle: () => setState(() {
                   toggles++;
                   on = !on;
                 }),
-                end: _toggle(value: on, onChanged: () {}),
               ),
             ],
           ),
@@ -372,25 +361,15 @@ void main() {
     expect(find.byIcon(Icons.chevron_right), findsNothing);
   });
 
-  test('a switch row whose switch has its own callback is a defect', () {
-    // The arrangement `CalmSwitch.onChanged` documents — null inside a row —
-    // is not advice. A live callback makes the switch a child recognizer, and
-    // a child beats its ancestor in the gesture arena, so the row toggles
-    // everywhere EXCEPT on the control. `vehicle.edit` shipped exactly that
-    // with `(_) {}`, and it is invisible from a screenshot.
-    expect(
-      () => CalmListRow.switchRow(
-        title: 'Reminders',
-        onToggle: () {},
-        end: CalmSwitch(value: false, onChanged: (_) {}),
-      ),
-      throwsAssertionError,
-    );
-  });
-
-  testWidgets('a switch row whose switch defers to it is fine', (tester) async {
-    // The other arm: the same row, one word different, builds and toggles from
-    // a tap on the switch itself.
+  testWidgets('a switch row toggles from a tap on the switch itself', (
+    tester,
+  ) async {
+    // The row builds its own `CalmSwitch` with `onChanged: null`, so the
+    // switch is paint and the ROW is the tap target. `vehicle.edit` once
+    // passed one in with `onChanged: (_) {}` — a child recognizer, which beats
+    // its ancestor in the arena — and the row toggled everywhere EXCEPT on the
+    // control. The constructor no longer takes a widget, so that is
+    // unconstructible rather than asserted against.
     var toggles = 0;
 
     await pumpApp(
@@ -400,15 +379,14 @@ void main() {
           rows: [
             CalmListRow.switchRow(
               title: 'Reminders',
+              value: false,
               onToggle: () => toggles++,
-              end: const CalmSwitch(value: false, onChanged: null),
             ),
           ],
         ),
       ),
     );
 
-    expect(tester.takeException(), isNull);
     await tester.tap(find.byType(CalmSwitchTrack));
     await tester.pump();
     expect(toggles, 1);

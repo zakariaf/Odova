@@ -16,9 +16,9 @@
 
 /// The five per-type counts SPEC.md §8's dialog names.
 ///
-/// A record rather than five parameters, so no caller can pass a total that
-/// disagrees with its own breakdown — the total is computed by
-/// [DeleteCountsTotal.total] and cannot be supplied.
+/// A record rather than five parameters, so no caller can pass a headline that
+/// disagrees with its own breakdown — the count is computed by
+/// [DeleteCountsEntries.entries] and cannot be supplied.
 typedef DeleteCounts = ({
   int fillUps,
   int services,
@@ -28,22 +28,21 @@ typedef DeleteCounts = ({
 });
 
 /// Everything that would be deleted.
-extension DeleteCountsTotal on DeleteCounts {
-  /// The number in the title — how many ENTRIES the user would lose.
+extension DeleteCountsEntries on DeleteCounts {
+  /// How many ENTRIES the user would lose — the number in the dialog's title.
   ///
-  /// Four of the five, and reminders are the one left out. An entry is
-  /// something the user entered; a reminder is a setting the APP put there.
-  /// SPEC.md §4.8.3 seeds a set on every vehicle at creation, so a total that
-  /// counted them would never be zero, and §8's "Zero entries: one-tap Delete"
+  /// Four of the five, and reminders are the one left out, because an entry is
+  /// something the user entered and a reminder is a setting the app put there.
+  /// SPEC.md §4.8.3 seeds a set on every vehicle at creation, so a count that
+  /// included them would never be zero and §8's "Zero entries: one-tap Delete"
   /// would be a rule with no reachable case — a car added by mistake would
   /// demand its own name typed back twenty seconds later, to protect eight
-  /// reminders that the next car gets for free.
+  /// reminders the next car gets for free.
   ///
-  /// This is a decision about SPEC.md §8, not a reading of it: the section
-  /// asks for both rules and seeding puts them in tension. Recorded as F-9.26.
+  /// A decision about SPEC.md §8 rather than a reading of it: the section asks
+  /// for both rules and seeding puts them in tension. Recorded as F-9.26.
   ///
-  /// Reminders stay in [DeleteCounts] and stay in the dialog's body, because
-  /// they are still destroyed and the body says what dies. They are just not
-  /// what "entries" counts.
-  int get total => fillUps + services + costs + trips;
+  /// Reminders stay in [DeleteCounts] and in the dialog's body, because they
+  /// are still destroyed and the body says what dies.
+  int get entries => fillUps + services + costs + trips;
 }

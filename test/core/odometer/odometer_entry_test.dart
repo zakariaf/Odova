@@ -58,6 +58,27 @@ void main() {
     );
   });
 
+  test('an accepted warning survives a copy that changes nothing', () {
+    // `VehicleEditNotifier.edit` re-units the entry on every keystroke in
+    // every other field on the form. A `copyWith` that dropped the acceptance
+    // unless it was restated brought the warning back the moment the user
+    // typed one letter of the make.
+    final accepted = _entry('3000001').copyWith(warningAccepted: true);
+    expect(accepted.copyWith(unit: DistanceUnit.km).problem, isNull);
+    expect(accepted.copyWith(text: '3000001').problem, isNull);
+    expect(accepted.copyWith().problem, isNull);
+  });
+
+  test('a new unit is a new question, like a new number', () {
+    // 3,000,001 MILES is not the number 3,000,001 km was — it is nearly five
+    // million kilometres, and the app has not been told to accept that one.
+    final accepted = _entry('3000001').copyWith(warningAccepted: true);
+    expect(
+      accepted.copyWith(unit: DistanceUnit.mi).problem,
+      OdometerProblem.implausible,
+    );
+  });
+
   test('three million exactly is not implausible', () {
     // The boundary is ABOVE three million. A reading of exactly the limit is a
     // number the app has no reason to doubt.
