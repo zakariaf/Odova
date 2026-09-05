@@ -310,14 +310,13 @@ final List<StatefulShellBranch> _branches = [
                   context,
                   state,
                   // The id comes from the PATH, so a deep link and a tap open
-                  // the same screen. A malformed one is `VehicleEditState
-                  // .missing`, which the screen draws rather than throwing —
-                  // SPEC.md §7: a bad link lands somewhere, never nowhere.
-                  VehicleEditScreen(
-                    vehicleId: VehicleId.tryParse(
-                      state.pathParameters['vehicleId'] ?? '',
-                    ),
-                  ),
+                  // the same screen. Three cases, and the sentinel is the one
+                  // that used to be missing: `new` is SPEC.md §8's CREATE
+                  // mode, and it parsed as "not an id" — so both doors marked
+                  // "+" opened an empty modal with a Save that did nothing.
+                  // A genuinely malformed id still draws the closable shell,
+                  // because §7 says a bad link lands somewhere, never nowhere.
+                  _vehicleEditFor(state.pathParameters['vehicleId'] ?? ''),
                 ),
               ),
             ],
@@ -394,3 +393,15 @@ Widget _logScreen(GoRouterState state) {
     detail: state.pathParameters['entryId'],
   );
 }
+
+/// `vehicle.edit` for one path segment: create, edit, or the bad-link shell.
+///
+/// The `new` sentinel is checked BEFORE parsing, because `VehicleId.tryParse`
+/// answers null for it and for `not-an-id` alike — and those two must not draw
+/// the same screen.
+VehicleEditScreen _vehicleEditFor(String segment) => segment == kNewRecordId
+    ? const VehicleEditScreen(
+        vehicleId: null,
+        mode: VehicleEditMode.create,
+      )
+    : VehicleEditScreen(vehicleId: VehicleId.tryParse(segment));

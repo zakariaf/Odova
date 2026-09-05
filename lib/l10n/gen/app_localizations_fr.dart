@@ -640,6 +640,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get vehicleSwitchToIt => 'Passer à ce véhicule';
 
   @override
+  String get vehicleAddTitle => 'Ajouter un véhicule';
+
+  @override
+  String vehicleAddedSnack(String name) {
+    return '$name ajouté';
+  }
+
+  @override
   String get switcherTitle => 'Changer de véhicule';
 
   @override

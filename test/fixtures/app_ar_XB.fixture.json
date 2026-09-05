@@ -140,6 +140,8 @@
   "vehicleStatusItemGeneric": "‏ecivreS",
   "vehiclesOnlyOneWarning": "‏.revo avodO strats ti gniteleD .elcihev ylno ruoy si sihT",
   "vehicleSwitchToIt": "‏ti ot hctiwS",
+  "vehicleAddTitle": "‏elcihev ddA",
+  "vehicleAddedSnack": "‏{name}dedda ",
   "switcherTitle": "‏elcihev hctiwS",
   "switcherCount": "‏{n, plural, one{{nText}elcihev } other{{nText}selcihev }}",
   "switcherAddVehicle": "‏elcihev ddA",

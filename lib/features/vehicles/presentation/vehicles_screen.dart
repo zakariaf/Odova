@@ -10,9 +10,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/vehicles/delete_counts.dart';
@@ -79,9 +81,9 @@ class VehiclesScreen extends ConsumerWidget {
             icon: Icons.add,
             // §8: "**+** in the app bar → `vehicle.edit`, create mode."
             // `Routes.vehicleNew` is the same path with the sentinel id, which
-            // the screen reads as a null `VehicleId` — a vehicle that is not
-            // there yet, drawn by the same code that draws one that is gone.
-            onTap: () => context.push(Routes.vehicleNew),
+            // the router reads as create mode — the same screen, with an
+            // odometer input where the read-only row sits.
+            onTap: () => unawaited(_add(context, ref)),
           ),
         ],
       ),
@@ -147,6 +149,40 @@ class VehiclesScreen extends ConsumerWidget {
           ),
       ],
     );
+  }
+
+  /// Opens `vehicle.edit` in create mode and, if a vehicle comes back, says so.
+  ///
+  /// The new vehicle is deliberately NOT made active. EPIC-09 task 9.6: "add
+  /// from the vehicles + appends the vehicle, does not make it active, and
+  /// offers 'Switch to it' in a snackbar" — the user is managing a garage, and
+  /// swapping the car under them while they do it is the one thing SPEC.md §8
+  /// says this screen never does. So it is OFFERED, in the one place an offer
+  /// costs nothing to ignore.
+  Future<void> _add(BuildContext context, WidgetRef ref) async {
+    final added = await context.push<VehicleId>(Routes.vehicleNew);
+    if (added == null || !context.mounted) return;
+
+    final l10n = AppLocalizations.of(context);
+    final name = await _nameOf(ref, added);
+    if (!context.mounted) return;
+    CalmSnackbar.show(
+      context,
+      message: l10n.vehicleAddedSnack(name),
+      actionLabel: l10n.vehicleSwitchToIt,
+      onAction: () => unawaited(setActiveVehicle(ref.read, added)),
+    );
+  }
+
+  /// What the row calls the vehicle that was just added.
+  ///
+  /// Read back rather than carried through the pop: the form trims the name it
+  /// writes, and a snackbar naming an untrimmed one would disagree with the
+  /// row directly above it. An unreadable row falls back to the empty string,
+  /// which the message tolerates — a snackbar is not worth a failure path.
+  Future<String> _nameOf(WidgetRef ref, VehicleId id) async {
+    final read = await ref.read(vehicleRepositoryProvider).findById(id);
+    return read is Ok<Vehicle, PersistFailure> ? read.value.name : '';
   }
 }
 

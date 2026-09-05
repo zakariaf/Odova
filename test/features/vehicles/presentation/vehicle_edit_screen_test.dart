@@ -434,4 +434,152 @@ void main() {
       }
     },
   );
+
+  group('create mode', () {
+    /// Pushes `vehicle.edit` in create mode over a host screen, and collects
+    /// what it pops with.
+    Future<(AppDatabase, List<VehicleId?>)> pumpCreate(
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(780, 2600);
+      tester.view.devicePixelRatio = kReferenceDpr;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+      await insertSettings(db);
+
+      final popped = <VehicleId?>[];
+      await pumpApp(
+        tester,
+        Builder(
+          builder: (context) => TextButton(
+            onPressed: () async => popped.add(
+              await Navigator.of(context).push<VehicleId>(
+                MaterialPageRoute(
+                  builder: (_) => const VehicleEditScreen(
+                    vehicleId: null,
+                    mode: VehicleEditMode.create,
+                  ),
+                ),
+              ),
+            ),
+            child: const Text('open'),
+          ),
+        ),
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          clockProvider.overrideWithValue(
+            Clock.fixed(DateTime.utc(2026, 9, 4)),
+          ),
+          deviceLocalesProvider.overrideWithValue(const [Locale('de', 'DE')]),
+          // SUPPLIED, not watched off the database. Create mode reads the
+          // app's distance unit to label its odometer field, and
+          // `provider_harness.dart`'s rule holds: a drift stream never
+          // delivers under `testWidgets`, because the widget binding's fake
+          // async does not run its timers. Null is the honest first-frame
+          // value, and the unit falls back to the pinned locale's — km.
+          settingsProvider.overrideWith((ref) => Stream.value(null)),
+        ],
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      return (db, popped);
+    }
+
+    CalmAppBarAction saveAction(WidgetTester tester) => tester
+        .widgetList<CalmAppBarAction>(find.byType(CalmAppBarAction))
+        .firstWhere((a) => a.label == _l10n(tester).commonSave);
+
+    testWidgets('it titles itself Add vehicle and asks for an odometer', (
+      tester,
+    ) async {
+      await pumpCreate(tester);
+      final l10n = _l10n(tester);
+
+      // Not "Vehicle": a blank form titled with the generic word says nothing
+      // about what Save would do.
+      expect(find.text(l10n.vehicleAddTitle), findsOneWidget);
+      expect(
+        tester
+            .widgetList<CalmField>(find.byType(CalmField))
+            .where((f) => f.label == l10n.odometerNowLabel),
+        hasLength(1),
+        reason: 'SPEC.md §8: in create mode the odometer is an input',
+      );
+      // And nothing to sell or delete on a car that does not exist.
+      expect(find.text(l10n.vehicleMarkAsSold), findsNothing);
+      expect(find.textContaining(l10n.commonDelete), findsNothing);
+    });
+
+    testWidgets('Save waits for a name and a reading, then writes both', (
+      tester,
+    ) async {
+      final (db, popped) = await pumpCreate(tester);
+      final l10n = _l10n(tester);
+
+      expect(saveAction(tester).onTap, isNull, reason: 'nothing typed');
+
+      await tester.enterText(
+        find.byWidgetPredicate(
+          (w) => w is CalmField && w.label == l10n.vehicleNameLabel,
+        ),
+        'The Transit',
+      );
+      await tester.pumpAndSettle();
+      expect(saveAction(tester).onTap, isNull, reason: 'no reading yet');
+
+      await tester.enterText(
+        find.byWidgetPredicate(
+          (w) => w is CalmField && w.label == l10n.odometerNowLabel,
+        ),
+        '92050',
+      );
+      await tester.pumpAndSettle();
+      expect(saveAction(tester).onTap, isNotNull);
+
+      await tester.tap(find.text(l10n.commonSave));
+      await tester.pumpAndSettle();
+
+      final row = await db.select(db.vehicles).getSingle();
+      expect(row.name, 'The Transit');
+      final reading = await db.select(db.odometerReadings).getSingle();
+      expect(reading.odometerM, const Distance.fromKm(92050).metres);
+
+      // The id travels back with the pop, because the CALLER decides whether
+      // to switch to it — the garage offers, the switcher does it.
+      expect(popped.single.toString(), row.id);
+    });
+
+    testWidgets('an implausible reading warns and still saves', (tester) async {
+      final (db, _) = await pumpCreate(tester);
+      final l10n = _l10n(tester);
+
+      await tester.enterText(
+        find.byWidgetPredicate(
+          (w) => w is CalmField && w.label == l10n.vehicleNameLabel,
+        ),
+        'The Truck',
+      );
+      await tester.enterText(
+        find.byWidgetPredicate(
+          (w) => w is CalmField && w.label == l10n.odometerNowLabel,
+        ),
+        '3000001',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.odometerImplausibleWarning), findsOneWidget);
+      expect(
+        saveAction(tester).onTap,
+        isNotNull,
+        reason: 'SPEC.md §8: a warning with an affordance, never a block',
+      );
+
+      await tester.tap(find.text(l10n.commonSave));
+      await tester.pumpAndSettle();
+      expect(await db.select(db.vehicles).get(), hasLength(1));
+    });
+  });
 }

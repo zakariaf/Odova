@@ -17,6 +17,7 @@
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/units/distance.dart';
@@ -84,6 +85,27 @@ class VehicleEditDraft {
     noticeDistance: vehicle.noticeDistance,
     noticeDays: vehicle.noticeDays,
   );
+
+  /// A draft for a vehicle that does not exist yet — SPEC.md §8's create mode.
+  ///
+  /// [original] is a PROVISIONAL row, never written and never read back: it is
+  /// what [isDirty] compares against, so an untouched create form is clean and
+  /// its first ✕ dismisses silently rather than opening the discard dialog.
+  /// The repository mints the real id, status and timestamps
+  /// (`VehicleRepository.createVehicle` names the four it ignores), so the
+  /// values here exist only to make a complete `Vehicle`.
+  factory VehicleEditDraft.blank() {
+    const provisional = Vehicle(
+      id: kUnsavedVehicleId,
+      name: '',
+      vehicleType: VehicleType.car,
+      fuelKindDefault: FuelKind.petrol,
+      status: VehicleStatus.active,
+      createdAtUtcMs: 0,
+      updatedAtUtcMs: 0,
+    );
+    return VehicleEditDraft.of(provisional);
+  }
 
   /// The row as it stands on disk. What [isDirty] compares against.
   final Vehicle original;

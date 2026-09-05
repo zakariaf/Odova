@@ -669,6 +669,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vehicleSwitchToIt => 'التبديل إليها';
 
   @override
+  String get vehicleAddTitle => 'إضافة مركبة';
+
+  @override
+  String vehicleAddedSnack(String name) {
+    return 'تمت إضافة $name';
+  }
+
+  @override
   String get switcherTitle => 'تبديل المركبة';
 
   @override

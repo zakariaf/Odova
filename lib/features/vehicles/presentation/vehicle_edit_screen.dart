@@ -18,6 +18,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -56,9 +57,36 @@ const List<VehicleType> _typeSegments = [
 ];
 
 /// Every fact about one vehicle.
+/// Which of `vehicle.edit`'s two modes this is.
+///
+/// SPEC.md §8 draws one screen twice: "in create mode it is an input; in edit
+/// mode a row showing the latest reading and its age". An ENUM rather than a
+/// nullable id, because a null id already means something else here — a deep
+/// link carrying an id that will not parse — and the two states draw very
+/// differently.
+enum VehicleEditMode {
+  /// Editing [VehicleEditScreen.vehicleId], or drawing the closable shell when
+  /// it is null because the path was malformed.
+  edit,
+
+  /// Creating one. Save pops with the new vehicle's `VehicleId`, and what
+  /// happens next is the CALLER's decision: the garage's + offers "Switch to
+  /// it" in a snackbar, `vehicle.switcher` makes it active and dismisses
+  /// itself too.
+  create,
+}
+
+/// `vehicle.edit` — one vehicle's facts, or a new one.
 class VehicleEditScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
-  const VehicleEditScreen({required this.vehicleId, super.key});
+  const VehicleEditScreen({
+    required this.vehicleId,
+    this.mode = VehicleEditMode.edit,
+    super.key,
+  });
+
+  /// Whether this form edits a vehicle or creates one.
+  final VehicleEditMode mode;
 
   /// Which vehicle, or null when a deep link carried an id that will not
   /// parse.
@@ -82,6 +110,10 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
   final _vin = TextEditingController();
   final _notes = TextEditingController();
 
+  /// Create mode's odometer field. Never attached in edit mode, where the
+  /// odometer is a read-only row.
+  final _odometer = TextEditingController();
+
   /// Whether the controllers have been filled from the loaded row.
   ///
   /// Once, not on every build: re-seeding would fight the user's typing, and
@@ -90,7 +122,16 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
 
   @override
   void dispose() {
-    for (final c in [_name, _make, _model, _year, _plate, _vin, _notes]) {
+    for (final c in [
+      _name,
+      _make,
+      _model,
+      _year,
+      _plate,
+      _vin,
+      _notes,
+      _odometer,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -107,19 +148,26 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     _notes.text = draft.notes ?? '';
   }
 
+  /// The provider key: null in create mode, the vehicle in edit mode.
+  VehicleId? get _key =>
+      widget.mode == VehicleEditMode.create ? null : widget.vehicleId;
+
   VehicleEditNotifier get _notifier =>
-      ref.read(vehicleEditProvider(widget.vehicleId!).notifier);
+      ref.read(vehicleEditProvider(_key).notifier);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final space = CalmSpace.of(context);
+    final creating = widget.mode == VehicleEditMode.create;
     final id = widget.vehicleId;
-    final state = id == null ? null : ref.watch(vehicleEditProvider(id));
+    // A malformed deep link is the only case with neither a mode nor an id,
+    // and it must not read the create-mode provider by accident.
+    final state = creating || id != null
+        ? ref.watch(vehicleEditProvider(_key))
+        : null;
 
-    // BOTH conditions, and the null check is what promotes `id` for the rest
-    // of the method — Dart cannot see that a Ready state implies a parsed id.
-    if (id == null || state is! VehicleEditReady) {
+    if (state is! VehicleEditReady) {
       return CalmScaffold(
         appBar: CalmAppBar.modal(
           title: l10n.vehicleEditTitle,
@@ -140,12 +188,17 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
       // EPIC-08's guard and EPIC-08's dialog, never a copy. This screen
       // supplies only the SUBJECT and the SUMMARY and owns the draft it drops;
       // what a dismissal means is one decision made once, for every modal.
-      isDirty: () => draft.isDirty,
-      onDiscard: () => ref.invalidate(vehicleEditProvider(id)),
+      // The STATE's, not the draft's: create mode's odometer is not on the
+      // draft, and six digits typed at a pump is exactly the work this guard
+      // exists to stop losing.
+      isDirty: () => state.isDirty,
+      onDiscard: () => ref.invalidate(vehicleEditProvider(_key)),
       confirmDiscard: (context) async =>
           await showDiscardDialog(
             context,
-            subject: draft.name,
+            subject: draft.name.trim().isEmpty
+                ? l10n.vehicleAddTitle
+                : draft.name,
             summary: l10n.vehicleEditTitle,
           ) ==
           DiscardChoice.discard,
@@ -158,7 +211,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     AppLocalizations l10n,
     CalmSpace space,
     VehicleEditReady state,
-    VehicleId id,
+    VehicleId? id,
   ) {
     final draft = state.draft;
     return CalmScaffold(
@@ -168,9 +221,14 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         // know which one they are looking at, and the generic word tells them
         // nothing. `vehicleEditTitle` stays for the loading state, where there
         // is no name to show yet.
-        title: draft.name.trim().isEmpty
-            ? l10n.vehicleEditTitle
-            : draft.name.trim(),
+        title: draft.name.trim().isNotEmpty
+            ? draft.name.trim()
+            // A create form has no name to title itself with until the user
+            // types one, and "Vehicle" over a blank form says nothing about
+            // what pressing Save would do.
+            : state.creating
+            ? l10n.vehicleAddTitle
+            : l10n.vehicleEditTitle,
         // A GLYPH, per the artboard, and named all the same — a bare ✕
         // announced as "button" leaves the only way out of a full-screen modal
         // unlabelled.
@@ -178,7 +236,7 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         startIcon: Icons.close,
         onStart: () => Navigator.of(context).maybePop(),
         endLabel: l10n.commonSave,
-        onEnd: draft.canSave ? () => unawaited(_save()) : null,
+        onEnd: state.canSave ? () => unawaited(_save()) : null,
       ),
       tight: true,
       // The artboard's inline `gap:10px; padding-block:18px 12px`, rounded to
@@ -325,27 +383,54 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
             ),
           ],
         ),
-        // READ-ONLY here and an input only in create mode. SPEC.md §8: a facts
-        // form is the wrong place to write a dated reading — someone
+        // READ-ONLY in edit mode and an input in create mode. SPEC.md §8: a
+        // facts form is the wrong place to write a DATED reading — someone
         // correcting the plate would stamp today's date on a number they last
         // checked in March, and that corrupts the series the whole app depends
-        // on. Tapping it goes to `log.odometer`, where a reading has a date.
-        _OdometerRow(vehicleId: id, unit: draft.distanceUnit),
-        CalmRowGroup(
-          rows: [
-            CalmListRow(
-              title: l10n.vehicleMarkAsSold,
-              showChevron: true,
-              // EPIC-09 task 9.6 owns the sale form and the confirm-delete
-              // dialog. Inert until then rather than wired to nothing.
+        // on. A create has no series to corrupt and no other way to get its
+        // first reading, which the domain contract requires (§3).
+        if (state.odometer case final odometer?) ...[
+          CalmField(
+            label: l10n.odometerNowLabel,
+            controller: _odometer,
+            hint: l10n.odometerFirstRunHint,
+            errorText: _odometerMessage(l10n, odometer),
+            affix: Text(_unitLabel(l10n, odometer.unit)),
+            numeric: true,
+            keyboardType: TextInputType.number,
+            onChanged: _notifier.typeOdometer,
+          ),
+          if (odometer.problem == OdometerProblem.implausible)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: CalmButton(
+                label: l10n.commonUseItAnyway,
+                variant: CalmButtonVariant.quiet,
+                size: CalmButtonSize.sm,
+                onPressed: _notifier.useItAnyway,
+              ),
             ),
-            CalmListRow(
-              title: l10n.vehicleDeleteRowEmpty(draft.name.trim()),
-              danger: true,
-              lead: const Icon(Icons.delete_outline, size: 20),
-            ),
-          ],
-        ),
+        ] else if (id != null)
+          _OdometerRow(vehicleId: id, unit: draft.distanceUnit),
+        // ABSENT in create mode, not disabled: there is nothing to sell and
+        // nothing to delete, and a destructive row on a car that does not
+        // exist is a control that can only lie.
+        if (id != null)
+          CalmRowGroup(
+            rows: [
+              CalmListRow(
+                title: l10n.vehicleMarkAsSold,
+                showChevron: true,
+                // EPIC-09 task 9.6 owns the sale form and the confirm-delete
+                // dialog. Inert until then rather than wired to nothing.
+              ),
+              CalmListRow(
+                title: l10n.vehicleDeleteRowEmpty(draft.name.trim()),
+                danger: true,
+                lead: const Icon(Icons.delete_outline, size: 20),
+              ),
+            ],
+          ),
         // NOT YET: SPEC.md §8's two disclosure groups — `Purchase and sale`
         // and `This vehicle's units & currency`. `CalmDisclosure` is built and
         // tested; what is missing is their CONTENTS, which need a date picker,
@@ -382,10 +467,38 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
   }
 
   Future<void> _save() async {
-    if (await _notifier.save() && mounted) {
-      await Navigator.of(context).maybePop();
-    }
+    final saved = await _notifier.save();
+    if (saved == null || !mounted) return;
+    // `pop`, not `maybePop`. `DirtyModalGuard` holds `canPop: false` so that a
+    // DISMISSAL can be refused and re-issued after the discard dialog answers
+    // — and its re-issue carries no result, which silently swallowed the id
+    // below. A save is not a dismissal: nothing is being lost, there is
+    // nothing to ask about, and the guard has no business in it.
+    //
+    // The new vehicle's id travels back with the pop, and the CALLER decides
+    // what it means. SPEC.md §8 gives the two doors opposite answers: the
+    // garage's + "appends the vehicle, does not make it active", while
+    // add-from-switcher makes it active and dismisses the sheet as well.
+    Navigator.of(
+      context,
+    ).pop(widget.mode == VehicleEditMode.create ? saved : null);
   }
+
+  /// What the odometer field says under itself, or nothing.
+  ///
+  /// The implausible case is a WARNING (§8: "never a block"), and it shares
+  /// this one message slot with the two that are errors. Empty says nothing at
+  /// all: a form that scolds before anything is typed is a form that is angry
+  /// at the user for arriving, and here Save is simply not offered yet.
+  String? _odometerMessage(AppLocalizations l10n, OdometerEntry odometer) =>
+      switch (odometer.problem) {
+        null || OdometerProblem.empty => null,
+        OdometerProblem.notANumber => l10n.odometerNotANumberError,
+        OdometerProblem.implausible => l10n.odometerImplausibleWarning,
+      };
+
+  String _unitLabel(AppLocalizations l10n, DistanceUnit unit) =>
+      unit == DistanceUnit.mi ? l10n.unitDistanceMi : l10n.unitDistanceKm;
 
   /// This year, from the INJECTED clock.
   ///

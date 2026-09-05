@@ -619,6 +619,14 @@ class AppLocalizationsFa extends AppLocalizations {
   String get vehicleSwitchToIt => 'همین را نشان بده';
 
   @override
+  String get vehicleAddTitle => 'افزودن خودرو';
+
+  @override
+  String vehicleAddedSnack(String name) {
+    return '$name افزوده شد';
+  }
+
+  @override
   String get switcherTitle => 'تعویض خودرو';
 
   @override

@@ -112,7 +112,7 @@ class VehicleRepository {
     Vehicle(
       // A placeholder, replaced below. `createVehicle` owns identity, and this
       // is the one field it will not take from a caller.
-      id: _placeholderId,
+      id: kUnsavedVehicleId,
       name: draft.name,
       vehicleType: draft.vehicleType,
       fuelKindDefault: draft.fuelKindDefault,
@@ -518,15 +518,6 @@ class VehicleDraft {
   /// the answer travels here rather than being guessed from the fuel kind.
   final bool liquidCooled;
 }
-
-/// A syntactically valid id that is never stored.
-///
-/// `createVehicle` mints the real one; `create` has to put something in the
-/// field to hand it a `Vehicle` at all. Named so that an id which somehow DID
-/// reach the database says what went wrong when somebody greps for it.
-final VehicleId _placeholderId = VehicleId.tryParse(
-  'veh_00000000000000000000000000',
-)!;
 
 /// Thrown inside `create`'s transaction when there is no settings row to
 /// complete, so drift unwinds it and `create` answers with a typed failure.

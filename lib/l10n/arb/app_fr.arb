@@ -140,6 +140,8 @@
   "vehicleStatusItemGeneric": "Entretien",
   "vehiclesOnlyOneWarning": "C’est votre seul véhicule. Le supprimer remet Odova à zéro.",
   "vehicleSwitchToIt": "Passer à ce véhicule",
+  "vehicleAddTitle": "Ajouter un véhicule",
+  "vehicleAddedSnack": "{name} ajouté",
   "switcherTitle": "Changer de véhicule",
   "switcherCount": "{n, plural, one{{nText} véhicule} many{{nText} véhicules} other{{nText} véhicules}}",
   "switcherAddVehicle": "Ajouter un véhicule",

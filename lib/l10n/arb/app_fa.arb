@@ -140,6 +140,8 @@
   "vehicleStatusItemGeneric": "سرویس",
   "vehiclesOnlyOneWarning": "این تنها خودروی شماست. با حذف آن، اودووا از نو شروع می‌شود.",
   "vehicleSwitchToIt": "همین را نشان بده",
+  "vehicleAddTitle": "افزودن خودرو",
+  "vehicleAddedSnack": "{name} افزوده شد",
   "switcherTitle": "تعویض خودرو",
   "switcherCount": "{n, plural, one{{nText} خودرو} other{{nText} خودرو}}",
   "switcherAddVehicle": "افزودن خودرو",

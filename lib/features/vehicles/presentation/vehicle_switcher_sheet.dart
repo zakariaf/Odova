@@ -19,8 +19,11 @@ import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/vehicles/garage_status.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/vehicle_status_line.dart';
@@ -35,6 +38,7 @@ import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
+import 'package:odova/ui/calm/calm_snackbar.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
 
 /// Opens the switcher.
@@ -115,8 +119,12 @@ class VehicleSwitcherSheet extends ConsumerWidget {
               lead: const Icon(Icons.add),
               // §8: "`vehicle.edit` (create) stacked OVER the sheet." Pushed,
               // not gone to, so the sheet is still underneath when the form
-              // closes.
-              onTap: () => unawaited(context.push(Routes.vehicleNew)),
+              // closes — and then §8's special case: "on Save the new vehicle
+              // becomes active, modal and sheet both dismiss, all four tab
+              // stacks reset." The opposite of the garage's +, and for the
+              // same reason: this sheet exists to change which car the app is
+              // showing, so adding one from here is choosing it.
+              onTap: () => unawaited(_addVehicle(context, ref)),
             ),
             CalmListRow(
               title: l10n.switcherManageVehicles,
@@ -135,6 +143,31 @@ class VehicleSwitcherSheet extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// Opens `vehicle.edit` in create mode over this sheet, and switches to it.
+  ///
+  /// SPEC.md §8's special case, in full: "on Save the new vehicle becomes
+  /// active, modal and sheet both dismiss, all four tab stacks reset." The
+  /// stacks are `setActiveVehicle`'s job, which is the ONE sanctioned way to
+  /// switch — this sheet writes no field of its own.
+  ///
+  /// The sheet is popped only after the write lands. Popping first would leave
+  /// the user back on the old car with no way to know the switch failed, on a
+  /// screen whose only purpose is to have switched.
+  Future<void> _addVehicle(BuildContext context, WidgetRef ref) async {
+    final added = await context.push<VehicleId>(Routes.vehicleNew);
+    if (added == null || !context.mounted) return;
+
+    final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
+    final switched = await setActiveVehicle(ref.read, added);
+    if (!context.mounted) return;
+    if (switched is! Ok<void, PersistFailure>) {
+      CalmSnackbar.show(context, message: l10n.saveDiskFullError, danger: true);
+      return;
+    }
+    navigator.pop();
   }
 }
 
@@ -199,9 +232,26 @@ class _SwitcherRow extends ConsumerWidget {
       ),
       onTap: () async {
         final navigator = Navigator.of(context);
+        final l10n = AppLocalizations.of(context);
         // A write that sets the field to what it already holds still resets
         // four tab stacks, which throws away the user's place for nothing.
-        if (!active) await setActiveVehicle(ref.read, vehicle.id);
+        final switched = active
+            ? const Ok<void, PersistFailure>(null)
+            : await setActiveVehicle(ref.read, vehicle.id);
+        if (switched is! Ok<void, PersistFailure>) {
+          // The Result used to be discarded, and the sheet closed on a write
+          // that had not happened — leaving the app on the old car with a tick
+          // the user had just seen move. A disk that cannot take one field is
+          // a disk the user needs told about.
+          if (context.mounted) {
+            CalmSnackbar.show(
+              context,
+              message: l10n.saveDiskFullError,
+              danger: true,
+            );
+          }
+          return;
+        }
         navigator.pop();
       },
     );

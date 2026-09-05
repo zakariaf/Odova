@@ -175,6 +175,17 @@ final class VehicleId extends RecordId {
   RecordIdKind get kind => RecordIdKind.vehicle;
 }
 
+/// The id a vehicle carries before it has one.
+///
+/// `vehicle.edit`'s create mode builds a whole `Vehicle` before the row exists,
+/// and `VehicleRepository.createVehicle` mints the real id and ignores this
+/// one. Syntactically valid so nothing downstream has to special-case it, and
+/// all zeroes so that an id which somehow DID reach the database says what went
+/// wrong to anyone who greps for it.
+const VehicleId kUnsavedVehicleId = VehicleId._(
+  '00000000000000000000000000',
+);
+
 /// A service item's id. `rem_`, because it is the thing that reminds.
 final class ServiceItemId extends RecordId {
   const ServiceItemId._(super.body);

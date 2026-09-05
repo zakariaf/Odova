@@ -140,6 +140,8 @@
   "vehicleStatusItemGeneric": "صيانة",
   "vehiclesOnlyOneWarning": "هذه مركبتك الوحيدة. حذفها يعيد أودوفا إلى نقطة البداية.",
   "vehicleSwitchToIt": "التبديل إليها",
+  "vehicleAddTitle": "إضافة مركبة",
+  "vehicleAddedSnack": "تمت إضافة {name}",
   "switcherTitle": "تبديل المركبة",
   "switcherCount": "{n, plural, zero{{nText} مركبة} one{مركبة واحدة} two{مركبتان} few{{nText} مركبات} many{{nText} مركبةً} other{{nText} مركبة}}",
   "switcherAddVehicle": "إضافة مركبة",

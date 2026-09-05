@@ -876,6 +876,20 @@
   "@vehicleSwitchToIt": {
     "description": "A snackbar action after adding a vehicle from the garage. The new vehicle is NOT made active automatically; this offers it."
   },
+  "vehicleAddTitle": "Add vehicle",
+  "@vehicleAddTitle": {
+    "description": "Title of `vehicle.edit` in CREATE mode, where there is no vehicle name to title it with. Deliberately its own key rather than `switcherAddVehicle`: that one is a button in a sheet, and a translator may want a different register for a modal's title."
+  },
+  "vehicleAddedSnack": "{name} added",
+  "@vehicleAddedSnack": {
+    "description": "The snackbar after adding a vehicle from the garage. Paired with the `vehicleSwitchToIt` action, because SPEC.md §8 says the new vehicle does NOT become active — it is offered.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "The Polo"
+      }
+    }
+  },
   "switcherTitle": "Switch vehicle",
   "@switcherTitle": {
     "description": "Title of the sheet that changes which vehicle the app is showing."

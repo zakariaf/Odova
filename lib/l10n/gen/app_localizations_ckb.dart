@@ -623,6 +623,14 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get vehicleSwitchToIt => 'بۆی بگۆڕە';
 
   @override
+  String get vehicleAddTitle => 'زیادکردنی ئۆتۆمبێل';
+
+  @override
+  String vehicleAddedSnack(String name) {
+    return '$name زیادکرا';
+  }
+
+  @override
   String get switcherTitle => 'گۆڕینی ئۆتۆمبێل';
 
   @override

@@ -957,6 +957,18 @@ abstract class AppLocalizations {
   /// **'Switch to it'**
   String get vehicleSwitchToIt;
 
+  /// Title of `vehicle.edit` in CREATE mode, where there is no vehicle name to title it with. Deliberately its own key rather than `switcherAddVehicle`: that one is a button in a sheet, and a translator may want a different register for a modal's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add vehicle'**
+  String get vehicleAddTitle;
+
+  /// The snackbar after adding a vehicle from the garage. Paired with the `vehicleSwitchToIt` action, because SPEC.md §8 says the new vehicle does NOT become active — it is offered.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added'**
+  String vehicleAddedSnack(String name);
+
   /// Title of the sheet that changes which vehicle the app is showing.
   ///
   /// In en, this message translates to:

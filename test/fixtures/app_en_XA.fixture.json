@@ -140,6 +140,8 @@
   "vehicleStatusItemGeneric": "[Ŝḗřṽīçḗ ǃǃǃ]",
   "vehiclesOnlyOneWarning": "[Ţħīŝ īŝ ẏǿǔř ǿǹŀẏ ṽḗħīçŀḗ. Ḍḗŀḗţīǹḡ īţ ŝţářţŝ Ǿḍǿṽá ǿṽḗř. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "vehicleSwitchToIt": "[Ŝẇīţçħ ţǿ īţ ǃǃǃǃǃ]",
+  "vehicleAddTitle": "[Áḍḍ ṽḗħīçŀḗ ǃǃǃǃǃ]",
+  "vehicleAddedSnack": "[{name} áḍḍḗḍ ǃǃǃ]",
   "switcherTitle": "[Ŝẇīţçħ ṽḗħīçŀḗ ǃǃǃǃǃǃ]",
   "switcherCount": "[{n, plural, one{{nText} ṽḗħīçŀḗ} other{{nText} ṽḗħīçŀḗŝ}} ǃǃǃǃǃǃǃ]",
   "switcherAddVehicle": "[Áḍḍ ṽḗħīçŀḗ ǃǃǃǃǃ]",

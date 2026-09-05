@@ -140,6 +140,8 @@
   "vehicleStatusItemGeneric": "خزمەتگوزاری",
   "vehiclesOnlyOneWarning": "ئەمە تاکە ئۆتۆمبێلتە. ئەگەر بیسڕیتەوە، ئۆدۆڤا لە سەرەتاوە دەست پێدەکاتەوە.",
   "vehicleSwitchToIt": "بۆی بگۆڕە",
+  "vehicleAddTitle": "زیادکردنی ئۆتۆمبێل",
+  "vehicleAddedSnack": "{name} زیادکرا",
   "switcherTitle": "گۆڕینی ئۆتۆمبێل",
   "switcherCount": "{n, plural, one{{nText} ئۆتۆمبێل} other{{nText} ئۆتۆمبێل}}",
   "switcherAddVehicle": "زیادکردنی ئۆتۆمبێل",
