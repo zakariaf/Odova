@@ -1004,4 +1004,80 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get odometerSavedSnack => 'Kilometerstand gespeichert';
+
+  @override
+  String get homeNothingDue => 'Nichts fällig';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'Als Nächstes: $item, $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'Seit dem letzten $item:';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'Richten Sie Ihre Erinnerungen ein — sagen Sie mir, wann was zuletzt gemacht wurde';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'Tragen Sie eine Tankfüllung ein, dann beginnt hier Ihr Verbrauch.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'Dieses Fahrzeug ist als verkauft markiert ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return '$duration besessen · $distance gefahren';
+  }
+
+  @override
+  String get homeErrorTitle => 'Odova kann Ihre Daten nicht lesen.';
+
+  @override
+  String get actionOpenBackup => 'Sicherung & Wiederherstellung öffnen';
+
+  @override
+  String get homeRowBroken => 'Mit dieser Erinnerung stimmt etwas nicht';
+
+  @override
+  String get remindersTitle => 'Erinnerungen';
+
+  @override
+  String get remindersGroupPaused => 'Pausiert';
+
+  @override
+  String get remindersGroupNotTracked => 'Nicht verfolgt';
+
+  @override
+  String get remindersTrack => '+ Verfolgen';
+
+  @override
+  String get remindersPausedStatus => 'Pausiert';
+
+  @override
+  String get remindersEmpty => 'Noch keine Erinnerungen.';
+
+  @override
+  String get remindersNothingTracked =>
+      'Für dieses Fahrzeug wird nichts verfolgt.';
+
+  @override
+  String get remindersWhenLastDone => 'Wann war das zuletzt';
+
+  @override
+  String get actionDoneToday => 'Heute erledigt';
+
+  @override
+  String get actionTurnOffShort => 'Ausschalten';
 }

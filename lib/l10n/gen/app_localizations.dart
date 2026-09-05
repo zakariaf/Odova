@@ -1400,6 +1400,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Odometer saved'**
   String get odometerSavedSnack;
+
+  /// The all-clear headline. Present tense, no exclamation mark, no praise: SPEC.md §9 makes this the most common state in the app and the one most apps waste.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing due'**
+  String get homeNothingDue;
+
+  /// The all-clear card's second line — the next item and its exact date, off the TIME axis. Without it the card is an assertion; with it, an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {item}, {date}'**
+  String homeNextIs(String item, String date);
+
+  /// The label above the all-clear's receipt line. The receipt is what turns a claim into evidence — SPEC.md §9 names the most recent service, whatever it was.
+  ///
+  /// In en, this message translates to:
+  /// **'Since the last {item}:'**
+  String homeSinceLast(String item);
+
+  /// The receipt itself — "3,120 km · 4 months". Both halves are formatted upstream; the separator is the only copy here.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} · {duration}'**
+  String homeSinceLastFigure(String distance, String duration);
+
+  /// The unknown-anchor card's headline on FIRST RUN, where the app knows nothing yet. An invitation, not the "When were these last done?" question it asks once it has a list.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your reminders — tell me when things were last done'**
+  String get homeFirstRunSetUp;
+
+  /// The one line under the first-run tiles. A STATEMENT and not a button — SPEC.md §9: "the + is already one tap away".
+  ///
+  /// In en, this message translates to:
+  /// **'Log a fill-up and your consumption starts here.'**
+  String get homeFirstRunConsumption;
+
+  /// The panel that REPLACES the due stack on a sold or archived vehicle. It states the fact rather than nagging: SPEC.md §9 gives such a vehicle no reminders, no notifications and no nudges.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle is marked sold ({date}).'**
+  String homeSoldTitle(String date);
+
+  /// The sold panel's ownership summary. Both figures come from records the user entered, which is why the panel keeps History and Costs fully available beneath it.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned {duration} · {distance} driven'**
+  String homeSoldOwned(String duration, String distance);
+
+  /// The whole of Home when the store cannot be read. One message and one button — SPEC.md §9: get the data out of the building before anything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova can\'t read your data.'**
+  String get homeErrorTitle;
+
+  /// The error state's only action. It goes to settings.backup, because the first thing to do with data that cannot be read is to get a copy of it out.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Backup & restore'**
+  String get actionOpenBackup;
+
+  /// One card whose derived state threw. SPEC.md §9: "one bad row never blanks the screen" — the card is grey, says so, and offers a chevron to the editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Something\'s wrong with this reminder'**
+  String get homeRowBroken;
+
+  /// The reminders.list app-bar title. The screen's own name, with the vehicle beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get remindersTitle;
+
+  /// The second group header on reminders.list — items with is_active = false. SPEC.md §9 makes the header carry the word for a group whose rows print no status of their own, so the screen needs no legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get remindersGroupPaused;
+
+  /// The third group header — catalogue rows the user has not switched on. They are excluded from the due engine, from Home and from notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tracked'**
+  String get remindersGroupNotTracked;
+
+  /// The action in place of a status on an untracked row. It sets is_tracked and opens the editor, because a tracked item with no anchor is just another unknown. It WRAPS to two lines rather than truncating — German is "+ Verfolgen".
+  ///
+  /// In en, this message translates to:
+  /// **'+ Track'**
+  String get remindersTrack;
+
+  /// A paused row's end text. The same word as its group header and a separate key, because a header names a group and this names one row — a translator may need different grammar for each.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get remindersPausedStatus;
+
+  /// The reminders.list empty state — every item deleted. One line and the +, never an illustration.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet.'**
+  String get remindersEmpty;
+
+  /// Shown above the Paused group when every item is paused. A statement of fact rather than a nag: the user turned them off on purpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is being tracked on this vehicle.'**
+  String get remindersNothingTracked;
+
+  /// The end text of a tracked row the app has no anchor for — SPEC.md §9's reminders.list drawing. A question, because that is what it is; the row opens the editor where the answer goes.
+  ///
+  /// In en, this message translates to:
+  /// **'When was this last done'**
+  String get remindersWhenLastDone;
+
+  /// The first swipe action on a reminders.list row. It writes a ServiceRecord through the logging mark-done path and offers an Undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Done today'**
+  String get actionDoneToday;
+
+  /// The third swipe action. Shorter than actionTurnOff because a swipe reveals a narrow tile, and a separate key because a swipe tile and a menu row have different room.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get actionTurnOffShort;
 }
 
 class _AppLocalizationsDelegate

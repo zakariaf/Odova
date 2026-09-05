@@ -53,6 +53,7 @@ import 'package:odova/data/repositories/service_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
 import 'package:odova/data/ui_state/ui_state_provider.dart';
 import 'package:odova/data/ui_state/ui_state_store.dart';
+import 'package:odova/l10n/locale_controller.dart';
 
 import '../../app/routing/shell_harness.dart';
 
@@ -70,12 +71,14 @@ Vehicle homeVehicle(
   VehicleId id,
   String name, {
   VehicleStatus status = VehicleStatus.active,
+  String? soldOn,
 }) => Vehicle(
   id: id,
   name: name,
   vehicleType: VehicleType.car,
   fuelKindDefault: FuelKind.diesel,
   status: status,
+  soldOn: soldOn,
   createdAtUtcMs: 1000,
   updatedAtUtcMs: 1000,
 );
@@ -299,6 +302,8 @@ Future<ProviderContainer> pumpHome(
   VehicleId? active,
   AppDatabase? database,
   Map<String, String> uiState = const {},
+  List<ServiceRecord> records = const [],
+  bool unreadable = false,
 }) {
   final garage = vehicles ?? [homeVehicle(golfId, 'The Golf')];
   return pumpShell(
@@ -326,6 +331,17 @@ Future<ProviderContainer> pumpHome(
       // widget test has neither a bootstrap nor an application support
       // directory.
       uiStateProviderStore.overrideWithValue(UiStateStore.inMemory(uiState)),
+      // A phone whose REGION matches the artboard: dates read "14 March 2027"
+      // and numbers group with commas, which is `en-GB`. SPEC.md §5 puts both
+      // under the REGION rather than the language, so this has to be set even
+      // when the language is English — `en-US` would draw "March 14, 2027" and
+      // be equally correct for somebody else.
+      deviceLocalesProvider.overrideWithValue([
+        Locale(
+          locale?.languageCode ?? 'en',
+          (locale?.languageCode ?? 'en') == 'en' ? 'GB' : 'DE',
+        ),
+      ]),
       // Fixed, and at [homeToday]. Home reads the clock to build its stack, so
       // a suite run on a different day would order the same fixture
       // differently — the kind of test that passes for eleven months.
@@ -333,11 +349,35 @@ Future<ProviderContainer> pumpHome(
         Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
       ),
       for (final v in garage)
-        vehicleDueSnapshotProvider(v.id).overrideWithValue(snapshots[v.id]),
+        // An unreadable store has NO snapshot — that is what "could not be
+        // read" means, and a fixture that supplied one alongside a failing
+        // stream would be describing a state the app cannot be in.
+        vehicleDueSnapshotProvider(
+          v.id,
+        ).overrideWithValue(unreadable ? null : snapshots[v.id]),
       for (final v in garage)
         fillUpsProvider(v.id).overrideWith(
           (ref) => Stream.value(v.id == golfId ? fillUps : const <FillUp>[]),
         ),
+      // The all-clear's receipt reads the most recent record. Supplied like
+      // everything else the screen reads, so no drift stream is subscribed.
+      for (final v in garage)
+        serviceRecordsProvider(v.id).overrideWith(
+          (ref) => Stream.value(
+            v.id == golfId ? records : const <ServiceRecord>[],
+          ),
+        ),
+      // §9's *Error*: "the store cannot be read". One failing input is enough
+      // — `vehicleStoreUnreadableProvider` watches all six and answers on any
+      // of them, because a screen that only noticed a broken ITEMS query would
+      // draw a confident all-clear over a broken readings one.
+      if (unreadable)
+        for (final v in garage)
+          odometerReadingsProvider(v.id).overrideWith(
+            (ref) => Stream<List<OdometerReading>>.error(
+              StateError('the database is unreadable'),
+            ),
+          ),
     ],
   );
 }

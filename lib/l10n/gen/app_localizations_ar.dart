@@ -1092,4 +1092,79 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get odometerSavedSnack => 'تم حفظ عداد المسافة';
+
+  @override
+  String get homeNothingDue => 'لا شيء مستحق';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'التالي: $item، $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'منذ آخر $item:';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'أعدّ تذكيراتك — أخبرني متى تم كل شيء آخر مرة';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'سجّل تعبئة وقود ويبدأ استهلاكك من هنا.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'هذه المركبة مُعلَّمة كمباعة ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return 'ملكية $duration · $distance مقطوعة';
+  }
+
+  @override
+  String get homeErrorTitle => 'لا يستطيع أودوفا قراءة بياناتك.';
+
+  @override
+  String get actionOpenBackup => 'فتح النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get homeRowBroken => 'هناك خطأ ما في هذا التذكير';
+
+  @override
+  String get remindersTitle => 'التذكيرات';
+
+  @override
+  String get remindersGroupPaused => 'موقوف مؤقتًا';
+
+  @override
+  String get remindersGroupNotTracked => 'غير متتبَّع';
+
+  @override
+  String get remindersTrack => '+ تتبُّع';
+
+  @override
+  String get remindersPausedStatus => 'موقوف';
+
+  @override
+  String get remindersEmpty => 'لا توجد تذكيرات بعد.';
+
+  @override
+  String get remindersNothingTracked => 'لا يتم تتبع أي شيء لهذه المركبة.';
+
+  @override
+  String get remindersWhenLastDone => 'متى تم هذا آخر مرة';
+
+  @override
+  String get actionDoneToday => 'تم اليوم';
+
+  @override
+  String get actionTurnOffShort => 'إيقاف';
 }

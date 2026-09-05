@@ -12,8 +12,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/due_state.dart';
+import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -63,15 +65,26 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
   final fillUps = ref.watch(fillUpsProvider(vehicle.id)).value ?? const [];
   final today = CivilDate.fromDateTime(ref.watch(clockProvider).now());
 
+  final assessments = snapshot?.assessments ?? const <AssessedItem>[];
+  final stack = buildHomeStack(
+    items: assessments,
+    today: today ?? CivilDate.fromDateTime(DateTime(1970))!,
+    pinnedItemId: ref.watch(pinnedHomeItemProvider),
+  );
+
   return HomeState(
     vehicle: vehicle,
     estimate: snapshot?.estimate,
     strips: _strips(ref, vehicle, snapshot, today),
-    stack: buildHomeStack(
-      items: snapshot?.assessments ?? const [],
-      today: today ?? CivilDate.fromDateTime(DateTime(1970))!,
-      pinnedItemId: ref.watch(pinnedHomeItemProvider),
-    ),
+    storeUnreadable: ref.watch(vehicleStoreUnreadableProvider(vehicle.id)),
+    // §9 makes the two exclusive: the all-clear REPLACES the stack rather than
+    // sitting under it. So it is computed only when there is nothing to draw —
+    // which includes the unknown-anchor case, because that card is a stack
+    // entry and not an absence of one.
+    allClear: stack.cards.isEmpty && stack.unknown == null
+        ? _allClear(ref, vehicle, assessments, today)
+        : null,
+    stack: stack,
     // §9: the switcher "exists only with ≥ 2 vehicles", and the rule lives in
     // `LaunchFacts` so the redirect and the chevron cannot disagree. This reads
     // the same count rather than a second opinion about it.
@@ -84,6 +97,55 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
     ),
   );
 });
+
+/// The all-clear's facts: what is next, and what was last done.
+///
+/// §9's *Nothing due*: "the next item with its date, plus a since-last-service
+/// line (distance and time since the most recent `ServiceRecord`, whatever it
+/// was)". Raw values only — the sentences are `home_states.dart`'s, because a
+/// locale is a presentation input.
+HomeAllClear _allClear(
+  Ref ref,
+  Vehicle vehicle,
+  List<AssessedItem> items,
+  CivilDate? today,
+) {
+  // The soonest TRACKED, ACTIVE item by projected date, whatever its state.
+  // `ok` is what everything is here — that is the definition of this state —
+  // so the sort cannot use severity and the date is the only key there is.
+  AssessedItem? next;
+  for (final candidate in items) {
+    if (!candidate.$1.isTracked || !candidate.$1.isActive) continue;
+    final on = candidate.$2.projectedDueDate;
+    if (on == null) continue;
+    final best = next?.$2.projectedDueDate;
+    if (best == null || on.compareTo(best) < 0) next = candidate;
+  }
+
+  final records = ref.watch(serviceRecordsProvider(vehicle.id)).value;
+  ServiceRecord? last;
+  for (final record in records ?? const <ServiceRecord>[]) {
+    if (last == null || record.occurredOn.compareTo(last.occurredOn) > 0) {
+      last = record;
+    }
+  }
+
+  final estimate = ref.watch(vehicleDueSnapshotProvider(vehicle.id))?.estimate;
+  final since = last?.odometer;
+  final on = last == null ? null : CivilDate.tryParse(last.occurredOn);
+
+  return (
+    next: next,
+    lastService: last,
+    // Null rather than zero when either end is unknown. A receipt that reads
+    // "0 km" for a service whose odometer nobody entered is a measurement the
+    // app did not make.
+    sinceMetres: estimate == null || since == null
+        ? null
+        : estimate.metres - since.metres,
+    sinceDays: on == null || today == null ? null : on.daysUntil(today),
+  );
+}
 
 /// Which conditional strips are eligible, capped and ordered by §9's priority.
 ///

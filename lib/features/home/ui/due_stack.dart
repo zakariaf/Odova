@@ -28,6 +28,7 @@ class DueStack extends StatelessWidget {
     required this.onMore,
     required this.onSeeAll,
     super.key,
+    this.showCards = true,
   });
 
   /// What to draw, already ordered and capped by `buildHomeStack`.
@@ -52,6 +53,14 @@ class DueStack extends StatelessWidget {
   /// Opens `reminders.list`.
   final VoidCallback onSeeAll;
 
+  /// Whether to draw the cards, or only the row under them.
+  ///
+  /// False on the all-clear and unknown-anchor screens, where §9 replaces the
+  /// CARDS but keeps the see-all row: its zone table says the row is "Present
+  /// whenever the vehicle has >= 1 tracked item", and the *Nothing due* drawing
+  /// shows it under the all-clear card.
+  final bool showCards;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -61,19 +70,20 @@ class DueStack extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: space.s3,
       children: [
-        for (final (index, card) in stack.cards.indexed)
-          CalmDueCard(
-            view: _viewOf(l10n, card),
-            // The FIRST card is the primary, whatever its state. §9's whole
-            // layout rule is that one thing wins the eye.
-            density: index == 0
-                ? CalmDueDensity.primary
-                : CalmDueDensity.secondary,
-            onTap: () => onOpenItem(card),
-            onAction: () => onAct(card),
-            onMore: index == 0 ? () => onMore(card) : null,
-            moreLabel: index == 0 ? l10n.homeMoreActions : null,
-          ),
+        if (showCards)
+          for (final (index, card) in stack.cards.indexed)
+            CalmDueCard(
+              view: _viewOf(l10n, card),
+              // The FIRST card is the primary, whatever its state. §9's whole
+              // layout rule is that one thing wins the eye.
+              density: index == 0
+                  ? CalmDueDensity.primary
+                  : CalmDueDensity.secondary,
+              onTap: () => onOpenItem(card),
+              onAction: () => onAct(card),
+              onMore: index == 0 ? () => onMore(card) : null,
+              moreLabel: index == 0 ? l10n.homeMoreActions : null,
+            ),
         if (stack.moreDueCount > 0)
           CalmRowGroup(
             rows: [

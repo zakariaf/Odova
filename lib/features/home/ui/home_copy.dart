@@ -74,13 +74,13 @@ String homeStatusLine(
     DueState.overdue => switch (assessment.driver) {
       DueDriver.both => l10n.homeOverdueByBoth(
         distance(assessment.remainingMetres ?? 0),
-        _duration(l10n, formatsTag, assessment.remainingDays ?? 0),
+        homeDurationLine(l10n, formatsTag, assessment.remainingDays ?? 0),
       ),
       DueDriver.distance => l10n.homeOverdueByDistance(
         distance(assessment.remainingMetres ?? 0),
       ),
       _ => l10n.homeOverdueByTime(
-        _duration(l10n, formatsTag, assessment.remainingDays ?? 0),
+        homeDurationLine(l10n, formatsTag, assessment.remainingDays ?? 0),
       ),
     },
     DueState.due => l10n.homeDueNow,
@@ -90,7 +90,7 @@ String homeStatusLine(
           ? l10n.homeDueSoonNoConfidence
           : assessment.driver == DueDriver.distance
           ? l10n.homeDueSoonDistance(distance(assessment.remainingMetres ?? 0))
-          : _relative(l10n, formatsTag, assessment.remainingDays ?? 0),
+          : homeRelativeLine(l10n, formatsTag, assessment.remainingDays ?? 0),
     // Neither reaches a card: §9 keeps `ok` off Home entirely and collapses
     // `unknown` into its own card, which carries no status line.
     DueState.ok || DueState.unknown => '',
@@ -179,7 +179,11 @@ String? _softDate(
 /// Through `bucketRelativeDays`, which is the same function the past side uses.
 /// One vocabulary in both directions: a user who reads "4 months ago" on one
 /// screen should not read "in 122 days" on the next.
-String _relative(AppLocalizations l10n, String formatsTag, int days) {
+///
+/// Public because the all-clear card says the same thing about its next item —
+/// §9's `in about 5 months` under `Next: Inspection, 14 March`. Two copies of a
+/// bucket table is two vocabularies for one idea.
+String homeRelativeLine(AppLocalizations l10n, String formatsTag, int days) {
   final (:bucket, :count) = bucketRelativeDays(days);
   final n = formatForDisplay(count, formatsTag, numerals: CalmNumerals.auto);
   return switch (bucket) {
@@ -195,11 +199,13 @@ String _relative(AppLocalizations l10n, String formatsTag, int days) {
   };
 }
 
-/// How far past due, as a phrase — `3 weeks`, never `−21 days`.
+/// A span of days as a phrase — `3 weeks`, never `−21 days`.
 ///
-/// The same buckets read forwards: the OVERSHOOT is a positive quantity, and
-/// §9's sentence supplies the word "overdue" around it.
-String _duration(AppLocalizations l10n, String formatsTag, int days) {
+/// The same buckets read forwards: the quantity is positive and the caller's
+/// sentence supplies the direction. §9 uses it twice — for an overshoot
+/// ("Overdue by 3 weeks") and for a receipt ("3,120 km · 4 months") — which is
+/// why it carries no direction of its own.
+String homeDurationLine(AppLocalizations l10n, String formatsTag, int days) {
   final overshoot = days.abs();
   final (:bucket, :count) = bucketRelativeDays(overshoot);
   final n = formatForDisplay(count, formatsTag, numerals: CalmNumerals.auto);

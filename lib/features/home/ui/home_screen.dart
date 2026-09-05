@@ -19,8 +19,10 @@ import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/app/routing/tab_reselected.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/data/ui_state/ui_state_provider.dart';
 import 'package:odova/data/ui_state/ui_state_store.dart';
@@ -35,16 +37,20 @@ import 'package:odova/features/home/ui/due_stack.dart';
 import 'package:odova/features/home/ui/estimate_popover.dart';
 import 'package:odova/features/home/ui/glance_tiles.dart';
 import 'package:odova/features/home/ui/home_copy.dart';
+import 'package:odova/features/home/ui/home_states.dart';
 import 'package:odova/features/home/ui/home_strips.dart';
 import 'package:odova/features/home/ui/last_fillup_row.dart';
 import 'package:odova/features/home/ui/odometer_strip.dart';
 import 'package:odova/features/home/ui/other_vehicles_row.dart';
+import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/ui/calm/calm_all_clear.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_snackbar.dart';
 
@@ -102,7 +108,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // it was reached from.
       return const CalmScaffold(
         appBar: CalmAppBar(title: ''),
-        children: [],
+        // §9: "A skeleton appears only past 150 ms, to avoid a flash on the
+        // common path." A warm database answers in single-digit milliseconds,
+        // and a silhouette that flashes for one frame reads as a stutter.
+        children: [DelayedSkeleton(child: HomeSkeleton())],
       );
     }
 
@@ -137,71 +146,185 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onTapVehicle: state.showsSwitcher ? _openSwitcher : null,
       ),
       children: [
-        // ABOVE the odometer strip and above the cards, capped at two by
-        // `homeStripQueue`. §9: "A conditional strip pushes the tiles below the
-        // fold, never the cards."
-        for (final strip in state.strips)
-          // A Builder, so the callbacks capture a context INSIDE the scaffold.
-          // `CalmSnackbarHost.of` reads `CalmChromeScope` for the bottom
-          // inset, and the screen's own context sits ABOVE `CalmScaffold` — so
-          // a snackbar shown from there believed there was no tab bar, floated
-          // 108pt too low, and had its Undo swallowed by the `+`. The write
-          // happened and the recovery window did not exist.
-          Builder(
-            builder: (context) => _strip(context, strip, state, unit, tag),
-          ),
-        if (state.estimate case final estimate?)
-          OdometerStrip(
-            estimate: estimate,
-            unit: unit,
-            formatsTag: tag,
-            onTap: () => unawaited(context.push(Routes.log(LogType.odometer))),
-            onTapValue: () => unawaited(
-              showEstimatePopover(
-                context,
-                body: EstimatePopover(
-                  message: l10n.homeEstimateExpired,
-                  action: EstimatePopoverAction(
-                    label: l10n.actionUpdateOdometer,
-                    onPressed: () => Navigator.of(context).pop(),
+        // §9's *Error*, and it replaces everything: "Home renders no cards and
+        // one full-width message." Not a banner over the stack — a store that
+        // cannot be read has no stack to put one over.
+        if (state.storeUnreadable)
+          HomeErrorPanel(
+            onOpenBackup: () => unawaited(context.push(Routes.settingsBackup)),
+          )
+        else ...[
+          // ABOVE the odometer strip and above the cards, capped at two by
+          // `homeStripQueue`. §9: "A conditional strip pushes the tiles
+          // below the fold, never the cards."
+          for (final strip in state.strips)
+            // A Builder, so the callbacks capture a context INSIDE the
+            // scaffold. `CalmSnackbarHost.of` reads `CalmChromeScope` for
+            // the bottom inset, and the screen's own context sits ABOVE
+            // `CalmScaffold` — so a snackbar shown from there believed there
+            // was no tab bar, floated 108pt too low, and had its Undo
+            // swallowed by the `+`. The write happened and the recovery
+            // window did not exist.
+            Builder(
+              builder: (context) => _strip(context, strip, state, unit, tag),
+            ),
+          if (state.estimate case final estimate?)
+            OdometerStrip(
+              estimate: estimate,
+              unit: unit,
+              formatsTag: tag,
+              onTap: () =>
+                  unawaited(context.push(Routes.log(LogType.odometer))),
+              onTapValue: () => unawaited(
+                showEstimatePopover(
+                  context,
+                  body: EstimatePopover(
+                    message: l10n.homeEstimateExpired,
+                    action: EstimatePopoverAction(
+                      label: l10n.actionUpdateOdometer,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        Builder(
-          builder: (context) => DueStack(
-            stack: state.stack,
-            unit: unit,
+          // §9: a sold or archived vehicle's due stack "is replaced
+          // entirely", and it earns no reminders, no notifications and no
+          // nudges. The tiles and the history below stay: what the car cost
+          // is still true.
+          if (state.vehicle.status != VehicleStatus.active)
+            SoldVehiclePanel(
+              soldOn: formatLongDate(state.vehicle.soldOn ?? '', tag),
+              owned: null,
+              driven: null,
+            )
+          // §9's unknown-anchor card. It takes the PRIMARY slot when there
+          // is nothing else, and sits at the foot of the stack when there is
+          // — `buildHomeStack` decided which, and this only draws it.
+          else if (state.stack.unknown case final unknown?) ...[
+            if (state.stack.cards.isNotEmpty) _dueStack(state, unit, tag),
+            UnknownAnchorPanel(
+              card: unknown,
+              firstRun: state.stack.cards.isEmpty && state.lastFillUp == null,
+              onOpenList: () => unawaited(context.push(Routes.reminders)),
+              onOpenItem: (index) => unawaited(
+                context.push(
+                  Routes.reminderEdit(unknown.items[index].id.toString()),
+                ),
+              ),
+            ),
+          ] else if (state.allClear case final allClear?) ...[
+            HomeAllClearPanel(
+              nextLine: _nextLine(l10n, tag, allClear),
+              fuzzLine: _fuzzLine(l10n, tag, allClear),
+              since: _sinceLine(l10n, tag, allClear, unit),
+            ),
+            // The row SURVIVES the all-clear. §9's zone table: "Present
+            // whenever the vehicle has >= 1 tracked item", and its *Nothing
+            // due* drawing shows it under the card. The all-clear replaces the
+            // cards, not the way into the list.
+            _dueStack(state, unit, tag, showCards: false),
+          ] else
+            _dueStack(state, unit, tag),
+          GlanceTiles(
+            // Null until EPIC-13 composes the fuel segments — see `HomeState`.
+            // The row is still drawn: §9's layout budget reserves it, and the
+            // `—` is a designed state rather than a gap.
+            consumption: state.consumption,
+            consumptionUnit: consumptionUnit,
+            distanceUnitLabel: distanceUnitLabel(l10n, unit),
             formatsTag: tag,
-            onOpenItem: _openItem,
-            onAct: (card) => _act(card, state),
-            // Same reason as the strips: "Turn this off" shows an Undo, and an
-            // Undo under the tab bar is a write with no way back.
-            onMore: (card) => _more(context, card, state),
-            onSeeAll: () => unawaited(this.context.push(Routes.reminders)),
           ),
-        ),
-        GlanceTiles(
-          // Null until EPIC-13 composes the fuel segments — see `HomeState`.
-          // The row is still drawn: §9's layout budget reserves it, and the
-          // `—` is a designed state rather than a gap.
-          consumption: state.consumption,
-          consumptionUnit: consumptionUnit,
-          distanceUnitLabel: distanceUnitLabel(l10n, unit),
-          formatsTag: tag,
-        ),
-        if (state.lastFillUp case final fillUp?)
-          LastFillUpRow(fillUp: fillUp, formatsTag: tag),
-        if (state.otherVehicleNeedingAttention case final other?)
-          OtherVehiclesRow(
-            name: other.vehicle.name,
-            count: other.count,
-            overdue: other.overdue,
-            formatsTag: tag,
-            onTap: _openSwitcher,
-          ),
+          if (state.lastFillUp case final fillUp?)
+            LastFillUpRow(fillUp: fillUp, formatsTag: tag),
+          if (state.otherVehicleNeedingAttention case final other?)
+            OtherVehiclesRow(
+              name: other.vehicle.name,
+              count: other.count,
+              overdue: other.overdue,
+              formatsTag: tag,
+              onTap: _openSwitcher,
+            ),
+        ],
       ],
+    );
+  }
+
+  /// The due stack, with its callbacks bound to a context inside the scaffold.
+  Widget _dueStack(
+    HomeState state,
+    DistanceUnit unit,
+    String tag, {
+    bool showCards = true,
+  }) => Builder(
+    builder: (context) => DueStack(
+      stack: state.stack,
+      showCards: showCards,
+      unit: unit,
+      formatsTag: tag,
+      onOpenItem: _openItem,
+      onAct: (card) => _act(card, state),
+      // Same reason as the strips: "Turn this off" shows an Undo, and an Undo
+      // under the tab bar is a write with no way back.
+      onMore: (card) => _more(context, card, state),
+      onSeeAll: () => unawaited(this.context.push(Routes.reminders)),
+    ),
+  );
+
+  /// `Next: Inspection, 14 March` — the exact date, off the TIME axis.
+  ///
+  /// Null when nothing is tracked. §9 gives the all-clear four things and this
+  /// is one of them; a card with three is still the right card, and one with a
+  /// made-up fourth is not.
+  String? _nextLine(AppLocalizations l10n, String tag, HomeAllClear allClear) {
+    final next = allClear.next;
+    final on = next?.$2.projectedDueDate;
+    if (next == null || on == null) return null;
+    return l10n.homeNextIs(
+      next.$1.label ?? l10n.vehicleStatusItemGeneric,
+      formatLongDate(on.toString(), tag),
+    );
+  }
+
+  /// `in about 5 months` — the estimate, on its own line so it can never read
+  /// as a fact.
+  String? _fuzzLine(AppLocalizations l10n, String tag, HomeAllClear allClear) {
+    final next = allClear.next;
+    if (next == null) return null;
+    final days = next.$2.remainingDays;
+    if (days == null) return null;
+    return homeRelativeLine(l10n, tag, days);
+  }
+
+  /// The receipt: `Since the last oil change: 3,120 km · 4 months`.
+  ///
+  /// Both halves or nothing. §9 calls it evidence, and evidence with a hole in
+  /// it is an assertion again.
+  CalmSinceLine? _sinceLine(
+    AppLocalizations l10n,
+    String tag,
+    HomeAllClear allClear,
+    DistanceUnit unit,
+  ) {
+    final last = allClear.lastService;
+    final metres = allClear.sinceMetres;
+    final days = allClear.sinceDays;
+    if (last == null || metres == null || days == null) return null;
+
+    return CalmSinceLine(
+      label: l10n.homeSinceLast(
+        last.lines.firstOrNull?.label ?? l10n.vehicleStatusItemGeneric,
+      ),
+      figure: l10n.homeSinceLastFigure(
+        formatWithUnit(
+          Distance(metres).inUnit(unit),
+          distanceUnitLabel(l10n, unit),
+          tag,
+          numerals: CalmNumerals.auto,
+          decimalDigits: 0,
+        ),
+        homeDurationLine(l10n, tag, days),
+      ),
     );
   }
 

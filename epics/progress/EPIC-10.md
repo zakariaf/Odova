@@ -201,3 +201,121 @@ Two smaller divergences in the same set, listed so the sweep has them:
   global dialog and the snooze WRITE arrives in task 10.7. The case is named in
   the switch rather than left to a default, so it is a compile-time list of four
   and not three plus a silence.
+
+## Task 10.5 — the conditional strips and the inline odometer save ✅
+
+`home_strips.dart` in `domain/` decides which of the three §9 shows, in §9's
+priority order, capped at two; `CalmNotice` is `.notice` in `lib/ui/calm/`;
+three widgets compose them. 10 domain tests, 9 widget tests.
+
+**The store is a FILE, not a table.** §9 says the dismissal keys live in a
+key-value store "not in the backup file". Every backup and every migration
+safety copy reads the DATABASE table by table from a declared list, so putting
+this outside the database makes that structural rather than a list somebody
+maintains — and it needs no schema version, no migration rung and no
+dependency. It is deliberately forgiving: a missing, corrupt or wrongly-shaped
+file is an empty store, because losing it costs a dismissed banner and refusing
+to launch over it costs the app.
+
+### F-10.2 — a snackbar shown from a tab root was under the tab bar
+
+`CalmSnackbarHost` reads `CalmChromeScope` for its bottom inset, and **no tab
+root passes `tabBar:` to `CalmScaffold`** — the bar belongs to `AppShell`. So
+every screen inside a branch answered "there is nothing below me", the snackbar
+floated 62pt too low, and its Undo sat under the 62pt `+`, which swallowed the
+tap. **Two Undos were affected and both had already shipped**: the strip's Save
+and the card overflow's "Turn this off".
+
+`AppShell` now publishes `CalmChromeScope(hasTabBar: true)` around the branch,
+and `CalmScaffold` no longer writes `false` over it — a scaffold declares the
+bar it DRAWS, not the one it sits on. The callbacks also capture their context
+from a `Builder` inside the scaffold, because a `State.context` is above the
+frame.
+
+Found by asserting the ROW in the database rather than the tap, then noticing
+the tap had only warned. That is the second time in this epic — the first was
+the sheet under the same bar — and the lesson is the same one: **`tester.tap`
+warns where it should fail**, so a test whose only assertion is downstream of a
+tap can pass without pressing anything.
+
+### F-10.3 — the shared odometer input is 216pt
+
+`CalmOdometerInput` is a stacked label, a field, a helper line and a "Use it
+anyway" button. Inside §9's two-line strip it pushed the PRIMARY CARD below the
+fold — under the one rule §9 states about strips. The strip uses `CalmField`
+directly with `showLabel: false`, which is a new `CalmField` capability and a
+visual decision only: the label is still announced, because a field with no
+accessible name would not have been.
+
+### Deferred, deliberately
+
+- **Two of the three strips cannot fire.** The confirmation reports on a record
+  a notification ACTION writes; the digest needs the notification permission
+  state and a last-opened timestamp. All three are **EPIC-16's**. Their widgets
+  are built and asserted directly; inventing a trigger here would mean a strip
+  that fires on a fact nothing records.
+- **`home.digest_shown_at` and `home.first_run_hint_dismissed` are declared and
+  unused**, for the same reason. The store, the keys and the round trip are
+  tested.
+
+## Task 10.6 — Home's other states ✅
+
+12 tests. All-clear, first run, the unknown-anchor card, the sold panel, the
+error panel, the broken-row card and the 150 ms skeleton.
+
+**`buildHomeStack` was putting untracked items in the unknown card.** §9: "Only
+tracked items appear; untracked catalogue rows live on `reminders.list`." The
+engine only assesses eligible items, so one should never arrive — but the guard
+is what makes that a property of the function rather than a promise the engine
+keeps on its behalf.
+
+**The see-all row survives the all-clear.** §9's zone table keeps it "whenever
+the vehicle has ≥ 1 tracked item" and its *Nothing due* drawing puts it under
+the card, so `DueStack` gained `showCards: false` rather than the screen growing
+a second copy of the row.
+
+**The 150 ms is a `CalmMotion` slot.** `check_touch_targets.sh` refuses a raw
+`Duration` outside `theme/`, and it is right to: "it is not really motion" is
+not a distinction a grep can make. `undoWindow` set the precedent — SPEC.md
+§10's six seconds is a product decision living on the motion extension for
+exactly this reason — so `skeletonDelay` joins it, with the same note that it is
+NOT collapsed by reduced motion. Collapsing a threshold to zero would make the
+skeleton flash on the common path, which is what the delay exists to prevent.
+
+**A `Timer`, not `Future.delayed`, for the skeleton.** A future cannot be
+cancelled, so a screen that resolved in 5 ms left one pending for the remaining
+145 — and `testWidgets` asserts on a timer outliving the tree, which turned
+**eighteen** unrelated tests into teardown failures. What `initState` starts,
+`dispose` stops.
+
+**`vehicleStoreUnreadableProvider` short-circuits on a snapshot.** Its first
+version watched the same six streams the snapshot composes, so every widget
+test and every parity capture that supplied the snapshot outright got the drift
+streams back through the side door — the hang-then-fail-the-next-test failure
+the whole harness is shaped to avoid. A snapshot is proof the store was read, so
+it answers before touching any of them.
+
+### F-10.4 — §9's all-clear cannot keep the tiles above the fold
+
+The task asks for `all-clear keeps the glance tiles above the fold at
+375 × 667`. It does not hold, and the reason is Calm's own `.allclear`:
+`padding: space-8 / space-6 / space-7` around a 92pt mark with a 12pt ring, a
+title, a line, a meta line and a `since` block — **289pt without the receipt and
+~380 with it**, against the ~148 §9's ASCII budget assumes. Add the see-all row
+§9's own drawing puts under it and the first tile starts below the bar.
+
+The test asserts what is true and what §9 states as its one hard rule: **the
+answer is above the fold** — the all-clear card is fully visible — and the tiles
+are reachable. Not fixed by shrinking a component the stylesheet specifies; it
+goes to the design sweep with F-10.1.
+
+### Deferred, deliberately
+
+- **The broken-row card has no trigger.** `recomputeVehicle` returns one
+  `DueAssessment` per eligible item and cannot report that one of them threw; a
+  per-item failure is a change to **EPIC-07's** engine. The card is built and
+  asserted directly so the drawing exists the day the engine can say so.
+- **The sold panel carries no "Total spent".** §9 shows one; `monthlyCost` and
+  `costPerDistance` are **EPIC-13's**, like the two cost tiles. The panel prints
+  the ownership line only when BOTH its halves are known — "Owned 6 years · —
+  driven" is a sentence with a hole in it.

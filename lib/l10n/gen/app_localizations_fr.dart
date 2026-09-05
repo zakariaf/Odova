@@ -1031,4 +1031,79 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get odometerSavedSnack => 'Compteur enregistré';
+
+  @override
+  String get homeNothingDue => 'Rien à faire';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'Ensuite : $item, $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'Depuis le dernier $item :';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'Configurez vos rappels — dites-moi quand les choses ont été faites';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'Enregistrez un plein et votre consommation commence ici.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'Ce véhicule est marqué comme vendu ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return 'Possédé $duration · $distance parcourus';
+  }
+
+  @override
+  String get homeErrorTitle => 'Odova ne peut pas lire vos données.';
+
+  @override
+  String get actionOpenBackup => 'Ouvrir Sauvegarde et restauration';
+
+  @override
+  String get homeRowBroken => 'Un problème avec ce rappel';
+
+  @override
+  String get remindersTitle => 'Rappels';
+
+  @override
+  String get remindersGroupPaused => 'En pause';
+
+  @override
+  String get remindersGroupNotTracked => 'Non suivi';
+
+  @override
+  String get remindersTrack => '+ Suivre';
+
+  @override
+  String get remindersPausedStatus => 'En pause';
+
+  @override
+  String get remindersEmpty => 'Aucun rappel pour l’instant.';
+
+  @override
+  String get remindersNothingTracked => 'Rien n’est suivi sur ce véhicule.';
+
+  @override
+  String get remindersWhenLastDone => 'C’était quand la dernière fois';
+
+  @override
+  String get actionDoneToday => 'Fait aujourd’hui';
+
+  @override
+  String get actionTurnOffShort => 'Désactiver';
 }

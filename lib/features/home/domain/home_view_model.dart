@@ -132,6 +132,15 @@ HomeStack buildHomeStack({
   for (final (item, assessment) in items) {
     if (item.isTracked) tracked++;
 
+    // §9's *The unknown-anchor card*: "Only tracked items appear; untracked
+    // catalogue rows live on `reminders.list`." The engine only assesses
+    // eligible items, so an untracked one should not be here at all — but the
+    // guard is what makes that a property of THIS function rather than a
+    // promise the engine keeps on its behalf, and an untracked row in the
+    // unknown card is a catalogue entry the user never asked to be reminded
+    // about.
+    if (!item.isTracked) continue;
+
     // §9's "not on Home at all", and a paused item is not a state the engine
     // reports — it is `is_active == false`, which the engine assesses anyway.
     if (!item.isActive) continue;

@@ -998,4 +998,79 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get odometerSavedSnack => 'کیلومترشمار ذخیره شد';
+
+  @override
+  String get homeNothingDue => 'چیزی سررسید نشده';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'بعدی: $item، $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'از آخرین $item:';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'یادآورهایتان را تنظیم کنید — بگویید هر کار آخرین‌بار کی انجام شده';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'یک سوخت‌گیری ثبت کنید تا مصرف‌تان از اینجا شروع شود.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'این خودرو فروخته‌شده علامت خورده است ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return '$duration در اختیار · $distance رانده‌شده';
+  }
+
+  @override
+  String get homeErrorTitle => 'اودووا نمی‌تواند داده‌های شما را بخواند.';
+
+  @override
+  String get actionOpenBackup => 'باز کردن پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get homeRowBroken => 'این یادآور مشکلی دارد';
+
+  @override
+  String get remindersTitle => 'یادآورها';
+
+  @override
+  String get remindersGroupPaused => 'متوقف‌شده';
+
+  @override
+  String get remindersGroupNotTracked => 'پیگیری نمی‌شود';
+
+  @override
+  String get remindersTrack => '+ پیگیری';
+
+  @override
+  String get remindersPausedStatus => 'متوقف';
+
+  @override
+  String get remindersEmpty => 'هنوز یادآوری نیست.';
+
+  @override
+  String get remindersNothingTracked => 'برای این خودرو چیزی پیگیری نمی‌شود.';
+
+  @override
+  String get remindersWhenLastDone => 'آخرین‌بار کی انجام شد';
+
+  @override
+  String get actionDoneToday => 'امروز انجام شد';
+
+  @override
+  String get actionTurnOffShort => 'خاموش';
 }

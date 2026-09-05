@@ -8,10 +8,32 @@
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/due/due_summary.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/units/consumption.dart';
 import 'package:odova/features/home/domain/home_strips.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
+
+/// The all-clear card's contents, as facts rather than sentences.
+///
+/// SPEC.md §9's *Nothing due*: the mark, the headline, "the next item with its
+/// date, plus a since-last-service line (distance and time since the most
+/// recent `ServiceRecord`, whatever it was)". Everything here is raw; the
+/// formatting is `home_states.dart`'s, because a locale is a presentation
+/// input and this is not the presentation layer.
+typedef HomeAllClear = ({
+  /// The soonest item, whatever its state. Null when nothing is tracked.
+  AssessedItem? next,
+
+  /// The most recent service record, for the receipt line.
+  ServiceRecord? lastService,
+
+  /// Metres since that record, or null when either odometer is unknown.
+  int? sinceMetres,
+
+  /// Days since it, or null when the date will not parse.
+  int? sinceDays,
+});
 
 /// Another vehicle with work on it, and how much.
 ///
@@ -29,6 +51,8 @@ class HomeState {
     required this.stack,
     required this.showsSwitcher,
     this.strips = const [],
+    this.storeUnreadable = false,
+    this.allClear,
     this.estimate,
     this.lastFillUp,
     this.consumption,
@@ -60,6 +84,21 @@ class HomeState {
 
   /// The most recent fill-up, for the 56pt row under the tiles.
   final FillUp? lastFillUp;
+
+  /// Whether the store could not be read at all.
+  ///
+  /// §9's *Error*: "If the store cannot be read, Home renders no cards and one
+  /// full-width message." It is a different fact from "the engine found
+  /// nothing", which is the all-clear, and from "the engine has not answered
+  /// yet", which is the skeleton — and drawing any of the three for another is
+  /// the failure this flag exists to prevent.
+  final bool storeUnreadable;
+
+  /// The all-clear's facts, when nothing is due.
+  ///
+  /// Null whenever a card is drawn. §9 makes the two states exclusive: the
+  /// all-clear replaces the stack, it does not sit under it.
+  final HomeAllClear? allClear;
 
   /// The vehicle's lifetime average consumption, or null when there is none.
   ///

@@ -21,6 +21,41 @@ import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
 
+/// Whether one vehicle's inputs could not be READ, as opposed to not having
+/// arrived.
+///
+/// SPEC.md §9's *Error* state turns on the difference: "If the store cannot be
+/// read, Home renders no cards and one full-width message." A null snapshot
+/// cannot say which — it collapses loading and failure on purpose, because §8's
+/// garage row draws the same hollow dot for both — so the one screen that needs
+/// them apart asks separately.
+///
+/// A SNAPSHOT is proof the store was read, so it short-circuits before any of
+/// the six are touched. Not an optimisation: without it this subscribes six
+/// drift streams of its own, and a caller that supplied the snapshot outright —
+/// every widget test and every parity capture — gets them back through the side
+/// door, hangs on streams that never deliver under `testWidgets`, and leaves a
+/// timer that fails the NEXT test.
+///
+/// Below that, the SAME six streams the snapshot composes, in the same order.
+/// Two lists is one that can be edited without the other; they are adjacent so
+/// that a seventh input is obviously two edits rather than one.
+final ProviderFamily<bool, VehicleId> vehicleStoreUnreadableProvider = Provider
+    .autoDispose
+    .family((ref, vehicleId) {
+      final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicleId));
+      if (snapshot != null) {
+        return false;
+      }
+
+      return ref.watch(vehiclesProvider).hasError ||
+          ref.watch(serviceItemsProvider(vehicleId)).hasError ||
+          ref.watch(serviceRecordsProvider(vehicleId)).hasError ||
+          ref.watch(odometerReadingsProvider(vehicleId)).hasError ||
+          ref.watch(odometerCorrectionsProvider(vehicleId)).hasError ||
+          ref.watch(settingsProvider).hasError;
+    });
+
 /// The date the app was built, for SPEC.md §3's clock-suspicion check.
 ///
 /// A phone whose clock reads 1970 or 2050 must not have its due dates believed,

@@ -36,6 +36,19 @@ void main() {
     );
   });
 
+  test('skeletonDelay is 150 ms and is not a CSS token either', () {
+    // SPEC.md §9: "A skeleton appears only past 150 ms, to avoid a flash on
+    // the common path." A THRESHOLD, not a transition — it sits here for the
+    // reason `undoWindow` does, because "it is not really motion" is not a
+    // distinction `check_touch_targets.sh`'s grep can make.
+    expect(calmMotion.skeletonDelay, const Duration(milliseconds: 150));
+    expect(
+      lightTokenBlock(),
+      isNot(contains('--dur-skeleton')),
+      reason: 'a token appeared; trace the slot to it and delete this test',
+    );
+  });
+
   test('all five durations trace to odova.css', () {
     final css = durationsIn(lightTokenBlock());
     expect(css, hasLength(5));
@@ -88,6 +101,7 @@ void main() {
       slow: Duration(seconds: 9),
       sheet: Duration(seconds: 9),
       undoWindow: Duration(seconds: 9),
+      skeletonDelay: Duration(seconds: 9),
       easeStandard: Cubic(1, 1, 1, 1),
       easeOut: Cubic(1, 1, 1, 1),
       easeIn: Cubic(1, 1, 1, 1),

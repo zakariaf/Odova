@@ -16,6 +16,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
     required this.slow,
     required this.sheet,
     required this.undoWindow,
+    required this.skeletonDelay,
     required this.easeStandard,
     required this.easeOut,
     required this.easeIn,
@@ -53,6 +54,19 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
   /// animation; this is a dwell.
   final Duration undoWindow;
 
+  /// How long a screen may take before it admits to loading — SPEC.md §9, 150
+  /// milliseconds.
+  ///
+  /// The second duration here that does not trace to a `--dur-*` token, and it
+  /// is here for the reason [undoWindow] is: every duration in the app lives on
+  /// this extension, because "it is not really motion" is not a distinction
+  /// `check_touch_targets.sh`'s grep can make.
+  ///
+  /// Also NOT collapsed by reduced motion. It is a threshold, not a
+  /// transition: collapsing it to zero would make the skeleton flash on the
+  /// common path, which is precisely what the delay exists to prevent.
+  final Duration skeletonDelay;
+
   /// `--ease-standard`. The default, and the ONLY curve for colour.
   final Cubic easeStandard;
 
@@ -89,6 +103,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
     Duration? slow,
     Duration? sheet,
     Duration? undoWindow,
+    Duration? skeletonDelay,
     Cubic? easeStandard,
     Cubic? easeOut,
     Cubic? easeIn,
@@ -101,6 +116,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
       slow: slow ?? this.slow,
       sheet: sheet ?? this.sheet,
       undoWindow: undoWindow ?? this.undoWindow,
+      skeletonDelay: skeletonDelay ?? this.skeletonDelay,
       easeStandard: easeStandard ?? this.easeStandard,
       easeOut: easeOut ?? this.easeOut,
       easeIn: easeIn ?? this.easeIn,
@@ -130,6 +146,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
       slow: t < 0.5 ? slow : other.slow,
       sheet: t < 0.5 ? sheet : other.sheet,
       undoWindow: t < 0.5 ? undoWindow : other.undoWindow,
+      skeletonDelay: t < 0.5 ? skeletonDelay : other.skeletonDelay,
       easeStandard: t < 0.5 ? easeStandard : other.easeStandard,
       easeOut: t < 0.5 ? easeOut : other.easeOut,
       easeIn: t < 0.5 ? easeIn : other.easeIn,
@@ -161,6 +178,7 @@ const calmMotion = CalmMotion(
   slow: Duration(milliseconds: 360),
   sheet: Duration(milliseconds: 420),
   undoWindow: Duration(seconds: 6),
+  skeletonDelay: Duration(milliseconds: 150),
   easeStandard: Cubic(0.32, 0.72, 0, 1),
   easeOut: Cubic(0.2, 0.8, 0.2, 1),
   easeIn: Cubic(0.4, 0, 1, 1),

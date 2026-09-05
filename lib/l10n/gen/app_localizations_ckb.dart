@@ -1002,4 +1002,80 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get odometerSavedSnack => 'کیلۆمەترپێو پاشەکەوت کرا';
+
+  @override
+  String get homeNothingDue => 'هیچ شتێک کاتی نەهاتووە';
+
+  @override
+  String homeNextIs(String item, String date) {
+    return 'دواتر: $item، $date';
+  }
+
+  @override
+  String homeSinceLast(String item) {
+    return 'لە دوایین $itemەوە:';
+  }
+
+  @override
+  String homeSinceLastFigure(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String get homeFirstRunSetUp =>
+      'بیرخەرەوەکانت ڕێک بخە — پێم بڵێ دوایین جار کەی کراون';
+
+  @override
+  String get homeFirstRunConsumption =>
+      'سووتەمەنییەک تۆمار بکە و خەرجییەکەت لێرەوە دەست پێدەکات.';
+
+  @override
+  String homeSoldTitle(String date) {
+    return 'ئەم ئۆتۆمبێلە بە فرۆشراو نیشانە کراوە ($date).';
+  }
+
+  @override
+  String homeSoldOwned(String duration, String distance) {
+    return '$duration خاوەندارێتی · $distance لێخوڕدن';
+  }
+
+  @override
+  String get homeErrorTitle => 'ئۆدۆڤا ناتوانێت داتاکانت بخوێنێتەوە.';
+
+  @override
+  String get actionOpenBackup => 'کردنەوەی پاڵپشت و گەڕاندنەوە';
+
+  @override
+  String get homeRowBroken => 'شتێک لەم بیرخەرەوەیە هەڵەیە';
+
+  @override
+  String get remindersTitle => 'بیرخەرەوەکان';
+
+  @override
+  String get remindersGroupPaused => 'وەستێنراو';
+
+  @override
+  String get remindersGroupNotTracked => 'شوێن‌نەکەوتوو';
+
+  @override
+  String get remindersTrack => '+ شوێن‌کەوتن';
+
+  @override
+  String get remindersPausedStatus => 'وەستاو';
+
+  @override
+  String get remindersEmpty => 'هێشتا هیچ بیرخەرەوەیەک نییە.';
+
+  @override
+  String get remindersNothingTracked =>
+      'هیچ شتێک بۆ ئەم ئۆتۆمبێلە شوێن ناکرێت.';
+
+  @override
+  String get remindersWhenLastDone => 'دوایین جار کەی کرا';
+
+  @override
+  String get actionDoneToday => 'ئەمڕۆ کرا';
+
+  @override
+  String get actionTurnOffShort => 'کوژاندنەوە';
 }
