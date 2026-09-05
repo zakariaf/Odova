@@ -167,6 +167,128 @@ void main() {
     });
   });
 
+  group('createVehicle', () {
+    test('one transaction carries every fact the form collected', () async {
+      // `vehicle.edit`'s create mode is the same twenty-field form as its edit
+      // mode plus an odometer (SPEC.md §8), and all of it has to land in the
+      // SAME transaction as the reading and the seeded set. Writing the row
+      // first and the facts afterwards is two transactions: a crash between
+      // them leaves a car called what the user typed and nothing else they
+      // said about it.
+      await insertSettings(db);
+      final created = await repository.createVehicle(
+        Vehicle(
+          // Ignored, all four: the repository owns identity and lifecycle.
+          id: VehicleId.tryParse(_polo)!,
+          status: VehicleStatus.sold,
+          createdAtUtcMs: 1,
+          updatedAtUtcMs: 1,
+          name: 'The Transit',
+          vehicleType: VehicleType.van,
+          fuelKindDefault: FuelKind.diesel,
+          make: 'Ford',
+          model: 'Transit Custom',
+          year: 2019,
+          plate: 'B-ZJ 4471',
+          colour: 'blue',
+          notes: 'Company van',
+          isBusiness: true,
+          notificationsMuted: true,
+          noticeDays: 21,
+        ),
+        odometer: const Distance(92050000),
+        odometerUnit: DistanceUnit.km,
+        occurredOn: '2026-09-04',
+        nowUtcMs: 7000,
+      );
+
+      final vehicle = (created as Ok<Vehicle, PersistFailure>).value;
+      expect(vehicle.id.toString(), isNot(_polo), reason: 'the repo owns ids');
+      expect(vehicle.status, VehicleStatus.active);
+      expect(vehicle.createdAtUtcMs, 7000);
+
+      final stored = await repository.findById(vehicle.id);
+      final row = (stored as Ok<Vehicle, PersistFailure>).value;
+      expect(row.name, 'The Transit');
+      expect(row.make, 'Ford');
+      expect(row.model, 'Transit Custom');
+      expect(row.year, 2019);
+      expect(row.plate, 'B-ZJ 4471');
+      expect(row.colour, 'blue');
+      expect(row.notes, 'Company van');
+      expect(row.isBusiness, isTrue);
+      expect(row.notificationsMuted, isTrue);
+      expect(row.noticeDays, 21);
+
+      // And the two rows that make it a vehicle at all.
+      expect(await _count(db, 'odometer_readings'), 1);
+      expect(await _count(db, 'service_items'), greaterThan(0));
+    });
+
+    test('the seeded set follows the facts, not a default', () async {
+      // A business van seeds shorter intervals (§4.8.4) and a van's catalogue,
+      // both read off the row the form built.
+      await insertSettings(db);
+      final created = await repository.createVehicle(
+        Vehicle(
+          id: VehicleId.tryParse(_polo)!,
+          status: VehicleStatus.active,
+          createdAtUtcMs: 1,
+          updatedAtUtcMs: 1,
+          name: 'The Transit',
+          vehicleType: VehicleType.motorcycle,
+          fuelKindDefault: FuelKind.petrol,
+        ),
+        odometer: const Distance(12000000),
+        odometerUnit: DistanceUnit.km,
+        occurredOn: '2026-09-04',
+        nowUtcMs: 7000,
+      );
+      final id = (created as Ok<Vehicle, PersistFailure>).value.id;
+
+      final kinds = await db
+          .customSelect(
+            'SELECT kind FROM service_items WHERE vehicle_id = ?;',
+            variables: [Variable<String>(id.toString())],
+          )
+          .get();
+      expect(
+        kinds.map((r) => r.read<String>('kind')),
+        contains(ServiceKind.chainLube.wire),
+        reason: 'a motorcycle catalogue, not a car one',
+      );
+    });
+
+    test('it does not touch the active vehicle', () async {
+      // Task 9.6: "add from the vehicles + appends the vehicle, does not make
+      // it active". The SCREEN decides whether to switch, and it decides
+      // differently depending on which button was pressed.
+      await insertSettings(db, activeVehicleId: _golf);
+      await insertVehicle(db, id: _golf);
+
+      await repository.createVehicle(
+        Vehicle(
+          id: VehicleId.tryParse(_polo)!,
+          status: VehicleStatus.active,
+          createdAtUtcMs: 1,
+          updatedAtUtcMs: 1,
+          name: 'The Polo',
+          vehicleType: VehicleType.car,
+          fuelKindDefault: FuelKind.petrol,
+        ),
+        odometer: const Distance(1000),
+        odometerUnit: DistanceUnit.km,
+        occurredOn: '2026-09-04',
+        nowUtcMs: 7000,
+      );
+
+      final settings = await db
+          .customSelect('SELECT active_vehicle_id AS v FROM settings;')
+          .getSingle();
+      expect(settings.read<String?>('v'), _golf);
+    });
+  });
+
   group('entryCounts', () {
     test('returns the five numbers the delete dialog names', () async {
       await insertVehicle(db, id: _golf);

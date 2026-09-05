@@ -108,21 +108,11 @@ class VehicleRepository {
     VehicleDraft draft, {
     required int nowUtcMs,
     bool asFirstVehicle = false,
-  }) => guardPersist(() async {
-    try {
-      return await _create(draft, nowUtcMs, asFirstVehicle: asFirstVehicle);
-    } on _MissingSettings {
-      return const Err(NotFound(AppSettings.id));
-    }
-  });
-
-  Future<Result<Vehicle, PersistFailure>> _create(
-    VehicleDraft draft,
-    int nowUtcMs, {
-    required bool asFirstVehicle,
-  }) async {
-    final vehicle = Vehicle(
-      id: VehicleId.tryParse('veh_${_ids.next()}')!,
+  }) => createVehicle(
+    Vehicle(
+      // A placeholder, replaced below. `createVehicle` owns identity, and this
+      // is the one field it will not take from a caller.
+      id: _placeholderId,
       name: draft.name,
       vehicleType: draft.vehicleType,
       fuelKindDefault: draft.fuelKindDefault,
@@ -132,7 +122,71 @@ class VehicleRepository {
       expectedAnnual: draft.expectedAnnual,
       createdAtUtcMs: nowUtcMs,
       updatedAtUtcMs: nowUtcMs,
-    );
+    ),
+    odometer: draft.odometer,
+    odometerUnit: draft.odometerUnit,
+    occurredOn: draft.occurredOn,
+    nowUtcMs: nowUtcMs,
+    asFirstVehicle: asFirstVehicle,
+    liquidCooled: draft.liquidCooled,
+  );
+
+  /// Creates a vehicle from a COMPLETE row, plus its first odometer reading
+  /// and the seeded set — all in one transaction.
+  ///
+  /// [create] is first run's door and this one is `vehicle.edit`'s create
+  /// mode, which is the same twenty-field form as its edit mode plus an
+  /// odometer (SPEC.md §8). The form already knows how to build a `Vehicle`;
+  /// asking it to flatten twenty fields into a `VehicleDraft` and then unpack
+  /// them again would be two lists of the same columns, kept in step by hand.
+  ///
+  /// Four fields on [facts] are IGNORED, because they are this method's to
+  /// decide: `id`, `status`, `createdAtUtcMs` and `updatedAtUtcMs`. A new
+  /// vehicle is active and stamped now, whatever the caller built. `sortOrder`
+  /// is NOT among them: a new row leaves it at 0 and the garage's `(sortOrder,
+  /// id)` order puts it last on its ULID, which is what "append" means here.
+  ///
+  /// [liquidCooled] is not on `Vehicle` because Odova stores no cooling field;
+  /// §4.8.3 seeds `coolant` on a liquid-cooled motorcycle and nowhere else, so
+  /// the answer travels as an argument or not at all (F-9.15).
+  Future<Result<Vehicle, PersistFailure>> createVehicle(
+    Vehicle facts, {
+    required Distance odometer,
+    required DistanceUnit odometerUnit,
+    required String occurredOn,
+    required int nowUtcMs,
+    bool asFirstVehicle = false,
+    bool liquidCooled = false,
+  }) => guardPersist(() async {
+    try {
+      return await _create(
+        facts,
+        odometer: odometer,
+        odometerUnit: odometerUnit,
+        occurredOn: occurredOn,
+        nowUtcMs: nowUtcMs,
+        asFirstVehicle: asFirstVehicle,
+        liquidCooled: liquidCooled,
+      );
+    } on _MissingSettings {
+      return const Err(NotFound(AppSettings.id));
+    }
+  });
+
+  Future<Result<Vehicle, PersistFailure>> _create(
+    Vehicle facts, {
+    required Distance odometer,
+    required DistanceUnit odometerUnit,
+    required String occurredOn,
+    required int nowUtcMs,
+    required bool asFirstVehicle,
+    required bool liquidCooled,
+  }) async {
+    final vehicle = _asNew(facts, nowUtcMs);
+    // The reading is stored in the unit it was TYPED in, and the seeded
+    // intervals in the vehicle's own unit when it has one — the same
+    // precedence `create` used, now reading it off the row.
+    final seedUnit = vehicle.distanceUnit ?? odometerUnit;
 
     await _db.transaction(() async {
       await _db.into(_db.vehicles).insert(_companionFor(vehicle));
@@ -143,9 +197,9 @@ class VehicleRepository {
             OdometerReadingsCompanion.insert(
               id: 'odo_${_ids.next()}',
               vehicleId: vehicle.id.toString(),
-              occurredOn: draft.occurredOn,
-              odometerM: metresColumn(draft.odometer),
-              odometerUnit: draft.odometerUnit.wire,
+              occurredOn: occurredOn,
+              odometerM: metresColumn(odometer),
+              odometerUnit: odometerUnit.wire,
               // `manual`: the user typed it. Not `import`, which would tell a
               // later reader this reading arrived from a backup file.
               source: OdometerSource.manual.wire,
@@ -157,11 +211,11 @@ class VehicleRepository {
       // Copied out of the catalogue, never referenced. Changing a seed later
       // must not move an interval a user has already corrected — SPEC.md §4.8.
       for (final seed in seedFor(
-        type: draft.vehicleType,
-        fuel: draft.fuelKindDefault,
-        isBusiness: draft.isBusiness,
-        unit: draft.distanceUnit ?? draft.odometerUnit,
-        liquidCooled: draft.liquidCooled,
+        type: vehicle.vehicleType,
+        fuel: vehicle.fuelKindDefault,
+        isBusiness: vehicle.isBusiness,
+        unit: seedUnit,
+        liquidCooled: liquidCooled,
       )) {
         await _db
             .into(_db.serviceItems)
@@ -175,9 +229,7 @@ class VehicleRepository {
                 isTracked: Value(seed.isTracked),
                 intervalDistanceM: Value(seed.intervalDistanceM),
                 intervalDistanceUnit: Value(
-                  seed.intervalDistanceM == null
-                      ? null
-                      : (draft.distanceUnit ?? draft.odometerUnit).wire,
+                  seed.intervalDistanceM == null ? null : seedUnit.wire,
                 ),
                 intervalMonths: Value(seed.intervalMonths),
                 createdAtUtcMs: nowUtcMs,
@@ -325,6 +377,46 @@ class VehicleRepository {
     return const Ok(null);
   });
 
+  /// [facts] as a brand-new row: this repository's id, active, stamped now.
+  ///
+  /// Written out rather than through `copyWith`, and the reason is the same one
+  /// `VehicleEditDraft` exists for — a `copyWith` over twenty nullable fields
+  /// cannot express "clear this", so a partial copy is a class of bug rather
+  /// than a shortcut. Listing the fields means the compiler names any column
+  /// added to `Vehicle` and never silently dropped from a create.
+  Vehicle _asNew(Vehicle facts, int nowUtcMs) => Vehicle(
+    id: VehicleId.tryParse('veh_${_ids.next()}')!,
+    status: VehicleStatus.active,
+    createdAtUtcMs: nowUtcMs,
+    updatedAtUtcMs: nowUtcMs,
+    name: facts.name,
+    vehicleType: facts.vehicleType,
+    fuelKindDefault: facts.fuelKindDefault,
+    make: facts.make,
+    model: facts.model,
+    year: facts.year,
+    plate: facts.plate,
+    vin: facts.vin,
+    isBusiness: facts.isBusiness,
+    tankCapacityMl: facts.tankCapacityMl,
+    purchaseDate: facts.purchaseDate,
+    purchaseOdometer: facts.purchaseOdometer,
+    purchasePrice: facts.purchasePrice,
+    // `soldOn` and `soldPrice` are deliberately absent: a new vehicle is
+    // active, and a sale date on one is a contradiction, not a fact to carry.
+    expectedAnnual: facts.expectedAnnual,
+    colour: facts.colour,
+    notes: facts.notes,
+    sortOrder: facts.sortOrder,
+    notificationsMuted: facts.notificationsMuted,
+    currency: facts.currency,
+    distanceUnit: facts.distanceUnit,
+    volumeUnit: facts.volumeUnit,
+    consumptionUnit: facts.consumptionUnit,
+    noticeDistance: facts.noticeDistance,
+    noticeDays: facts.noticeDays,
+  );
+
   VehiclesCompanion _companionFor(Vehicle vehicle) => VehiclesCompanion.insert(
     id: vehicle.id.toString(),
     createdAtUtcMs: vehicle.createdAtUtcMs,
@@ -426,6 +518,15 @@ class VehicleDraft {
   /// the answer travels here rather than being guessed from the fuel kind.
   final bool liquidCooled;
 }
+
+/// A syntactically valid id that is never stored.
+///
+/// `createVehicle` mints the real one; `create` has to put something in the
+/// field to hand it a `Vehicle` at all. Named so that an id which somehow DID
+/// reach the database says what went wrong when somebody greps for it.
+final VehicleId _placeholderId = VehicleId.tryParse(
+  'veh_00000000000000000000000000',
+)!;
 
 /// Thrown inside `create`'s transaction when there is no settings row to
 /// complete, so drift unwinds it and `create` answers with a typed failure.
