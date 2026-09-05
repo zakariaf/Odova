@@ -83,6 +83,52 @@ Future<AppDatabase> _pump(
   return db;
 }
 
+/// Pumps `vehicle.edit` PUSHED over a host, so it has somewhere to dismiss to.
+///
+/// [_pump] puts the screen at `/`, where a pop has nothing under it — fine for
+/// everything that only reads the form, wrong for the two rows at its foot,
+/// which end by leaving.
+Future<AppDatabase> _pumpHosted(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(780, 2600);
+  tester.view.devicePixelRatio = kReferenceDpr;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  final db = AppDatabase.forTesting(NativeDatabase.memory());
+  addTearDown(db.close);
+  await insertSettings(db);
+  await insertVehicle(db, id: _golf);
+
+  await pumpApp(
+    tester,
+    Builder(
+      builder: (context) => TextButton(
+        onPressed: () => Navigator.of(context).push<void>(
+          MaterialPageRoute(
+            builder: (_) => VehicleEditScreen(vehicleId: _id),
+          ),
+        ),
+        child: const Text('open'),
+      ),
+    ),
+    overrides: [
+      appDatabaseProvider.overrideWithValue(db),
+      clockProvider.overrideWithValue(Clock.fixed(DateTime.utc(2026, 9, 4))),
+      deviceLocalesProvider.overrideWithValue(const [Locale('de', 'DE')]),
+      // SUPPLIED, all three: a drift stream never delivers under `testWidgets`
+      // (`provider_harness.dart`), and these flows read the garage, the
+      // settings and this vehicle's readings on their way through.
+      settingsProvider.overrideWith((ref) => Stream.value(null)),
+      odometerReadingsProvider(
+        _id,
+      ).overrideWith((ref) => Stream.value(const [])),
+    ],
+  );
+  await tester.tap(find.text('open'));
+  await tester.pumpAndSettle();
+  return db;
+}
+
 BuildContext _ctx(WidgetTester tester) =>
     tester.element(find.byType(VehicleEditScreen));
 
@@ -434,6 +480,58 @@ void main() {
       }
     },
   );
+
+  testWidgets('Mark as sold opens the sale form and dismisses the modal', (
+    tester,
+  ) async {
+    // SPEC.md §8 draws both rows at the foot of `vehicle.edit`, and they were
+    // inert. The modal DISMISSES after a sale, and not for tidiness:
+    // `VehicleEditDraft` copies `status` from the row it loaded, so a form left
+    // open over a sold vehicle writes `active` back over it on the next Save
+    // and undoes the sale in silence.
+    final db = await _pumpHosted(tester);
+    final l10n = _l10n(tester);
+
+    await tester.ensureVisible(find.text(l10n.vehicleMarkAsSold));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.vehicleMarkAsSold));
+    await tester.pumpAndSettle();
+    // The sheet titles itself with the same words as the row that opened it,
+    // so its own Confirm is the SECOND of the two.
+    expect(find.text(l10n.vehicleSoldOn), findsOneWidget);
+
+    await tester.tap(find.text(l10n.vehicleMarkAsSold).last);
+    await tester.pumpAndSettle();
+
+    final row = await db.select(db.vehicles).getSingle();
+    expect(row.status, VehicleStatus.sold.wire);
+    expect(find.byType(VehicleEditScreen), findsNothing, reason: 'dismissed');
+  });
+
+  testWidgets('Delete asks first, and Cancel leaves the vehicle alone', (
+    tester,
+  ) async {
+    final db = await _pumpHosted(tester);
+    final l10n = _l10n(tester);
+
+    // SCROLLED TO first. The row is the last thing on a long form, so it is
+    // built but off-screen — and a tap on an off-screen widget hits nothing
+    // and warns rather than failing, which is a test that passes by not
+    // pressing the button.
+    final deleteRow = find.text(l10n.vehicleDeleteRowEmpty('The Golf'));
+    await tester.ensureVisible(deleteRow);
+    await tester.pumpAndSettle();
+    await tester.tap(deleteRow);
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.commonCancel), findsOneWidget);
+
+    await tester.tap(find.text(l10n.commonCancel));
+    await tester.pumpAndSettle();
+
+    final row = await db.select(db.vehicles).getSingle();
+    expect(row.deletedAtUtcMs, isNull);
+    expect(find.byType(VehicleEditScreen), findsOneWidget, reason: 'still up');
+  });
 
   group('create mode', () {
     /// Pushes `vehicle.edit` in create mode over a host screen, and collects

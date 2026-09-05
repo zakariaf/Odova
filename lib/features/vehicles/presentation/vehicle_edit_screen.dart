@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
 import 'package:odova/core/l10n/numerals.dart';
@@ -22,6 +23,7 @@ import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/features/vehicles/presentation/vehicle_actions.dart';
 import 'package:odova/features/vehicles/vehicle_edit_draft.dart';
 import 'package:odova/features/vehicles/vehicle_edit_notifier.dart';
 import 'package:odova/features/vehicles/vehicle_status_line.dart';
@@ -415,19 +417,23 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
         // ABSENT in create mode, not disabled: there is nothing to sell and
         // nothing to delete, and a destructive row on a car that does not
         // exist is a control that can only lie.
-        if (id != null)
+        if (state.draft.original.id != kUnsavedVehicleId)
           CalmRowGroup(
             rows: [
+              // The garage's flows, not copies of them. `vehicle_actions.dart`
+              // owns "Keep it — mark it sold", the ten-second Undo and the
+              // last-vehicle route, and a second copy here is a second place
+              // for one of the three to go missing.
               CalmListRow(
                 title: l10n.vehicleMarkAsSold,
                 showChevron: true,
-                // EPIC-09 task 9.6 owns the sale form and the confirm-delete
-                // dialog. Inert until then rather than wired to nothing.
+                onTap: () => unawaited(_sell(state.draft.original)),
               ),
               CalmListRow(
                 title: l10n.vehicleDeleteRowEmpty(draft.name.trim()),
                 danger: true,
                 lead: const Icon(Icons.delete_outline, size: 20),
+                onTap: () => unawaited(_delete(state.draft.original)),
               ),
             ],
           ),
@@ -482,6 +488,34 @@ class _VehicleEditScreenState extends ConsumerState<VehicleEditScreen> {
     Navigator.of(
       context,
     ).pop(widget.mode == VehicleEditMode.create ? saved : null);
+  }
+
+  /// Sells this vehicle, then leaves.
+  ///
+  /// The modal DISMISSES on a sale, and not for tidiness: `VehicleEditDraft`
+  /// copies `status` from the row it loaded, so a form left open over a
+  /// just-sold vehicle writes `active` back over it on the next Save and undoes
+  /// the sale in silence. Leaving is also what the user asked for — they
+  /// pressed a row that ends the vehicle's life in the app.
+  Future<void> _sell(Vehicle vehicle) async {
+    final outcome = await markVehicleSold(context, ref, vehicle);
+    if (outcome == VehicleActionOutcome.sold && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  /// Deletes this vehicle, then leaves.
+  ///
+  /// A cancelled or failed delete stays: there is nothing to leave for, and a
+  /// modal that closes on Cancel teaches the user that Cancel is not one.
+  Future<void> _delete(Vehicle vehicle) async {
+    final outcome = await confirmDeleteVehicle(context, ref, vehicle);
+    if (outcome == VehicleActionOutcome.none || !mounted) return;
+    // A last-vehicle delete has already routed to first run
+    // (`vehicle_actions.dart`), and popping a modal off a route that is going
+    // away anyway is harmless — `maybePop` would ask the dirty guard about a
+    // vehicle that no longer exists.
+    Navigator.of(context).pop();
   }
 
   /// What the odometer field says under itself, or nothing.

@@ -415,9 +415,12 @@ void main() {
     // Every screen that destroys a whole record earns a line here, and adding
     // one is a moment where somebody says what their screen deletes.
     const callers = {
-      // §8's garage: the row swipe and the row overflow both land here, and
-      // this is the only screen in v1 that deletes a VEHICLE.
-      'lib/features/vehicles/presentation/vehicles_screen.dart',
+      // §8 offers the delete in two places — the garage's swipe actions and
+      // `vehicle.edit`'s row at the foot of the form — and BOTH go through
+      // this one file. That is the shape the rule was written to want: one
+      // caller, named here, rather than two screens each with their own idea
+      // of what "Keep it — mark it sold" and the ten-second Undo mean.
+      'lib/features/vehicles/presentation/vehicle_actions.dart',
     };
 
     final offenders = <String>[];

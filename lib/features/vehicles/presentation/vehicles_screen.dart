@@ -24,7 +24,7 @@ import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/due_snapshot_provider.dart';
 import 'package:odova/features/vehicles/entry_counts_provider.dart';
-import 'package:odova/features/vehicles/presentation/mark_as_sold_sheet.dart';
+import 'package:odova/features/vehicles/presentation/vehicle_actions.dart';
 import 'package:odova/features/vehicles/vehicle_status_line.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
 import 'package:odova/l10n/date_format.dart';
@@ -33,7 +33,6 @@ import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
-import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_type.dart';
@@ -45,7 +44,6 @@ import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_snackbar.dart';
 import 'package:odova/ui/calm/calm_status_dot.dart';
 import 'package:odova/ui/calm/calm_swipe_actions.dart';
-import 'package:odova/ui/dialogs/confirm_delete_dialog.dart';
 
 /// The garage: every vehicle the user owns, in their own order.
 class VehiclesScreen extends ConsumerWidget {
@@ -300,131 +298,17 @@ class _GarageRow extends ConsumerWidget {
           label: l10n.vehicleMarkAsSold,
           icon: Icons.sell_outlined,
           tone: CalmSwipeTone.caution,
-          onPressed: () => _markSold(context, ref, l10n),
+          onPressed: () => markVehicleSold(context, ref, vehicle),
         ),
       CalmSwipeAction(
         label: l10n.commonDelete,
         icon: Icons.delete_outline,
         tone: CalmSwipeTone.danger,
-        onPressed: () => _confirmDelete(context, ref, l10n),
+        onPressed: () => confirmDeleteVehicle(context, ref, vehicle),
       ),
     ],
     child: child,
   );
-
-  /// Opens the sale form and, if it comes back with a date, performs the sale.
-  ///
-  /// No Undo on the snackbar. A sale is one row and the form that wrote it is
-  /// one tap away, unlike a delete that takes five tables with it.
-  Future<void> _markSold(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) async {
-    final sale = await showMarkAsSoldSheet(
-      context,
-      vehicleName: vehicle.name,
-    );
-    if (sale == null || !context.mounted) return;
-
-    final result = await ref
-        .read(vehiclesNotifierProvider.notifier)
-        .markSold(
-          vehicle.id,
-          soldOn: sale.soldOn,
-          soldPriceMinor: sale.soldPriceMinor,
-        );
-    if (!context.mounted) return;
-    // The FAILURE reaches the user. `guardPersist` wraps a full disk and a
-    // locked database alike, and a swallowed one here leaves the row looking
-    // unchanged with no reason given — SPEC.md §1's rule that the app never
-    // pretends something happened.
-    CalmSnackbar.show(
-      context,
-      message: result is Ok
-          ? l10n.vehicleSoldSnack(vehicle.name)
-          : l10n.saveDiskFullError,
-      danger: result is! Ok,
-    );
-  }
-
-  /// SPEC.md §8's delete, end to end.
-  ///
-  /// The dialog is EPIC-08's shared one and this screen performs the delete —
-  /// `showConfirmDeleteDialog` has no port to the database at all, which is
-  /// what makes "the dialog cannot delete anything" a property rather than a
-  /// promise.
-  Future<void> _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) async {
-    final tag = ref.read(resolvedLocaleTagsProvider).formats;
-    final counts =
-        await ref.read(vehicleEntryCountsProvider(vehicle.id).future) ??
-        (fillUps: 0, services: 0, costs: 0, trips: 0, reminders: 0);
-    if (!context.mounted) return;
-
-    final choice = await showConfirmDeleteDialog(
-      context,
-      subject: vehicle.name,
-      counts: counts,
-      formatCount: (n) => formatForDisplay(
-        n,
-        tag,
-        numerals: CalmNumerals.auto,
-        decimalDigits: 0,
-      ),
-      // §8: "Keep it — mark it sold" is offered ABOVE Delete, because it is
-      // what people usually mean. A sold vehicle has no sale to offer.
-      safeAlternativeLabel: vehicle.status == VehicleStatus.active
-          ? l10n.vehicleMarkAsSold
-          : null,
-    );
-    if (!context.mounted) return;
-
-    switch (choice) {
-      case ConfirmDeleteChoice.cancel:
-        return;
-      case ConfirmDeleteChoice.safeAlternative:
-        await _markSold(context, ref, l10n);
-      case ConfirmDeleteChoice.delete:
-        await _delete(context, ref, l10n);
-    }
-  }
-
-  Future<void> _delete(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) async {
-    final notifier = ref.read(vehiclesNotifierProvider.notifier);
-    final result = await notifier.delete(vehicle.id);
-    if (!context.mounted) return;
-
-    if (result case Err()) {
-      CalmSnackbar.show(context, message: l10n.saveDiskFullError, danger: true);
-      return;
-    }
-    final deletion = (result as Ok<VehicleDeletion, PersistFailure>).value;
-
-    CalmSnackbar.show(
-      context,
-      message: l10n.vehicleDeletedSnack(vehicle.name),
-      actionLabel: l10n.commonUndo,
-      // TEN seconds, not the usual six. §8: "longer than the usual 6 because
-      // this destroys more than one row", and after it the only recovery left
-      // is the user's own exported backup.
-      duration: kCalmDestructiveUndoWindow,
-      danger: true,
-      onAction: () => notifier.undoDelete(deletion),
-    );
-
-    // §8: "Deleting the last vehicle routes to `vehicle.edit` (firstRun) with
-    // the Undo snackbar above the modal." The snackbar goes through
-    // `ScaffoldMessenger`, so it survives the route change that follows.
-    if (deletion.wasLast) context.go(Routes.firstRunVehicle);
-  }
 
   /// `VW · Golf VII · 2016 · Diesel`, skipping what is not known.
   ///
