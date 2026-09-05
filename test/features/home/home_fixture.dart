@@ -362,9 +362,16 @@ Future<ProviderContainer> pumpHome(
         vehicleDueSnapshotProvider(
           v.id,
         ).overrideWithValue(unreadable ? null : snapshots[v.id]),
+      // `fillUps` is given NEWEST FIRST, the order `latestFillUpProvider`'s
+      // query produces, and the fixture takes the first of them. Which end of
+      // that list is the newest is asserted where the query is —
+      // `test/data/repositories/latest_fill_up_test.dart` — because a fixture
+      // that decided it here would be checking its own arithmetic.
       for (final v in garage)
-        fillUpsProvider(v.id).overrideWith(
-          (ref) => Stream.value(v.id == golfId ? fillUps : const <FillUp>[]),
+        latestFillUpProvider(v.id).overrideWith(
+          (ref) => Stream.value(
+            v.id == golfId ? fillUps.firstOrNull : null,
+          ),
         ),
       // The all-clear's receipt reads the most recent record. Supplied like
       // everything else the screen reads, so no drift stream is subscribed.

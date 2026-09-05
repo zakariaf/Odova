@@ -111,6 +111,17 @@ final StreamProviderFamily<List<FillUp>, VehicleId> fillUpsProvider =
           ref.watch(fillUpRepositoryProvider).watchForVehicle(vehicleId),
     );
 
+/// One vehicle's newest fill-up, or null.
+///
+/// Separate from [fillUpsProvider] rather than derived from it: Home draws one
+/// row and this is a `LIMIT 1`, so the whole history is neither read nor kept
+/// live to render it.
+final StreamProviderFamily<FillUp?, VehicleId> latestFillUpProvider =
+    StreamProvider.autoDispose.family(
+      (ref, vehicleId) =>
+          ref.watch(fillUpRepositoryProvider).watchLatestForVehicle(vehicleId),
+    );
+
 /// One vehicle's expenses, newest first.
 final StreamProviderFamily<List<Expense>, VehicleId> expensesProvider =
     StreamProvider.autoDispose.family(

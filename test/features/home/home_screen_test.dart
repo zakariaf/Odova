@@ -452,6 +452,39 @@ void main() {
     expect(row.showChevron, isFalse);
   });
 
+  testWidgets('the last fill-up row draws the ONE row it is given', (
+    tester,
+  ) async {
+    // Home reads `latestFillUpProvider`, which is `LIMIT 1`. It used to read
+    // the whole list and take `.last` — the wrong end of a newest-first order,
+    // so the screen read out the oldest fill-up the vehicle ever had. The
+    // fixture supplies two here to show that only one reaches the screen;
+    // WHICH one the query picks is asserted against a real database in
+    // `test/data/repositories/latest_fill_up_test.dart`.
+    await pumpHome(
+      tester,
+      fillUps: [
+        homeFillUp(),
+        homeFillUp(occurredOn: '2026-08-01', cents: 5130, suffix: 'B'),
+      ],
+      snapshots: {
+        golfId: homeSnapshot([
+          (homeItem('Oil and filter'), homeAssessment(state: DueState.overdue)),
+        ]),
+      },
+    );
+
+    final row = tester.widget<CalmListRow>(
+      find.descendant(
+        of: find.byType(LastFillUpRow),
+        matching: find.byType(CalmListRow),
+      ),
+    );
+    expect(row.value, contains('74.20'));
+    expect(row.value, isNot(contains('51.30')));
+    expect(row.detail, contains('2 September'));
+  });
+
   testWidgets('re-tapping the Home tab scrolls to top', (tester) async {
     tester.useDevice(Device.floor);
 

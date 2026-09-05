@@ -62,7 +62,7 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
   if (vehicle == null) return null;
 
   final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicle.id));
-  final fillUps = ref.watch(fillUpsProvider(vehicle.id)).value ?? const [];
+  final lastFillUp = ref.watch(latestFillUpProvider(vehicle.id)).value;
   // WATCHED, not read from the clock. §9's *Recompute triggers* include the
   // local midnight crossing and the app resuming, and neither writes a row —
   // the calendar moves and the data does not. `todayProvider` is the value
@@ -93,7 +93,7 @@ homeStateProvider = Provider.autoDispose<HomeState?>((ref) {
     // `LaunchFacts` so the redirect and the chevron cannot disagree. This reads
     // the same count rather than a second opinion about it.
     showsSwitcher: vehicles.length >= 2,
-    lastFillUp: fillUps.isEmpty ? null : fillUps.last,
+    lastFillUp: lastFillUp,
     otherVehicleNeedingAttention: _otherNeedingAttention(
       ref,
       vehicles,

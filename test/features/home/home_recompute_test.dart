@@ -130,8 +130,8 @@ void main() {
         ),
         settingsProvider.overrideWith((ref) => settings.stream),
         vehiclesProvider.overrideWith((ref) => vehicles.stream),
-        fillUpsProvider(golfId).overrideWith((ref) => Stream.value(const [])),
-        fillUpsProvider(vanId).overrideWith((ref) => Stream.value(const [])),
+        latestFillUpProvider(golfId).overrideWith((ref) => Stream.value(null)),
+        latestFillUpProvider(vanId).overrideWith((ref) => Stream.value(null)),
         serviceRecordsProvider(
           golfId,
         ).overrideWith((ref) => Stream.value(const [])),

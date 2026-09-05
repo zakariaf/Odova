@@ -52,6 +52,32 @@ class FillUpRepository {
     fillUpFromRow,
   );
 
+  /// The single newest live fill-up for one vehicle, or null.
+  ///
+  /// `LIMIT 1` over the same index [watchForVehicle] reads, and it exists
+  /// because Home wants exactly one row. Two things were wrong with taking it
+  /// out of the full list: the list is every fill-up the vehicle ever had —
+  /// eight years of them decoded on Home's first frame to draw a 56pt read-out
+  /// — and "which end of a newest-first list is the newest" is a question the
+  /// caller kept getting to answer. This way there is no end to pick.
+  Stream<FillUp?> watchLatestForVehicle(VehicleId vehicleId) => watchOne(
+    _db.select(_db.fillUps)
+      ..where(
+        (f) =>
+            f.vehicleId.equals(vehicleId.toString()) &
+            f.deletedAtUtcMs.isNull(),
+      )
+      ..orderBy([
+        (f) => OrderingTerm(
+          expression: f.occurredOn,
+          mode: OrderingMode.desc,
+        ),
+        (f) => OrderingTerm(expression: f.id, mode: OrderingMode.desc),
+      ])
+      ..limit(1),
+    fillUpFromRow,
+  );
+
   /// Writes [fillUp].
   Future<Result<FillUp, PersistFailure>> save(FillUp fillUp) =>
       guardPersist(() async {
