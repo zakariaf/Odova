@@ -36,8 +36,8 @@ import 'package:odova/features/home/application/home_notifier.dart';
 import 'package:odova/features/home/application/today.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 
-import '../../support/source_tree.dart';
-import 'home_fixture.dart';
+import '../../../support/source_tree.dart';
+import '../home_fixture.dart';
 
 /// A clock the test moves.
 ///
