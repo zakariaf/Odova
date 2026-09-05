@@ -97,6 +97,25 @@ void main() {
     expect(captured.single!.soldPriceMinor, 850050);
   });
 
+  testWidgets('a half-cent rounds up, because a double cannot hold it', (
+    tester,
+  ) async {
+    // 8,500.005 is 850,000.5 minor units and rounds to 850001. Through a
+    // binary double it is 850000.49999999994, which rounds DOWN — the app
+    // takes half a cent off the user's sale price because 0.005 has no exact
+    // representation in base two. Every value ending .005, .025, .045, .065,
+    // .085 does the same.
+    //
+    // The `value-objects-money-and-units` rule in one line: money never
+    // travels through a double.
+    final captured = await _open(tester);
+    await tester.enterText(find.byType(CalmField), '8500.005');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byWidget(_confirm(tester)));
+    await tester.pumpAndSettle();
+    expect(captured.single!.soldPriceMinor, 850001);
+  });
+
   testWidgets('a price that is not a number blocks the sale, with a reason', (
     tester,
   ) async {

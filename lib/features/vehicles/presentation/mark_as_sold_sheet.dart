@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/l10n/numeric_input.dart';
 import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/money/minor_units.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/l10n/date_format.dart';
@@ -91,11 +92,14 @@ class _MarkAsSoldSheetState extends ConsumerState<MarkAsSoldSheet> {
       groupingSeparator: groupingSeparatorFor(tag),
     );
     if (read is! NumericInputOk) return (valid: false, minor: null);
-    final major = double.tryParse(read.canonical);
-    if (major == null || major < 0) return (valid: false, minor: null);
-    // Rounded from the MAJOR value once, never from an already-rounded
-    // intermediate — SPEC.md §3. 8500.50 is 850050 and not 8500.
-    return (valid: true, minor: (major * currency.minorPerMajor).round());
+    // String arithmetic, not `double.parse(...) * minorPerMajor`. That is what
+    // this line used to be, and 8,500.005 — exactly half a cent — came back as
+    // 850000 rather than 850001, because the double holding it is
+    // 850000.49999999994. SPEC.md §3, and `value-objects-money-and-units` in
+    // one sentence: money never travels through a double.
+    final minor = minorUnitsFrom(read.canonical, currency);
+    if (minor == null || minor < 0) return (valid: false, minor: null);
+    return (valid: true, minor: minor);
   }
 
   /// `YYYY-MM-DD`. Through `CivilDate`, which owns the format.
