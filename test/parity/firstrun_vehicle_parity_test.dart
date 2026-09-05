@@ -31,13 +31,16 @@ import 'support/parity_capture.dart';
 /// reference gets `۱۸۷٬۴۱۲` without the fixture knowing anything about Persian.
 class _ArtboardDraft extends FirstRunVehicleNotifier {
   @override
-  FirstRunVehicleDraft build() => super.build().copyWith(
-    type: VehicleType.car,
-    fuel: FuelKind.diesel,
-    band: AnnualBand.defaultBand,
-    name: 'The Golf',
-    odometerText: '187412',
-  );
+  FirstRunVehicleDraft build() {
+    final draft = super.build();
+    return draft.copyWith(
+      type: VehicleType.car,
+      fuel: FuelKind.diesel,
+      band: AnnualBand.defaultBand,
+      name: 'The Golf',
+      odometer: draft.odometer.copyWith(text: '187412'),
+    );
+  }
 }
 
 void main() {

@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/l10n/format_defaults.dart';
-import 'package:odova/core/l10n/numeric_input.dart';
+import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
@@ -19,55 +19,27 @@ import 'package:odova/data/repositories/vehicle_repository.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
 
-/// What is wrong with the odometer, or nothing.
-enum OdometerProblem {
-  /// Nothing was typed. SPEC.md §8: "Enter the number on your dash."
-  empty,
-
-  /// It cannot be read as a whole number. "That doesn't look like a number.
-  /// Digits only." A fraction lands here too: an odometer is an integer, and
-  /// German's `1,234` means one-point-two-three-four, which is not a reading.
-  notANumber,
-
-  /// Above three million kilometres.
-  ///
-  /// A WARNING and never a block — SPEC.md §8 pairs it with "Use it anyway".
-  /// The app doubts the number; it does not refuse it, because the one thing
-  /// worse than a wrong odometer is a user who cannot enter their real one.
-  implausible,
-}
-
-/// The three million kilometres beyond which a reading is doubted.
-const kImplausibleOdometre = Distance(3000000000);
-
 /// Everything `firstrun.vehicle` collects, plus what is wrong with it.
 @immutable
 class FirstRunVehicleDraft {
   /// Creates a draft.
   const FirstRunVehicleDraft({
-    required this.unit,
-    required this.groupingSeparator,
+    required this.odometer,
     this.type = VehicleType.car,
     this.fuel = FuelKind.petrol,
     this.band = AnnualBand.defaultBand,
-    this.odometerText = '',
     this.name,
-    this.warningAccepted = false,
     this.saving = false,
     this.saveFailed = false,
     this.startRefused = false,
   });
 
-  /// SPEC.md §8's prefills, and the unit the odometer is typed in.
-  final DistanceUnit unit;
-
-  /// The grouping separator of the locale the user is typing in.
+  /// The one thing the user has to type, and what it means.
   ///
-  /// Carried on the draft rather than looked up inside [odometerMetres],
-  /// because a value object that reads a locale is a value object that answers
-  /// differently in Tehran and Toronto — SPEC.md §3's rule about hidden inputs,
-  /// which `lib/l10n/money_format.dart` learned the hard way.
-  final String groupingSeparator;
+  /// The whole reading lives in `lib/core/`, shared with `vehicle.edit`'s
+  /// create mode, which asks for the same number under SPEC.md §8. Two copies
+  /// of the implausible rule is one copy that keeps the bug.
+  final OdometerEntry odometer;
 
   /// Which of the three tiles. Decides the seeded set and the name prefill.
   final VehicleType type;
@@ -78,21 +50,11 @@ class FirstRunVehicleDraft {
   /// Roughly how far a year.
   final AnnualBand band;
 
-  /// Exactly what the user typed, unnormalised.
-  ///
-  /// The raw string, not a number: the field echoes back what was typed until
-  /// blur, and SPEC.md §5 says an Iranian user typing `۱۸۷۴۱۲` sees their own
-  /// digits while they type them.
-  final String odometerText;
-
   /// The name, once the user has edited it.
   ///
   /// Null means "still following the type tile", which is what lets tapping Van
   /// change `My car` to `My van` and lets one keystroke stop it forever.
   final String? name;
-
-  /// Whether "Use it anyway" has been pressed on the implausible warning.
-  final bool warningAccepted;
 
   /// A create is in flight.
   final bool saving;
@@ -109,38 +71,14 @@ class FirstRunVehicleDraft {
   /// precisely this moment.
   final bool startRefused;
 
-  /// What is wrong with [odometerText], or null.
-  ///
-  /// [OdometerProblem.implausible] disappears once the warning is accepted,
-  /// because at that point nothing is wrong with it any more.
-  OdometerProblem? get problem {
-    final metres = odometerMetres;
-    if (metres == null) {
-      return odometerText.trim().isEmpty
-          ? OdometerProblem.empty
-          : OdometerProblem.notANumber;
-    }
-    if (metres > kImplausibleOdometre.metres && !warningAccepted) {
-      return OdometerProblem.implausible;
-    }
-    return null;
-  }
+  /// What is wrong with the odometer, or null.
+  OdometerProblem? get problem => odometer.problem;
 
-  /// The reading in metres, or null when it does not parse to a whole number.
-  int? get odometerMetres {
-    final read = normalizeNumericInput(
-      odometerText,
-      groupingSeparator: groupingSeparator,
-    );
-    if (read is! NumericInputOk) return null;
-    // An odometer is a whole number of km or miles. A fractional reading is
-    // not a dash reading, it is a decimal separator read the other way round.
-    if (read.value < 0 || read.value != read.value.roundToDouble()) return null;
-    final whole = read.value.round();
-    return unit == DistanceUnit.mi
-        ? Distance.fromMiles(whole).metres
-        : Distance.fromKm(whole).metres;
-  }
+  /// The reading in metres, or null when it does not parse.
+  int? get odometerMetres => odometer.metres;
+
+  /// The unit the odometer is typed in — SPEC.md §8's prefill.
+  DistanceUnit get unit => odometer.unit;
 
   /// The name to save: what the user typed, or the tile's prefill.
   ///
@@ -162,29 +100,24 @@ class FirstRunVehicleDraft {
   /// affordance, never a block". A truck that really has done three million
   /// kilometres could not be entered without first arguing with the app, and
   /// "never a block" is not "one extra tap".
-  bool get canStart => odometerMetres != null;
+  bool get canStart => odometer.usable;
 
   /// A copy with the given changes.
   FirstRunVehicleDraft copyWith({
-    DistanceUnit? unit,
+    OdometerEntry? odometer,
     VehicleType? type,
     FuelKind? fuel,
     AnnualBand? band,
-    String? odometerText,
     String? name,
-    bool? warningAccepted,
     bool? saving,
     bool? saveFailed,
     bool? startRefused,
   }) => FirstRunVehicleDraft(
-    unit: unit ?? this.unit,
-    groupingSeparator: groupingSeparator,
+    odometer: odometer ?? this.odometer,
     type: type ?? this.type,
     fuel: fuel ?? this.fuel,
     band: band ?? this.band,
-    odometerText: odometerText ?? this.odometerText,
     name: name ?? this.name,
-    warningAccepted: warningAccepted ?? this.warningAccepted,
     saving: saving ?? this.saving,
     saveFailed: saveFailed ?? this.saveFailed,
     startRefused: startRefused ?? this.startRefused,
@@ -201,8 +134,10 @@ class FirstRunVehicleNotifier extends Notifier<FirstRunVehicleDraft> {
       // same source `firstrun.language`'s Continue seeded the settings from —
       // and it has to, because that write has not happened yet the first time
       // this screen is built after a fresh install.
-      unit: formatDefaultsFor(tag).distance,
-      groupingSeparator: groupingSeparatorFor(tag),
+      odometer: OdometerEntry(
+        unit: formatDefaultsFor(tag).distance,
+        groupingSeparator: groupingSeparatorFor(tag),
+      ),
     );
   }
 
@@ -228,8 +163,7 @@ class FirstRunVehicleNotifier extends Notifier<FirstRunVehicleDraft> {
       // does not carry: "Use it anyway" applied to 30,000,001 must not silently
       // apply to the 300,000,001 typed after it.
       state = state.copyWith(
-        odometerText: text,
-        warningAccepted: false,
+        odometer: state.odometer.copyWith(text: text),
         // A new number is a new attempt: the refusal was about the old one.
         startRefused: false,
       );
@@ -241,7 +175,9 @@ class FirstRunVehicleNotifier extends Notifier<FirstRunVehicleDraft> {
   void refuseStart() => state = state.copyWith(startRefused: true);
 
   /// Accepts the implausible-odometer warning.
-  void useItAnyway() => state = state.copyWith(warningAccepted: true);
+  void useItAnyway() => state = state.copyWith(
+    odometer: state.odometer.copyWith(warningAccepted: true),
+  );
 
   /// Writes the vehicle, its first reading, its seeded items and the settings.
   ///

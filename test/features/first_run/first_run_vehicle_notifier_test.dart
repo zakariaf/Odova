@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';

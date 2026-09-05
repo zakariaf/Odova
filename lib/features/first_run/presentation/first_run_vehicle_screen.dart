@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/file_picker.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';
 import 'package:odova/features/first_run/presentation/first_run_save_failure.dart';
@@ -88,7 +89,7 @@ class _FirstRunVehicleScreenState extends ConsumerState<FirstRunVehicleScreen> {
     // looks like the app forgetting rather than failing.
     final draft = ref.read(firstRunVehicleProvider);
     _name = TextEditingController(text: draft.name ?? '');
-    _odometer = TextEditingController(text: draft.odometerText);
+    _odometer = TextEditingController(text: draft.odometer.text);
     if (draft.name != null) _followingTile = null;
     _name.addListener(_onNameEdited);
   }

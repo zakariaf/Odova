@@ -321,7 +321,7 @@ void main() {
     expect(picker.calls, 1);
     expect(find.byType(FirstRunVehicleScreen), findsOneWidget);
     final container = ProviderScope.containerOf(_ctx(tester));
-    expect(container.read(firstRunVehicleProvider).odometerText, isEmpty);
+    expect(container.read(firstRunVehicleProvider).odometer.text, isEmpty);
   });
 
   testWidgets('the band chips carry no unit and the label carries it', (
