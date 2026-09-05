@@ -554,3 +554,46 @@ class CalmFieldLabel extends StatelessWidget {
     );
   }
 }
+
+/// A [CalmFieldLabel] above a control that is not a [CalmField].
+///
+/// `CalmField` draws its own label. Everything else that needs one — a
+/// segmented control, an annual-distance band, a picker — had to build the same
+/// `Column(stretch, min, spacing: s2, [CalmFieldLabel(label), child])` by hand,
+/// and three of them did: `_Labelled` in `firstrun.vehicle`, `_Segmented` in
+/// `reminders.edit`, and inline in `calm_annual_band_field.dart`. Features
+/// cannot import each other, so the third copy was not laziness — it was the
+/// only thing available.
+///
+/// The `s2` gap is the part worth having once. It is what makes a labelled
+/// control line up with the `CalmField`s above and below it, and it is
+/// invisible until one of the copies is written with a different token.
+class CalmLabelled extends StatelessWidget {
+  /// Creates a labelled block.
+  const CalmLabelled({
+    required this.label,
+    required this.child,
+    super.key,
+    this.computed = false,
+  });
+
+  /// The label text, already localised.
+  final String label;
+
+  /// The control it names.
+  final Widget child;
+
+  /// Adds the `ƒ` badge — "Odova worked this one out".
+  final bool computed;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: MainAxisSize.min,
+    spacing: CalmSpace.of(context).s2,
+    children: [
+      CalmFieldLabel(label, computed: computed),
+      child,
+    ],
+  );
+}

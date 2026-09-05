@@ -544,21 +544,12 @@ class _Segmented<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    final space = CalmSpace.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      spacing: space.s2,
-      children: [
-        CalmFieldLabel(label),
-        CalmSegmented(
-          labels: [for (final (_, text) in options) text],
-          index: options.indexWhere((o) => o.$1 == selected),
-          onChanged: (index) => onChanged(options[index].$1),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => CalmLabelled(
+    label: label,
+    child: CalmSegmented(
+      labels: [for (final (_, text) in options) text],
+      index: options.indexWhere((o) => o.$1 == selected),
+      onChanged: (index) => onChanged(options[index].$1),
+    ),
+  );
 }
