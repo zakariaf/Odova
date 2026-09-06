@@ -1217,6 +1217,15 @@ class AppLocalizationsFa extends AppLocalizations {
   String get logEditOdometerTitle => 'ویرایش عدد کیلومتر';
 
   @override
+  String get logSavedFillUp => 'سوخت‌گیری ذخیره شد';
+
+  @override
+  String get logSavedService => 'سرویس ذخیره شد';
+
+  @override
+  String get logSavedExpense => 'هزینه ذخیره شد';
+
+  @override
   String get logSaveFillUp => 'ذخیرهٔ سوخت‌گیری';
 
   @override

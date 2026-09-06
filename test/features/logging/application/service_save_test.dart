@@ -127,7 +127,7 @@ void main() {
               cost: const ServiceCostModel()
                   .ticked('itm_a', 'Oil and filter')
                   .ticked('itm_b', 'Air filter')
-                  .split()
+                  .withSplit(split: true)
                   .withAmount('itm_a', '92.50')
                   .withAmount('itm_b', '92.00'),
               occurredOn: '2026-09-02',

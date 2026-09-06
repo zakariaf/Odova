@@ -1253,6 +1253,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logEditOdometerTitle => 'Modifier le relevé';
 
   @override
+  String get logSavedFillUp => 'Plein enregistré';
+
+  @override
+  String get logSavedService => 'Entretien enregistré';
+
+  @override
+  String get logSavedExpense => 'Dépense enregistrée';
+
+  @override
   String get logSaveFillUp => 'Enregistrer le plein';
 
   @override

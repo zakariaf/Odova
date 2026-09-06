@@ -1832,6 +1832,18 @@
   "@logEditOdometerTitle": {
     "description": "The title of the odometer form in edit mode. A READING, not an odometer: what is being edited is one entry in the distance history."
   },
+  "logSavedFillUp": "Fill-up saved",
+  "@logSavedFillUp": {
+    "description": "The snackbar after a fill-up save. What HAPPENED, not what the button said \u2014 the first version reused logSaveFillUp and the user saw the imperative 'Save fill-up' beside an Undo, after having already saved."
+  },
+  "logSavedService": "Service saved",
+  "@logSavedService": {
+    "description": "As logSavedFillUp, for a service record."
+  },
+  "logSavedExpense": "Expense saved",
+  "@logSavedExpense": {
+    "description": "As logSavedFillUp, for an expense."
+  },
   "logSaveFillUp": "Save fill-up",
   "@logSaveFillUp": {
     "description": "The full-width primary button pinned above the keyboard. SPEC.md §10 puts Save twice on every log form — the app bar's top-end corner is unreachable one-handed on a large phone, which is exactly the posture this form is designed for."

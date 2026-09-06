@@ -69,6 +69,7 @@ void main() {
   test('a parking fee is one row', () async {
     final written = await save().save(
       vehicle: _vehicle(),
+      occurredOn: '2026-09-02',
       draft: const ExpenseDraft(
         occurredOn: '2026-09-02',
         amount: '4.50',
@@ -87,10 +88,11 @@ void main() {
     final written =
         await save().save(
               vehicle: _vehicle(),
+              occurredOn: '2026-09-02',
               draft: const ExpenseDraft(
                 occurredOn: '2026-09-02',
                 amount: '80.00',
-              ).withCategory(ExpenseCategory.fine).refunded(),
+              ).withCategory(ExpenseCategory.fine).withRefund(refund: true),
               currency: _eur,
             )
             as ExpenseSaved;
@@ -105,6 +107,7 @@ void main() {
     final written =
         await save().save(
               vehicle: _vehicle(),
+              occurredOn: '2026-09-02',
               draft: const ExpenseDraft(
                 occurredOn: '2026-09-02',
                 amount: '640.00',
@@ -123,6 +126,7 @@ void main() {
     final written =
         await save().save(
               vehicle: _vehicle(),
+              occurredOn: '2026-09-02',
               draft: const ExpenseDraft(
                 occurredOn: '2026-09-02',
                 amount: '8500.005',
@@ -139,6 +143,7 @@ void main() {
     final written =
         await s.save(
               vehicle: _vehicle(),
+              occurredOn: '2026-09-02',
               draft: const ExpenseDraft(
                 occurredOn: '2026-09-02',
                 amount: '4.50',

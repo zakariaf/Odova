@@ -97,7 +97,7 @@ void main() {
     // inconsistent across platforms and reverses badly in RTL.
     final draft = const ExpenseDraft(
       amount: '80.00',
-    ).withCategory(ExpenseCategory.fine).refunded();
+    ).withCategory(ExpenseCategory.fine).withRefund(refund: true);
 
     expect(draft.signedMinorUnits(exponent: 2), -8000);
   });
@@ -119,7 +119,10 @@ void main() {
     ).withCategory(ExpenseCategory.fine);
 
     expect(draft.signedMinorUnits(exponent: 2), 850001);
-    expect(draft.refunded().signedMinorUnits(exponent: 2), -850001);
+    expect(
+      draft.withRefund(refund: true).signedMinorUnits(exponent: 2),
+      -850001,
+    );
   });
 
   test('a zero-decimal currency takes the integer part, rounded', () {

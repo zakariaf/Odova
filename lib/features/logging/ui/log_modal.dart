@@ -184,6 +184,9 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         clockIsSuspect: _clockIsSuspect,
       ).toString();
 
+  /// Today, as the forms' validation means it.
+  String? get _today => ref.watch(todayProvider)?.toString();
+
   /// The newest `occurred_on` this vehicle has, for the suspect-clock fallback.
   ///
   /// From the ODOMETER readings, which is the closest thing the app has to
@@ -377,7 +380,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         onAddOther: () {},
         onTotalChanged: (text) => setState(() => _cost = _cost.withTotal(text)),
         onSplitChanged: (on) =>
-            setState(() => _cost = on ? _cost.split() : _cost),
+            setState(() => _cost = _cost.withSplit(split: on)),
       ),
       LogType.expense => _expenseBody(l10n),
       LogType.odometer => LogOdometerBody(
@@ -404,7 +407,9 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// line is the exception in the other direction: it is a warning, it is not
   /// gated on Save, and it never blocks one.
   Widget _fillUpBody(AppLocalizations l10n) {
-    final problems = _fillUp.problems(today: _occurredOn).toSet();
+    final problems = _fillUp
+        .problems(today: _today, tankCapacity: _tankCapacity)
+        .toSet();
     final warnings = _fillUp.warnings(tankCapacity: _tankCapacity);
 
     String? error(FillUpProblem problem, String message) =>
@@ -551,7 +556,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       onLabelChanged: (text) =>
           setState(() => _expense = _expense.withLabel(text)),
       onRefundChanged: (on) =>
-          setState(() => _expense = on ? _expense.refunded() : _expense),
+          setState(() => _expense = _expense.withRefund(refund: on)),
       // §10: the messages appear when Save is PRESSED, not while the user is
       // still typing — "a form that scolds you before you have finished is a
       // form that is angry at you for arriving".
@@ -938,7 +943,11 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// Everything wrong with the visible segment, in the order it reads.
   List<Object> _problems() => switch (_segment) {
     LogType.fillUp => _fillUp.problems(
-      today: _occurredOn,
+      // TODAY, not the entry's own date. Passing the entry date made
+      // `on > now` unreachable, so §10's "Pick today or a day in the past"
+      // could never fire — including for a date arriving from an unvalidated
+      // `?on` query parameter.
+      today: _today,
       tankCapacity: _tankCapacity,
     ),
     LogType.expense => _expense.problems(),
@@ -1002,6 +1011,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         recomputeDue: recompute,
         vehicle: vehicle,
         draft: _expense,
+        occurredOn: _occurredOn,
         currency: currency,
         onWritten: (expense) =>
             _undoWritten = () =>
@@ -1049,7 +1059,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// on the form whose whole job is one number.
   Distance? _keypadOdometer() {
     final metres = OdometerEntry(
-      unit: DistanceUnit.km,
+      unit: _vehicleUnit,
       groupingSeparator: _groupingSeparator,
       text: _odometer,
     ).metres;
@@ -1063,7 +1073,11 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// second answer.
   Distance? _enteredOdometer() {
     final metres = OdometerEntry(
-      unit: DistanceUnit.km,
+      // The VEHICLE's unit, which is the one the field renders in. Hardcoding
+      // km here parsed `100000` on a miles vehicle as 100,000,000 m instead of
+      // 160,934,400 — a 38% error written into the series the due engine reads,
+      // while the helper line beside it said "mi".
+      unit: _vehicleUnit,
       groupingSeparator: _groupingSeparator,
       text: _odometerController.text,
     ).metres;
@@ -1078,10 +1092,16 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// segment that writes nothing cannot leave a stale Undo behind it.
   Future<Result<void, PersistFailure>> Function()? _undoWritten;
 
+  /// What the snackbar says after a successful save.
+  ///
+  /// The PAST tense. The first version reused the pinned button's own labels,
+  /// so a user who had just saved a fill-up was shown the imperative "Save
+  /// fill-up" beside an Undo — a sentence that reads as an instruction to do
+  /// the thing they have already done.
   String _savedMessage(AppLocalizations l10n) => switch (_segment) {
-    LogType.fillUp => l10n.logSaveFillUp,
-    LogType.service => l10n.logSaveService,
-    LogType.expense => l10n.logSaveExpense,
+    LogType.fillUp => l10n.logSavedFillUp,
+    LogType.service => l10n.logSavedService,
+    LogType.expense => l10n.logSavedExpense,
     LogType.odometer => l10n.odometerSavedSnack,
   };
 
@@ -1155,6 +1175,7 @@ class _ExpenseSteps implements LogSaveSteps {
     required this.recomputeDue,
     required this.vehicle,
     required this.draft,
+    required this.occurredOn,
     required this.currency,
     required this.onWritten,
   });
@@ -1163,6 +1184,7 @@ class _ExpenseSteps implements LogSaveSteps {
   final VoidCallback recomputeDue;
   final Vehicle vehicle;
   final ExpenseDraft draft;
+  final String occurredOn;
   final Currency currency;
   final ValueChanged<Expense> onWritten;
 
@@ -1171,6 +1193,7 @@ class _ExpenseSteps implements LogSaveSteps {
     final written = await save.save(
       vehicle: vehicle,
       draft: draft,
+      occurredOn: occurredOn,
       currency: currency,
     );
     return switch (written) {
@@ -1281,7 +1304,13 @@ class _OdometerSteps implements LogSaveSteps {
 /// The steps a save takes before its body supplies a record.
 class _PendingSteps implements LogSaveSteps {
   @override
-  Future<Result<void, PersistFailure>> persist() async => const Ok(null);
+  Future<Result<void, PersistFailure>> persist() async =>
+      // An Err, not `Ok(null)`. Returning success made `_save` pop the route
+      // and show "saved" with a dead Undo over a write that never happened —
+      // on `log.odometer` with an empty pad, and on any segment whose vehicle
+      // had not loaded. A step that writes nothing must not report that it
+      // wrote something.
+      const Err(WriteFailed('nothing to write yet'));
 
   @override
   Future<void> recompute() async {}

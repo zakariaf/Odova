@@ -14,6 +14,7 @@ import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/features/logging/ui/log_more_sheet.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_field.dart';
+import 'package:odova/ui/calm/calm_switch.dart';
 
 import '../../../app/routing/shell_harness.dart';
 import '../../../support/device.dart';
@@ -93,6 +94,59 @@ void main() {
       _field(tester, l10n.logFillUpStation).controller.text,
       'Shell A61',
     );
+  });
+
+  testWidgets('editing a second field keeps the first', (tester) async {
+    // The sheet is pushed as its own ROUTE, so the shell's `setState` never
+    // rebuilds it: `widget.fillUp` stays exactly as it was when the sheet
+    // opened. This test reproduces that by holding `fillUp` CONSTANT — a
+    // `StatefulBuilder` that feeds each change back in rebuilds the sheet and
+    // hides the bug completely, which is how the first version of this test
+    // passed against the broken code.
+    //
+    // Deriving each change from the frozen draft meant the second field edited
+    // discarded the first.
+    final emitted = <FillUpDraft>[];
+    tester.useDevice(Device.tallForm);
+    await pumpApp(
+      tester,
+      LogMoreSheet(
+        type: LogType.fillUp,
+        fillUp: const FillUpDraft(),
+        onFillUpChanged: emitted.add,
+      ),
+    );
+
+    await tester.enterText(find.byType(TextField).at(0), 'Shell A61');
+    await tester.pump();
+    await tester.enterText(find.byType(TextField).at(1), '95');
+    await tester.pump();
+
+    expect(emitted.last.grade, '95');
+    expect(
+      emitted.last.station,
+      'Shell A61',
+      reason: 'the station survived the grade being typed after it',
+    );
+  });
+
+  testWidgets('the missed-fill switch flips', (tester) async {
+    // Read back from the frozen draft it never appeared to change at all.
+    final emitted = <FillUpDraft>[];
+    tester.useDevice(Device.tallForm);
+    await pumpApp(
+      tester,
+      LogMoreSheet(
+        type: LogType.fillUp,
+        fillUp: const FillUpDraft(),
+        onFillUpChanged: emitted.add,
+      ),
+    );
+
+    await tester.tap(find.byType(CalmSwitch));
+    await tester.pump();
+
+    expect(emitted.last.chainBroken, isTrue);
   });
 
   testWidgets('every form that has a More section shows its Date row', (

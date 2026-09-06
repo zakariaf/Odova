@@ -32,6 +32,7 @@ class ServiceCostModel {
     this.isSplit = false,
     this.otherLabel,
     this.groupingSeparator = ',',
+    this.exponent = 2,
   });
 
   /// Ticked items, by id, with the label to write on their line.
@@ -51,6 +52,15 @@ class ServiceCostModel {
 
   /// The `+ Other` line's label, or null when there is none.
   final String? otherLabel;
+
+  /// The currency's ISO 4217 exponent — 2 for EUR, 0 for JPY, 3 for KWD.
+  ///
+  /// Carried because [sum] has to agree with what `ServiceSave` writes, and
+  /// that scales each line by the currency's own exponent. Hardcoding two here
+  /// made a KWD record display a total that contradicted the lines it was
+  /// derived from — the one thing this file exists to prevent. `PriceTrio`
+  /// already carries `totalDecimals` for the same reason.
+  final int exponent;
 
   /// The thousands separator of the locale this form is being typed in.
   ///
@@ -99,8 +109,12 @@ class ServiceCostModel {
   /// A copy carrying a `+ Other` line labelled [label].
   ServiceCostModel withOther(String label) => _copy(otherLabel: label);
 
-  /// A copy with the split on.
-  ServiceCostModel split() => _copy(isSplit: true);
+  /// A copy with the split switch set.
+  ///
+  /// BOTH ways. A one-way `split()` trapped the user: with it on the Total is
+  /// read-only, the body renders no per-item amount input, and every line is
+  /// written at zero — and there was no way back to a record that cost money.
+  ServiceCostModel withSplit({required bool split}) => _copy(isSplit: split);
 
   /// A copy with [id]'s per-item amount replaced.
   ServiceCostModel withAmount(String id, String amount) =>
@@ -156,13 +170,13 @@ class ServiceCostModel {
       if (read is! DecimalOk) continue;
       // Two decimal places by string, for the same reason money always is:
       // `1.005 * 100` is 100.49999999999999 as a double and rounds DOWN.
-      final scaled = scaleByPowerOfTen(read.canonical, 2);
+      final scaled = scaleByPowerOfTen(read.canonical, exponent);
       if (scaled == null) continue;
       minor += scaled;
       any = true;
     }
     if (!any) return '';
-    return (minor / 100).toStringAsFixed(2);
+    return canonicalOf(minor, exponent);
   }
 
   ServiceCostModel _copy({
@@ -178,5 +192,6 @@ class ServiceCostModel {
     isSplit: isSplit ?? this.isSplit,
     otherLabel: otherLabel ?? this.otherLabel,
     groupingSeparator: groupingSeparator,
+    exponent: exponent,
   );
 }

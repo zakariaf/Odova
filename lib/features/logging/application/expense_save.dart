@@ -60,16 +60,23 @@ class ExpenseSave extends Notifier<void> {
   void build() {}
 
   /// Writes [draft] against [vehicle].
+  /// [occurredOn] is passed IN rather than read off the draft.
+  ///
+  /// The draft is built once and its `occurredOn` was never written to, so
+  /// every expense save failed on a date the form was showing correctly in its
+  /// own row — and `_save` reported that as "your phone may be out of space".
+  /// The date lives on the SHELL, because all four segments share one.
   Future<ExpenseSaveOutcome> save({
     required Vehicle vehicle,
     required ExpenseDraft draft,
+    required String occurredOn,
     required Currency currency,
     Distance? odometer,
   }) async {
     final now = ref.read(clockProvider).now();
-    final occurredOn = CivilDate.tryParse(draft.occurredOn);
+    final on = CivilDate.tryParse(occurredOn);
     final category = draft.category;
-    if (occurredOn == null || category == null) {
+    if (on == null || category == null) {
       return const ExpenseSaveFailed(
         WriteFailed('the expense has no date or no category'),
       );
@@ -78,7 +85,7 @@ class ExpenseSave extends Notifier<void> {
     final expense = Expense(
       id: ExpenseId.mint(ref.read(ulidFactoryProvider)),
       vehicleId: vehicle.id,
-      occurredOn: occurredOn.toString(),
+      occurredOn: on.toString(),
       category: category,
       // Signed HERE and nowhere else. The draft carries a positive figure and
       // the refund switch; one signed integer is what the column holds.

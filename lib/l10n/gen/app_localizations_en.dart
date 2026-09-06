@@ -1218,6 +1218,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logEditOdometerTitle => 'Edit reading';
 
   @override
+  String get logSavedFillUp => 'Fill-up saved';
+
+  @override
+  String get logSavedService => 'Service saved';
+
+  @override
+  String get logSavedExpense => 'Expense saved';
+
+  @override
   String get logSaveFillUp => 'Save fill-up';
 
   @override

@@ -68,6 +68,22 @@ class LogMoreSheet extends StatefulWidget {
 }
 
 class _LogMoreSheetState extends State<LogMoreSheet> {
+  /// The draft as THIS sheet has it.
+  ///
+  /// The sheet is pushed as its own route, so the parent's `setState` does not
+  /// rebuild it: `widget.fillUp` is frozen at the moment it opened. Deriving
+  /// every change from that frozen copy meant the second field edited
+  /// discarded the first — type a station, then a grade, and the station was
+  /// gone — and the broken-chain switch, read back from the frozen draft,
+  /// never appeared to flip.
+  late FillUpDraft _draft = widget.fillUp;
+
+  /// Applies [next] here and tells the shell.
+  void _update(FillUpDraft next) {
+    setState(() => _draft = next);
+    widget.onFillUpChanged(next);
+  }
+
   late final TextEditingController _station = TextEditingController(
     text: widget.fillUp.station,
   );
@@ -110,20 +126,17 @@ class _LogMoreSheetState extends State<LogMoreSheet> {
     CalmField(
       label: l10n.logFillUpStation,
       controller: _station,
-      onChanged: (value) =>
-          widget.onFillUpChanged(widget.fillUp.withStation(value)),
+      onChanged: (value) => _update(_draft.withStation(value)),
     ),
     CalmField(
       label: l10n.logFillUpGrade,
       controller: _grade,
-      onChanged: (value) =>
-          widget.onFillUpChanged(widget.fillUp.withGrade(value)),
+      onChanged: (value) => _update(_draft.withGrade(value)),
     ),
     CalmField(
       label: l10n.logNotes,
       controller: _notes,
-      onChanged: (value) =>
-          widget.onFillUpChanged(widget.fillUp.withNotes(value)),
+      onChanged: (value) => _update(_draft.withNotes(value)),
     ),
     CalmRowGroup(
       rows: [
@@ -134,10 +147,9 @@ class _LogMoreSheetState extends State<LogMoreSheet> {
           // spanning a gap the app cannot see — and nothing else on the form
           // says so.
           subtitle: l10n.logFillUpChainBrokenHint,
-          value: widget.fillUp.chainBroken,
-          onToggle: () => widget.onFillUpChanged(
-            widget.fillUp.withChainBroken(broken: !widget.fillUp.chainBroken),
-          ),
+          value: _draft.chainBroken,
+          onToggle: () =>
+              _update(_draft.withChainBroken(broken: !_draft.chainBroken)),
         ),
       ],
     ),

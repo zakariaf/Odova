@@ -1226,6 +1226,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get logEditOdometerTitle => 'Ablesung bearbeiten';
 
   @override
+  String get logSavedFillUp => 'Tankvorgang gespeichert';
+
+  @override
+  String get logSavedService => 'Service gespeichert';
+
+  @override
+  String get logSavedExpense => 'Ausgabe gespeichert';
+
+  @override
   String get logSaveFillUp => 'Tankfüllung speichern';
 
   @override

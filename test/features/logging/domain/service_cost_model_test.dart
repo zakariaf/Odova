@@ -51,7 +51,7 @@ void main() {
     final model = const ServiceCostModel()
         .ticked('oil', 'Oil and filter')
         .ticked('air', 'Air filter')
-        .split()
+        .withSplit(split: true)
         .withAmount('oil', '92.50')
         .withAmount('air', '92.00');
 
@@ -66,7 +66,7 @@ void main() {
     final model = const ServiceCostModel()
         .ticked('oil', 'Oil and filter')
         .ticked('air', 'Air filter')
-        .split()
+        .withSplit(split: true)
         .withAmount('oil', '1.005')
         .withAmount('air', '2.005');
 
@@ -77,7 +77,7 @@ void main() {
     final model = const ServiceCostModel()
         .ticked('oil', 'Oil and filter')
         .ticked('air', 'Air filter')
-        .split()
+        .withSplit(split: true)
         .withAmount('oil', '92.50')
         .withAmount('air', '92.00');
 
@@ -93,7 +93,7 @@ void main() {
     // was really spent; only the reminder link goes.
     final model = const ServiceCostModel()
         .ticked('air', 'Air filter')
-        .split()
+        .withSplit(split: true)
         .withAmount('air', '92.00')
         .unticked('air');
 
@@ -112,7 +112,7 @@ void main() {
     // — a job that resets nothing."
     final model = const ServiceCostModel()
         .withOther('Windscreen chip')
-        .split()
+        .withSplit(split: true)
         .withAmount(kOtherLineId, '40.00');
 
     final lines = model.lines(fallbackLabel: 'Service');

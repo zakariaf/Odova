@@ -1779,6 +1779,24 @@ abstract class AppLocalizations {
   /// **'Edit reading'**
   String get logEditOdometerTitle;
 
+  /// The snackbar after a fill-up save. What HAPPENED, not what the button said — the first version reused logSaveFillUp and the user saw the imperative 'Save fill-up' beside an Undo, after having already saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up saved'**
+  String get logSavedFillUp;
+
+  /// As logSavedFillUp, for a service record.
+  ///
+  /// In en, this message translates to:
+  /// **'Service saved'**
+  String get logSavedService;
+
+  /// As logSavedFillUp, for an expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense saved'**
+  String get logSavedExpense;
+
   /// The full-width primary button pinned above the keyboard. SPEC.md §10 puts Save twice on every log form — the app bar's top-end corner is unreachable one-handed on a large phone, which is exactly the posture this form is designed for.
   ///
   /// In en, this message translates to:

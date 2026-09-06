@@ -1221,6 +1221,15 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get logEditOdometerTitle => 'دەستکاری خوێندنەوە';
 
   @override
+  String get logSavedFillUp => 'سووتەمەنی پاشەکەوت کرا';
+
+  @override
+  String get logSavedService => 'سەرڤیس پاشەکەوت کرا';
+
+  @override
+  String get logSavedExpense => 'خەرجی پاشەکەوت کرا';
+
+  @override
   String get logSaveFillUp => 'پاشەکەوتکردنی پڕکردنەوە';
 
   @override

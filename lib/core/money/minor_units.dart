@@ -97,3 +97,19 @@ bool _isDigits(String text) {
   }
   return true;
 }
+
+/// [minor] scaled back down by 10^[places], as a canonical decimal string.
+///
+/// The inverse of [scaleByPowerOfTen], and by STRING for the same reason:
+/// `minor / 100` is a division into a binary double, and the value that comes
+/// out is the one the user is shown. At [places] of 0 there is no separator at
+/// all — a JPY total is `1250`, not `1250.`.
+String canonicalOf(int minor, int places) {
+  final negative = minor < 0;
+  final digits = minor.abs().toString().padLeft(places + 1, '0');
+  final whole = digits.substring(0, digits.length - places);
+  final fraction = places == 0
+      ? ''
+      : '.${digits.substring(digits.length - places)}';
+  return '${negative ? '-' : ''}$whole$fraction';
+}

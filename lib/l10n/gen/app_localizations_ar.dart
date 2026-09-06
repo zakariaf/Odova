@@ -1314,6 +1314,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logEditOdometerTitle => 'تعديل القراءة';
 
   @override
+  String get logSavedFillUp => 'تم حفظ التعبئة';
+
+  @override
+  String get logSavedService => 'تم حفظ الصيانة';
+
+  @override
+  String get logSavedExpense => 'تم حفظ المصروف';
+
+  @override
   String get logSaveFillUp => 'حفظ التعبئة';
 
   @override

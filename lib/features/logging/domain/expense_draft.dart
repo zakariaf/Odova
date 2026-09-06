@@ -15,6 +15,12 @@ import 'package:odova/core/money/minor_units.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/features/logging/domain/decimal_input.dart';
 
+/// The sentinel that means "leave this field alone" in a copy.
+///
+/// A nullable parameter cannot say the difference between "unchanged" and
+/// "cleared", and the coverage window needs both.
+const Object _keep = Object();
+
 /// What is wrong with the draft, in the order §10's form reads.
 enum ExpenseProblem {
   /// No category chosen.
@@ -135,8 +141,13 @@ class ExpenseDraft {
   /// A copy with the amount replaced.
   ExpenseDraft withAmount(String value) => _copy(amount: value);
 
-  /// A copy that is a refund.
-  ExpenseDraft refunded() => _copy(isRefund: true);
+  /// A copy with the refund switch set.
+  ///
+  /// BOTH ways. §10 gives this switch the sign of the only money field in the
+  /// app allowed to be negative, and a one-way `refunded()` meant turning it
+  /// off was a no-op: the row stayed a refund and the amount stayed negated,
+  /// while the switch — driven from `isRefund` — visibly stuck on.
+  ExpenseDraft withRefund({required bool refund}) => _copy(isRefund: refund);
 
   /// A copy with the window's end replaced.
   ExpenseDraft withCoversTo(String value) => _copy(coversTo: value);
@@ -194,6 +205,14 @@ class ExpenseDraft {
   static String _yearFrom(CivilDate from) =>
       from.addMonths(kExpenseCoverageMonths).addDays(-1).toString();
 
+  /// A copy.
+  ///
+  /// The window fields are passed as SENTINELS rather than as nullables,
+  /// because `?? this.x` cannot express "clear this". Leaving Insurance for
+  /// Parking is exactly that: `withCategory` computes `null` for a category
+  /// with no period, and the old idiom silently kept the previous window —
+  /// which `problems()` then reported as `periodBackwards` on a window the
+  /// user never touched.
   ExpenseDraft _copy({
     ExpenseCategory? category,
     String? label,
@@ -201,8 +220,8 @@ class ExpenseDraft {
     bool? isRefund,
     String? occurredOn,
     bool? coversPeriod,
-    String? coversFrom,
-    String? coversTo,
+    Object? coversFrom = _keep,
+    Object? coversTo = _keep,
   }) => ExpenseDraft(
     category: category ?? this.category,
     label: label ?? this.label,
@@ -210,8 +229,8 @@ class ExpenseDraft {
     isRefund: isRefund ?? this.isRefund,
     occurredOn: occurredOn ?? this.occurredOn,
     coversPeriod: coversPeriod ?? this.coversPeriod,
-    coversFrom: coversFrom ?? this.coversFrom,
-    coversTo: coversTo ?? this.coversTo,
+    coversFrom: coversFrom == _keep ? this.coversFrom : coversFrom as String?,
+    coversTo: coversTo == _keep ? this.coversTo : coversTo as String?,
     groupingSeparator: groupingSeparator,
   );
 }
