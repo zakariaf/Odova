@@ -181,6 +181,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get historyFilterOdometer => 'العدّاد';
 
   @override
+  String get historyReadFailureTitle => 'تعذّر على أودوفا فتح سجلاتك.';
+
+  @override
+  String get historyReadFailureAction => 'الانتقال إلى النسخ الاحتياطي';
+
+  @override
+  String get historyClearFilters => 'مسح المرشحات';
+
+  @override
+  String get historyEmptySubtitle => 'أول تعبئة تبدأ السجل.';
+
+  @override
   String get historyEmptyTitle => 'لم يُسجَّل شيء بعد.';
 
   @override

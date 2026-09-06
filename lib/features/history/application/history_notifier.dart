@@ -25,6 +25,7 @@ import 'package:odova/core/history/history_cursor.dart';
 import 'package:odova/core/history/history_entry.dart';
 import 'package:odova/core/history/history_filter.dart';
 import 'package:odova/core/history/month_index.dart';
+import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
@@ -35,6 +36,17 @@ const int kHistoryPageSize = 60;
 
 /// §11's memory cap.
 const int kHistoryWindowCap = 400;
+
+/// Above how many entries §11 shows the year scrubber.
+///
+/// "Scrubber appears above 150 rows, the search affordance above 200 — below
+/// that, filters beat typing." Two thresholds and not one, because they answer
+/// different questions: a scrubber is for reaching 2019, and search is for
+/// "what did that garage in Ingolstadt charge me".
+const int kHistoryScrubberThreshold = 150;
+
+/// Above how many entries §11 shows the search affordance.
+const int kHistorySearchThreshold = 200;
 
 /// Which timeline this is.
 ///
@@ -152,14 +164,45 @@ class HistoryNotifier extends Notifier<HistoryState> {
 
   HistoryRepository get _repository => ref.read(historyRepositoryProvider);
 
-  /// Loads the first page, discarding anything already loaded.
+  /// The calendar the month index groups by.
+  ///
+  /// Settable so a screen can hand down the resolved setting — §5's calendar
+  /// is a user preference and this layer has no `BuildContext` to read it
+  /// from. Changing it rebuilds the index rather than remapping it, per §11.
+  CalmCalendar calendar = CalmCalendar.gregorian;
+
+  /// Re-groups the index under [next], if it differs.
+  Future<void> useCalendar(CalmCalendar next) async {
+    if (next == calendar) return;
+    calendar = next;
+    await _loadIndex();
+  }
+
+  /// Loads the first page and the month index together.
+  ///
+  /// Both, because §11's headers, scrubber and empty state all read the index
+  /// and none of them reads the loaded window — a page without an index draws
+  /// a list with no subtotals, which is the screen's whole reason for existing
+  /// during the anxious check.
   Future<void> load() async {
     state = state.copyWith(isLoading: true, clearFailure: true);
-    final result = await _repository.page(
+    final page = await _repository.page(
       vehicleId: _scope.vehicleId,
       filter: state.filter,
     );
-    _absorb(result, replaceWindow: true);
+    _absorb(page, replaceWindow: true);
+    await _loadIndex();
+  }
+
+  Future<void> _loadIndex() async {
+    final index = await _repository.monthIndex(
+      vehicleId: _scope.vehicleId,
+      filter: state.filter,
+      calendar: calendar,
+    );
+    if (index case Ok(:final value)) {
+      state = state.copyWith(months: value);
+    }
   }
 
   /// Loads the next page onto the end of the window.

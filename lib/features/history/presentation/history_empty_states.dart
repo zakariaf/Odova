@@ -45,7 +45,14 @@ class HistoryEmptyState extends StatelessWidget {
           Text(
             l10n.historyEmptyTitle,
             textAlign: TextAlign.center,
-            style: type.body.copyWith(color: colors.ink2),
+            style: type.body.copyWith(color: colors.ink),
+          ),
+          // What STARTS the record, rather than an apology for it being
+          // empty. §11 gives this state two lines and one button.
+          Text(
+            l10n.historyEmptySubtitle,
+            textAlign: TextAlign.center,
+            style: type.label.copyWith(color: colors.ink3),
           ),
           CalmButton(label: l10n.historyEmptyAction, onPressed: onLogFillUp),
         ],
@@ -57,7 +64,15 @@ class HistoryEmptyState extends StatelessWidget {
 /// A history that exists, behind a filter that matches none of it.
 class HistoryFilteredEmptyState extends StatelessWidget {
   /// Creates the state.
-  const HistoryFilteredEmptyState({super.key});
+  const HistoryFilteredEmptyState({required this.onClearFilters, super.key});
+
+  /// Drops every filter and reloads.
+  ///
+  /// §11 puts a **Clear filters** button here BESIDE a chip row that stays
+  /// interactive. Both, not either: the chips are how the user narrows and the
+  /// button is the one tap out, and a screen with only the chips makes undoing
+  /// four selections four taps.
+  final VoidCallback onClearFilters;
 
   @override
   Widget build(BuildContext context) {
@@ -68,10 +83,62 @@ class HistoryFilteredEmptyState extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsetsDirectional.symmetric(vertical: space.s7),
-      child: Text(
-        l10n.historyFilteredEmpty,
-        textAlign: TextAlign.center,
-        style: type.body.copyWith(color: colors.ink3),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: space.s3,
+        children: [
+          Text(
+            l10n.historyFilteredEmpty,
+            textAlign: TextAlign.center,
+            style: type.body.copyWith(color: colors.ink3),
+          ),
+          CalmButton(
+            label: l10n.historyClearFilters,
+            variant: CalmButtonVariant.quiet,
+            onPressed: onClearFilters,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// §11's store-read failure: the whole screen, and one useful act.
+///
+/// "Odova couldn't open your records." One button, **Go to Backup & restore**,
+/// with Export enabled — §11 in four words: "Get the data out of the building
+/// first." No retry, no error code, no diagnostics: the user's next decision
+/// is about eight years of their own records, not about our bug.
+class HistoryReadFailureState extends StatelessWidget {
+  /// Creates the state.
+  const HistoryReadFailureState({required this.onGoToBackup, super.key});
+
+  /// Opens `settings.backup`.
+  final VoidCallback onGoToBackup;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
+    final type = CalmType.of(context);
+
+    return Padding(
+      padding: EdgeInsetsDirectional.symmetric(vertical: space.s7),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: space.s4,
+        children: [
+          Text(
+            l10n.historyReadFailureTitle,
+            textAlign: TextAlign.center,
+            style: type.body.copyWith(color: colors.ink),
+          ),
+          CalmButton(
+            label: l10n.historyReadFailureAction,
+            onPressed: onGoToBackup,
+          ),
+        ],
       ),
     );
   }

@@ -158,6 +158,18 @@ class AppLocalizationsFa extends AppLocalizations {
   String get historyFilterOdometer => 'کیلومترشمار';
 
   @override
+  String get historyReadFailureTitle => 'اودووا نتوانست سوابق شما را باز کند.';
+
+  @override
+  String get historyReadFailureAction => 'رفتن به پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get historyClearFilters => 'پاک کردن فیلترها';
+
+  @override
+  String get historyEmptySubtitle => 'اولین سوخت‌گیری شما شروع سابقه است.';
+
+  @override
   String get historyEmptyTitle => 'هنوز چیزی ثبت نشده است.';
 
   @override

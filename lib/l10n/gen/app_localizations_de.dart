@@ -158,6 +158,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get historyFilterOdometer => 'Kilometerstand';
 
   @override
+  String get historyReadFailureTitle => 'Odova konnte Ihre Daten nicht öffnen.';
+
+  @override
+  String get historyReadFailureAction => 'Zu Sicherung & Wiederherstellung';
+
+  @override
+  String get historyClearFilters => 'Filter zurücksetzen';
+
+  @override
+  String get historyEmptySubtitle =>
+      'Ihr erster Tankvorgang beginnt die Aufzeichnung.';
+
+  @override
   String get historyEmptyTitle => 'Noch nichts erfasst.';
 
   @override

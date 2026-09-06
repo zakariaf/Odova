@@ -104,5 +104,50 @@ class FakeHistoryRepository implements HistoryRepository {
     required String vehicleId,
     required HistoryFilter filter,
     required CalmCalendar calendar,
-  }) async => const Ok([]);
+  }) async => Ok([
+    // The index counts the WHOLE vehicle, not the loaded window — which is
+    // what §11's scrubber and search thresholds are measured against. A fake
+    // returning an empty list made those thresholds untestable: the count was
+    // zero however many rows the repository held.
+    if (totalRows > 0)
+      MonthIndexEntry(
+        monthKey: MonthKey(calendar: calendar, year: 2026, month: 12),
+        count: totalRows,
+        totals: const {'EUR': 1000},
+      ),
+  ]);
+}
+
+/// A repository whose every read fails.
+///
+/// §11's store-read failure is a whole-screen state with one act, and the only
+/// way to reach it in a test is a store that refuses. A real one cannot be
+/// asked to break on demand.
+class FailingHistoryRepository implements HistoryRepository {
+  /// Creates the fake.
+  const FailingHistoryRepository();
+
+  @override
+  Future<Result<HistoryPage, PersistFailure>> page({
+    required String vehicleId,
+    required HistoryFilter filter,
+    HistoryCursor? after,
+    int limit = 60,
+  }) async => const Err(WriteFailed('the store will not open'));
+
+  @override
+  Future<Result<HistoryPage, PersistFailure>> pageAnchoredAt({
+    required String vehicleId,
+    required HistoryFilter filter,
+    required int year,
+    required int month,
+    int limit = 60,
+  }) async => const Err(WriteFailed('the store will not open'));
+
+  @override
+  Future<Result<List<MonthIndexEntry>, PersistFailure>> monthIndex({
+    required String vehicleId,
+    required HistoryFilter filter,
+    required CalmCalendar calendar,
+  }) async => const Err(WriteFailed('the store will not open'));
 }

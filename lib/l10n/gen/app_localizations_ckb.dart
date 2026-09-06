@@ -158,6 +158,18 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get historyFilterOdometer => 'کیلۆمەترپێو';
 
   @override
+  String get historyReadFailureTitle => 'ئۆدۆڤا نەیتوانی تۆمارەکانت بکاتەوە.';
+
+  @override
+  String get historyReadFailureAction => 'بڕۆ بۆ پاڵپشت و گەڕاندنەوە';
+
+  @override
+  String get historyClearFilters => 'پاڵاوتنەکان بسڕەوە';
+
+  @override
+  String get historyEmptySubtitle => 'یەکەم سووتەمەنیت تۆمارەکە دەست پێدەکات.';
+
+  @override
   String get historyEmptyTitle => 'هێشتا هیچ تۆمار نەکراوە.';
 
   @override

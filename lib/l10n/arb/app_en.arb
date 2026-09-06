@@ -201,6 +201,22 @@
   "@historyFilterOdometer": {
     "description": "\u00a711's type chip for standalone readings."
   },
+  "historyReadFailureTitle": "Odova couldn't open your records.",
+  "@historyReadFailureTitle": {
+    "description": "\u00a711's store-read failure, full screen. It names the app rather than an error code, because the user's next act is a decision about their data and not a bug report."
+  },
+  "historyReadFailureAction": "Go to Backup & restore",
+  "@historyReadFailureAction": {
+    "description": "The ONE button on that screen. \u00a711: 'Get the data out of the building first' \u2014 export is the only useful act when the store will not open."
+  },
+  "historyClearFilters": "Clear filters",
+  "@historyClearFilters": {
+    "description": "\u00a711's text button under an empty filtered list. The chip row stays interactive beside it; this is the one-tap version."
+  },
+  "historyEmptySubtitle": "Your first fill-up starts the record.",
+  "@historyEmptySubtitle": {
+    "description": "\u00a711's second line for a new vehicle. It says what starts the record rather than apologising for it being empty."
+  },
   "historyEmptyTitle": "Nothing logged yet.",
   "@historyEmptyTitle": {
     "description": "\u00a711's empty state for a vehicle with nothing logged. One sentence and a button; \u00a711 gives it no illustration."

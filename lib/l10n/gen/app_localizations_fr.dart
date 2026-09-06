@@ -164,6 +164,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get historyFilterOdometer => 'Compteur';
 
   @override
+  String get historyReadFailureTitle => 'Odova n\'a pas pu ouvrir vos données.';
+
+  @override
+  String get historyReadFailureAction => 'Aller à Sauvegarde et restauration';
+
+  @override
+  String get historyClearFilters => 'Effacer les filtres';
+
+  @override
+  String get historyEmptySubtitle => 'Votre premier plein commence le journal.';
+
+  @override
   String get historyEmptyTitle => 'Rien encore enregistré.';
 
   @override

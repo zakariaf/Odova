@@ -157,6 +157,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyFilterOdometer => 'Odometer';
 
   @override
+  String get historyReadFailureTitle => 'Odova couldn\'t open your records.';
+
+  @override
+  String get historyReadFailureAction => 'Go to Backup & restore';
+
+  @override
+  String get historyClearFilters => 'Clear filters';
+
+  @override
+  String get historyEmptySubtitle => 'Your first fill-up starts the record.';
+
+  @override
   String get historyEmptyTitle => 'Nothing logged yet.';
 
   @override

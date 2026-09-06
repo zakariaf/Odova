@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/history/history_entry.dart';
+import 'package:odova/core/history/history_filter.dart';
 import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/l10n/numerals.dart';
@@ -58,21 +59,22 @@ class HistoryScreen extends ConsumerWidget {
     }
 
     final scope = HistoryScope(vehicleId: vehicleId.toString());
-    final state = ref.watch(historyProvider(scope));
-    // Once, on the first build. `ensureLoaded` is a no-op afterwards, so a
-    // rebuild from any of the four watches below does not re-query.
-    unawaited(ref.read(historyProvider(scope).notifier).ensureLoaded());
     final tags = ref.watch(resolvedLocaleTagsProvider);
     // The SETTING, falling back to what the locale implies — `resolveCalendar`
     // is the one place that decision lives, and §18 has an open question about
     // whether `ckb-IR` should default to Jalali.
     final calendar = resolveCalendar(
       CalmCalendar.values
-          .where(
-            (c) => c.wire == ref.watch(settingsProvider).value?.calendar,
-          )
+          .where((c) => c.wire == ref.watch(settingsProvider).value?.calendar)
           .firstOrNull,
       tags.formats,
+    );
+    final state = ref.watch(historyProvider(scope));
+    // Once, on the first build. `ensureLoaded` is a no-op afterwards, so a
+    // rebuild from any of the four watches below does not re-query.
+    unawaited(ref.read(historyProvider(scope).notifier).ensureLoaded());
+    unawaited(
+      ref.read(historyProvider(scope).notifier).useCalendar(calendar),
     );
     final space = CalmSpace.of(context);
     final vehicle = ref
@@ -89,6 +91,17 @@ class HistoryScreen extends ConsumerWidget {
       appBar: CalmAppBar(
         title: l10n.tabHistory,
         actions: [
+          // §11 shows the search affordance "only above 200 entries for the
+          // active vehicle; below that the list is faster to scroll than the
+          // keyboard is to open." The count comes from the month INDEX rather
+          // than the loaded window, which is 60 rows on the first frame and
+          // would hide the control on every vehicle.
+          if (_entryCount(state) > kHistorySearchThreshold)
+            CalmAppBarAction(
+              label: l10n.historySearch,
+              icon: Icons.search,
+              onTap: () {},
+            ),
           CalmAppBarAction(
             label: l10n.historyReport,
             onTap: () => unawaited(context.push(Routes.serviceReport)),
@@ -129,6 +142,18 @@ class HistoryScreen extends ConsumerWidget {
     AppLocalizations l10n,
     DistanceUnit unit,
   ) {
+    // The store could not be read. §11 gives this the WHOLE screen and one
+    // act — "Get the data out of the building first" — so it is checked before
+    // the empty states, which would otherwise draw "nothing logged yet" over a
+    // database that simply would not open.
+    if (state.failure != null && state.entries.isEmpty) {
+      return [
+        HistoryReadFailureState(
+          onGoToBackup: () => unawaited(context.push(Routes.settingsBackup)),
+        ),
+      ];
+    }
+
     if (state.entries.isEmpty && !state.isLoading) {
       // TWO empty states, because the remedy differs: nothing to log, or
       // something to widen.
@@ -139,7 +164,13 @@ class HistoryScreen extends ConsumerWidget {
                 unawaited(context.push(Routes.log(LogType.fillUp))),
           )
         else
-          const HistoryFilteredEmptyState(),
+          HistoryFilteredEmptyState(
+            onClearFilters: () => unawaited(
+              ref
+                  .read(historyProvider(scope).notifier)
+                  .applyFilter(HistoryFilter.all),
+            ),
+          ),
       ];
     }
 
@@ -232,6 +263,14 @@ class HistoryScreen extends ConsumerWidget {
       numerals: CalmNumerals.auto,
     );
   }
+
+  /// How many entries this vehicle has, per the month index.
+  ///
+  /// From the INDEX and never from `state.entries`, which holds one page on
+  /// the first frame — counting the window would hide the search affordance on
+  /// every vehicle and then reveal it mid-scroll.
+  static int _entryCount(HistoryState state) =>
+      state.months.fold(0, (sum, month) => sum + month.count);
 
   /// Which `log.*` form corrects a row of this kind.
   ///

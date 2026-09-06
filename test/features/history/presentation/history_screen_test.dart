@@ -182,6 +182,69 @@ void main() {
     );
   });
 
+  testWidgets('the search affordance is hidden below 200 entries', (
+    tester,
+  ) async {
+    // §11: "the search affordance above 200 — below that the list is faster to
+    // scroll than the keyboard is to open."
+    await _pump(tester);
+
+    // By ICON, not by label: the action renders its glyph and carries the
+    // string as a semantic name, so `find.text` finds nothing whether the
+    // control is there or not — which is a test that passes either way.
+    expect(find.byIcon(Icons.search), findsNothing);
+  });
+
+  testWidgets('and appears above it', (tester) async {
+    await _pump(tester, rows: 400);
+
+    expect(find.byIcon(Icons.search), findsOneWidget);
+  });
+
+  testWidgets('a store read failure takes the whole screen', (tester) async {
+    // §11 gives it one act — "Get the data out of the building first" — and
+    // checks it BEFORE the empty states, which would otherwise say "nothing
+    // logged yet" over a database that would not open.
+    tester.useDevice(Device.tallForm);
+    await pumpShell(
+      tester,
+      Routes.history,
+      settings: homeSettings(golfId),
+      vehicles: [homeVehicle(golfId, 'The Golf')],
+      overrides: <Override>[
+        historyRepositoryProvider.overrideWithValue(
+          const FailingHistoryRepository(),
+        ),
+      ],
+    );
+    await tester.pumpAndSettle();
+    final l10n = _l10n(tester);
+
+    expect(find.byType(HistoryReadFailureState), findsOneWidget);
+    expect(find.text(l10n.historyReadFailureTitle), findsOneWidget);
+    expect(find.text(l10n.historyReadFailureAction), findsOneWidget);
+    expect(
+      find.byType(HistoryEmptyState),
+      findsNothing,
+      reason: 'a store that will not open is not an empty vehicle',
+    );
+  });
+
+  testWidgets('a filtered empty list offers one tap out', (tester) async {
+    await _pump(tester, rows: 0);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(HistoryScreen)),
+    );
+    await container
+        .read(
+          historyProvider(HistoryScope(vehicleId: golfId.toString())).notifier,
+        )
+        .applyFilter(const HistoryFilter(kinds: {HistoryEntryKind.service}));
+    await tester.pumpAndSettle();
+
+    expect(find.text(_l10n(tester).historyClearFilters), findsOneWidget);
+  });
+
   testWidgets('it renders in an RTL locale without overflowing', (
     tester,
   ) async {

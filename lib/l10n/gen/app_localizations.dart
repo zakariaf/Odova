@@ -292,6 +292,30 @@ abstract class AppLocalizations {
   /// **'Odometer'**
   String get historyFilterOdometer;
 
+  /// §11's store-read failure, full screen. It names the app rather than an error code, because the user's next act is a decision about their data and not a bug report.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn\'t open your records.'**
+  String get historyReadFailureTitle;
+
+  /// The ONE button on that screen. §11: 'Get the data out of the building first' — export is the only useful act when the store will not open.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Backup & restore'**
+  String get historyReadFailureAction;
+
+  /// §11's text button under an empty filtered list. The chip row stays interactive beside it; this is the one-tap version.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get historyClearFilters;
+
+  /// §11's second line for a new vehicle. It says what starts the record rather than apologising for it being empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first fill-up starts the record.'**
+  String get historyEmptySubtitle;
+
   /// §11's empty state for a vehicle with nothing logged. One sentence and a button; §11 gives it no illustration.
   ///
   /// In en, this message translates to:
