@@ -13,7 +13,6 @@ import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/repositories/providers.dart';
-import 'package:odova/ui/calm/calm_field.dart';
 
 import '../../app/routing/shell_harness.dart';
 import '../../support/device.dart';
@@ -51,21 +50,17 @@ Future<void> _pump(
   );
 }
 
-CalmField _odometer(WidgetTester tester) =>
-    tester.widgetList<CalmField>(find.byType(CalmField)).first;
-
 void main() {
   testWidgets('the helper line names the last entered reading', (tester) async {
     await _pump(tester, readings: [_reading('2026-08-12', 186743)]);
 
     expect(
-      _odometer(tester).hint,
-      isNotNull,
+      find.textContaining('186,743'),
+      findsOneWidget,
       reason:
           'with a history behind it the field says what was last entered; '
           'with `existing: const []` it never could',
     );
-    expect(_odometer(tester).hint, contains('186,743'));
   });
 
   testWidgets('with no history there is no helper line', (tester) async {
@@ -73,6 +68,6 @@ void main() {
     // would be the app describing a reading that does not exist.
     await _pump(tester);
 
-    expect(_odometer(tester).hint, isNull);
+    expect(find.textContaining('Last entered'), findsNothing);
   });
 }

@@ -298,6 +298,8 @@
   "logOdometerLastEntered": "دوایین تۆمار {distance} لە {date}",
   "logOdometerLastEnteredStale": "{days, plural, one{دوایین تۆمار {distance} لە {date} — {daysText} ڕۆژ لەمەوبەر} other{دوایین تۆمار {distance} لە {date} — {daysText} ڕۆژ لەمەوبەر}}",
   "logOdometerEstimateChip": "ئێستا {value}",
+  "logOdometerLastEnteredShort": "دوایین تۆمار {distance}",
+  "logOdometerSince": "{date} · +{distance}",
   "logOdometerDelta": "+{distance} لە {date}ەوە",
   "logOdometerOlderThanAnything": "کۆنترە لە هەموو ئەوەی تۆمارکراوە. ئەمە دەبێتە کۆنترین خوێندنەوەت.",
   "logOdometerBelowLastTitle": "ئەم خوێندنەوەیە کەمترە لە دوایین خوێندنەوەت",

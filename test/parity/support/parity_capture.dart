@@ -103,6 +103,7 @@ Future<void> captureParity(
   required Widget child,
   Widget? overlay,
   int? tab,
+  Future<void> Function(WidgetTester)? settle,
 }) async {
   // Pin the surface. Without the tear-down the next test in the file inherits
   // this phone, which is a confusing way to fail an unrelated assertion.
@@ -203,6 +204,21 @@ Future<void> captureParity(
   await tester.pump();
   await tester.pump();
   await tester.pump();
+
+  // Some references draw a screen mid-USE rather than on arrival: the four
+  // `log.*` artboards show a form with values typed into it, because an empty
+  // one cannot show the `ƒ` badge, the computed-field caption or the delta
+  // line that are the point of those screens. [settle] is where a capture puts
+  // the typing that gets it there.
+  //
+  // It is a TEST-side hook and not a production seam. The reference is the
+  // authority on what the screen looks like; reproducing its state is the
+  // harness's job, and a prefill parameter on the real widget — added only so
+  // a screenshot could be taken — would be a feature nobody asked for.
+  if (settle != null) {
+    await settle(tester);
+    await tester.pump();
+  }
 
   final bytes = await _pngOf(tester);
   final file = File('$kParityOutDir/$screen-${config.theme}-${config.dir}.png');

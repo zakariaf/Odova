@@ -1299,6 +1299,16 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String logOdometerLastEnteredShort(String distance) {
+    return 'آخرین ثبت $distance';
+  }
+
+  @override
+  String logOdometerSince(String date, String distance) {
+    return '$date · +$distance';
+  }
+
+  @override
   String logOdometerDelta(String distance, String date) {
     return '+$distance از $date';
   }

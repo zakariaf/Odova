@@ -298,6 +298,8 @@
   "logOdometerLastEntered": "Zuletzt {distance} am {date} eingetragen",
   "logOdometerLastEnteredStale": "{days, plural, one{Zuletzt {distance} am {date} eingetragen — vor {daysText} Tag} other{Zuletzt {distance} am {date} eingetragen — vor {daysText} Tagen}}",
   "logOdometerEstimateChip": "jetzt {value}",
+  "logOdometerLastEnteredShort": "Zuletzt eingetragen {distance}",
+  "logOdometerSince": "{date} · +{distance}",
   "logOdometerDelta": "+{distance} seit {date}",
   "logOdometerOlderThanAnything": "Älter als alles Erfasste. Das wird Ihre früheste Ablesung.",
   "logOdometerBelowLastTitle": "Diese Ablesung ist niedriger als Ihre letzte",

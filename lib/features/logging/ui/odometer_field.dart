@@ -25,7 +25,9 @@ import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_chip.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 
@@ -179,19 +181,30 @@ class OdometerField extends StatelessWidget {
             ),
           ),
           errorText: _message(l10n, check, last, separator),
-          hint: _helper(l10n, last),
           onChanged: onChanged,
         ),
-        if (_offersEstimate)
-          _EstimateChip(
-            estimate: estimate!,
-            unit: unit,
-            formatsTag: formatsTag,
-            onTap: () => _fill(estimate!),
-          ),
+        // ONE ROW: the two helper lines on the start side, the estimate chip on
+        // the end. The artboard draws them that way and the first version
+        // stacked three separate rows — helper, chip, delta — which pushed
+        // everything below it down by about a hundred points and read as three
+        // unrelated remarks rather than one account of where the car was.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _HelperBlock(lines: _helperLines(l10n, check, last)),
+            ),
+            if (_offersEstimate)
+              _EstimateChip(
+                estimate: estimate!,
+                unit: unit,
+                formatsTag: formatsTag,
+                onTap: () => _fill(estimate!),
+              ),
+          ],
+        ),
         if (check case OdometerFieldOk(isNewEarliest: true))
           Text(l10n.logOdometerOlderThanAnything),
-        if (_delta(l10n, check, last) case final delta?) Text(delta),
       ],
     );
   }
@@ -228,7 +241,55 @@ class OdometerField extends StatelessWidget {
     onChanged(controller.text);
   }
 
-  /// The helper line: the last entered reading, and its age when it is stale.
+  /// The helper block: what was last entered, and how far this entry is above
+  /// it.
+  ///
+  /// TWO lines, because the artboard draws two: "Last entered 186,743 km" and
+  /// "12 August · +669 km". The delta belongs on the second one rather than in
+  /// a row of its own — it is a fact about the same reading, and §10 calls it
+  /// "the cheapest possible check on a dropped digit", which only works if it
+  /// sits where the eye already is.
+  List<String> _helperLines(
+    AppLocalizations l10n,
+    OdometerFieldCheck? check,
+    ReadingPoint? last,
+  ) {
+    final first = _helper(l10n, last);
+    if (first == null) return const [];
+    final since = _sinceLine(l10n, check, last);
+    return [first, ?since];
+  }
+
+  /// `12 August · +669 km`, or just `12 August` before anything is typed.
+  ///
+  /// The DATE is always there once there is a reading to date. It is half of
+  /// what the helper is for — "was that a few weeks ago or a few months" — and
+  /// an earlier version dropped it whenever the delta was absent, which is
+  /// exactly when the field is empty and the user has the least context.
+  String? _sinceLine(
+    AppLocalizations l10n,
+    OdometerFieldCheck? check,
+    ReadingPoint? last,
+  ) {
+    if (last == null) return null;
+    final date = formatDayMonth(last.occurredOn, formatsTag);
+    final since = check is OdometerFieldOk ? check.sinceLast : null;
+    if (since == null) return date;
+    return l10n.logOdometerSince(
+      date,
+      isolate(
+        withUnitUnisolated(
+          since.inUnit(unit),
+          distanceUnitLabel(l10n, unit),
+          formatsTag,
+          numerals: CalmNumerals.auto,
+          decimalDigits: 0,
+        ),
+      ),
+    );
+  }
+
+  /// The helper's first line: the last entered reading, and its age when stale.
   String? _helper(AppLocalizations l10n, ReadingPoint? last) {
     if (last == null) return null;
 
@@ -254,7 +315,9 @@ class OdometerField extends StatelessWidget {
         ),
       );
     }
-    return l10n.logOdometerLastEntered(distance, date);
+    // The DATE moves to the second line, beside the delta, so the first line
+    // is the reading alone.
+    return l10n.logOdometerLastEnteredShort(distance);
   }
 
   /// The reading immediately before this entry's date, if there is one.
@@ -265,23 +328,6 @@ class OdometerField extends StatelessWidget {
     if (earlier.isEmpty) return null;
     earlier.sort(compareReadings);
     return earlier.last;
-  }
-
-  String? _delta(
-    AppLocalizations l10n,
-    OdometerFieldCheck? check,
-    ReadingPoint? last,
-  ) {
-    if (check is! OdometerFieldOk) return null;
-    final since = check.sinceLast;
-    if (since == null || last == null) return null;
-    return odometerDeltaLine(
-      l10n,
-      delta: since,
-      sinceOccurredOn: last.occurredOn,
-      unit: unit,
-      formatsTag: formatsTag,
-    );
   }
 
   /// The field's one message line.
@@ -417,6 +463,32 @@ class _EstimateChip extends StatelessWidget {
         ),
         onTap: onTap,
       ),
+    );
+  }
+}
+
+/// The odometer helper's one or two lines.
+///
+/// A block and not a `CalmField.hint`, because the artboard puts the estimate
+/// chip BESIDE it: a hint renders under the field at full width, which leaves
+/// the chip nowhere to go but a row of its own.
+class _HelperBlock extends StatelessWidget {
+  const _HelperBlock({required this.lines});
+
+  final List<String> lines;
+
+  @override
+  Widget build(BuildContext context) {
+    if (lines.isEmpty) return const SizedBox.shrink();
+    final colors = CalmColors.of(context);
+    final type = CalmType.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final line in lines)
+          Text(line, style: type.caption.copyWith(color: colors.ink3)),
+      ],
     );
   }
 }

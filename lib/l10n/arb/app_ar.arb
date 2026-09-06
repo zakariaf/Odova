@@ -298,6 +298,8 @@
   "logOdometerLastEntered": "آخر إدخال {distance} في {date}",
   "logOdometerLastEnteredStale": "{days, plural, zero{آخر إدخال {distance} في {date} — قبل {daysText} يوم} one{آخر إدخال {distance} في {date} — قبل يوم واحد} two{آخر إدخال {distance} في {date} — قبل يومين} few{آخر إدخال {distance} في {date} — قبل {daysText} أيام} many{آخر إدخال {distance} في {date} — قبل {daysText} يومًا} other{آخر إدخال {distance} في {date} — قبل {daysText} يوم}}",
   "logOdometerEstimateChip": "{value} الآن",
+  "logOdometerLastEnteredShort": "آخر إدخال {distance}",
+  "logOdometerSince": "{date} · +{distance}",
   "logOdometerDelta": "+{distance} منذ {date}",
   "logOdometerOlderThanAnything": "أقدم من كل ما هو مسجَّل. ستصبح هذه أقدم قراءة لديك.",
   "logOdometerBelowLastTitle": "هذه القراءة أقل من قراءتك الأخيرة",

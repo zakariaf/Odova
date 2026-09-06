@@ -86,10 +86,12 @@ void main() {
   ) async {
     await _pump(tester, existing: [_reading('2026-03-12', 186980)]);
 
-    // The helper line is the field's `hint`, not a sibling Text.
-    final hint = _field(tester).hint;
-    expect(hint, contains('186,980'));
-    expect(hint, contains('March'));
+    // The helper is a two-line block beside the estimate chip, not the
+    // field's `hint` — a hint renders at full width under the field and leaves
+    // the chip nowhere to go but a row of its own, which is not what the
+    // artboard draws.
+    expect(find.textContaining('186,980'), findsOneWidget);
+    expect(find.textContaining('March'), findsWidgets);
   });
 
   testWidgets('tapping the estimate chip fills the field', (tester) async {
@@ -120,7 +122,7 @@ void main() {
     );
 
     expect(find.byKey(kOdometerEstimateChipKey), findsNothing);
-    expect(_field(tester).hint, contains('174'));
+    expect(find.textContaining('174'), findsWidgets);
   });
 
   testWidgets('the live delta appears once a value is entered', (tester) async {
@@ -142,7 +144,11 @@ void main() {
     await _pump(tester, text: '187412');
 
     expect(find.byKey(kOdometerEstimateChipKey), findsNothing);
-    expect(_field(tester).hint, isNull);
+    expect(
+      find.textContaining('Last entered'),
+      findsNothing,
+      reason: 'a vehicle first reading has nothing behind it to describe',
+    );
   });
 
   testWidgets('a below-last value is not drawn as an inline error', (

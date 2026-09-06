@@ -298,6 +298,8 @@
   "logOdometerLastEntered": "‏ deretne tsaL{distance} no {date}",
   "logOdometerLastEnteredStale": "‏{days, plural, one{ deretne tsaL{distance} no {date} — {daysText}oga yad } other{ deretne tsaL{distance} no {date} — {daysText}oga syad }}",
   "logOdometerEstimateChip": "‏{value}won ",
+  "logOdometerLastEnteredShort": "‏ deretne tsaL{distance}",
+  "logOdometerSince": "‏{date}+ · {distance}",
   "logOdometerDelta": "‏+{distance} ecnis {date}",
   "logOdometerOlderThanAnything": "‏.gnidaer tseilrae ruoy semoceb sihT .deggol gnihtyna naht redlO",
   "logOdometerBelowLastTitle": "‏eno tsal ruoy naht rewol si gnidaer sihT",

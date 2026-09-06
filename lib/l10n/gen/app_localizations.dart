@@ -1910,6 +1910,18 @@ abstract class AppLocalizations {
   /// **'{value} now'**
   String logOdometerEstimateChip(String value);
 
+  /// The odometer helper's FIRST line: the last entered reading, with no date. The date moves to logOdometerSince, which carries the delta beside it — the artboard draws the two as a two-line block with the estimate chip alongside, not as three stacked rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entered {distance}'**
+  String logOdometerLastEnteredShort(String distance);
+
+  /// The odometer helper's SECOND line: the last reading's date and how far the entry is above it, joined by a middot. The + is literal, exactly as logOdometerDelta carries it — the delta is always an increase here, and a bare number reads as the reading itself rather than the gap. Both halves are already formatted and isolate-wrapped by the caller.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · +{distance}'**
+  String logOdometerSince(String date, String distance);
+
   /// The live delta above the last reading — SPEC.md §10 calls it 'the cheapest possible check on a dropped digit'. One isolate-wrapped atom so the sign never detaches from the number.
   ///
   /// In en, this message translates to:
