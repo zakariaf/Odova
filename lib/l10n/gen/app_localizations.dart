@@ -2059,6 +2059,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The end date is before the start date.'**
   String get logExpenseCoversError;
+
+  /// §10's logFillUpQuantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get logFillUpQuantityLabel;
+
+  /// The middle field of §10's price trio. The UNIT is interpolated because it changes with the fuel kind — litres, kilograms or kilowatt-hours — and a translator must be able to move it.
+  ///
+  /// In en, this message translates to:
+  /// **'Price/{unit}'**
+  String logFillUpPricePerUnitLabel(String unit);
+
+  /// §10's logFillUpTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total paid'**
+  String get logFillUpTotalLabel;
+
+  /// §10's logFillUpFullTank.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled it up'**
+  String get logFillUpFullTank;
+
+  /// §10's logFillUpPartFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Part fill'**
+  String get logFillUpPartFill;
+
+  /// Shown when Part fill is chosen. §10 uses a two-option segmented control and not a checkbox: 'Not a full tank' as a negative checkbox is misread by a meaningful fraction of people, and this flag decides whether a consumption figure exists at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Part fills don\'t produce a figure on their own. This one gets added to your next full tank.'**
+  String get logFillUpPartFillHint;
+
+  /// Shown when fewer than two of the three money/volume fields carry a value.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how much fuel you put in, and either the price per litre or the total.'**
+  String get logFillUpTrioError;
+
+  /// §10's logFillUpQuantityError.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel must be more than zero.'**
+  String get logFillUpQuantityError;
+
+  /// §10's logFillUpPriceError.
+  ///
+  /// In en, this message translates to:
+  /// **'Price can\'t be negative.'**
+  String get logFillUpPriceError;
+
+  /// A negative total is refused; a zero one is not — a free fill-up is a real thing. [zero] is a PLACEHOLDER and not the digit, because a baked Latin 0 would sit in a sentence an fa or ckb user reads in Extended Arabic-Indic digits. The RTL translators spelled the word out to avoid exactly this; a placeholder lets every locale render its own numeral instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Total can\'t be negative. A free fill-up is {zero}.'**
+  String logFillUpTotalError(String zero);
+
+  /// One line above the form on a vehicle's first fill-up. SPEC.md §10: 'No empty chart, no zero, no placeholder.'
+  ///
+  /// In en, this message translates to:
+  /// **'Your first consumption figure arrives at your next full fill-up.'**
+  String get logFillUpFirstEver;
+
+  /// §10's logServiceWhatWasDone.
+  ///
+  /// In en, this message translates to:
+  /// **'What was done'**
+  String get logServiceWhatWasDone;
+
+  /// The caption under the item chips. It states what ticking DOES, because the consequence of a tick is a reminder resetting and that is invisible otherwise.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticking an item resets its reminder.'**
+  String get logServiceTickResets;
+
+  /// §10's logServiceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Other'**
+  String get logServiceOther;
+
+  /// §10's logServiceCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get logServiceCostLabel;
+
+  /// §10's logServiceSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Split the cost by item'**
+  String get logServiceSplit;
+
+  /// A negative cost is refused; zero is not — a warranty job really did cost nothing. See logFillUpTotalError for why [zero] is a placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost can\'t be negative. A warranty job is {zero}.'**
+  String logServiceCostError(String zero);
+
+  /// Shown for an empty cost. See logFillUpTotalError for why [zero] is a placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what it cost, or {zero}.'**
+  String logServiceCostEmptyError(String zero);
+
+  /// The label a service line takes when several items are ticked or none is. SPEC.md §10's cost model: un-split, the record is one line, and splitting one invoice across the ticked items would be inventing a breakdown the user did not give.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get logServiceGenericLine;
 }
 
 class _AppLocalizationsDelegate

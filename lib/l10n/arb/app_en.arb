@@ -2095,5 +2095,104 @@
   "logExpenseCoversError": "The end date is before the start date.",
   "@logExpenseCoversError": {
     "description": "Shown under To. The only ordering rule on this form; a FUTURE date is allowed, because prepaid insurance is real."
+  },
+  "logFillUpQuantityLabel": "Fuel",
+  "@logFillUpQuantityLabel": {
+    "description": "§10's logFillUpQuantityLabel."
+  },
+  "logFillUpPricePerUnitLabel": "Price/{unit}",
+  "@logFillUpPricePerUnitLabel": {
+    "description": "The middle field of §10's price trio. The UNIT is interpolated because it changes with the fuel kind — litres, kilograms or kilowatt-hours — and a translator must be able to move it.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "logFillUpTotalLabel": "Total paid",
+  "@logFillUpTotalLabel": {
+    "description": "§10's logFillUpTotalLabel."
+  },
+  "logFillUpFullTank": "Filled it up",
+  "@logFillUpFullTank": {
+    "description": "§10's logFillUpFullTank."
+  },
+  "logFillUpPartFill": "Part fill",
+  "@logFillUpPartFill": {
+    "description": "§10's logFillUpPartFill."
+  },
+  "logFillUpPartFillHint": "Part fills don't produce a figure on their own. This one gets added to your next full tank.",
+  "@logFillUpPartFillHint": {
+    "description": "Shown when Part fill is chosen. §10 uses a two-option segmented control and not a checkbox: 'Not a full tank' as a negative checkbox is misread by a meaningful fraction of people, and this flag decides whether a consumption figure exists at all."
+  },
+  "logFillUpTrioError": "Enter how much fuel you put in, and either the price per litre or the total.",
+  "@logFillUpTrioError": {
+    "description": "Shown when fewer than two of the three money/volume fields carry a value."
+  },
+  "logFillUpQuantityError": "Fuel must be more than zero.",
+  "@logFillUpQuantityError": {
+    "description": "§10's logFillUpQuantityError."
+  },
+  "logFillUpPriceError": "Price can't be negative.",
+  "@logFillUpPriceError": {
+    "description": "§10's logFillUpPriceError."
+  },
+  "logFillUpTotalError": "Total can't be negative. A free fill-up is {zero}.",
+  "@logFillUpTotalError": {
+    "description": "A negative total is refused; a zero one is not — a free fill-up is a real thing. [zero] is a PLACEHOLDER and not the digit, because a baked Latin 0 would sit in a sentence an fa or ckb user reads in Extended Arabic-Indic digits. The RTL translators spelled the word out to avoid exactly this; a placeholder lets every locale render its own numeral instead.",
+    "placeholders": {
+      "zero": {
+        "type": "String",
+        "example": "0"
+      }
+    }
+  },
+  "logFillUpFirstEver": "Your first consumption figure arrives at your next full fill-up.",
+  "@logFillUpFirstEver": {
+    "description": "One line above the form on a vehicle's first fill-up. SPEC.md §10: 'No empty chart, no zero, no placeholder.'"
+  },
+  "logServiceWhatWasDone": "What was done",
+  "@logServiceWhatWasDone": {
+    "description": "§10's logServiceWhatWasDone."
+  },
+  "logServiceTickResets": "Ticking an item resets its reminder.",
+  "@logServiceTickResets": {
+    "description": "The caption under the item chips. It states what ticking DOES, because the consequence of a tick is a reminder resetting and that is invisible otherwise."
+  },
+  "logServiceOther": "+ Other",
+  "@logServiceOther": {
+    "description": "§10's logServiceOther."
+  },
+  "logServiceCostLabel": "Cost",
+  "@logServiceCostLabel": {
+    "description": "§10's logServiceCostLabel."
+  },
+  "logServiceSplit": "Split the cost by item",
+  "@logServiceSplit": {
+    "description": "§10's logServiceSplit."
+  },
+  "logServiceCostError": "Cost can't be negative. A warranty job is {zero}.",
+  "@logServiceCostError": {
+    "description": "A negative cost is refused; zero is not — a warranty job really did cost nothing. See logFillUpTotalError for why [zero] is a placeholder.",
+    "placeholders": {
+      "zero": {
+        "type": "String",
+        "example": "0"
+      }
+    }
+  },
+  "logServiceCostEmptyError": "Enter what it cost, or {zero}.",
+  "@logServiceCostEmptyError": {
+    "description": "Shown for an empty cost. See logFillUpTotalError for why [zero] is a placeholder.",
+    "placeholders": {
+      "zero": {
+        "type": "String",
+        "example": "0"
+      }
+    }
+  },
+  "logServiceGenericLine": "Service",
+  "@logServiceGenericLine": {
+    "description": "The label a service line takes when several items are ticked or none is. SPEC.md §10's cost model: un-split, the record is one line, and splitting one invoice across the ticked items would be inventing a breakdown the user did not give."
   }
 }

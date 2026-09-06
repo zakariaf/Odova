@@ -1393,4 +1393,72 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get logExpenseCoversError => 'بەرواری کۆتایی پێش بەرواری دەستپێکە.';
+
+  @override
+  String get logFillUpQuantityLabel => 'سووتەمەنی';
+
+  @override
+  String logFillUpPricePerUnitLabel(String unit) {
+    return 'نرخ/$unit';
+  }
+
+  @override
+  String get logFillUpTotalLabel => 'کۆی دراو';
+
+  @override
+  String get logFillUpFullTank => 'تانکەکەم پڕکردەوە';
+
+  @override
+  String get logFillUpPartFill => 'پڕکردنەوەی بەشەکی';
+
+  @override
+  String get logFillUpPartFillHint =>
+      'پڕکردنەوەی بەشەکی بە تەنها ژمارە نادات. ئەمە بۆ تانکی پڕی داهاتووت زیاد دەکرێت.';
+
+  @override
+  String get logFillUpTrioError =>
+      'بنووسە چەند سووتەمەنیت کرد، و نرخی لیتر یان کۆی گشتی.';
+
+  @override
+  String get logFillUpQuantityError => 'بڕەکە دەبێت لە سفر زیاتر بێت.';
+
+  @override
+  String get logFillUpPriceError => 'نرخ ناتوانێت نەرێنی بێت.';
+
+  @override
+  String logFillUpTotalError(String zero) {
+    return 'کۆی گشتی ناتوانێت نەرێنی بێت. پڕکردنەوەی بێبەرامبەر $zeroە.';
+  }
+
+  @override
+  String get logFillUpFirstEver =>
+      'یەکەم ژمارەی خەرجکردنت لە پڕکردنەوەی تەواوی داهاتوودا دێت.';
+
+  @override
+  String get logServiceWhatWasDone => 'چی کرا';
+
+  @override
+  String get logServiceTickResets => 'نیشانەکردن بیرخەرەوەکە ڕێکدەخاتەوە.';
+
+  @override
+  String get logServiceOther => '+ ئەوانی تر';
+
+  @override
+  String get logServiceCostLabel => 'تێچوو';
+
+  @override
+  String get logServiceSplit => 'دابەشکردنی تێچوو بەپێی بەش';
+
+  @override
+  String logServiceCostError(String zero) {
+    return 'تێچوو ناتوانێت نەرێنی بێت. کاری گەرەنتی $zeroە.';
+  }
+
+  @override
+  String logServiceCostEmptyError(String zero) {
+    return 'تێچووەکە بنووسە، یان $zero.';
+  }
+
+  @override
+  String get logServiceGenericLine => 'خزمەتگوزاری';
 }

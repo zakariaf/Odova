@@ -9,13 +9,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/features/logging/application/log_modal_notifier.dart';
+import 'package:odova/features/logging/ui/log_expense_body.dart';
+import 'package:odova/features/logging/ui/log_fillup_body.dart';
 import 'package:odova/features/logging/ui/log_modal.dart';
+import 'package:odova/features/logging/ui/log_odometer_body.dart';
+import 'package:odova/features/logging/ui/log_service_body.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 
 import '../../app/routing/shell_harness.dart';
+import '../../support/device.dart';
 import '../home/home_fixture.dart';
 
 AppLocalizations _l10n(WidgetTester tester) =>
@@ -50,7 +55,7 @@ void main() {
     await _pump(tester);
 
     final segmented = tester.widget<CalmSegmented>(
-      find.byType(CalmSegmented).first,
+      find.byKey(kLogSegmentBarKey),
     );
     final l10n = _l10n(tester);
     expect(segmented.labels, [
@@ -73,7 +78,9 @@ void main() {
     );
 
     expect(find.byType(LogModalShell), findsOneWidget);
-    expect(find.byType(CalmSegmented), findsNothing);
+    // The segment BAR, by key. `log.fillup` draws its own segmented control
+    // for §10's full/part fill, so a type finder answers a different question.
+    expect(find.byKey(kLogSegmentBarKey), findsNothing);
   });
 
   testWidgets('edit mode reads its id from the path, not from extra', (
@@ -149,6 +156,10 @@ void main() {
       final bar = tester.widget<CalmAppBar>(find.byType(CalmAppBar));
       expect(bar.onEnd, isNotNull, reason: '${type.wire} app-bar Save');
 
+      // `log.odometer`'s pinned Save is the number pad's confirm key, which is
+      // not a CalmButton — so the block-button assertion is about the other
+      // three, and the app-bar assertion above covers all four.
+      if (type == LogType.odometer) continue;
       final pinned = tester
           .widgetList<CalmButton>(find.byType(CalmButton))
           .where((b) => b.block)
@@ -204,6 +215,22 @@ void main() {
 
     expect(find.byType(LogModalShell), findsOneWidget);
     expect(find.text(_l10n(tester).discardKeepEditing), findsOneWidget);
+  });
+
+  testWidgets('each segment renders its own body', (tester) async {
+    // The shell owns the chrome and the body owns the form; this is the seam
+    // between them. A segment that drew the wrong body would still pass every
+    // chrome assertion above it.
+    tester.useDevice(Device.tallForm);
+    for (final (type, matcher) in [
+      (LogType.fillUp, find.byType(LogFillUpBody)),
+      (LogType.service, find.byType(LogServiceBody)),
+      (LogType.expense, find.byType(LogExpenseBody)),
+      (LogType.odometer, find.byType(LogOdometerBody)),
+    ]) {
+      await _pump(tester, location: Routes.log(type));
+      expect(matcher, findsOneWidget, reason: type.wire);
+    }
   });
 
   testWidgets('the modal covers the tab bar on every segment', (tester) async {

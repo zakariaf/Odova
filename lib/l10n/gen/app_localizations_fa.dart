@@ -1388,4 +1388,72 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get logExpenseCoversError => 'تاریخ پایان پیش از تاریخ شروع است.';
+
+  @override
+  String get logFillUpQuantityLabel => 'سوخت';
+
+  @override
+  String logFillUpPricePerUnitLabel(String unit) {
+    return 'قیمت/$unit';
+  }
+
+  @override
+  String get logFillUpTotalLabel => 'مبلغ کل';
+
+  @override
+  String get logFillUpFullTank => 'باک را پر کردم';
+
+  @override
+  String get logFillUpPartFill => 'پر کردن جزئی';
+
+  @override
+  String get logFillUpPartFillHint =>
+      'پر کردن جزئی به‌تنهایی عددی نمی‌دهد. این یکی به باک پر بعدی اضافه می‌شود.';
+
+  @override
+  String get logFillUpTrioError =>
+      'بنویسید چقدر سوخت زدید، و قیمت هر لیتر یا مبلغ کل را.';
+
+  @override
+  String get logFillUpQuantityError => 'مقدار سوخت باید بیشتر از صفر باشد.';
+
+  @override
+  String get logFillUpPriceError => 'قیمت نمی‌تواند منفی باشد.';
+
+  @override
+  String logFillUpTotalError(String zero) {
+    return 'مبلغ کل نمی‌تواند منفی باشد. سوخت‌گیری رایگان $zero است.';
+  }
+
+  @override
+  String get logFillUpFirstEver =>
+      'اولین عدد مصرف شما در سوخت‌گیری کامل بعدی می‌آید.';
+
+  @override
+  String get logServiceWhatWasDone => 'چه کاری انجام شد';
+
+  @override
+  String get logServiceTickResets => 'تیک زدن یادآور را از نو تنظیم می‌کند.';
+
+  @override
+  String get logServiceOther => '+ موارد دیگر';
+
+  @override
+  String get logServiceCostLabel => 'هزینه';
+
+  @override
+  String get logServiceSplit => 'تقسیم هزینه بر اساس مورد';
+
+  @override
+  String logServiceCostError(String zero) {
+    return 'هزینه نمی‌تواند منفی باشد. کار گارانتی $zero است.';
+  }
+
+  @override
+  String logServiceCostEmptyError(String zero) {
+    return 'هزینه را بنویسید، یا $zero.';
+  }
+
+  @override
+  String get logServiceGenericLine => 'سرویس';
 }

@@ -1390,4 +1390,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logExpenseCoversError => 'The end date is before the start date.';
+
+  @override
+  String get logFillUpQuantityLabel => 'Fuel';
+
+  @override
+  String logFillUpPricePerUnitLabel(String unit) {
+    return 'Price/$unit';
+  }
+
+  @override
+  String get logFillUpTotalLabel => 'Total paid';
+
+  @override
+  String get logFillUpFullTank => 'Filled it up';
+
+  @override
+  String get logFillUpPartFill => 'Part fill';
+
+  @override
+  String get logFillUpPartFillHint =>
+      'Part fills don\'t produce a figure on their own. This one gets added to your next full tank.';
+
+  @override
+  String get logFillUpTrioError =>
+      'Enter how much fuel you put in, and either the price per litre or the total.';
+
+  @override
+  String get logFillUpQuantityError => 'Fuel must be more than zero.';
+
+  @override
+  String get logFillUpPriceError => 'Price can\'t be negative.';
+
+  @override
+  String logFillUpTotalError(String zero) {
+    return 'Total can\'t be negative. A free fill-up is $zero.';
+  }
+
+  @override
+  String get logFillUpFirstEver =>
+      'Your first consumption figure arrives at your next full fill-up.';
+
+  @override
+  String get logServiceWhatWasDone => 'What was done';
+
+  @override
+  String get logServiceTickResets => 'Ticking an item resets its reminder.';
+
+  @override
+  String get logServiceOther => '+ Other';
+
+  @override
+  String get logServiceCostLabel => 'Cost';
+
+  @override
+  String get logServiceSplit => 'Split the cost by item';
+
+  @override
+  String logServiceCostError(String zero) {
+    return 'Cost can\'t be negative. A warranty job is $zero.';
+  }
+
+  @override
+  String logServiceCostEmptyError(String zero) {
+    return 'Enter what it cost, or $zero.';
+  }
+
+  @override
+  String get logServiceGenericLine => 'Service';
 }

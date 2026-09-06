@@ -12,12 +12,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/features/logging/application/log_modal_notifier.dart';
+import 'package:odova/features/logging/domain/expense_draft.dart';
+import 'package:odova/features/logging/domain/price_trio.dart';
+import 'package:odova/features/logging/domain/service_cost_model.dart';
+import 'package:odova/features/logging/ui/log_expense_body.dart';
+import 'package:odova/features/logging/ui/log_fillup_body.dart';
+import 'package:odova/features/logging/ui/log_odometer_body.dart';
+import 'package:odova/features/logging/ui/log_service_body.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
+
+/// The segment bar, for the tests that must tell it from a body's own
+/// segmented control.
+///
+/// `log.fillup` draws a second one — §10's full/part fill — so "is there a
+/// `CalmSegmented`" stopped being the same question as "is the segment bar
+/// showing" the moment the bodies were wired in.
+const Key kLogSegmentBarKey = Key('log.segmentBar');
 
 /// The log modal, on whichever segment it was opened.
 class LogModalShell extends ConsumerStatefulWidget {
@@ -44,6 +61,52 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// live in the notifier because they must outlive a segment switch; which one
   /// is showing need not.
   late LogType _segment = widget.type;
+
+  PriceTrio _trio = const PriceTrio();
+  ServiceCostModel _cost = const ServiceCostModel();
+  ExpenseDraft _expense = const ExpenseDraft();
+  String _odometer = '';
+  bool _isFullTank = true;
+  String get _quantityUnit => 'L';
+
+  final Map<TrioField, TextEditingController> _trioControllers = {
+    for (final field in TrioField.values) field: TextEditingController(),
+  };
+  final TextEditingController _totalController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _labelController = TextEditingController();
+
+  @override
+  void dispose() {
+    for (final controller in _trioControllers.values) {
+      controller.dispose();
+    }
+    _totalController.dispose();
+    _amountController.dispose();
+    _labelController.dispose();
+    super.dispose();
+  }
+
+  /// One of the three was edited: recompute and write back the computed one.
+  ///
+  /// The controller for the COMPUTED field is updated here and nowhere else —
+  /// §10 forbids recomputing an edited field, so the one the user is typing in
+  /// is never touched and their caret never moves.
+  void _onTrioChanged(TrioField field, String text) {
+    setState(() {
+      _trio = _trio.edited(field, text);
+      final computed = _trio.computedField;
+      if (computed == null) return;
+      final value = switch (computed) {
+        TrioField.quantity => _trio.quantity,
+        TrioField.pricePerUnit => _trio.pricePerUnit,
+        TrioField.total => _trio.total,
+      };
+      if (_trioControllers[computed]!.text != value) {
+        _trioControllers[computed]!.text = value;
+      }
+    });
+  }
 
   /// Whether this modal edits an existing row.
   ///
@@ -87,18 +150,26 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
           // tells the user nothing about what it wants.
           onEnd: _save,
         ),
-        footer: CalmButton(
-          label: _saveLabel(l10n),
-          block: true,
-          size: CalmButtonSize.lg,
-          onPressed: _save,
-        ),
+        // No footer on `log.odometer`: §10 puts Save "in the app bar, and as a
+        // full-width primary button pinned above the keyboard", and on that
+        // screen the keypad IS the keyboard — its confirm key is that button,
+        // which is how the artboard draws it. A footer as well would be three
+        // Saves, two of them adjacent.
+        footer: _segment == LogType.odometer
+            ? null
+            : CalmButton(
+                label: _saveLabel(l10n),
+                block: true,
+                size: CalmButtonSize.lg,
+                onPressed: _save,
+              ),
         children: [
           // Create mode only: an entry cannot change type, so an edit that
           // offered the choice would be offering to delete this row and write
           // a different one.
           if (!_isEdit)
             CalmSegmented(
+              key: kLogSegmentBarKey,
               labels: [
                 l10n.logSegmentFillUp,
                 l10n.logSegmentService,
@@ -109,10 +180,61 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
               onChanged: (index) =>
                   setState(() => _segment = LogType.values[index]),
             ),
+          _body(),
         ],
       ),
     );
   }
+
+  /// The form for whichever segment is showing.
+  ///
+  /// The shell knows nothing about what any of them contains — it hands each
+  /// one its draft and its callbacks and gets a widget back. That is the seam
+  /// §10 is built around: "a segment body knows nothing about" the chrome, and
+  /// the chrome returns the compliment.
+  Widget _body() => switch (_segment) {
+    LogType.fillUp => LogFillUpBody(
+      trio: _trio,
+      quantityUnit: _quantityUnit,
+      isFullTank: _isFullTank,
+      controllers: _trioControllers,
+      onTrioChanged: _onTrioChanged,
+      onFullTankChanged: (full) => setState(() => _isFullTank = full),
+    ),
+    LogType.service => LogServiceBody(
+      items: const [],
+      cost: _cost,
+      totalController: _totalController,
+      onToggleItem: (_) {},
+      onAddOther: () {},
+      onTotalChanged: (text) => setState(() => _cost = _cost.withTotal(text)),
+      onSplitChanged: (on) =>
+          setState(() => _cost = on ? _cost.split() : _cost),
+    ),
+    LogType.expense => LogExpenseBody(
+      draft: _expense,
+      categoryLabel: (c) => c.wire,
+      amountController: _amountController,
+      labelController: _labelController,
+      onCategoryChanged: (c) =>
+          setState(() => _expense = _expense.withCategory(c)),
+      onAmountChanged: (text) =>
+          setState(() => _expense = _expense.withAmount(text)),
+      onLabelChanged: (text) =>
+          setState(() => _expense = _expense.withLabel(text)),
+      onRefundChanged: (on) =>
+          setState(() => _expense = on ? _expense.refunded() : _expense),
+    ),
+    LogType.odometer => LogOdometerBody(
+      value: _odometer,
+      unit: DistanceUnit.km,
+      formatsTag: 'en',
+      occurredOn: '',
+      onValueChanged: (v) => setState(() => _odometer = v),
+      onSave: _save,
+      onPickDate: () {},
+    ),
+  };
 
   /// The modal's title: the form's own name in create mode, the record's in
   /// edit mode.

@@ -1399,4 +1399,72 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get logExpenseCoversError => 'Das Enddatum liegt vor dem Startdatum.';
+
+  @override
+  String get logFillUpQuantityLabel => 'Kraftstoff';
+
+  @override
+  String logFillUpPricePerUnitLabel(String unit) {
+    return 'Preis/$unit';
+  }
+
+  @override
+  String get logFillUpTotalLabel => 'Gesamtbetrag';
+
+  @override
+  String get logFillUpFullTank => 'Vollgetankt';
+
+  @override
+  String get logFillUpPartFill => 'Teilbetankung';
+
+  @override
+  String get logFillUpPartFillHint =>
+      'Teilbetankungen ergeben allein keinen Wert. Diese wird Ihrer nächsten Volltankung zugerechnet.';
+
+  @override
+  String get logFillUpTrioError =>
+      'Geben Sie ein, wie viel Sie getankt haben, und entweder den Literpreis oder den Gesamtbetrag.';
+
+  @override
+  String get logFillUpQuantityError => 'Die Menge muss größer als null sein.';
+
+  @override
+  String get logFillUpPriceError => 'Der Preis darf nicht negativ sein.';
+
+  @override
+  String logFillUpTotalError(String zero) {
+    return 'Der Gesamtbetrag darf nicht negativ sein. Eine kostenlose Tankfüllung ist $zero.';
+  }
+
+  @override
+  String get logFillUpFirstEver =>
+      'Ihr erster Verbrauchswert kommt bei der nächsten Volltankung.';
+
+  @override
+  String get logServiceWhatWasDone => 'Was wurde gemacht';
+
+  @override
+  String get logServiceTickResets => 'Ein Häkchen setzt die Erinnerung zurück.';
+
+  @override
+  String get logServiceOther => '+ Sonstiges';
+
+  @override
+  String get logServiceCostLabel => 'Kosten';
+
+  @override
+  String get logServiceSplit => 'Kosten nach Position aufteilen';
+
+  @override
+  String logServiceCostError(String zero) {
+    return 'Die Kosten dürfen nicht negativ sein. Eine Garantiearbeit ist $zero.';
+  }
+
+  @override
+  String logServiceCostEmptyError(String zero) {
+    return 'Geben Sie die Kosten ein, oder $zero.';
+  }
+
+  @override
+  String get logServiceGenericLine => 'Service';
 }

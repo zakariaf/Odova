@@ -1488,4 +1488,72 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logExpenseCoversError => 'تاريخ الانتهاء قبل تاريخ البدء.';
+
+  @override
+  String get logFillUpQuantityLabel => 'الوقود';
+
+  @override
+  String logFillUpPricePerUnitLabel(String unit) {
+    return 'السعر/$unit';
+  }
+
+  @override
+  String get logFillUpTotalLabel => 'المبلغ المدفوع';
+
+  @override
+  String get logFillUpFullTank => 'ملأت الخزان';
+
+  @override
+  String get logFillUpPartFill => 'تعبئة جزئية';
+
+  @override
+  String get logFillUpPartFillHint =>
+      'التعبئة الجزئية لا تعطي رقمًا بمفردها. ستُضاف إلى خزانك الممتلئ التالي.';
+
+  @override
+  String get logFillUpTrioError =>
+      'أدخل كمية الوقود، ثم سعر اللتر أو المبلغ الإجمالي.';
+
+  @override
+  String get logFillUpQuantityError => 'يجب أن تكون الكمية أكبر من صفر.';
+
+  @override
+  String get logFillUpPriceError => 'لا يمكن أن يكون السعر سالبًا.';
+
+  @override
+  String logFillUpTotalError(String zero) {
+    return 'لا يمكن أن يكون المبلغ سالبًا. التعبئة المجانية $zero.';
+  }
+
+  @override
+  String get logFillUpFirstEver =>
+      'سيصل أول رقم استهلاك عند التعبئة الكاملة القادمة.';
+
+  @override
+  String get logServiceWhatWasDone => 'ما الذي تم عمله';
+
+  @override
+  String get logServiceTickResets => 'وضع علامة يعيد ضبط التذكير.';
+
+  @override
+  String get logServiceOther => '+ أخرى';
+
+  @override
+  String get logServiceCostLabel => 'التكلفة';
+
+  @override
+  String get logServiceSplit => 'تقسيم التكلفة حسب البند';
+
+  @override
+  String logServiceCostError(String zero) {
+    return 'لا يمكن أن تكون التكلفة سالبة. العمل تحت الضمان $zero.';
+  }
+
+  @override
+  String logServiceCostEmptyError(String zero) {
+    return 'أدخل التكلفة، أو $zero.';
+  }
+
+  @override
+  String get logServiceGenericLine => 'الصيانة';
 }
