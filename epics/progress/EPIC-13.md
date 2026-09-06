@@ -104,3 +104,15 @@
   §7's one exception is asserted rather than asserted-in-a-comment: the test
   reads `activeVehicleIdProvider` across a toggle and expects it unchanged.
   Five mutations checked.
+- **Task 13.6 (complete).** `FuelInsights` composes EPIC-06's engines and adds
+  §12's money figures. Every average is TOTAL over TOTAL — the fixture is a
+  40 km tank and a 900 km one, where the mean of means reads 13.0 L/100 km
+  against a true 6.6, and the test names that number so the failure is
+  legible rather than "close to". A segment whose contributing fills mix
+  currencies contributes volume and distance but NO money, and is counted so
+  the screen can say why a money figure is thinner than the consumption figure
+  beside it — the exclusion lives in the core so a second screen cannot forget
+  it. `costedFillIds` is exposed precisely so the segment-boundary off-by-one
+  is visible: the epic calls it the most common bug in this category, and it
+  is invisible in the resulting figure. Four mutations checked, including that
+  one.
