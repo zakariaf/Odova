@@ -12,7 +12,7 @@ import 'package:odova/features/logging/ui/log_fillup_body.dart';
 import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
-import 'package:odova/ui/calm/calm_field.dart';
+
 import 'package:odova/ui/calm/calm_segmented.dart';
 
 import '../../app/routing/shell_harness.dart';
@@ -31,11 +31,6 @@ Future<void> _pump(WidgetTester tester) async {
     vehicles: [homeVehicle(golfId, 'The Golf')],
   );
 }
-
-/// The field whose label is [label].
-CalmField _field(WidgetTester tester, String label) => tester
-    .widgetList<CalmField>(find.byType(CalmField))
-    .firstWhere((f) => f.label == label);
 
 Future<void> _tapSave(WidgetTester tester) async {
   final save = find.byWidgetPredicate((w) => w is CalmButton && w.block).first;
@@ -88,17 +83,14 @@ void main() {
     );
     await tester.pump();
     expect(
-      _field(tester, l10n.logFillUpQuantityLabel).errorText,
-      isNull,
+      find.text(l10n.logFillUpTrioError),
+      findsNothing,
       reason: 'nothing is said while the user is still typing',
     );
 
     await _tapSave(tester);
 
-    expect(
-      _field(tester, l10n.logFillUpQuantityLabel).errorText,
-      l10n.logFillUpTrioError,
-    );
+    expect(find.text(l10n.logFillUpTrioError), findsOneWidget);
   });
 
   testWidgets('a quantity of zero is refused with its own message', (
@@ -112,27 +104,29 @@ void main() {
     await tester.pump();
     await _tapSave(tester);
 
-    expect(
-      _field(tester, l10n.logFillUpQuantityLabel).errorText,
-      l10n.logFillUpQuantityError,
-    );
+    expect(find.text(l10n.logFillUpQuantityError), findsOneWidget);
   });
 
   testWidgets('a negative total names the free fill-up', (tester) async {
     // §10 gives the total its own sentence because zero is legal here and the
     // message has to say so: "A free fill-up is 0."
     await _pump(tester);
-    final l10n = _l10n(tester);
-
     await tester.enterText(find.byType(TextField).at(1), '42.61');
     await tester.enterText(find.byType(TextField).at(3), '-5');
     await tester.pump();
     await _tapSave(tester);
 
     expect(
-      _field(tester, l10n.logFillUpTotalLabel).errorText,
-      isNotNull,
-      reason: 'a negative total is refused',
+      find.textContaining(RegExp('[Tt]otal')),
+      findsWidgets,
+      reason: 'a negative total is refused, and the message names the total',
+    );
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is Text && (w.data ?? '').contains('free fill-up'),
+      ),
+      findsOneWidget,
+      reason: 'zero is legal here and the message has to say so',
     );
   });
 

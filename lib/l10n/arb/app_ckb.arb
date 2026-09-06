@@ -286,6 +286,8 @@
   "logDeleteExpense": "سڕینەوەی ئەم تێچووە",
   "logDeleteOdometer": "سڕینەوەی ئەم خوێندنەوەیە",
   "logDiscardSummary": "ئەوەی نووسیوتە",
+  "logDateLabel": "بەروار",
+  "logOdometerLabel": "کیلۆمەترپێو",
   "logDateFutureError": "ئەمڕۆ یان ڕۆژێکی ڕابردوو هەڵبژێرە.",
   "logOdometerRequiredError": "خوێندنەوەی کیلۆمەتر بنووسە.",
   "logNumberUnclearError": "ئەم ژمارەیە ڕوون نییە. وەک {example} بنووسە.",

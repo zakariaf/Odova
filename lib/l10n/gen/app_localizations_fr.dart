@@ -1280,6 +1280,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logDiscardSummary => 'ce que vous avez saisi';
 
   @override
+  String get logDateLabel => 'Date';
+
+  @override
+  String get logOdometerLabel => 'Compteur';
+
+  @override
   String get logDateFutureError => 'Choisissez aujourd’hui ou un jour passé.';
 
   @override

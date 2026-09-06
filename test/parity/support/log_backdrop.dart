@@ -12,6 +12,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
+import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/repositories/due_snapshot_provider.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/logging/ui/log_modal.dart';
@@ -42,7 +46,31 @@ Widget logBackdrop({
       ]),
     ),
     vehicleDueSnapshotProvider(golfId).overrideWithValue(
-      homeSnapshot(const [], estimate: homeEstimate(187412)),
+      homeSnapshot(const [], estimate: homeEstimate(187380)),
+    ),
+    // The artboard's own history: "Last entered 186,743 km / 12 August". The
+    // odometer field draws its helper line, its delta and its estimate chip
+    // from these, so a capture without them photographs a field whose whole
+    // rule engine is inert — which is what the first four captures did, and
+    // why the band profile could not match a reference that has those rows.
+    odometerReadingsProvider(golfId).overrideWith(
+      (ref) => Stream.value([
+        OdometerReading(
+          id: OdometerReadingId.tryParse(
+            'odo_01JQ8ZK3M7F0R6XN2E9TB4HCVA',
+          )!,
+          vehicleId: golfId,
+          occurredOn: '2026-08-12',
+          odometer: const Distance.fromKm(186743),
+          odometerUnit: DistanceUnit.km,
+          source: OdometerSource.manual,
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+        ),
+      ]),
+    ),
+    odometerCorrectionsProvider(golfId).overrideWith(
+      (ref) => Stream.value(const []),
     ),
     latestFillUpProvider(golfId).overrideWith((ref) => Stream.value(null)),
     serviceRecordsProvider(

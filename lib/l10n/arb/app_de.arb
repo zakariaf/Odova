@@ -286,6 +286,8 @@
   "logDeleteExpense": "Diese Ausgabe löschen",
   "logDeleteOdometer": "Diese Ablesung löschen",
   "logDiscardSummary": "was Sie eingegeben haben",
+  "logDateLabel": "Datum",
+  "logOdometerLabel": "Kilometerstand",
   "logDateFutureError": "Wählen Sie heute oder einen Tag in der Vergangenheit.",
   "logOdometerRequiredError": "Geben Sie den Kilometerstand ein.",
   "logNumberUnclearError": "Diese Zahl ist nicht eindeutig. Versuchen Sie es mit {example}.",

@@ -158,7 +158,7 @@ class OdometerField extends StatelessWidget {
       spacing: space.s2,
       children: [
         CalmField(
-          label: l10n.odometerNowLabel,
+          label: l10n.logOdometerLabel,
           controller: controller,
           numeric: true,
           keyboardType: TextInputType.number,

@@ -286,6 +286,8 @@
   "logDeleteExpense": "حذف این هزینه",
   "logDeleteOdometer": "حذف این عدد کیلومتر",
   "logDiscardSummary": "آنچه نوشته‌اید",
+  "logDateLabel": "تاریخ",
+  "logOdometerLabel": "کیلومترشمار",
   "logDateFutureError": "امروز یا روزی در گذشته را انتخاب کنید.",
   "logOdometerRequiredError": "عدد کیلومترشمار را وارد کنید.",
   "logNumberUnclearError": "این عدد روشن نیست. مثلاً {example} بنویسید.",

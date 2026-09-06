@@ -286,6 +286,8 @@
   "logDeleteExpense": "‏esnepxe siht eteleD",
   "logDeleteOdometer": "‏gnidaer siht eteleD",
   "logDiscardSummary": "‏depyt evah uoy tahw",
+  "logDateLabel": "‏etaD",
+  "logOdometerLabel": "‏retemodO",
   "logDateFutureError": "‏.tsap eht ni yad a ro yadot kciP",
   "logOdometerRequiredError": "‏.gnidaer retemodo eht retnE",
   "logNumberUnclearError": "‏ yrT .raelc t'nsi rebmun tahT{example}.",

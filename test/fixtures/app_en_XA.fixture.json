@@ -286,6 +286,8 @@
   "logDeleteExpense": "[Ḍḗŀḗţḗ ţħīŝ ḗẋƥḗǹŝḗ ǃǃǃǃǃǃǃǃ]",
   "logDeleteOdometer": "[Ḍḗŀḗţḗ ţħīŝ řḗáḍīǹḡ ǃǃǃǃǃǃǃǃ]",
   "logDiscardSummary": "[ẇħáţ ẏǿǔ ħáṽḗ ţẏƥḗḍ ǃǃǃǃǃǃǃǃ]",
+  "logDateLabel": "[Ḍáţḗ ǃǃ]",
+  "logOdometerLabel": "[Ǿḍǿḿḗţḗř ǃǃǃǃ]",
   "logDateFutureError": "[Ƥīçķ ţǿḍáẏ ǿř á ḍáẏ īǹ ţħḗ ƥáŝţ. ǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "logOdometerRequiredError": "[Ḗǹţḗř ţħḗ ǿḍǿḿḗţḗř řḗáḍīǹḡ. ǃǃǃǃǃǃǃǃǃǃǃ]",
   "logNumberUnclearError": "[Ţħáţ ǹǔḿḅḗř īŝǹ'ţ çŀḗář. Ţřẏ {example}. ǃǃǃǃǃǃǃǃǃǃǃǃ]",

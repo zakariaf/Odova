@@ -1244,6 +1244,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get logDiscardSummary => 'آنچه نوشته‌اید';
 
   @override
+  String get logDateLabel => 'تاریخ';
+
+  @override
+  String get logOdometerLabel => 'کیلومترشمار';
+
+  @override
   String get logDateFutureError => 'امروز یا روزی در گذشته را انتخاب کنید.';
 
   @override

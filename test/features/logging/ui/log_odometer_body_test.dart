@@ -58,7 +58,7 @@ class _HostState extends State<_Host> {
     value: _value,
     unit: DistanceUnit.km,
     formatsTag: 'en',
-    dateRow: const CalmRowGroup(
+    navRows: const CalmRowGroup(
       rows: [
         CalmListRow(
           title: 'Date',

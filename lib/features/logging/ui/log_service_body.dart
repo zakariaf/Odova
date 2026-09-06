@@ -21,8 +21,7 @@ class LogServiceBody extends StatelessWidget {
   /// Creates the body.
   const LogServiceBody({
     required this.odometer,
-    required this.dateRow,
-    required this.moreRow,
+    required this.navRows,
     required this.items,
     required this.cost,
     required this.totalController,
@@ -37,8 +36,12 @@ class LogServiceBody extends StatelessWidget {
   /// §10's shared odometer field, built by the shell. See `LogFillUpBody`.
   final Widget odometer;
 
-  /// The date row, likewise.
-  final Widget dateRow;
+  /// §10's Date row, and the More row under it where there is one.
+  ///
+  /// ONE widget and not two slots: the artboard draws them as a single card
+  /// with a divider, and the shell builds it so the four bodies cannot
+  /// disagree about the grouping.
+  final Widget navRows;
 
   /// The vehicle's active items, already sorted overdue → due → due soon → ok.
   ///
@@ -68,9 +71,6 @@ class LogServiceBody extends StatelessWidget {
   /// The Total's one message.
   final String? costError;
 
-  /// §10's More section, built by the shell so all three agree.
-  final Widget moreRow;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -84,7 +84,7 @@ class LogServiceBody extends StatelessWidget {
         // §10 puts the date first on this form and the odometer second — a
         // service is usually logged after the fact, so WHEN is the question the
         // user is answering.
-        dateRow,
+        navRows,
         odometer,
         CalmLabelled(
           label: l10n.logServiceWhatWasDone,
@@ -128,7 +128,6 @@ class LogServiceBody extends StatelessWidget {
             ),
           ],
         ),
-        moreRow,
       ],
     );
   }

@@ -286,6 +286,8 @@
   "logDeleteExpense": "Supprimer cette dépense",
   "logDeleteOdometer": "Supprimer ce relevé",
   "logDiscardSummary": "ce que vous avez saisi",
+  "logDateLabel": "Date",
+  "logOdometerLabel": "Compteur",
   "logDateFutureError": "Choisissez aujourd’hui ou un jour passé.",
   "logOdometerRequiredError": "Saisissez le relevé du compteur.",
   "logNumberUnclearError": "Ce nombre n’est pas clair. Essayez {example}.",

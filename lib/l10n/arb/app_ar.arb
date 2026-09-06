@@ -286,6 +286,8 @@
   "logDeleteExpense": "حذف هذه التكلفة",
   "logDeleteOdometer": "حذف هذه القراءة",
   "logDiscardSummary": "ما كتبته",
+  "logDateLabel": "التاريخ",
+  "logOdometerLabel": "العدّاد",
   "logDateFutureError": "اختر اليوم أو يومًا مضى.",
   "logOdometerRequiredError": "أدخل قراءة العدّاد.",
   "logNumberUnclearError": "هذا الرقم غير واضح. جرّب {example}.",

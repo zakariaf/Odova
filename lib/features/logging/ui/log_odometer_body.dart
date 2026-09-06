@@ -26,7 +26,7 @@ class LogOdometerBody extends StatelessWidget {
     required this.value,
     required this.unit,
     required this.formatsTag,
-    required this.dateRow,
+    required this.navRows,
     required this.onValueChanged,
     required this.onSave,
     super.key,
@@ -43,8 +43,12 @@ class LogOdometerBody extends StatelessWidget {
   /// The tag numbers and dates are shaped by.
   final String formatsTag;
 
-  /// §10's date row, built by the shell like every other form's.
-  final Widget dateRow;
+  /// §10's Date row, and the More row under it where there is one.
+  ///
+  /// ONE widget and not two slots: the artboard draws them as a single card
+  /// with a divider, and the shell builds it so the four bodies cannot
+  /// disagree about the grouping.
+  final Widget navRows;
 
   /// The last entered reading, or null on a vehicle's first.
   final Distance? lastReading;
@@ -68,7 +72,7 @@ class LogOdometerBody extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: space.s4,
       children: [
-        dateRow,
+        navRows,
         CalmNumberPad(
           value: _display,
           unit: distanceUnitLabel(l10n, unit),

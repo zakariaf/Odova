@@ -1868,6 +1868,14 @@
   "@logDiscardSummary": {
     "description": "The summary half of dialog.discard when the log modal is dismissed dirty. Deliberately vague where the vehicle editor is specific: the modal holds four independent drafts and naming them all would be a list, not a sentence."
   },
+  "logDateLabel": "Date",
+  "@logDateLabel": {
+    "description": "\u00a710's date row on all four log forms. NOT reminderOnceOnDate, which is reminders.edit's 'Or once, on date' and reads as a schedule choice rather than the day this happened."
+  },
+  "logOdometerLabel": "Odometer",
+  "@logOdometerLabel": {
+    "description": "\u00a710's odometer field label on the log forms, per the field table and the artboard. Distinct from odometerNowLabel ('Odometer now'), which CalmOdometerInput uses where the point is that the reading is being taken RIGHT NOW."
+  },
   "logDateFutureError": "Pick today or a day in the past.",
   "@logDateFutureError": {
     "description": "SPEC.md §10, verbatim. Shown under the date row on the fill-up, service and odometer forms. NOT on log.expense, where a future date is legitimate — prepaid insurance is real."

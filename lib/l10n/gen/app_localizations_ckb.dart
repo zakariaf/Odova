@@ -1248,6 +1248,12 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get logDiscardSummary => 'ئەوەی نووسیوتە';
 
   @override
+  String get logDateLabel => 'بەروار';
+
+  @override
+  String get logOdometerLabel => 'کیلۆمەترپێو';
+
+  @override
   String get logDateFutureError => 'ئەمڕۆ یان ڕۆژێکی ڕابردوو هەڵبژێرە.';
 
   @override

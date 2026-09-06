@@ -19,9 +19,11 @@ import 'package:odova/app/today.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/due_summary.dart';
+import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -367,9 +369,8 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       LogType.fillUp => _fillUpBody(l10n),
       LogType.service => LogServiceBody(
         odometer: _odometerField(),
-        dateRow: _dateRow(),
+        navRows: _dateAndMoreRows(l10n),
         items: _itemChips(),
-        moreRow: _moreRow(l10n),
         cost: _cost,
         totalController: _totalController,
         onToggleItem: _toggleItem,
@@ -383,7 +384,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         value: _odometer,
         unit: DistanceUnit.km,
         formatsTag: _formatsTag,
-        dateRow: _dateRow(),
+        navRows: _dateAndMoreRows(l10n),
         onValueChanged: (v) => setState(() => _odometer = v),
         onSave: _save,
       ),
@@ -405,9 +406,8 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
     return LogFillUpBody(
       odometer: _odometerField(),
-      dateRow: _dateRow(),
+      navRows: _dateAndMoreRows(l10n),
       trio: _fillUp.trio,
-      moreRow: _moreRow(l10n),
       quantityUnit: _quantityUnit,
       isFullTank: _fillUp.isFullTank,
       controllers: _trioControllers,
@@ -534,7 +534,6 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     final problems = _expense.problems().toSet();
     return LogExpenseBody(
       draft: _expense,
-      moreRow: _moreRow(l10n),
       categoryLabel: (c) => expenseCategoryLabel(l10n, c),
       amountController: _amountController,
       labelController: _labelController,
@@ -562,50 +561,48 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// `log.service` and `log.odometer`" — and three bodies each constructing
   /// their own would be three chances to disagree about the reading history it
   /// compares against.
-  Widget _odometerField() => OdometerField(
-    controller: _odometerController,
-    unit: DistanceUnit.km,
-    existing: const [],
-    corrections: const [],
-    occurredOn: _occurredOn,
-    formatsTag: _formatsTag,
-    onChanged: (_) => setState(() {}),
-    onUnitChanged: (_) {},
-  );
+  Widget _odometerField() {
+    final vehicle = _vehicle;
+    final snapshot = vehicle == null
+        ? null
+        : ref.watch(vehicleDueSnapshotProvider(vehicle.id));
+    final estimate = snapshot?.estimate;
 
-  /// §10's More row: a nav row naming what is inside it.
-  ///
-  /// A ROW and not an inline disclosure, because that is what the artboard
-  /// draws — `row--nav` with the value "Station · Grade · Trip" and a chevron.
-  /// §10's prose sketches it as `── More ── ▾`; the two agree on the behaviour
-  /// that matters ("collapsed by default and collapsed again next time:
-  /// nothing inside it changes a consumption figure") and disagree only about
-  /// the affordance, so CLAUDE.md §7 gives it to the reference.
-  Widget _moreRow(AppLocalizations l10n) => CalmRowGroup(
-    rows: [
-      CalmListRow(
-        title: l10n.logMoreRow,
-        // The summary is the SUBTITLE, not the end value. The artboard draws it
-        // end-aligned beside the title, and at 390pt with a chevron there
-        // is not room: "Station · Grade · Trip" overflows by 54pt and the
-        // German service summary by 114. A subtitle gets the full width, wraps
-        // rather than truncating, and keeps the information the artboard is
-        // showing — which is the half that matters, since the point of the row
-        // is to let the section be skipped without opening it.
-        subtitle: switch (_segment) {
-          LogType.fillUp => l10n.logMoreFillUpSummary,
-          LogType.service => l10n.logMoreServiceSummary,
-          LogType.expense => l10n.logMoreExpenseSummary,
-          // `log.odometer` has no More section at all — §10: "one more optional
-          // field would be a net loss" — and never draws this row.
-          LogType.odometer => '',
-        },
-        showChevron: true,
-        size: CalmRowSize.compact,
-        onTap: _openMore,
-      ),
-    ],
-  );
+    return OdometerField(
+      controller: _odometerController,
+      unit: _vehicleUnit,
+      // The vehicle's REAL history. These were `const []`, which made the whole
+      // rule engine inert: no helper line, no delta, no monotonicity check and
+      // no estimate chip, on the one field §10 says "feeds the due engine, so
+      // it behaves identically on log.fillup, log.service and log.odometer".
+      existing: _readings,
+      corrections: _corrections,
+      occurredOn: _occurredOn,
+      formatsTag: _formatsTag,
+      estimate: estimate == null ? null : Distance(estimate.metres),
+      estimateStaleDays: estimate?.staleDays ?? 0,
+      onChanged: (_) => setState(() {}),
+      onUnitChanged: (_) {},
+    );
+  }
+
+  /// This vehicle's readings, as the points the odometer maths works in.
+  List<ReadingPoint> get _readings {
+    final vehicle = _vehicle;
+    if (vehicle == null) return const [];
+    final readings = ref.watch(odometerReadingsProvider(vehicle.id)).value;
+    return readings?.map(asReadingPoint).toList() ?? const [];
+  }
+
+  /// This vehicle's cluster swaps, likewise.
+  List<CorrectionPoint> get _corrections {
+    final vehicle = _vehicle;
+    if (vehicle == null) return const [];
+    final corrections = ref
+        .watch(odometerCorrectionsProvider(vehicle.id))
+        .value;
+    return corrections?.map(asCorrectionPoint).toList() ?? const [];
+  }
 
   /// The date row every form carries.
   ///
@@ -613,15 +610,46 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// a read-only row opening the calendar picker." The picker itself is the
   /// shared control EPIC-09 deferred to this epic and is not built yet, so the
   /// row renders the date and does not yet open anything.
-  Widget _dateRow() => CalmRowGroup(
+  /// §10's Date row and More row, as ONE group.
+  ///
+  /// The artboard draws them as a single card with a divider between them, not
+  /// as two cards with a gap. That is what the band profile measures and it is
+  /// also the right grouping: both are navigation rows that leave the form,
+  /// and `log.odometer` — which has no More section — gets the Date row alone
+  /// from the same function.
+  Widget _dateAndMoreRows(AppLocalizations l10n) => CalmRowGroup(
     rows: [
       CalmListRow(
-        title: AppLocalizations.of(context).reminderOnceOnDate,
+        // `logDateLabel`, not `reminderOnceOnDate`. That key is
+        // `reminders.edit`'s "Or once, on date" and reads as a choice between
+        // schedules; this row is the day the thing being logged happened.
+        title: l10n.logDateLabel,
         value: formatLongDate(_occurredOn, _formatsTag),
         showChevron: true,
         size: CalmRowSize.compact,
         onTap: _pickDate,
       ),
+      if (logTypeHasMore(_segment))
+        CalmListRow(
+          title: l10n.logMoreRow,
+          // The summary is the SUBTITLE, not the end value. The artboard draws
+          // it end-aligned beside the title, and at 390pt with a chevron there
+          // is not room: "Station · Grade · Trip" overflows by 54pt and the
+          // German service summary by 114. A subtitle gets the full width,
+          // wraps rather than truncating, and keeps the information the
+          // artboard is showing — which is the half that matters, since the
+          // point of the row is to let the section be skipped without opening
+          // it.
+          subtitle: switch (_segment) {
+            LogType.fillUp => l10n.logMoreFillUpSummary,
+            LogType.service => l10n.logMoreServiceSummary,
+            LogType.expense => l10n.logMoreExpenseSummary,
+            LogType.odometer => '',
+          },
+          showChevron: true,
+          size: CalmRowSize.compact,
+          onTap: _openMore,
+        ),
     ],
   );
 
@@ -905,10 +933,16 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
   /// The vehicle this modal is logging against, or null while it loads.
   Vehicle? get _vehicle {
-    final id = ref.read(activeVehicleIdProvider);
+    // WATCHED, not read. Both of these are streams, and on the frame the modal
+    // is first built neither has delivered — a `read` returns null and nothing
+    // ever asks again, so the form spends its whole life with no vehicle: no
+    // reading history, no estimate chip, no currency, and `_steps()` handing
+    // back the placeholder that writes nothing. The parity capture showed it
+    // first, as an odometer field with no helper line.
+    final id = ref.watch(activeVehicleIdProvider);
     if (id == null) return null;
     return ref
-        .read(vehiclesProvider)
+        .watch(vehiclesProvider)
         .value
         ?.where((v) => v.id == id)
         .firstOrNull;
@@ -920,7 +954,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// `vehicles.currency` is for — a second car bought abroad keeps its
   /// receipts in the currency they were paid in.
   Currency? get _currency =>
-      _vehicle?.currency ?? ref.read(settingsProvider).value?.currencyDefault;
+      _vehicle?.currency ?? ref.watch(settingsProvider).value?.currencyDefault;
 
   /// The three steps this save takes, in §10's order.
   ///

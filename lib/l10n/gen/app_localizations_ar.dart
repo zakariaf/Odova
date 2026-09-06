@@ -1341,6 +1341,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logDiscardSummary => 'ما كتبته';
 
   @override
+  String get logDateLabel => 'التاريخ';
+
+  @override
+  String get logOdometerLabel => 'العدّاد';
+
+  @override
   String get logDateFutureError => 'اختر اليوم أو يومًا مضى.';
 
   @override

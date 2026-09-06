@@ -1833,6 +1833,18 @@ abstract class AppLocalizations {
   /// **'what you have typed'**
   String get logDiscardSummary;
 
+  /// §10's date row on all four log forms. NOT reminderOnceOnDate, which is reminders.edit's 'Or once, on date' and reads as a schedule choice rather than the day this happened.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get logDateLabel;
+
+  /// §10's odometer field label on the log forms, per the field table and the artboard. Distinct from odometerNowLabel ('Odometer now'), which CalmOdometerInput uses where the point is that the reading is being taken RIGHT NOW.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get logOdometerLabel;
+
   /// SPEC.md §10, verbatim. Shown under the date row on the fill-up, service and odometer forms. NOT on log.expense, where a future date is legitimate — prepaid insurance is real.
   ///
   /// In en, this message translates to:

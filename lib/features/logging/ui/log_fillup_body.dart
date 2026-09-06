@@ -17,8 +17,7 @@ class LogFillUpBody extends StatelessWidget {
   /// Creates the body.
   const LogFillUpBody({
     required this.odometer,
-    required this.dateRow,
-    required this.moreRow,
+    required this.navRows,
     required this.trio,
     required this.quantityUnit,
     required this.isFullTank,
@@ -40,8 +39,12 @@ class LogFillUpBody extends StatelessWidget {
   /// would be a second opinion about the field that feeds the due engine.
   final Widget odometer;
 
-  /// The date row, likewise built once by the shell.
-  final Widget dateRow;
+  /// §10's Date row, and the More row under it where there is one.
+  ///
+  /// ONE widget and not two slots: the artboard draws them as a single card
+  /// with a divider, and the shell builds it so the four bodies cannot
+  /// disagree about the grouping.
+  final Widget navRows;
 
   /// The three fields and which one the app is writing.
   final PriceTrio trio;
@@ -76,9 +79,6 @@ class LogFillUpBody extends StatelessWidget {
   /// The amber over-capacity line, or null. Never a refusal — §10 saves it.
   final String? overTankWarning;
 
-  /// §10's More section, built by the shell so all three agree.
-  final Widget moreRow;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -105,36 +105,65 @@ class LogFillUpBody extends StatelessWidget {
         // §10 explains the consequence rather than leaving it to be discovered:
         // a part fill produces no figure on its own.
         if (!isFullTank) Text(l10n.logFillUpPartFillHint),
-        _TrioField(
-          field: TrioField.quantity,
-          label: l10n.logFillUpQuantityLabel,
-          affix: quantityUnit,
-          trio: trio,
-          controllers: controllers,
-          onChanged: onTrioChanged,
-          errorText: trioError,
+        // ONE ROW of three, which is what §10's sketch draws and what the
+        // artboard renders:
+        //
+        //     Fuel                Price/L   Total
+        //     [ 42.61 ] L      [ 1.799 ] € [ 76.66 ] €
+        //
+        // The first version stacked them full-width and it read as three
+        // unrelated money fields. They are one arithmetic — two entered, one
+        // computed — and the row is what says so: the `ƒ` badge only makes
+        // sense beside the other two it was worked out from.
+        //
+        // A `Row` and not a `Wrap`: §10's RTL note puts the money row as "a
+        // `start → end` sequence that mirrors as a whole", and a Row in a
+        // directional context does that for free.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: space.s2,
+          children: [
+            Expanded(
+              child: _TrioField(
+                field: TrioField.quantity,
+                label: l10n.logFillUpQuantityLabel,
+                affix: quantityUnit,
+                trio: trio,
+                controllers: controllers,
+                onChanged: onTrioChanged,
+              ),
+            ),
+            Expanded(
+              child: _TrioField(
+                field: TrioField.pricePerUnit,
+                label: l10n.logFillUpPricePerUnitLabel(quantityUnit),
+                trio: trio,
+                controllers: controllers,
+                onChanged: onTrioChanged,
+              ),
+            ),
+            Expanded(
+              child: _TrioField(
+                field: TrioField.total,
+                label: l10n.logFillUpTotalLabel,
+                trio: trio,
+                controllers: controllers,
+                onChanged: onTrioChanged,
+              ),
+            ),
+          ],
         ),
+        // The messages go UNDER the row, full width, rather than inside a
+        // third-width field. §10's trio sentence — "Enter how much fuel you put
+        // in, and either the price per litre or the total" — does not fit in
+        // 110pt, and a message that truncates is a message that does not exist.
+        if (trioError case final error?) Text(error),
+        if (priceError case final error?) Text(error),
+        if (totalError case final error?) Text(error),
         // §10 puts the over-capacity line here, under the quantity it is about,
         // in amber and never as a refusal.
         if (overTankWarning case final warning?) Text(warning),
-        _TrioField(
-          field: TrioField.pricePerUnit,
-          label: l10n.logFillUpPricePerUnitLabel(quantityUnit),
-          trio: trio,
-          controllers: controllers,
-          onChanged: onTrioChanged,
-          errorText: priceError,
-        ),
-        _TrioField(
-          field: TrioField.total,
-          label: l10n.logFillUpTotalLabel,
-          trio: trio,
-          controllers: controllers,
-          onChanged: onTrioChanged,
-          errorText: totalError,
-        ),
-        dateRow,
-        moreRow,
+        navRows,
       ],
     );
   }
@@ -149,7 +178,6 @@ class _TrioField extends StatelessWidget {
     required this.controllers,
     required this.onChanged,
     this.affix,
-    this.errorText,
   });
 
   final TrioField field;
@@ -158,7 +186,6 @@ class _TrioField extends StatelessWidget {
   final Map<TrioField, TextEditingController> controllers;
   final void Function(TrioField, String) onChanged;
   final String? affix;
-  final String? errorText;
 
   @override
   Widget build(BuildContext context) => CalmField(
@@ -171,7 +198,6 @@ class _TrioField extends StatelessWidget {
     // whose accessible name is 'calculated from the other two'." `CalmField`
     // draws both from this one flag.
     computed: trio.computedField == field,
-    errorText: errorText,
     onChanged: (text) => onChanged(field, text),
   );
 }
