@@ -139,7 +139,7 @@ OdometerVerdict checkReading({
       );
     } else {
       warnings.addAll(
-        _softWarnings(
+        softOdometerWarnings(
           from: beforeDistance,
           to: proposedDistance,
           fromDate: before.occurredOn,
@@ -181,7 +181,12 @@ OdometerVerdict checkReading({
 }
 
 /// The three warnings, evaluated on a pair of cumulative metres.
-List<OdometerWarning> _softWarnings({
+///
+/// Public because `checkEdit` needs exactly these three on exactly this pair.
+/// A second copy would be three thresholds maintained twice, and the day one
+/// of them moved a new entry and an edit would disagree about the same
+/// number.
+List<OdometerWarning> softOdometerWarnings({
   required Distance from,
   required Distance to,
   required String fromDate,

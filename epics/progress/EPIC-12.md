@@ -19,3 +19,10 @@
   costs nothing and the >16 ms off-thread path is never entered on realistic
   data. Remaining in 12.8: Undo's six-second life and the next-navigation
   cancel.
+- **Task 12.8 (complete).** `UndoWindow` owns §11's "6 seconds, or the next
+  navigation" — the second clause is the one that gets dropped, so its test
+  asserts at one second, before the window could expire on its own. Three
+  guards mutation-verified. `fake_async` promoted to a declared dev dependency
+  (pure Dart, audit clean); without it a six-second and a ten-second window
+  cost sixteen real seconds of every suite run, so the tests get deleted and
+  nothing asserts the window closes.
