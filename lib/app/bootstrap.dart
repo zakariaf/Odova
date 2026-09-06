@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:odova/app/error_handlers.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
+import 'package:odova/app/startup_purge.dart';
 import 'package:odova/app/today.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
@@ -55,6 +58,22 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
   // store that opened later would draw a strip the user already dismissed and
   // then take it away.
   final uiState = _openUiState();
+
+  // §3's purge, for the deletes whose snackbar never got to expire because the
+  // app was killed inside its six seconds. Started here and NOT awaited: it is
+  // housekeeping over rows the user has already deleted, nothing on the first
+  // frame reads them (every query is `deleted_at_utc_ms IS NULL`), and the
+  // 2.0s cold-launch budget in SPEC.md §17 has no room for a full-table scan
+  // on eight tables before the first pixel.
+  //
+  // `sweepDeletedOnStartup` never throws, so the unawaited future cannot
+  // become an unhandled error — which is the reason it never throws.
+  unawaited(
+    sweepDeletedOnStartup(
+      database,
+      nowUtcMs: DateTime.now().millisecondsSinceEpoch,
+    ),
+  );
 
   await initializeDateFormatting();
 
