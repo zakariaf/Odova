@@ -106,6 +106,15 @@ String renderServiceReportText(
   final vin = doc.header.vin;
   if (vin != null) out.writeln(vin);
 
+  // The owner's notes, when §12's toggle put them in the document.
+  //
+  // This was computed by the model, tested there, and rendered by NOTHING —
+  // so the toggle, its warning string and its six ARB keys changed nothing
+  // anywhere, and a commit of mine said "the preview honours it". The plate
+  // half of that sentence was true; this half was not.
+  final notes = doc.header.notes;
+  if (notes != null) out.writeln(notes);
+
   final summary = doc.summary;
   if (summary != null) {
     out.writeln(

@@ -108,6 +108,11 @@ void writeServiceReportPdf(
       // the string. A VIN is a serial number, mirrored it is a different
       // serial number, and it is the field a buyer types into a history check.
       if (vin != null) canvas.drawText(vin, slot: PdfSlot.vin);
+
+      // §12's private notes, only when toggled on. Read off the DOCUMENT, so
+      // the toggle cannot be applied differently here than on the screen.
+      final notes = doc.header.notes;
+      if (notes != null) canvas.drawText(notes, slot: PdfSlot.header);
     }
 
     // §12's repeating table header, on EVERY page. A reader who turns to page

@@ -139,10 +139,21 @@ void main() {
     );
   });
 
-  test('private notes are likewise off unless toggled', () {
+  test('private notes are off unless toggled — and ON when they are', () {
+    // Both arms. The negative one alone passed against a renderer that drew
+    // notes NOWHERE, which is what it was doing: `header.notes` had no reader
+    // in any of the three renderers, so the toggle, its warning and its six
+    // ARB keys changed nothing at all.
     expect(
       render(notes: 'cheaper than the dealer wanted'),
       isNot(contains('cheaper')),
+    );
+    expect(
+      render(
+        notes: 'cheaper than the dealer wanted',
+        options: const ServiceReportOptions(notes: true),
+      ),
+      contains('cheaper than the dealer wanted'),
     );
   });
 

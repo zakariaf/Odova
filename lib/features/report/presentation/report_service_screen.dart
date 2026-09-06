@@ -303,6 +303,8 @@ class _HeaderCard extends ConsumerWidget {
               value: '',
               forceLtr: true,
             ),
+          // The owner's notes, when the toggle put them in the document.
+          if (header.notes != null) _HeaderRow(label: header.notes!, value: ''),
           if (doc.summary != null)
             _HeaderRow(
               label: l10n.reportServiceCount(
