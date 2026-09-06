@@ -273,6 +273,52 @@ class ServiceRepository {
     return Ok(rows.read<int>('n'));
   });
 
+  /// Soft-deletes one service record and its derived reading.
+  ///
+  /// Its LINES are not stamped: `service_lines` deliberately carries no
+  /// `deleted_at_utc_ms` — it lives and dies with its record through
+  /// `ON DELETE CASCADE`, and a line with its own soft-delete would be a second
+  /// place the record's cost could be wrong.
+  Future<Result<void, PersistFailure>> deleteRecord(
+    ServiceRecordId id, {
+    required int deletedAtUtcMs,
+  }) => _stampRecordDeleted(id, deletedAtUtcMs);
+
+  /// Puts back what [deleteRecord] removed.
+  Future<Result<void, PersistFailure>> undeleteRecord(ServiceRecordId id) =>
+      _stampRecordDeleted(id, null);
+
+  Future<Result<void, PersistFailure>> _stampRecordDeleted(
+    ServiceRecordId id,
+    int? deletedAtUtcMs,
+  ) => guardPersist(() async {
+    final rows = await _db.customUpdate(
+      'UPDATE service_records SET deleted_at_utc_ms = ? WHERE id = ? '
+      'AND deleted_at_utc_ms IS '
+      '${deletedAtUtcMs == null ? 'NOT NULL' : 'NULL'};',
+      variables: [
+        Variable<int>(deletedAtUtcMs),
+        Variable<String>(id.toString()),
+      ],
+      updates: {},
+    );
+    if (rows == 0) return Err(NotFound(id.toString()));
+
+    // The derived reading moves with the record, both ways: a delete that left
+    // it behind leaves the due engine computing from work the user has undone.
+    await _db.customUpdate(
+      'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
+      'WHERE source_id = ? AND source = ?;',
+      variables: [
+        Variable<int>(deletedAtUtcMs),
+        Variable<String>(id.toString()),
+        Variable<String>(OdometerSource.service.wire),
+      ],
+      updates: {},
+    );
+    return const Ok(null);
+  });
+
   /// Soft-deletes one item, for the Undo the snackbar offers.
   Future<Result<void, PersistFailure>> deleteItem(
     ServiceItemId id, {

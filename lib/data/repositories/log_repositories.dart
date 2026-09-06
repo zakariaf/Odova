@@ -133,7 +133,70 @@ class FillUpRepository {
         });
         return Ok(fillUp);
       });
+
+  /// Soft-deletes one fill-up and its derived reading, for the Undo snackbar.
+  Future<Result<void, PersistFailure>> delete(
+    FillUpId id, {
+    required int deletedAtUtcMs,
+  }) => _stampDeleted(
+    _db,
+    table: 'fill_ups',
+    id: id.toString(),
+    source: OdometerSource.fillUp,
+    deletedAtUtcMs: deletedAtUtcMs,
+  );
+
+  /// Puts back what [delete] removed.
+  Future<Result<void, PersistFailure>> undelete(FillUpId id) => _stampDeleted(
+    _db,
+    table: 'fill_ups',
+    id: id.toString(),
+    source: OdometerSource.fillUp,
+    deletedAtUtcMs: null,
+  );
 }
+
+/// Stamps or clears `deleted_at_utc_ms` on one row and its derived reading.
+///
+/// SPEC.md §3: "Delete is immediate and permanent to the user; soft in storage
+/// only for the length of the snackbar." §10 makes that snackbar the ONLY
+/// confirmation logging gets — "a wrong entry costs one tap to fix; a
+/// confirmation dialog is paid for on every correct entry" — and the trade only
+/// holds if Undo works.
+///
+/// The derived reading moves WITH the record, both ways. A delete that left it
+/// behind would leave the due engine computing distance from a fill-up the user
+/// has just undone; an undo that did not bring it back would resurrect the
+/// record with a hole in the odometer series.
+Future<Result<void, PersistFailure>> _stampDeleted(
+  AppDatabase db, {
+  required String table,
+  required String id,
+  required OdometerSource source,
+  required int? deletedAtUtcMs,
+}) => guardPersist(() async {
+  final rows = await db.customUpdate(
+    'UPDATE $table SET deleted_at_utc_ms = ? WHERE id = ? '
+    'AND deleted_at_utc_ms IS ${deletedAtUtcMs == null ? 'NOT NULL' : 'NULL'};',
+    variables: [Variable<int>(deletedAtUtcMs), Variable<String>(id)],
+    updates: {},
+  );
+  // NotFound on zero rows, never a silent success — the caller is showing an
+  // Undo, and an Undo for something that did not happen is worse than an error.
+  if (rows == 0) return Err(NotFound(id));
+
+  await db.customUpdate(
+    'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
+    'WHERE source_id = ? AND source = ?;',
+    variables: [
+      Variable<int>(deletedAtUtcMs),
+      Variable<String>(id),
+      Variable<String>(source.wire),
+    ],
+    updates: {},
+  );
+  return const Ok(null);
+});
 
 /// Reads and writes expenses.
 class ExpenseRepository {
@@ -216,6 +279,27 @@ class ExpenseRepository {
     });
     return Ok(expense);
   });
+
+  /// Soft-deletes one expense and its derived reading, for the Undo snackbar.
+  Future<Result<void, PersistFailure>> delete(
+    ExpenseId id, {
+    required int deletedAtUtcMs,
+  }) => _stampDeleted(
+    _db,
+    table: 'expenses',
+    id: id.toString(),
+    source: OdometerSource.expense,
+    deletedAtUtcMs: deletedAtUtcMs,
+  );
+
+  /// Puts back what [delete] removed.
+  Future<Result<void, PersistFailure>> undelete(ExpenseId id) => _stampDeleted(
+    _db,
+    table: 'expenses',
+    id: id.toString(),
+    source: OdometerSource.expense,
+    deletedAtUtcMs: null,
+  );
 }
 
 /// Reads and writes trips.
