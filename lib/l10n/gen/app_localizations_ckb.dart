@@ -397,6 +397,14 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get firstRunHaveBackup => 'پێشتر پاشەکەوتێکی ئۆدۆڤام هەیە';
 
   @override
+  String get saveRefusedBackwards =>
+      'ئەم ژمارەیە لە پێشووتر کەمترە. تکایە ژمارەکە بپشکنە.';
+
+  @override
+  String get saveRefusedReadOnly =>
+      'ئێستا ناتوانرێت پاشەکەوت بکرێت. تۆمارەکەت هێشتا لێرەیە.';
+
+  @override
   String get saveDiskFullError =>
       'پاشەکەوت نەکرا. لەوانەیە بۆشایی مۆبایلەکەت نەمابێت.';
 

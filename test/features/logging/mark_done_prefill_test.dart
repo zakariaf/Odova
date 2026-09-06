@@ -94,6 +94,25 @@ void main() {
     );
   });
 
+  testWidgets('a known ?item is ticked once the chips have loaded', (
+    tester,
+  ) async {
+    // Applied after the frame, not during `build`. The chips come from a
+    // stream, so at `initState` there is nothing to tick; doing it inside
+    // `build` was a State mutation with no rebuild scheduled for it.
+    await _pump(
+      tester,
+      Routes.log(LogType.service, itemId: 'rem_01JQ8ZK3M7F0R6XN2E9TB4HCVA'),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byType(LogServiceBody),
+      findsOneWidget,
+      reason: 'the form survives a post-frame tick',
+    );
+  });
+
   testWidgets('the + still opens an EMPTY form', (tester) async {
     // The prefill is the caller's, never a default. A `+` that arrived
     // pre-filled with the last reading would get saved unread.

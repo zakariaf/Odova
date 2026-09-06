@@ -410,6 +410,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get firstRunHaveBackup => 'J’ai déjà une sauvegarde Odova';
 
   @override
+  String get saveRefusedBackwards =>
+      'Ce relevé est inférieur au précédent. Vérifiez le nombre.';
+
+  @override
+  String get saveRefusedReadOnly =>
+      'Odova ne peut pas enregistrer pour l\'instant. Votre saisie est conservée.';
+
+  @override
   String get saveDiskFullError =>
       'Impossible d’enregistrer. Votre téléphone manque peut-être d’espace.';
 

@@ -71,6 +71,14 @@ class LogServiceBody extends StatelessWidget {
   /// The Total's one message.
   final String? costError;
 
+  /// A throwaway controller holding the split's own sum.
+  ///
+  /// The field is disabled under a split, so this is never typed into and
+  /// never needs disposing by anyone — it exists to put a computed string
+  /// where a typed one would be.
+  TextEditingController _sumController(ServiceCostModel cost) =>
+      TextEditingController(text: cost.sum);
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -108,7 +116,12 @@ class LogServiceBody extends StatelessWidget {
         Text(l10n.logServiceTickResets),
         CalmField(
           label: l10n.logServiceCostLabel,
-          controller: totalController,
+          // Under a split the field shows the SUM, not whatever was typed
+          // before the switch was turned on. §10 and `service_cost_model.dart`
+          // both say "Total is read-only and EQUALS the sum"; disabling the
+          // field without replacing its text left a stale number on screen
+          // disagreeing with the lines about to be written.
+          controller: cost.isSplit ? _sumController(cost) : totalController,
           numeric: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           // §10: split on, "Total is read-only and equals the sum". Record cost

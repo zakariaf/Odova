@@ -433,6 +433,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get firstRunHaveBackup => 'لديّ بالفعل نسخة احتياطية من أودوفا';
 
   @override
+  String get saveRefusedBackwards =>
+      'هذه القراءة أقل من السابقة. تحقّق من الرقم.';
+
+  @override
+  String get saveRefusedReadOnly =>
+      'لا يمكن الحفظ الآن. إدخالك ما زال موجودًا.';
+
+  @override
   String get saveDiskFullError =>
       'تعذّر الحفظ. ربما لا توجد مساحة كافية في هاتفك.';
 

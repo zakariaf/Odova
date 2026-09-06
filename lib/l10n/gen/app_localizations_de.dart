@@ -398,6 +398,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get firstRunHaveBackup => 'Ich habe schon ein Odova-Backup';
 
   @override
+  String get saveRefusedBackwards =>
+      'Dieser Stand liegt unter dem vorherigen. Bitte die Zahl prüfen.';
+
+  @override
+  String get saveRefusedReadOnly =>
+      'Odova kann gerade nicht speichern. Ihre Eingabe bleibt erhalten.';
+
+  @override
   String get saveDiskFullError =>
       'Speichern fehlgeschlagen. Vielleicht ist der Speicher Ihres Telefons voll.';
 

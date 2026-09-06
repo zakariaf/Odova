@@ -81,6 +81,8 @@
   "annualBandOver": "أكثر من {min}",
   "commonStart": "ابدأ",
   "firstRunHaveBackup": "لديّ بالفعل نسخة احتياطية من أودوفا",
+  "saveRefusedBackwards": "هذه القراءة أقل من السابقة. تحقّق من الرقم.",
+  "saveRefusedReadOnly": "لا يمكن الحفظ الآن. إدخالك ما زال موجودًا.",
   "saveDiskFullError": "تعذّر الحفظ. ربما لا توجد مساحة كافية في هاتفك.",
   "commonRetry": "إعادة المحاولة",
   "vehicleEditTitle": "المركبة",

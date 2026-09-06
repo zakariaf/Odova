@@ -394,6 +394,14 @@ class AppLocalizationsFa extends AppLocalizations {
   String get firstRunHaveBackup => 'از قبل پشتیبان اودووا دارم';
 
   @override
+  String get saveRefusedBackwards =>
+      'این عدد از عدد قبلی کمتر است. لطفاً بررسی کنید.';
+
+  @override
+  String get saveRefusedReadOnly =>
+      'اکنون امکان ذخیره نیست. ورودی شما باقی می‌ماند.';
+
+  @override
   String get saveDiskFullError => 'ذخیره نشد. شاید حافظهٔ گوشی پر باشد.';
 
   @override

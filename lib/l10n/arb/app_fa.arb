@@ -81,6 +81,8 @@
   "annualBandOver": "بالای {min}",
   "commonStart": "شروع",
   "firstRunHaveBackup": "از قبل پشتیبان اودووا دارم",
+  "saveRefusedBackwards": "این عدد از عدد قبلی کمتر است. لطفاً بررسی کنید.",
+  "saveRefusedReadOnly": "اکنون امکان ذخیره نیست. ورودی شما باقی می‌ماند.",
   "saveDiskFullError": "ذخیره نشد. شاید حافظهٔ گوشی پر باشد.",
   "commonRetry": "تلاش دوباره",
   "vehicleEditTitle": "خودرو",

@@ -81,6 +81,8 @@
   "annualBandOver": "über {min}",
   "commonStart": "Starten",
   "firstRunHaveBackup": "Ich habe schon ein Odova-Backup",
+  "saveRefusedBackwards": "Dieser Stand liegt unter dem vorherigen. Bitte die Zahl prüfen.",
+  "saveRefusedReadOnly": "Odova kann gerade nicht speichern. Ihre Eingabe bleibt erhalten.",
   "saveDiskFullError": "Speichern fehlgeschlagen. Vielleicht ist der Speicher Ihres Telefons voll.",
   "commonRetry": "Erneut versuchen",
   "vehicleEditTitle": "Fahrzeug",

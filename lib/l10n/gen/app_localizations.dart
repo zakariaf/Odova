@@ -603,6 +603,18 @@ abstract class AppLocalizations {
   /// **'I already have an Odova backup'**
   String get firstRunHaveBackup;
 
+  /// Shown when a save is refused by the odometer monotonicity rule, NOT by a full disk. Every persist failure used to report saveDiskFullError, so a user whose reading was rejected as below the previous one was told their phone was out of space.
+  ///
+  /// In en, this message translates to:
+  /// **'That reading is lower than the one before it. Check the number and try again.'**
+  String get saveRefusedBackwards;
+
+  /// Shown when the store is read-only — degraded mode after a failed migration. §10: the modal stays open with everything intact, so the message says so.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova can\'t write right now. Your entry is still here.'**
+  String get saveRefusedReadOnly;
+
   /// Shown when the create transaction fails. SPEC.md §8: a disk write is the only thing that can fail on this screen.
   ///
   /// In en, this message translates to:

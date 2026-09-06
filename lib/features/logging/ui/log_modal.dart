@@ -124,12 +124,22 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// is showing need not.
   late LogType _segment = widget.type;
 
+  /// The unit THIS entry is being typed in, when it differs from the vehicle's.
+  ///
+  /// §10 gives the odometer's unit chip an entry-scoped effect: a driver who
+  /// reads a rental's dash in miles switches it for that one reading and does
+  /// not change what the car is measured in. It is the provenance the row
+  /// stores, never arithmetic — the conversion has already happened in
+  /// `OdometerEntry`.
+  DistanceUnit? _entryUnit;
+
   /// The unit the odometer field shows, from the vehicle.
   ///
   /// Read in `build` and in `initState` alike, so it cannot be a `ref.watch`.
   /// A vehicle that has not loaded yet answers km, which is also what the
   /// field defaults to.
-  DistanceUnit get _vehicleUnit => _vehicle?.distanceUnit ?? DistanceUnit.km;
+  DistanceUnit get _vehicleUnit =>
+      _entryUnit ?? _vehicle?.distanceUnit ?? DistanceUnit.km;
 
   /// The locale these forms format and PARSE in.
   ///
@@ -503,24 +513,31 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       ticked: _cost.tickedItemIds.toSet(),
     );
 
-    // The `?item` tick, applied the first time the chip it names actually
-    // exists. Ticking an id the vehicle does not have would put a phantom
-    // reminder on a real service record, so an unknown id simply never fires —
-    // which is also what makes a stale notification harmless.
-    final pending = _pendingTickItemId;
-    if (pending != null) {
-      final match = chips.where((c) => c.id == pending).firstOrNull;
-      if (match != null) {
-        _pendingTickItemId = null;
-        _cost = _cost.ticked(match.id, match.label);
-        return chips
-            .map(
-              (c) => (id: c.id, label: c.label, ticked: c.id == match.id),
-            )
-            .toList();
-      }
-    }
+    // The `?item` tick is applied AFTER this frame, never during it. Writing
+    // `_cost` here mutated State inside `build` with no rebuild scheduled —
+    // harmless only because the pending tick fires once, before anything else
+    // is ticked, and `_toggleItem` already calls this method. A second caller
+    // makes it a silent state change nothing repaints.
+    _applyPendingTick(chips);
     return chips;
+  }
+
+  /// Ticks the item `?item` named, once the chip it names exists.
+  ///
+  /// Ticking an id the vehicle does not have would put a phantom reminder on a
+  /// real service record, so an unknown id simply never fires — which is also
+  /// what makes a stale notification from an older build harmless.
+  void _applyPendingTick(List<ServiceItemChip> chips) {
+    final pending = _pendingTickItemId;
+    if (pending == null) return;
+    final match = chips.where((c) => c.id == pending).firstOrNull;
+    if (match == null) return;
+
+    _pendingTickItemId = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _cost = _cost.ticked(match.id, match.label));
+    });
   }
 
   /// Ticks or unticks one item.
@@ -594,7 +611,10 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       estimate: estimate == null ? null : Distance(estimate.metres),
       estimateStaleDays: estimate?.staleDays ?? 0,
       onChanged: (_) => setState(() {}),
-      onUnitChanged: (_) {},
+      // §10: "switches the unit for THIS entry only." It was an empty callback
+      // under a chip that renders as tappable and announces itself to a screen
+      // reader — a control that says it does something and does not.
+      onUnitChanged: (unit) => setState(() => _entryUnit = unit),
     );
   }
 
@@ -826,11 +846,17 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
     final written = await saveLogEntry(_steps());
     if (!mounted) return;
-    if (written is Err<void, PersistFailure>) {
+    if (written case Err<void, PersistFailure>(:final failure)) {
       // §10: the modal STAYS OPEN with everything intact. Losing six digits
       // typed at a pump because a disk was full is the one failure this form
       // must never have.
-      snackbars.show(message: l10n.saveDiskFullError, danger: true);
+      //
+      // And it says which failure it was. Every one of these used to report
+      // `saveDiskFullError`, so a user whose reading was refused as below the
+      // previous one was told their phone was out of space — a message that
+      // sends them to Settings to delete photos over a number they could have
+      // corrected in two taps.
+      snackbars.show(message: _failureMessage(l10n, failure), danger: true);
       return;
     }
 
@@ -1091,6 +1117,17 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// not what was written. It is set by the steps that did the writing, so a
   /// segment that writes nothing cannot leave a stale Undo behind it.
   Future<Result<void, PersistFailure>> Function()? _undoWritten;
+
+  /// What the snackbar says when the save was refused.
+  ///
+  /// `WriteFailed` keeps the disk-full wording because that is what it usually
+  /// is; the two failures with a different remedy get their own sentence.
+  String _failureMessage(AppLocalizations l10n, PersistFailure failure) =>
+      switch (failure) {
+        OdometerWouldGoBackwards() => l10n.saveRefusedBackwards,
+        StoreReadOnly() => l10n.saveRefusedReadOnly,
+        _ => l10n.saveDiskFullError,
+      };
 
   /// What the snackbar says after a successful save.
   ///

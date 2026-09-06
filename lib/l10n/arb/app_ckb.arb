@@ -81,6 +81,8 @@
   "annualBandOver": "زیاتر لە {min}",
   "commonStart": "دەستپێبکە",
   "firstRunHaveBackup": "پێشتر پاشەکەوتێکی ئۆدۆڤام هەیە",
+  "saveRefusedBackwards": "ئەم ژمارەیە لە پێشووتر کەمترە. تکایە ژمارەکە بپشکنە.",
+  "saveRefusedReadOnly": "ئێستا ناتوانرێت پاشەکەوت بکرێت. تۆمارەکەت هێشتا لێرەیە.",
   "saveDiskFullError": "پاشەکەوت نەکرا. لەوانەیە بۆشایی مۆبایلەکەت نەمابێت.",
   "commonRetry": "دووبارە هەوڵبدە",
   "vehicleEditTitle": "ئۆتۆمبێل",
