@@ -50,6 +50,9 @@ Future<void> _pump(WidgetTester tester, {int rows = 400}) async {
   await tester.pumpAndSettle();
 }
 
+/// The interval the screen passes in from `CalmMotion.searchDebounce`.
+const _debounce = Duration(milliseconds: 200);
+
 void main() {
   testWidgets('tapping the ⌕ swaps the title for a field, in place', (
     tester,
@@ -110,7 +113,7 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.search));
     await tester.pumpAndSettle();
-    _notifier(tester).search('shell');
+    _notifier(tester).search('shell', debounce: _debounce);
     await tester.pumpAndSettle(const Duration(milliseconds: 300));
 
     await tester.tap(find.byIcon(Icons.close));
@@ -159,9 +162,9 @@ void main() {
     final before = fake.pageCalls;
 
     _notifier(tester)
-      ..search('s')
-      ..search('sh')
-      ..search('she');
+      ..search('s', debounce: _debounce)
+      ..search('sh', debounce: _debounce)
+      ..search('she', debounce: _debounce);
     await tester.pump(const Duration(milliseconds: 50));
     expect(fake.pageCalls, before, reason: 'nothing ran yet');
 

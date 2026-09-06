@@ -27,8 +27,11 @@ import 'package:odova/core/l10n/numerals.dart';
 /// matches most of them, which is a slower way of showing everything.
 const int kSearchMinimumLength = 2;
 
-/// §11's debounce, in milliseconds.
-const int kSearchDebounceMs = 200;
+// §11's 200 ms debounce is NOT here. It is a UI-timing decision and it lives on
+// `CalmMotion.searchDebounce`, beside the undo window and the skeleton delay,
+// because nothing outside `lib/theme/` constructs a `Duration` in this repo.
+// The minimum query length above IS here: it is a rule about what a query
+// means, and it would be the same rule in a command-line client.
 
 /// [text] as it is compared: folded, stripped and collapsed.
 String normaliseForSearch(String text) {

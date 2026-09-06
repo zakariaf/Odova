@@ -17,6 +17,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
     required this.sheet,
     required this.undoWindow,
     required this.skeletonDelay,
+    required this.searchDebounce,
     required this.easeStandard,
     required this.easeOut,
     required this.easeIn,
@@ -67,6 +68,20 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
   /// common path, which is precisely what the delay exists to prevent.
   final Duration skeletonDelay;
 
+  /// How long typing pauses before a search runs — SPEC.md §11, 200
+  /// milliseconds.
+  ///
+  /// The third duration here that traces to no `--dur-*` token, and it is on
+  /// this extension for the reason [undoWindow] and [skeletonDelay] are:
+  /// `check_touch_targets.sh` cannot tell a debounce from an animation, and
+  /// "it is not really motion" is not a distinction a grep can make.
+  ///
+  /// Also NOT collapsed by reduced motion. Every keystroke otherwise runs a
+  /// `LIKE` over every text column of every row — ~18 ms over 3,000 rows,
+  /// which is fine once and is not fine eight times while a word is typed. A
+  /// user who asked for stillness did not ask for a slower search.
+  final Duration searchDebounce;
+
   /// `--ease-standard`. The default, and the ONLY curve for colour.
   final Cubic easeStandard;
 
@@ -104,6 +119,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
     Duration? sheet,
     Duration? undoWindow,
     Duration? skeletonDelay,
+    Duration? searchDebounce,
     Cubic? easeStandard,
     Cubic? easeOut,
     Cubic? easeIn,
@@ -117,6 +133,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
       sheet: sheet ?? this.sheet,
       undoWindow: undoWindow ?? this.undoWindow,
       skeletonDelay: skeletonDelay ?? this.skeletonDelay,
+      searchDebounce: searchDebounce ?? this.searchDebounce,
       easeStandard: easeStandard ?? this.easeStandard,
       easeOut: easeOut ?? this.easeOut,
       easeIn: easeIn ?? this.easeIn,
@@ -147,6 +164,7 @@ class CalmMotion extends ThemeExtension<CalmMotion> {
       sheet: t < 0.5 ? sheet : other.sheet,
       undoWindow: t < 0.5 ? undoWindow : other.undoWindow,
       skeletonDelay: t < 0.5 ? skeletonDelay : other.skeletonDelay,
+      searchDebounce: t < 0.5 ? searchDebounce : other.searchDebounce,
       easeStandard: t < 0.5 ? easeStandard : other.easeStandard,
       easeOut: t < 0.5 ? easeOut : other.easeOut,
       easeIn: t < 0.5 ? easeIn : other.easeIn,
@@ -179,6 +197,7 @@ const calmMotion = CalmMotion(
   sheet: Duration(milliseconds: 420),
   undoWindow: Duration(seconds: 6),
   skeletonDelay: Duration(milliseconds: 150),
+  searchDebounce: Duration(milliseconds: 200),
   easeStandard: Cubic(0.32, 0.72, 0, 1),
   easeOut: Cubic(0.2, 0.8, 0.2, 1),
   easeIn: Cubic(0.4, 0, 1, 1),

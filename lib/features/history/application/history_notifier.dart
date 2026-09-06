@@ -26,7 +26,6 @@ import 'package:odova/core/history/history_cursor.dart';
 import 'package:odova/core/history/history_entry.dart';
 import 'package:odova/core/history/history_filter.dart';
 import 'package:odova/core/history/month_index.dart';
-import 'package:odova/core/history/search_normalise.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/database_provider.dart';
@@ -295,15 +294,22 @@ class HistoryNotifier extends Notifier<HistoryState> {
     await applyFilter(state.filter.withQuery(''));
   }
 
-  /// Types [query] into the search field.
+  /// Types [query] into the search field, running it after [debounce].
   ///
-  /// Debounced by §11's 200 ms. Every keystroke otherwise runs a `LIKE` over
+  /// The interval is passed in rather than held here, and it comes from
+  /// `CalmMotion.searchDebounce`. §11's 200 ms is a UI-timing decision, not a
+  /// domain rule — and every other duration in this app lives on that
+  /// extension, for the reason its own doc comment gives: a gate cannot tell a
+  /// debounce from an animation, so nothing constructs a `Duration` outside
+  /// `lib/theme/`.
+  ///
+  /// Debounced at all because every keystroke otherwise runs a `LIKE` over
   /// every text column of every row — measured at ~18 ms over 3,000 rows,
   /// which is fine once and is not fine eight times while a word is typed.
-  void search(String query) {
+  void search(String query, {required Duration debounce}) {
     _debounce?.cancel();
     _debounce = Timer(
-      const Duration(milliseconds: kSearchDebounceMs),
+      debounce,
       () => unawaited(applyFilter(state.filter.withQuery(query))),
     );
   }

@@ -41,6 +41,7 @@ import 'package:odova/l10n/money_format.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
+import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_search_field.dart';
@@ -119,8 +120,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 controller: _search,
                 hint: l10n.historySearchHint,
                 closeLabel: l10n.historySearchClear,
-                onChanged: (query) =>
-                    ref.read(historyProvider(scope).notifier).search(query),
+                onChanged: (query) => ref
+                    .read(historyProvider(scope).notifier)
+                    .search(
+                      query,
+                      debounce: CalmMotion.of(context).searchDebounce,
+                    ),
                 onClose: () {
                   _search.clear();
                   unawaited(
