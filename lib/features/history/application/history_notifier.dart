@@ -169,9 +169,39 @@ class HistoryNotifier extends Notifier<HistoryState> {
   final HistoryScope _scope;
 
   @override
-  HistoryState build() => const HistoryState();
+  HistoryState build() {
+    // The debounce timer must not outlive the provider. `search()` arms a
+    // `Timer` whose callback reads AND writes `state`, and in Riverpod 3 both
+    // route through `_throwIfInvalidUsage`, which THROWS rather than
+    // asserting. A pending debounce surviving disposal is an
+    // unhandled error inside a timer callback — reaching the crash sink in
+    // production, and failing the NEXT test with "a Timer is still pending"
+    // under `testWidgets`.
+    //
+    // `UndoWindow`, built in this same epic, was designed around exactly this
+    // hazard. This notifier was not, and the reason is worth recording: the
+    // provider is not `autoDispose` and nothing invalidates it, so the
+    // disposal this guards against is rare enough to be found late rather
+    // than never.
+    ref.onDispose(() {
+      _debounce?.cancel();
+      _debounce = null;
+    });
+    return const HistoryState();
+  }
 
   bool _started = false;
+
+  /// Which request the state currently belongs to.
+  ///
+  /// Bumped before every load. A response whose generation is stale is
+  /// DISCARDED rather than absorbed, which closes a race the `isLoading`
+  /// guard cannot: `_absorb` lowers `isLoading` when whichever request lands
+  /// first does, not when the newest one does. So tapping Fuel and then
+  /// Service one frame later could leave the list showing Service page 1 with
+  /// a Fuel row's cursor, and the next prefetch appended rows from the wrong
+  /// filter — duplicates, or a silent gap.
+  int _generation = 0;
 
   /// Loads the first page, once, however many times it is called.
   ///
@@ -180,9 +210,11 @@ class HistoryNotifier extends Notifier<HistoryState> {
   /// has returned is a provider depending on itself — Riverpod says so in
   /// those words, and the first version of this got exactly that error.
   ///
-  /// §7 resets this tab's stack on a vehicle switch, which disposes the
-  /// provider; the next screen build gets a fresh notifier with `_started`
-  /// false, so the reload arrives without a second trigger.
+  /// §7 resets this tab's stack on a vehicle switch. NOTE: that does not
+  /// currently dispose this provider — it is a `family`, not `autoDispose`,
+  /// and nothing invalidates it, so switching vehicles creates a new instance
+  /// beside the old one rather than replacing it. Recorded in
+  /// `epics/progress/EPIC-12.md`; the fix belongs with the tab-stack reset.
   Future<void> ensureLoaded() async {
     if (_started) return;
     _started = true;
@@ -216,21 +248,24 @@ class HistoryNotifier extends Notifier<HistoryState> {
   /// a list with no subtotals, which is the screen's whole reason for existing
   /// during the anxious check.
   Future<void> load() async {
+    final generation = ++_generation;
     state = state.copyWith(isLoading: true, clearFailure: true);
     final page = await _repository.page(
       vehicleId: _scope.vehicleId,
       filter: state.filter,
     );
-    _absorb(page, replaceWindow: true);
-    await _loadIndex();
+    if (!_absorb(page, replaceWindow: true, generation: generation)) return;
+    await _loadIndex(generation);
   }
 
-  Future<void> _loadIndex() async {
+  Future<void> _loadIndex([int? generation]) async {
+    final of = generation ?? ++_generation;
     final index = await _repository.monthIndex(
       vehicleId: _scope.vehicleId,
       filter: state.filter,
       calendar: calendar,
     );
+    if (of != _generation) return;
     if (index case Ok(:final value)) {
       state = state.copyWith(months: value);
     }
@@ -245,13 +280,14 @@ class HistoryNotifier extends Notifier<HistoryState> {
   /// identical query.
   Future<void> loadMore() async {
     if (state.isLoading || !state.hasMore) return;
+    final generation = ++_generation;
     state = state.copyWith(isLoading: true, clearFailure: true);
     final result = await _repository.page(
       vehicleId: _scope.vehicleId,
       filter: state.filter,
       after: state.cursor,
     );
-    _absorb(result, replaceWindow: false);
+    _absorb(result, replaceWindow: false, generation: generation);
   }
 
   /// Narrows the list, and reloads from the top.
@@ -330,10 +366,24 @@ class HistoryNotifier extends Notifier<HistoryState> {
     _absorb(result, replaceWindow: true);
   }
 
-  void _absorb(
+  /// Commits [result], unless a newer request has since been issued.
+  ///
+  /// Returns whether it committed, so `load` knows not to go on and fetch an
+  /// index for a page it just discarded.
+  ///
+  /// The generation check closes a race the `isLoading` guard cannot.
+  /// `_absorb` lowers `isLoading` when WHICHEVER request lands first does, not
+  /// when the newest one does — so tapping Fuel and then Service one frame
+  /// later left the list showing 60 Fuel rows with `isLoading` false, the
+  /// prefetch fired against a Fuel cursor under a Service filter, and the
+  /// response was appended onto Service page 1. Duplicates, or a silent gap,
+  /// and `state.cursor` wrong for every page after.
+  bool _absorb(
     Result<HistoryPage, PersistFailure> result, {
     required bool replaceWindow,
+    int? generation,
   }) {
+    if (generation != null && generation != _generation) return false;
     switch (result) {
       case Ok(:final value):
         final combined = replaceWindow
@@ -364,6 +414,7 @@ class HistoryNotifier extends Notifier<HistoryState> {
         // a reason to throw away what the user is reading.
         state = state.copyWith(isLoading: false, failure: failure);
     }
+    return true;
   }
 }
 

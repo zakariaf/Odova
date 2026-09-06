@@ -43,11 +43,31 @@ class FakeHistoryRepository implements HistoryRepository {
     _gate = null;
   }
 
+  /// A gate per in-flight call, so responses can be released OUT OF ORDER.
+  ///
+  /// `pause`/`resume` hold every call behind one latch, which is enough to
+  /// test "the list keeps its content while loading" but cannot reproduce the
+  /// race that matters: request A issued first, request B issued second, and
+  /// A's response landing LAST. That is the ordering a slow query and a fast
+  /// one produce on a real device, and it is the one the generation guard
+  /// exists for.
+  final List<Completer<void>> holds = [];
+
+  /// Holds every subsequent call until its entry in [holds] is completed.
+  bool holdEachCall = false;
+
+  /// Releases the [index]th held call.
+  void release(int index) {
+    if (index < holds.length && !holds[index].isCompleted) {
+      holds[index].complete();
+    }
+  }
+
   /// The id of the entry at [index], newest first.
   String idAt(int index) => 'ent_${index.toString().padLeft(6, '0')}';
 
-  HistoryEntry _entry(int index) => HistoryEntry(
-    kind: HistoryEntryKind.fillUp,
+  HistoryEntry _entry(int index, {HistoryEntryKind? kind}) => HistoryEntry(
+    kind: kind ?? HistoryEntryKind.fillUp,
     id: idAt(index),
     // Descending days from a fixed start, so the order is unambiguous and the
     // cursor has something real to compare.
@@ -70,17 +90,34 @@ class FakeHistoryRepository implements HistoryRepository {
     int limit = 60,
   }) async {
     pageCalls++;
+    if (holdEachCall) {
+      final hold = Completer<void>();
+      holds.add(hold);
+      await hold.future;
+    }
     if (_gate != null) await _gate!.future;
 
     final start = after == null ? 0 : int.parse(after.id.split('_').last) + 1;
     final end = (start + limit).clamp(0, totalRows);
     return Ok(
       HistoryPage(
-        entries: [for (var i = start; i < end; i++) _entry(i)],
+        // The rows CARRY the filter they were fetched for.
+        //
+        // Without this the fake returns identical entries whatever was asked
+        // for, so a stale response and a fresh one are indistinguishable and
+        // no test can tell whether the wrong one was committed. That is the
+        // whole point of the generation guard, and it is exactly the property
+        // a fake this convenient hides.
+        entries: [
+          for (var i = start; i < end; i++) _entry(i, kind: _kindOf(filter)),
+        ],
         hasMore: end < totalRows,
       ),
     );
   }
+
+  static HistoryEntryKind _kindOf(HistoryFilter filter) =>
+      filter.kinds.length == 1 ? filter.kinds.first : HistoryEntryKind.fillUp;
 
   @override
   Future<Result<HistoryPage, PersistFailure>> pageAnchoredAt({
@@ -90,6 +127,11 @@ class FakeHistoryRepository implements HistoryRepository {
     int limit = 60,
   }) async {
     pageCalls++;
+    if (holdEachCall) {
+      final hold = Completer<void>();
+      holds.add(hold);
+      await hold.future;
+    }
     return Ok(
       HistoryPage(
         entries: [for (var i = 0; i < limit; i++) _entry(i)],

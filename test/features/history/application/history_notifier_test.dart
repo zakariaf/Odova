@@ -145,6 +145,68 @@ void main() {
       expect(notifier.state.entries.first.id, fake.idAt(200));
     });
 
+    test('a stale page is discarded rather than absorbed', () async {
+      // The `isLoading` guard cannot close this: `_absorb` lowers it when
+      // WHICHEVER request lands first does, not when the newest one does.
+      //
+      // Tap Fuel, then Service one frame later. The Fuel page lands first and
+      // used to be committed — 60 Fuel rows, `isLoading: false`, a Fuel cursor
+      // — under a Service filter. The next prefetch then appended Service rows
+      // after a Fuel row's cursor: duplicates, or a silent gap, with
+      // `state.cursor` wrong for every page after.
+      final notifier = notifierFor(const HistoryScope(vehicleId: 'veh_R'));
+      await notifier.load();
+
+      // Both in flight, then released in REVERSE order — a slow first query
+      // and a fast second one, which is what a real device produces and what
+      // a single latch cannot reproduce.
+      fake
+        ..holdEachCall = true
+        ..pageCalls = 0;
+      final first = notifier.applyFilter(
+        const HistoryFilter(kinds: {HistoryEntryKind.fillUp}),
+      );
+      final second = notifier.applyFilter(
+        const HistoryFilter(kinds: {HistoryEntryKind.service}),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      fake.release(1);
+      await Future<void>.delayed(Duration.zero);
+      final afterNewest = notifier.state.entries.length;
+
+      fake.release(0);
+      await Future.wait([first, second]);
+
+      // The KIND is the assertion that matters. Length and filter are the
+      // same whichever response won — the fake returns 60 rows either way and
+      // `applyFilter` sets the filter synchronously — so a test asserting only
+      // those passes against no guard at all. It did.
+      expect(
+        notifier.state.entries.map((e) => e.kind).toSet(),
+        {HistoryEntryKind.service},
+        reason: 'the older FUEL response did not overwrite the newer one',
+      );
+      expect(notifier.state.entries, hasLength(afterNewest));
+      expect(notifier.state.filter.kinds, {HistoryEntryKind.service});
+    });
+
+    test('a pending debounce does not outlive the provider', () async {
+      // `search()` arms a Timer whose callback reads AND writes `state`. In
+      // Riverpod 3 both throw after disposal — an unhandled error inside a
+      // timer callback, which reaches the crash sink in production and fails
+      // the NEXT test under `testWidgets`.
+      final notifier = notifierFor(const HistoryScope(vehicleId: 'veh_D'));
+      await notifier.load();
+
+      notifier.search('shell', debounce: const Duration(milliseconds: 5));
+      harness.container.dispose();
+
+      // Where the timer would fire into a disposed ref, if it survived.
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(true, isTrue, reason: 'no unhandled error escaped disposal');
+    });
+
     test('a jump discards the window and reloads from the anchor', () async {
       // §11: "release runs a fresh keyset query anchored there and DISCARDS
       // the loaded window, so memory stays flat at 40 records or 4,000."
