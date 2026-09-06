@@ -26,3 +26,13 @@
   (pure Dart, audit clean); without it a six-second and a ten-second window
   cost sixteen real seconds of every suite run, so the tests get deleted and
   nothing asserts the window closes.
+- **Task 12.9 (complete).** `checkEdit` is two-sided and its two directions get
+  DIFFERENT answers — down-against-earlier on the newest reading opens §11's
+  three-way dialogue, down-against-earlier mid-history is refused, and
+  up-past-later is refused naming the nearest collision. Four mutations caught.
+  `_softWarnings` published as `softOdometerWarnings` rather than copied.
+  Thirteen ARB keys × six locales for the five delete bodies and the two
+  blocks; `listSeparator`/`listPairJoin` added because §2 forbids joining
+  "Oil and filter" to "Inspection" with a Dart `' and '`. `sweepDeletedOnStartup`
+  wired unawaited into `bootstrap()` — the gap §3 had, since every soft-delete
+  was purged only by a timer that dies with the process.
