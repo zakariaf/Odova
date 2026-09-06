@@ -87,9 +87,6 @@ class LogModalNotifier extends Notifier<LogModalState> {
   @override
   LogModalState build() => const LogModalState();
 
-  /// Shows [type].
-  void showSegment(LogType type) => state = state.on(type);
-
   /// Records a note on [type].
   void setNote(LogType type, String note) => state = state.withNote(type, note);
 

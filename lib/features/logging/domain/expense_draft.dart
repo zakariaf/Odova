@@ -192,7 +192,7 @@ class ExpenseDraft {
   /// did not parse — both of which `problems()` then reported as
   /// `periodBackwards` on a window the user never touched.
   static String _yearFrom(CivilDate from) =>
-      from.addMonths(12).addDays(-1).toString();
+      from.addMonths(kExpenseCoverageMonths).addDays(-1).toString();
 
   ExpenseDraft _copy({
     ExpenseCategory? category,

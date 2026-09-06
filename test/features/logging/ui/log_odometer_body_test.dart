@@ -9,7 +9,9 @@ import 'package:odova/core/units/distance.dart';
 import 'package:odova/features/logging/ui/log_odometer_body.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_disclosure.dart';
+import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_number_pad.dart';
+import 'package:odova/ui/calm/calm_row_group.dart';
 
 import '../../../support/device.dart';
 import '../../../support/pump_app.dart';
@@ -56,12 +58,20 @@ class _HostState extends State<_Host> {
     value: _value,
     unit: DistanceUnit.km,
     formatsTag: 'en',
-    occurredOn: '2026-09-02',
+    dateRow: const CalmRowGroup(
+      rows: [
+        CalmListRow(
+          title: 'Date',
+          value: '2 September 2026',
+          showChevron: true,
+          size: CalmRowSize.compact,
+        ),
+      ],
+    ),
     lastReading: widget.lastReading,
     lastReadingOn: widget.lastReadingOn,
     onValueChanged: (v) => setState(() => _value = v),
     onSave: () {},
-    onPickDate: () {},
   );
 }
 

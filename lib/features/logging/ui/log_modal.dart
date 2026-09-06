@@ -234,7 +234,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         odometer: _odometerField(),
         dateRow: _dateRow(),
         trio: _trio,
-        moreRow: _moreRow(AppLocalizations.of(context)),
+        moreRow: _moreRow(l10n),
         quantityUnit: _quantityUnit,
         isFullTank: _isFullTank,
         controllers: _trioControllers,
@@ -245,7 +245,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         odometer: _odometerField(),
         dateRow: _dateRow(),
         items: const [],
-        moreRow: _moreRow(AppLocalizations.of(context)),
+        moreRow: _moreRow(l10n),
         cost: _cost,
         totalController: _totalController,
         onToggleItem: (_) {},
@@ -254,37 +254,46 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         onSplitChanged: (on) =>
             setState(() => _cost = on ? _cost.split() : _cost),
       ),
-      LogType.expense => LogExpenseBody(
-        draft: _expense,
-        moreRow: _moreRow(AppLocalizations.of(context)),
-        categoryLabel: (c) => c.wire,
-        amountController: _amountController,
-        labelController: _labelController,
-        onCategoryChanged: (c) =>
-            setState(() => _expense = _expense.withCategory(c)),
-        onAmountChanged: (text) =>
-            setState(() => _expense = _expense.withAmount(text)),
-        onLabelChanged: (text) =>
-            setState(() => _expense = _expense.withLabel(text)),
-        onRefundChanged: (on) =>
-            setState(() => _expense = on ? _expense.refunded() : _expense),
-        // §10: the messages appear when Save is PRESSED, not while the user is
-        // still typing — "a form that scolds you before you have finished is a
-        // form that is angry at you for arriving".
-        categoryError: _expenseError(ExpenseProblem.noCategory, l10n),
-        labelError: _expenseError(ExpenseProblem.noLabel, l10n),
-        amountError: _expenseError(ExpenseProblem.noAmount, l10n),
-      ),
+      LogType.expense => _expenseBody(l10n),
       LogType.odometer => LogOdometerBody(
         value: _odometer,
         unit: DistanceUnit.km,
         formatsTag: _formatsTag,
-        occurredOn: _occurredOn,
+        dateRow: _dateRow(),
         onValueChanged: (v) => setState(() => _odometer = v),
         onSave: _save,
-        onPickDate: () {},
       ),
     };
+  }
+
+  /// The expense form, with its three error slots read from ONE validation.
+  ///
+  /// `problems()` parses the amount and both window dates, and it was called
+  /// once per error slot — three full validations per build, on every
+  /// keystroke, once Save had been pressed.
+  Widget _expenseBody(AppLocalizations l10n) {
+    final problems = _expense.problems().toSet();
+    return LogExpenseBody(
+      draft: _expense,
+      moreRow: _moreRow(l10n),
+      categoryLabel: (c) => c.wire,
+      amountController: _amountController,
+      labelController: _labelController,
+      onCategoryChanged: (c) =>
+          setState(() => _expense = _expense.withCategory(c)),
+      onAmountChanged: (text) =>
+          setState(() => _expense = _expense.withAmount(text)),
+      onLabelChanged: (text) =>
+          setState(() => _expense = _expense.withLabel(text)),
+      onRefundChanged: (on) =>
+          setState(() => _expense = on ? _expense.refunded() : _expense),
+      // §10: the messages appear when Save is PRESSED, not while the user is
+      // still typing — "a form that scolds you before you have finished is a
+      // form that is angry at you for arriving".
+      categoryError: _expenseError(ExpenseProblem.noCategory, l10n, problems),
+      labelError: _expenseError(ExpenseProblem.noLabel, l10n, problems),
+      amountError: _expenseError(ExpenseProblem.noAmount, l10n, problems),
+    );
   }
 
   /// §10's shared odometer field.
@@ -349,12 +358,17 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     rows: [
       CalmListRow(
         title: AppLocalizations.of(context).reminderOnceOnDate,
-        value: formatLongDate(_occurredOn, 'en'),
+        value: formatLongDate(_occurredOn, _formatsTag),
         showChevron: true,
         size: CalmRowSize.compact,
+        onTap: _pickDate,
       ),
     ],
   );
+
+  /// Opens §10's date picker.
+  // TODO(EPIC-11): task 11.4 builds the picker this opens.
+  void _pickDate() {}
 
   /// The modal's title: the form's own name in create mode, the record's in
   /// edit mode.
@@ -478,8 +492,12 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   }
 
   /// One expense problem's sentence, or null when it does not apply yet.
-  String? _expenseError(ExpenseProblem problem, AppLocalizations l10n) {
-    if (!_showProblems || !_expense.problems().contains(problem)) return null;
+  String? _expenseError(
+    ExpenseProblem problem,
+    AppLocalizations l10n,
+    Set<ExpenseProblem> problems,
+  ) {
+    if (!_showProblems || !problems.contains(problem)) return null;
     return switch (problem) {
       ExpenseProblem.noCategory => l10n.logExpenseCategoryError,
       ExpenseProblem.noLabel => l10n.logExpenseNameError,

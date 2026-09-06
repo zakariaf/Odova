@@ -13,14 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/features/logging/ui/odometer_field.dart';
-import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
-import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_number_pad.dart';
-import 'package:odova/ui/calm/calm_row_group.dart';
 
 /// The odometer segment's body.
 class LogOdometerBody extends StatelessWidget {
@@ -29,10 +26,9 @@ class LogOdometerBody extends StatelessWidget {
     required this.value,
     required this.unit,
     required this.formatsTag,
-    required this.occurredOn,
+    required this.dateRow,
     required this.onValueChanged,
     required this.onSave,
-    required this.onPickDate,
     super.key,
     this.lastReading,
     this.lastReadingOn,
@@ -47,8 +43,8 @@ class LogOdometerBody extends StatelessWidget {
   /// The tag numbers and dates are shaped by.
   final String formatsTag;
 
-  /// The date this reading is dated.
-  final String occurredOn;
+  /// §10's date row, built by the shell like every other form's.
+  final Widget dateRow;
 
   /// The last entered reading, or null on a vehicle's first.
   final Distance? lastReading;
@@ -62,9 +58,6 @@ class LogOdometerBody extends StatelessWidget {
   /// The pad's own confirm key.
   final VoidCallback onSave;
 
-  /// Opens the date picker.
-  final VoidCallback onPickDate;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -75,17 +68,7 @@ class LogOdometerBody extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: space.s4,
       children: [
-        CalmRowGroup(
-          rows: [
-            CalmListRow(
-              title: l10n.reminderOnceOnDate,
-              value: formatLongDate(occurredOn, formatsTag),
-              showChevron: true,
-              size: CalmRowSize.compact,
-              onTap: onPickDate,
-            ),
-          ],
-        ),
+        dateRow,
         CalmNumberPad(
           value: _display,
           unit: distanceUnitLabel(l10n, unit),

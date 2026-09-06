@@ -128,16 +128,17 @@ OdometerFieldCheck checkOdometerField({
     purchaseOdometer: purchaseOdometer,
   );
 
-  final ordered = [...existing, proposed]..sort(compareReadings);
-  final index = ordered.indexWhere((r) => r.id == kProposedReadingId);
-  final before = index > 0 ? ordered[index - 1] : null;
+  // From the verdict, not re-derived. `checkReading` sorts the whole history
+  // to find this and says so; re-sorting it here was a second neighbour rule
+  // over one field, differing in tie-break from the first.
+  final before = verdict.before;
 
   if (verdict.blocked case final blocked?) {
     // Blocked with NOTHING before it on the timeline is the above-earliest
     // case: the conflict is with what comes after, or with the purchase
     // reading, and neither is "your last one".
     if (before == null && existing.isNotEmpty) {
-      final earliest = ordered.firstWhere((r) => r.id != kProposedReadingId);
+      final earliest = verdict.earliestOther!;
       return OdometerFieldAboveEarliest(
         earliest: earliest.odometer,
         earliestOccurredOn: earliest.occurredOn,

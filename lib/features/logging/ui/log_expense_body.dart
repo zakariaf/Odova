@@ -79,16 +79,18 @@ class LogExpenseBody extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: space.s4,
       children: [
-        Text(l10n.logExpenseCategoryLabel),
-        CalmChipBar(
-          chips: [
-            for (final category in ExpenseCategory.values)
-              CalmChip(
-                label: categoryLabel(category),
-                selected: draft.category == category,
-                onTap: () => onCategoryChanged(category),
-              ),
-          ],
+        CalmLabelled(
+          label: l10n.logExpenseCategoryLabel,
+          child: CalmChipBar(
+            chips: [
+              for (final category in ExpenseCategory.values)
+                CalmChip(
+                  label: categoryLabel(category),
+                  selected: draft.category == category,
+                  onTap: () => onCategoryChanged(category),
+                ),
+            ],
+          ),
         ),
         if (categoryError case final error?) Text(error),
         // §10: "Other picked — a What was it? field appears under the chips and

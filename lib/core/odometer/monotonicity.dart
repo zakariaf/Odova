@@ -58,10 +58,27 @@ class OdometerBlocked {
 @immutable
 class OdometerVerdict {
   /// Creates a verdict.
-  const OdometerVerdict({required this.warnings, this.blocked});
+  const OdometerVerdict({
+    required this.warnings,
+    this.blocked,
+    this.before,
+    this.earliestOther,
+  });
 
   /// Non-null when the reading must not be written.
   final OdometerBlocked? blocked;
+
+  /// The reading immediately BEFORE the proposed one, once sorted.
+  ///
+  /// Returned rather than re-derived. This function already sorts the whole
+  /// history to find it — "Sorted ONCE and used twice", as the note below
+  /// says — and every caller that wants the neighbour was sorting a second
+  /// time to get it back, with its own tie-break. Two neighbour rules over one
+  /// field is one of them being wrong somewhere nobody looked.
+  final ReadingPoint? before;
+
+  /// The earliest reading that is NOT the proposed one, or null if none.
+  final ReadingPoint? earliestOther;
 
   /// Told to the user either way. A blocked reading can also be implausible.
   final List<OdometerWarning> warnings;
@@ -155,7 +172,12 @@ OdometerVerdict checkReading({
     }
   }
 
-  return OdometerVerdict(blocked: blocked, warnings: warnings);
+  return OdometerVerdict(
+    blocked: blocked,
+    warnings: warnings,
+    before: before,
+    earliestOther: ordered.where((r) => r.id != proposed.id).firstOrNull,
+  );
 }
 
 /// The three warnings, evaluated on a pair of cumulative metres.

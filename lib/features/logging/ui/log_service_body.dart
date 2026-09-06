@@ -86,20 +86,22 @@ class LogServiceBody extends StatelessWidget {
         // user is answering.
         dateRow,
         odometer,
-        Text(l10n.logServiceWhatWasDone),
-        CalmChipBar(
-          chips: [
-            for (final item in items)
-              CalmChip(
-                label: item.label,
-                selected: item.ticked,
-                onTap: () => onToggleItem(item.id),
-              ),
-            // LAST, per §10, and it opens a sheet rather than adding a chip:
-            // a job with no item behind it resets nothing, and a chip that
-            // looked like the others would imply it did.
-            CalmChip(label: l10n.logServiceOther, onTap: onAddOther),
-          ],
+        CalmLabelled(
+          label: l10n.logServiceWhatWasDone,
+          child: CalmChipBar(
+            chips: [
+              for (final item in items)
+                CalmChip(
+                  label: item.label,
+                  selected: item.ticked,
+                  onTap: () => onToggleItem(item.id),
+                ),
+              // LAST, per §10, and it opens a sheet rather than adding a chip:
+              // a job with no item behind it resets nothing, and a chip that
+              // looked like the others would imply it did.
+              CalmChip(label: l10n.logServiceOther, onTap: onAddOther),
+            ],
+          ),
         ),
         // The consequence, stated. A tick resets a reminder and nothing else
         // on this screen says so.
