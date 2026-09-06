@@ -14,11 +14,13 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
+import 'package:odova/app/share/share_service.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/report/service_report.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Everything `report.service` reads, in one shot.
 ///
@@ -151,6 +153,16 @@ class ReportNotifier extends Notifier<ReportState> {
     today: today,
   );
 }
+
+/// The share port, overridden in tests.
+///
+/// A temp directory, never a place the app chooses to keep: §12's file is
+/// written, offered, and forgotten. On Android the manifest's FileProvider
+/// exposes `cache/` and nothing else, which is why the app asks for no storage
+/// permission at all.
+final Provider<ShareService> shareServiceProvider = Provider<ShareService>(
+  (ref) => PlatformShareService(directory: getTemporaryDirectory),
+);
 
 /// The report screen's provider.
 final NotifierProvider<ReportNotifier, ReportState> reportProvider =
