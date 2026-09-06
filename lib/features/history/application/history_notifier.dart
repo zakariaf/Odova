@@ -16,6 +16,8 @@
 // EPIC-13 pushes a filtered instance of this timeline into the Costs stack.
 // Two instances, two filters; a shared one would have the cost drill-down
 // change what tab 2 is showing.
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show NotifierProviderFamily;
 import 'package:meta/meta.dart';
@@ -125,6 +127,28 @@ class HistoryNotifier extends Notifier<HistoryState> {
 
   @override
   HistoryState build() => const HistoryState();
+
+  bool _started = false;
+
+  /// Loads the first page, once, however many times it is called.
+  ///
+  /// The screen calls this on every build and it acts on the first. It is NOT
+  /// done inside [build]: `load` reads `state`, and reading it before `build`
+  /// has returned is a provider depending on itself — Riverpod says so in
+  /// those words, and the first version of this got exactly that error.
+  ///
+  /// §7 resets this tab's stack on a vehicle switch, which disposes the
+  /// provider; the next screen build gets a fresh notifier with `_started`
+  /// false, so the reload arrives without a second trigger.
+  Future<void> ensureLoaded() async {
+    if (_started) return;
+    _started = true;
+    // A MICROTASK, so the first state write lands after the frame that asked
+    // for it. `load` sets `isLoading` before its first await, and doing that
+    // inside a widget's build is "tried to modify a provider while the widget
+    // tree was building" — which Riverpod asserts on rather than tolerating.
+    await Future<void>.microtask(load);
+  }
 
   HistoryRepository get _repository => ref.read(historyRepositoryProvider);
 

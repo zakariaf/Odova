@@ -18,6 +18,7 @@ import 'package:odova/data/history_repository.dart';
 
 import '../support/history_fixture.dart';
 import '../support/provider_harness.dart';
+import 'support/rows.dart';
 
 void main() {
   late DatabaseHarness harness;
@@ -176,6 +177,48 @@ void main() {
       isTrue,
       reason: 'nothing newer than the anchored month',
     );
+  });
+
+  test('a fill-up row carries the facts its line is built from', () async {
+    // The union widened to §11's type table, and a UNION matches by POSITION
+    // rather than by name — six arms drifting by one column is a silent type
+    // error that reads back as a station in the currency slot. This asserts
+    // the fill-up arm lands in the right slots.
+    await seedFillUpWithOdometer(harness.db);
+    final row = (await page()).entries.single;
+
+    expect(row.kind, HistoryEntryKind.fillUp);
+    expect(row.minorUnits, 7845);
+    expect(row.currency, 'EUR');
+    expect(row.odometerM, 186512000);
+    expect(row.quantity, 45200);
+    expect(row.quantityForm, 'ml');
+    expect(row.isFullTank, isTrue);
+  });
+
+  test('an expense row falls back from label to category', () async {
+    // §11: "category name, or `label` for `other`". The COALESCE is what makes
+    // a row with no custom name still say what it was for.
+    await insertExpense(
+      harness.db,
+      id: 'exp_01K1C4V2H9B8N3Q7ZE5RY6TMZ1',
+      category: 'parking',
+    );
+    final row = (await page()).entries.single;
+
+    expect(row.label, 'parking');
+    expect(row.minorUnits, isNotNull);
+  });
+
+  test('an odometer row carries no money at all', () async {
+    // Not a zero. §11's table prints nothing in the column, and zero is a real
+    // price a warranty job can have.
+    await seedManualReading(harness.db);
+    final row = (await page()).entries.single;
+
+    expect(row.minorUnits, isNull);
+    expect(row.currency, isNull);
+    expect(row.odometerM, isNotNull);
   });
 
   test('a kind filter is applied by the query, not by the caller', () async {

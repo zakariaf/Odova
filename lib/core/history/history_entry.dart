@@ -56,6 +56,16 @@ class HistoryEntry {
     required this.id,
     required this.occurredOn,
     required this.createdAtUtcMs,
+    this.minorUnits,
+    this.currency,
+    this.odometerM,
+    this.quantity,
+    this.quantityForm,
+    this.label,
+    this.secondaryLabel,
+    this.isFullTank = true,
+    this.chainBroken = false,
+    this.odometerEstimated = false,
   });
 
   /// Which of §11's row types this is.
@@ -73,6 +83,45 @@ class HistoryEntry {
 
   /// When the row was written.
   final int createdAtUtcMs;
+
+  /// The row's money, in minor units, or null where the type has none.
+  ///
+  /// Beside its [currency] and never without it. An odometer row has no amount
+  /// at all — §11's table prints nothing in the column — so this is nullable
+  /// rather than a zero, because zero is a real price a warranty job can have.
+  final int? minorUnits;
+
+  /// The ISO 4217 code [minorUnits] is in.
+  final String? currency;
+
+  /// The odometer this row carries, in metres, or null.
+  final int? odometerM;
+
+  /// How much fuel, in the canonical integer of [quantityForm].
+  final int? quantity;
+
+  /// Which of §3's three quantity columns [quantity] came from.
+  ///
+  /// `ml`, `g` or `wh`. Carried rather than inferred from the fuel kind,
+  /// because the row that was WRITTEN is the authority on which column holds
+  /// it — a vehicle whose default fuel changed would otherwise re-read its own
+  /// history in the wrong unit.
+  final String? quantityForm;
+
+  /// The row's own name: a station, a vendor, a category, a trip title.
+  final String? label;
+
+  /// A second name where §11's table shows one — a grade, a coverage window.
+  final String? secondaryLabel;
+
+  /// Whether a fill-up filled the tank. False draws §11's partial badge.
+  final bool isFullTank;
+
+  /// Whether the chain before this fill was broken.
+  final bool chainBroken;
+
+  /// Whether the odometer was projected rather than entered.
+  final bool odometerEstimated;
 
   /// This entry's position in the timeline's order.
   HistoryCursor get cursor => HistoryCursor(

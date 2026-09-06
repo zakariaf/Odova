@@ -97,7 +97,7 @@ class HistoryRepository {
       after: HistoryCursor(
         occurredOn: last,
         createdAtUtcMs: _farFuture,
-        id: '~',
+        id: _highestId,
       ),
       limit: limit,
     );
@@ -239,35 +239,63 @@ class HistoryRepository {
       variables.add(Variable<String>(vehicleId));
     }
 
+    // Every arm selects the SAME column list, in the same order, because a
+    // UNION matches by position and not by name. Six arms drifting by one
+    // column is a silent type error that reads back as a station in the
+    // currency slot.
     add(
       HistoryEntryKind.fillUp,
-      "SELECT 'fillUp' AS kind, id, occurred_on, created_at_utc_ms "
+      "SELECT 'fillUp' AS kind, id, occurred_on, created_at_utc_ms, "
+      'total_cost_minor AS minor, currency, odometer_m, '
+      'COALESCE(quantity_ml, quantity_g, energy_wh) AS quantity, '
+      "CASE WHEN quantity_ml IS NOT NULL THEN 'ml' "
+      "WHEN quantity_g IS NOT NULL THEN 'g' "
+      "WHEN energy_wh IS NOT NULL THEN 'wh' END AS quantity_form, "
+      'station AS label, grade AS label2, is_full_tank, chain_broken '
       'FROM fill_ups WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
     );
     add(
       HistoryEntryKind.service,
-      "SELECT 'service' AS kind, id, occurred_on, created_at_utc_ms "
-      'FROM service_records WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
+      // The cost is the sum of the LINES — §10 gives a record no second cost
+      // field — and the label is the first line's, which §11's row then joins
+      // with the rest.
+      "SELECT 'service' AS kind, r.id, r.occurred_on, r.created_at_utc_ms, "
+      'SUM(l.amount_minor) AS minor, MIN(l.currency) AS currency, '
+      'r.odometer_m, NULL AS quantity, NULL AS quantity_form, '
+      'MIN(l.label) AS label, r.vendor AS label2, 1 AS is_full_tank, '
+      '0 AS chain_broken '
+      'FROM service_records r JOIN service_lines l '
+      'ON l.service_record_id = r.id '
+      'WHERE r.vehicle_id = ? AND r.deleted_at_utc_ms IS NULL '
+      'GROUP BY r.id',
     );
     add(
       HistoryEntryKind.expense,
-      "SELECT 'expense' AS kind, id, occurred_on, created_at_utc_ms "
+      "SELECT 'expense' AS kind, id, occurred_on, created_at_utc_ms, "
+      'amount_minor AS minor, currency, odometer_m, NULL AS quantity, '
+      'NULL AS quantity_form, COALESCE(label, category) AS label, '
+      'vendor AS label2, 1 AS is_full_tank, 0 AS chain_broken '
       'FROM expenses WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
     );
     add(
       HistoryEntryKind.trip,
-      // A trip is dated by when it STARTED. §11 lists it among the five row
-      // types on one reverse-chronological axis, and an open trip has no end
-      // date to sort by at all.
+      // Dated by when it STARTED. §11 lists it among the five row types on one
+      // reverse-chronological axis, and an open trip has no end date at all.
       "SELECT 'trip' AS kind, id, started_on AS occurred_on, "
-      'created_at_utc_ms '
+      'created_at_utc_ms, NULL AS minor, NULL AS currency, '
+      'start_odometer_m AS odometer_m, NULL AS quantity, '
+      'NULL AS quantity_form, title AS label, purpose AS label2, '
+      '1 AS is_full_tank, 0 AS chain_broken '
       'FROM trips WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
     );
     add(
       HistoryEntryKind.odometer,
       // MANUAL only. Everything else on this list already carries its own
       // odometer, and §3 has the fan-out emit a reading for each of them.
-      "SELECT 'odometer' AS kind, id, occurred_on, created_at_utc_ms "
+      "SELECT 'odometer' AS kind, id, occurred_on, created_at_utc_ms, "
+      'NULL AS minor, NULL AS currency, odometer_m, NULL AS quantity, '
+      'NULL AS quantity_form, NULL AS label, NULL AS label2, '
+      '1 AS is_full_tank, 0 AS chain_broken '
       'FROM odometer_readings WHERE vehicle_id = ? '
       "AND source = 'manual' AND deleted_at_utc_ms IS NULL",
     );
@@ -277,7 +305,10 @@ class HistoryRepository {
       // §11 puts the divider "at their from_reading position", because it
       // changes how the numbers either side of it are read.
       "SELECT 'correction' AS kind, c.id, r.occurred_on, "
-      'c.created_at_utc_ms '
+      'c.created_at_utc_ms, NULL AS minor, NULL AS currency, '
+      'c.new_m AS odometer_m, NULL AS quantity, NULL AS quantity_form, '
+      'c.reason AS label, NULL AS label2, 1 AS is_full_tank, '
+      '0 AS chain_broken '
       'FROM odometer_corrections c '
       'JOIN odometer_readings r ON r.id = c.from_reading_id '
       'WHERE c.vehicle_id = ? AND c.deleted_at_utc_ms IS NULL',
@@ -310,7 +341,7 @@ class HistoryRepository {
     }
 
     final sql =
-        'SELECT kind, id, occurred_on, created_at_utc_ms FROM '
+        'SELECT * FROM '
         '(${union.join(' UNION ALL ')}) '
         '${where.isEmpty ? '' : 'WHERE ${where.join(' AND ')} '}'
         'ORDER BY occurred_on DESC, created_at_utc_ms DESC, id DESC '
@@ -325,6 +356,15 @@ class HistoryRepository {
           id: row.read<String>('id'),
           occurredOn: row.read<String>('occurred_on'),
           createdAtUtcMs: row.read<int>('created_at_utc_ms'),
+          minorUnits: row.readNullable<int>('minor'),
+          currency: row.readNullable<String>('currency'),
+          odometerM: row.readNullable<int>('odometer_m'),
+          quantity: row.readNullable<int>('quantity'),
+          quantityForm: row.readNullable<String>('quantity_form'),
+          label: row.readNullable<String>('label'),
+          secondaryLabel: row.readNullable<String>('label2'),
+          isFullTank: (row.readNullable<int>('is_full_tank') ?? 1) == 1,
+          chainBroken: (row.readNullable<int>('chain_broken') ?? 0) == 1,
         ),
     ];
   }
@@ -344,4 +384,13 @@ class HistoryRepository {
 
   /// Past any real `created_at`, so a month anchor includes its newest row.
   static const int _farFuture = 1 << 62;
+
+  /// An id that sorts above every real one.
+  ///
+  /// Lowercase, because §3's ids are Crockford base-32 and therefore UPPERCASE
+  /// — so every `z` here is above every character a ULID can hold. The first
+  /// version used `'~'`, which is higher still and also the estimate mark;
+  /// `check_status_encoding.sh` refuses a tilde built in Dart, and it is right
+  /// to refuse one it cannot tell apart from a displayed estimate.
+  static const String _highestId = 'zzzzzzzzzzzzzzzzzzzzzzzzzz';
 }

@@ -14,11 +14,10 @@
 // the money sits in a sized box rather than being laid out by its own width.
 import 'package:flutter/material.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
-import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/ui/calm/calm_card.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
-import 'package:odova/ui/calm/calm_pressable.dart';
 
 /// How wide §11's money column is.
 ///
@@ -69,70 +68,64 @@ class HistoryRowTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
-    final shapes = CalmShapes.of(context);
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
 
-    return CalmPressable(
+    // A `CalmCard` and not a decorated box. `check_component_hygiene.sh` is
+    // right to refuse the latter: "only lib/ui/calm/ builds a decoration", and
+    // a feature that paints its own surface is a feature that will not follow
+    // the next token change.
+    return CalmCard(
       onTap: onTap,
-      borderRadius: shapes.radiusLg,
-      child: DecoratedBox(
-        decoration: ShapeDecoration(
-          color: colors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(shapes.radiusLg),
-          ),
-        ),
-        child: Padding(
-          padding: EdgeInsetsDirectional.all(space.s3),
-          child: Row(
-            spacing: space.s3,
-            children: [
-              CalmIconTile(icon: icon),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+      child: Padding(
+        padding: EdgeInsetsDirectional.all(space.s3),
+        child: Row(
+          spacing: space.s3,
+          children: [
+            CalmIconTile(icon: icon),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    primaryLine,
+                    maxLines: 2,
+                    style: type.body.copyWith(color: colors.ink),
+                  ),
+                  Text(
+                    secondaryLine,
+                    maxLines: 2,
+                    style: type.label.copyWith(color: colors.ink3),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: kHistoryAmountColumnWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (amount case final money?)
                     Text(
-                      primaryLine,
-                      maxLines: 2,
-                      style: type.body.copyWith(color: colors.ink),
+                      money,
+                      textAlign: TextAlign.end,
+                      style: type.body.copyWith(
+                        color: colors.ink,
+                        fontWeight: type.semi,
+                      ),
                     ),
+                  if (trailingFigure case final figure?)
                     Text(
-                      secondaryLine,
-                      maxLines: 2,
+                      figure,
+                      textAlign: TextAlign.end,
                       style: type.label.copyWith(color: colors.ink3),
                     ),
-                  ],
-                ),
+                ],
               ),
-              SizedBox(
-                width: kHistoryAmountColumnWidth,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (amount case final money?)
-                      Text(
-                        money,
-                        textAlign: TextAlign.end,
-                        style: type.body.copyWith(
-                          color: colors.ink,
-                          fontWeight: type.semi,
-                        ),
-                      ),
-                    if (trailingFigure case final figure?)
-                      Text(
-                        figure,
-                        textAlign: TextAlign.end,
-                        style: type.label.copyWith(color: colors.ink3),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
