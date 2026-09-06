@@ -1,0 +1,215 @@
+// One page of the vehicle's timeline.
+//
+// SPEC.md §11 *Pagination*: "Keyset, never offset … Offset pagination would
+// renumber the list the moment a backdated 2019 entry is saved." That is not a
+// performance note — a user scrolling eight years of history while a restore
+// writes rows underneath them is this screen's ordinary case, and an offset
+// query shows them the same row twice and skips another.
+//
+// The union lives in SQL and not in Dart, for the same reason. Six `SELECT`s
+// merged in memory would each need their own page size, and the merge would
+// have to over-fetch from all six to fill sixty rows — which is exactly the
+// full-table read the keyset exists to avoid.
+//
+// Two exclusions are the QUERY's, never the UI's:
+//
+//   1. **Derived odometer readings.** §3 makes every record carrying an
+//      odometer emit one, so a fill-up would appear twice — once as itself and
+//      once as the reading it implied. `source = 'manual'` is the whole rule.
+//   2. **Soft-deleted rows.** §3's delete is "immediate and permanent to the
+//      user". A row dropped in Dart has still cost a slot in a page of sixty.
+import 'package:drift/drift.dart' show Variable;
+import 'package:odova/core/history/history_cursor.dart';
+import 'package:odova/core/history/history_entry.dart';
+import 'package:odova/core/history/history_filter.dart';
+import 'package:odova/core/result.dart';
+import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/guard.dart';
+
+/// Reads the timeline.
+class HistoryRepository {
+  /// Creates a repository over [_db].
+  const HistoryRepository(this._db);
+
+  final AppDatabase _db;
+
+  /// One page of [vehicleId]'s timeline, newest first.
+  ///
+  /// [after] resumes a previous page; null starts at the top. §11 fixes the
+  /// page at 60 rows, and [limit] exists so a test can prove the paging rather
+  /// than seed 130 rows to see two pages.
+  Future<Result<HistoryPage, PersistFailure>> page({
+    required String vehicleId,
+    required HistoryFilter filter,
+    HistoryCursor? after,
+    int limit = 60,
+  }) => guardPersist(() async {
+    final rows = await _select(
+      vehicleId: vehicleId,
+      filter: filter,
+      after: after,
+      // ONE more than asked for. Whether another page exists is answered by
+      // finding a 61st row, not by comparing the page's length to the limit:
+      // a history that ends exactly on a page boundary is not the end of the
+      // list, and treating it as one truncates the user's records at row 60.
+      limit: limit + 1,
+    );
+    final hasMore = rows.length > limit;
+    return Ok(
+      HistoryPage(
+        entries: hasMore ? rows.sublist(0, limit) : rows,
+        hasMore: hasMore,
+      ),
+    );
+  });
+
+  /// A fresh page anchored at the top of [year]-[month].
+  ///
+  /// §11's year scrubber: "release runs a fresh keyset query anchored there and
+  /// DISCARDS the loaded window, so memory stays flat at 40 records or 4,000."
+  /// The anchor is the last instant of that month, so the month itself is the
+  /// first thing on screen and nothing newer comes with it.
+  Future<Result<HistoryPage, PersistFailure>> pageAnchoredAt({
+    required String vehicleId,
+    required HistoryFilter filter,
+    required int year,
+    required int month,
+    int limit = 60,
+  }) {
+    final last = _lastDayOf(year, month);
+    return page(
+      vehicleId: vehicleId,
+      filter: filter,
+      // A cursor one tick PAST the end of the month, so the month's own newest
+      // row is included rather than skipped by a strict comparison.
+      after: HistoryCursor(
+        occurredOn: last,
+        createdAtUtcMs: _farFuture,
+        id: '~',
+      ),
+      limit: limit,
+    );
+  }
+
+  Future<List<HistoryEntry>> _select({
+    required String vehicleId,
+    required HistoryFilter filter,
+    required HistoryCursor? after,
+    required int limit,
+  }) async {
+    final variables = <Variable<Object>>[];
+    final union = <String>[];
+
+    void add(HistoryEntryKind kind, String sql) {
+      if (!filter.allows(kind)) return;
+      union.add(sql);
+      variables.add(Variable<String>(vehicleId));
+    }
+
+    add(
+      HistoryEntryKind.fillUp,
+      "SELECT 'fillUp' AS kind, id, occurred_on, created_at_utc_ms "
+      'FROM fill_ups WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
+    );
+    add(
+      HistoryEntryKind.service,
+      "SELECT 'service' AS kind, id, occurred_on, created_at_utc_ms "
+      'FROM service_records WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
+    );
+    add(
+      HistoryEntryKind.expense,
+      "SELECT 'expense' AS kind, id, occurred_on, created_at_utc_ms "
+      'FROM expenses WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
+    );
+    add(
+      HistoryEntryKind.trip,
+      // A trip is dated by when it STARTED. §11 lists it among the five row
+      // types on one reverse-chronological axis, and an open trip has no end
+      // date to sort by at all.
+      "SELECT 'trip' AS kind, id, started_on AS occurred_on, "
+      'created_at_utc_ms '
+      'FROM trips WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
+    );
+    add(
+      HistoryEntryKind.odometer,
+      // MANUAL only. Everything else on this list already carries its own
+      // odometer, and §3 has the fan-out emit a reading for each of them.
+      "SELECT 'odometer' AS kind, id, occurred_on, created_at_utc_ms "
+      'FROM odometer_readings WHERE vehicle_id = ? '
+      "AND source = 'manual' AND deleted_at_utc_ms IS NULL",
+    );
+    add(
+      HistoryEntryKind.correction,
+      // Dated by the READING it corrects, not by when the swap was recorded —
+      // §11 puts the divider "at their from_reading position", because it
+      // changes how the numbers either side of it are read.
+      "SELECT 'correction' AS kind, c.id, r.occurred_on, "
+      'c.created_at_utc_ms '
+      'FROM odometer_corrections c '
+      'JOIN odometer_readings r ON r.id = c.from_reading_id '
+      'WHERE c.vehicle_id = ? AND c.deleted_at_utc_ms IS NULL',
+    );
+
+    if (union.isEmpty) return const [];
+
+    final where = <String>[];
+    if (filter.year case final int year) {
+      where.add('occurred_on >= ? AND occurred_on <= ?');
+      variables
+        ..add(Variable<String>('$year-01-01'))
+        ..add(Variable<String>('$year-12-31'));
+    }
+    if (after != null) {
+      // The tuple comparison, spelled out. SQLite supports row values, but
+      // writing it long-hand keeps it readable next to `HistoryCursor` — and
+      // one `=` in the wrong place here either repeats the boundary row on
+      // every page or drops it entirely, neither of which is visible in sixty.
+      where.add(
+        '(occurred_on < ? OR (occurred_on = ? AND '
+        '(created_at_utc_ms < ? OR (created_at_utc_ms = ? AND id < ?))))',
+      );
+      variables
+        ..add(Variable<String>(after.occurredOn))
+        ..add(Variable<String>(after.occurredOn))
+        ..add(Variable<int>(after.createdAtUtcMs))
+        ..add(Variable<int>(after.createdAtUtcMs))
+        ..add(Variable<String>(after.id));
+    }
+
+    final sql =
+        'SELECT kind, id, occurred_on, created_at_utc_ms FROM '
+        '(${union.join(' UNION ALL ')}) '
+        '${where.isEmpty ? '' : 'WHERE ${where.join(' AND ')} '}'
+        'ORDER BY occurred_on DESC, created_at_utc_ms DESC, id DESC '
+        'LIMIT ?';
+    variables.add(Variable<int>(limit));
+
+    final rows = await _db.customSelect(sql, variables: variables).get();
+    return [
+      for (final row in rows)
+        HistoryEntry(
+          kind: _kindOf(row.read<String>('kind')),
+          id: row.read<String>('id'),
+          occurredOn: row.read<String>('occurred_on'),
+          createdAtUtcMs: row.read<int>('created_at_utc_ms'),
+        ),
+    ];
+  }
+
+  static HistoryEntryKind _kindOf(String wire) =>
+      HistoryEntryKind.values.firstWhere((k) => k.name == wire);
+
+  static String _lastDayOf(int year, int month) {
+    const lengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    final leap =
+        month == 2 && (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+    final day = leap ? 29 : lengths[month - 1];
+    return '${year.toString().padLeft(4, '0')}-'
+        '${month.toString().padLeft(2, '0')}-'
+        '${day.toString().padLeft(2, '0')}';
+  }
+
+  /// Past any real `created_at`, so a month anchor includes its newest row.
+  static const int _farFuture = 1 << 62;
+}

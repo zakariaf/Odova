@@ -64,6 +64,7 @@ void main() {
       'domain', // the entities a driver logs
       'due', // when the next service is due
       'fuel', // segments, consumption, the refusals
+      'history', // the timeline's entry types, cursor and filter
       'ids', // ULIDs and the typed record ids
       'l10n', // locale resolution, numerals, dates — no formatting
       'money', // Money, Currency, allocate, MoneyTotal
