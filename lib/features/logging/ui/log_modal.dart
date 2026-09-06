@@ -24,6 +24,7 @@ import 'package:odova/core/units/volume.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/due_snapshot_provider.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/features/logging/application/expense_save.dart';
 import 'package:odova/features/logging/application/fillup_save.dart';
 import 'package:odova/features/logging/application/log_modal_notifier.dart';
 import 'package:odova/features/logging/application/log_save_service.dart';
@@ -623,25 +624,40 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
   /// The three steps this save takes, in §10's order.
   ///
-  /// `log.fillup` supplies a real one now. The other three still hand back the
-  /// placeholder, which writes nothing and says so — they arrive with their
-  /// own tasks.
+  /// `log.fillup` and `log.expense` supply real ones. The other two still hand
+  /// back the placeholder, which writes nothing and says so — they arrive with
+  /// their own tasks.
   LogSaveSteps _steps() {
     final vehicle = _vehicle;
     final currency = _currency;
-    if (_segment != LogType.fillUp || vehicle == null || currency == null) {
-      return _PendingSteps();
-    }
-    return _FillUpSteps(
-      save: ref.read(fillUpSaveProvider.notifier),
-      recomputeDue: () =>
-          ref.invalidate(vehicleDueSnapshotProvider(vehicle.id)),
-      vehicle: vehicle,
-      draft: _fillUp,
-      currency: currency,
-      odometer: _enteredOdometer(),
-      onWritten: (fillUp) => _lastWritten = fillUp,
-    );
+    if (vehicle == null || currency == null) return _PendingSteps();
+    void recompute() => ref.invalidate(vehicleDueSnapshotProvider(vehicle.id));
+
+    return switch (_segment) {
+      LogType.fillUp => _FillUpSteps(
+        save: ref.read(fillUpSaveProvider.notifier),
+        recomputeDue: recompute,
+        vehicle: vehicle,
+        draft: _fillUp,
+        currency: currency,
+        odometer: _enteredOdometer(),
+        onWritten: (fillUp) =>
+            _undoWritten = () =>
+                ref.read(fillUpSaveProvider.notifier).undo(fillUp),
+      ),
+      LogType.expense => _ExpenseSteps(
+        save: ref.read(expenseSaveProvider.notifier),
+        recomputeDue: recompute,
+        vehicle: vehicle,
+        draft: _expense,
+        currency: currency,
+        onWritten: (expense) =>
+            _undoWritten = () =>
+                ref.read(expenseSaveProvider.notifier).undo(expense),
+      ),
+      // `log.service` and `log.odometer` arrive with their own tasks.
+      _ => _PendingSteps(),
+    };
   }
 
   /// The reading the shared odometer field is showing, or null.
@@ -658,8 +674,13 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     return metres == null ? null : Distance(metres);
   }
 
-  /// The row the last successful save wrote, for the snackbar's Undo.
-  FillUp? _lastWritten;
+  /// How to take back what the last successful save wrote.
+  ///
+  /// A callback rather than the row, because the four segments write four
+  /// different record types and the snackbar only needs to know how to undo —
+  /// not what was written. It is set by the steps that did the writing, so a
+  /// segment that writes nothing cannot leave a stale Undo behind it.
+  Future<Result<void, PersistFailure>> Function()? _undoWritten;
 
   String _savedMessage(AppLocalizations l10n) => switch (_segment) {
     LogType.fillUp => l10n.logSaveFillUp,
@@ -674,9 +695,9 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// offered it, and an Undo that fired against nothing would be worse than
   /// one that quietly does nothing.
   void _undo() {
-    final written = _lastWritten;
-    if (written == null) return;
-    unawaited(ref.read(fillUpSaveProvider.notifier).undo(written));
+    final undo = _undoWritten;
+    if (undo == null) return;
+    unawaited(undo());
   }
 }
 
@@ -725,6 +746,46 @@ class _FillUpSteps implements LogSaveSteps {
   /// §9's recompute. The due engine is a pure function of what is on disk, so
   /// "recompute" is invalidating the snapshot rather than writing anything —
   /// SPEC.md §2: derived values are never persisted.
+  @override
+  Future<void> recompute() async => recomputeDue();
+
+  @override
+  Future<void> reschedule() async {}
+}
+
+class _ExpenseSteps implements LogSaveSteps {
+  _ExpenseSteps({
+    required this.save,
+    required this.recomputeDue,
+    required this.vehicle,
+    required this.draft,
+    required this.currency,
+    required this.onWritten,
+  });
+
+  final ExpenseSave save;
+  final VoidCallback recomputeDue;
+  final Vehicle vehicle;
+  final ExpenseDraft draft;
+  final Currency currency;
+  final ValueChanged<Expense> onWritten;
+
+  @override
+  Future<Result<void, PersistFailure>> persist() async {
+    final written = await save.save(
+      vehicle: vehicle,
+      draft: draft,
+      currency: currency,
+    );
+    return switch (written) {
+      ExpenseSaved(:final expense) => () {
+        onWritten(expense);
+        return const Ok<void, PersistFailure>(null);
+      }(),
+      ExpenseSaveFailed(:final failure) => Err(failure),
+    };
+  }
+
   @override
   Future<void> recompute() async => recomputeDue();
 
