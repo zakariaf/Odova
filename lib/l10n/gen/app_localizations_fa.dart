@@ -1712,4 +1712,71 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get logDoneClose => 'بستن';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'این سوخت‌گیری حذف شود؟ مقدار مصرف برای $segment دوباره محاسبه می‌شود.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'این سوخت‌گیری حذف شود؟ $nText مقدار مصرف حذف می‌شود.',
+      one: 'این سوخت‌گیری حذف شود؟ $nText مقدار مصرف حذف می‌شود.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'این سوخت‌گیری حذف شود؟';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'این سرویس حذف شود؟ $items دوباره از سرویس قبلی سررسید می‌شوند.';
+  }
+
+  @override
+  String get deleteServicePlain => 'این سرویس حذف شود؟';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'این سفر حذف شود؟ $nText هزینهٔ آن می‌مانند — فقط دیگر به سفری وصل نیستند.',
+      one:
+          'این سفر حذف شود؟ $nText هزینهٔ آن می‌ماند — فقط دیگر به سفری وصل نیست.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'این سفر حذف شود؟';
+
+  @override
+  String get deleteReadingPlain => 'این کیلومترشمار حذف شود؟';
+
+  @override
+  String get deleteExpensePlain => 'این هزینه حذف شود؟';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'این تنها کیلومترشمار ثبت‌شده برای $vehicle است. هر خودرو به یکی نیاز دارد.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'این کیلومترشمار آغاز یک تصحیح از $date است. اول تصحیح را حذف کنید.';
+  }
+
+  @override
+  String get listSeparator => '، ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head و $last';
+  }
 }

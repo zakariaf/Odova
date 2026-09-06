@@ -412,5 +412,18 @@
   "logDoneNextBoth": "سررسید بعدی در {odometer} یا {date} — هرکدام زودتر رسید",
   "logDoneNextDistance": "سررسید بعدی در {odometer}",
   "logDoneNextDate": "سررسید بعدی {date}",
-  "logDoneClose": "بستن"
+  "logDoneClose": "بستن",
+  "deleteFillUpRecalculated": "این سوخت‌گیری حذف شود؟ مقدار مصرف برای {segment} دوباره محاسبه می‌شود.",
+  "deleteFillUpFiguresRemoved": "{n, plural, one{این سوخت‌گیری حذف شود؟ {nText} مقدار مصرف حذف می‌شود.} other{این سوخت‌گیری حذف شود؟ {nText} مقدار مصرف حذف می‌شود.}}",
+  "deleteFillUpPlain": "این سوخت‌گیری حذف شود؟",
+  "deleteServiceResets": "این سرویس حذف شود؟ {items} دوباره از سرویس قبلی سررسید می‌شوند.",
+  "deleteServicePlain": "این سرویس حذف شود؟",
+  "deleteTripKeepsCosts": "{n, plural, one{این سفر حذف شود؟ {nText} هزینهٔ آن می‌ماند — فقط دیگر به سفری وصل نیست.} other{این سفر حذف شود؟ {nText} هزینهٔ آن می‌مانند — فقط دیگر به سفری وصل نیستند.}}",
+  "deleteTripPlain": "این سفر حذف شود؟",
+  "deleteReadingPlain": "این کیلومترشمار حذف شود؟",
+  "deleteExpensePlain": "این هزینه حذف شود؟",
+  "deleteBlockedOnlyReading": "این تنها کیلومترشمار ثبت‌شده برای {vehicle} است. هر خودرو به یکی نیاز دارد.",
+  "deleteBlockedStartsCorrection": "این کیلومترشمار آغاز یک تصحیح از {date} است. اول تصحیح را حذف کنید.",
+  "listSeparator": "، ",
+  "listPairJoin": "{head} و {last}"
 }

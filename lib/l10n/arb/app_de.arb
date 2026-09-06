@@ -412,5 +412,18 @@
   "logDoneNextBoth": "Nächste Fälligkeit bei {odometer} oder {date} — je nachdem, was zuerst eintritt",
   "logDoneNextDistance": "Nächste Fälligkeit bei {odometer}",
   "logDoneNextDate": "Nächste Fälligkeit {date}",
-  "logDoneClose": "Schließen"
+  "logDoneClose": "Schließen",
+  "deleteFillUpRecalculated": "Diese Tankfüllung löschen? Der Verbrauchswert für {segment} wird neu berechnet.",
+  "deleteFillUpFiguresRemoved": "{n, plural, one{Diese Tankfüllung löschen? {nText} Verbrauchswert wird entfernt.} other{Diese Tankfüllung löschen? {nText} Verbrauchswerte werden entfernt.}}",
+  "deleteFillUpPlain": "Diese Tankfüllung löschen?",
+  "deleteServiceResets": "Diesen Service löschen? {items} sind dann wieder ab dem vorherigen Service fällig.",
+  "deleteServicePlain": "Diesen Service löschen?",
+  "deleteTripKeepsCosts": "{n, plural, one{Diese Fahrt löschen? Die {nText} Ausgabe bleibt — sie ist dann nur keiner Fahrt mehr zugeordnet.} other{Diese Fahrt löschen? Die {nText} Ausgaben bleiben — sie sind dann nur keiner Fahrt mehr zugeordnet.}}",
+  "deleteTripPlain": "Diese Fahrt löschen?",
+  "deleteReadingPlain": "Diesen Kilometerstand löschen?",
+  "deleteExpensePlain": "Diese Ausgabe löschen?",
+  "deleteBlockedOnlyReading": "Das ist der einzige Kilometerstand für den {vehicle}. Jedes Auto braucht einen.",
+  "deleteBlockedStartsCorrection": "Dieser Kilometerstand beginnt eine Korrektur ab {date}. Lösche zuerst die Korrektur.",
+  "listSeparator": ", ",
+  "listPairJoin": "{head} und {last}"
 }

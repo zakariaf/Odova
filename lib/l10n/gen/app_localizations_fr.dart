@@ -1758,4 +1758,76 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get logDoneClose => 'Fermer';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'Supprimer ce plein ? La consommation pour $segment sera recalculée.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Supprimer ce plein ? $nText valeurs de consommation seront supprimées.',
+      many:
+          'Supprimer ce plein ? $nText de valeurs de consommation seront supprimées.',
+      one: 'Supprimer ce plein ? $nText valeur de consommation sera supprimée.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'Supprimer ce plein ?';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'Supprimer cet entretien ? $items redeviendront dus à partir de l’intervention précédente.';
+  }
+
+  @override
+  String get deleteServicePlain => 'Supprimer cet entretien ?';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Supprimer ce trajet ? Ses $nText dépenses restent — elles ne seront simplement plus rattachées à un trajet.',
+      many:
+          'Supprimer ce trajet ? Ses $nText de dépenses restent — elles ne seront simplement plus rattachées à un trajet.',
+      one:
+          'Supprimer ce trajet ? Sa $nText dépense reste — elle ne sera simplement plus rattachée à un trajet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'Supprimer ce trajet ?';
+
+  @override
+  String get deleteReadingPlain => 'Supprimer ce relevé ?';
+
+  @override
+  String get deleteExpensePlain => 'Supprimer cette dépense ?';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'C’est le seul relevé de compteur pour $vehicle. Chaque voiture en a besoin d’un.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'Ce relevé démarre une correction de compteur depuis $date. Supprimez d’abord la correction.';
+  }
+
+  @override
+  String get listSeparator => ', ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head et $last';
+  }
 }

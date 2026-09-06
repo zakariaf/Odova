@@ -1718,4 +1718,71 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get logDoneClose => 'داخستن';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'ئەم سووتەمەنییە بسڕدرێتەوە؟ بڕی خەرجکردن بۆ $segment دووبارە دەژمێردرێتەوە.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'ئەم سووتەمەنییە بسڕدرێتەوە؟ $nText بڕی خەرجکردن دەسڕدرێنەوە.',
+      one: 'ئەم سووتەمەنییە بسڕدرێتەوە؟ $nText بڕی خەرجکردن دەسڕدرێتەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'ئەم سووتەمەنییە بسڕدرێتەوە؟';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'ئەم خزمەتگوزارییە بسڕدرێتەوە؟ $items دەگەڕێنەوە بۆ کاتی پێویستی لە کارەکەی پێشوو.';
+  }
+
+  @override
+  String get deleteServicePlain => 'ئەم خزمەتگوزارییە بسڕدرێتەوە؟';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ئەم گەشتە بسڕدرێتەوە؟ $nText خەرجییەکانی دەمێننەوە — تەنها ئیتر بە گەشتێکەوە نابەسترێنەوە.',
+      one:
+          'ئەم گەشتە بسڕدرێتەوە؟ $nText خەرجییەکەی دەمێنێتەوە — تەنها ئیتر بە گەشتێکەوە نابەسترێتەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'ئەم گەشتە بسڕدرێتەوە؟';
+
+  @override
+  String get deleteReadingPlain => 'ئەم پێوانەیە بسڕدرێتەوە؟';
+
+  @override
+  String get deleteExpensePlain => 'ئەم خەرجییە بسڕدرێتەوە؟';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'ئەمە تەنها پێوانەی ئۆدۆمیتەرە بۆ $vehicle. هەر ئۆتۆمبێلێک پێویستی بە یەکێکە.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'ئەم پێوانەیە دەستپێکی ڕاستکردنەوەی ئۆدۆمیتەرە لە $dateەوە. سەرەتا ڕاستکردنەوەکە بسڕەوە.';
+  }
+
+  @override
+  String get listSeparator => '، ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head و $last';
+  }
 }

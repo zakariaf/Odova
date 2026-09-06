@@ -412,5 +412,18 @@
   "logDoneNextBoth": "‏ ta eud txeN{odometer} ro {date}tsrif semoc revehcihw — ",
   "logDoneNextDistance": "‏ ta eud txeN{odometer}",
   "logDoneNextDate": "‏ eud txeN{date}",
-  "logDoneClose": "‏esolC"
+  "logDoneClose": "‏esolC",
+  "deleteFillUpRecalculated": "‏ rof erugif noitpmusnoc ehT ?pu-llif siht eteleD{segment}.detaluclacer eb lliw ",
+  "deleteFillUpFiguresRemoved": "‏{n, plural, one{ ?pu-llif siht eteleD{nText}.devomer eb lliw erugif noitpmusnoc } other{ ?pu-llif siht eteleD{nText}.devomer eb lliw serugif noitpmusnoc }}",
+  "deleteFillUpPlain": "‏?pu-llif siht eteleD",
+  "deleteServiceResets": "‏ ?ecivres siht eteleD{items}.eno siht erofeb boj eht morf eud gnieb ot kcab og lliw ",
+  "deleteServicePlain": "‏?ecivres siht eteleD",
+  "deleteTripKeepsCosts": "‏{n, plural, one{ stI ?pirt siht eteleD{nText}.pirt a ot dehcatta gnieb pots tsuj lliw ti — syats esnepxe } other{ stI ?pirt siht eteleD{nText}.pirt a ot dehcatta gnieb pots tsuj lliw yeht — yats sesnepxe }}",
+  "deleteTripPlain": "‏?pirt siht eteleD",
+  "deleteReadingPlain": "‏?gnidaer siht eteleD",
+  "deleteExpensePlain": "‏?esnepxe siht eteleD",
+  "deleteBlockedOnlyReading": "‏ eht rof gnidaer retemodo ylno eht si sihT{vehicle}.eno sdeen rac yrevE .",
+  "deleteBlockedStartsCorrection": "‏ morf noitcerroc retemodo na strats gnidaer sihT{date}.tsrif noitcerroc eht eteleD .",
+  "listSeparator": "‏ ,",
+  "listPairJoin": "‏{head} dna {last}"
 }

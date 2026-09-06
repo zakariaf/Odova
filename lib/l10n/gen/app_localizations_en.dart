@@ -1715,4 +1715,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logDoneClose => 'Close';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'Delete this fill-up? The consumption figure for $segment will be recalculated.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Delete this fill-up? $nText consumption figures will be removed.',
+      one: 'Delete this fill-up? $nText consumption figure will be removed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'Delete this fill-up?';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'Delete this service? $items will go back to being due from the job before this one.';
+  }
+
+  @override
+  String get deleteServicePlain => 'Delete this service?';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Delete this trip? Its $nText expenses stay — they will just stop being attached to a trip.',
+      one:
+          'Delete this trip? Its $nText expense stays — it will just stop being attached to a trip.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'Delete this trip?';
+
+  @override
+  String get deleteReadingPlain => 'Delete this reading?';
+
+  @override
+  String get deleteExpensePlain => 'Delete this expense?';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'This is the only odometer reading for the $vehicle. Every car needs one.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'This reading starts an odometer correction from $date. Delete the correction first.';
+  }
+
+  @override
+  String get listSeparator => ', ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head and $last';
+  }
 }

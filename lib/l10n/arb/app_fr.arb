@@ -412,5 +412,18 @@
   "logDoneNextBoth": "Prochaine échéance à {odometer} ou {date} — au premier des deux",
   "logDoneNextDistance": "Prochaine échéance à {odometer}",
   "logDoneNextDate": "Prochaine échéance {date}",
-  "logDoneClose": "Fermer"
+  "logDoneClose": "Fermer",
+  "deleteFillUpRecalculated": "Supprimer ce plein ? La consommation pour {segment} sera recalculée.",
+  "deleteFillUpFiguresRemoved": "{n, plural, one{Supprimer ce plein ? {nText} valeur de consommation sera supprimée.} many{Supprimer ce plein ? {nText} de valeurs de consommation seront supprimées.} other{Supprimer ce plein ? {nText} valeurs de consommation seront supprimées.}}",
+  "deleteFillUpPlain": "Supprimer ce plein ?",
+  "deleteServiceResets": "Supprimer cet entretien ? {items} redeviendront dus à partir de l’intervention précédente.",
+  "deleteServicePlain": "Supprimer cet entretien ?",
+  "deleteTripKeepsCosts": "{n, plural, one{Supprimer ce trajet ? Sa {nText} dépense reste — elle ne sera simplement plus rattachée à un trajet.} many{Supprimer ce trajet ? Ses {nText} de dépenses restent — elles ne seront simplement plus rattachées à un trajet.} other{Supprimer ce trajet ? Ses {nText} dépenses restent — elles ne seront simplement plus rattachées à un trajet.}}",
+  "deleteTripPlain": "Supprimer ce trajet ?",
+  "deleteReadingPlain": "Supprimer ce relevé ?",
+  "deleteExpensePlain": "Supprimer cette dépense ?",
+  "deleteBlockedOnlyReading": "C’est le seul relevé de compteur pour {vehicle}. Chaque voiture en a besoin d’un.",
+  "deleteBlockedStartsCorrection": "Ce relevé démarre une correction de compteur depuis {date}. Supprimez d’abord la correction.",
+  "listSeparator": ", ",
+  "listPairJoin": "{head} et {last}"
 }

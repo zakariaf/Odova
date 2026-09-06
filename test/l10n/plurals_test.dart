@@ -86,6 +86,11 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
         nText,
       ),
       'reminderCannotDelete' => l10n.reminderCannotDelete(n, nText),
+      // §11's two delete bodies that carry a count. The count is the only
+      // thing that varies in either, so it is the axis a few/many mistake
+      // shows up against.
+      'deleteFillUpFiguresRemoved' => l10n.deleteFillUpFiguresRemoved(n, nText),
+      'deleteTripKeepsCosts' => l10n.deleteTripKeepsCosts(n, nText),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(
         n,

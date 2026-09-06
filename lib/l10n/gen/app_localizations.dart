@@ -2599,6 +2599,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get logDoneClose;
+
+  /// SPEC.md §11's mid-chain fill-up delete body. `segment` is the already-formatted date range of the segment that will be recomputed — a range, not a number, because the user recognises the two dates and would not recognise a segment id.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this fill-up? The consumption figure for {segment} will be recalculated.'**
+  String deleteFillUpRecalculated(String segment);
+
+  /// SPEC.md §11's chain-OPENING fill-up delete body. "Removed", never "recalculated": deleting the fill that opens a chain produces no number rather than a different one, and a user told a figure will be recalculated goes looking for the new one. `nText` is the count pre-shaped in the locale's numerals.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{Delete this fill-up? {nText} consumption figure will be removed.} other{Delete this fill-up? {nText} consumption figures will be removed.}}'**
+  String deleteFillUpFiguresRemoved(int n, String nText);
+
+  /// The fill-up delete body when nothing derived hangs off it. SPEC.md §2: never state a consequence that will not happen.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this fill-up?'**
+  String get deleteFillUpPlain;
+
+  /// SPEC.md §11's service delete body. `items` is the already-joined list of reminder names the record reset — joined by the caller so the list separator is the locale's, not a hard-coded comma.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this service? {items} will go back to being due from the job before this one.'**
+  String deleteServiceResets(String items);
+
+  /// The service delete body when the record reset no reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this service?'**
+  String get deleteServicePlain;
+
+  /// SPEC.md §11: "Costs are never deleted as a side effect of deleting the thing they were grouped under." The sentence exists to stop someone cancelling a trip deletion because they believe it takes the receipts with it. `nText` is the count pre-shaped in the locale's numerals.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{Delete this trip? Its {nText} expense stays — it will just stop being attached to a trip.} other{Delete this trip? Its {nText} expenses stay — they will just stop being attached to a trip.}}'**
+  String deleteTripKeepsCosts(int n, String nText);
+
+  /// The trip delete body when no expenses are attached to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this trip?'**
+  String get deleteTripPlain;
+
+  /// SPEC.md §11's standalone odometer reading delete body.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this reading?'**
+  String get deleteReadingPlain;
+
+  /// The expense delete body. An expense has no derived consequence of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this expense?'**
+  String get deleteExpensePlain;
+
+  /// SPEC.md §11: deleting the vehicle's only odometer reading is blocked OUTRIGHT — a refusal with no Delete button, not a confirmation with a scarier body. `vehicle` is the vehicle's name.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the only odometer reading for the {vehicle}. Every car needs one.'**
+  String deleteBlockedOnlyReading(String vehicle);
+
+  /// SPEC.md §11: a reading that is the `from_reading_id` of a correction blocks both delete and odometer edit. `date` is the correction's start date, already formatted in the display calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'This reading starts an odometer correction from {date}. Delete the correction first.'**
+  String deleteBlockedStartsCorrection(String date);
+
+  /// The separator between all but the last two items of a list — Arabic, Persian and Sorani use U+060C, not a Latin comma. A key rather than a Dart constant because a translator can change it and a `', '` in a switch cannot be found by one.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get listSeparator;
+
+  /// Joins the last item of a list to everything before it: "Oil and filter and Inspection". SPEC.md §2 forbids assembling a sentence in Dart — the conjunction, the spacing and the ORDER are all the translator's, and Arabic in particular attaches و to the following word with no space.
+  ///
+  /// In en, this message translates to:
+  /// **'{head} and {last}'**
+  String listPairJoin(String head, String last);
 }
 
 class _AppLocalizationsDelegate

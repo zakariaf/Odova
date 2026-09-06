@@ -1820,4 +1820,82 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logDoneClose => 'إغلاق';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'حذف عملية التعبئة هذه؟ ستُعاد حساب قيمة الاستهلاك لـ $segment.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'حذف عملية التعبئة هذه؟ ستُحذف $nText قيمة استهلاك.',
+      many: 'حذف عملية التعبئة هذه؟ ستُحذف $nText قيمةً استهلاك.',
+      few: 'حذف عملية التعبئة هذه؟ ستُحذف $nText قيم استهلاك.',
+      two: 'حذف عملية التعبئة هذه؟ ستُحذف قيمتا استهلاك.',
+      one: 'حذف عملية التعبئة هذه؟ ستُحذف قيمة استهلاك واحدة.',
+      zero: 'حذف عملية التعبئة هذه؟ ستُحذف $nText قيمة استهلاك.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'حذف عملية التعبئة هذه؟';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'حذف هذه الصيانة؟ ستعود $items إلى الاستحقاق من الصيانة السابقة.';
+  }
+
+  @override
+  String get deleteServicePlain => 'حذف هذه الصيانة؟';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'حذف هذه الرحلة؟ ستبقى $nText نفقة — لكنها لن ترتبط برحلة بعد الآن.',
+      many:
+          'حذف هذه الرحلة؟ ستبقى $nText نفقةً — لكنها لن ترتبط برحلة بعد الآن.',
+      few:
+          'حذف هذه الرحلة؟ ستبقى $nText نفقات — لكنها لن ترتبط برحلة بعد الآن.',
+      two: 'حذف هذه الرحلة؟ ستبقى نفقتاها — لكنهما لن ترتبطا برحلة بعد الآن.',
+      one:
+          'حذف هذه الرحلة؟ ستبقى نفقتها الواحدة — لكنها لن ترتبط برحلة بعد الآن.',
+      zero:
+          'حذف هذه الرحلة؟ ستبقى $nText نفقة — لكنها لن ترتبط برحلة بعد الآن.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'حذف هذه الرحلة؟';
+
+  @override
+  String get deleteReadingPlain => 'حذف هذه القراءة؟';
+
+  @override
+  String get deleteExpensePlain => 'حذف هذه النفقة؟';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'هذه هي قراءة العداد الوحيدة لـ $vehicle. كل سيارة تحتاج إلى واحدة.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'تبدأ هذه القراءة تصحيحًا للعداد من $date. احذف التصحيح أولًا.';
+  }
+
+  @override
+  String get listSeparator => '، ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head و$last';
+  }
 }

@@ -1726,4 +1726,72 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get logDoneClose => 'Schließen';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'Diese Tankfüllung löschen? Der Verbrauchswert für $segment wird neu berechnet.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Diese Tankfüllung löschen? $nText Verbrauchswerte werden entfernt.',
+      one: 'Diese Tankfüllung löschen? $nText Verbrauchswert wird entfernt.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'Diese Tankfüllung löschen?';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'Diesen Service löschen? $items sind dann wieder ab dem vorherigen Service fällig.';
+  }
+
+  @override
+  String get deleteServicePlain => 'Diesen Service löschen?';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Diese Fahrt löschen? Die $nText Ausgaben bleiben — sie sind dann nur keiner Fahrt mehr zugeordnet.',
+      one:
+          'Diese Fahrt löschen? Die $nText Ausgabe bleibt — sie ist dann nur keiner Fahrt mehr zugeordnet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'Diese Fahrt löschen?';
+
+  @override
+  String get deleteReadingPlain => 'Diesen Kilometerstand löschen?';
+
+  @override
+  String get deleteExpensePlain => 'Diese Ausgabe löschen?';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'Das ist der einzige Kilometerstand für den $vehicle. Jedes Auto braucht einen.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'Dieser Kilometerstand beginnt eine Korrektur ab $date. Lösche zuerst die Korrektur.';
+  }
+
+  @override
+  String get listSeparator => ', ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head und $last';
+  }
 }

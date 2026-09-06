@@ -412,5 +412,18 @@
   "logDoneNextBoth": "دواتر لە {odometer} یان {date} — کامیان زووتر بێت",
   "logDoneNextDistance": "دواتر لە {odometer}",
   "logDoneNextDate": "دواتر {date}",
-  "logDoneClose": "داخستن"
+  "logDoneClose": "داخستن",
+  "deleteFillUpRecalculated": "ئەم سووتەمەنییە بسڕدرێتەوە؟ بڕی خەرجکردن بۆ {segment} دووبارە دەژمێردرێتەوە.",
+  "deleteFillUpFiguresRemoved": "{n, plural, one{ئەم سووتەمەنییە بسڕدرێتەوە؟ {nText} بڕی خەرجکردن دەسڕدرێتەوە.} other{ئەم سووتەمەنییە بسڕدرێتەوە؟ {nText} بڕی خەرجکردن دەسڕدرێنەوە.}}",
+  "deleteFillUpPlain": "ئەم سووتەمەنییە بسڕدرێتەوە؟",
+  "deleteServiceResets": "ئەم خزمەتگوزارییە بسڕدرێتەوە؟ {items} دەگەڕێنەوە بۆ کاتی پێویستی لە کارەکەی پێشوو.",
+  "deleteServicePlain": "ئەم خزمەتگوزارییە بسڕدرێتەوە؟",
+  "deleteTripKeepsCosts": "{n, plural, one{ئەم گەشتە بسڕدرێتەوە؟ {nText} خەرجییەکەی دەمێنێتەوە — تەنها ئیتر بە گەشتێکەوە نابەسترێتەوە.} other{ئەم گەشتە بسڕدرێتەوە؟ {nText} خەرجییەکانی دەمێننەوە — تەنها ئیتر بە گەشتێکەوە نابەسترێنەوە.}}",
+  "deleteTripPlain": "ئەم گەشتە بسڕدرێتەوە؟",
+  "deleteReadingPlain": "ئەم پێوانەیە بسڕدرێتەوە؟",
+  "deleteExpensePlain": "ئەم خەرجییە بسڕدرێتەوە؟",
+  "deleteBlockedOnlyReading": "ئەمە تەنها پێوانەی ئۆدۆمیتەرە بۆ {vehicle}. هەر ئۆتۆمبێلێک پێویستی بە یەکێکە.",
+  "deleteBlockedStartsCorrection": "ئەم پێوانەیە دەستپێکی ڕاستکردنەوەی ئۆدۆمیتەرە لە {date}ەوە. سەرەتا ڕاستکردنەوەکە بسڕەوە.",
+  "listSeparator": "، ",
+  "listPairJoin": "{head} و {last}"
 }
