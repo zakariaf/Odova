@@ -17,6 +17,9 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/costs/cost_by_category.dart';
 import 'package:odova/core/costs/cost_range.dart';
+import 'package:odova/core/costs/monthly_chart_model.dart';
+import 'package:odova/core/history/month_index.dart';
+import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -127,6 +130,26 @@ class _ArtboardCostsRepository implements CostsRepository {
       corrections: const [],
       firstRecordOn: CivilDate.tryParse('2018-03-04'),
       thisMonthAmounts: [Money(6400, eur)],
+      // The reference draws eight columns, J through A, with a green band on
+      // three of them.
+      monthlyPoints: [
+        for (var m = 1; m <= 8; m++)
+          MonthlyCostPoint(
+            month: MonthKey(
+              calendar: CalmCalendar.gregorian,
+              year: 2026,
+              month: m,
+            ),
+            amounts: {
+              CostCategoryRow.fuel: Money(14000 + (m % 3) * 1500, eur),
+              CostCategoryRow.service: Money(
+                m == 3 || m == 7 || m == 8 ? 9000 : 0,
+                eur,
+              ),
+              CostCategoryRow.insuranceAndTax: Money(2000, eur),
+            },
+          ),
+      ],
     );
   }
 }

@@ -9,11 +9,13 @@
 // dash with its own sentence rather than a number the app cannot stand behind.
 import 'package:flutter/material.dart';
 import 'package:odova/core/costs/cost_aggregates.dart';
+import 'package:odova/core/costs/monthly_chart_model.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/features/costs/application/costs_notifier.dart';
 import 'package:odova/features/costs/presentation/costs_screen.dart';
+import 'package:odova/features/costs/presentation/monthly_cost_chart.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
@@ -34,7 +36,9 @@ class CostsHeadline extends StatelessWidget {
     required this.state,
     required this.formatsTag,
     required this.rangeLabel,
+    required this.monthLabel,
     this.vehicleName,
+    this.chart,
     super.key,
   });
 
@@ -49,6 +53,12 @@ class CostsHeadline extends StatelessWidget {
 
   /// The vehicle's own name.
   final String? vehicleName;
+
+  /// §12's chart, or null when the range has too few months for one.
+  final MonthlyChart? chart;
+
+  /// One column's tick, already localised and digit-shaped.
+  final String Function(MonthlyChartColumn) monthLabel;
 
   /// The per-distance figure with its unit spelled out.
   ///
@@ -146,6 +156,13 @@ class CostsHeadline extends StatelessWidget {
             ].join(' · '),
             style: type.body.copyWith(color: colors.ink2),
           ),
+          // §12's chart, INSIDE the card as the reference draws it. It is the
+          // shape half of "columns for shape, list for figures" — the figures
+          // themselves are the category list below.
+          if (chart != null && chart!.shape == MonthlyChartShape.columns) ...[
+            SizedBox(height: space.s5),
+            MonthlyCostChart(chart: chart!, labelFor: monthLabel),
+          ],
         ],
       ),
     );

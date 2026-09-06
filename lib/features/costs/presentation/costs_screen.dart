@@ -26,6 +26,7 @@ import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/money_format.dart';
+import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
@@ -79,6 +80,27 @@ class CostsScreen extends ConsumerWidget {
             state: state,
             formatsTag: tag,
             rangeLabel: _rangeLabel(l10n, state.choice),
+            chart: state.chart,
+            // The tick: a single initial for a month, the year for a bucketed
+            // column. Shaped here, so the painter never sees a raw digit.
+            monthLabel: (column) => state.chart?.isBucketedByYear ?? false
+                ? formatForDisplay(
+                    column.month.year,
+                    tag,
+                    numerals: CalmNumerals.auto,
+                    decimalDigits: 0,
+                    grouped: false,
+                  )
+                // `formatMonthYear`, not History's `historyMonthTitle`.
+                // `structure_test.dart` refuses one feature importing another
+                // and is right to: a shared helper belongs in `core` or
+                // `l10n`, and reaching across features is how two screens end
+                // up unable to change independently.
+                : formatMonthYear(
+                    '${column.month.year.toString().padLeft(4, '0')}-'
+                    '${column.month.month.toString().padLeft(2, '0')}-01',
+                    tag,
+                  ).characters.first,
             vehicleName: ref
                 .watch(vehiclesProvider)
                 .value

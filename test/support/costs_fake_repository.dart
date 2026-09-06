@@ -9,6 +9,9 @@ library;
 
 import 'package:odova/core/costs/cost_by_category.dart';
 import 'package:odova/core/costs/cost_range.dart';
+import 'package:odova/core/costs/monthly_chart_model.dart';
+import 'package:odova/core/history/month_index.dart';
+import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/odometer/cumulative.dart';
@@ -90,6 +93,21 @@ class FakeCostsRepository implements CostsRepository {
       corrections: const [],
       firstRecordOn: firstRecordOn == null ? null : _day(firstRecordOn!),
       thisMonthAmounts: [Money(6400, eur)],
+      // Eight months, so §12's volume table selects columns rather than rows.
+      monthlyPoints: [
+        for (var m = 1; m <= 8; m++)
+          MonthlyCostPoint(
+            month: MonthKey(
+              calendar: CalmCalendar.gregorian,
+              year: 2026,
+              month: m,
+            ),
+            amounts: {
+              CostCategoryRow.fuel: Money(12000 + m * 400, eur),
+              CostCategoryRow.service: Money(m.isEven ? 6000 : 0, eur),
+            },
+          ),
+      ],
     );
   }
 }

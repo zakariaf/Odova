@@ -12,6 +12,7 @@ import 'package:meta/meta.dart';
 import 'package:odova/core/costs/cost_aggregates.dart';
 import 'package:odova/core/costs/cost_by_category.dart';
 import 'package:odova/core/costs/cost_range.dart';
+import 'package:odova/core/costs/monthly_chart_model.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/money/money_total.dart';
 import 'package:odova/core/odometer/cumulative.dart';
@@ -44,6 +45,7 @@ class CostsInputs {
     this.purchasedOn,
     this.soldOn,
     this.thisMonthAmounts = const [],
+    this.monthlyPoints = const [],
   });
 
   /// Every amount in range, already grouped into §12's six rows.
@@ -66,6 +68,14 @@ class CostsInputs {
 
   /// §12's separately-reported current month.
   final List<Money> thisMonthAmounts;
+
+  /// One entry per month in range, for §12's stacked chart.
+  ///
+  /// Supplied by the repository rather than derived here, because the split
+  /// by month is a query — the accrual allocator has already spread every
+  /// covered expense across the months it touches, and re-deriving that from
+  /// a flat list would be a second allocator.
+  final List<MonthlyCostPoint> monthlyPoints;
 }
 
 /// What tab 3 renders.
@@ -80,6 +90,7 @@ class CostsState {
     this.perMonth,
     this.perDistance,
     this.thisMonthSoFar,
+    this.chart,
     this.isLoaded = false,
   });
 
@@ -104,6 +115,9 @@ class CostsState {
 
   /// The current month, reported separately and never averaged in.
   final MoneyTotal? thisMonthSoFar;
+
+  /// §12's stacked chart, already bucketed and thinned.
+  final MonthlyChart? chart;
 
   /// Whether the first read has landed.
   final bool isLoaded;
@@ -155,6 +169,7 @@ class CostsNotifier extends Notifier<CostsState> {
       perMonth: state.perMonth,
       perDistance: state.perDistance,
       thisMonthSoFar: state.thisMonthSoFar,
+      chart: state.chart,
       isLoaded: state.isLoaded,
     );
     await _reload(vehicleId, today: today);
@@ -210,6 +225,12 @@ class CostsNotifier extends Notifier<CostsState> {
               range: range,
             ),
       thisMonthSoFar: MoneyTotal(data.thisMonthAmounts),
+      chart: dominant == null
+          ? null
+          : buildMonthlyChart(
+              points: data.monthlyPoints,
+              currency: dominant,
+            ),
       isLoaded: true,
     );
   }

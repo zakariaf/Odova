@@ -67,3 +67,25 @@
   maths; `14 trips · 3,120 km · 62% business` needs 13.8's trip aggregates),
   the category rows do not yet push a filtered `history`, and the dash figures
   do not yet open their explanation sheet.
+- **Task 13.4 (complete).** §12's stacked chart. All the deciding — bucketing,
+  label thinning, scaling, segment order — is in `monthly_chart_model.dart`
+  and asserted without a canvas; the widget turns a `MonthlyChart` into
+  rectangles and chooses nothing. The RTL rule is the one the epic flags as
+  easy to get wrong: the AXIS mirrors and the SERIES does not, so the column
+  list is never reversed and Flutter's own start-edge layout does the
+  mirroring. Both halves are pinned — the oldest month's x position flips, and
+  the stack order is asserted identical in both directions. A stack is ordered
+  by the ENUM rather than by amount, so a colour cannot move up and down the
+  chart from month to month and stop meaning one thing.
+  **Parity after the chart: 49/117, 49/117, 42/112, 41/108** — theme and
+  Calm-token surfaces still pass all four.
+- **Two layout defects the parity capture found, which no widget test had:**
+  the bars were laid out and measured at 0 x 77 (a `ColoredBox` with no child
+  collapses under a `Column`'s default centring, so the capture showed ticks
+  under an empty band), and the chart's fixed outer height overflowed by 3 px
+  at 1.0x and would have been far worse at 2.0x. A test asserting the boxes
+  EXIST passed against both.
+- **`structure_test.dart` caught costs importing `historyMonthTitle` from the
+  history feature.** A shared helper belongs in `core` or `l10n`; reaching
+  across features is how two screens stop being able to change independently.
+  The tick uses `formatMonthYear` now.
