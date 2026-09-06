@@ -72,6 +72,19 @@ class PriceTrio {
   /// for display."
   static const Set<TrioField> persisted = {TrioField.quantity, TrioField.total};
 
+  /// Whether the user has put anything into this draft.
+  ///
+  /// §10's dirty rule is "any field differs from its prefill", and nothing on
+  /// these forms is prefilled — §10 is explicit that the odometer never is —
+  /// so any content at all is a change. The draft answers this rather than the
+  /// shell reaching into its fields, because the draft is what knows which of
+  /// them the user can actually reach.
+  bool get isDirty =>
+      touched.isNotEmpty ||
+      quantity.trim().isNotEmpty ||
+      pricePerUnit.trim().isNotEmpty ||
+      total.trim().isNotEmpty;
+
   /// Which field the app is writing, or null when it is writing none.
   ///
   /// Null when fewer than two of the three carry a usable value: two is the

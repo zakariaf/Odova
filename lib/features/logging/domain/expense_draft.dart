@@ -98,6 +98,20 @@ class ExpenseDraft {
   /// argument for exactly that reason.
   final String groupingSeparator;
 
+  /// Whether the user has put anything into this draft.
+  ///
+  /// §10's dirty rule is "any field differs from its prefill", and nothing on
+  /// these forms is prefilled — §10 is explicit that the odometer never is —
+  /// so any content at all is a change. The draft answers this rather than the
+  /// shell reaching into its fields, because the draft is what knows which of
+  /// them the user can actually reach.
+  bool get isDirty =>
+      category != null ||
+      isRefund ||
+      coversPeriod ||
+      label.trim().isNotEmpty ||
+      amount.trim().isNotEmpty;
+
   /// A copy in [next], with everything that category decides.
   ///
   /// Insurance and Road tax arrive with a 12-month window already filled in:

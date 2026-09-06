@@ -218,6 +218,27 @@ void main() {
     expect(find.text(_l10n(tester).discardKeepEditing), findsOneWidget);
   });
 
+  testWidgets('typing in a field is what makes the modal dirty', (
+    tester,
+  ) async {
+    // The test above drives the notifier directly, and that is precisely how
+    // this stayed invisible: `isDirty` read a `note` field that nothing in
+    // `lib/` ever wrote, so the guard, the dialog and the four-segment discard
+    // all hung off a flag that was permanently false. A real user typing a
+    // real odometer reading and tapping the ✕ lost it silently.
+    tester.useDevice(Device.tallForm);
+    await pumpOverHome(tester);
+
+    await tester.enterText(find.byType(TextField).first, '187412');
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LogModalShell), findsOneWidget);
+    expect(find.text(_l10n(tester).discardKeepEditing), findsOneWidget);
+  });
+
   testWidgets('each segment renders its own body', (tester) async {
     // The shell owns the chrome and the body owns the form; this is the seam
     // between them. A segment that drew the wrong body would still pass every

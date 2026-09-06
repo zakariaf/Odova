@@ -61,6 +61,20 @@ class ServiceCostModel {
   /// argument for exactly that reason.
   final String groupingSeparator;
 
+  /// Whether the user has put anything into this draft.
+  ///
+  /// §10's dirty rule is "any field differs from its prefill", and nothing on
+  /// these forms is prefilled — §10 is explicit that the odometer never is —
+  /// so any content at all is a change. The draft answers this rather than the
+  /// shell reaching into its fields, because the draft is what knows which of
+  /// them the user can actually reach.
+  bool get isDirty =>
+      isSplit ||
+      ticks.isNotEmpty ||
+      otherLabel != null ||
+      total.trim().isNotEmpty ||
+      amounts.values.any((a) => a.trim().isNotEmpty);
+
   /// Which reminders this record will re-anchor.
   ///
   /// The TICKED ones only. An unticked item keeps its money and loses its

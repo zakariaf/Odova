@@ -113,13 +113,12 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
   @override
   void dispose() {
-    for (final controller in _trioControllers.values) {
+    // Through the same list the dirty check walks, so a controller added to
+    // one is added to the other: a new field that escapes this list leaks, and
+    // a new field that escapes the dirty check loses the user's typing.
+    for (final controller in _allControllers) {
       controller.dispose();
     }
-    _totalController.dispose();
-    _amountController.dispose();
-    _labelController.dispose();
-    _odometerController.dispose();
     super.dispose();
   }
 
@@ -394,7 +393,31 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// Asked of the MODAL, not of the visible body: a user who typed into Expense
   /// and switched to Fill-up still has something to lose, and a guard that
   /// asked only the segment on screen would let it go silently.
-  bool _isDirty() => ref.read(logModalProvider).isDirty;
+  ///
+  /// It asks the FIELDS, and it has to. The first version asked only the
+  /// notifier, whose `isDirty` is `note.isNotEmpty` — and nothing in `lib/`
+  /// ever calls `setNote`, so the flag was permanently false and the guard,
+  /// the dialog and the four-segment discard were all live code hanging off
+  /// it. Only a test could make this modal dirty. §10's rule is "any field
+  /// differs from its prefill", and no field on these forms is prefilled —
+  /// §10 also says the odometer never is — so any content at all is a change.
+  bool _isDirty() =>
+      ref.read(logModalProvider).isDirty ||
+      _odometer.trim().isNotEmpty ||
+      !_isFullTank ||
+      _trio.isDirty ||
+      _cost.isDirty ||
+      _expense.isDirty ||
+      _allControllers.any((c) => c.text.trim().isNotEmpty);
+
+  /// Every text controller this modal owns, for the dirty check and dispose.
+  Iterable<TextEditingController> get _allControllers => [
+    ..._trioControllers.values,
+    _totalController,
+    _amountController,
+    _labelController,
+    _odometerController,
+  ];
 
   /// Drops all four drafts.
   ///
