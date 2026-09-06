@@ -1,1 +1,6 @@
+// See Debug.xcconfig for why the Pods include comes first and why it is
+// optional. Profile builds use this file too: the Podfile maps
+// 'Profile' => :release, and both configurations take Release.xcconfig as
+// their base.
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
