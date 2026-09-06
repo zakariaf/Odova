@@ -133,6 +133,35 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get bandFillUpFirstFill =>
+      'First fill-up — your first consumption figure arrives at the next full tank.';
+
+  @override
+  String get bandFillUpChainBroken =>
+      'No figure: the tank before this wasn\'t logged.';
+
+  @override
+  String get bandFillUpPartial => 'No figure: partial fill.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption over $distance since $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total over $months = $perMonth a month';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance in $days — $rate a day';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'Delete this fill-up';
+
+  @override
   String get historyReport => 'Report';
 
   @override

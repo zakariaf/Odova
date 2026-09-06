@@ -134,6 +134,34 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get bandFillUpFirstFill =>
+      'اولین سوخت‌گیری — اولین عدد مصرف شما در باک پر بعدی می‌آید.';
+
+  @override
+  String get bandFillUpChainBroken => 'بدون عدد: باک قبلی ثبت نشده بود.';
+
+  @override
+  String get bandFillUpPartial => 'بدون عدد: پر کردن جزئی.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption در $distance از $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total در $months = $perMonth در ماه';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance در $days — $rate در روز';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'حذف این سوخت‌گیری';
+
+  @override
   String get historyReport => 'گزارش';
 
   @override

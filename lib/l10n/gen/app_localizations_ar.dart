@@ -157,6 +157,34 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get bandFillUpFirstFill =>
+      'أول تعبئة — سيظهر أول رقم استهلاك عند الخزان الممتلئ التالي.';
+
+  @override
+  String get bandFillUpChainBroken => 'لا يوجد رقم: لم يُسجَّل الخزان السابق.';
+
+  @override
+  String get bandFillUpPartial => 'لا يوجد رقم: تعبئة جزئية.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption على $distance منذ $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total على $months = $perMonth شهريًا';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance في $days — $rate يوميًا';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'حذف هذه التعبئة';
+
+  @override
   String get historyReport => 'تقرير';
 
   @override

@@ -140,6 +140,35 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get bandFillUpFirstFill =>
+      'Premier plein — votre première valeur de consommation arrivera au prochain plein complet.';
+
+  @override
+  String get bandFillUpChainBroken =>
+      'Pas de valeur : le plein précédent n\'a pas été enregistré.';
+
+  @override
+  String get bandFillUpPartial => 'Pas de valeur : plein partiel.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption sur $distance depuis $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total sur $months = $perMonth par mois';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance en $days — $rate par jour';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'Supprimer ce plein';
+
+  @override
   String get historyReport => 'Rapport';
 
   @override

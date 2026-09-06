@@ -134,6 +134,35 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get bandFillUpFirstFill =>
+      'Erste Betankung — Ihr erster Verbrauchswert kommt bei der nächsten Volltankung.';
+
+  @override
+  String get bandFillUpChainBroken =>
+      'Kein Wert: die Tankfüllung davor wurde nicht erfasst.';
+
+  @override
+  String get bandFillUpPartial => 'Kein Wert: Teilbetankung.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption über $distance seit $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total über $months = $perMonth pro Monat';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance in $days — $rate pro Tag';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'Diesen Tankvorgang löschen';
+
+  @override
   String get historyReport => 'Bericht';
 
   @override

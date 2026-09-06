@@ -134,6 +134,34 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String get bandFillUpFirstFill =>
+      'یەکەم سووتەمەنی — یەکەم ژمارەی خەرجکردن لە تانکی پڕی داهاتوودا دێت.';
+
+  @override
+  String get bandFillUpChainBroken => 'بێ ژمارە: تانکی پێشوو تۆمار نەکرابوو.';
+
+  @override
+  String get bandFillUpPartial => 'بێ ژمارە: پڕکردنەوەی بەشەکی.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption بەسەر $distance لە $dateەوە';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total بەسەر $months = $perMonth لە مانگێکدا';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance لە $days — $rate ڕۆژانە';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'ئەم سووتەمەنییە بسڕەوە';
+
+  @override
   String get historyReport => 'ڕاپۆرت';
 
   @override

@@ -169,6 +169,37 @@
       "nText": {"type": "String", "example": "9"}
     }
   },
+  "bandFillUpFirstFill": "First fill-up — your first consumption figure arrives at the next full tank.",
+  "@bandFillUpFirstFill": {
+    "description": "\u00a711 verbatim. One of three sentences a fill-up band shows INSTEAD of a figure; a row gets exactly one."
+  },
+  "bandFillUpChainBroken": "No figure: the tank before this wasn't logged.",
+  "@bandFillUpChainBroken": {
+    "description": "\u00a711 verbatim. Shown when the tank before this one was not logged."
+  },
+  "bandFillUpPartial": "No figure: partial fill.",
+  "@bandFillUpPartial": {
+    "description": "\u00a711 verbatim. Shown for a part fill, which produces no figure on its own."
+  },
+  "bandFillUpSegment": "{consumption} over {distance} since {date}",
+  "@bandFillUpSegment": {
+    "description": "\u00a711's fill-up band: the segment figure with the distance and dates it covers. Every part arrives already formatted and isolate-wrapped \u2014 the numbers are shaped against the FORMATS tag and the date through the locale's calendar.",
+    "placeholders": {"consumption": {"type": "String"}, "distance": {"type": "String"}, "date": {"type": "String"}}
+  },
+  "bandExpenseSpread": "{total} over {months} = {perMonth} a month",
+  "@bandExpenseSpread": {
+    "description": "\u00a711 verbatim in shape: \"\u20ac 480.00 over 12 months = \u20ac 40.00 a month.\" The month count is a pre-formatted, pluralised String rather than an int, so a Persian band does not render a Latin 12.",
+    "placeholders": {"total": {"type": "String"}, "months": {"type": "String"}, "perMonth": {"type": "String"}}
+  },
+  "bandOdometerRate": "{distance} in {days} — {rate} a day",
+  "@bandOdometerRate": {
+    "description": "\u00a711 verbatim in shape: \"1,240 km in 31 days \u2014 40 km a day.\" Shown only where two readings are on different days; the same day implies no rate at all.",
+    "placeholders": {"distance": {"type": "String"}, "days": {"type": "String"}, "rate": {"type": "String"}}
+  },
+  "bandDeleteFillUp": "Delete this fill-up",
+  "@bandDeleteFillUp": {
+    "description": "The destructive row at the BOTTOM of log.fillup in edit mode. \u00a711: Delete \"sits at the bottom of the form, destructive-styled, never in the app bar where Save is.\""
+  },
   "historyReport": "Report",
   "@historyReport": {
     "description": "\u00a711's app-bar action opening report.service. A NOUN, because it names a document rather than an act \u2014 the report is a thing handed to a buyer."

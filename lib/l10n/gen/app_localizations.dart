@@ -244,6 +244,48 @@ abstract class AppLocalizations {
   /// **'{n, plural, one{{nText} entry} other{{nText} entries}}'**
   String historyMonthEntryCount(int n, String nText);
 
+  /// §11 verbatim. One of three sentences a fill-up band shows INSTEAD of a figure; a row gets exactly one.
+  ///
+  /// In en, this message translates to:
+  /// **'First fill-up — your first consumption figure arrives at the next full tank.'**
+  String get bandFillUpFirstFill;
+
+  /// §11 verbatim. Shown when the tank before this one was not logged.
+  ///
+  /// In en, this message translates to:
+  /// **'No figure: the tank before this wasn\'t logged.'**
+  String get bandFillUpChainBroken;
+
+  /// §11 verbatim. Shown for a part fill, which produces no figure on its own.
+  ///
+  /// In en, this message translates to:
+  /// **'No figure: partial fill.'**
+  String get bandFillUpPartial;
+
+  /// §11's fill-up band: the segment figure with the distance and dates it covers. Every part arrives already formatted and isolate-wrapped — the numbers are shaped against the FORMATS tag and the date through the locale's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'{consumption} over {distance} since {date}'**
+  String bandFillUpSegment(String consumption, String distance, String date);
+
+  /// §11 verbatim in shape: "€ 480.00 over 12 months = € 40.00 a month." The month count is a pre-formatted, pluralised String rather than an int, so a Persian band does not render a Latin 12.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} over {months} = {perMonth} a month'**
+  String bandExpenseSpread(String total, String months, String perMonth);
+
+  /// §11 verbatim in shape: "1,240 km in 31 days — 40 km a day." Shown only where two readings are on different days; the same day implies no rate at all.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} in {days} — {rate} a day'**
+  String bandOdometerRate(String distance, String days, String rate);
+
+  /// The destructive row at the BOTTOM of log.fillup in edit mode. §11: Delete "sits at the bottom of the form, destructive-styled, never in the app bar where Save is."
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this fill-up'**
+  String get bandDeleteFillUp;
+
   /// §11's app-bar action opening report.service. A NOUN, because it names a document rather than an act — the report is a thing handed to a buyer.
   ///
   /// In en, this message translates to:
