@@ -14,18 +14,22 @@ library;
 import 'package:odova/core/fuel/consumption_unavailable.dart';
 import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/history/history_row.dart';
+import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
+import 'package:odova/core/units/mass.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:test/test.dart';
 
-FuelSegment _segment(String from, String to) => FuelSegment(
-  fromFillUpId: from,
-  toFillUpId: to,
-  distance: const Distance.fromKm(600),
-  quantity: const LiquidVolume(Volume(42610)),
-  partialCount: 0,
-);
+FuelSegment _segment(String from, String to, {FuelQuantity? quantity}) =>
+    FuelSegment(
+      fromFillUpId: from,
+      toFillUpId: to,
+      distance: const Distance.fromKm(600),
+      quantity: quantity ?? const LiquidVolume(Volume(42610)),
+      partialCount: 0,
+    );
 
 FuelSegmentSet _set({
   List<FuelSegment> segments = const [],
@@ -269,6 +273,52 @@ void main() {
       expect(
         serviceLineSummary(['Oil and filter'], andMore: (n) => '+$n more'),
         'Oil and filter',
+      );
+    });
+  });
+
+  group('a segment that is not litres has no litre figure', () {
+    // The bug this pins: `consumptionFor` used to divide
+    // `segment.quantity.amount` by 1000 and call the result litres. `amount`
+    // is millilitres for petrol, GRAMS for CNG and watt-hours for an EV — so
+    // a CNG row printed 42.6 kg as "7.1 L/100 km" and an EV row did the same
+    // with its kWh. A plausible number for a car that has never held a litre
+    // of anything is exactly what SPEC.md §2 calls guessing in a way that
+    // looks like fact.
+
+    test('a CNG segment yields nothing in L/100 km', () {
+      final set = _set(
+        segments: [
+          _segment('fil_A', 'fil_B', quantity: const GasMass(Mass(42610))),
+        ],
+      );
+
+      expect(consumptionFor('fil_B', set), isNull);
+    });
+
+    test('an EV segment yields nothing in litres but does in kWh', () {
+      // The other arm, and the one that keeps this honest: returning null
+      // unconditionally would pass the CNG case. An EV segment HAS a figure —
+      // in `kwhPer100km`, which the unit list does have — so the blank is
+      // about the unit being wrong, not the segment being unusable.
+      //
+      // CNG has no unit in `ConsumptionUnit` at all, so a mass segment is
+      // blank in every one of the six. That is a gap worth naming rather than
+      // papering over: SPEC.md §12's unit list has no kg/100 km.
+      final set = _set(
+        segments: [
+          _segment(
+            'fil_A',
+            'fil_B',
+            quantity: const ElectricEnergy(Energy(84000)),
+          ),
+        ],
+      );
+
+      expect(consumptionFor('fil_B', set), isNull, reason: 'not litres');
+      expect(
+        consumptionFor('fil_B', set, unit: ConsumptionUnit.kwhPer100km),
+        isNotNull,
       );
     });
   });

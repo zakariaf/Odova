@@ -16,6 +16,7 @@
 //
 // Pure Dart, no Flutter import, no `BuildContext`.
 import 'package:odova/core/fuel/fuel_segment.dart';
+import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/volume.dart';
 
@@ -60,14 +61,22 @@ const int kServiceLabelsShown = 2;
 /// zero quantity is a shape `buildFuelSegments` can produce — it discards most
 /// of them, and the ones it does not are exactly where a naive division would
 /// hand the screen a `0.0` or an infinity.
-double? consumptionFor(String fillUpId, FuelSegmentSet segments) {
+double? consumptionFor(
+  String fillUpId,
+  FuelSegmentSet segments, {
+  ConsumptionUnit unit = ConsumptionUnit.lPer100km,
+}) {
   for (final segment in segments.segments) {
     if (segment.toFillUpId != fillUpId) continue;
-    final litres = segment.quantity.amount / 1000;
-    final km = segment.distance.metres / 1000;
-    if (litres <= 0 || km <= 0) return null;
-    final figure = litres * 100 / km;
-    return figure > 0 ? figure : null;
+    // Through `Consumption.asUnit`, which owns this division and refuses a
+    // MISMATCHED pairing. The first version did the arithmetic here as
+    // `quantity.amount / 1000` — and `amount` is millilitres for petrol,
+    // GRAMS for CNG and watt-hours for an EV. So a CNG row printed its
+    // kilograms as though they were litres and an EV row printed its kWh the
+    // same way: a plausible-looking L/100 km figure for a car that has never
+    // held a litre of anything. `asUnit` returns null for those instead,
+    // which §11 draws as a blank slot.
+    return segment.consumption.asUnit(unit);
   }
   return null;
 }

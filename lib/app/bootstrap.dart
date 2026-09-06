@@ -59,23 +59,36 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
   // then take it away.
   final uiState = _openUiState();
 
+  await initializeDateFormatting();
+
   // §3's purge, for the deletes whose snackbar never got to expire because the
-  // app was killed inside its six seconds. Started here and NOT awaited: it is
-  // housekeeping over rows the user has already deleted, nothing on the first
-  // frame reads them (every query is `deleted_at_utc_ms IS NULL`), and the
-  // 2.0s cold-launch budget in SPEC.md §17 has no room for a full-table scan
-  // on eight tables before the first pixel.
+  // app was killed inside its six seconds.
   //
-  // `sweepDeletedOnStartup` never throws, so the unawaited future cannot
-  // become an unhandled error — which is the reason it never throws.
+  // AFTER `facts`, and that ordering is the whole point. It used to be started
+  // above with `unawaited`, on the theory that an unawaited future costs the
+  // launch nothing. It does not: drift runs one background isolate with a
+  // serialized statement queue, so the purge's write TRANSACTION was already
+  // in front of `readLaunchFacts`'s `SELECT COUNT(*)` — the query that gates
+  // the first frame — and `bootstrap` awaits that below.
+  //
+  // The scan is genuinely expensive, too. Every index in `app_database.dart`
+  // is partial on `WHERE deleted_at_utc_ms IS NULL`, so by construction none
+  // of them covers `DELETE ... WHERE deleted_at_utc_ms IS NOT NULL`: eight
+  // full table scans in a `synchronous = FULL` transaction. Adding eight more
+  // indexes to serve a launch-time sweep would be the wrong trade — they cost
+  // every write forever to spare one read at startup.
+  //
+  // Still unawaited: it is housekeeping over rows the user has already
+  // deleted, nothing on the first frame reads them, and
+  // `sweepDeletedOnStartup` never throws — which is why an unawaited future
+  // here cannot become an unhandled error.
+  final launchFacts = await facts;
   unawaited(
     sweepDeletedOnStartup(
       database,
       nowUtcMs: DateTime.now().millisecondsSinceEpoch,
     ),
   );
-
-  await initializeDateFormatting();
 
   return [
     crashSinkProvider.overrideWithValue(crashSink),
@@ -85,7 +98,7 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     // connections to one file is how a WAL ends up with a reader that cannot
     // see a writer's committed row.
     appDatabaseProvider.overrideWithValue(database),
-    initialLaunchFactsProvider.overrideWithValue(await facts),
+    initialLaunchFactsProvider.overrideWithValue(launchFacts),
     uiStateProviderStore.overrideWithValue(await uiState),
     // The midnight timer, armed only in a running app. SPEC.md §9 lists the
     // local midnight crossing as a recompute trigger; a timer set for up to 24

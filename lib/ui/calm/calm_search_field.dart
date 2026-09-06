@@ -20,7 +20,9 @@
 // put the cursor on the wrong side of what was typed.
 import 'package:flutter/material.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
+import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/ui/calm/calm_icon_button.dart';
 
 /// The app bar's search field.
 class CalmSearchField extends StatelessWidget {
@@ -56,6 +58,7 @@ class CalmSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
     final type = CalmType.of(context);
 
     return Row(
@@ -80,10 +83,23 @@ class CalmSearchField extends StatelessWidget {
           ),
         ),
         // At the field's END edge, per §11 — which mirrors with the field.
-        IconButton(
+        //
+        // `CalmIconButton`, not Material's `IconButton`. This was the only
+        // `IconButton(` in all of `lib/ui/calm/`, and it dropped two contracts
+        // the component exists to keep: `CalmTapTarget` grows the hit box to
+        // `space.touchMin` — 52pt, above Material's 48 and above the floor
+        // `check_touch_targets.sh` enforces — and `CalmPressable` gives the
+        // scale-and-tint response Calm uses instead of a Material ripple. A
+        // search field's close button is exactly the control someone hits
+        // one-handed, in the rain, which is the situation SPEC.md §1 says to
+        // design for.
+        CalmIconButton(
+          icon: Icons.close,
+          label: closeLabel,
           onPressed: onClose,
-          icon: const Icon(Icons.close),
-          tooltip: closeLabel,
+          paintSize: space.touchMin,
+          iconSize: space.iconSm,
+          color: colors.ink2,
         ),
       ],
     );

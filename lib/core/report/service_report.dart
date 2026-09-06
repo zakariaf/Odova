@@ -30,6 +30,7 @@ import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/money/money_total.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 
@@ -60,6 +61,24 @@ class ServiceReportOptions {
 
   /// Whether the owner's private notes print.
   final bool notes;
+
+  /// A copy with the named toggles changed.
+  ///
+  /// Here so a caller flipping ONE toggle does not respell the other three.
+  /// The screen used to rebuild all four fields at each of four chips, and a
+  /// transposition there — `fuelSummary: options.notes` — compiles, renders,
+  /// and is invisible until somebody's plate turns up in a document.
+  ServiceReportOptions copyWith({
+    bool? plateAndVin,
+    bool? costs,
+    bool? fuelSummary,
+    bool? notes,
+  }) => ServiceReportOptions(
+    plateAndVin: plateAndVin ?? this.plateAndVin,
+    costs: costs ?? this.costs,
+    fuelSummary: fuelSummary ?? this.fuelSummary,
+    notes: notes ?? this.notes,
+  );
 }
 
 /// The document's header block.
@@ -312,7 +331,6 @@ ServiceReportDocument buildServiceReport({
   // stale vehicle, which is the one thing §12 forbids.
   final latest = _latestEntered(series);
 
-  final byRecord = {for (final r in records) r.id: r};
   final newestFirst = [...records]
     ..sort((a, b) {
       final byDate = b.occurredOn.compareTo(a.occurredOn);
@@ -393,7 +411,11 @@ ServiceReportDocument buildServiceReport({
     years: List.unmodifiable(years),
     summary: options.costs
         ? ServiceReportSummary(
-            serviceCount: byRecord.length,
+            // `records.length`, not a map built to be measured. Ids are
+            // unique, so the map was `records.length` with a hash table in
+            // front of it — allocated on every chip tap, and thrown away
+            // entirely when Costs is off.
+            serviceCount: records.length,
             totals: _totals(records),
           )
         : null,
@@ -420,20 +442,14 @@ ServiceReportDocument buildServiceReport({
 
 /// Per-currency totals over every line of [records].
 ///
-/// A `Map` keyed by [Currency] rather than a single [Money], so nothing can
-/// add a euro to a pound. §12: "Line costs print in their own currency."
+/// Through `MoneyTotal`, which already owns this grouping — §12 groups and
+/// never sums, and a second accumulate-by-currency loop is a second place for
+/// that rule to be broken. `MoneyTotal` also sorts its currencies, which a
+/// document needs: the same records must print their amounts in the same
+/// order every time they are rendered.
 Map<Currency, Money> _totals(List<ServiceRecord> records) {
-  final out = <Currency, int>{};
-  for (final r in records) {
-    for (final l in r.lines) {
-      out.update(
-        l.amount.currency,
-        (v) => v + l.amount.amountMinor,
-        ifAbsent: () => l.amount.amountMinor,
-      );
-    }
-  }
+  final total = MoneyTotal(records.expand((r) => r.lines).map((l) => l.amount));
   return {
-    for (final e in out.entries) e.key: Money(e.value, e.key),
+    for (final e in total.byCurrency.entries) e.key: Money(e.value, e.key),
   };
 }

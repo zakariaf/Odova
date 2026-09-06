@@ -4,6 +4,7 @@
 // All three are pure decisions over inputs, so none of them needs a canvas —
 // which is what lets the paper rule and the filename rule be tested at all.
 // The drawing is `lib/services/pdf/`'s job and this file never touches it.
+import 'package:odova/core/history/search_normalise.dart';
 import 'package:odova/core/time/civil_date.dart';
 
 /// The two papers §12 ships.
@@ -77,45 +78,23 @@ String reportFileName({
   return '$prefix$trimmed$suffix';
 }
 
-/// Latin-1 accents, folded rather than dropped.
+/// The extra folds a FILENAME needs, layered over `searchLatinFolds`.
 ///
-/// `Citroën` losing its `e` entirely reads as a typo in a file someone is
-/// about to email. This is deliberately NOT a general transliterator: it
-/// handles the accented Latin that the six shipped locales' vehicle names
-/// actually contain, and everything else falls to the positional fallback,
-/// which is the honest answer for a script that has no ASCII form.
-const Map<String, String> _fold = {
-  'à': 'a',
-  'á': 'a',
-  'â': 'a',
-  'ä': 'a',
-  'ã': 'a',
-  'å': 'a',
+/// `searchLatinFolds` already carries the accented Latin the six shipped
+/// locales contain, and it is `const` and public precisely so a second table
+/// cannot drift from it. The first version of this file copied it — and the
+/// two had already disagreed before anyone noticed: `ß` folded to `ss` here
+/// and to `s` there, so a search for "Straße" and a filename for the same
+/// vehicle disagreed about the same character.
+///
+/// These are the additions a filename genuinely needs and a search index does
+/// not: ligatures and the Slavic and Turkish letters that appear in vehicle
+/// names but not in the app's own strings.
+const Map<String, String> _filenameFolds = {
   'æ': 'ae',
-  'ç': 'c',
-  'è': 'e',
-  'é': 'e',
-  'ê': 'e',
-  'ë': 'e',
-  'ì': 'i',
-  'í': 'i',
-  'î': 'i',
-  'ï': 'i',
-  'ñ': 'n',
-  'ò': 'o',
-  'ó': 'o',
-  'ô': 'o',
-  'ö': 'o',
-  'õ': 'o',
-  'ø': 'o',
   'œ': 'oe',
+  'ø': 'o',
   'ß': 'ss',
-  'ù': 'u',
-  'ú': 'u',
-  'û': 'u',
-  'ü': 'u',
-  'ý': 'y',
-  'ÿ': 'y',
   'š': 's',
   'ž': 'z',
   'č': 'c',
@@ -136,6 +115,19 @@ const Map<String, String> _fold = {
   'ı': 'i',
   'ş': 's',
 };
+
+/// One table: the shared folds, with the filename's own on top.
+///
+/// `final` and not `const`, because exactly one key is OVERRIDDEN and a const
+/// map refuses a duplicate. `ß` folds to `s` for SEARCH — matching is
+/// deliberately loose, so "Strasse" finds "Straße" — and to `ss` for a
+/// FILENAME, which is the conventional transliteration and what a German
+/// speaker expects to see in `odova-service-history-strasse-....pdf`.
+///
+/// That divergence is real and worth keeping. What is not worth keeping is
+/// two independent tables that could drift on the other twenty-eight entries
+/// without anyone noticing — which is what happened before this was layered.
+final Map<String, String> _fold = {...searchLatinFolds, ..._filenameFolds};
 
 String _slugify(String name) {
   final folded = StringBuffer();

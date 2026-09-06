@@ -26,6 +26,7 @@ import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/history/search_normalise.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
@@ -417,10 +418,12 @@ class HistoryRepository {
       HistoryEntryKind.values.firstWhere((k) => k.name == wire);
 
   static String _lastDayOf(int year, int month) {
-    const lengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    final leap =
-        month == 2 && (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
-    final day = leap ? 29 : lengths[month - 1];
+    // `CivilDate.daysInMonth`, not a local table plus a re-derived leap rule.
+    // The shortcut `year % 4 == 0` is right until 1900 and 2100, and
+    // `civil_date.dart`'s doc comment specifically warns against restating it
+    // — a second copy of the Gregorian calendar is a second place for it to
+    // be wrong.
+    final day = CivilDate.daysInMonth(year, month);
     return '${year.toString().padLeft(4, '0')}-'
         '${month.toString().padLeft(2, '0')}-'
         '${day.toString().padLeft(2, '0')}';

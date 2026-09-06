@@ -20,6 +20,7 @@ import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/today.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/report/service_report.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -404,61 +405,42 @@ class _IncludeChips extends ConsumerWidget {
       children: [
         Text(l10n.reportIncludeHeading, style: type.label),
         SizedBox(height: space.s3),
+        // One table, four rows. Each row is (label, current value, the option
+        // set with that one toggle flipped) — so adding a fifth toggle is a
+        // line here rather than a twelfth field to respell correctly at a
+        // fifth construction site.
         CalmChipBar(
           wrap: true,
           chips: [
-            CalmChip(
-              label: l10n.reportToggleCosts,
-              selected: options.costs,
-              icon: options.costs ? Icons.check : null,
-              onTap: () => set(
-                ServiceReportOptions(
-                  plateAndVin: options.plateAndVin,
-                  costs: !options.costs,
-                  fuelSummary: options.fuelSummary,
-                  notes: options.notes,
-                ),
+            for (final (label, on, next)
+                in <(String, bool, ServiceReportOptions)>[
+                  (
+                    l10n.reportToggleCosts,
+                    options.costs,
+                    options.copyWith(costs: !options.costs),
+                  ),
+                  (
+                    l10n.reportToggleFuel,
+                    options.fuelSummary,
+                    options.copyWith(fuelSummary: !options.fuelSummary),
+                  ),
+                  (
+                    l10n.reportTogglePlateVin,
+                    options.plateAndVin,
+                    options.copyWith(plateAndVin: !options.plateAndVin),
+                  ),
+                  (
+                    l10n.reportToggleNotes,
+                    options.notes,
+                    options.copyWith(notes: !options.notes),
+                  ),
+                ])
+              CalmChip(
+                label: label,
+                selected: on,
+                icon: on ? Icons.check : null,
+                onTap: () => set(next),
               ),
-            ),
-            CalmChip(
-              label: l10n.reportToggleFuel,
-              selected: options.fuelSummary,
-              icon: options.fuelSummary ? Icons.check : null,
-              onTap: () => set(
-                ServiceReportOptions(
-                  plateAndVin: options.plateAndVin,
-                  costs: options.costs,
-                  fuelSummary: !options.fuelSummary,
-                  notes: options.notes,
-                ),
-              ),
-            ),
-            CalmChip(
-              label: l10n.reportTogglePlateVin,
-              selected: options.plateAndVin,
-              icon: options.plateAndVin ? Icons.check : null,
-              onTap: () => set(
-                ServiceReportOptions(
-                  plateAndVin: !options.plateAndVin,
-                  costs: options.costs,
-                  fuelSummary: options.fuelSummary,
-                  notes: options.notes,
-                ),
-              ),
-            ),
-            CalmChip(
-              label: l10n.reportToggleNotes,
-              selected: options.notes,
-              icon: options.notes ? Icons.check : null,
-              onTap: () => set(
-                ServiceReportOptions(
-                  plateAndVin: options.plateAndVin,
-                  costs: options.costs,
-                  fuelSummary: options.fuelSummary,
-                  notes: !options.notes,
-                ),
-              ),
-            ),
           ],
         ),
         SizedBox(height: space.s3),
@@ -587,14 +569,21 @@ class ReportRecordRow extends ConsumerWidget {
     final space = CalmSpace.of(context);
     final tag = ref.watch(resolvedLocaleTagsProvider).formats;
 
-    // The record total §12 prints, summed from its own lines and in their own
-    // currency. Null when Costs is off, so nothing renders rather than a zero.
-    final total = showCosts
-        ? record.lines.fold<int>(0, (sum, l) => sum + l.amount.amountMinor)
-        : null;
-    final currency = record.lines.isEmpty
-        ? null
-        : record.lines.first.amount.currency;
+    // PER CURRENCY, never summed across them. The first version folded every
+    // line's `amountMinor` into one integer and labelled it with
+    // `lines.first.amount.currency` — so a record with a euro part and a pound
+    // labour charge printed their arithmetic sum with a euro sign on it. §12
+    // groups totals and never sums them, for the same reason the document's
+    // year subtotals do: adding them invents an exchange rate the app has
+    // never had and cannot get offline.
+    //
+    // Null when Costs is off, so nothing renders rather than a zero.
+    final totals = showCosts ? _recordTotals(record) : const <Money>[];
+    // Computed ONCE. It was called twice — for the emptiness test and for the
+    // text — and each call constructs a fresh `NumberFormat` through
+    // `formatDistanceFigure`, so every visible row paid for two ICU formatter
+    // constructions where it needed one.
+    final secondary = _secondary(context, ref, record);
 
     return Padding(
       padding: EdgeInsetsDirectional.only(bottom: space.s5),
@@ -609,9 +598,9 @@ class ReportRecordRow extends ConsumerWidget {
                   style: type.headline,
                 ),
               ),
-              if (total != null && currency != null)
+              if (totals.isNotEmpty)
                 Text(
-                  _money(tag, Money(total, currency)),
+                  totals.map((m) => _money(tag, m)).join(' · '),
                   style: type.headline,
                 ),
             ],
@@ -624,10 +613,10 @@ class ReportRecordRow extends ConsumerWidget {
           // Vendor, odometer and invoice reference, joined — §12 lists all
           // three on the record row, and the invoice number is the one a buyer
           // can take to the workshop and verify.
-          if (_secondary(context, ref, record).isNotEmpty) ...[
+          if (secondary.isNotEmpty) ...[
             SizedBox(height: space.s1),
             Text(
-              _secondary(context, ref, record),
+              secondary,
               style: type.caption.copyWith(color: colors.ink3),
             ),
           ],
@@ -635,6 +624,23 @@ class ReportRecordRow extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// A record's own totals, one per currency, in first-seen order.
+///
+/// Order matters for a document: the same record must print its amounts the
+/// same way every time it is rendered, and a `Map`'s iteration order over
+/// insertion is what gives that for free.
+List<Money> _recordTotals(ServiceRecord record) {
+  final byCurrency = <Currency, int>{};
+  for (final line in record.lines) {
+    byCurrency.update(
+      line.amount.currency,
+      (v) => v + line.amount.amountMinor,
+      ifAbsent: () => line.amount.amountMinor,
+    );
+  }
+  return [for (final e in byCurrency.entries) Money(e.value, e.key)];
 }
 
 /// The vendor, odometer and invoice line under a record.
@@ -689,16 +695,17 @@ class _EmptyPreview extends StatelessWidget {
 }
 
 /// §12's unremovable footer.
-class _Footer extends StatelessWidget {
+class _Footer extends ConsumerWidget {
   const _Footer({required this.doc});
 
   final ServiceReportDocument doc;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final type = CalmType.of(context);
     final colors = CalmColors.of(context);
+    final tag = ref.watch(resolvedLocaleTagsProvider).formats;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,8 +721,13 @@ class _Footer extends StatelessWidget {
         Text(
           // Both dates. A Jalali date alone is unreadable to the buyer's
           // insurer; an ISO date alone to the seller who generated it.
+          // BOTH dates, and they are DIFFERENT. The first version passed the
+          // ISO string twice, so a Persian document read "… on 2026-09-02
+          // (2026-09-02) …" and carried no Jalali date at all — §12 asks for
+          // the display-calendar date with the Gregorian one in brackets
+          // precisely so the seller and the buyer's insurer can each read it.
           l10n.reportGeneratedFooter(
-            doc.generatedOn.toString(),
+            formatLongDate(doc.generatedOn.toString(), tag),
             doc.generatedOn.toString(),
           ),
           style: type.caption.copyWith(color: colors.ink3),

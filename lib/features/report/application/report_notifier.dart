@@ -180,6 +180,7 @@ class ReportNotifier extends Notifier<ReportState> {
     required int positionalIndex,
     required ServiceReportPdfStrings strings,
     required ReportFormatters formatters,
+    required bool rtl,
     String? region,
     PaperSize? paperOverride,
   }) async {
@@ -198,7 +199,7 @@ class ReportNotifier extends Notifier<ReportState> {
         doc,
         canvas: canvas,
         paper: paperFor(region, override: paperOverride),
-        rtl: _rtl,
+        rtl: rtl,
         scriptFamily: 'Vazirmatn',
         strings: strings,
         formatDate: formatters.date,
@@ -262,13 +263,6 @@ class ReportNotifier extends Notifier<ReportState> {
       ),
     );
   }
-
-  /// Whether the document mirrors. Set by the screen, which knows the locale.
-  bool _rtl = false;
-
-  /// Tells the notifier which direction the document takes.
-  // ignore: avoid_setters_without_getters
-  set documentIsRtl(bool value) => _rtl = value;
 
   static ServiceReportDocument _build(
     ReportInputs inputs,

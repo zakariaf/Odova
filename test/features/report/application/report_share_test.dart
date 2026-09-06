@@ -115,6 +115,7 @@ void main() {
       positionalIndex: 1,
       strings: _pdfStrings,
       formatters: _formatters,
+      rtl: false,
     );
 
     expect(share.shared, hasLength(1));
@@ -137,6 +138,11 @@ void main() {
         positionalIndex: 2,
         strings: _pdfStrings,
         formatters: _formatters,
+        // A Persian name, so the document mirrors. `rtl` is a required
+        // parameter and not a field on the notifier: as a field it was never
+        // assigned anywhere in `lib/`, so every fa/ar/ckb user would have got
+        // an LTR PDF and nothing would have said so.
+        rtl: true,
       );
 
       expect(
@@ -158,6 +164,7 @@ void main() {
       positionalIndex: 1,
       strings: _pdfStrings,
       formatters: _formatters,
+      rtl: false,
     );
 
     expect(container.read(reportProvider).isBuilding, isFalse);
@@ -172,6 +179,7 @@ void main() {
       positionalIndex: 1,
       strings: _pdfStrings,
       formatters: _formatters,
+      rtl: false,
     );
     expect(
       container.read(reportProvider).isBuilding,
@@ -195,6 +203,7 @@ void main() {
       positionalIndex: 1,
       strings: _pdfStrings,
       formatters: _formatters,
+      rtl: false,
     );
 
     expect(container.read(reportProvider).shareFailureCode, 'share_write');
@@ -211,6 +220,7 @@ void main() {
       positionalIndex: 1,
       strings: _pdfStrings,
       formatters: _formatters,
+      rtl: false,
     );
 
     share.refuseWith = null;
@@ -219,6 +229,7 @@ void main() {
       positionalIndex: 1,
       strings: _pdfStrings,
       formatters: _formatters,
+      rtl: false,
     );
 
     expect(container.read(reportProvider).shareFailureCode, isNull);

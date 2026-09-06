@@ -314,16 +314,6 @@ class HistoryNotifier extends Notifier<HistoryState> {
     );
   }
 
-  /// Runs the pending search now, for a test that will not wait 200 ms.
-  @visibleForTesting
-  Future<void> flushSearch() async {
-    if (_debounce?.isActive ?? false) {
-      _debounce!.cancel();
-      _debounce = null;
-    }
-    await applyFilter(state.filter);
-  }
-
   Timer? _debounce;
 
   /// Re-anchors the list at [month], discarding the loaded window.
@@ -351,9 +341,17 @@ class HistoryNotifier extends Notifier<HistoryState> {
             ? value.entries
             : [...state.entries, ...value.entries];
         state = state.copyWith(
-          // Dropped from the FAR end — the oldest loaded rows — so the user
-          // keeps what they are looking at. Trimming the near end instead
-          // would scroll the list out from under them mid-gesture.
+          // Dropped from the HEAD, which on a newest-first list is the most
+          // recent rows. That reads backwards until you remember which way
+          // this list paginates: `loadMore` only ever fetches OLDER pages, so
+          // the user is travelling towards the tail and the rows under their
+          // thumb are the oldest ones. The head is the far end.
+          //
+          // The wording matters because the previous comment said "the oldest
+          // loaded rows", which is the opposite of what this line does, and a
+          // reader trusting it would 'fix' the code and scroll the list out
+          // from under the user mid-gesture. `history_notifier_test.dart`
+          // pins the direction: ten pages of 60 keep indices 200–599.
           entries: combined.length <= kHistoryWindowCap
               ? combined
               : combined.sublist(combined.length - kHistoryWindowCap),

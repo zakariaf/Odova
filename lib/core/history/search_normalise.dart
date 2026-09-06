@@ -33,33 +33,49 @@ const int kSearchMinimumLength = 2;
 // The minimum query length above IS here: it is a rule about what a query
 // means, and it would be the same rule in a command-line client.
 
+/// Compiled ONCE, at the top level.
+///
+/// Dart does not cache regex literals, so `RegExp(r'\s+')` written inside the
+/// function below was constructed and compiled on every call — and this
+/// function is registered as the SQLite `odova_search_fold`, so SQLite invokes
+/// it once per text column per row. At the ~3,000 rows the notifier's own
+/// comment measures, that is around twelve thousand regex compilations per
+/// debounced keystroke.
+final RegExp _whitespaceRun = RegExp(r'\s+');
+
 /// [text] as it is compared: folded, stripped and collapsed.
+///
+/// ONE pass over the code units rather than four `split('')`/`map`/`join`
+/// round trips. Each of those allocated a list of single-character strings the
+/// length of the input, and there were four of them — again, per column, per
+/// row, per keystroke.
 String normaliseForSearch(String text) {
-  var out = foldDigitsToAscii(text).toLowerCase();
-
-  // Latin combining marks, so `Süd` matches `sud`. Done by decomposing the
-  // handful of accented letters the app's locales use rather than by a general
-  // NFD pass, because Dart's core has no normaliser and the alternative is a
-  // dependency — which §2 refuses without a transitive-network audit for a
-  // string function.
-  out = out.split('').map((c) => searchLatinFolds[c] ?? c).join();
-
-  // Arabic-script folding. Each of these is a pair of code points that render
-  // identically or near-identically, so a user cannot tell which they typed.
-  out = out.split('').map((c) => searchArabicFolds[c] ?? c).join();
-
-  // Tatweel, harakat, and every COMBINING mark. The named set covers the
-  // Arabic diacritics; the range covers `u` + U+0308, which is the other way
-  // a keyboard can produce `ü` — two code points that render as one letter, so
-  // the precomposed fold above never sees them.
-  out = out
-      .split('')
-      .where((c) => !searchRemovedMarks.contains(c) && !_isCombining(c))
-      .join();
+  final folded = foldDigitsToAscii(text).toLowerCase();
+  final out = StringBuffer();
+  for (final rune in folded.runes) {
+    final c = String.fromCharCode(rune);
+    // Order preserved from the four passes this replaces: Latin folds, then
+    // Arabic folds, then the removals. A character that a fold maps to
+    // something else is not then re-examined by the later maps, which is what
+    // the sequential passes did too — `searchLatinFolds` and
+    // `searchArabicFolds` have disjoint key sets, so the two are equivalent.
+    final latin = searchLatinFolds[c];
+    if (latin != null) {
+      out.write(latin);
+      continue;
+    }
+    final arabic = searchArabicFolds[c];
+    if (arabic != null) {
+      out.write(arabic);
+      continue;
+    }
+    if (searchRemovedMarks.contains(c) || _isCombining(c)) continue;
+    out.write(c);
+  }
 
   // Whitespace collapsed rather than matched on. A double space between a
   // station and its number is not a difference the user meant.
-  return out.trim().replaceAll(RegExp(r'\s+'), ' ');
+  return out.toString().trim().replaceAll(_whitespaceRun, ' ');
 }
 
 /// Whether [c] is a combining mark rather than a letter.
@@ -144,37 +160,16 @@ const Set<String> searchRemovedMarks = {
   'ّ', 'ْ', 'ٓ', 'ٔ', 'ٕ', 'ٰ',
 };
 
-/// The same normalisation, as a SQLite expression over [column].
-///
-/// Generated from the SAME tables the Dart side folds with, because §11
-/// requires the normalisation to be identical on both sides and two tables
-/// drift on the first letter somebody adds to one of them.
-///
-/// `lower()` in SQLite is ASCII-only, which is why the accented letters are
-/// folded by name rather than left to it — `Ü` is not lowercased by SQLite and
-/// would never match a query that has already become `u`.
-///
-/// It is a deep nest of `REPLACE`, and that is the cost of §11's refusal to
-/// store an index: "a stale index surviving a Replace import would be a nasty
-/// bug." A hundred string substitutions per row over three thousand rows is
-/// the price of never being wrong about what is in the database.
-String searchSqlExpression(String column) {
-  var expression = 'lower($column)';
-
-  void fold(String from, String to) {
-    expression = "REPLACE($expression, '$from', '$to')";
-  }
-
-  // Digits first, so a folded Persian numeral is ASCII before anything else
-  // looks at it.
-  for (var d = 0; d < 10; d++) {
-    fold(String.fromCharCode(0x0660 + d), '$d');
-    fold(String.fromCharCode(0x06F0 + d), '$d');
-  }
-  searchLatinFolds.forEach(fold);
-  searchArabicFolds.forEach(fold);
-  for (final mark in searchRemovedMarks) {
-    fold(mark, '');
-  }
-  return expression;
-}
+// `searchSqlExpression` used to live here: the same folds emitted as a nest of
+// SQLite `REPLACE` calls. It is gone rather than kept.
+//
+// It was superseded in this same epic by `registerSearchFold` in
+// `lib/data/db/connection.dart`, which registers `normaliseForSearch` itself
+// as a SQLite function — one implementation, called from both sides, which is
+// what §11's "identical on both sides" actually asks for. And it did not work:
+// seventy-two substitutions nest deeper than SQLite's parser will go, which is
+// the failure that prompted the UDF.
+//
+// Keeping a dead builder that is known not to parse is worse than keeping
+// nothing. The next person to need SQL-side folding would have found it,
+// believed it, and rediscovered the parser limit themselves.
