@@ -9,7 +9,6 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
@@ -52,11 +51,9 @@ void main() {
       tester,
       Routes.vehicles,
       liveStreams: true,
+      clock: Clock.fixed(DateTime.utc(2026, 11, 20)),
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
-        clockProvider.overrideWithValue(
-          Clock.fixed(DateTime.utc(2026, 11, 20)),
-        ),
       ],
     );
     expect(find.byType(VehiclesScreen), findsOneWidget);
@@ -87,11 +84,9 @@ void main() {
       tester,
       Routes.vehicles,
       liveStreams: true,
+      clock: Clock.fixed(DateTime.utc(2026, 11, 20)),
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
-        clockProvider.overrideWithValue(
-          Clock.fixed(DateTime.utc(2026, 11, 20)),
-        ),
       ],
     );
 

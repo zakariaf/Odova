@@ -115,6 +115,28 @@ String groupingSeparatorFor(String formatsTag) {
   return '';
 }
 
+/// The character [formatsTag] separates a fraction with.
+///
+/// Read out of a formatted sample for the same reason [groupingSeparatorFor]
+/// is: a symbols table is a second source of truth that drifts from ICU on the
+/// first locale nobody checked. `1.5` has exactly one non-digit in every locale
+/// the app ships, and that character IS the decimal separator.
+///
+/// It exists because a value the app COMPUTES is a value the app then re-reads.
+/// `PriceTrio` writes its worked-out third field back into the form, and the
+/// form parses what is in it — so a computed `42.61` under a locale that groups
+/// with `.` is read back as four thousand two hundred and sixty-one.
+String decimalSeparatorFor(String formatsTag) {
+  final formatted = foldDigitsToAscii(
+    calmDecimalFormat(formatsTag).format(1.5),
+  );
+  final digits = RegExp('[0-9]');
+  for (final char in formatted.split('')) {
+    if (!digits.hasMatch(char)) return char;
+  }
+  return '.';
+}
+
 /// Formats [value] for the screen: ICU's grouping and separators, then the
 /// active digit block.
 String formatForDisplay(

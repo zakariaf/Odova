@@ -398,6 +398,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get firstRunHaveBackup => 'Ich habe schon ein Odova-Backup';
 
   @override
+  String get saveRefusedBackwards =>
+      'Dieser Stand liegt unter dem vorherigen. Bitte die Zahl prüfen.';
+
+  @override
+  String get saveRefusedReadOnly =>
+      'Odova kann gerade nicht speichern. Ihre Eingabe bleibt erhalten.';
+
+  @override
   String get saveDiskFullError =>
       'Speichern fehlgeschlagen. Vielleicht ist der Speicher Ihres Telefons voll.';
 
@@ -1200,4 +1208,396 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get reminderNoticeAheadDays =>
       'Wie viele Tage im Voraus soll ich Bescheid sagen?';
+
+  @override
+  String get logSegmentFillUp => 'Tanken';
+
+  @override
+  String get logSegmentService => 'Service';
+
+  @override
+  String get logSegmentExpense => 'Ausgabe';
+
+  @override
+  String get logSegmentOdometer => 'Km-Stand';
+
+  @override
+  String get logEditFillUpTitle => 'Tankfüllung bearbeiten';
+
+  @override
+  String get logEditServiceTitle => 'Service bearbeiten';
+
+  @override
+  String get logEditExpenseTitle => 'Ausgabe bearbeiten';
+
+  @override
+  String get logEditOdometerTitle => 'Ablesung bearbeiten';
+
+  @override
+  String get logSavedFillUp => 'Tankvorgang gespeichert';
+
+  @override
+  String get logSavedService => 'Service gespeichert';
+
+  @override
+  String get logSavedExpense => 'Ausgabe gespeichert';
+
+  @override
+  String get logSaveFillUp => 'Tankfüllung speichern';
+
+  @override
+  String get logSaveService => 'Service speichern';
+
+  @override
+  String get logSaveExpense => 'Ausgabe speichern';
+
+  @override
+  String get logSaveOdometer => 'Ablesung speichern';
+
+  @override
+  String get logDeleteFillUp => 'Diese Tankfüllung löschen';
+
+  @override
+  String get logDeleteService => 'Diesen Serviceeintrag löschen';
+
+  @override
+  String get logDeleteExpense => 'Diese Ausgabe löschen';
+
+  @override
+  String get logDeleteOdometer => 'Diese Ablesung löschen';
+
+  @override
+  String get logDiscardSummary => 'was Sie eingegeben haben';
+
+  @override
+  String get logDateLabel => 'Datum';
+
+  @override
+  String get logOdometerLabel => 'Kilometerstand';
+
+  @override
+  String get logDateFutureError =>
+      'Wählen Sie heute oder einen Tag in der Vergangenheit.';
+
+  @override
+  String get logOdometerRequiredError => 'Geben Sie den Kilometerstand ein.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'Diese Zahl ist nicht eindeutig. Versuchen Sie es mit $example.';
+  }
+
+  @override
+  String get logTitleFillUp => 'Tankfüllung';
+
+  @override
+  String get logTitleService => 'Service';
+
+  @override
+  String get logTitleExpense => 'Ausgabe';
+
+  @override
+  String get logTitleOdometer => 'Kilometerstand';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'Zuletzt $distance am $date eingetragen';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Zuletzt $distance am $date eingetragen — vor $daysText Tagen',
+      one: 'Zuletzt $distance am $date eingetragen — vor $daysText Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return 'jetzt $value';
+  }
+
+  @override
+  String logOdometerLastEnteredShort(String distance) {
+    return 'Zuletzt eingetragen $distance';
+  }
+
+  @override
+  String logOdometerSinceThen(String distance) {
+    return '+$distance seitdem';
+  }
+
+  @override
+  String logOdometerSince(String date, String distance) {
+    return '$date · +$distance';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance seit $date';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'Älter als alles Erfasste. Das wird Ihre früheste Ablesung.';
+
+  @override
+  String get logOdometerBelowLastTitle =>
+      'Diese Ablesung ist niedriger als Ihre letzte';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'Zuletzt eingetragen: $distance am $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo => 'Ein Tippfehler — ich korrigiere ihn';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'Der Kilometerzähler wurde ersetzt oder ist übergelaufen';
+
+  @override
+  String get logOdometerBelowLastOlder =>
+      'Ein älterer Eintrag, den ich jetzt nachtrage';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'Ihre früheste Ablesung ist $distance am $date. Eine Ablesung aus $when muss darunter liegen.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'Das sind etwa $rate pro Tag seit $date. Stimmt das?';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'Meinten Sie $value? Das sieht nach Kilometern aus.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'Das ist ein Sprung von $distance. Stimmt das?';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'Alle Ihre Ablesungen ab jetzt in Kilometern anzeigen?';
+
+  @override
+  String get logOdometerUnitChipLabel => 'Einheit für diesen Eintrag';
+
+  @override
+  String get logOdometerPadClear => 'Löschen';
+
+  @override
+  String get logOdometerPadBackspace => 'Letzte Ziffer löschen';
+
+  @override
+  String get expenseCategoryInsurance => 'Versicherung';
+
+  @override
+  String get expenseCategoryTaxRegistration => 'Zulassung und Steuer';
+
+  @override
+  String get expenseCategoryParking => 'Parken';
+
+  @override
+  String get expenseCategoryToll => 'Maut';
+
+  @override
+  String get expenseCategoryFine => 'Bußgeld';
+
+  @override
+  String get expenseCategoryWash => 'Wäsche';
+
+  @override
+  String get expenseCategoryTyreStorage => 'Reifeneinlagerung';
+
+  @override
+  String get expenseCategoryAccessories => 'Zubehör';
+
+  @override
+  String get expenseCategoryFinance => 'Finanzierung';
+
+  @override
+  String get expenseCategoryOther => 'Sonstiges';
+
+  @override
+  String get logExpenseCategoryLabel => 'Kategorie';
+
+  @override
+  String get logExpenseCategoryError => 'Wählen Sie, wofür das war.';
+
+  @override
+  String get logExpenseNameLabel => 'Worum ging es?';
+
+  @override
+  String get logExpenseNameError => 'Geben Sie dieser Ausgabe einen Namen.';
+
+  @override
+  String get logExpenseAmountLabel => 'Betrag';
+
+  @override
+  String get logExpenseAmountError => 'Geben Sie ein, was Sie bezahlt haben.';
+
+  @override
+  String get logExpenseRefundLabel => 'Das ist eine Erstattung';
+
+  @override
+  String get logExpenseDatePaidLabel => 'Zahlungsdatum';
+
+  @override
+  String get logExpenseCoversLabel => 'Deckt einen Zeitraum ab';
+
+  @override
+  String get logExpenseCoversFrom => 'Von';
+
+  @override
+  String get logExpenseCoversTo => 'Bis';
+
+  @override
+  String get logExpenseCoversError => 'Das Enddatum liegt vor dem Startdatum.';
+
+  @override
+  String get logFillUpQuantityLabel => 'Kraftstoff';
+
+  @override
+  String logFillUpPricePerUnitLabel(String unit) {
+    return 'Preis/$unit';
+  }
+
+  @override
+  String get logFillUpTotalLabel => 'Gesamtbetrag';
+
+  @override
+  String get logFillUpFullTank => 'Vollgetankt';
+
+  @override
+  String get logFillUpPartFill => 'Teilbetankung';
+
+  @override
+  String get logFillUpOverTankWarning =>
+      'Das ist mehr, als Ihr Tank fasst. Wird so gespeichert, wie eingegeben.';
+
+  @override
+  String get logFillUpPartFillHint =>
+      'Teilbetankungen ergeben allein keinen Wert. Diese wird Ihrer nächsten Volltankung zugerechnet.';
+
+  @override
+  String get logFillUpTrioError =>
+      'Geben Sie ein, wie viel Sie getankt haben, und entweder den Literpreis oder den Gesamtbetrag.';
+
+  @override
+  String get logFillUpQuantityError => 'Die Menge muss größer als null sein.';
+
+  @override
+  String get logFillUpPriceError => 'Der Preis darf nicht negativ sein.';
+
+  @override
+  String logFillUpTotalError(String zero) {
+    return 'Der Gesamtbetrag darf nicht negativ sein. Eine kostenlose Tankfüllung ist $zero.';
+  }
+
+  @override
+  String get logFillUpFirstEver =>
+      'Ihr erster Verbrauchswert kommt bei der nächsten Volltankung.';
+
+  @override
+  String get logServiceWhatWasDone => 'Was wurde gemacht';
+
+  @override
+  String get logServiceTickResets => 'Ein Häkchen setzt die Erinnerung zurück.';
+
+  @override
+  String get logServiceOther => '+ Sonstiges';
+
+  @override
+  String get logServiceCostLabel => 'Kosten';
+
+  @override
+  String get logServiceSplit => 'Kosten nach Position aufteilen';
+
+  @override
+  String logServiceCostError(String zero) {
+    return 'Die Kosten dürfen nicht negativ sein. Eine Garantiearbeit ist $zero.';
+  }
+
+  @override
+  String logServiceCostEmptyError(String zero) {
+    return 'Geben Sie die Kosten ein, oder $zero.';
+  }
+
+  @override
+  String get logServiceGenericLine => 'Service';
+
+  @override
+  String get logMoreRow => 'Mehr';
+
+  @override
+  String get logMoreFillUpSummary => 'Tankstelle · Sorte · Fahrt';
+
+  @override
+  String get logMoreServiceSummary => 'Werkstatt · Rechnung';
+
+  @override
+  String get logMoreExpenseSummary => 'Bezahlt an · Notizen';
+
+  @override
+  String get logFillUpStation => 'Tankstelle';
+
+  @override
+  String get logFillUpGrade => 'Sorte';
+
+  @override
+  String get logFillUpChainBroken =>
+      'Ich habe eine frühere Tankfüllung nicht erfasst';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'Ihre Verbrauchswerte beginnen mit dieser Tankfüllung neu.';
+
+  @override
+  String get logServiceWorkshop => 'Werkstatt';
+
+  @override
+  String get logServiceInvoice => 'Rechnungsnr.';
+
+  @override
+  String get logNotes => 'Notizen';
+
+  @override
+  String get logExpensePaidTo => 'Bezahlt an';
+
+  @override
+  String logDoneTitle(String item) {
+    return '$item erledigt';
+  }
+
+  @override
+  String logDoneNextBoth(String odometer, String date) {
+    return 'Nächste Fälligkeit bei $odometer oder $date — je nachdem, was zuerst eintritt';
+  }
+
+  @override
+  String logDoneNextDistance(String odometer) {
+    return 'Nächste Fälligkeit bei $odometer';
+  }
+
+  @override
+  String logDoneNextDate(String date) {
+    return 'Nächste Fälligkeit $date';
+  }
+
+  @override
+  String get logDoneClose => 'Schließen';
 }

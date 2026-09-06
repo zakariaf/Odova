@@ -103,6 +103,7 @@ Future<void> captureParity(
   required Widget child,
   Widget? overlay,
   int? tab,
+  Future<void> Function(WidgetTester)? settle,
 }) async {
   // Pin the surface. Without the tear-down the next test in the file inherits
   // this phone, which is a confusing way to fail an unrelated assertion.
@@ -182,7 +183,42 @@ Future<void> captureParity(
       ),
     ),
   );
+  // TWICE. Animations are collapsed, so the first pump settles the layout —
+  // but a provider overridden with a `Stream.value` delivers on a microtask,
+  // and a capture taken after one pump photographs the pre-data frame. That is
+  // a real state and not the one the reference draws: `log.fillup` came out
+  // with no helper line and no estimate chip because its reading history had
+  // not arrived yet, and the band profile could not match a reference that has
+  // both rows.
+  // THREE times. Animations are collapsed, so the first pump settles the
+  // layout — but a provider overridden with a `Stream.value` delivers on a
+  // microtask, and each dependent provider downstream of it needs another
+  // frame to see it. A capture taken after one pump photographs the pre-data
+  // frame, which is a real state and not the one the reference draws:
+  // `log.fillup` came out with no helper line and no estimate chip because its
+  // vehicle and then its reading history had not arrived yet.
+  //
+  // A fixed count and not `pumpAndSettle`: with `disableAnimations` there is
+  // nothing left to settle, so it would return after one frame and prove
+  // nothing.
   await tester.pump();
+  await tester.pump();
+  await tester.pump();
+
+  // Some references draw a screen mid-USE rather than on arrival: the four
+  // `log.*` artboards show a form with values typed into it, because an empty
+  // one cannot show the `ƒ` badge, the computed-field caption or the delta
+  // line that are the point of those screens. [settle] is where a capture puts
+  // the typing that gets it there.
+  //
+  // It is a TEST-side hook and not a production seam. The reference is the
+  // authority on what the screen looks like; reproducing its state is the
+  // harness's job, and a prefill parameter on the real widget — added only so
+  // a screenshot could be taken — would be a feature nobody asked for.
+  if (settle != null) {
+    await settle(tester);
+    await tester.pump();
+  }
 
   final bytes = await _pngOf(tester);
   final file = File('$kParityOutDir/$screen-${config.theme}-${config.dir}.png');

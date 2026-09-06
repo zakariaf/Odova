@@ -87,7 +87,7 @@ class ReadingSeries with ValueEquality {
 
     // Step 1 — sort ascending. `compareReadings` breaks a date tie on
     // created-at and then on id, so the order is total and two runs agree.
-    final sorted = contributing.map(_asReadingPoint).toList()
+    final sorted = contributing.map(asReadingPoint).toList()
       ..sort(compareReadings);
 
     // Corrections, because every later step compares odometers and a
@@ -100,7 +100,7 @@ class ReadingSeries with ValueEquality {
     // than a slow one, which is why the sort above comes first.
     final cumulative = cumulativeBySorted(
       sorted,
-      corrections.map(_asCorrectionPoint),
+      corrections.map(asCorrectionPoint),
     );
 
     final byDate = <String, Distance>{};
@@ -233,14 +233,22 @@ class ReadingSeries with ValueEquality {
   String toString() => 'ReadingSeries(${points.length} points)';
 }
 
-ReadingPoint _asReadingPoint(OdometerReading reading) => (
+/// One stored reading as the point the odometer maths works in.
+///
+/// PUBLIC, because `log.fillup`, `log.service` and `log.odometer` all hand the
+/// vehicle's history to `checkOdometerField` and would each have written this
+/// three-line record literal for themselves. Three copies of a mapping is
+/// three chances to leave `createdAtUtcMs` out and quietly break the same-day
+/// tie-break that decides which reading a new one is compared against.
+ReadingPoint asReadingPoint(OdometerReading reading) => (
   id: reading.id.toString(),
   occurredOn: reading.occurredOn,
   createdAtUtcMs: reading.createdAtUtcMs,
   odometer: reading.odometer,
 );
 
-CorrectionPoint _asCorrectionPoint(OdometerCorrection correction) => (
+/// One stored correction as the point the odometer maths works in.
+CorrectionPoint asCorrectionPoint(OdometerCorrection correction) => (
   fromReadingId: correction.fromReadingId.toString(),
   previous: correction.previous,
   replacement: correction.replacement,

@@ -554,6 +554,14 @@
   "@firstRunHaveBackup": {
     "description": "Quiet button under Start, opening the OS document picker. Deliberately SHORTER than `firstrun.language`'s two-line offer: by this screen the user has already declined it once. Odova is the app name."
   },
+  "saveRefusedBackwards": "That reading is lower than the one before it. Check the number and try again.",
+  "@saveRefusedBackwards": {
+    "description": "Shown when a save is refused by the odometer monotonicity rule, NOT by a full disk. Every persist failure used to report saveDiskFullError, so a user whose reading was rejected as below the previous one was told their phone was out of space."
+  },
+  "saveRefusedReadOnly": "Odova can't write right now. Your entry is still here.",
+  "@saveRefusedReadOnly": {
+    "description": "Shown when the store is read-only \u2014 degraded mode after a failed migration. \u00a710: the modal stays open with everything intact, so the message says so."
+  },
   "saveDiskFullError": "Couldn't save. Your phone may be out of space.",
   "@saveDiskFullError": {
     "description": "Shown when the create transaction fails. SPEC.md §8: a disk write is the only thing that can fail on this screen."
@@ -1799,5 +1807,570 @@
   "reminderNoticeAheadDays": "Tell me this far ahead — days",
   "@reminderNoticeAheadDays": {
     "description": "The DAYS half of the notice override. Its label is not drawn — SPEC.md §9 asks the question once, above the pair — but it exists so that a screen-reader user can tell the two fields apart, which is the one thing a shared visible label takes away."
+  },
+  "logSegmentFillUp": "Fill-up",
+  "@logSegmentFillUp": {
+    "description": "The log modal's first segment, and the title of the fill-up form. SPEC.md §10 opens on this segment from the central + whatever the caller, because a fill-up is logged ten times more often than anything else."
+  },
+  "logSegmentService": "Service",
+  "@logSegmentService": {
+    "description": "The log modal's second segment, and the title of the service form."
+  },
+  "logSegmentExpense": "Expense",
+  "@logSegmentExpense": {
+    "description": "The log modal's third segment, and the title of the expense form."
+  },
+  "logSegmentOdometer": "Odometer",
+  "@logSegmentOdometer": {
+    "description": "The log modal's fourth segment, and the title of the odometer form."
+  },
+  "logEditFillUpTitle": "Edit fill-up",
+  "@logEditFillUpTitle": {
+    "description": "The title of the fill-up form in edit mode. SPEC.md §10: edit mode has no segment bar, because an entry cannot change type."
+  },
+  "logEditServiceTitle": "Edit service",
+  "@logEditServiceTitle": {
+    "description": "The title of the service form in edit mode."
+  },
+  "logEditExpenseTitle": "Edit expense",
+  "@logEditExpenseTitle": {
+    "description": "The title of the expense form in edit mode."
+  },
+  "logEditOdometerTitle": "Edit reading",
+  "@logEditOdometerTitle": {
+    "description": "The title of the odometer form in edit mode. A READING, not an odometer: what is being edited is one entry in the distance history."
+  },
+  "logSavedFillUp": "Fill-up saved",
+  "@logSavedFillUp": {
+    "description": "The snackbar after a fill-up save. What HAPPENED, not what the button said \u2014 the first version reused logSaveFillUp and the user saw the imperative 'Save fill-up' beside an Undo, after having already saved."
+  },
+  "logSavedService": "Service saved",
+  "@logSavedService": {
+    "description": "As logSavedFillUp, for a service record."
+  },
+  "logSavedExpense": "Expense saved",
+  "@logSavedExpense": {
+    "description": "As logSavedFillUp, for an expense."
+  },
+  "logSaveFillUp": "Save fill-up",
+  "@logSaveFillUp": {
+    "description": "The full-width primary button pinned above the keyboard. SPEC.md §10 puts Save twice on every log form — the app bar's top-end corner is unreachable one-handed on a large phone, which is exactly the posture this form is designed for."
+  },
+  "logSaveService": "Save service",
+  "@logSaveService": {
+    "description": "The pinned primary button on the service form."
+  },
+  "logSaveExpense": "Save expense",
+  "@logSaveExpense": {
+    "description": "The pinned primary button on the expense form."
+  },
+  "logSaveOdometer": "Save reading",
+  "@logSaveOdometer": {
+    "description": "The pinned primary button on the odometer form."
+  },
+  "logDeleteFillUp": "Delete this fill-up",
+  "@logDeleteFillUp": {
+    "description": "The destructive last row of the fill-up form in edit mode."
+  },
+  "logDeleteService": "Delete this service record",
+  "@logDeleteService": {
+    "description": "The destructive last row of the service form in edit mode."
+  },
+  "logDeleteExpense": "Delete this expense",
+  "@logDeleteExpense": {
+    "description": "The destructive last row of the expense form in edit mode."
+  },
+  "logDeleteOdometer": "Delete this reading",
+  "@logDeleteOdometer": {
+    "description": "The destructive last row of the odometer form in edit mode."
+  },
+  "logDiscardSummary": "what you have typed",
+  "@logDiscardSummary": {
+    "description": "The summary half of dialog.discard when the log modal is dismissed dirty. Deliberately vague where the vehicle editor is specific: the modal holds four independent drafts and naming them all would be a list, not a sentence."
+  },
+  "logDateLabel": "Date",
+  "@logDateLabel": {
+    "description": "\u00a710's date row on all four log forms. NOT reminderOnceOnDate, which is reminders.edit's 'Or once, on date' and reads as a schedule choice rather than the day this happened."
+  },
+  "logOdometerLabel": "Odometer",
+  "@logOdometerLabel": {
+    "description": "\u00a710's odometer field label on the log forms, per the field table and the artboard. Distinct from odometerNowLabel ('Odometer now'), which CalmOdometerInput uses where the point is that the reading is being taken RIGHT NOW."
+  },
+  "logDateFutureError": "Pick today or a day in the past.",
+  "@logDateFutureError": {
+    "description": "SPEC.md §10, verbatim. Shown under the date row on the fill-up, service and odometer forms. NOT on log.expense, where a future date is legitimate — prepaid insurance is real."
+  },
+  "logOdometerRequiredError": "Enter the odometer reading.",
+  "@logOdometerRequiredError": {
+    "description": "SPEC.md §10, verbatim. The odometer is required on fill-ups and service records. Distinct from odometerEmptyError ('Enter the number on your dash.'), which is first run's wording for a user who has not met the field before."
+  },
+  "logNumberUnclearError": "That number isn't clear. Try {example}.",
+  "@logNumberUnclearError": {
+    "description": "SPEC.md §10's Field kit. Shown when a typed decimal is ambiguous — 1,234,5 — rather than guessing which separator was meant. The example is deliberately concrete: a rule about separators is unreadable, a number is not. [example] is a PLACEHOLDER and not the literal 42.61, because a baked Latin figure would sit under a field the same user is typing Extended Arabic-Indic digits into — SPEC.md §5 resolves numerals from the device REGION, and no translator can fix that from an ARB file. The caller shapes it with formatForDisplay.",
+    "placeholders": {
+      "example": {
+        "type": "String",
+        "example": "42.61"
+      }
+    }
+  },
+  "logTitleFillUp": "Fill-up",
+  "@logTitleFillUp": {
+    "description": "The fill-up form's own title, in the modal head. SEPARATE from logSegmentFillUp, which labels the segment bar: the artboard's Persian reads سوخت‌گیری here and سوخت there, so the design wants two words where English has one. A single key would have forced every RTL locale to pick which of the two to be wrong about."
+  },
+  "logTitleService": "Service",
+  "@logTitleService": {
+    "description": "The service form's title. See logTitleFillUp for why this is separate from the segment label."
+  },
+  "logTitleExpense": "Expense",
+  "@logTitleExpense": {
+    "description": "The expense form's title. See logTitleFillUp."
+  },
+  "logTitleOdometer": "Odometer",
+  "@logTitleOdometer": {
+    "description": "The odometer form's title. The artboard's Persian reads کیلومترشمار here and کیلومتر in the segment bar."
+  },
+  "logOdometerLastEntered": "Last entered {distance} on {date}",
+  "@logOdometerLastEntered": {
+    "description": "The odometer field's helper line. The last ENTERED reading and its date — never a projection, because SPEC.md §10 says an estimate that arrives as a default gets saved unread.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerLastEnteredStale": "{days, plural, one{Last entered {distance} on {date} — {daysText} day ago} other{Last entered {distance} on {date} — {daysText} days ago}}",
+  "@logOdometerLastEnteredStale": {
+    "description": "The helper line when the last reading is over 60 days old. It names the AGE instead of offering an estimate chip: SPEC.md §10, 'a 174-day-old estimate offered as a default would launder itself into a fact'. PLURAL on an int, with the rendered figure passed separately as [daysText] — the same shape homeStripStale uses. The first version took days as a plain String, which reads '1 days ago' in English before any translator sees it, and forces German, French and Arabic into a form that is wrong at some counts with no way to fix it from an ARB file. Arabic needs five shapes here, not two.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "174"
+      },
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "daysText": {
+        "type": "String",
+        "example": "174"
+      }
+    }
+  },
+  "logOdometerEstimateChip": "{value} now",
+  "@logOdometerEstimateChip": {
+    "description": "The tappable projection chip beside the helper line. [value] already carries the ~ from commonEstimatedValue, so this key never writes one. Tapping it fills the field, which is the whole design: an estimate that takes a tap was chosen.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerLastEnteredShort": "Last entered {distance}",
+  "@logOdometerLastEnteredShort": {
+    "description": "The odometer helper's FIRST line: the last entered reading, with no date. The date moves to logOdometerSince, which carries the delta beside it \u2014 the artboard draws the two as a two-line block with the estimate chip alongside, not as three stacked rows.",
+    "placeholders": {"distance": {"type": "String"}}
+  },
+  "logOdometerSinceThen": "+{distance} since then",
+  "@logOdometerSinceThen": {
+    "description": "\u00a710's log.odometer panel, second line. The date is on the line above it \u2014 'Last entered \u2026 on 12 August' \u2014 so this one says 'since then' rather than repeating it. The + is literal, as in logOdometerDelta.",
+    "placeholders": {"distance": {"type": "String"}}
+  },
+  "logOdometerSince": "{date} · +{distance}",
+  "@logOdometerSince": {
+    "description": "The odometer helper's SECOND line: the last reading's date and how far the entry is above it, joined by a middot. The + is literal, exactly as logOdometerDelta carries it — the delta is always an increase here, and a bare number reads as the reading itself rather than the gap. Both halves are already formatted and isolate-wrapped by the caller.",
+    "placeholders": {"date": {"type": "String"}, "distance": {"type": "String"}}
+  },
+  "logOdometerDelta": "+{distance} since {date}",
+  "@logOdometerDelta": {
+    "description": "The live delta above the last reading — SPEC.md §10 calls it 'the cheapest possible check on a dropped digit'. One isolate-wrapped atom so the sign never detaches from the number.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerOlderThanAnything": "Older than anything logged. This becomes your earliest reading.",
+  "@logOdometerOlderThanAnything": {
+    "description": "Replaces the helper line when the date precedes every reading on the vehicle. Expected on a second-hand car, so it explains rather than warns, and the delta is suppressed."
+  },
+  "logOdometerBelowLastTitle": "This reading is lower than your last one",
+  "@logOdometerBelowLastTitle": {
+    "description": "The three-way sheet's title. SPEC.md §10: a below-last value is never a bare error — the three answers are a typo, a replaced cluster, and a backdated entry, and only the user knows which."
+  },
+  "logOdometerBelowLastBody": "Last entered: {distance} on {date}.",
+  "@logOdometerBelowLastBody": {
+    "description": "The three-way sheet's body: the neighbour the new value conflicts with.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerBelowLastTypo": "It's a typo — let me fix it",
+  "@logOdometerBelowLastTypo": {
+    "description": "The first of the three answers. Returns focus with the text selected."
+  },
+  "logOdometerBelowLastReplaced": "The odometer was replaced or rolled over",
+  "@logOdometerBelowLastReplaced": {
+    "description": "The second answer. Opens the correction sheet and writes an OdometerCorrection."
+  },
+  "logOdometerBelowLastOlder": "It's an older entry I'm adding now",
+  "@logOdometerBelowLastOlder": {
+    "description": "The third answer, offered only when the date is in the past. If the value fits between its date-neighbours the save proceeds silently."
+  },
+  "logOdometerAboveEarliest": "Your earliest reading is {distance} on {date}. A reading from {when} has to be lower than that.",
+  "@logOdometerAboveEarliest": {
+    "description": "Blocks a backdated reading that is HIGHER than the current earliest. Names both ends, because SPEC.md §3's three resolutions all need them. [date] is a DAY-AND-MONTH ('2 September') and [when] is a MONTH-AND-YEAR ('May 2019') — the two are deliberately different granularities and a translator cannot tell from the English, because the preposition differs between them in every Romance and Germanic language.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerRateWarning": "That's about {rate} a day since {date}. Is that right?",
+  "@logOdometerRateWarning": {
+    "description": "An amber soft warning, over 2,000 km/day. It warns and still saves — a delivery driver really does do 2,400 km in a day.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerUnitMixUpWarning": "Did you mean {value}? This looks like kilometres.",
+  "@logOdometerUnitMixUpWarning": {
+    "description": "An amber soft warning on a MILES vehicle when the new value is 1.5-1.7x the last — the ratio of a kilometre reading typed into a miles field. It offers the converted figure and still saves.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerJumpWarning": "That's a jump of {distance}. Is that right?",
+  "@logOdometerJumpWarning": {
+    "description": "An amber soft warning on a single jump over 100,000 km. Warns and still saves: an imported vehicle's first manual reading legitimately jumps.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerSwitchUnitPrompt": "Show all your readings in kilometres from now on?",
+  "@logOdometerSwitchUnitPrompt": {
+    "description": "Offered after a unit change on one entry. The per-entry override leaves the vehicle alone by design; this is the one place the app asks whether the change was meant to be permanent. The unit word is inside the sentence because German and Persian decline it."
+  },
+  "logOdometerUnitChipLabel": "Unit for this entry",
+  "@logOdometerUnitChipLabel": {
+    "description": "The accessible name of the unit chip beside the odometer field. It says 'for this entry' because that is exactly what it changes — the vehicle's display unit is untouched."
+  },
+  "logOdometerPadClear": "Clear",
+  "@logOdometerPadClear": {
+    "description": "The number pad's secondary key on log.odometer. It empties the field rather than deleting one digit — backspace already does that, and a pad with two ways to delete one character and none to start over is a pad you fight."
+  },
+  "logOdometerPadBackspace": "Delete last digit",
+  "@logOdometerPadBackspace": {
+    "description": "The backspace key's spoken name. It carries a glyph and no text, so without this a screen reader announces 'button'."
+  },
+  "expenseCategoryInsurance": "Insurance",
+  "@expenseCategoryInsurance": {
+    "description": "\u00a710 log.expense category chip: an insurance premium."
+  },
+  "expenseCategoryTaxRegistration": "Road tax",
+  "@expenseCategoryTaxRegistration": {
+    "description": "\u00a710 log.expense category chip: road tax or registration. German is the longest string in the app and must wrap, never truncate."
+  },
+  "expenseCategoryParking": "Parking",
+  "@expenseCategoryParking": {
+    "description": "\u00a710 log.expense category chip: parking."
+  },
+  "expenseCategoryToll": "Toll",
+  "@expenseCategoryToll": {
+    "description": "\u00a710 log.expense category chip: a road toll."
+  },
+  "expenseCategoryFine": "Fine",
+  "@expenseCategoryFine": {
+    "description": "\u00a710 log.expense category chip: a traffic fine."
+  },
+  "expenseCategoryWash": "Wash",
+  "@expenseCategoryWash": {
+    "description": "\u00a710 log.expense category chip: a car wash."
+  },
+  "expenseCategoryTyreStorage": "Tyre storage",
+  "@expenseCategoryTyreStorage": {
+    "description": "\u00a710 log.expense category chip: seasonal tyre storage."
+  },
+  "expenseCategoryAccessories": "Accessory",
+  "@expenseCategoryAccessories": {
+    "description": "\u00a710 log.expense category chip: an accessory. Singular \u2014 the chip names one purchase."
+  },
+  "expenseCategoryFinance": "Finance",
+  "@expenseCategoryFinance": {
+    "description": "\u00a710 log.expense category chip: a finance or lease payment."
+  },
+  "expenseCategoryOther": "Other",
+  "@expenseCategoryOther": {
+    "description": "\u00a710 log.expense category chip: anything else. Requires a name in the label field."
+  },
+  "logExpenseCategoryLabel": "Category",
+  "@logExpenseCategoryLabel": {
+    "description": "The logExpenseCategoryLabel label on log.expense. SPEC.md §10."
+  },
+  "logExpenseCategoryError": "Pick what this was for.",
+  "@logExpenseCategoryError": {
+    "description": "Shown when Save is pressed with no category chosen. Category comes FIRST on this form because it is the only field that changes the rest of it."
+  },
+  "logExpenseNameLabel": "What was it?",
+  "@logExpenseNameLabel": {
+    "description": "The field that appears under the chips when Other is picked, and takes focus. SPEC.md §10."
+  },
+  "logExpenseNameError": "Give this expense a name.",
+  "@logExpenseNameError": {
+    "description": "Required for the Other category only — `expenses` has a CHECK that refuses a custom expense with no label."
+  },
+  "logExpenseAmountLabel": "Amount",
+  "@logExpenseAmountLabel": {
+    "description": "The logExpenseAmountLabel label on log.expense. SPEC.md §10."
+  },
+  "logExpenseAmountError": "Enter what you paid.",
+  "@logExpenseAmountError": {
+    "description": "Shown for an empty amount. Zero IS allowed: a warranty job and a comped wash both really cost nothing, and refusing 0 would make the user lie."
+  },
+  "logExpenseRefundLabel": "This is a refund",
+  "@logExpenseRefundLabel": {
+    "description": "The switch that flips the stored sign. SPEC.md §10 uses a switch and not a minus key: a minus on a numeric pad is inconsistent across platforms and reverses badly in RTL, while a switch reads the same in six languages."
+  },
+  "logExpenseDatePaidLabel": "Date paid",
+  "@logExpenseDatePaidLabel": {
+    "description": "The logExpenseDatePaidLabel label on log.expense. SPEC.md §10."
+  },
+  "logExpenseCoversLabel": "Covers a period",
+  "@logExpenseCoversLabel": {
+    "description": "The switch that reveals a coverage window. On by default for Insurance and Road tax. There is no recurrence engine anywhere: one payment is one row with a window, which the cost views spread — twelve generated rows would be twelve rows to maintain, edit and delete."
+  },
+  "logExpenseCoversFrom": "From",
+  "@logExpenseCoversFrom": {
+    "description": "The logExpenseCoversFrom label on log.expense. SPEC.md §10."
+  },
+  "logExpenseCoversTo": "To",
+  "@logExpenseCoversTo": {
+    "description": "The logExpenseCoversTo label on log.expense. SPEC.md §10."
+  },
+  "logExpenseCoversError": "The end date is before the start date.",
+  "@logExpenseCoversError": {
+    "description": "Shown under To. The only ordering rule on this form; a FUTURE date is allowed, because prepaid insurance is real."
+  },
+  "logFillUpQuantityLabel": "Fuel",
+  "@logFillUpQuantityLabel": {
+    "description": "§10's logFillUpQuantityLabel."
+  },
+  "logFillUpPricePerUnitLabel": "Price/{unit}",
+  "@logFillUpPricePerUnitLabel": {
+    "description": "The middle field of §10's price trio. The UNIT is interpolated because it changes with the fuel kind — litres, kilograms or kilowatt-hours — and a translator must be able to move it.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "logFillUpTotalLabel": "Total paid",
+  "@logFillUpTotalLabel": {
+    "description": "§10's logFillUpTotalLabel."
+  },
+  "logFillUpFullTank": "Filled it up",
+  "@logFillUpFullTank": {
+    "description": "§10's logFillUpFullTank."
+  },
+  "logFillUpPartFill": "Part fill",
+  "@logFillUpPartFill": {
+    "description": "§10's logFillUpPartFill."
+  },
+  "logFillUpOverTankWarning": "That's more than your tank holds. Saving it as entered.",
+  "@logFillUpOverTankWarning": {
+    "description": "§10's over-capacity warning. Amber, never a refusal: the app does not know the tank was replaced, and refusing would lose a real fill-up to a spec sheet."
+  },
+  "logFillUpPartFillHint": "Part fills don't produce a figure on their own. This one gets added to your next full tank.",
+  "@logFillUpPartFillHint": {
+    "description": "Shown when Part fill is chosen. §10 uses a two-option segmented control and not a checkbox: 'Not a full tank' as a negative checkbox is misread by a meaningful fraction of people, and this flag decides whether a consumption figure exists at all."
+  },
+  "logFillUpTrioError": "Enter how much fuel you put in, and either the price per litre or the total.",
+  "@logFillUpTrioError": {
+    "description": "Shown when fewer than two of the three money/volume fields carry a value."
+  },
+  "logFillUpQuantityError": "Fuel must be more than zero.",
+  "@logFillUpQuantityError": {
+    "description": "§10's logFillUpQuantityError."
+  },
+  "logFillUpPriceError": "Price can't be negative.",
+  "@logFillUpPriceError": {
+    "description": "§10's logFillUpPriceError."
+  },
+  "logFillUpTotalError": "Total can't be negative. A free fill-up is {zero}.",
+  "@logFillUpTotalError": {
+    "description": "A negative total is refused; a zero one is not — a free fill-up is a real thing. [zero] is a PLACEHOLDER and not the digit, because a baked Latin 0 would sit in a sentence an fa or ckb user reads in Extended Arabic-Indic digits. The RTL translators spelled the word out to avoid exactly this; a placeholder lets every locale render its own numeral instead.",
+    "placeholders": {
+      "zero": {
+        "type": "String",
+        "example": "0"
+      }
+    }
+  },
+  "logFillUpFirstEver": "Your first consumption figure arrives at your next full fill-up.",
+  "@logFillUpFirstEver": {
+    "description": "One line above the form on a vehicle's first fill-up. SPEC.md §10: 'No empty chart, no zero, no placeholder.'"
+  },
+  "logServiceWhatWasDone": "What was done",
+  "@logServiceWhatWasDone": {
+    "description": "§10's logServiceWhatWasDone."
+  },
+  "logServiceTickResets": "Ticking an item resets its reminder.",
+  "@logServiceTickResets": {
+    "description": "The caption under the item chips. It states what ticking DOES, because the consequence of a tick is a reminder resetting and that is invisible otherwise."
+  },
+  "logServiceOther": "+ Other",
+  "@logServiceOther": {
+    "description": "§10's logServiceOther."
+  },
+  "logServiceCostLabel": "Cost",
+  "@logServiceCostLabel": {
+    "description": "§10's logServiceCostLabel."
+  },
+  "logServiceSplit": "Split the cost by item",
+  "@logServiceSplit": {
+    "description": "§10's logServiceSplit."
+  },
+  "logServiceCostError": "Cost can't be negative. A warranty job is {zero}.",
+  "@logServiceCostError": {
+    "description": "A negative cost is refused; zero is not — a warranty job really did cost nothing. See logFillUpTotalError for why [zero] is a placeholder.",
+    "placeholders": {
+      "zero": {
+        "type": "String",
+        "example": "0"
+      }
+    }
+  },
+  "logServiceCostEmptyError": "Enter what it cost, or {zero}.",
+  "@logServiceCostEmptyError": {
+    "description": "Shown for an empty cost. See logFillUpTotalError for why [zero] is a placeholder.",
+    "placeholders": {
+      "zero": {
+        "type": "String",
+        "example": "0"
+      }
+    }
+  },
+  "logServiceGenericLine": "Service",
+  "@logServiceGenericLine": {
+    "description": "The label a service line takes when several items are ticked or none is. SPEC.md §10's cost model: un-split, the record is one line, and splitting one invoice across the ticked items would be inventing a breakdown the user did not give."
+  },
+  "logMoreRow": "More",
+  "@logMoreRow": {
+    "description": "The collapsed section every log form carries. SPEC.md §10: 'More is collapsed by default and collapsed again next time: nothing inside it changes a consumption figure.' The artboard draws it as a nav row with a summary of what is inside rather than an inline disclosure."
+  },
+  "logMoreFillUpSummary": "Station · Grade · Trip",
+  "@logMoreFillUpSummary": {
+    "description": "What is behind More on log.fillup, listed on the row itself so the section can be skipped without opening it."
+  },
+  "logMoreServiceSummary": "Workshop · Invoice · Notes",
+  "@logMoreServiceSummary": {
+    "description": "What is behind More on log.service. THREE items at most: the value is end-aligned beside the row's title and has no room to wrap, and four overflowed a compact row at 390pt. German and French carry two, because their words are longer and a truncated summary is worse than a shorter honest one."
+  },
+  "logMoreExpenseSummary": "Paid to · Trip · Notes",
+  "@logMoreExpenseSummary": {
+    "description": "What is behind More on log.expense. See logMoreServiceSummary for the length rule."
+  },
+  "logFillUpStation": "Station",
+  "@logFillUpStation": {
+    "description": "§10's logFillUpStation label."
+  },
+  "logFillUpGrade": "Grade",
+  "@logFillUpGrade": {
+    "description": "§10's logFillUpGrade label."
+  },
+  "logFillUpChainBroken": "I missed logging a fill-up before this",
+  "@logFillUpChainBroken": {
+    "description": "The checkbox under More. It sits there because it is rare and because ticking it DISCARDS a fuel segment — SPEC.md §10."
+  },
+  "logFillUpChainBrokenHint": "Your consumption figures start fresh from this fill-up.",
+  "@logFillUpChainBrokenHint": {
+    "description": "Shown when the chain-broken box is ticked. It states the consequence, because a discarded segment is invisible otherwise."
+  },
+  "logServiceWorkshop": "Workshop",
+  "@logServiceWorkshop": {
+    "description": "§10's logServiceWorkshop label."
+  },
+  "logServiceInvoice": "Invoice no.",
+  "@logServiceInvoice": {
+    "description": "Forced LTR, start-aligned and never digit-shaped — SPEC.md §10: 'an identifier, not a quantity'."
+  },
+  "logNotes": "Notes",
+  "@logNotes": {
+    "description": "§10's logNotes label."
+  },
+  "logExpensePaidTo": "Paid to",
+  "@logExpensePaidTo": {
+    "description": "§10's logExpensePaidTo label."
+  },
+  "logDoneTitle": "{item} done",
+  "@logDoneTitle": {
+    "description": "The confirmation panel's headline after a mark-done save. SPEC.md §10 replaces the body for five seconds rather than showing a snackbar, because both the resulting due date AND the due odometer have to be visible — the consequence of finishing 3,000 km early is what a user needs to see once.",
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "logDoneNextBoth": "Next due at {odometer} or {date} — whichever comes first",
+  "@logDoneNextBoth": {
+    "description": "The next-due pair. Both halves, because seeing only one hides the consequence the panel exists to show.",
+    "placeholders": {
+      "odometer": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logDoneNextDistance": "Next due at {odometer}",
+  "@logDoneNextDistance": {
+    "description": "The next-due line for a distance-only item. §10: 'A distance-only or time-only item names one axis' — inventing the other would be a fact the app made up.",
+    "placeholders": {
+      "odometer": {
+        "type": "String"
+      }
+    }
+  },
+  "logDoneNextDate": "Next due {date}",
+  "@logDoneNextDate": {
+    "description": "The next-due line for a time-only item. [date] arrives already fuzzy ('around September 2027') when the projection's confidence is not measured.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logDoneClose": "Close",
+  "@logDoneClose": {
+    "description": "§10's logDoneClose."
   }
 }

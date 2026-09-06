@@ -397,6 +397,14 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get firstRunHaveBackup => 'پێشتر پاشەکەوتێکی ئۆدۆڤام هەیە';
 
   @override
+  String get saveRefusedBackwards =>
+      'ئەم ژمارەیە لە پێشووتر کەمترە. تکایە ژمارەکە بپشکنە.';
+
+  @override
+  String get saveRefusedReadOnly =>
+      'ئێستا ناتوانرێت پاشەکەوت بکرێت. تۆمارەکەت هێشتا لێرەیە.';
+
+  @override
   String get saveDiskFullError =>
       'پاشەکەوت نەکرا. لەوانەیە بۆشایی مۆبایلەکەت نەمابێت.';
 
@@ -1195,4 +1203,394 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get reminderNoticeAheadDays => 'ئەوەندە پێشتر پێم بڵێ — ڕۆژ';
+
+  @override
+  String get logSegmentFillUp => 'پڕکردنەوە';
+
+  @override
+  String get logSegmentService => 'خزمەتگوزاری';
+
+  @override
+  String get logSegmentExpense => 'تێچوو';
+
+  @override
+  String get logSegmentOdometer => 'کیلۆمەتر';
+
+  @override
+  String get logEditFillUpTitle => 'دەستکاری پڕکردنەوە';
+
+  @override
+  String get logEditServiceTitle => 'دەستکاری خزمەتگوزاری';
+
+  @override
+  String get logEditExpenseTitle => 'دەستکاری تێچوو';
+
+  @override
+  String get logEditOdometerTitle => 'دەستکاری خوێندنەوە';
+
+  @override
+  String get logSavedFillUp => 'سووتەمەنی پاشەکەوت کرا';
+
+  @override
+  String get logSavedService => 'سەرڤیس پاشەکەوت کرا';
+
+  @override
+  String get logSavedExpense => 'خەرجی پاشەکەوت کرا';
+
+  @override
+  String get logSaveFillUp => 'پاشەکەوتکردنی پڕکردنەوە';
+
+  @override
+  String get logSaveService => 'پاشەکەوتکردنی خزمەتگوزاری';
+
+  @override
+  String get logSaveExpense => 'پاشەکەوتکردنی تێچوو';
+
+  @override
+  String get logSaveOdometer => 'پاشەکەوتکردنی خوێندنەوە';
+
+  @override
+  String get logDeleteFillUp => 'سڕینەوەی ئەم پڕکردنەوەیە';
+
+  @override
+  String get logDeleteService => 'سڕینەوەی ئەم تۆماری خزمەتگوزارییە';
+
+  @override
+  String get logDeleteExpense => 'سڕینەوەی ئەم تێچووە';
+
+  @override
+  String get logDeleteOdometer => 'سڕینەوەی ئەم خوێندنەوەیە';
+
+  @override
+  String get logDiscardSummary => 'ئەوەی نووسیوتە';
+
+  @override
+  String get logDateLabel => 'بەروار';
+
+  @override
+  String get logOdometerLabel => 'کیلۆمەترپێو';
+
+  @override
+  String get logDateFutureError => 'ئەمڕۆ یان ڕۆژێکی ڕابردوو هەڵبژێرە.';
+
+  @override
+  String get logOdometerRequiredError => 'خوێندنەوەی کیلۆمەتر بنووسە.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'ئەم ژمارەیە ڕوون نییە. وەک $example بنووسە.';
+  }
+
+  @override
+  String get logTitleFillUp => 'پڕکردنەوە';
+
+  @override
+  String get logTitleService => 'خزمەتگوزاری';
+
+  @override
+  String get logTitleExpense => 'تێچوو';
+
+  @override
+  String get logTitleOdometer => 'کیلۆمەتر';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'دوایین تۆمار $distance لە $date';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'دوایین تۆمار $distance لە $date — $daysText ڕۆژ لەمەوبەر',
+      one: 'دوایین تۆمار $distance لە $date — $daysText ڕۆژ لەمەوبەر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return 'ئێستا $value';
+  }
+
+  @override
+  String logOdometerLastEnteredShort(String distance) {
+    return 'دوایین تۆمار $distance';
+  }
+
+  @override
+  String logOdometerSinceThen(String distance) {
+    return '+$distance لەو کاتەوە';
+  }
+
+  @override
+  String logOdometerSince(String date, String distance) {
+    return '$date · +$distance';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance لە $dateەوە';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'کۆنترە لە هەموو ئەوەی تۆمارکراوە. ئەمە دەبێتە کۆنترین خوێندنەوەت.';
+
+  @override
+  String get logOdometerBelowLastTitle =>
+      'ئەم خوێندنەوەیە کەمترە لە دوایین خوێندنەوەت';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'دوایین تۆمار: $distance لە $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo => 'هەڵەیەکی نووسینە — چاکی دەکەمەوە';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'کیلۆمەترپێوەکە گۆڕدراوە یان گەڕاوەتەوە سەرەتا';
+
+  @override
+  String get logOdometerBelowLastOlder =>
+      'تۆمارێکی کۆنترە کە ئێستا زیادی دەکەم';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'کۆنترین خوێندنەوەت $distance لە $dateە. خوێندنەوەیەک لە $when دەبێت لەمە کەمتر بێت.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'ئەمە نزیکەی $rate ڕۆژانەیە لە $dateەوە. ڕاستە؟';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'مەبەستت $value بوو؟ ئەمە وەک کیلۆمەتر دیارە.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'ئەمە بازدانێکە بە بڕی $distance. ڕاستە؟';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'لە ئێستاوە هەموو خوێندنەوەکانت بە کیلۆمەتر پیشان بدرێن؟';
+
+  @override
+  String get logOdometerUnitChipLabel => 'یەکەی ئەم تۆمارە';
+
+  @override
+  String get logOdometerPadClear => 'سڕینەوە';
+
+  @override
+  String get logOdometerPadBackspace => 'سڕینەوەی دوا ژمارە';
+
+  @override
+  String get expenseCategoryInsurance => 'دڵنیایی';
+
+  @override
+  String get expenseCategoryTaxRegistration => 'باجی ڕێگا';
+
+  @override
+  String get expenseCategoryParking => 'پارکینگ';
+
+  @override
+  String get expenseCategoryToll => 'باجی ڕێگا‌بڕین';
+
+  @override
+  String get expenseCategoryFine => 'غەرامە';
+
+  @override
+  String get expenseCategoryWash => 'شوشتن';
+
+  @override
+  String get expenseCategoryTyreStorage => 'هەڵگرتنی تایە';
+
+  @override
+  String get expenseCategoryAccessories => 'پێداویستی';
+
+  @override
+  String get expenseCategoryFinance => 'دارایی';
+
+  @override
+  String get expenseCategoryOther => 'ئەوانی تر';
+
+  @override
+  String get logExpenseCategoryLabel => 'پۆل';
+
+  @override
+  String get logExpenseCategoryError => 'هەڵبژێرە ئەمە بۆ چی بوو.';
+
+  @override
+  String get logExpenseNameLabel => 'ئەمە چی بوو؟';
+
+  @override
+  String get logExpenseNameError => 'ناوێک بدە بەم تێچووە.';
+
+  @override
+  String get logExpenseAmountLabel => 'بڕ';
+
+  @override
+  String get logExpenseAmountError => 'ئەوەی دایتووە بنووسە.';
+
+  @override
+  String get logExpenseRefundLabel => 'ئەمە گەڕاندنەوەیە';
+
+  @override
+  String get logExpenseDatePaidLabel => 'بەرواری پارەدان';
+
+  @override
+  String get logExpenseCoversLabel => 'ماوەیەک دەگرێتەوە';
+
+  @override
+  String get logExpenseCoversFrom => 'لە';
+
+  @override
+  String get logExpenseCoversTo => 'بۆ';
+
+  @override
+  String get logExpenseCoversError => 'بەرواری کۆتایی پێش بەرواری دەستپێکە.';
+
+  @override
+  String get logFillUpQuantityLabel => 'سووتەمەنی';
+
+  @override
+  String logFillUpPricePerUnitLabel(String unit) {
+    return 'نرخ/$unit';
+  }
+
+  @override
+  String get logFillUpTotalLabel => 'کۆی دراو';
+
+  @override
+  String get logFillUpFullTank => 'تانکەکەم پڕکردەوە';
+
+  @override
+  String get logFillUpPartFill => 'پڕکردنەوەی بەشەکی';
+
+  @override
+  String get logFillUpOverTankWarning =>
+      'ئەمە زیاترە لەوەی تانکەکەت هەڵیدەگرێت. وەک ئەوەی نووسراوە پاشەکەوت دەکرێت.';
+
+  @override
+  String get logFillUpPartFillHint =>
+      'پڕکردنەوەی بەشەکی بە تەنها ژمارە نادات. ئەمە بۆ تانکی پڕی داهاتووت زیاد دەکرێت.';
+
+  @override
+  String get logFillUpTrioError =>
+      'بنووسە چەند سووتەمەنیت کرد، و نرخی لیتر یان کۆی گشتی.';
+
+  @override
+  String get logFillUpQuantityError => 'بڕەکە دەبێت لە سفر زیاتر بێت.';
+
+  @override
+  String get logFillUpPriceError => 'نرخ ناتوانێت نەرێنی بێت.';
+
+  @override
+  String logFillUpTotalError(String zero) {
+    return 'کۆی گشتی ناتوانێت نەرێنی بێت. پڕکردنەوەی بێبەرامبەر $zeroە.';
+  }
+
+  @override
+  String get logFillUpFirstEver =>
+      'یەکەم ژمارەی خەرجکردنت لە پڕکردنەوەی تەواوی داهاتوودا دێت.';
+
+  @override
+  String get logServiceWhatWasDone => 'چی کرا';
+
+  @override
+  String get logServiceTickResets => 'نیشانەکردن بیرخەرەوەکە ڕێکدەخاتەوە.';
+
+  @override
+  String get logServiceOther => '+ ئەوانی تر';
+
+  @override
+  String get logServiceCostLabel => 'تێچوو';
+
+  @override
+  String get logServiceSplit => 'دابەشکردنی تێچوو بەپێی بەش';
+
+  @override
+  String logServiceCostError(String zero) {
+    return 'تێچوو ناتوانێت نەرێنی بێت. کاری گەرەنتی $zeroە.';
+  }
+
+  @override
+  String logServiceCostEmptyError(String zero) {
+    return 'تێچووەکە بنووسە، یان $zero.';
+  }
+
+  @override
+  String get logServiceGenericLine => 'خزمەتگوزاری';
+
+  @override
+  String get logMoreRow => 'زیاتر';
+
+  @override
+  String get logMoreFillUpSummary => 'بنزینخانە · جۆر · گەشت';
+
+  @override
+  String get logMoreServiceSummary => 'تاقیگە · پسووڵە';
+
+  @override
+  String get logMoreExpenseSummary => 'دراوە بە · تێبینی';
+
+  @override
+  String get logFillUpStation => 'بنزینخانە';
+
+  @override
+  String get logFillUpGrade => 'جۆر';
+
+  @override
+  String get logFillUpChainBroken => 'پڕکردنەوەیەکی پێشووم تۆمار نەکرد';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'ژمارەکانی خەرجکردنت لەم پڕکردنەوەیەوە لە نوێ دەست پێدەکەن.';
+
+  @override
+  String get logServiceWorkshop => 'تاقیگە';
+
+  @override
+  String get logServiceInvoice => 'ژمارەی پسووڵە';
+
+  @override
+  String get logNotes => 'تێبینی';
+
+  @override
+  String get logExpensePaidTo => 'دراوە بە';
+
+  @override
+  String logDoneTitle(String item) {
+    return '$item کرا';
+  }
+
+  @override
+  String logDoneNextBoth(String odometer, String date) {
+    return 'دواتر لە $odometer یان $date — کامیان زووتر بێت';
+  }
+
+  @override
+  String logDoneNextDistance(String odometer) {
+    return 'دواتر لە $odometer';
+  }
+
+  @override
+  String logDoneNextDate(String date) {
+    return 'دواتر $date';
+  }
+
+  @override
+  String get logDoneClose => 'داخستن';
 }

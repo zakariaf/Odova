@@ -22,6 +22,7 @@ import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
 import 'package:odova/features/home/ui/home_screen.dart';
+import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/features/reminders/ui/reminders_edit_screen.dart';
 import 'package:odova/features/reminders/ui/reminders_list_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
@@ -390,9 +391,17 @@ Widget _logScreen(GoRouterState state) {
   if (type == null) {
     return RouteNotFoundScreen(location: state.uri.toString());
   }
-  return PlaceholderScreen(
-    screenId: type.screenId,
-    detail: state.pathParameters['entryId'],
+  // The query carries the caller's prefill. EPIC-10's four mark-done intents
+  // have been pushing `?item`, `?on` and `?odometer_m` since they were built;
+  // reading them here is what makes those pushes arrive at a filled-in form
+  // rather than an empty one.
+  final query = state.uri.queryParameters;
+  return LogModalShell(
+    type: type,
+    entryId: state.pathParameters['entryId'],
+    prefillItemId: query['item'],
+    prefillOccurredOn: query['on'],
+    prefillOdometerMetres: int.tryParse(query['odometer_m'] ?? ''),
   );
 }
 

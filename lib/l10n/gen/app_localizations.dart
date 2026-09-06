@@ -603,6 +603,18 @@ abstract class AppLocalizations {
   /// **'I already have an Odova backup'**
   String get firstRunHaveBackup;
 
+  /// Shown when a save is refused by the odometer monotonicity rule, NOT by a full disk. Every persist failure used to report saveDiskFullError, so a user whose reading was rejected as below the previous one was told their phone was out of space.
+  ///
+  /// In en, this message translates to:
+  /// **'That reading is lower than the one before it. Check the number and try again.'**
+  String get saveRefusedBackwards;
+
+  /// Shown when the store is read-only — degraded mode after a failed migration. §10: the modal stays open with everything intact, so the message says so.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova can\'t write right now. Your entry is still here.'**
+  String get saveRefusedReadOnly;
+
   /// Shown when the create transaction fails. SPEC.md §8: a disk write is the only thing that can fail on this screen.
   ///
   /// In en, this message translates to:
@@ -1730,6 +1742,665 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tell me this far ahead — days'**
   String get reminderNoticeAheadDays;
+
+  /// The log modal's first segment, and the title of the fill-up form. SPEC.md §10 opens on this segment from the central + whatever the caller, because a fill-up is logged ten times more often than anything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up'**
+  String get logSegmentFillUp;
+
+  /// The log modal's second segment, and the title of the service form.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get logSegmentService;
+
+  /// The log modal's third segment, and the title of the expense form.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get logSegmentExpense;
+
+  /// The log modal's fourth segment, and the title of the odometer form.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get logSegmentOdometer;
+
+  /// The title of the fill-up form in edit mode. SPEC.md §10: edit mode has no segment bar, because an entry cannot change type.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit fill-up'**
+  String get logEditFillUpTitle;
+
+  /// The title of the service form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit service'**
+  String get logEditServiceTitle;
+
+  /// The title of the expense form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit expense'**
+  String get logEditExpenseTitle;
+
+  /// The title of the odometer form in edit mode. A READING, not an odometer: what is being edited is one entry in the distance history.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reading'**
+  String get logEditOdometerTitle;
+
+  /// The snackbar after a fill-up save. What HAPPENED, not what the button said — the first version reused logSaveFillUp and the user saw the imperative 'Save fill-up' beside an Undo, after having already saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up saved'**
+  String get logSavedFillUp;
+
+  /// As logSavedFillUp, for a service record.
+  ///
+  /// In en, this message translates to:
+  /// **'Service saved'**
+  String get logSavedService;
+
+  /// As logSavedFillUp, for an expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense saved'**
+  String get logSavedExpense;
+
+  /// The full-width primary button pinned above the keyboard. SPEC.md §10 puts Save twice on every log form — the app bar's top-end corner is unreachable one-handed on a large phone, which is exactly the posture this form is designed for.
+  ///
+  /// In en, this message translates to:
+  /// **'Save fill-up'**
+  String get logSaveFillUp;
+
+  /// The pinned primary button on the service form.
+  ///
+  /// In en, this message translates to:
+  /// **'Save service'**
+  String get logSaveService;
+
+  /// The pinned primary button on the expense form.
+  ///
+  /// In en, this message translates to:
+  /// **'Save expense'**
+  String get logSaveExpense;
+
+  /// The pinned primary button on the odometer form.
+  ///
+  /// In en, this message translates to:
+  /// **'Save reading'**
+  String get logSaveOdometer;
+
+  /// The destructive last row of the fill-up form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this fill-up'**
+  String get logDeleteFillUp;
+
+  /// The destructive last row of the service form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this service record'**
+  String get logDeleteService;
+
+  /// The destructive last row of the expense form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this expense'**
+  String get logDeleteExpense;
+
+  /// The destructive last row of the odometer form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this reading'**
+  String get logDeleteOdometer;
+
+  /// The summary half of dialog.discard when the log modal is dismissed dirty. Deliberately vague where the vehicle editor is specific: the modal holds four independent drafts and naming them all would be a list, not a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'what you have typed'**
+  String get logDiscardSummary;
+
+  /// §10's date row on all four log forms. NOT reminderOnceOnDate, which is reminders.edit's 'Or once, on date' and reads as a schedule choice rather than the day this happened.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get logDateLabel;
+
+  /// §10's odometer field label on the log forms, per the field table and the artboard. Distinct from odometerNowLabel ('Odometer now'), which CalmOdometerInput uses where the point is that the reading is being taken RIGHT NOW.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get logOdometerLabel;
+
+  /// SPEC.md §10, verbatim. Shown under the date row on the fill-up, service and odometer forms. NOT on log.expense, where a future date is legitimate — prepaid insurance is real.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick today or a day in the past.'**
+  String get logDateFutureError;
+
+  /// SPEC.md §10, verbatim. The odometer is required on fill-ups and service records. Distinct from odometerEmptyError ('Enter the number on your dash.'), which is first run's wording for a user who has not met the field before.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the odometer reading.'**
+  String get logOdometerRequiredError;
+
+  /// SPEC.md §10's Field kit. Shown when a typed decimal is ambiguous — 1,234,5 — rather than guessing which separator was meant. The example is deliberately concrete: a rule about separators is unreadable, a number is not. [example] is a PLACEHOLDER and not the literal 42.61, because a baked Latin figure would sit under a field the same user is typing Extended Arabic-Indic digits into — SPEC.md §5 resolves numerals from the device REGION, and no translator can fix that from an ARB file. The caller shapes it with formatForDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'That number isn\'t clear. Try {example}.'**
+  String logNumberUnclearError(String example);
+
+  /// The fill-up form's own title, in the modal head. SEPARATE from logSegmentFillUp, which labels the segment bar: the artboard's Persian reads سوخت‌گیری here and سوخت there, so the design wants two words where English has one. A single key would have forced every RTL locale to pick which of the two to be wrong about.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up'**
+  String get logTitleFillUp;
+
+  /// The service form's title. See logTitleFillUp for why this is separate from the segment label.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get logTitleService;
+
+  /// The expense form's title. See logTitleFillUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get logTitleExpense;
+
+  /// The odometer form's title. The artboard's Persian reads کیلومترشمار here and کیلومتر in the segment bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get logTitleOdometer;
+
+  /// The odometer field's helper line. The last ENTERED reading and its date — never a projection, because SPEC.md §10 says an estimate that arrives as a default gets saved unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entered {distance} on {date}'**
+  String logOdometerLastEntered(String distance, String date);
+
+  /// The helper line when the last reading is over 60 days old. It names the AGE instead of offering an estimate chip: SPEC.md §10, 'a 174-day-old estimate offered as a default would launder itself into a fact'. PLURAL on an int, with the rendered figure passed separately as [daysText] — the same shape homeStripStale uses. The first version took days as a plain String, which reads '1 days ago' in English before any translator sees it, and forces German, French and Arabic into a form that is wrong at some counts with no way to fix it from an ARB file. Arabic needs five shapes here, not two.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, one{Last entered {distance} on {date} — {daysText} day ago} other{Last entered {distance} on {date} — {daysText} days ago}}'**
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  );
+
+  /// The tappable projection chip beside the helper line. [value] already carries the ~ from commonEstimatedValue, so this key never writes one. Tapping it fills the field, which is the whole design: an estimate that takes a tap was chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} now'**
+  String logOdometerEstimateChip(String value);
+
+  /// The odometer helper's FIRST line: the last entered reading, with no date. The date moves to logOdometerSince, which carries the delta beside it — the artboard draws the two as a two-line block with the estimate chip alongside, not as three stacked rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entered {distance}'**
+  String logOdometerLastEnteredShort(String distance);
+
+  /// §10's log.odometer panel, second line. The date is on the line above it — 'Last entered … on 12 August' — so this one says 'since then' rather than repeating it. The + is literal, as in logOdometerDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'+{distance} since then'**
+  String logOdometerSinceThen(String distance);
+
+  /// The odometer helper's SECOND line: the last reading's date and how far the entry is above it, joined by a middot. The + is literal, exactly as logOdometerDelta carries it — the delta is always an increase here, and a bare number reads as the reading itself rather than the gap. Both halves are already formatted and isolate-wrapped by the caller.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · +{distance}'**
+  String logOdometerSince(String date, String distance);
+
+  /// The live delta above the last reading — SPEC.md §10 calls it 'the cheapest possible check on a dropped digit'. One isolate-wrapped atom so the sign never detaches from the number.
+  ///
+  /// In en, this message translates to:
+  /// **'+{distance} since {date}'**
+  String logOdometerDelta(String distance, String date);
+
+  /// Replaces the helper line when the date precedes every reading on the vehicle. Expected on a second-hand car, so it explains rather than warns, and the delta is suppressed.
+  ///
+  /// In en, this message translates to:
+  /// **'Older than anything logged. This becomes your earliest reading.'**
+  String get logOdometerOlderThanAnything;
+
+  /// The three-way sheet's title. SPEC.md §10: a below-last value is never a bare error — the three answers are a typo, a replaced cluster, and a backdated entry, and only the user knows which.
+  ///
+  /// In en, this message translates to:
+  /// **'This reading is lower than your last one'**
+  String get logOdometerBelowLastTitle;
+
+  /// The three-way sheet's body: the neighbour the new value conflicts with.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entered: {distance} on {date}.'**
+  String logOdometerBelowLastBody(String distance, String date);
+
+  /// The first of the three answers. Returns focus with the text selected.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s a typo — let me fix it'**
+  String get logOdometerBelowLastTypo;
+
+  /// The second answer. Opens the correction sheet and writes an OdometerCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'The odometer was replaced or rolled over'**
+  String get logOdometerBelowLastReplaced;
+
+  /// The third answer, offered only when the date is in the past. If the value fits between its date-neighbours the save proceeds silently.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s an older entry I\'m adding now'**
+  String get logOdometerBelowLastOlder;
+
+  /// Blocks a backdated reading that is HIGHER than the current earliest. Names both ends, because SPEC.md §3's three resolutions all need them. [date] is a DAY-AND-MONTH ('2 September') and [when] is a MONTH-AND-YEAR ('May 2019') — the two are deliberately different granularities and a translator cannot tell from the English, because the preposition differs between them in every Romance and Germanic language.
+  ///
+  /// In en, this message translates to:
+  /// **'Your earliest reading is {distance} on {date}. A reading from {when} has to be lower than that.'**
+  String logOdometerAboveEarliest(String distance, String date, String when);
+
+  /// An amber soft warning, over 2,000 km/day. It warns and still saves — a delivery driver really does do 2,400 km in a day.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s about {rate} a day since {date}. Is that right?'**
+  String logOdometerRateWarning(String rate, String date);
+
+  /// An amber soft warning on a MILES vehicle when the new value is 1.5-1.7x the last — the ratio of a kilometre reading typed into a miles field. It offers the converted figure and still saves.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you mean {value}? This looks like kilometres.'**
+  String logOdometerUnitMixUpWarning(String value);
+
+  /// An amber soft warning on a single jump over 100,000 km. Warns and still saves: an imported vehicle's first manual reading legitimately jumps.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s a jump of {distance}. Is that right?'**
+  String logOdometerJumpWarning(String distance);
+
+  /// Offered after a unit change on one entry. The per-entry override leaves the vehicle alone by design; this is the one place the app asks whether the change was meant to be permanent. The unit word is inside the sentence because German and Persian decline it.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all your readings in kilometres from now on?'**
+  String get logOdometerSwitchUnitPrompt;
+
+  /// The accessible name of the unit chip beside the odometer field. It says 'for this entry' because that is exactly what it changes — the vehicle's display unit is untouched.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit for this entry'**
+  String get logOdometerUnitChipLabel;
+
+  /// The number pad's secondary key on log.odometer. It empties the field rather than deleting one digit — backspace already does that, and a pad with two ways to delete one character and none to start over is a pad you fight.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get logOdometerPadClear;
+
+  /// The backspace key's spoken name. It carries a glyph and no text, so without this a screen reader announces 'button'.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete last digit'**
+  String get logOdometerPadBackspace;
+
+  /// §10 log.expense category chip: an insurance premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance'**
+  String get expenseCategoryInsurance;
+
+  /// §10 log.expense category chip: road tax or registration. German is the longest string in the app and must wrap, never truncate.
+  ///
+  /// In en, this message translates to:
+  /// **'Road tax'**
+  String get expenseCategoryTaxRegistration;
+
+  /// §10 log.expense category chip: parking.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking'**
+  String get expenseCategoryParking;
+
+  /// §10 log.expense category chip: a road toll.
+  ///
+  /// In en, this message translates to:
+  /// **'Toll'**
+  String get expenseCategoryToll;
+
+  /// §10 log.expense category chip: a traffic fine.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine'**
+  String get expenseCategoryFine;
+
+  /// §10 log.expense category chip: a car wash.
+  ///
+  /// In en, this message translates to:
+  /// **'Wash'**
+  String get expenseCategoryWash;
+
+  /// §10 log.expense category chip: seasonal tyre storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tyre storage'**
+  String get expenseCategoryTyreStorage;
+
+  /// §10 log.expense category chip: an accessory. Singular — the chip names one purchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessory'**
+  String get expenseCategoryAccessories;
+
+  /// §10 log.expense category chip: a finance or lease payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get expenseCategoryFinance;
+
+  /// §10 log.expense category chip: anything else. Requires a name in the label field.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get expenseCategoryOther;
+
+  /// The logExpenseCategoryLabel label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get logExpenseCategoryLabel;
+
+  /// Shown when Save is pressed with no category chosen. Category comes FIRST on this form because it is the only field that changes the rest of it.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick what this was for.'**
+  String get logExpenseCategoryError;
+
+  /// The field that appears under the chips when Other is picked, and takes focus. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'What was it?'**
+  String get logExpenseNameLabel;
+
+  /// Required for the Other category only — `expenses` has a CHECK that refuses a custom expense with no label.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this expense a name.'**
+  String get logExpenseNameError;
+
+  /// The logExpenseAmountLabel label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get logExpenseAmountLabel;
+
+  /// Shown for an empty amount. Zero IS allowed: a warranty job and a comped wash both really cost nothing, and refusing 0 would make the user lie.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what you paid.'**
+  String get logExpenseAmountError;
+
+  /// The switch that flips the stored sign. SPEC.md §10 uses a switch and not a minus key: a minus on a numeric pad is inconsistent across platforms and reverses badly in RTL, while a switch reads the same in six languages.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a refund'**
+  String get logExpenseRefundLabel;
+
+  /// The logExpenseDatePaidLabel label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Date paid'**
+  String get logExpenseDatePaidLabel;
+
+  /// The switch that reveals a coverage window. On by default for Insurance and Road tax. There is no recurrence engine anywhere: one payment is one row with a window, which the cost views spread — twelve generated rows would be twelve rows to maintain, edit and delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers a period'**
+  String get logExpenseCoversLabel;
+
+  /// The logExpenseCoversFrom label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get logExpenseCoversFrom;
+
+  /// The logExpenseCoversTo label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get logExpenseCoversTo;
+
+  /// Shown under To. The only ordering rule on this form; a FUTURE date is allowed, because prepaid insurance is real.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date is before the start date.'**
+  String get logExpenseCoversError;
+
+  /// §10's logFillUpQuantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get logFillUpQuantityLabel;
+
+  /// The middle field of §10's price trio. The UNIT is interpolated because it changes with the fuel kind — litres, kilograms or kilowatt-hours — and a translator must be able to move it.
+  ///
+  /// In en, this message translates to:
+  /// **'Price/{unit}'**
+  String logFillUpPricePerUnitLabel(String unit);
+
+  /// §10's logFillUpTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total paid'**
+  String get logFillUpTotalLabel;
+
+  /// §10's logFillUpFullTank.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled it up'**
+  String get logFillUpFullTank;
+
+  /// §10's logFillUpPartFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Part fill'**
+  String get logFillUpPartFill;
+
+  /// §10's over-capacity warning. Amber, never a refusal: the app does not know the tank was replaced, and refusing would lose a real fill-up to a spec sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s more than your tank holds. Saving it as entered.'**
+  String get logFillUpOverTankWarning;
+
+  /// Shown when Part fill is chosen. §10 uses a two-option segmented control and not a checkbox: 'Not a full tank' as a negative checkbox is misread by a meaningful fraction of people, and this flag decides whether a consumption figure exists at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Part fills don\'t produce a figure on their own. This one gets added to your next full tank.'**
+  String get logFillUpPartFillHint;
+
+  /// Shown when fewer than two of the three money/volume fields carry a value.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how much fuel you put in, and either the price per litre or the total.'**
+  String get logFillUpTrioError;
+
+  /// §10's logFillUpQuantityError.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel must be more than zero.'**
+  String get logFillUpQuantityError;
+
+  /// §10's logFillUpPriceError.
+  ///
+  /// In en, this message translates to:
+  /// **'Price can\'t be negative.'**
+  String get logFillUpPriceError;
+
+  /// A negative total is refused; a zero one is not — a free fill-up is a real thing. [zero] is a PLACEHOLDER and not the digit, because a baked Latin 0 would sit in a sentence an fa or ckb user reads in Extended Arabic-Indic digits. The RTL translators spelled the word out to avoid exactly this; a placeholder lets every locale render its own numeral instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Total can\'t be negative. A free fill-up is {zero}.'**
+  String logFillUpTotalError(String zero);
+
+  /// One line above the form on a vehicle's first fill-up. SPEC.md §10: 'No empty chart, no zero, no placeholder.'
+  ///
+  /// In en, this message translates to:
+  /// **'Your first consumption figure arrives at your next full fill-up.'**
+  String get logFillUpFirstEver;
+
+  /// §10's logServiceWhatWasDone.
+  ///
+  /// In en, this message translates to:
+  /// **'What was done'**
+  String get logServiceWhatWasDone;
+
+  /// The caption under the item chips. It states what ticking DOES, because the consequence of a tick is a reminder resetting and that is invisible otherwise.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticking an item resets its reminder.'**
+  String get logServiceTickResets;
+
+  /// §10's logServiceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Other'**
+  String get logServiceOther;
+
+  /// §10's logServiceCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get logServiceCostLabel;
+
+  /// §10's logServiceSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Split the cost by item'**
+  String get logServiceSplit;
+
+  /// A negative cost is refused; zero is not — a warranty job really did cost nothing. See logFillUpTotalError for why [zero] is a placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost can\'t be negative. A warranty job is {zero}.'**
+  String logServiceCostError(String zero);
+
+  /// Shown for an empty cost. See logFillUpTotalError for why [zero] is a placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what it cost, or {zero}.'**
+  String logServiceCostEmptyError(String zero);
+
+  /// The label a service line takes when several items are ticked or none is. SPEC.md §10's cost model: un-split, the record is one line, and splitting one invoice across the ticked items would be inventing a breakdown the user did not give.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get logServiceGenericLine;
+
+  /// The collapsed section every log form carries. SPEC.md §10: 'More is collapsed by default and collapsed again next time: nothing inside it changes a consumption figure.' The artboard draws it as a nav row with a summary of what is inside rather than an inline disclosure.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get logMoreRow;
+
+  /// What is behind More on log.fillup, listed on the row itself so the section can be skipped without opening it.
+  ///
+  /// In en, this message translates to:
+  /// **'Station · Grade · Trip'**
+  String get logMoreFillUpSummary;
+
+  /// What is behind More on log.service. THREE items at most: the value is end-aligned beside the row's title and has no room to wrap, and four overflowed a compact row at 390pt. German and French carry two, because their words are longer and a truncated summary is worse than a shorter honest one.
+  ///
+  /// In en, this message translates to:
+  /// **'Workshop · Invoice · Notes'**
+  String get logMoreServiceSummary;
+
+  /// What is behind More on log.expense. See logMoreServiceSummary for the length rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid to · Trip · Notes'**
+  String get logMoreExpenseSummary;
+
+  /// §10's logFillUpStation label.
+  ///
+  /// In en, this message translates to:
+  /// **'Station'**
+  String get logFillUpStation;
+
+  /// §10's logFillUpGrade label.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get logFillUpGrade;
+
+  /// The checkbox under More. It sits there because it is rare and because ticking it DISCARDS a fuel segment — SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'I missed logging a fill-up before this'**
+  String get logFillUpChainBroken;
+
+  /// Shown when the chain-broken box is ticked. It states the consequence, because a discarded segment is invisible otherwise.
+  ///
+  /// In en, this message translates to:
+  /// **'Your consumption figures start fresh from this fill-up.'**
+  String get logFillUpChainBrokenHint;
+
+  /// §10's logServiceWorkshop label.
+  ///
+  /// In en, this message translates to:
+  /// **'Workshop'**
+  String get logServiceWorkshop;
+
+  /// Forced LTR, start-aligned and never digit-shaped — SPEC.md §10: 'an identifier, not a quantity'.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice no.'**
+  String get logServiceInvoice;
+
+  /// §10's logNotes label.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get logNotes;
+
+  /// §10's logExpensePaidTo label.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid to'**
+  String get logExpensePaidTo;
+
+  /// The confirmation panel's headline after a mark-done save. SPEC.md §10 replaces the body for five seconds rather than showing a snackbar, because both the resulting due date AND the due odometer have to be visible — the consequence of finishing 3,000 km early is what a user needs to see once.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} done'**
+  String logDoneTitle(String item);
+
+  /// The next-due pair. Both halves, because seeing only one hides the consequence the panel exists to show.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due at {odometer} or {date} — whichever comes first'**
+  String logDoneNextBoth(String odometer, String date);
+
+  /// The next-due line for a distance-only item. §10: 'A distance-only or time-only item names one axis' — inventing the other would be a fact the app made up.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due at {odometer}'**
+  String logDoneNextDistance(String odometer);
+
+  /// The next-due line for a time-only item. [date] arrives already fuzzy ('around September 2027') when the projection's confidence is not measured.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due {date}'**
+  String logDoneNextDate(String date);
+
+  /// §10's logDoneClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get logDoneClose;
 }
 
 class _AppLocalizationsDelegate

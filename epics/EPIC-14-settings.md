@@ -4,7 +4,7 @@
 |---|---|
 | **Epic** | EPIC-14 — Settings, units, language and about |
 | **Depends on** | EPIC-04, EPIC-08, EPIC-09 |
-| **Estimate** | **7.5 h (CC) · ~7–8 weeks (human)** over 9 tasks |
+| **Estimate** | **8 h (CC) · ~8 weeks (human)** over 9 tasks |
 | **Spec sections** | §13 Settings, language, units, notifications, backup and restore |
 | **Screens** | `settings`, `settings.language`, `settings.units`, `settings.notifications`, `settings.about` |
 
@@ -474,7 +474,7 @@ Open `flutter-conventions-index` first; it is the front door and it routes the r
   - [ ] All five states from §13's table resolve in one pure function that does no I/O.
   - [ ] The `denied` state reorders the rows, not just the card.
   - [ ] Nothing in this task duplicates EPIC-16 Task 16.8.
-- **Estimate** — `0.5 h (CC) · ~half a week (human)`
+- **Estimate** — `1 h (CC) · ~1 week (human)`
 
 ---
 

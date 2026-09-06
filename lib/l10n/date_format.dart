@@ -58,3 +58,29 @@ String formatLongDate(
   // is never zero-padded: "Sold 05 March" is a receipt, not a sentence.
   return '${number(parts.day)} ${parts.monthName} ${number(parts.year)}';
 }
+
+/// A date without its year — `12 August`, `12. August`, `۱۲ اوت`.
+///
+/// SPEC.md §10's odometer helper draws the last reading's date this way,
+/// beside the delta, because the year is noise on a line whose whole job is
+/// "was that a few weeks ago or a few months". `MMMMd` is the ICU skeleton for
+/// it, so the day-month ORDER comes from the locale rather than from this
+/// file — `August 12` in en-US and `12 August` in en-GB, which is the same
+/// decision `formatLongDate` already delegates.
+String formatDayMonth(String iso, String formatsTag) {
+  final parsed = DateTime.tryParse(iso);
+  if (parsed == null) return iso;
+  return DateFormat.MMMMd(numberFormatLocale(formatsTag)).format(parsed);
+}
+
+/// A date at its shortest — `2 Sep`, `2. Sep.`, `۲ سپتامبر`.
+///
+/// SPEC.md §10 draws `log.odometer`'s date as a KEY on the number pad, beside
+/// Save, where there is room for about six characters. `MMMd` is the ICU
+/// skeleton for it, so the abbreviation and the day-month order are the
+/// locale's rather than ours.
+String formatShortDayMonth(String iso, String formatsTag) {
+  final parsed = DateTime.tryParse(iso);
+  if (parsed == null) return iso;
+  return DateFormat.MMMd(numberFormatLocale(formatsTag)).format(parsed);
+}

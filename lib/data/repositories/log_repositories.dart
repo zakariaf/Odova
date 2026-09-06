@@ -14,6 +14,7 @@ import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/deletion.dart';
 import 'package:odova/data/repositories/guard.dart';
 import 'package:odova/data/repositories/odometer_fan_out.dart';
 import 'package:odova/data/repositories/watch.dart';
@@ -133,6 +134,28 @@ class FillUpRepository {
         });
         return Ok(fillUp);
       });
+
+  /// Soft-deletes one fill-up and its derived reading, for the Undo snackbar.
+  Future<Result<void, PersistFailure>> delete(
+    FillUpId id, {
+    required int deletedAtUtcMs,
+  }) => stampLogRowDeleted(
+    _db,
+    table: _db.fillUps,
+    id: id.toString(),
+    source: OdometerSource.fillUp,
+    deletedAtUtcMs: deletedAtUtcMs,
+  );
+
+  /// Puts back what [delete] removed.
+  Future<Result<void, PersistFailure>> undelete(FillUpId id) =>
+      stampLogRowDeleted(
+        _db,
+        table: _db.fillUps,
+        id: id.toString(),
+        source: OdometerSource.fillUp,
+        deletedAtUtcMs: null,
+      );
 }
 
 /// Reads and writes expenses.
@@ -216,6 +239,28 @@ class ExpenseRepository {
     });
     return Ok(expense);
   });
+
+  /// Soft-deletes one expense and its derived reading, for the Undo snackbar.
+  Future<Result<void, PersistFailure>> delete(
+    ExpenseId id, {
+    required int deletedAtUtcMs,
+  }) => stampLogRowDeleted(
+    _db,
+    table: _db.expenses,
+    id: id.toString(),
+    source: OdometerSource.expense,
+    deletedAtUtcMs: deletedAtUtcMs,
+  );
+
+  /// Puts back what [delete] removed.
+  Future<Result<void, PersistFailure>> undelete(ExpenseId id) =>
+      stampLogRowDeleted(
+        _db,
+        table: _db.expenses,
+        id: id.toString(),
+        source: OdometerSource.expense,
+        deletedAtUtcMs: null,
+      );
 }
 
 /// Reads and writes trips.

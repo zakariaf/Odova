@@ -301,7 +301,16 @@ class CalmNumberPadDisplay extends StatelessWidget {
                 fontWeight: type.medium,
               ),
             ),
-            Text(hint, style: type.caption.copyWith(color: colors.ink3)),
+            // CENTRED, like the value and the unit above it. The artboard
+            // centres all three; left-aligning the hint alone put a ragged
+            // edge under a column that is otherwise symmetrical, and at two
+            // lines it was the only thing on the panel not lining up with the
+            // number it describes.
+            Text(
+              hint,
+              textAlign: TextAlign.center,
+              style: type.caption.copyWith(color: colors.ink3),
+            ),
           ],
         ),
       ),

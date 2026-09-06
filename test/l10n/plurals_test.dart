@@ -64,6 +64,18 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       ),
       'homeOtherVehicleDue' => l10n.homeOtherVehicleDue(n, nText, 'Van'),
       'homeStripStale' => l10n.homeStripStale(n, nText),
+      // The odometer field's stale helper line. The DISTANCE and DATE are
+      // pinned and the count varies, for the same reason the rows above pin
+      // their subject: the axis a few/many mistake shows up against is the
+      // number. Its first version took the count as a plain String and read
+      // "1 days ago" in English — this key exists in this matrix because a
+      // translator caught that before a device did.
+      'logOdometerLastEnteredStale' => l10n.logOdometerLastEnteredStale(
+        n,
+        '186,980 km',
+        '12 March',
+        nText,
+      ),
       'reminderCannotDelete' => l10n.reminderCannotDelete(n, nText),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(

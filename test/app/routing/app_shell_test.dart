@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/app_router.dart';
-import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
@@ -88,9 +88,7 @@ void main() {
       await tester.tap(find.byType(CalmTabFab));
       await tester.pumpAndSettle();
 
-      final router = GoRouter.of(
-        tester.element(find.byType(PlaceholderScreen)),
-      );
+      final router = GoRouter.of(tester.element(find.byType(LogModalShell)));
       expect(
         router.state.uri.toString(),
         Routes.log(LogType.fillUp),
@@ -120,10 +118,8 @@ void main() {
     await tester.tap(find.byType(CalmTabFab));
     await tester.pumpAndSettle();
 
-    final screen = tester.widget<PlaceholderScreen>(
-      find.byType(PlaceholderScreen),
-    );
-    expect(screen.screenId, LogType.fillUp.screenId);
+    final screen = tester.widget<LogModalShell>(find.byType(LogModalShell));
+    expect(screen.type, LogType.fillUp);
   });
 
   testWidgets('each branch keeps its own stack across a tab switch', (
@@ -305,9 +301,7 @@ void main() {
       await tester.tapAt(point);
       await tester.pumpAndSettle();
 
-      final router = GoRouter.of(
-        tester.element(find.byType(PlaceholderScreen)),
-      );
+      final router = GoRouter.of(tester.element(find.byType(LogModalShell)));
       expect(
         router.state.uri.toString(),
         Routes.log(LogType.fillUp),

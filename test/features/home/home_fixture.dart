@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
@@ -328,6 +327,10 @@ Future<ProviderContainer> pumpHome(
     tester,
     '/',
     locale: locale,
+    // FIXED, and not the harness default: several assertions here turn on the
+    // day, and a suite run on a different one would order the same fixture
+    // differently — the kind of test that passes for eleven months.
+    clock: Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
     settings: homeSettings(active ?? garage.first.id),
     vehicles: garage,
     facts: LaunchFacts(
@@ -363,9 +366,6 @@ Future<ProviderContainer> pumpHome(
       // Fixed, and at [homeToday]. Home reads the clock to build its stack, so
       // a suite run on a different day would order the same fixture
       // differently — the kind of test that passes for eleven months.
-      clockProvider.overrideWithValue(
-        Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
-      ),
       for (final v in garage)
         // An unreadable store has NO snapshot — that is what "could not be
         // read" means, and a fixture that supplied one alongside a failing

@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/due/due_state.dart';
@@ -46,6 +45,7 @@ Future<ProviderContainer> _pump(
   tester,
   Routes.reminders,
   locale: locale,
+  clock: Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
   wrap: textScaler == null
       ? null
       : (child) => Builder(
@@ -58,9 +58,6 @@ Future<ProviderContainer> _pump(
   vehicles: [homeVehicle(golfId, 'The Golf')],
   overrides: <Override>[
     if (database != null) appDatabaseProvider.overrideWithValue(database),
-    clockProvider.overrideWithValue(
-      Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
-    ),
     serviceItemsProvider(golfId).overrideWith((ref) => Stream.value(items)),
     vehicleDueSnapshotProvider(
       golfId,

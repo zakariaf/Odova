@@ -1,1 +1,13 @@
+// The CocoaPods config FIRST, then Flutter's, so Flutter's settings win where
+// the two disagree — this is the order the stock Flutter template ships.
+//
+// Without the Pods include, `PODS_PODFILE_DIR_PATH` and `PODS_ROOT` are never
+// defined, and they are what the generated "[CP] Check Pods Manifest.lock"
+// script phase diffs. Empty, it compares two paths that do not exist, fails,
+// and reports "The sandbox is not in sync with the Podfile.lock" — a desync
+// that is not real and that `pod install` therefore cannot fix.
+//
+// `#include?` and not `#include`: the `?` makes it optional, so the project
+// still opens on a fresh clone before anyone has run `pod install`.
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"

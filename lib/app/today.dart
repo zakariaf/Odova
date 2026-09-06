@@ -6,6 +6,14 @@
 // not are LOCAL MIDNIGHT and APP RESUME, because neither writes a row: the
 // calendar moves and the data does not.
 //
+// It lives in `lib/app/` and not in a feature, and that is a decision this
+// file has already had to make once: it started under `features/home/` because
+// Home was its only reader, and EPIC-11's log modal became its second — §10
+// dates every log form from the same day Home reads. `structure_test` refused
+// the cross-feature import, correctly: "two features share code by lifting it
+// down to core/ or data/, or they meet via a route — never by importing each
+// other." A clock the whole app agrees about is app infrastructure.
+//
 // So they move a value the screen watches instead. `todayProvider` holds the
 // civil date; a timer set to the next local midnight advances it, and a resume
 // re-reads it — a phone asleep across midnight gets no timer callback, and

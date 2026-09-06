@@ -14,6 +14,7 @@ import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/deletion.dart';
 import 'package:odova/data/repositories/guard.dart';
 import 'package:odova/data/repositories/odometer_fan_out.dart';
 import 'package:odova/data/repositories/watch.dart';
@@ -272,6 +273,33 @@ class ServiceRepository {
         .getSingle();
     return Ok(rows.read<int>('n'));
   });
+
+  /// Soft-deletes one service record and its derived reading.
+  ///
+  /// Its LINES are not stamped: `service_lines` deliberately carries no
+  /// `deleted_at_utc_ms` — it lives and dies with its record through
+  /// `ON DELETE CASCADE`, and a line with its own soft-delete would be a second
+  /// place the record's cost could be wrong.
+  Future<Result<void, PersistFailure>> deleteRecord(
+    ServiceRecordId id, {
+    required int deletedAtUtcMs,
+  }) => stampLogRowDeleted(
+    _db,
+    table: _db.serviceRecords,
+    id: id.toString(),
+    source: OdometerSource.service,
+    deletedAtUtcMs: deletedAtUtcMs,
+  );
+
+  /// Puts back what [deleteRecord] removed.
+  Future<Result<void, PersistFailure>> undeleteRecord(ServiceRecordId id) =>
+      stampLogRowDeleted(
+        _db,
+        table: _db.serviceRecords,
+        id: id.toString(),
+        source: OdometerSource.service,
+        deletedAtUtcMs: null,
+      );
 
   /// Soft-deletes one item, for the Undo the snackbar offers.
   Future<Result<void, PersistFailure>> deleteItem(

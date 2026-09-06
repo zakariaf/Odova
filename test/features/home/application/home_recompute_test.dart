@@ -21,6 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/app/today.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/settings.dart';
@@ -33,7 +34,6 @@ import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/due_snapshot_provider.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/home/application/home_notifier.dart';
-import 'package:odova/features/home/application/today.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 
 import '../../../support/source_tree.dart';

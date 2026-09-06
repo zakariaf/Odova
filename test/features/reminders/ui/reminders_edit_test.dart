@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
@@ -51,6 +50,7 @@ Future<ProviderContainer> _pump(
   tester,
   Routes.reminderEdit(id),
   locale: locale,
+  clock: Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
   settings: homeSettings(golfId),
   vehicles: [homeVehicle(golfId, 'The Golf')],
   wrap: textScaler == null
@@ -63,7 +63,6 @@ Future<ProviderContainer> _pump(
         ),
   overrides: <Override>[
     appDatabaseProvider.overrideWithValue(db),
-    clockProvider.overrideWithValue(Clock.fixed(DateTime.utc(2026, 9, 5, 12))),
     odometerReadingsProvider(
       golfId,
     ).overrideWith((ref) => Stream.value(readings)),

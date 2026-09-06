@@ -394,6 +394,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstRunHaveBackup => 'I already have an Odova backup';
 
   @override
+  String get saveRefusedBackwards =>
+      'That reading is lower than the one before it. Check the number and try again.';
+
+  @override
+  String get saveRefusedReadOnly =>
+      'Odova can\'t write right now. Your entry is still here.';
+
+  @override
   String get saveDiskFullError =>
       'Couldn\'t save. Your phone may be out of space.';
 
@@ -1192,4 +1200,394 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderNoticeAheadDays => 'Tell me this far ahead — days';
+
+  @override
+  String get logSegmentFillUp => 'Fill-up';
+
+  @override
+  String get logSegmentService => 'Service';
+
+  @override
+  String get logSegmentExpense => 'Expense';
+
+  @override
+  String get logSegmentOdometer => 'Odometer';
+
+  @override
+  String get logEditFillUpTitle => 'Edit fill-up';
+
+  @override
+  String get logEditServiceTitle => 'Edit service';
+
+  @override
+  String get logEditExpenseTitle => 'Edit expense';
+
+  @override
+  String get logEditOdometerTitle => 'Edit reading';
+
+  @override
+  String get logSavedFillUp => 'Fill-up saved';
+
+  @override
+  String get logSavedService => 'Service saved';
+
+  @override
+  String get logSavedExpense => 'Expense saved';
+
+  @override
+  String get logSaveFillUp => 'Save fill-up';
+
+  @override
+  String get logSaveService => 'Save service';
+
+  @override
+  String get logSaveExpense => 'Save expense';
+
+  @override
+  String get logSaveOdometer => 'Save reading';
+
+  @override
+  String get logDeleteFillUp => 'Delete this fill-up';
+
+  @override
+  String get logDeleteService => 'Delete this service record';
+
+  @override
+  String get logDeleteExpense => 'Delete this expense';
+
+  @override
+  String get logDeleteOdometer => 'Delete this reading';
+
+  @override
+  String get logDiscardSummary => 'what you have typed';
+
+  @override
+  String get logDateLabel => 'Date';
+
+  @override
+  String get logOdometerLabel => 'Odometer';
+
+  @override
+  String get logDateFutureError => 'Pick today or a day in the past.';
+
+  @override
+  String get logOdometerRequiredError => 'Enter the odometer reading.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'That number isn\'t clear. Try $example.';
+  }
+
+  @override
+  String get logTitleFillUp => 'Fill-up';
+
+  @override
+  String get logTitleService => 'Service';
+
+  @override
+  String get logTitleExpense => 'Expense';
+
+  @override
+  String get logTitleOdometer => 'Odometer';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'Last entered $distance on $date';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Last entered $distance on $date — $daysText days ago',
+      one: 'Last entered $distance on $date — $daysText day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return '$value now';
+  }
+
+  @override
+  String logOdometerLastEnteredShort(String distance) {
+    return 'Last entered $distance';
+  }
+
+  @override
+  String logOdometerSinceThen(String distance) {
+    return '+$distance since then';
+  }
+
+  @override
+  String logOdometerSince(String date, String distance) {
+    return '$date · +$distance';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance since $date';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'Older than anything logged. This becomes your earliest reading.';
+
+  @override
+  String get logOdometerBelowLastTitle =>
+      'This reading is lower than your last one';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'Last entered: $distance on $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo => 'It\'s a typo — let me fix it';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'The odometer was replaced or rolled over';
+
+  @override
+  String get logOdometerBelowLastOlder =>
+      'It\'s an older entry I\'m adding now';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'Your earliest reading is $distance on $date. A reading from $when has to be lower than that.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'That\'s about $rate a day since $date. Is that right?';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'Did you mean $value? This looks like kilometres.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'That\'s a jump of $distance. Is that right?';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'Show all your readings in kilometres from now on?';
+
+  @override
+  String get logOdometerUnitChipLabel => 'Unit for this entry';
+
+  @override
+  String get logOdometerPadClear => 'Clear';
+
+  @override
+  String get logOdometerPadBackspace => 'Delete last digit';
+
+  @override
+  String get expenseCategoryInsurance => 'Insurance';
+
+  @override
+  String get expenseCategoryTaxRegistration => 'Road tax';
+
+  @override
+  String get expenseCategoryParking => 'Parking';
+
+  @override
+  String get expenseCategoryToll => 'Toll';
+
+  @override
+  String get expenseCategoryFine => 'Fine';
+
+  @override
+  String get expenseCategoryWash => 'Wash';
+
+  @override
+  String get expenseCategoryTyreStorage => 'Tyre storage';
+
+  @override
+  String get expenseCategoryAccessories => 'Accessory';
+
+  @override
+  String get expenseCategoryFinance => 'Finance';
+
+  @override
+  String get expenseCategoryOther => 'Other';
+
+  @override
+  String get logExpenseCategoryLabel => 'Category';
+
+  @override
+  String get logExpenseCategoryError => 'Pick what this was for.';
+
+  @override
+  String get logExpenseNameLabel => 'What was it?';
+
+  @override
+  String get logExpenseNameError => 'Give this expense a name.';
+
+  @override
+  String get logExpenseAmountLabel => 'Amount';
+
+  @override
+  String get logExpenseAmountError => 'Enter what you paid.';
+
+  @override
+  String get logExpenseRefundLabel => 'This is a refund';
+
+  @override
+  String get logExpenseDatePaidLabel => 'Date paid';
+
+  @override
+  String get logExpenseCoversLabel => 'Covers a period';
+
+  @override
+  String get logExpenseCoversFrom => 'From';
+
+  @override
+  String get logExpenseCoversTo => 'To';
+
+  @override
+  String get logExpenseCoversError => 'The end date is before the start date.';
+
+  @override
+  String get logFillUpQuantityLabel => 'Fuel';
+
+  @override
+  String logFillUpPricePerUnitLabel(String unit) {
+    return 'Price/$unit';
+  }
+
+  @override
+  String get logFillUpTotalLabel => 'Total paid';
+
+  @override
+  String get logFillUpFullTank => 'Filled it up';
+
+  @override
+  String get logFillUpPartFill => 'Part fill';
+
+  @override
+  String get logFillUpOverTankWarning =>
+      'That\'s more than your tank holds. Saving it as entered.';
+
+  @override
+  String get logFillUpPartFillHint =>
+      'Part fills don\'t produce a figure on their own. This one gets added to your next full tank.';
+
+  @override
+  String get logFillUpTrioError =>
+      'Enter how much fuel you put in, and either the price per litre or the total.';
+
+  @override
+  String get logFillUpQuantityError => 'Fuel must be more than zero.';
+
+  @override
+  String get logFillUpPriceError => 'Price can\'t be negative.';
+
+  @override
+  String logFillUpTotalError(String zero) {
+    return 'Total can\'t be negative. A free fill-up is $zero.';
+  }
+
+  @override
+  String get logFillUpFirstEver =>
+      'Your first consumption figure arrives at your next full fill-up.';
+
+  @override
+  String get logServiceWhatWasDone => 'What was done';
+
+  @override
+  String get logServiceTickResets => 'Ticking an item resets its reminder.';
+
+  @override
+  String get logServiceOther => '+ Other';
+
+  @override
+  String get logServiceCostLabel => 'Cost';
+
+  @override
+  String get logServiceSplit => 'Split the cost by item';
+
+  @override
+  String logServiceCostError(String zero) {
+    return 'Cost can\'t be negative. A warranty job is $zero.';
+  }
+
+  @override
+  String logServiceCostEmptyError(String zero) {
+    return 'Enter what it cost, or $zero.';
+  }
+
+  @override
+  String get logServiceGenericLine => 'Service';
+
+  @override
+  String get logMoreRow => 'More';
+
+  @override
+  String get logMoreFillUpSummary => 'Station · Grade · Trip';
+
+  @override
+  String get logMoreServiceSummary => 'Workshop · Invoice · Notes';
+
+  @override
+  String get logMoreExpenseSummary => 'Paid to · Trip · Notes';
+
+  @override
+  String get logFillUpStation => 'Station';
+
+  @override
+  String get logFillUpGrade => 'Grade';
+
+  @override
+  String get logFillUpChainBroken => 'I missed logging a fill-up before this';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'Your consumption figures start fresh from this fill-up.';
+
+  @override
+  String get logServiceWorkshop => 'Workshop';
+
+  @override
+  String get logServiceInvoice => 'Invoice no.';
+
+  @override
+  String get logNotes => 'Notes';
+
+  @override
+  String get logExpensePaidTo => 'Paid to';
+
+  @override
+  String logDoneTitle(String item) {
+    return '$item done';
+  }
+
+  @override
+  String logDoneNextBoth(String odometer, String date) {
+    return 'Next due at $odometer or $date — whichever comes first';
+  }
+
+  @override
+  String logDoneNextDistance(String odometer) {
+    return 'Next due at $odometer';
+  }
+
+  @override
+  String logDoneNextDate(String date) {
+    return 'Next due $date';
+  }
+
+  @override
+  String get logDoneClose => 'Close';
 }
