@@ -12,6 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/history/history_cursor.dart';
 import 'package:odova/core/history/history_entry.dart';
 import 'package:odova/core/history/history_filter.dart';
+import 'package:odova/core/history/month_index.dart';
+import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/history_repository.dart';
@@ -166,8 +168,11 @@ void main() {
     final result = await history.pageAnchoredAt(
       vehicleId: historyVehicleId,
       filter: HistoryFilter.all,
-      year: 2026,
-      month: 3,
+      month: const MonthKey(
+        calendar: CalmCalendar.gregorian,
+        year: 2026,
+        month: 3,
+      ),
     );
     final rows = (result as Ok<HistoryPage, PersistFailure>).value.entries;
 
@@ -229,5 +234,33 @@ void main() {
 
     expect(rows, isNotEmpty);
     expect(rows.every((e) => e.kind == HistoryEntryKind.expense), isTrue);
+  });
+
+  test('a Jalali anchor is converted before it reaches the query', () async {
+    // `MonthKey.year`/`.month` are numbered in the USER's calendar.
+    // `pageAnchoredAt` used to take two bare ints and format them as a
+    // Gregorian ISO string, so releasing the scrubber on Mehr 1403 produced
+    // the anchor '1403-07-31' — which sorts below every real '2024-…' row.
+    // Zero rows back, `hasMore: false`, and the notifier discards the loaded
+    // window: the user's entire history vanished with no gesture to recover
+    // it. Three of the six shipped locales read a Jalali calendar.
+    await seedAcrossMonths(harness.db);
+
+    // Mehr 1405 begins 23 September 2026 — inside the seeded range.
+    final result = await history.pageAnchoredAt(
+      vehicleId: historyVehicleId,
+      filter: HistoryFilter.all,
+      month: const MonthKey(
+        calendar: CalmCalendar.persian,
+        year: 1405,
+        month: 7,
+      ),
+    );
+
+    expect(
+      (result as Ok<HistoryPage, PersistFailure>).value.entries,
+      isNotEmpty,
+      reason: 'the anchor landed in 2026, not in the year 1405',
+    );
   });
 }

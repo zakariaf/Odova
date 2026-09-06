@@ -25,6 +25,7 @@ import 'package:odova/core/history/history_filter.dart';
 import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/history/search_normalise.dart';
 import 'package:odova/core/l10n/calendar.dart';
+import 'package:odova/core/l10n/jalali.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/db/app_database.dart';
@@ -77,20 +78,32 @@ class HistoryRepository {
     );
   });
 
-  /// A fresh page anchored at the top of [year]-[month].
+  /// A fresh page anchored at the top of [month].
   ///
   /// §11's year scrubber: "release runs a fresh keyset query anchored there and
   /// DISCARDS the loaded window, so memory stays flat at 40 records or 4,000."
   /// The anchor is the last instant of that month, so the month itself is the
   /// first thing on screen and nothing newer comes with it.
+  /// [month] carries its own CALENDAR, and that is why it is a `MonthKey`
+  /// rather than a bare `(year, month)` pair.
+  ///
+  /// `MonthKey.year`/`.month` are numbered in the USER's calendar —
+  /// `month_index.dart` makes `calendar` part of the key precisely so Mehr
+  /// 1405 and Gregorian 1405-07 cannot be confused. This method used to take
+  /// two ints and format them as a Gregorian ISO string, so releasing the
+  /// scrubber on Mehr 1403 produced the anchor `'1403-07-31'`, which sorts
+  /// below every real `'2024-…'` row: zero rows back, `hasMore: false`, and
+  /// `replaceWindow: true` discarding the loaded window. The user's entire
+  /// history disappeared with no gesture to bring it back.
+  ///
+  /// Three of the six shipped locales read a Jalali calendar.
   Future<Result<HistoryPage, PersistFailure>> pageAnchoredAt({
     required String vehicleId,
     required HistoryFilter filter,
-    required int year,
-    required int month,
+    required MonthKey month,
     int limit = 60,
   }) {
-    final last = _lastDayOf(year, month);
+    final last = _lastDayOfKey(month);
     return page(
       vehicleId: vehicleId,
       filter: filter,
@@ -455,6 +468,26 @@ class HistoryRepository {
 
   static HistoryEntryKind _kindOf(String wire) =>
       HistoryEntryKind.values.firstWhere((k) => k.name == wire);
+
+  /// The last day of [key]'s month, as a GREGORIAN ISO string.
+  ///
+  /// `occurred_on` is stored Gregorian, so a Jalali key has to be converted
+  /// before it can be compared with anything in the database.
+  static String _lastDayOfKey(MonthKey key) => switch (key.calendar) {
+    CalmCalendar.gregorian => _lastDayOf(key.year, key.month),
+    CalmCalendar.persian => _isoOf(
+      jalaliToGregorian(
+        key.year,
+        key.month,
+        jalaliMonthLength(key.year, key.month),
+      ),
+    ),
+  };
+
+  static String _isoOf(({int year, int month, int day}) g) =>
+      '${g.year.toString().padLeft(4, '0')}-'
+      '${g.month.toString().padLeft(2, '0')}-'
+      '${g.day.toString().padLeft(2, '0')}';
 
   static String _lastDayOf(int year, int month) {
     // `CivilDate.daysInMonth`, not a local table plus a re-derived leap rule.

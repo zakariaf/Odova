@@ -129,8 +129,7 @@ class _ArtboardHistoryRepository implements HistoryRepository {
   Future<Result<HistoryPage, PersistFailure>> pageAnchoredAt({
     required String vehicleId,
     required HistoryFilter filter,
-    required int year,
-    required int month,
+    required MonthKey month,
     int limit = 60,
   }) async => const Ok(HistoryPage(entries: _entries, hasMore: false));
 

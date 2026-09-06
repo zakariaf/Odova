@@ -86,8 +86,7 @@ class FakeHistoryRepository implements HistoryRepository {
   Future<Result<HistoryPage, PersistFailure>> pageAnchoredAt({
     required String vehicleId,
     required HistoryFilter filter,
-    required int year,
-    required int month,
+    required MonthKey month,
     int limit = 60,
   }) async {
     pageCalls++;
@@ -139,8 +138,7 @@ class FailingHistoryRepository implements HistoryRepository {
   Future<Result<HistoryPage, PersistFailure>> pageAnchoredAt({
     required String vehicleId,
     required HistoryFilter filter,
-    required int year,
-    required int month,
+    required MonthKey month,
     int limit = 60,
   }) async => const Err(WriteFailed('the store will not open'));
 

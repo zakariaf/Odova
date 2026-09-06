@@ -325,8 +325,7 @@ class HistoryNotifier extends Notifier<HistoryState> {
     final result = await _repository.pageAnchoredAt(
       vehicleId: _scope.vehicleId,
       filter: state.filter,
-      year: month.year,
-      month: month.month,
+      month: month,
     );
     _absorb(result, replaceWindow: true);
   }
