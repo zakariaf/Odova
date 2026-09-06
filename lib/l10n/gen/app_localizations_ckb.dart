@@ -1351,4 +1351,10 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get logOdometerUnitChipLabel => 'یەکەی ئەم تۆمارە';
+
+  @override
+  String get logOdometerPadClear => 'سڕینەوە';
+
+  @override
+  String get logOdometerPadBackspace => 'سڕینەوەی دوا ژمارە';
 }

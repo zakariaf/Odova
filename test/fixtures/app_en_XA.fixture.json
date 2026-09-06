@@ -308,5 +308,7 @@
   "logOdometerUnitMixUpWarning": "[Ḍīḍ ẏǿǔ ḿḗáǹ {value}? Ţħīŝ ŀǿǿķŝ ŀīķḗ ķīŀǿḿḗţřḗŝ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "logOdometerJumpWarning": "[Ţħáţ'ŝ á ĵǔḿƥ ǿƒ {distance}. Īŝ ţħáţ řīḡħţ? ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "logOdometerSwitchUnitPrompt": "[Ŝħǿẇ áŀŀ ẏǿǔř řḗáḍīǹḡŝ īǹ ķīŀǿḿḗţřḗŝ ƒřǿḿ ǹǿẇ ǿǹ? ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
-  "logOdometerUnitChipLabel": "[Ǔǹīţ ƒǿř ţħīŝ ḗǹţřẏ ǃǃǃǃǃǃǃǃ]"
+  "logOdometerUnitChipLabel": "[Ǔǹīţ ƒǿř ţħīŝ ḗǹţřẏ ǃǃǃǃǃǃǃǃ]",
+  "logOdometerPadClear": "[Çŀḗář ǃǃ]",
+  "logOdometerPadBackspace": "[Ḍḗŀḗţḗ ŀáŝţ ḍīḡīţ ǃǃǃǃǃǃǃ]"
 }

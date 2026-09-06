@@ -1357,4 +1357,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get logOdometerUnitChipLabel => 'Einheit für diesen Eintrag';
+
+  @override
+  String get logOdometerPadClear => 'Löschen';
+
+  @override
+  String get logOdometerPadBackspace => 'Letzte Ziffer löschen';
 }

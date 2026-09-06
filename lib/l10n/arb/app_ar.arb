@@ -308,5 +308,7 @@
   "logOdometerUnitMixUpWarning": "هل تقصد {value}؟ يبدو هذا بالكيلومترات.",
   "logOdometerJumpWarning": "هذه قفزة قدرها {distance}. هل هذا صحيح؟",
   "logOdometerSwitchUnitPrompt": "عرض كل قراءاتك بالكيلومترات من الآن فصاعدًا؟",
-  "logOdometerUnitChipLabel": "وحدة هذا الإدخال"
+  "logOdometerUnitChipLabel": "وحدة هذا الإدخال",
+  "logOdometerPadClear": "مسح",
+  "logOdometerPadBackspace": "حذف آخر رقم"
 }

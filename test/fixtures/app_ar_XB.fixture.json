@@ -308,5 +308,7 @@
   "logOdometerUnitMixUpWarning": "‏ naem uoy diD{value}.sertemolik ekil skool sihT ?",
   "logOdometerJumpWarning": "‏ fo pmuj a s'tahT{distance}?thgir taht sI .",
   "logOdometerSwitchUnitPrompt": "‏?no won morf sertemolik ni sgnidaer ruoy lla wohS",
-  "logOdometerUnitChipLabel": "‏yrtne siht rof tinU"
+  "logOdometerUnitChipLabel": "‏yrtne siht rof tinU",
+  "logOdometerPadClear": "‏raelC",
+  "logOdometerPadBackspace": "‏tigid tsal eteleD"
 }

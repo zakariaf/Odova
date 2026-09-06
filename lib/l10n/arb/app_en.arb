@@ -2039,5 +2039,13 @@
   "logOdometerUnitChipLabel": "Unit for this entry",
   "@logOdometerUnitChipLabel": {
     "description": "The accessible name of the unit chip beside the odometer field. It says 'for this entry' because that is exactly what it changes — the vehicle's display unit is untouched."
+  },
+  "logOdometerPadClear": "Clear",
+  "@logOdometerPadClear": {
+    "description": "The number pad's secondary key on log.odometer. It empties the field rather than deleting one digit — backspace already does that, and a pad with two ways to delete one character and none to start over is a pad you fight."
+  },
+  "logOdometerPadBackspace": "Delete last digit",
+  "@logOdometerPadBackspace": {
+    "description": "The backspace key's spoken name. It carries a glyph and no text, so without this a screen reader announces 'button'."
   }
 }

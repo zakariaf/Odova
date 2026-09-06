@@ -308,5 +308,7 @@
   "logOdometerUnitMixUpWarning": "Meinten Sie {value}? Das sieht nach Kilometern aus.",
   "logOdometerJumpWarning": "Das ist ein Sprung von {distance}. Stimmt das?",
   "logOdometerSwitchUnitPrompt": "Alle Ihre Ablesungen ab jetzt in Kilometern anzeigen?",
-  "logOdometerUnitChipLabel": "Einheit für diesen Eintrag"
+  "logOdometerUnitChipLabel": "Einheit für diesen Eintrag",
+  "logOdometerPadClear": "Löschen",
+  "logOdometerPadBackspace": "Letzte Ziffer löschen"
 }

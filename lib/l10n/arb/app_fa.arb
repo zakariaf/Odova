@@ -308,5 +308,7 @@
   "logOdometerUnitMixUpWarning": "منظورتان {value} بود؟ این شبیه کیلومتر است.",
   "logOdometerJumpWarning": "این جهشی به اندازهٔ {distance} است. درست است؟",
   "logOdometerSwitchUnitPrompt": "از این پس همهٔ عددهای شما به کیلومتر نمایش داده شود؟",
-  "logOdometerUnitChipLabel": "یکای این ثبت"
+  "logOdometerUnitChipLabel": "یکای این ثبت",
+  "logOdometerPadClear": "پاک کردن",
+  "logOdometerPadBackspace": "حذف آخرین رقم"
 }

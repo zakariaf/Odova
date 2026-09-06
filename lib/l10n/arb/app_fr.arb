@@ -308,5 +308,7 @@
   "logOdometerUnitMixUpWarning": "Vouliez-vous dire {value} ? Cela ressemble à des kilomètres.",
   "logOdometerJumpWarning": "C’est un bond de {distance}. Est-ce bien cela ?",
   "logOdometerSwitchUnitPrompt": "Afficher désormais tous vos relevés en kilomètres ?",
-  "logOdometerUnitChipLabel": "Unité pour cette saisie"
+  "logOdometerUnitChipLabel": "Unité pour cette saisie",
+  "logOdometerPadClear": "Effacer",
+  "logOdometerPadBackspace": "Supprimer le dernier chiffre"
 }

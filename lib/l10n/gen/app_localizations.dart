@@ -1975,6 +1975,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unit for this entry'**
   String get logOdometerUnitChipLabel;
+
+  /// The number pad's secondary key on log.odometer. It empties the field rather than deleting one digit — backspace already does that, and a pad with two ways to delete one character and none to start over is a pad you fight.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get logOdometerPadClear;
+
+  /// The backspace key's spoken name. It carries a glyph and no text, so without this a screen reader announces 'button'.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete last digit'**
+  String get logOdometerPadBackspace;
 }
 
 class _AppLocalizationsDelegate

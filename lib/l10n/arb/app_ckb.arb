@@ -308,5 +308,7 @@
   "logOdometerUnitMixUpWarning": "مەبەستت {value} بوو؟ ئەمە وەک کیلۆمەتر دیارە.",
   "logOdometerJumpWarning": "ئەمە بازدانێکە بە بڕی {distance}. ڕاستە؟",
   "logOdometerSwitchUnitPrompt": "لە ئێستاوە هەموو خوێندنەوەکانت بە کیلۆمەتر پیشان بدرێن؟",
-  "logOdometerUnitChipLabel": "یەکەی ئەم تۆمارە"
+  "logOdometerUnitChipLabel": "یەکەی ئەم تۆمارە",
+  "logOdometerPadClear": "سڕینەوە",
+  "logOdometerPadBackspace": "سڕینەوەی دوا ژمارە"
 }

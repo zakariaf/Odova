@@ -1446,4 +1446,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logOdometerUnitChipLabel => 'وحدة هذا الإدخال';
+
+  @override
+  String get logOdometerPadClear => 'مسح';
+
+  @override
+  String get logOdometerPadBackspace => 'حذف آخر رقم';
 }

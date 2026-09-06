@@ -1346,4 +1346,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get logOdometerUnitChipLabel => 'یکای این ثبت';
+
+  @override
+  String get logOdometerPadClear => 'پاک کردن';
+
+  @override
+  String get logOdometerPadBackspace => 'حذف آخرین رقم';
 }
