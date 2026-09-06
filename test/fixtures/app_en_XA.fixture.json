@@ -292,5 +292,21 @@
   "logTitleFillUp": "[Ƒīŀŀ-ǔƥ ǃǃǃ]",
   "logTitleService": "[Ŝḗřṽīçḗ ǃǃǃ]",
   "logTitleExpense": "[Ḗẋƥḗǹŝḗ ǃǃǃ]",
-  "logTitleOdometer": "[Ǿḍǿḿḗţḗř ǃǃǃǃ]"
+  "logTitleOdometer": "[Ǿḍǿḿḗţḗř ǃǃǃǃ]",
+  "logOdometerLastEntered": "[Ŀáŝţ ḗǹţḗřḗḍ {distance} ǿǹ {date} ǃǃǃǃǃǃǃ]",
+  "logOdometerLastEnteredStale": "[{days, plural, one{Ŀáŝţ ḗǹţḗřḗḍ {distance} ǿǹ {date} — {daysText} ḍáẏ áḡǿ} other{Ŀáŝţ ḗǹţḗřḗḍ {distance} ǿǹ {date} — {daysText} ḍáẏŝ áḡǿ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerEstimateChip": "[{value} ǹǿẇ ǃǃ]",
+  "logOdometerDelta": "[+{distance} ŝīǹçḗ {date} ǃǃǃǃ]",
+  "logOdometerOlderThanAnything": "[Ǿŀḍḗř ţħáǹ áǹẏţħīǹḡ ŀǿḡḡḗḍ. Ţħīŝ ḅḗçǿḿḗŝ ẏǿǔř ḗářŀīḗŝţ řḗáḍīǹḡ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerBelowLastTitle": "[Ţħīŝ řḗáḍīǹḡ īŝ ŀǿẇḗř ţħáǹ ẏǿǔř ŀáŝţ ǿǹḗ ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerBelowLastBody": "[Ŀáŝţ ḗǹţḗřḗḍ: {distance} ǿǹ {date}. ǃǃǃǃǃǃǃǃ]",
+  "logOdometerBelowLastTypo": "[Īţ'ŝ á ţẏƥǿ — ŀḗţ ḿḗ ƒīẋ īţ ǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerBelowLastReplaced": "[Ţħḗ ǿḍǿḿḗţḗř ẇáŝ řḗƥŀáçḗḍ ǿř řǿŀŀḗḍ ǿṽḗř ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerBelowLastOlder": "[Īţ'ŝ áǹ ǿŀḍḗř ḗǹţřẏ Ī'ḿ áḍḍīǹḡ ǹǿẇ ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerAboveEarliest": "[Ẏǿǔř ḗářŀīḗŝţ řḗáḍīǹḡ īŝ {distance} ǿǹ {date}. Á řḗáḍīǹḡ ƒřǿḿ {when} ħáŝ ţǿ ḅḗ ŀǿẇḗř ţħáǹ ţħáţ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerRateWarning": "[Ţħáţ'ŝ áḅǿǔţ {rate} á ḍáẏ ŝīǹçḗ {date}. Īŝ ţħáţ řīḡħţ? ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerUnitMixUpWarning": "[Ḍīḍ ẏǿǔ ḿḗáǹ {value}? Ţħīŝ ŀǿǿķŝ ŀīķḗ ķīŀǿḿḗţřḗŝ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerJumpWarning": "[Ţħáţ'ŝ á ĵǔḿƥ ǿƒ {distance}. Īŝ ţħáţ řīḡħţ? ǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerSwitchUnitPrompt": "[Ŝħǿẇ áŀŀ ẏǿǔř řḗáḍīǹḡŝ īǹ ķīŀǿḿḗţřḗŝ ƒřǿḿ ǹǿẇ ǿǹ? ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logOdometerUnitChipLabel": "[Ǔǹīţ ƒǿř ţħīŝ ḗǹţřẏ ǃǃǃǃǃǃǃǃ]"
 }

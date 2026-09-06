@@ -1269,4 +1269,86 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get logTitleOdometer => 'کیلۆمەتر';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'دوایین تۆمار $distance لە $date';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'دوایین تۆمار $distance لە $date — $daysText ڕۆژ لەمەوبەر',
+      one: 'دوایین تۆمار $distance لە $date — $daysText ڕۆژ لەمەوبەر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return 'ئێستا $value';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance لە $dateەوە';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'کۆنترە لە هەموو ئەوەی تۆمارکراوە. ئەمە دەبێتە کۆنترین خوێندنەوەت.';
+
+  @override
+  String get logOdometerBelowLastTitle =>
+      'ئەم خوێندنەوەیە کەمترە لە دوایین خوێندنەوەت';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'دوایین تۆمار: $distance لە $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo => 'هەڵەیەکی نووسینە — چاکی دەکەمەوە';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'کیلۆمەترپێوەکە گۆڕدراوە یان گەڕاوەتەوە سەرەتا';
+
+  @override
+  String get logOdometerBelowLastOlder =>
+      'تۆمارێکی کۆنترە کە ئێستا زیادی دەکەم';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'کۆنترین خوێندنەوەت $distance لە $dateە. خوێندنەوەیەک لە $when دەبێت لەمە کەمتر بێت.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'ئەمە نزیکەی $rate ڕۆژانەیە لە $dateەوە. ڕاستە؟';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'مەبەستت $value بوو؟ ئەمە وەک کیلۆمەتر دیارە.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'ئەمە بازدانێکە بە بڕی $distance. ڕاستە؟';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'لە ئێستاوە هەموو خوێندنەوەکانت بە کیلۆمەتر پیشان بدرێن؟';
+
+  @override
+  String get logOdometerUnitChipLabel => 'یەکەی ئەم تۆمارە';
 }

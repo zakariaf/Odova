@@ -292,5 +292,21 @@
   "logTitleFillUp": "سوخت‌گیری",
   "logTitleService": "سرویس",
   "logTitleExpense": "هزینه",
-  "logTitleOdometer": "کیلومترشمار"
+  "logTitleOdometer": "کیلومترشمار",
+  "logOdometerLastEntered": "آخرین ثبت {distance} در {date}",
+  "logOdometerLastEnteredStale": "{days, plural, one{آخرین ثبت {distance} در {date} — {daysText} روز پیش} other{آخرین ثبت {distance} در {date} — {daysText} روز پیش}}",
+  "logOdometerEstimateChip": "اکنون {value}",
+  "logOdometerDelta": "+{distance} از {date}",
+  "logOdometerOlderThanAnything": "قدیمی‌تر از هر چیزی است که ثبت شده. این قدیمی‌ترین عدد شما می‌شود.",
+  "logOdometerBelowLastTitle": "این عدد از آخرین عدد شما کمتر است",
+  "logOdometerBelowLastBody": "آخرین ثبت: {distance} در {date}.",
+  "logOdometerBelowLastTypo": "اشتباه تایپی است — اصلاحش می‌کنم",
+  "logOdometerBelowLastReplaced": "کیلومترشمار تعویض شده یا دور کامل زده است",
+  "logOdometerBelowLastOlder": "ثبتی قدیمی‌تر است که الان اضافه می‌کنم",
+  "logOdometerAboveEarliest": "قدیمی‌ترین عدد شما {distance} در {date} است. عددی از {when} باید کمتر از آن باشد.",
+  "logOdometerRateWarning": "این حدود {rate} در روز از {date} تاکنون است. درست است؟",
+  "logOdometerUnitMixUpWarning": "منظورتان {value} بود؟ این شبیه کیلومتر است.",
+  "logOdometerJumpWarning": "این جهشی به اندازهٔ {distance} است. درست است؟",
+  "logOdometerSwitchUnitPrompt": "از این پس همهٔ عددهای شما به کیلومتر نمایش داده شود؟",
+  "logOdometerUnitChipLabel": "یکای این ثبت"
 }

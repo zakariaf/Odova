@@ -1266,4 +1266,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logTitleOdometer => 'Odometer';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'Last entered $distance on $date';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Last entered $distance on $date — $daysText days ago',
+      one: 'Last entered $distance on $date — $daysText day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return '$value now';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance since $date';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'Older than anything logged. This becomes your earliest reading.';
+
+  @override
+  String get logOdometerBelowLastTitle =>
+      'This reading is lower than your last one';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'Last entered: $distance on $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo => 'It\'s a typo — let me fix it';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'The odometer was replaced or rolled over';
+
+  @override
+  String get logOdometerBelowLastOlder =>
+      'It\'s an older entry I\'m adding now';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'Your earliest reading is $distance on $date. A reading from $when has to be lower than that.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'That\'s about $rate a day since $date. Is that right?';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'Did you mean $value? This looks like kilometres.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'That\'s a jump of $distance. Is that right?';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'Show all your readings in kilometres from now on?';
+
+  @override
+  String get logOdometerUnitChipLabel => 'Unit for this entry';
 }

@@ -1874,6 +1874,107 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Odometer'**
   String get logTitleOdometer;
+
+  /// The odometer field's helper line. The last ENTERED reading and its date — never a projection, because SPEC.md §10 says an estimate that arrives as a default gets saved unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entered {distance} on {date}'**
+  String logOdometerLastEntered(String distance, String date);
+
+  /// The helper line when the last reading is over 60 days old. It names the AGE instead of offering an estimate chip: SPEC.md §10, 'a 174-day-old estimate offered as a default would launder itself into a fact'. PLURAL on an int, with the rendered figure passed separately as [daysText] — the same shape homeStripStale uses. The first version took days as a plain String, which reads '1 days ago' in English before any translator sees it, and forces German, French and Arabic into a form that is wrong at some counts with no way to fix it from an ARB file. Arabic needs five shapes here, not two.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, one{Last entered {distance} on {date} — {daysText} day ago} other{Last entered {distance} on {date} — {daysText} days ago}}'**
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  );
+
+  /// The tappable projection chip beside the helper line. [value] already carries the ~ from commonEstimatedValue, so this key never writes one. Tapping it fills the field, which is the whole design: an estimate that takes a tap was chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} now'**
+  String logOdometerEstimateChip(String value);
+
+  /// The live delta above the last reading — SPEC.md §10 calls it 'the cheapest possible check on a dropped digit'. One isolate-wrapped atom so the sign never detaches from the number.
+  ///
+  /// In en, this message translates to:
+  /// **'+{distance} since {date}'**
+  String logOdometerDelta(String distance, String date);
+
+  /// Replaces the helper line when the date precedes every reading on the vehicle. Expected on a second-hand car, so it explains rather than warns, and the delta is suppressed.
+  ///
+  /// In en, this message translates to:
+  /// **'Older than anything logged. This becomes your earliest reading.'**
+  String get logOdometerOlderThanAnything;
+
+  /// The three-way sheet's title. SPEC.md §10: a below-last value is never a bare error — the three answers are a typo, a replaced cluster, and a backdated entry, and only the user knows which.
+  ///
+  /// In en, this message translates to:
+  /// **'This reading is lower than your last one'**
+  String get logOdometerBelowLastTitle;
+
+  /// The three-way sheet's body: the neighbour the new value conflicts with.
+  ///
+  /// In en, this message translates to:
+  /// **'Last entered: {distance} on {date}.'**
+  String logOdometerBelowLastBody(String distance, String date);
+
+  /// The first of the three answers. Returns focus with the text selected.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s a typo — let me fix it'**
+  String get logOdometerBelowLastTypo;
+
+  /// The second answer. Opens the correction sheet and writes an OdometerCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'The odometer was replaced or rolled over'**
+  String get logOdometerBelowLastReplaced;
+
+  /// The third answer, offered only when the date is in the past. If the value fits between its date-neighbours the save proceeds silently.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s an older entry I\'m adding now'**
+  String get logOdometerBelowLastOlder;
+
+  /// Blocks a backdated reading that is HIGHER than the current earliest. Names both ends, because SPEC.md §3's three resolutions all need them. [date] is a DAY-AND-MONTH ('2 September') and [when] is a MONTH-AND-YEAR ('May 2019') — the two are deliberately different granularities and a translator cannot tell from the English, because the preposition differs between them in every Romance and Germanic language.
+  ///
+  /// In en, this message translates to:
+  /// **'Your earliest reading is {distance} on {date}. A reading from {when} has to be lower than that.'**
+  String logOdometerAboveEarliest(String distance, String date, String when);
+
+  /// An amber soft warning, over 2,000 km/day. It warns and still saves — a delivery driver really does do 2,400 km in a day.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s about {rate} a day since {date}. Is that right?'**
+  String logOdometerRateWarning(String rate, String date);
+
+  /// An amber soft warning on a MILES vehicle when the new value is 1.5-1.7x the last — the ratio of a kilometre reading typed into a miles field. It offers the converted figure and still saves.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you mean {value}? This looks like kilometres.'**
+  String logOdometerUnitMixUpWarning(String value);
+
+  /// An amber soft warning on a single jump over 100,000 km. Warns and still saves: an imported vehicle's first manual reading legitimately jumps.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s a jump of {distance}. Is that right?'**
+  String logOdometerJumpWarning(String distance);
+
+  /// Offered after a unit change on one entry. The per-entry override leaves the vehicle alone by design; this is the one place the app asks whether the change was meant to be permanent. The unit word is inside the sentence because German and Persian decline it.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all your readings in kilometres from now on?'**
+  String get logOdometerSwitchUnitPrompt;
+
+  /// The accessible name of the unit chip beside the odometer field. It says 'for this entry' because that is exactly what it changes — the vehicle's display unit is untouched.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit for this entry'**
+  String get logOdometerUnitChipLabel;
 }
 
 class _AppLocalizationsDelegate

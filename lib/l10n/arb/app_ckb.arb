@@ -292,5 +292,21 @@
   "logTitleFillUp": "پڕکردنەوە",
   "logTitleService": "خزمەتگوزاری",
   "logTitleExpense": "تێچوو",
-  "logTitleOdometer": "کیلۆمەتر"
+  "logTitleOdometer": "کیلۆمەتر",
+  "logOdometerLastEntered": "دوایین تۆمار {distance} لە {date}",
+  "logOdometerLastEnteredStale": "{days, plural, one{دوایین تۆمار {distance} لە {date} — {daysText} ڕۆژ لەمەوبەر} other{دوایین تۆمار {distance} لە {date} — {daysText} ڕۆژ لەمەوبەر}}",
+  "logOdometerEstimateChip": "ئێستا {value}",
+  "logOdometerDelta": "+{distance} لە {date}ەوە",
+  "logOdometerOlderThanAnything": "کۆنترە لە هەموو ئەوەی تۆمارکراوە. ئەمە دەبێتە کۆنترین خوێندنەوەت.",
+  "logOdometerBelowLastTitle": "ئەم خوێندنەوەیە کەمترە لە دوایین خوێندنەوەت",
+  "logOdometerBelowLastBody": "دوایین تۆمار: {distance} لە {date}.",
+  "logOdometerBelowLastTypo": "هەڵەیەکی نووسینە — چاکی دەکەمەوە",
+  "logOdometerBelowLastReplaced": "کیلۆمەترپێوەکە گۆڕدراوە یان گەڕاوەتەوە سەرەتا",
+  "logOdometerBelowLastOlder": "تۆمارێکی کۆنترە کە ئێستا زیادی دەکەم",
+  "logOdometerAboveEarliest": "کۆنترین خوێندنەوەت {distance} لە {date}ە. خوێندنەوەیەک لە {when} دەبێت لەمە کەمتر بێت.",
+  "logOdometerRateWarning": "ئەمە نزیکەی {rate} ڕۆژانەیە لە {date}ەوە. ڕاستە؟",
+  "logOdometerUnitMixUpWarning": "مەبەستت {value} بوو؟ ئەمە وەک کیلۆمەتر دیارە.",
+  "logOdometerJumpWarning": "ئەمە بازدانێکە بە بڕی {distance}. ڕاستە؟",
+  "logOdometerSwitchUnitPrompt": "لە ئێستاوە هەموو خوێندنەوەکانت بە کیلۆمەتر پیشان بدرێن؟",
+  "logOdometerUnitChipLabel": "یەکەی ئەم تۆمارە"
 }

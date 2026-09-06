@@ -1901,5 +1901,143 @@
   "logTitleOdometer": "Odometer",
   "@logTitleOdometer": {
     "description": "The odometer form's title. The artboard's Persian reads کیلومترشمار here and کیلومتر in the segment bar."
+  },
+  "logOdometerLastEntered": "Last entered {distance} on {date}",
+  "@logOdometerLastEntered": {
+    "description": "The odometer field's helper line. The last ENTERED reading and its date — never a projection, because SPEC.md §10 says an estimate that arrives as a default gets saved unread.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerLastEnteredStale": "{days, plural, one{Last entered {distance} on {date} — {daysText} day ago} other{Last entered {distance} on {date} — {daysText} days ago}}",
+  "@logOdometerLastEnteredStale": {
+    "description": "The helper line when the last reading is over 60 days old. It names the AGE instead of offering an estimate chip: SPEC.md §10, 'a 174-day-old estimate offered as a default would launder itself into a fact'. PLURAL on an int, with the rendered figure passed separately as [daysText] — the same shape homeStripStale uses. The first version took days as a plain String, which reads '1 days ago' in English before any translator sees it, and forces German, French and Arabic into a form that is wrong at some counts with no way to fix it from an ARB file. Arabic needs five shapes here, not two.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "174"
+      },
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "daysText": {
+        "type": "String",
+        "example": "174"
+      }
+    }
+  },
+  "logOdometerEstimateChip": "{value} now",
+  "@logOdometerEstimateChip": {
+    "description": "The tappable projection chip beside the helper line. [value] already carries the ~ from commonEstimatedValue, so this key never writes one. Tapping it fills the field, which is the whole design: an estimate that takes a tap was chosen.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerDelta": "+{distance} since {date}",
+  "@logOdometerDelta": {
+    "description": "The live delta above the last reading — SPEC.md §10 calls it 'the cheapest possible check on a dropped digit'. One isolate-wrapped atom so the sign never detaches from the number.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerOlderThanAnything": "Older than anything logged. This becomes your earliest reading.",
+  "@logOdometerOlderThanAnything": {
+    "description": "Replaces the helper line when the date precedes every reading on the vehicle. Expected on a second-hand car, so it explains rather than warns, and the delta is suppressed."
+  },
+  "logOdometerBelowLastTitle": "This reading is lower than your last one",
+  "@logOdometerBelowLastTitle": {
+    "description": "The three-way sheet's title. SPEC.md §10: a below-last value is never a bare error — the three answers are a typo, a replaced cluster, and a backdated entry, and only the user knows which."
+  },
+  "logOdometerBelowLastBody": "Last entered: {distance} on {date}.",
+  "@logOdometerBelowLastBody": {
+    "description": "The three-way sheet's body: the neighbour the new value conflicts with.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerBelowLastTypo": "It's a typo — let me fix it",
+  "@logOdometerBelowLastTypo": {
+    "description": "The first of the three answers. Returns focus with the text selected."
+  },
+  "logOdometerBelowLastReplaced": "The odometer was replaced or rolled over",
+  "@logOdometerBelowLastReplaced": {
+    "description": "The second answer. Opens the correction sheet and writes an OdometerCorrection."
+  },
+  "logOdometerBelowLastOlder": "It's an older entry I'm adding now",
+  "@logOdometerBelowLastOlder": {
+    "description": "The third answer, offered only when the date is in the past. If the value fits between its date-neighbours the save proceeds silently."
+  },
+  "logOdometerAboveEarliest": "Your earliest reading is {distance} on {date}. A reading from {when} has to be lower than that.",
+  "@logOdometerAboveEarliest": {
+    "description": "Blocks a backdated reading that is HIGHER than the current earliest. Names both ends, because SPEC.md §3's three resolutions all need them. [date] is a DAY-AND-MONTH ('2 September') and [when] is a MONTH-AND-YEAR ('May 2019') — the two are deliberately different granularities and a translator cannot tell from the English, because the preposition differs between them in every Romance and Germanic language.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerRateWarning": "That's about {rate} a day since {date}. Is that right?",
+  "@logOdometerRateWarning": {
+    "description": "An amber soft warning, over 2,000 km/day. It warns and still saves — a delivery driver really does do 2,400 km in a day.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerUnitMixUpWarning": "Did you mean {value}? This looks like kilometres.",
+  "@logOdometerUnitMixUpWarning": {
+    "description": "An amber soft warning on a MILES vehicle when the new value is 1.5-1.7x the last — the ratio of a kilometre reading typed into a miles field. It offers the converted figure and still saves.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerJumpWarning": "That's a jump of {distance}. Is that right?",
+  "@logOdometerJumpWarning": {
+    "description": "An amber soft warning on a single jump over 100,000 km. Warns and still saves: an imported vehicle's first manual reading legitimately jumps.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "logOdometerSwitchUnitPrompt": "Show all your readings in kilometres from now on?",
+  "@logOdometerSwitchUnitPrompt": {
+    "description": "Offered after a unit change on one entry. The per-entry override leaves the vehicle alone by design; this is the one place the app asks whether the change was meant to be permanent. The unit word is inside the sentence because German and Persian decline it."
+  },
+  "logOdometerUnitChipLabel": "Unit for this entry",
+  "@logOdometerUnitChipLabel": {
+    "description": "The accessible name of the unit chip beside the odometer field. It says 'for this entry' because that is exactly what it changes — the vehicle's display unit is untouched."
   }
 }

@@ -1301,4 +1301,88 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get logTitleOdometer => 'Compteur';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'Dernière saisie : $distance le $date';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Dernière saisie : $distance le $date — il y a $daysText jours',
+      many: 'Dernière saisie : $distance le $date — il y a $daysText jours',
+      one: 'Dernière saisie : $distance le $date — il y a $daysText jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return '$value maintenant';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance depuis le $date';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'Antérieur à tout ce qui est enregistré. Ce sera votre relevé le plus ancien.';
+
+  @override
+  String get logOdometerBelowLastTitle =>
+      'Ce relevé est inférieur à votre dernier';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'Dernière saisie : $distance le $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo =>
+      'C’est une faute de frappe — je la corrige';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'Le compteur a été remplacé ou est revenu à zéro';
+
+  @override
+  String get logOdometerBelowLastOlder =>
+      'C’est une saisie plus ancienne que j’ajoute maintenant';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'Votre relevé le plus ancien est $distance le $date. Un relevé de $when doit être inférieur à ce chiffre.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'Cela fait environ $rate par jour depuis le $date. Est-ce bien cela ?';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'Vouliez-vous dire $value ? Cela ressemble à des kilomètres.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'C’est un bond de $distance. Est-ce bien cela ?';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'Afficher désormais tous vos relevés en kilomètres ?';
+
+  @override
+  String get logOdometerUnitChipLabel => 'Unité pour cette saisie';
 }

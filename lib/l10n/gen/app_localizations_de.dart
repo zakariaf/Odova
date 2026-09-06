@@ -1275,4 +1275,86 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get logTitleOdometer => 'Kilometerstand';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'Zuletzt $distance am $date eingetragen';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Zuletzt $distance am $date eingetragen — vor $daysText Tagen',
+      one: 'Zuletzt $distance am $date eingetragen — vor $daysText Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return 'jetzt $value';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance seit $date';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'Älter als alles Erfasste. Das wird Ihre früheste Ablesung.';
+
+  @override
+  String get logOdometerBelowLastTitle =>
+      'Diese Ablesung ist niedriger als Ihre letzte';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'Zuletzt eingetragen: $distance am $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo => 'Ein Tippfehler — ich korrigiere ihn';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'Der Kilometerzähler wurde ersetzt oder ist übergelaufen';
+
+  @override
+  String get logOdometerBelowLastOlder =>
+      'Ein älterer Eintrag, den ich jetzt nachtrage';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'Ihre früheste Ablesung ist $distance am $date. Eine Ablesung aus $when muss darunter liegen.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'Das sind etwa $rate pro Tag seit $date. Stimmt das?';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'Meinten Sie $value? Das sieht nach Kilometern aus.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'Das ist ein Sprung von $distance. Stimmt das?';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'Alle Ihre Ablesungen ab jetzt in Kilometern anzeigen?';
+
+  @override
+  String get logOdometerUnitChipLabel => 'Einheit für diesen Eintrag';
 }

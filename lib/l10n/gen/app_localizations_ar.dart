@@ -1362,4 +1362,88 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logTitleOdometer => 'العدّاد';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'آخر إدخال $distance في $date';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'آخر إدخال $distance في $date — قبل $daysText يوم',
+      many: 'آخر إدخال $distance في $date — قبل $daysText يومًا',
+      few: 'آخر إدخال $distance في $date — قبل $daysText أيام',
+      two: 'آخر إدخال $distance في $date — قبل يومين',
+      one: 'آخر إدخال $distance في $date — قبل يوم واحد',
+      zero: 'آخر إدخال $distance في $date — قبل $daysText يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return '$value الآن';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance منذ $date';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'أقدم من كل ما هو مسجَّل. ستصبح هذه أقدم قراءة لديك.';
+
+  @override
+  String get logOdometerBelowLastTitle => 'هذه القراءة أقل من قراءتك الأخيرة';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'آخر إدخال: $distance في $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo => 'إنه خطأ مطبعي — سأصحّحه';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'تم استبدال العدّاد أو أعاد الدوران من الصفر';
+
+  @override
+  String get logOdometerBelowLastOlder => 'إنه إدخال أقدم أضيفه الآن';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'أقدم قراءة لديك هي $distance في $date. وأي قراءة من $when يجب أن تكون أقل من ذلك.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'هذا نحو $rate يوميًا منذ $date. هل هذا صحيح؟';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'هل تقصد $value؟ يبدو هذا بالكيلومترات.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'هذه قفزة قدرها $distance. هل هذا صحيح؟';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'عرض كل قراءاتك بالكيلومترات من الآن فصاعدًا؟';
+
+  @override
+  String get logOdometerUnitChipLabel => 'وحدة هذا الإدخال';
 }

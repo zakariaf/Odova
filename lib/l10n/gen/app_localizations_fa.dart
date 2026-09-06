@@ -1265,4 +1265,85 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get logTitleOdometer => 'کیلومترشمار';
+
+  @override
+  String logOdometerLastEntered(String distance, String date) {
+    return 'آخرین ثبت $distance در $date';
+  }
+
+  @override
+  String logOdometerLastEnteredStale(
+    int days,
+    String distance,
+    String date,
+    String daysText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'آخرین ثبت $distance در $date — $daysText روز پیش',
+      one: 'آخرین ثبت $distance در $date — $daysText روز پیش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String logOdometerEstimateChip(String value) {
+    return 'اکنون $value';
+  }
+
+  @override
+  String logOdometerDelta(String distance, String date) {
+    return '+$distance از $date';
+  }
+
+  @override
+  String get logOdometerOlderThanAnything =>
+      'قدیمی‌تر از هر چیزی است که ثبت شده. این قدیمی‌ترین عدد شما می‌شود.';
+
+  @override
+  String get logOdometerBelowLastTitle => 'این عدد از آخرین عدد شما کمتر است';
+
+  @override
+  String logOdometerBelowLastBody(String distance, String date) {
+    return 'آخرین ثبت: $distance در $date.';
+  }
+
+  @override
+  String get logOdometerBelowLastTypo => 'اشتباه تایپی است — اصلاحش می‌کنم';
+
+  @override
+  String get logOdometerBelowLastReplaced =>
+      'کیلومترشمار تعویض شده یا دور کامل زده است';
+
+  @override
+  String get logOdometerBelowLastOlder =>
+      'ثبتی قدیمی‌تر است که الان اضافه می‌کنم';
+
+  @override
+  String logOdometerAboveEarliest(String distance, String date, String when) {
+    return 'قدیمی‌ترین عدد شما $distance در $date است. عددی از $when باید کمتر از آن باشد.';
+  }
+
+  @override
+  String logOdometerRateWarning(String rate, String date) {
+    return 'این حدود $rate در روز از $date تاکنون است. درست است؟';
+  }
+
+  @override
+  String logOdometerUnitMixUpWarning(String value) {
+    return 'منظورتان $value بود؟ این شبیه کیلومتر است.';
+  }
+
+  @override
+  String logOdometerJumpWarning(String distance) {
+    return 'این جهشی به اندازهٔ $distance است. درست است؟';
+  }
+
+  @override
+  String get logOdometerSwitchUnitPrompt =>
+      'از این پس همهٔ عددهای شما به کیلومتر نمایش داده شود؟';
+
+  @override
+  String get logOdometerUnitChipLabel => 'یکای این ثبت';
 }

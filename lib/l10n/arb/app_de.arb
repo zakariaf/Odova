@@ -292,5 +292,21 @@
   "logTitleFillUp": "Tankfüllung",
   "logTitleService": "Service",
   "logTitleExpense": "Ausgabe",
-  "logTitleOdometer": "Kilometerstand"
+  "logTitleOdometer": "Kilometerstand",
+  "logOdometerLastEntered": "Zuletzt {distance} am {date} eingetragen",
+  "logOdometerLastEnteredStale": "{days, plural, one{Zuletzt {distance} am {date} eingetragen — vor {daysText} Tag} other{Zuletzt {distance} am {date} eingetragen — vor {daysText} Tagen}}",
+  "logOdometerEstimateChip": "jetzt {value}",
+  "logOdometerDelta": "+{distance} seit {date}",
+  "logOdometerOlderThanAnything": "Älter als alles Erfasste. Das wird Ihre früheste Ablesung.",
+  "logOdometerBelowLastTitle": "Diese Ablesung ist niedriger als Ihre letzte",
+  "logOdometerBelowLastBody": "Zuletzt eingetragen: {distance} am {date}.",
+  "logOdometerBelowLastTypo": "Ein Tippfehler — ich korrigiere ihn",
+  "logOdometerBelowLastReplaced": "Der Kilometerzähler wurde ersetzt oder ist übergelaufen",
+  "logOdometerBelowLastOlder": "Ein älterer Eintrag, den ich jetzt nachtrage",
+  "logOdometerAboveEarliest": "Ihre früheste Ablesung ist {distance} am {date}. Eine Ablesung aus {when} muss darunter liegen.",
+  "logOdometerRateWarning": "Das sind etwa {rate} pro Tag seit {date}. Stimmt das?",
+  "logOdometerUnitMixUpWarning": "Meinten Sie {value}? Das sieht nach Kilometern aus.",
+  "logOdometerJumpWarning": "Das ist ein Sprung von {distance}. Stimmt das?",
+  "logOdometerSwitchUnitPrompt": "Alle Ihre Ablesungen ab jetzt in Kilometern anzeigen?",
+  "logOdometerUnitChipLabel": "Einheit für diesen Eintrag"
 }

@@ -292,5 +292,21 @@
   "logTitleFillUp": "‏pu-lliF",
   "logTitleService": "‏ecivreS",
   "logTitleExpense": "‏esnepxE",
-  "logTitleOdometer": "‏retemodO"
+  "logTitleOdometer": "‏retemodO",
+  "logOdometerLastEntered": "‏ deretne tsaL{distance} no {date}",
+  "logOdometerLastEnteredStale": "‏{days, plural, one{ deretne tsaL{distance} no {date} — {daysText}oga yad } other{ deretne tsaL{distance} no {date} — {daysText}oga syad }}",
+  "logOdometerEstimateChip": "‏{value}won ",
+  "logOdometerDelta": "‏+{distance} ecnis {date}",
+  "logOdometerOlderThanAnything": "‏.gnidaer tseilrae ruoy semoceb sihT .deggol gnihtyna naht redlO",
+  "logOdometerBelowLastTitle": "‏eno tsal ruoy naht rewol si gnidaer sihT",
+  "logOdometerBelowLastBody": "‏ :deretne tsaL{distance} no {date}.",
+  "logOdometerBelowLastTypo": "‏ti xif em tel — opyt a s'tI",
+  "logOdometerBelowLastReplaced": "‏revo dellor ro decalper saw retemodo ehT",
+  "logOdometerBelowLastOlder": "‏won gnidda m'I yrtne redlo na s'tI",
+  "logOdometerAboveEarliest": "‏ si gnidaer tseilrae ruoY{distance} no {date} morf gnidaer A .{when}.taht naht rewol eb ot sah ",
+  "logOdometerRateWarning": "‏ tuoba s'tahT{rate} ecnis yad a {date}?thgir taht sI .",
+  "logOdometerUnitMixUpWarning": "‏ naem uoy diD{value}.sertemolik ekil skool sihT ?",
+  "logOdometerJumpWarning": "‏ fo pmuj a s'tahT{distance}?thgir taht sI .",
+  "logOdometerSwitchUnitPrompt": "‏?no won morf sertemolik ni sgnidaer ruoy lla wohS",
+  "logOdometerUnitChipLabel": "‏yrtne siht rof tinU"
 }

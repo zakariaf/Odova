@@ -292,5 +292,21 @@
   "logTitleFillUp": "Plein",
   "logTitleService": "Entretien",
   "logTitleExpense": "Dépense",
-  "logTitleOdometer": "Compteur"
+  "logTitleOdometer": "Compteur",
+  "logOdometerLastEntered": "Dernière saisie : {distance} le {date}",
+  "logOdometerLastEnteredStale": "{days, plural, one{Dernière saisie : {distance} le {date} — il y a {daysText} jour} many{Dernière saisie : {distance} le {date} — il y a {daysText} jours} other{Dernière saisie : {distance} le {date} — il y a {daysText} jours}}",
+  "logOdometerEstimateChip": "{value} maintenant",
+  "logOdometerDelta": "+{distance} depuis le {date}",
+  "logOdometerOlderThanAnything": "Antérieur à tout ce qui est enregistré. Ce sera votre relevé le plus ancien.",
+  "logOdometerBelowLastTitle": "Ce relevé est inférieur à votre dernier",
+  "logOdometerBelowLastBody": "Dernière saisie : {distance} le {date}.",
+  "logOdometerBelowLastTypo": "C’est une faute de frappe — je la corrige",
+  "logOdometerBelowLastReplaced": "Le compteur a été remplacé ou est revenu à zéro",
+  "logOdometerBelowLastOlder": "C’est une saisie plus ancienne que j’ajoute maintenant",
+  "logOdometerAboveEarliest": "Votre relevé le plus ancien est {distance} le {date}. Un relevé de {when} doit être inférieur à ce chiffre.",
+  "logOdometerRateWarning": "Cela fait environ {rate} par jour depuis le {date}. Est-ce bien cela ?",
+  "logOdometerUnitMixUpWarning": "Vouliez-vous dire {value} ? Cela ressemble à des kilomètres.",
+  "logOdometerJumpWarning": "C’est un bond de {distance}. Est-ce bien cela ?",
+  "logOdometerSwitchUnitPrompt": "Afficher désormais tous vos relevés en kilomètres ?",
+  "logOdometerUnitChipLabel": "Unité pour cette saisie"
 }
