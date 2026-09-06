@@ -15,6 +15,9 @@
 @TestOn('vm')
 library;
 
+import 'dart:async';
+
+import 'package:fake_async/fake_async.dart';
 import 'package:odova/core/recompute/recompute_runner.dart';
 import 'package:odova/core/recompute/vehicle_recompute.dart';
 import 'package:odova/core/result.dart';
@@ -126,5 +129,47 @@ void main() {
       (outcome as RecomputeDone<_Boom>).diff.changedNothing,
       isTrue,
     );
+  });
+
+  test('Undo is a write, so it earns its own recompute and its own diff', () {
+    // §11: "Undo re-applies the pre-write snapshot and re-runs the same
+    // pipeline." The word that matters is SAME. A revert that skips the
+    // recompute leaves the fourteen figures the original write moved sitting
+    // on screen at their post-write values, describing a record that no longer
+    // says that — and the user's only evidence that Undo worked is a row that
+    // went back, beside figures that did not.
+    return fakeAsync((async) {
+      final runs = <String>[];
+      var odometerKm = 98204;
+
+      Future<RecomputeOutcome<_Boom>> writeOdometer(int km, String label) =>
+          runRecompute(
+            snapshot: () async => RecomputeSnapshot(
+              consumptionByFillUp: {'f2': odometerKm / 40},
+            ),
+            write: () async {
+              runs.add(label);
+              odometerKm = km;
+              return const Ok<void, _Boom>(null);
+            },
+            invalidate: () async {},
+          );
+
+      late RecomputeOutcome<_Boom> undone;
+      unawaited(
+        writeOdometer(98204, 'edit').then((_) async {
+          // The Undo re-applies the PRE-WRITE value, through the same call.
+          undone = await writeOdometer(89204, 'undo');
+        }),
+      );
+      async.elapse(const Duration(seconds: 1));
+
+      expect(runs, ['edit', 'undo']);
+      expect(
+        (undone as RecomputeDone<_Boom>).diff.changedNothing,
+        isFalse,
+        reason: 'the revert moved a figure back, which is a change',
+      );
+    });
   });
 }
