@@ -10,11 +10,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/features/logging/application/log_modal_notifier.dart';
+import 'package:odova/features/logging/application/log_save_service.dart';
 import 'package:odova/features/logging/domain/expense_draft.dart';
 import 'package:odova/features/logging/domain/price_trio.dart';
 import 'package:odova/features/logging/domain/service_cost_model.dart';
@@ -25,11 +30,13 @@ import 'package:odova/features/logging/ui/log_service_body.dart';
 import 'package:odova/features/logging/ui/odometer_field.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/number_format.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
+import 'package:odova/ui/calm/calm_snackbar.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
 
 /// The segment bar, for the tests that must tell it from a body's own
@@ -86,6 +93,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// One value for all four segments: a user who typed a date, switched
   /// segments and switched back would not expect to have to type it again.
   final String _occurredOn = '2026-09-02';
+  bool _showProblems = false;
 
   @override
   void dispose() {
@@ -204,56 +212,65 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// one its draft and its callbacks and gets a widget back. That is the seam
   /// §10 is built around: "a segment body knows nothing about" the chrome, and
   /// the chrome returns the compliment.
-  Widget _body() => switch (_segment) {
-    LogType.fillUp => LogFillUpBody(
-      odometer: _odometerField(),
-      dateRow: _dateRow(),
-      trio: _trio,
-      moreRow: _moreRow(AppLocalizations.of(context)),
-      quantityUnit: _quantityUnit,
-      isFullTank: _isFullTank,
-      controllers: _trioControllers,
-      onTrioChanged: _onTrioChanged,
-      onFullTankChanged: (full) => setState(() => _isFullTank = full),
-    ),
-    LogType.service => LogServiceBody(
-      odometer: _odometerField(),
-      dateRow: _dateRow(),
-      items: const [],
-      moreRow: _moreRow(AppLocalizations.of(context)),
-      cost: _cost,
-      totalController: _totalController,
-      onToggleItem: (_) {},
-      onAddOther: () {},
-      onTotalChanged: (text) => setState(() => _cost = _cost.withTotal(text)),
-      onSplitChanged: (on) =>
-          setState(() => _cost = on ? _cost.split() : _cost),
-    ),
-    LogType.expense => LogExpenseBody(
-      draft: _expense,
-      moreRow: _moreRow(AppLocalizations.of(context)),
-      categoryLabel: (c) => c.wire,
-      amountController: _amountController,
-      labelController: _labelController,
-      onCategoryChanged: (c) =>
-          setState(() => _expense = _expense.withCategory(c)),
-      onAmountChanged: (text) =>
-          setState(() => _expense = _expense.withAmount(text)),
-      onLabelChanged: (text) =>
-          setState(() => _expense = _expense.withLabel(text)),
-      onRefundChanged: (on) =>
-          setState(() => _expense = on ? _expense.refunded() : _expense),
-    ),
-    LogType.odometer => LogOdometerBody(
-      value: _odometer,
-      unit: DistanceUnit.km,
-      formatsTag: 'en',
-      occurredOn: _occurredOn,
-      onValueChanged: (v) => setState(() => _odometer = v),
-      onSave: _save,
-      onPickDate: () {},
-    ),
-  };
+  Widget _body() {
+    final l10n = AppLocalizations.of(context);
+    return switch (_segment) {
+      LogType.fillUp => LogFillUpBody(
+        odometer: _odometerField(),
+        dateRow: _dateRow(),
+        trio: _trio,
+        moreRow: _moreRow(AppLocalizations.of(context)),
+        quantityUnit: _quantityUnit,
+        isFullTank: _isFullTank,
+        controllers: _trioControllers,
+        onTrioChanged: _onTrioChanged,
+        onFullTankChanged: (full) => setState(() => _isFullTank = full),
+      ),
+      LogType.service => LogServiceBody(
+        odometer: _odometerField(),
+        dateRow: _dateRow(),
+        items: const [],
+        moreRow: _moreRow(AppLocalizations.of(context)),
+        cost: _cost,
+        totalController: _totalController,
+        onToggleItem: (_) {},
+        onAddOther: () {},
+        onTotalChanged: (text) => setState(() => _cost = _cost.withTotal(text)),
+        onSplitChanged: (on) =>
+            setState(() => _cost = on ? _cost.split() : _cost),
+      ),
+      LogType.expense => LogExpenseBody(
+        draft: _expense,
+        moreRow: _moreRow(AppLocalizations.of(context)),
+        categoryLabel: (c) => c.wire,
+        amountController: _amountController,
+        labelController: _labelController,
+        onCategoryChanged: (c) =>
+            setState(() => _expense = _expense.withCategory(c)),
+        onAmountChanged: (text) =>
+            setState(() => _expense = _expense.withAmount(text)),
+        onLabelChanged: (text) =>
+            setState(() => _expense = _expense.withLabel(text)),
+        onRefundChanged: (on) =>
+            setState(() => _expense = on ? _expense.refunded() : _expense),
+        // §10: the messages appear when Save is PRESSED, not while the user is
+        // still typing — "a form that scolds you before you have finished is a
+        // form that is angry at you for arriving".
+        categoryError: _expenseError(ExpenseProblem.noCategory, l10n),
+        labelError: _expenseError(ExpenseProblem.noLabel, l10n),
+        amountError: _expenseError(ExpenseProblem.noAmount, l10n),
+      ),
+      LogType.odometer => LogOdometerBody(
+        value: _odometer,
+        unit: DistanceUnit.km,
+        formatsTag: 'en',
+        occurredOn: _occurredOn,
+        onValueChanged: (v) => setState(() => _odometer = v),
+        onSave: _save,
+        onPickDate: () {},
+      ),
+    };
+  }
 
   /// §10's shared odometer field.
   ///
@@ -380,5 +397,107 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// already do it, and one mechanism for three modals is better than two.
   void _dismiss() => unawaited(Navigator.of(context).maybePop());
 
-  void _save() {}
+  /// Validates, writes, and dismisses with an Undo.
+  ///
+  /// §10: "On tap it validates, scrolls to the first failing field, focuses it,
+  /// shows one inline error beneath it" — Save is never disabled, so the tap is
+  /// where the form explains itself. A valid draft goes through
+  /// `saveLogEntry`, which is the one place the write, the recompute and the
+  /// reschedule happen in that order.
+  Future<void> _save() async {
+    // CAPTURED before the await. `CalmSnackbarHost.of` reads values rather than
+    // holding a context precisely so the Undo survives the modal it was
+    // offered from — the route is about to pop.
+    final snackbars = CalmSnackbarHost.of(context);
+    final l10n = AppLocalizations.of(context);
+    final router = GoRouter.of(context);
+
+    if (_problems().isNotEmpty) {
+      // The inline messages are already rendered by the bodies; showing a
+      // dialog as well would be the second thing telling the user what one
+      // sentence under the field already says.
+      setState(() => _showProblems = true);
+      return;
+    }
+
+    final written = await saveLogEntry(_steps());
+    if (!mounted) return;
+    if (written is Err<void, PersistFailure>) {
+      // §10: the modal STAYS OPEN with everything intact. Losing six digits
+      // typed at a pump because a disk was full is the one failure this form
+      // must never have.
+      snackbars.show(message: l10n.saveDiskFullError, danger: true);
+      return;
+    }
+
+    if (router.canPop()) router.pop();
+    snackbars.show(
+      message: _savedMessage(l10n),
+      actionLabel: l10n.commonUndo,
+      onAction: _undo,
+    );
+  }
+
+  /// One expense problem's sentence, or null when it does not apply yet.
+  String? _expenseError(ExpenseProblem problem, AppLocalizations l10n) {
+    if (!_showProblems || !_expense.problems().contains(problem)) return null;
+    return switch (problem) {
+      ExpenseProblem.noCategory => l10n.logExpenseCategoryError,
+      ExpenseProblem.noLabel => l10n.logExpenseNameError,
+      ExpenseProblem.noAmount => l10n.logExpenseAmountError,
+      ExpenseProblem.amountNotANumber => l10n.logNumberUnclearError(
+        formatForDisplay(
+          42.61,
+          'en',
+          numerals: CalmNumerals.auto,
+          decimalDigits: 2,
+        ),
+      ),
+      ExpenseProblem.periodBackwards => l10n.logExpenseCoversError,
+      // §10 allows a future date on this form, so nothing produces it.
+      ExpenseProblem.futureDate => null,
+    };
+  }
+
+  /// Everything wrong with the visible segment, in the order it reads.
+  List<Object> _problems() => switch (_segment) {
+    LogType.expense => _expense.problems(),
+    // The other three forms' validation arrives with their save wiring; an
+    // empty list here is not "valid", it is "not yet asked", and the tests that
+    // will assert each rule are the ones that make it real.
+    _ => const [],
+  };
+
+  /// The three steps this save takes, in §10's order.
+  ///
+  /// A placeholder until each body carries the record it builds: the ORDER is
+  /// already asserted by `log_save_service_test`, and wiring a half-built
+  /// record through it would assert nothing while looking like it did.
+  LogSaveSteps _steps() => _PendingSteps();
+
+  String _savedMessage(AppLocalizations l10n) => switch (_segment) {
+    LogType.fillUp => l10n.logSaveFillUp,
+    LogType.service => l10n.logSaveService,
+    LogType.expense => l10n.logSaveExpense,
+    LogType.odometer => l10n.odometerSavedSnack,
+  };
+
+  void _undo() {}
+}
+
+/// The steps a save takes before its body supplies a record.
+///
+/// It writes nothing and says so. §10's order is enforced by `saveLogEntry` and
+/// asserted against a fake; this is the seam the four bodies will each fill
+/// with their own record, and a version that pretended to write would make the
+/// wiring look finished.
+class _PendingSteps implements LogSaveSteps {
+  @override
+  Future<Result<void, PersistFailure>> persist() async => const Ok(null);
+
+  @override
+  Future<void> recompute() async {}
+
+  @override
+  Future<void> reschedule() async {}
 }

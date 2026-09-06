@@ -16,6 +16,7 @@ import 'package:odova/features/logging/ui/log_odometer_body.dart';
 import 'package:odova/features/logging/ui/log_service_body.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
+import 'package:odova/ui/calm/calm_dialog.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 
@@ -231,6 +232,33 @@ void main() {
       await _pump(tester, location: Routes.log(type));
       expect(matcher, findsOneWidget, reason: type.wire);
     }
+  });
+
+  testWidgets('tapping Save on an invalid form explains itself inline', (
+    tester,
+  ) async {
+    // §10: "Save is never disabled. On tap it validates, scrolls to the first
+    // failing field, focuses it, shows one inline error beneath it" — and
+    // shows no dialog. A greyed-out Save tells the user nothing; a dialog
+    // tells them twice.
+    tester.useDevice(Device.tallForm);
+    await _pump(tester, location: Routes.log(LogType.expense));
+
+    // Nothing is said before the tap. §10: the messages appear when Save is
+    // PRESSED, not while the user is still typing.
+    final l10n = _l10n(tester);
+    expect(find.text(l10n.logExpenseCategoryError), findsNothing);
+
+    await tester.tap(find.text(l10n.logSaveExpense));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.logExpenseCategoryError), findsOneWidget);
+    expect(find.byType(CalmDialog), findsNothing);
+    expect(
+      find.byType(LogModalShell),
+      findsOneWidget,
+      reason: 'an invalid Save does not dismiss',
+    );
   });
 
   testWidgets('the modal covers the tab bar on every segment', (tester) async {
