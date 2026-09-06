@@ -7,18 +7,24 @@
 // a segment body knows none of it. Four forms that each decided their own Save
 // would read as four apps.
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/app/routing/routes.dart';
-import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/records.dart';
+import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/due_snapshot_provider.dart';
+import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/features/logging/application/fillup_save.dart';
 import 'package:odova/features/logging/application/log_modal_notifier.dart';
 import 'package:odova/features/logging/application/log_save_service.dart';
 import 'package:odova/features/logging/domain/expense_draft.dart';
@@ -580,12 +586,64 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     _ => const [],
   };
 
+  /// The vehicle this modal is logging against, or null while it loads.
+  Vehicle? get _vehicle {
+    final id = ref.read(activeVehicleIdProvider);
+    if (id == null) return null;
+    return ref
+        .read(vehiclesProvider)
+        .value
+        ?.where((v) => v.id == id)
+        .firstOrNull;
+  }
+
+  /// The currency this vehicle's money is in.
+  ///
+  /// The vehicle's own overrides `settings.currency_default`, which is what
+  /// `vehicles.currency` is for — a second car bought abroad keeps its
+  /// receipts in the currency they were paid in.
+  Currency? get _currency =>
+      _vehicle?.currency ?? ref.read(settingsProvider).value?.currencyDefault;
+
   /// The three steps this save takes, in §10's order.
   ///
-  /// A placeholder until each body carries the record it builds: the ORDER is
-  /// already asserted by `log_save_service_test`, and wiring a half-built
-  /// record through it would assert nothing while looking like it did.
-  LogSaveSteps _steps() => _PendingSteps();
+  /// `log.fillup` supplies a real one now. The other three still hand back the
+  /// placeholder, which writes nothing and says so — they arrive with their
+  /// own tasks.
+  LogSaveSteps _steps() {
+    final vehicle = _vehicle;
+    final currency = _currency;
+    if (_segment != LogType.fillUp || vehicle == null || currency == null) {
+      return _PendingSteps();
+    }
+    return _FillUpSteps(
+      save: ref.read(fillUpSaveProvider.notifier),
+      recomputeDue: () =>
+          ref.invalidate(vehicleDueSnapshotProvider(vehicle.id)),
+      vehicle: vehicle,
+      draft: _fillUp,
+      currency: currency,
+      odometer: _enteredOdometer(),
+      onWritten: (fillUp) => _lastWritten = fillUp,
+    );
+  }
+
+  /// The reading the shared odometer field is showing, or null.
+  ///
+  /// Through `OdometerEntry`, which is the app's one answer to what an odometer
+  /// field says — including the overflow guard. A second parse here would be a
+  /// second answer.
+  Distance? _enteredOdometer() {
+    final metres = OdometerEntry(
+      unit: DistanceUnit.km,
+      groupingSeparator: _groupingSeparator,
+      text: _odometerController.text,
+    ).metres;
+    return metres == null ? null : Distance(metres);
+  }
+
+  /// The row the last successful save wrote, for the snackbar's Undo.
+  FillUp? _lastWritten;
 
   String _savedMessage(AppLocalizations l10n) => switch (_segment) {
     LogType.fillUp => l10n.logSaveFillUp,
@@ -594,7 +652,16 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     LogType.odometer => l10n.odometerSavedSnack,
   };
 
-  void _undo() {}
+  /// Takes back the row the snackbar is about.
+  ///
+  /// Null-guarded rather than assumed: the snackbar outlives the modal that
+  /// offered it, and an Undo that fired against nothing would be worse than
+  /// one that quietly does nothing.
+  void _undo() {
+    final written = _lastWritten;
+    if (written == null) return;
+    unawaited(ref.read(fillUpSaveProvider.notifier).undo(written));
+  }
 }
 
 /// The steps a save takes before its body supplies a record.
@@ -603,6 +670,53 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 /// asserted against a fake; this is the seam the four bodies will each fill
 /// with their own record, and a version that pretended to write would make the
 /// wiring look finished.
+class _FillUpSteps implements LogSaveSteps {
+  _FillUpSteps({
+    required this.save,
+    required this.recomputeDue,
+    required this.vehicle,
+    required this.draft,
+    required this.currency,
+    required this.odometer,
+    required this.onWritten,
+  });
+
+  final FillUpSave save;
+  final VoidCallback recomputeDue;
+  final Vehicle vehicle;
+  final FillUpDraft draft;
+  final Currency currency;
+  final Distance? odometer;
+  final ValueChanged<FillUp> onWritten;
+
+  @override
+  Future<Result<void, PersistFailure>> persist() async {
+    final written = await save.save(
+      vehicle: vehicle,
+      draft: draft,
+      currency: currency,
+      odometer: odometer,
+    );
+    return switch (written) {
+      FillUpSaved(:final fillUp) => () {
+        onWritten(fillUp);
+        return const Ok<void, PersistFailure>(null);
+      }(),
+      FillUpSaveFailed(:final failure) => Err(failure),
+    };
+  }
+
+  /// §9's recompute. The due engine is a pure function of what is on disk, so
+  /// "recompute" is invalidating the snapshot rather than writing anything —
+  /// SPEC.md §2: derived values are never persisted.
+  @override
+  Future<void> recompute() async => recomputeDue();
+
+  @override
+  Future<void> reschedule() async {}
+}
+
+/// The steps a save takes before its body supplies a record.
 class _PendingSteps implements LogSaveSteps {
   @override
   Future<Result<void, PersistFailure>> persist() async => const Ok(null);
