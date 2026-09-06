@@ -53,3 +53,21 @@
   and its four-way parity run; 12.11's `PdfCanvas` port, platform
   implementation, share service and the `report_share_test` widget cases. The
   pure logic all three rest on is built and gated.
+- **Task 12.10 (screen).** `report.service` built against the REFERENCE, not
+  §12's ASCII sketch — the toggles are chips and the header is the inverse
+  card. The parity pass found four defects no unit test would have: a tofu box
+  where `→` should be (not in the bundled fonts; moved into an ARB so
+  `font_coverage_test` could refuse it, now an en dash), a divider one pixel
+  wide inside a start-aligned Column, all three header rows at headline size
+  when `.kv__v` is body-semibold, and a preview building all 400 rows.
+  **Parity: theme and Calm-token surfaces PASS all four; band profile 55/107,
+  52/107, 39/101, 39/99 — ~51% against a 75% floor.** Nothing widened, no
+  reference regenerated. The remaining gap is the preview's height model: the
+  reference's card runs off the bottom of the screen, a virtualised list needs
+  a bound.
+- **Open for EPIC-17/18:** the bundled Vazirmatn/Inter carry no U+2192/U+2190,
+  so §12's reference arrow cannot be drawn and §2 forbids fetching a font.
+  Either the face gains the glyph or the reference set loses the arrow.
+- **Standing finding:** `check_parity.sh` is not in CI and passes 0/45 at
+  `main` — EPIC-08, 09 and 10 all merged with §7 unenforced. EPIC-18's problem
+  is much larger than a sweep.
