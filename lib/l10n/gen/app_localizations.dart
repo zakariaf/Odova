@@ -2849,6 +2849,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'services'**
   String get reportServicesLabel;
+
+  /// SPEC.md §12's tab-3 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Costs'**
+  String get costsTitle;
+
+  /// §12's range chip, HIDDEN during January — there is no completed month of this year yet.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get costsRangeThisYear;
+
+  /// §12's range chip: the month of the vehicle's first record onwards.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get costsRangeAll;
+
+  /// The unit under §12's headline figure. A separate key from the figure so the number can be shaped and isolated independently of the word.
+  ///
+  /// In en, this message translates to:
+  /// **'per month'**
+  String get costsPerMonth;
+
+  /// Heads §12's category list.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the money goes'**
+  String get costsWhereMoneyGoes;
+
+  /// SPEC.md §12: "One line under the headline says so." Costs are accrual and History is cash — without this sentence a yearly premium appears to have vanished from the month it was paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly costs like insurance are spread over the months they cover.'**
+  String get costsAccrualNote;
+
+  /// §12 reports the current month SEPARATELY, because it is out of the numerator and the denominator alike: "an average including a two-day-old month halves itself on the 2nd of every month." `amount` is pre-formatted money.
+  ///
+  /// In en, this message translates to:
+  /// **'This month so far: {amount}'**
+  String costsThisMonthSoFar(String amount);
+
+  /// §12's first-run state for tab 3.
+  ///
+  /// In en, this message translates to:
+  /// **'No costs yet.'**
+  String get costsEmptyTitle;
+
+  /// The action beside it. It opens the log sheet rather than a specific form: on first run the app does not know which kind of record the user has.
+  ///
+  /// In en, this message translates to:
+  /// **'Log something'**
+  String get costsEmptyAction;
+
+  /// §12's category row. Sources: FillUp.total_cost.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get costsCategoryFuel;
+
+  /// §12's category row. Sources: ServiceLine.amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Service & repairs'**
+  String get costsCategoryService;
+
+  /// §12's category row. Sources: the `insurance` and `tax_registration` expense categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance & tax'**
+  String get costsCategoryInsuranceTax;
+
+  /// §12's category row. Source: the `finance` expense category.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get costsCategoryFinance;
+
+  /// §12's category row. Sources: `parking` and `toll`.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking & tolls'**
+  String get costsCategoryParkingTolls;
+
+  /// §12's category row. Sources: `fine`, `wash`, `tyre_storage`, `accessories`, `other`. Everything §12 does not give a row of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get costsCategoryOther;
+
+  /// The row that pushes `costs.fuel`.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel & consumption'**
+  String get costsFuelRow;
+
+  /// The row that pushes `trips.list`.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get costsTripsRow;
+
+  /// SPEC.md §12's explanation when `completedMonths` < 1. It carries NO action — there is nothing the user can do but wait, and offering a button would imply otherwise.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back after the end of the month — there isn’t a full month to average yet.'**
+  String get costsNoCompletedMonth;
+
+  /// SPEC.md §12's explanation when the range covers less than 100 km. Paired with **Update odometer**, because that IS the thing the user can do.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough distance logged in this period to work out a cost per kilometre.'**
+  String get costsNotEnoughDistance;
+
+  /// SPEC.md §12's explanation for an estimated cost per distance. `days` is the gap pre-shaped in the locale's numerals — the figure is real and quoted back so the user can judge it.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from odometer readings {days} days apart from the dates shown.'**
+  String costsBoundaryStale(String days);
+
+  /// The action beside §12's distance explanations. Opens `log.odometer`.
+  ///
+  /// In en, this message translates to:
+  /// **'Update odometer'**
+  String get costsUpdateOdometer;
+
+  /// SPEC.md §12's range chips, which are 3 and 12. The count is a PLACEHOLDER and not baked into the copy: `arb_template_test.dart` refuses a bare digit because a Latin "3" does not shape to Persian, Arabic or Sorani numerals, and the chip would read `3 ماه` on a screen where every other number is `۳`.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} month} other{{nText} months}}'**
+  String costsRangeMonths(int n, String nText);
+
+  /// The line above §12's headline figure: the vehicle and which window the figure covers. Two placeholders rather than one sentence, because the vehicle name is the user's own text and must not be part of anything a translator reorders around it.
+  ///
+  /// In en, this message translates to:
+  /// **'{vehicle} · {range}'**
+  String costsHeadlineCaption(String vehicle, String range);
+
+  /// The range's name in the headline caption, lower-case because it follows the vehicle name mid-phrase. Distinct from the CHIP label, which is a control and capitalised.
+  ///
+  /// In en, this message translates to:
+  /// **'this year so far'**
+  String get costsRangeThisYearSoFar;
+
+  /// The month span beside "Where the money goes" — `January – August`. An EN DASH with spaces, and both ends are pre-formatted month names so the display calendar decides them.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String costsSpanCaption(String from, String to);
+
+  /// SPEC.md §12's cost-per-distance figure, WITH its unit spelled out. `€0.29` alone is ambiguous beside a per-month figure on the same line; the reference writes it in full.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per kilometre'**
+  String costsPerKilometre(String amount);
+
+  /// The same for a miles vehicle. A separate key rather than a placeholder unit, because the preposition and word order differ by locale and a translator must be able to reorder both.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per mile'**
+  String costsPerMile(String amount);
+
+  /// SPEC.md §12's range total: `€2,184 in eight months`. The count is a plural placeholder — a bare digit would render Latin in four locales, and the month word inflects.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{amount} in {nText} month} other{{amount} in {nText} months}}'**
+  String costsInMonths(int n, String nText, String amount);
 }
 
 class _AppLocalizationsDelegate

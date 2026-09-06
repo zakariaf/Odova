@@ -19,6 +19,7 @@ import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/features/costs/presentation/costs_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
 import 'package:odova/features/history/presentation/history_screen.dart';
@@ -241,7 +242,7 @@ final List<StatefulShellBranch> _branches = [
         pageBuilder: (context, state) => PageKind.push.page(
           context,
           state,
-          const PlaceholderScreen(screenId: 'costs'),
+          const CostsScreen(),
         ),
         routes: [
           GoRoute(

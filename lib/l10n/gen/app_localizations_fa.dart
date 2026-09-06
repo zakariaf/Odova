@@ -1887,4 +1887,119 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reportServicesLabel => 'سرویس';
+
+  @override
+  String get costsTitle => 'هزینه‌ها';
+
+  @override
+  String get costsRangeThisYear => 'امسال';
+
+  @override
+  String get costsRangeAll => 'همه';
+
+  @override
+  String get costsPerMonth => 'در ماه';
+
+  @override
+  String get costsWhereMoneyGoes => 'پول کجا می‌رود';
+
+  @override
+  String get costsAccrualNote =>
+      'هزینه‌های سالانه مانند بیمه روی ماه‌هایی که پوشش می‌دهند پخش می‌شود.';
+
+  @override
+  String costsThisMonthSoFar(String amount) {
+    return 'این ماه تا کنون: $amount';
+  }
+
+  @override
+  String get costsEmptyTitle => 'هنوز هزینه‌ای نیست.';
+
+  @override
+  String get costsEmptyAction => 'چیزی ثبت کنید';
+
+  @override
+  String get costsCategoryFuel => 'سوخت';
+
+  @override
+  String get costsCategoryService => 'سرویس و تعمیرات';
+
+  @override
+  String get costsCategoryInsuranceTax => 'بیمه و مالیات';
+
+  @override
+  String get costsCategoryFinance => 'تأمین مالی';
+
+  @override
+  String get costsCategoryParkingTolls => 'پارکینگ و عوارض';
+
+  @override
+  String get costsCategoryOther => 'سایر';
+
+  @override
+  String get costsFuelRow => 'سوخت و مصرف';
+
+  @override
+  String get costsTripsRow => 'سفرها';
+
+  @override
+  String get costsNoCompletedMonth =>
+      'بعد از پایان ماه برگردید — هنوز یک ماه کامل برای میانگین‌گیری نیست.';
+
+  @override
+  String get costsNotEnoughDistance =>
+      'در این دوره مسافت کافی ثبت نشده تا هزینه به ازای هر کیلومتر محاسبه شود.';
+
+  @override
+  String costsBoundaryStale(String days) {
+    return 'از کیلومترشمارهایی محاسبه شده که $days روز با تاریخ‌های نشان‌داده‌شده فاصله دارند.';
+  }
+
+  @override
+  String get costsUpdateOdometer => 'به‌روزرسانی کیلومترشمار';
+
+  @override
+  String costsRangeMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ماه',
+      one: '$nText ماه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsHeadlineCaption(String vehicle, String range) {
+    return '$vehicle · $range';
+  }
+
+  @override
+  String get costsRangeThisYearSoFar => 'امسال تا کنون';
+
+  @override
+  String costsSpanCaption(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String costsPerKilometre(String amount) {
+    return '$amount در هر کیلومتر';
+  }
+
+  @override
+  String costsPerMile(String amount) {
+    return '$amount در هر مایل';
+  }
+
+  @override
+  String costsInMonths(int n, String nText, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$amount در $nText ماه',
+      one: '$amount در $nText ماه',
+    );
+    return '$_temp0';
+  }
 }

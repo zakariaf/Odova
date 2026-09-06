@@ -1890,4 +1890,119 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportServicesLabel => 'services';
+
+  @override
+  String get costsTitle => 'Costs';
+
+  @override
+  String get costsRangeThisYear => 'This year';
+
+  @override
+  String get costsRangeAll => 'All';
+
+  @override
+  String get costsPerMonth => 'per month';
+
+  @override
+  String get costsWhereMoneyGoes => 'Where the money goes';
+
+  @override
+  String get costsAccrualNote =>
+      'Yearly costs like insurance are spread over the months they cover.';
+
+  @override
+  String costsThisMonthSoFar(String amount) {
+    return 'This month so far: $amount';
+  }
+
+  @override
+  String get costsEmptyTitle => 'No costs yet.';
+
+  @override
+  String get costsEmptyAction => 'Log something';
+
+  @override
+  String get costsCategoryFuel => 'Fuel';
+
+  @override
+  String get costsCategoryService => 'Service & repairs';
+
+  @override
+  String get costsCategoryInsuranceTax => 'Insurance & tax';
+
+  @override
+  String get costsCategoryFinance => 'Finance';
+
+  @override
+  String get costsCategoryParkingTolls => 'Parking & tolls';
+
+  @override
+  String get costsCategoryOther => 'Other';
+
+  @override
+  String get costsFuelRow => 'Fuel & consumption';
+
+  @override
+  String get costsTripsRow => 'Trips';
+
+  @override
+  String get costsNoCompletedMonth =>
+      'Come back after the end of the month — there isn’t a full month to average yet.';
+
+  @override
+  String get costsNotEnoughDistance =>
+      'Not enough distance logged in this period to work out a cost per kilometre.';
+
+  @override
+  String costsBoundaryStale(String days) {
+    return 'Worked out from odometer readings $days days apart from the dates shown.';
+  }
+
+  @override
+  String get costsUpdateOdometer => 'Update odometer';
+
+  @override
+  String costsRangeMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText months',
+      one: '$nText month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsHeadlineCaption(String vehicle, String range) {
+    return '$vehicle · $range';
+  }
+
+  @override
+  String get costsRangeThisYearSoFar => 'this year so far';
+
+  @override
+  String costsSpanCaption(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String costsPerKilometre(String amount) {
+    return '$amount per kilometre';
+  }
+
+  @override
+  String costsPerMile(String amount) {
+    return '$amount per mile';
+  }
+
+  @override
+  String costsInMonths(int n, String nText, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$amount in $nText months',
+      one: '$amount in $nText month',
+    );
+    return '$_temp0';
+  }
 }

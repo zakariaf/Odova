@@ -48,3 +48,22 @@
   `rowForCategory` is an exhaustive switch with NO default, so an
   `ExpenseCategory` added later is a compile error rather than a silent
   arrival in Other.
+- **Task 13.3 (screen built; parity partial).** `costs` built against the
+  REFERENCE rather than §12's ASCII sketch: chips above a single headline
+  card, a share bar under every category row, two nav rows at the foot.
+  Money drops a zero minor part (`€273`, not `€273.00`) because the screen is
+  read at a glance — a non-zero minor part is always kept, since `€0.29 per
+  kilometre` rounded is meaningless. Both figures carry their unit: `€0.29 ·
+  €2,184` is two amounts with nothing saying what either measures.
+  `arb_template_test.dart` refused the range chips' baked digits — a Latin "3"
+  does not shape to Persian numerals — so the count is a plural placeholder.
+  **Parity: theme and Calm-token surfaces PASS all four; band profile 58/117,
+  59/117, 42/112, 41/108.** Nothing widened, no reference regenerated. The
+  dominant missing band group is the monthly chart inside the headline card,
+  which is task 13.4 — chasing the profile before it lands would be measuring
+  a card that is about to change height.
+- **Open in 13.3, to be closed by later tasks in this epic:** the nav rows have
+  no subtitles yet (`6.4 L/100 km · €1.734/L last paid` needs 13.6's fuel
+  maths; `14 trips · 3,120 km · 62% business` needs 13.8's trip aggregates),
+  the category rows do not yet push a filtered `history`, and the dash figures
+  do not yet open their explanation sheet.

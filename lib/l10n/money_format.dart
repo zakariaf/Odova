@@ -71,6 +71,10 @@ String formatMoney(
   String formatsTag, {
   required CalmNumerals numerals,
   CalmCurrencyDisplay display = CalmCurrencyDisplay.iso,
+  // Overrides the currency's own exponent, for a screen that reads at a
+  // glance. NEVER used to round a figure whose minor part is non-zero — the
+  // caller decides that, and `costsMoney` only drops a `.00`.
+  int? decimalDigits,
 }) {
   final resolved = resolveNumerals(numerals, formatsTag);
 
@@ -91,7 +95,7 @@ String formatMoney(
   final format = NumberFormat.simpleCurrency(
     locale: numberFormatLocale(formatsTag),
     name: money.currency.code,
-    decimalDigits: money.currency.exponent,
+    decimalDigits: decimalDigits ?? money.currency.exponent,
   );
 
   var rendered = format.format(_major(money));

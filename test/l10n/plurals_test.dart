@@ -93,6 +93,10 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'deleteTripKeepsCosts' => l10n.deleteTripKeepsCosts(n, nText),
       // §12's header count. Nothing else in the message varies.
       'reportServiceCount' => l10n.reportServiceCount(n, nText),
+      // §12's range chips. The count is the whole message.
+      'costsRangeMonths' => l10n.costsRangeMonths(n, nText),
+      // §12's range total. The AMOUNT is pinned and the count varies.
+      'costsInMonths' => l10n.costsInMonths(n, nText, '2,184'),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(
         n,

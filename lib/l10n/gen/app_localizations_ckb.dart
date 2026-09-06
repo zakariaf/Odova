@@ -1893,4 +1893,119 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get reportServicesLabel => 'خزمەتگوزاری';
+
+  @override
+  String get costsTitle => 'تێچووەکان';
+
+  @override
+  String get costsRangeThisYear => 'ئەمساڵ';
+
+  @override
+  String get costsRangeAll => 'هەموو';
+
+  @override
+  String get costsPerMonth => 'لە مانگێکدا';
+
+  @override
+  String get costsWhereMoneyGoes => 'پارەکە بۆ کوێ دەڕوات';
+
+  @override
+  String get costsAccrualNote =>
+      'تێچووە ساڵانەکان وەک بیمە بەسەر ئەو مانگانەدا دابەش دەکرێن کە دەیانگرێتەوە.';
+
+  @override
+  String costsThisMonthSoFar(String amount) {
+    return 'ئەم مانگە تا ئێستا: $amount';
+  }
+
+  @override
+  String get costsEmptyTitle => 'هێشتا هیچ تێچوویەک نییە.';
+
+  @override
+  String get costsEmptyAction => 'شتێک تۆمار بکە';
+
+  @override
+  String get costsCategoryFuel => 'سووتەمەنی';
+
+  @override
+  String get costsCategoryService => 'خزمەتگوزاری و چاککردنەوە';
+
+  @override
+  String get costsCategoryInsuranceTax => 'بیمە و باج';
+
+  @override
+  String get costsCategoryFinance => 'دارایی';
+
+  @override
+  String get costsCategoryParkingTolls => 'پارککردن و باج';
+
+  @override
+  String get costsCategoryOther => 'ئەوانی تر';
+
+  @override
+  String get costsFuelRow => 'سووتەمەنی و خەرجکردن';
+
+  @override
+  String get costsTripsRow => 'گەشتەکان';
+
+  @override
+  String get costsNoCompletedMonth =>
+      'دوای کۆتایی مانگ بگەڕێوە — هێشتا مانگێکی تەواو نییە بۆ ناوەند.';
+
+  @override
+  String get costsNotEnoughDistance =>
+      'لەم ماوەیەدا دووری پێویست تۆمار نەکراوە بۆ دەرخستنی تێچوو بۆ هەر کیلۆمەترێک.';
+
+  @override
+  String costsBoundaryStale(String days) {
+    return 'لە پێوانەکانی ئۆدۆمیتەرەوە دەرهێنراوە کە $days ڕۆژ لە بەروارە پیشاندراوەکان دوورن.';
+  }
+
+  @override
+  String get costsUpdateOdometer => 'نوێکردنەوەی ئۆدۆمیتەر';
+
+  @override
+  String costsRangeMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مانگ',
+      one: '$nText مانگ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsHeadlineCaption(String vehicle, String range) {
+    return '$vehicle · $range';
+  }
+
+  @override
+  String get costsRangeThisYearSoFar => 'ئەمساڵ تا ئێستا';
+
+  @override
+  String costsSpanCaption(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String costsPerKilometre(String amount) {
+    return '$amount بۆ هەر کیلۆمەترێک';
+  }
+
+  @override
+  String costsPerMile(String amount) {
+    return '$amount بۆ هەر مایلێک';
+  }
+
+  @override
+  String costsInMonths(int n, String nText, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$amount لە $nText مانگدا',
+      one: '$amount لە $nText مانگدا',
+    );
+    return '$_temp0';
+  }
 }
