@@ -299,6 +299,7 @@
   "logOdometerLastEnteredStale": "[{days, plural, one{Ŀáŝţ ḗǹţḗřḗḍ {distance} ǿǹ {date} — {daysText} ḍáẏ áḡǿ} other{Ŀáŝţ ḗǹţḗřḗḍ {distance} ǿǹ {date} — {daysText} ḍáẏŝ áḡǿ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "logOdometerEstimateChip": "[{value} ǹǿẇ ǃǃ]",
   "logOdometerLastEnteredShort": "[Ŀáŝţ ḗǹţḗřḗḍ {distance} ǃǃǃǃǃǃ]",
+  "logOdometerSinceThen": "[+{distance} ŝīǹçḗ ţħḗǹ ǃǃǃǃǃ]",
   "logOdometerSince": "[{date} · +{distance} ǃǃ]",
   "logOdometerDelta": "[+{distance} ŝīǹçḗ {date} ǃǃǃǃ]",
   "logOdometerOlderThanAnything": "[Ǿŀḍḗř ţħáǹ áǹẏţħīǹḡ ŀǿḡḡḗḍ. Ţħīŝ ḅḗçǿḿḗŝ ẏǿǔř ḗářŀīḗŝţ řḗáḍīǹḡ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",

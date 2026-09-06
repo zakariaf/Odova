@@ -1341,6 +1341,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String logOdometerSinceThen(String distance) {
+    return '+$distance depuis';
+  }
+
+  @override
   String logOdometerSince(String date, String distance) {
     return '$date · +$distance';
   }

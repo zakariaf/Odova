@@ -299,6 +299,7 @@
   "logOdometerLastEnteredStale": "{days, plural, one{Dernière saisie : {distance} le {date} — il y a {daysText} jour} many{Dernière saisie : {distance} le {date} — il y a {daysText} jours} other{Dernière saisie : {distance} le {date} — il y a {daysText} jours}}",
   "logOdometerEstimateChip": "{value} maintenant",
   "logOdometerLastEnteredShort": "Dernier relevé {distance}",
+  "logOdometerSinceThen": "+{distance} depuis",
   "logOdometerSince": "{date} · +{distance}",
   "logOdometerDelta": "+{distance} depuis le {date}",
   "logOdometerOlderThanAnything": "Antérieur à tout ce qui est enregistré. Ce sera votre relevé le plus ancien.",

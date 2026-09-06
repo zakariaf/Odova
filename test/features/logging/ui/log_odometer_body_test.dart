@@ -9,7 +9,6 @@ import 'package:odova/core/units/distance.dart';
 import 'package:odova/features/logging/ui/log_odometer_body.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_disclosure.dart';
-import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_number_pad.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 
@@ -58,16 +57,8 @@ class _HostState extends State<_Host> {
     value: _value,
     unit: DistanceUnit.km,
     formatsTag: 'en',
-    navRows: const CalmRowGroup(
-      rows: [
-        CalmListRow(
-          title: 'Date',
-          value: '2 September 2026',
-          showChevron: true,
-          size: CalmRowSize.compact,
-        ),
-      ],
-    ),
+    occurredOn: '2026-09-02',
+    onPickDate: () {},
     lastReading: widget.lastReading,
     lastReadingOn: widget.lastReadingOn,
     onValueChanged: (v) => setState(() => _value = v),
@@ -156,12 +147,30 @@ void main() {
     );
   });
 
-  testWidgets('there is no decimal key for an odometer', (tester) async {
+  testWidgets('the decimal key is Clear, because there is no decimal', (
+    tester,
+  ) async {
     // §10's Field kit: "Odometer — number pad, no decimal." A dash reads whole
-    // units and a separator there is a mis-parse on its way to a column.
+    // units and a separator there is a mis-parse on its way to a column. The
+    // artboard puts Clear in that key rather than leaving a dead one, so the
+    // assertion is that the key is not a SEPARATOR — not that it is empty.
     await _pump(tester);
 
     final pad = tester.widget<CalmNumberPad>(find.byType(CalmNumberPad));
-    expect(pad.decimalLabel, isEmpty);
+    expect(pad.decimalLabel, isNot(anyOf('.', ',', '٫')));
+    expect(pad.decimalLabel, _l10n(tester).logOdometerPadClear);
+  });
+
+  testWidgets('the date is a KEY on the pad, not a row above it', (
+    tester,
+  ) async {
+    // §10 gives this screen two fields and nothing else: "one more optional
+    // field would be a net loss." The date sits beside Save, at its shortest,
+    // where it can be changed without leaving the keypad.
+    await _pump(tester);
+
+    final pad = tester.widget<CalmNumberPad>(find.byType(CalmNumberPad));
+    expect(pad.secondaryLabel, contains('Sep'));
+    expect(find.byType(CalmRowGroup), findsNothing);
   });
 }

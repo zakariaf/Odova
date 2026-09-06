@@ -1916,6 +1916,12 @@ abstract class AppLocalizations {
   /// **'Last entered {distance}'**
   String logOdometerLastEnteredShort(String distance);
 
+  /// §10's log.odometer panel, second line. The date is on the line above it — 'Last entered … on 12 August' — so this one says 'since then' rather than repeating it. The + is literal, as in logOdometerDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'+{distance} since then'**
+  String logOdometerSinceThen(String distance);
+
   /// The odometer helper's SECOND line: the last reading's date and how far the entry is above it, joined by a middot. The + is literal, exactly as logOdometerDelta carries it — the delta is always an increase here, and a bare number reads as the reading itself rather than the gap. Both halves are already formatted and isolate-wrapped by the caller.
   ///
   /// In en, this message translates to:

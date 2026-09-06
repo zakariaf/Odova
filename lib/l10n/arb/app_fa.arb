@@ -299,6 +299,7 @@
   "logOdometerLastEnteredStale": "{days, plural, one{آخرین ثبت {distance} در {date} — {daysText} روز پیش} other{آخرین ثبت {distance} در {date} — {daysText} روز پیش}}",
   "logOdometerEstimateChip": "اکنون {value}",
   "logOdometerLastEnteredShort": "آخرین ثبت {distance}",
+  "logOdometerSinceThen": "+{distance} از آن زمان",
   "logOdometerSince": "{date} · +{distance}",
   "logOdometerDelta": "+{distance} از {date}",
   "logOdometerOlderThanAnything": "قدیمی‌تر از هر چیزی است که ثبت شده. این قدیمی‌ترین عدد شما می‌شود.",

@@ -10,11 +10,13 @@
 // widget's, which is what lets the same pad serve a Persian keypad without ever
 // parsing a Persian numeral back out of its own output.
 import 'package:flutter/material.dart';
+import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/units/distance.dart';
-import 'package:odova/features/logging/ui/odometer_field.dart';
+import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_number_pad.dart';
@@ -26,7 +28,8 @@ class LogOdometerBody extends StatelessWidget {
     required this.value,
     required this.unit,
     required this.formatsTag,
-    required this.navRows,
+    required this.occurredOn,
+    required this.onPickDate,
     required this.onValueChanged,
     required this.onSave,
     super.key,
@@ -43,12 +46,16 @@ class LogOdometerBody extends StatelessWidget {
   /// The tag numbers and dates are shaped by.
   final String formatsTag;
 
-  /// §10's Date row, and the More row under it where there is one.
+  /// The date this reading is dated, as an ISO day.
   ///
-  /// ONE widget and not two slots: the artboard draws them as a single card
-  /// with a divider, and the shell builds it so the four bodies cannot
-  /// disagree about the grouping.
-  final Widget navRows;
+  /// A KEY on the pad and not a row above it. §10 gives this screen two fields
+  /// and nothing else — "one more optional field would be a net loss" — and
+  /// the artboard puts the date next to Save, at its shortest, where it can be
+  /// changed without leaving the keypad the user is already using.
+  final String occurredOn;
+
+  /// Opens the date picker.
+  final VoidCallback onPickDate;
 
   /// The last entered reading, or null on a vehicle's first.
   final Distance? lastReading;
@@ -72,7 +79,6 @@ class LogOdometerBody extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: space.s4,
       children: [
-        navRows,
         CalmNumberPad(
           value: _display,
           unit: distanceUnitLabel(l10n, unit),
@@ -81,19 +87,24 @@ class LogOdometerBody extends StatelessWidget {
           // uses and reports the digit, so nothing here ever parses a numeral
           // back out of its own keypad.
           onDigit: (digit) => onValueChanged('$value$digit'),
-          // §10's Field kit gives the odometer no decimal: a dash reads whole
-          // units, and a separator there is a mis-parse on its way to a column.
-          onDecimal: () {},
-          decimalLabel: '',
+          // CLEAR sits where a decimal point would be, because §10's Field kit
+          // gives the odometer no decimal at all — "a dash reads whole units,
+          // and a separator there is a mis-parse on its way to a column" — and
+          // the artboard puts Clear in that key rather than leaving it blank.
+          // A pad with two ways to delete one character and none to start over
+          // is a pad you fight.
+          onDecimal: () => onValueChanged(''),
+          decimalLabel: l10n.logOdometerPadClear,
           onBackspace: () => onValueChanged(
             value.isEmpty ? value : value.substring(0, value.length - 1),
           ),
           onConfirm: onSave,
           confirmLabel: l10n.logSaveOdometer,
-          // CLEAR, not another backspace. A pad with two ways to delete one
-          // character and none to start over is a pad you fight.
-          secondaryLabel: l10n.logOdometerPadClear,
-          onSecondary: () => onValueChanged(''),
+          // The DATE, beside Save. At its shortest because the key is one
+          // third of the row wide, and §10 allows no date row on this screen
+          // to put it anywhere else.
+          secondaryLabel: formatShortDayMonth(occurredOn, formatsTag),
+          onSecondary: onPickDate,
           backspaceSemanticLabel: l10n.logOdometerPadBackspace,
           digits: _digits,
         ),
@@ -135,20 +146,42 @@ class LogOdometerBody extends StatelessWidget {
   String _hint(AppLocalizations l10n) {
     final last = lastReading;
     final on = lastReadingOn;
-    if (last == null || on == null || value.isEmpty) return '';
+    if (last == null || on == null) return '';
+
+    // Line one: what was last entered, and when. It shows whether or not
+    // anything has been typed yet — a user who has just opened this screen
+    // needs the anchor more than one who is halfway through a number.
+    final entered = l10n.logOdometerLastEntered(
+      formatWithUnit(
+        last.inUnit(unit),
+        distanceUnitLabel(l10n, unit),
+        formatsTag,
+        numerals: CalmNumerals.auto,
+        decimalDigits: 0,
+      ),
+      formatDayMonth(on, formatsTag),
+    );
+
+    // Line two: the delta, once there is one. `since then` and not the date
+    // again — the line above just said it.
     final n = int.tryParse(value);
-    if (n == null) return '';
-    final entered = unit == DistanceUnit.mi
+    if (n == null) return entered;
+    final now = unit == DistanceUnit.mi
         ? Distance.fromMiles(n)
         : Distance.fromKm(n);
-    if (entered.metres <= last.metres) return '';
+    if (now.metres <= last.metres) return entered;
 
-    return odometerDeltaLine(
-      l10n,
-      delta: entered - last,
-      sinceOccurredOn: on,
-      unit: unit,
-      formatsTag: formatsTag,
+    final delta = l10n.logOdometerSinceThen(
+      isolate(
+        withUnitUnisolated(
+          (now - last).inUnit(unit),
+          distanceUnitLabel(l10n, unit),
+          formatsTag,
+          numerals: CalmNumerals.auto,
+          decimalDigits: 0,
+        ),
+      ),
     );
+    return '$entered\n$delta';
   }
 }

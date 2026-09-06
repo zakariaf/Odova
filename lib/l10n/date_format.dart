@@ -72,3 +72,15 @@ String formatDayMonth(String iso, String formatsTag) {
   if (parsed == null) return iso;
   return DateFormat.MMMMd(numberFormatLocale(formatsTag)).format(parsed);
 }
+
+/// A date at its shortest — `2 Sep`, `2. Sep.`, `۲ سپتامبر`.
+///
+/// SPEC.md §10 draws `log.odometer`'s date as a KEY on the number pad, beside
+/// Save, where there is room for about six characters. `MMMd` is the ICU
+/// skeleton for it, so the abbreviation and the day-month order are the
+/// locale's rather than ours.
+String formatShortDayMonth(String iso, String formatsTag) {
+  final parsed = DateTime.tryParse(iso);
+  if (parsed == null) return iso;
+  return DateFormat.MMMd(numberFormatLocale(formatsTag)).format(parsed);
+}

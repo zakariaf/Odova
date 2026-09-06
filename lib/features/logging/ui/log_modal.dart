@@ -382,9 +382,15 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       LogType.expense => _expenseBody(l10n),
       LogType.odometer => LogOdometerBody(
         value: _odometer,
-        unit: DistanceUnit.km,
+        unit: _vehicleUnit,
         formatsTag: _formatsTag,
-        navRows: _dateAndMoreRows(l10n),
+        occurredOn: _occurredOn,
+        onPickDate: _pickDate,
+        // The anchor this screen is measured against. It was never passed, so
+        // the pad's panel showed a number with nothing to compare it to — on
+        // the one screen whose whole job is that comparison.
+        lastReading: _lastReading?.odometer,
+        lastReadingOn: _lastReading?.occurredOn,
         onValueChanged: (v) => setState(() => _odometer = v),
         onSave: _save,
       ),
@@ -592,6 +598,16 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     if (vehicle == null) return const [];
     final readings = ref.watch(odometerReadingsProvider(vehicle.id)).value;
     return readings?.map(asReadingPoint).toList() ?? const [];
+  }
+
+  /// The newest reading at or before this entry's date, if there is one.
+  ReadingPoint? get _lastReading {
+    final earlier = _readings
+        .where((r) => r.occurredOn.compareTo(_occurredOn) <= 0)
+        .toList();
+    if (earlier.isEmpty) return null;
+    earlier.sort(compareReadings);
+    return earlier.last;
   }
 
   /// This vehicle's cluster swaps, likewise.

@@ -1308,6 +1308,11 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String logOdometerSinceThen(String distance) {
+    return '+$distance لەو کاتەوە';
+  }
+
+  @override
   String logOdometerSince(String date, String distance) {
     return '$date · +$distance';
   }

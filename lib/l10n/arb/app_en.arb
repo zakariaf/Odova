@@ -1956,6 +1956,11 @@
     "description": "The odometer helper's FIRST line: the last entered reading, with no date. The date moves to logOdometerSince, which carries the delta beside it \u2014 the artboard draws the two as a two-line block with the estimate chip alongside, not as three stacked rows.",
     "placeholders": {"distance": {"type": "String"}}
   },
+  "logOdometerSinceThen": "+{distance} since then",
+  "@logOdometerSinceThen": {
+    "description": "\u00a710's log.odometer panel, second line. The date is on the line above it \u2014 'Last entered \u2026 on 12 August' \u2014 so this one says 'since then' rather than repeating it. The + is literal, as in logOdometerDelta.",
+    "placeholders": {"distance": {"type": "String"}}
+  },
   "logOdometerSince": "{date} · +{distance}",
   "@logOdometerSince": {
     "description": "The odometer helper's SECOND line: the last reading's date and how far the entry is above it, joined by a middot. The + is literal, exactly as logOdometerDelta carries it — the delta is always an increase here, and a bare number reads as the reading itself rather than the gap. Both halves are already formatted and isolate-wrapped by the caller.",
