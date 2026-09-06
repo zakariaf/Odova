@@ -142,6 +142,57 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabHome => 'الرئيسية';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مدخل',
+      many: '$nText مدخلًا',
+      few: '$nText مدخلات',
+      two: 'مدخلان',
+      one: 'مدخل واحد',
+      zero: '$nText مدخل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyReport => 'تقرير';
+
+  @override
+  String get historySearch => 'بحث في السجل';
+
+  @override
+  String get historyFilterAll => 'الكل';
+
+  @override
+  String get historyFilterFuel => 'الوقود';
+
+  @override
+  String get historyFilterService => 'الصيانة';
+
+  @override
+  String get historyFilterExpense => 'المصاريف';
+
+  @override
+  String get historyFilterTrip => 'الرحلات';
+
+  @override
+  String get historyFilterOdometer => 'العدّاد';
+
+  @override
+  String get historyEmptyTitle => 'لم يُسجَّل شيء بعد.';
+
+  @override
+  String get historyEmptyAction => 'سجّل تعبئة';
+
+  @override
+  String get historyFilteredEmpty => 'لا توجد إدخالات تطابق هذه المرشحات.';
+
+  @override
+  String get historyOdometerReading => 'قراءة';
+
+  @override
   String get tabHistory => 'السجل';
 
   @override

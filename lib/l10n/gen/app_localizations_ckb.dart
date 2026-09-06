@@ -123,6 +123,54 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get tabHome => 'ماڵەوە';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText تۆمار',
+      one: '$nText تۆمار',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyReport => 'ڕاپۆرت';
+
+  @override
+  String get historySearch => 'گەڕان لە مێژوو';
+
+  @override
+  String get historyFilterAll => 'هەموو';
+
+  @override
+  String get historyFilterFuel => 'سووتەمەنی';
+
+  @override
+  String get historyFilterService => 'سەرڤیس';
+
+  @override
+  String get historyFilterExpense => 'خەرجی';
+
+  @override
+  String get historyFilterTrip => 'گەشتەکان';
+
+  @override
+  String get historyFilterOdometer => 'کیلۆمەترپێو';
+
+  @override
+  String get historyEmptyTitle => 'هێشتا هیچ تۆمار نەکراوە.';
+
+  @override
+  String get historyEmptyAction => 'سووتەمەنی تۆمار بکە';
+
+  @override
+  String get historyFilteredEmpty =>
+      'هیچ تۆمارێک لەگەڵ ئەم پاڵاوتنانە ناگونجێت.';
+
+  @override
+  String get historyOdometerReading => 'خوێندنەوە';
+
+  @override
   String get tabHistory => 'مێژوو';
 
   @override

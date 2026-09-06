@@ -76,6 +76,9 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
         '12 March',
         nText,
       ),
+      // §11's month header count. Nothing else in the message varies, so the
+      // count IS the axis a few/many mistake shows up against.
+      'historyMonthEntryCount' => l10n.historyMonthEntryCount(n, nText),
       'reminderCannotDelete' => l10n.reminderCannotDelete(n, nText),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(

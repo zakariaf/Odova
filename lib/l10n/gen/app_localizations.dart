@@ -238,6 +238,84 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get tabHome;
 
+  /// §11's month header count — "9 entries · €412.80". `nText` is a SECOND placeholder for the same number because {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put "9" in Latin inside a Persian header while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry} other{{nText} entries}}'**
+  String historyMonthEntryCount(int n, String nText);
+
+  /// §11's app-bar action opening report.service. A NOUN, because it names a document rather than an act — the report is a thing handed to a buyer.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get historyReport;
+
+  /// The search affordance's accessible name. §11 shows it only above 200 rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Search history'**
+  String get historySearch;
+
+  /// §11's first filter chip. Selected by default.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get historyFilterAll;
+
+  /// §11's type chip for fill-ups.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get historyFilterFuel;
+
+  /// §11's type chip for service records.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get historyFilterService;
+
+  /// §11's type chip for expenses. Plural in the languages that prefer it for a category of thing.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get historyFilterExpense;
+
+  /// §11's type chip for trips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get historyFilterTrip;
+
+  /// §11's type chip for standalone readings.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get historyFilterOdometer;
+
+  /// §11's empty state for a vehicle with nothing logged. One sentence and a button; §11 gives it no illustration.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged yet.'**
+  String get historyEmptyTitle;
+
+  /// The empty state's single action. A fill-up, because it is what a new owner logs first — 2 to 6 times a month against everything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a fill-up'**
+  String get historyEmptyAction;
+
+  /// Shown when filters match nothing. The chip row STAYS visible and interactive: §11 never strands the user in a filter they cannot see.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries match these filters.'**
+  String get historyFilteredEmpty;
+
+  /// The secondary line of a standalone odometer row, per §11's type table. It names what the row IS, because the primary line is only a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get historyOdometerReading;
+
   /// Tab 2.
   ///
   /// In en, this message translates to:

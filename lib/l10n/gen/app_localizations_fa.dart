@@ -123,6 +123,53 @@ class AppLocalizationsFa extends AppLocalizations {
   String get tabHome => 'خانه';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد',
+      one: '$nText مورد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyReport => 'گزارش';
+
+  @override
+  String get historySearch => 'جستجو در تاریخچه';
+
+  @override
+  String get historyFilterAll => 'همه';
+
+  @override
+  String get historyFilterFuel => 'سوخت';
+
+  @override
+  String get historyFilterService => 'سرویس';
+
+  @override
+  String get historyFilterExpense => 'هزینه';
+
+  @override
+  String get historyFilterTrip => 'سفرها';
+
+  @override
+  String get historyFilterOdometer => 'کیلومترشمار';
+
+  @override
+  String get historyEmptyTitle => 'هنوز چیزی ثبت نشده است.';
+
+  @override
+  String get historyEmptyAction => 'ثبت سوخت‌گیری';
+
+  @override
+  String get historyFilteredEmpty => 'هیچ موردی با این فیلترها مطابقت ندارد.';
+
+  @override
+  String get historyOdometerReading => 'ثبت کیلومتر';
+
+  @override
   String get tabHistory => 'تاریخچه';
 
   @override

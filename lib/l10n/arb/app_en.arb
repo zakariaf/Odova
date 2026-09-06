@@ -161,6 +161,62 @@
   "@tabHome": {
     "description": "Tab 1. SPEC.md §7: the tab labels are always visible under their icons — there is no icon-only mode to fall into. German and Sorani both run long here and wrap to two lines rather than truncating."
   },
+  "historyMonthEntryCount": "{n, plural, one{{nText} entry} other{{nText} entries}}",
+  "@historyMonthEntryCount": {
+    "description": "\u00a711's month header count \u2014 \"9 entries \u00b7 \u20ac412.80\". `nText` is a SECOND placeholder for the same number because {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits \u2014 which would put \"9\" in Latin inside a Persian header while every other number on the screen is shaped. SPEC.md \u00a75: one numbering system is active app-wide.",
+    "placeholders": {
+      "n": {"type": "int", "example": "9"},
+      "nText": {"type": "String", "example": "9"}
+    }
+  },
+  "historyReport": "Report",
+  "@historyReport": {
+    "description": "\u00a711's app-bar action opening report.service. A NOUN, because it names a document rather than an act \u2014 the report is a thing handed to a buyer."
+  },
+  "historySearch": "Search history",
+  "@historySearch": {
+    "description": "The search affordance's accessible name. \u00a711 shows it only above 200 rows."
+  },
+  "historyFilterAll": "All",
+  "@historyFilterAll": {
+    "description": "\u00a711's first filter chip. Selected by default."
+  },
+  "historyFilterFuel": "Fuel",
+  "@historyFilterFuel": {
+    "description": "\u00a711's type chip for fill-ups."
+  },
+  "historyFilterService": "Service",
+  "@historyFilterService": {
+    "description": "\u00a711's type chip for service records."
+  },
+  "historyFilterExpense": "Expense",
+  "@historyFilterExpense": {
+    "description": "\u00a711's type chip for expenses. Plural in the languages that prefer it for a category of thing."
+  },
+  "historyFilterTrip": "Trips",
+  "@historyFilterTrip": {
+    "description": "\u00a711's type chip for trips."
+  },
+  "historyFilterOdometer": "Odometer",
+  "@historyFilterOdometer": {
+    "description": "\u00a711's type chip for standalone readings."
+  },
+  "historyEmptyTitle": "Nothing logged yet.",
+  "@historyEmptyTitle": {
+    "description": "\u00a711's empty state for a vehicle with nothing logged. One sentence and a button; \u00a711 gives it no illustration."
+  },
+  "historyEmptyAction": "Log a fill-up",
+  "@historyEmptyAction": {
+    "description": "The empty state's single action. A fill-up, because it is what a new owner logs first \u2014 2 to 6 times a month against everything else."
+  },
+  "historyFilteredEmpty": "No entries match these filters.",
+  "@historyFilteredEmpty": {
+    "description": "Shown when filters match nothing. The chip row STAYS visible and interactive: \u00a711 never strands the user in a filter they cannot see."
+  },
+  "historyOdometerReading": "Reading",
+  "@historyOdometerReading": {
+    "description": "The secondary line of a standalone odometer row, per \u00a711's type table. It names what the row IS, because the primary line is only a number."
+  },
   "tabHistory": "History",
   "@tabHistory": {
     "description": "Tab 2."

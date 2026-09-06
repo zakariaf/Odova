@@ -122,6 +122,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabHome => 'Home';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries',
+      one: '$nText entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyReport => 'Report';
+
+  @override
+  String get historySearch => 'Search history';
+
+  @override
+  String get historyFilterAll => 'All';
+
+  @override
+  String get historyFilterFuel => 'Fuel';
+
+  @override
+  String get historyFilterService => 'Service';
+
+  @override
+  String get historyFilterExpense => 'Expense';
+
+  @override
+  String get historyFilterTrip => 'Trips';
+
+  @override
+  String get historyFilterOdometer => 'Odometer';
+
+  @override
+  String get historyEmptyTitle => 'Nothing logged yet.';
+
+  @override
+  String get historyEmptyAction => 'Log a fill-up';
+
+  @override
+  String get historyFilteredEmpty => 'No entries match these filters.';
+
+  @override
+  String get historyOdometerReading => 'Reading';
+
+  @override
   String get tabHistory => 'History';
 
   @override
