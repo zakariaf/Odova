@@ -22,8 +22,12 @@ import 'package:odova/features/logging/ui/log_expense_body.dart';
 import 'package:odova/features/logging/ui/log_fillup_body.dart';
 import 'package:odova/features/logging/ui/log_odometer_body.dart';
 import 'package:odova/features/logging/ui/log_service_body.dart';
+import 'package:odova/features/logging/ui/odometer_field.dart';
+import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
+import 'package:odova/ui/calm/calm_list_row.dart';
+import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_segmented.dart';
 import 'package:odova/ui/dialogs/discard_dialog.dart';
@@ -75,6 +79,13 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   final TextEditingController _totalController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _labelController = TextEditingController();
+  final TextEditingController _odometerController = TextEditingController();
+
+  /// The date every form on this modal is dated.
+  ///
+  /// One value for all four segments: a user who typed a date, switched
+  /// segments and switched back would not expect to have to type it again.
+  final String _occurredOn = '2026-09-02';
 
   @override
   void dispose() {
@@ -84,6 +95,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     _totalController.dispose();
     _amountController.dispose();
     _labelController.dispose();
+    _odometerController.dispose();
     super.dispose();
   }
 
@@ -194,6 +206,8 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// the chrome returns the compliment.
   Widget _body() => switch (_segment) {
     LogType.fillUp => LogFillUpBody(
+      odometer: _odometerField(),
+      dateRow: _dateRow(),
       trio: _trio,
       quantityUnit: _quantityUnit,
       isFullTank: _isFullTank,
@@ -202,6 +216,8 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       onFullTankChanged: (full) => setState(() => _isFullTank = full),
     ),
     LogType.service => LogServiceBody(
+      odometer: _odometerField(),
+      dateRow: _dateRow(),
       items: const [],
       cost: _cost,
       totalController: _totalController,
@@ -229,12 +245,47 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       value: _odometer,
       unit: DistanceUnit.km,
       formatsTag: 'en',
-      occurredOn: '',
+      occurredOn: _occurredOn,
       onValueChanged: (v) => setState(() => _odometer = v),
       onSave: _save,
       onPickDate: () {},
     ),
   };
+
+  /// §10's shared odometer field.
+  ///
+  /// Built ONCE here and handed to whichever body needs it, because "this one
+  /// field feeds the due engine, so it behaves identically on `log.fillup`,
+  /// `log.service` and `log.odometer`" — and three bodies each constructing
+  /// their own would be three chances to disagree about the reading history it
+  /// compares against.
+  Widget _odometerField() => OdometerField(
+    controller: _odometerController,
+    unit: DistanceUnit.km,
+    existing: const [],
+    corrections: const [],
+    occurredOn: _occurredOn,
+    formatsTag: 'en',
+    onChanged: (_) => setState(() {}),
+    onUnitChanged: (_) {},
+  );
+
+  /// The date row every form carries.
+  ///
+  /// A read-only row that opens the picker, per §10's Field kit: "Date — none;
+  /// a read-only row opening the calendar picker." The picker itself is the
+  /// shared control EPIC-09 deferred to this epic and is not built yet, so the
+  /// row renders the date and does not yet open anything.
+  Widget _dateRow() => CalmRowGroup(
+    rows: [
+      CalmListRow(
+        title: AppLocalizations.of(context).reminderOnceOnDate,
+        value: formatLongDate(_occurredOn, 'en'),
+        showChevron: true,
+        size: CalmRowSize.compact,
+      ),
+    ],
+  );
 
   /// The modal's title: the form's own name in create mode, the record's in
   /// edit mode.

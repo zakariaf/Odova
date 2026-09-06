@@ -16,6 +16,8 @@ import 'package:odova/ui/calm/calm_segmented.dart';
 class LogFillUpBody extends StatelessWidget {
   /// Creates the body.
   const LogFillUpBody({
+    required this.odometer,
+    required this.dateRow,
     required this.trio,
     required this.quantityUnit,
     required this.isFullTank,
@@ -26,6 +28,16 @@ class LogFillUpBody extends StatelessWidget {
     this.isFirstEver = false,
     this.trioError,
   });
+
+  /// §10's shared odometer field, built by the shell.
+  ///
+  /// A SLOT and not a construction: the same widget appears on three forms and
+  /// the shell owns the reading history it needs, so a body that built its own
+  /// would be a second opinion about the field that feeds the due engine.
+  final Widget odometer;
+
+  /// The date row, likewise built once by the shell.
+  final Widget dateRow;
 
   /// The three fields and which one the app is writing.
   final PriceTrio trio;
@@ -65,6 +77,10 @@ class LogFillUpBody extends StatelessWidget {
         // placeholder." A first fill-up cannot produce a consumption figure and
         // saying so is better than drawing an empty one.
         if (isFirstEver) Text(l10n.logFillUpFirstEver),
+        // FIRST, per §10's sketch and the artboard: the odometer is what the
+        // due engine reads, and it is the field a user at a pump reaches for
+        // before the receipt is out of their hand.
+        odometer,
         CalmSegmented(
           labels: [l10n.logFillUpFullTank, l10n.logFillUpPartFill],
           index: isFullTank ? 0 : 1,
@@ -96,6 +112,7 @@ class LogFillUpBody extends StatelessWidget {
           controllers: controllers,
           onChanged: onTrioChanged,
         ),
+        dateRow,
       ],
     );
   }

@@ -20,6 +20,8 @@ typedef ServiceItemChip = ({String id, String label, bool ticked});
 class LogServiceBody extends StatelessWidget {
   /// Creates the body.
   const LogServiceBody({
+    required this.odometer,
+    required this.dateRow,
     required this.items,
     required this.cost,
     required this.totalController,
@@ -30,6 +32,12 @@ class LogServiceBody extends StatelessWidget {
     super.key,
     this.costError,
   });
+
+  /// §10's shared odometer field, built by the shell. See `LogFillUpBody`.
+  final Widget odometer;
+
+  /// The date row, likewise.
+  final Widget dateRow;
 
   /// The vehicle's active items, already sorted overdue → due → due soon → ok.
   ///
@@ -69,6 +77,11 @@ class LogServiceBody extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: space.s4,
       children: [
+        // §10 puts the date first on this form and the odometer second — a
+        // service is usually logged after the fact, so WHEN is the question the
+        // user is answering.
+        dateRow,
+        odometer,
         Text(l10n.logServiceWhatWasDone),
         CalmChipBar(
           chips: [
