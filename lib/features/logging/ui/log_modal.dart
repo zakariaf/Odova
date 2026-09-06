@@ -73,9 +73,25 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// is showing need not.
   late LogType _segment = widget.type;
 
-  PriceTrio _trio = const PriceTrio();
-  ServiceCostModel _cost = const ServiceCostModel();
-  ExpenseDraft _expense = const ExpenseDraft();
+  /// The locale these forms format and PARSE in.
+  ///
+  /// One stub, not five. Every number the user types is read against this
+  /// locale's grouping separator, so it has to be the same answer everywhere
+  /// on the form — `1.234,50` is twelve hundred and thirty-four fifty in de-DE
+  /// and something else entirely against a Latin comma. Wiring it to the
+  /// locale provider is one line here rather than a hunt through the file.
+  // TODO(EPIC-11): read from the locale provider with the selected vehicle.
+  String get _formatsTag => 'en';
+
+  late final String _groupingSeparator = groupingSeparatorFor(_formatsTag);
+
+  late PriceTrio _trio = PriceTrio(groupingSeparator: _groupingSeparator);
+  late ServiceCostModel _cost = ServiceCostModel(
+    groupingSeparator: _groupingSeparator,
+  );
+  late ExpenseDraft _expense = ExpenseDraft(
+    groupingSeparator: _groupingSeparator,
+  );
   String _odometer = '';
   bool _isFullTank = true;
   String get _quantityUnit => 'L';
@@ -263,7 +279,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       LogType.odometer => LogOdometerBody(
         value: _odometer,
         unit: DistanceUnit.km,
-        formatsTag: 'en',
+        formatsTag: _formatsTag,
         occurredOn: _occurredOn,
         onValueChanged: (v) => setState(() => _odometer = v),
         onSave: _save,
@@ -285,7 +301,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     existing: const [],
     corrections: const [],
     occurredOn: _occurredOn,
-    formatsTag: 'en',
+    formatsTag: _formatsTag,
     onChanged: (_) => setState(() {}),
     onUnitChanged: (_) {},
   );

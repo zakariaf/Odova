@@ -31,6 +31,7 @@ class ServiceCostModel {
     this.total = '',
     this.isSplit = false,
     this.otherLabel,
+    this.groupingSeparator = ',',
   });
 
   /// Ticked items, by id, with the label to write on their line.
@@ -50,6 +51,15 @@ class ServiceCostModel {
 
   /// The `+ Other` line's label, or null when there is none.
   final String? otherLabel;
+
+  /// The thousands separator of the locale this form is being typed in.
+  ///
+  /// Carried, never read from a locale: a value object that reads a locale is a
+  /// value object that answers differently in Tehran and Toronto. `1.234,50` is
+  /// twelve hundred and thirty-four fifty in de-DE and ambiguous against a
+  /// Latin-comma grouping, and `normalizeNumericInput` takes this as a required
+  /// argument for exactly that reason.
+  final String groupingSeparator;
 
   /// Which reminders this record will re-anchor.
   ///
@@ -128,7 +138,7 @@ class ServiceCostModel {
     var minor = 0;
     var any = false;
     for (final amount in amounts.values) {
-      final read = parseDecimal(amount, groupingSeparator: ',');
+      final read = parseDecimal(amount, groupingSeparator: groupingSeparator);
       if (read is! DecimalOk) continue;
       // Two decimal places by string, for the same reason money always is:
       // `1.005 * 100` is 100.49999999999999 as a double and rounds DOWN.
@@ -153,5 +163,6 @@ class ServiceCostModel {
     total: total ?? this.total,
     isSplit: isSplit ?? this.isSplit,
     otherLabel: otherLabel ?? this.otherLabel,
+    groupingSeparator: groupingSeparator,
   );
 }

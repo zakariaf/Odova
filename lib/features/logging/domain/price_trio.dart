@@ -39,6 +39,7 @@ class PriceTrio {
     this.total = '',
     this.touched = const [],
     this.totalDecimals = 2,
+    this.groupingSeparator = ',',
   });
 
   /// The quantity, as displayed.
@@ -55,6 +56,15 @@ class PriceTrio {
 
   /// The currency's ISO 4217 exponent — 2 for EUR, 0 for JPY, 3 for KWD.
   final int totalDecimals;
+
+  /// The thousands separator of the locale this form is being typed in.
+  ///
+  /// Carried, never read from a locale: a value object that reads a locale is a
+  /// value object that answers differently in Tehran and Toronto. `1.234,50` is
+  /// twelve hundred and thirty-four fifty in de-DE and ambiguous against a
+  /// Latin-comma grouping, and `normalizeNumericInput` takes this as a required
+  /// argument for exactly that reason.
+  final String groupingSeparator;
 
   /// The two fields that reach storage.
   ///
@@ -79,7 +89,7 @@ class PriceTrio {
   int? get quantityMillilitres {
     final read = parseDecimal(
       _value(TrioField.quantity),
-      groupingSeparator: ',',
+      groupingSeparator: groupingSeparator,
     );
     return read is DecimalOk ? millilitresFrom(read.canonical) : null;
   }
@@ -93,6 +103,7 @@ class PriceTrio {
       total: field == TrioField.total ? text : total,
       touched: order,
       totalDecimals: totalDecimals,
+      groupingSeparator: groupingSeparator,
     );
     return next._recomputed();
   }
@@ -117,6 +128,7 @@ class PriceTrio {
       total: target == TrioField.total ? value : total,
       touched: touched,
       totalDecimals: totalDecimals,
+      groupingSeparator: groupingSeparator,
     );
   }
 
@@ -128,7 +140,10 @@ class PriceTrio {
     final others = TrioField.values.where((f) => f != target);
     final values = <TrioField, double>{};
     for (final field in others) {
-      final read = parseDecimal(_value(field), groupingSeparator: ',');
+      final read = parseDecimal(
+        _value(field),
+        groupingSeparator: groupingSeparator,
+      );
       if (read is! DecimalOk) return null;
       values[field] = read.value;
     }

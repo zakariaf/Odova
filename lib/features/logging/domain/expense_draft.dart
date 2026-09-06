@@ -62,6 +62,7 @@ class ExpenseDraft {
     this.coversPeriod = false,
     this.coversFrom,
     this.coversTo,
+    this.groupingSeparator = ',',
   });
 
   /// What this was for. Null until the user picks — §10 preselects nothing.
@@ -87,6 +88,15 @@ class ExpenseDraft {
 
   /// Its end, or null.
   final String? coversTo;
+
+  /// The thousands separator of the locale this form is being typed in.
+  ///
+  /// Carried, never read from a locale: a value object that reads a locale is a
+  /// value object that answers differently in Tehran and Toronto. `1.234,50` is
+  /// twelve hundred and thirty-four fifty in de-DE and ambiguous against a
+  /// Latin-comma grouping, and `normalizeNumericInput` takes this as a required
+  /// argument for exactly that reason.
+  final String groupingSeparator;
 
   /// A copy in [next], with everything that category decides.
   ///
@@ -125,7 +135,7 @@ class ExpenseDraft {
       problems.add(ExpenseProblem.noLabel);
     }
 
-    final read = parseDecimal(amount, groupingSeparator: ',');
+    final read = parseDecimal(amount, groupingSeparator: groupingSeparator);
     switch (read) {
       // Zero IS an amount. §10 allows it, and a warranty job or a comped wash
       // really did cost nothing — refusing it would make the user lie.
@@ -152,7 +162,7 @@ class ExpenseDraft {
   /// the same in six languages." `Expense.amount` is the only money field in
   /// the app that may be negative, which is what makes this legal.
   int? signedMinorUnits({required int exponent}) {
-    final read = parseDecimal(amount, groupingSeparator: ',');
+    final read = parseDecimal(amount, groupingSeparator: groupingSeparator);
     if (read is! DecimalOk) return null;
     final minor = scaleByPowerOfTen(read.canonical, exponent);
     if (minor == null) return null;
@@ -188,5 +198,6 @@ class ExpenseDraft {
     coversPeriod: coversPeriod ?? this.coversPeriod,
     coversFrom: coversFrom ?? this.coversFrom,
     coversTo: coversTo ?? this.coversTo,
+    groupingSeparator: groupingSeparator,
   );
 }

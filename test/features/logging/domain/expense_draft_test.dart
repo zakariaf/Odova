@@ -158,6 +158,20 @@ void main() {
     expect(draft.problems(), isNot(contains(ExpenseProblem.periodBackwards)));
   });
 
+  test('a German amount is read against a German separator', () {
+    // `1.234,50` is twelve hundred and thirty-four euros fifty in de-DE. Read
+    // against a Latin-comma grouping it is not that number, and a value object
+    // that answers differently in Tehran and Toronto is the bug
+    // `OdometerEntry.groupingSeparator` exists to prevent.
+    final draft = const ExpenseDraft(
+      amount: '1.234,50',
+      groupingSeparator: '.',
+    ).withCategory(ExpenseCategory.fine);
+
+    expect(draft.signedMinorUnits(exponent: 2), 123450);
+    expect(draft.problems(), isNot(contains(ExpenseProblem.amountNotANumber)));
+  });
+
   test('there is no repeat switch anywhere on the form', () {
     // Asserted against the draft's own surface: a field that does not exist
     // cannot be wired up later by accident.
