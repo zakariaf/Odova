@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
@@ -26,7 +27,7 @@ import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.d
 import '../../../app/routing/shell_harness.dart';
 
 Future<AppDatabase> _emptyDb() async =>
-    AppDatabase.forTesting(NativeDatabase.memory());
+    AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
 
 List<Override> _overrides(AppDatabase db) => <Override>[
   appDatabaseProvider.overrideWithValue(db),

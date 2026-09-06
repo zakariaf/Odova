@@ -128,6 +128,134 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tabHome => 'Accueil';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entrées',
+      many: '$nText entrées',
+      one: '$nText entrée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bandFillUpFirstFill =>
+      'Premier plein — votre première valeur de consommation arrivera au prochain plein complet.';
+
+  @override
+  String get bandFillUpChainBroken =>
+      'Pas de valeur : le plein précédent n\'a pas été enregistré.';
+
+  @override
+  String get bandFillUpPartial => 'Pas de valeur : plein partiel.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption sur $distance depuis $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total sur $months = $perMonth par mois';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance en $days — $rate par jour';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'Supprimer ce plein';
+
+  @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText valeurs de consommation recalculées',
+      many: '$nText valeurs de consommation recalculées',
+      one: '$nText valeur de consommation recalculée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'Enregistré';
+
+  @override
+  String get recomputeFillUpUpdated => 'Plein mis à jour';
+
+  @override
+  String get recomputeServiceUpdated => 'Entretien mis à jour';
+
+  @override
+  String get recomputeExpenseUpdated => 'Dépense mise à jour';
+
+  @override
+  String get recomputeOdometerUpdated => 'Relevé mis à jour';
+
+  @override
+  String get historyReport => 'Rapport';
+
+  @override
+  String get historySearchHint => 'Rechercher';
+
+  @override
+  String get historySearchClear => 'Effacer la recherche';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'Rien ne correspond à « $query ».';
+  }
+
+  @override
+  String get historySearch => 'Rechercher';
+
+  @override
+  String get historyFilterAll => 'Tout';
+
+  @override
+  String get historyFilterFuel => 'Carburant';
+
+  @override
+  String get historyFilterService => 'Entretien';
+
+  @override
+  String get historyFilterExpense => 'Dépenses';
+
+  @override
+  String get historyFilterTrip => 'Trajets';
+
+  @override
+  String get historyFilterOdometer => 'Compteur';
+
+  @override
+  String get historyReadFailureTitle => 'Odova n\'a pas pu ouvrir vos données.';
+
+  @override
+  String get historyReadFailureAction => 'Aller à Sauvegarde et restauration';
+
+  @override
+  String get historyClearFilters => 'Effacer les filtres';
+
+  @override
+  String get historyEmptySubtitle => 'Votre premier plein commence le journal.';
+
+  @override
+  String get historyEmptyTitle => 'Rien encore enregistré.';
+
+  @override
+  String get historyEmptyAction => 'Enregistrer un plein';
+
+  @override
+  String get historyFilteredEmpty =>
+      'Aucune entrée ne correspond à ces filtres.';
+
+  @override
+  String get historyOdometerReading => 'Relevé';
+
+  @override
   String get tabHistory => 'Historique';
 
   @override
@@ -1630,4 +1758,186 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get logDoneClose => 'Fermer';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'Supprimer ce plein ? La consommation pour $segment sera recalculée.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Supprimer ce plein ? $nText valeurs de consommation seront supprimées.',
+      many:
+          'Supprimer ce plein ? $nText de valeurs de consommation seront supprimées.',
+      one: 'Supprimer ce plein ? $nText valeur de consommation sera supprimée.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'Supprimer ce plein ?';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'Supprimer cet entretien ? $items redeviendront dus à partir de l’intervention précédente.';
+  }
+
+  @override
+  String get deleteServicePlain => 'Supprimer cet entretien ?';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Supprimer ce trajet ? Ses $nText dépenses restent — elles ne seront simplement plus rattachées à un trajet.',
+      many:
+          'Supprimer ce trajet ? Ses $nText de dépenses restent — elles ne seront simplement plus rattachées à un trajet.',
+      one:
+          'Supprimer ce trajet ? Sa $nText dépense reste — elle ne sera simplement plus rattachée à un trajet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'Supprimer ce trajet ?';
+
+  @override
+  String get deleteReadingPlain => 'Supprimer ce relevé ?';
+
+  @override
+  String get deleteExpensePlain => 'Supprimer cette dépense ?';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'C’est le seul relevé de compteur pour $vehicle. Chaque voiture en a besoin d’un.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'Ce relevé démarre une correction de compteur depuis $date. Supprimez d’abord la correction.';
+  }
+
+  @override
+  String get listSeparator => ', ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head et $last';
+  }
+
+  @override
+  String get reportTitle => 'Rapport d’entretien';
+
+  @override
+  String get reportIncludeHeading => 'Inclure dans le document';
+
+  @override
+  String get reportToggleCosts => 'Coûts';
+
+  @override
+  String get reportToggleFuel => 'Consommation';
+
+  @override
+  String get reportTogglePlateVin => 'Plaque et VIN';
+
+  @override
+  String get reportToggleNotes => 'Mes notes privées';
+
+  @override
+  String get reportNotesWarning =>
+      'Vos notes peuvent contenir des choses qu’un acheteur ne devrait pas lire.';
+
+  @override
+  String get reportSharePdf => 'Partager le PDF';
+
+  @override
+  String get reportCopyAsText => 'Copier en texte';
+
+  @override
+  String get reportPaperSize => 'Format de papier';
+
+  @override
+  String get reportEmptyTitle => 'Aucun entretien enregistré';
+
+  @override
+  String get reportEmptyBody =>
+      'Ce rapport prend de la valeur dès que vous en ajoutez.';
+
+  @override
+  String get reportShareDisabledReason =>
+      'Il n’y a pas encore d’entretiens à mettre dans un rapport.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'Possédée depuis $date';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'Généré par Odova le $date ($iso) à partir des relevés du propriétaire. Non vérifié par un tiers.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ compteur estimé à l’époque, non relevé sur la voiture.';
+
+  @override
+  String get reportNoRecordHeading =>
+      'Aucun enregistrement dans cette application';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entretiens',
+      many: '$nText d’entretiens',
+      one: '$nText entretien',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years a $months mo';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'Facture $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportColumnDate => 'Date';
+
+  @override
+  String get reportColumnOdometer => 'Compteur';
+
+  @override
+  String get reportColumnWork => 'Travaux effectués';
+
+  @override
+  String get reportColumnCost => 'Coût';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'Page $n sur $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'Possédée';
+
+  @override
+  String get reportServicesLabel => 'entretiens';
 }

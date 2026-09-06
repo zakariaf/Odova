@@ -21,10 +21,12 @@ import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
+import 'package:odova/features/history/presentation/history_screen.dart';
 import 'package:odova/features/home/ui/home_screen.dart';
 import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/features/reminders/ui/reminders_edit_screen.dart';
 import 'package:odova/features/reminders/ui/reminders_list_screen.dart';
+import 'package:odova/features/report/presentation/report_service_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_switcher_sheet.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
@@ -217,7 +219,7 @@ final List<StatefulShellBranch> _branches = [
         pageBuilder: (context, state) => PageKind.push.page(
           context,
           state,
-          const PlaceholderScreen(screenId: 'history'),
+          const HistoryScreen(),
         ),
         routes: [
           GoRoute(
@@ -225,7 +227,7 @@ final List<StatefulShellBranch> _branches = [
             pageBuilder: (context, state) => PageKind.push.page(
               context,
               state,
-              const PlaceholderScreen(screenId: 'report.service'),
+              const ReportServiceScreen(),
             ),
           ),
         ],
@@ -281,7 +283,7 @@ final List<StatefulShellBranch> _branches = [
             pageBuilder: (context, state) => PageKind.push.page(
               context,
               state,
-              const PlaceholderScreen(screenId: 'history'),
+              const HistoryScreen(),
             ),
           ),
         ],

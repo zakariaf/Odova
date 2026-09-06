@@ -161,6 +161,196 @@
   "@tabHome": {
     "description": "Tab 1. SPEC.md §7: the tab labels are always visible under their icons — there is no icon-only mode to fall into. German and Sorani both run long here and wrap to two lines rather than truncating."
   },
+  "historyMonthEntryCount": "{n, plural, one{{nText} entry} other{{nText} entries}}",
+  "@historyMonthEntryCount": {
+    "description": "§11's month header count — \"9 entries · €412.80\". `nText` is a SECOND placeholder for the same number because {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put \"9\" in Latin inside a Persian header while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "9"
+      },
+      "nText": {
+        "type": "String",
+        "example": "9"
+      }
+    }
+  },
+  "bandFillUpFirstFill": "First fill-up — your first consumption figure arrives at the next full tank.",
+  "@bandFillUpFirstFill": {
+    "description": "§11 verbatim. One of three sentences a fill-up band shows INSTEAD of a figure; a row gets exactly one."
+  },
+  "bandFillUpChainBroken": "No figure: the tank before this wasn't logged.",
+  "@bandFillUpChainBroken": {
+    "description": "§11 verbatim. Shown when the tank before this one was not logged."
+  },
+  "bandFillUpPartial": "No figure: partial fill.",
+  "@bandFillUpPartial": {
+    "description": "§11 verbatim. Shown for a part fill, which produces no figure on its own."
+  },
+  "bandFillUpSegment": "{consumption} over {distance} since {date}",
+  "@bandFillUpSegment": {
+    "description": "§11's fill-up band: the segment figure with the distance and dates it covers. Every part arrives already formatted and isolate-wrapped — the numbers are shaped against the FORMATS tag and the date through the locale's calendar.",
+    "placeholders": {
+      "consumption": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bandExpenseSpread": "{total} over {months} = {perMonth} a month",
+  "@bandExpenseSpread": {
+    "description": "§11 verbatim in shape: \"€ 480.00 over 12 months = € 40.00 a month.\" The month count is a pre-formatted, pluralised String rather than an int, so a Persian band does not render a Latin 12.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "months": {
+        "type": "String"
+      },
+      "perMonth": {
+        "type": "String"
+      }
+    }
+  },
+  "bandOdometerRate": "{distance} in {days} — {rate} a day",
+  "@bandOdometerRate": {
+    "description": "§11 verbatim in shape: \"1,240 km in 31 days — 40 km a day.\" Shown only where two readings are on different days; the same day implies no rate at all.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "bandDeleteFillUp": "Delete this fill-up",
+  "@bandDeleteFillUp": {
+    "description": "The destructive row at the BOTTOM of log.fillup in edit mode. §11: Delete \"sits at the bottom of the form, destructive-styled, never in the app bar where Save is.\""
+  },
+  "recomputeFiguresRecalculated": "{n, plural, one{{nText} later fuel figure recalculated} other{{nText} later fuel figures recalculated}}",
+  "@recomputeFiguresRecalculated": {
+    "description": "§11's snackbar second half, verbatim in shape: \"14 later fuel figures recalculated\". The count comes from the recompute DIFF and never from what was edited — a message that counted the rows the user touched would say this for an edit that changed a vendor name. `nText` is a second placeholder for the same number because {n} selects the CLDR category and must be an int, and gen-l10n renders a bare int in Latin digits.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "14"
+      },
+      "nText": {
+        "type": "String",
+        "example": "14"
+      }
+    }
+  },
+  "recomputeSaved": "Saved",
+  "@recomputeSaved": {
+    "description": "§11's last snackbar row: shown when NOTHING derived changed. Editing a vendor name must not claim to have recalculated anything."
+  },
+  "recomputeFillUpUpdated": "Fill-up updated",
+  "@recomputeFillUpUpdated": {
+    "description": "The first half of §11's fill-up snackbar. The second half — how many figures moved — is appended only when the diff says some did."
+  },
+  "recomputeServiceUpdated": "Service updated",
+  "@recomputeServiceUpdated": {
+    "description": "As recomputeFillUpUpdated, for a service record."
+  },
+  "recomputeExpenseUpdated": "Expense updated",
+  "@recomputeExpenseUpdated": {
+    "description": "§11's expense row, which has no second half: an expense participates in no consumption figure."
+  },
+  "recomputeOdometerUpdated": "Reading updated",
+  "@recomputeOdometerUpdated": {
+    "description": "As recomputeFillUpUpdated, for a standalone reading."
+  },
+  "historyReport": "Report",
+  "@historyReport": {
+    "description": "§11's app-bar action opening report.service. A NOUN, because it names a document rather than an act — the report is a thing handed to a buyer."
+  },
+  "historySearchHint": "Search",
+  "@historySearchHint": {
+    "description": "The search field's placeholder. One word — §11 makes search a mode inside history, not a screen with an explanation."
+  },
+  "historySearchClear": "Clear search",
+  "@historySearchClear": {
+    "description": "The button under a no-match result. Distinct from historyClearFilters: that one drops the chips, this one drops the query, and offering the wrong one leaves the user in the state they wanted out of."
+  },
+  "historySearchNoMatch": "Nothing matches “{query}”.",
+  "@historySearchNoMatch": {
+    "description": "§11 verbatim, quoting the query back so the user can see what was actually searched — a typo is the commonest reason for no match, and a message that does not repeat the term cannot show it.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "historySearch": "Search history",
+  "@historySearch": {
+    "description": "The search affordance's accessible name. §11 shows it only above 200 rows."
+  },
+  "historyFilterAll": "All",
+  "@historyFilterAll": {
+    "description": "§11's first filter chip. Selected by default."
+  },
+  "historyFilterFuel": "Fuel",
+  "@historyFilterFuel": {
+    "description": "§11's type chip for fill-ups."
+  },
+  "historyFilterService": "Service",
+  "@historyFilterService": {
+    "description": "§11's type chip for service records."
+  },
+  "historyFilterExpense": "Expense",
+  "@historyFilterExpense": {
+    "description": "§11's type chip for expenses. Plural in the languages that prefer it for a category of thing."
+  },
+  "historyFilterTrip": "Trips",
+  "@historyFilterTrip": {
+    "description": "§11's type chip for trips."
+  },
+  "historyFilterOdometer": "Odometer",
+  "@historyFilterOdometer": {
+    "description": "§11's type chip for standalone readings."
+  },
+  "historyReadFailureTitle": "Odova couldn't open your records.",
+  "@historyReadFailureTitle": {
+    "description": "§11's store-read failure, full screen. It names the app rather than an error code, because the user's next act is a decision about their data and not a bug report."
+  },
+  "historyReadFailureAction": "Go to Backup & restore",
+  "@historyReadFailureAction": {
+    "description": "The ONE button on that screen. §11: 'Get the data out of the building first' — export is the only useful act when the store will not open."
+  },
+  "historyClearFilters": "Clear filters",
+  "@historyClearFilters": {
+    "description": "§11's text button under an empty filtered list. The chip row stays interactive beside it; this is the one-tap version."
+  },
+  "historyEmptySubtitle": "Your first fill-up starts the record.",
+  "@historyEmptySubtitle": {
+    "description": "§11's second line for a new vehicle. It says what starts the record rather than apologising for it being empty."
+  },
+  "historyEmptyTitle": "Nothing logged yet.",
+  "@historyEmptyTitle": {
+    "description": "§11's empty state for a vehicle with nothing logged. One sentence and a button; §11 gives it no illustration."
+  },
+  "historyEmptyAction": "Log a fill-up",
+  "@historyEmptyAction": {
+    "description": "The empty state's single action. A fill-up, because it is what a new owner logs first — 2 to 6 times a month against everything else."
+  },
+  "historyFilteredEmpty": "No entries match these filters.",
+  "@historyFilteredEmpty": {
+    "description": "Shown when filters match nothing. The chip row STAYS visible and interactive: §11 never strands the user in a filter they cannot see."
+  },
+  "historyOdometerReading": "Reading",
+  "@historyOdometerReading": {
+    "description": "The secondary line of a standalone odometer row, per §11's type table. It names what the row IS, because the primary line is only a number."
+  },
   "tabHistory": "History",
   "@tabHistory": {
     "description": "Tab 2."
@@ -560,7 +750,7 @@
   },
   "saveRefusedReadOnly": "Odova can't write right now. Your entry is still here.",
   "@saveRefusedReadOnly": {
-    "description": "Shown when the store is read-only \u2014 degraded mode after a failed migration. \u00a710: the modal stays open with everything intact, so the message says so."
+    "description": "Shown when the store is read-only — degraded mode after a failed migration. §10: the modal stays open with everything intact, so the message says so."
   },
   "saveDiskFullError": "Couldn't save. Your phone may be out of space.",
   "@saveDiskFullError": {
@@ -1842,7 +2032,7 @@
   },
   "logSavedFillUp": "Fill-up saved",
   "@logSavedFillUp": {
-    "description": "The snackbar after a fill-up save. What HAPPENED, not what the button said \u2014 the first version reused logSaveFillUp and the user saw the imperative 'Save fill-up' beside an Undo, after having already saved."
+    "description": "The snackbar after a fill-up save. What HAPPENED, not what the button said — the first version reused logSaveFillUp and the user saw the imperative 'Save fill-up' beside an Undo, after having already saved."
   },
   "logSavedService": "Service saved",
   "@logSavedService": {
@@ -1890,11 +2080,11 @@
   },
   "logDateLabel": "Date",
   "@logDateLabel": {
-    "description": "\u00a710's date row on all four log forms. NOT reminderOnceOnDate, which is reminders.edit's 'Or once, on date' and reads as a schedule choice rather than the day this happened."
+    "description": "§10's date row on all four log forms. NOT reminderOnceOnDate, which is reminders.edit's 'Or once, on date' and reads as a schedule choice rather than the day this happened."
   },
   "logOdometerLabel": "Odometer",
   "@logOdometerLabel": {
-    "description": "\u00a710's odometer field label on the log forms, per the field table and the artboard. Distinct from odometerNowLabel ('Odometer now'), which CalmOdometerInput uses where the point is that the reading is being taken RIGHT NOW."
+    "description": "§10's odometer field label on the log forms, per the field table and the artboard. Distinct from odometerNowLabel ('Odometer now'), which CalmOdometerInput uses where the point is that the reading is being taken RIGHT NOW."
   },
   "logDateFutureError": "Pick today or a day in the past.",
   "@logDateFutureError": {
@@ -1973,18 +2163,33 @@
   },
   "logOdometerLastEnteredShort": "Last entered {distance}",
   "@logOdometerLastEnteredShort": {
-    "description": "The odometer helper's FIRST line: the last entered reading, with no date. The date moves to logOdometerSince, which carries the delta beside it \u2014 the artboard draws the two as a two-line block with the estimate chip alongside, not as three stacked rows.",
-    "placeholders": {"distance": {"type": "String"}}
+    "description": "The odometer helper's FIRST line: the last entered reading, with no date. The date moves to logOdometerSince, which carries the delta beside it — the artboard draws the two as a two-line block with the estimate chip alongside, not as three stacked rows.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
   },
   "logOdometerSinceThen": "+{distance} since then",
   "@logOdometerSinceThen": {
-    "description": "\u00a710's log.odometer panel, second line. The date is on the line above it \u2014 'Last entered \u2026 on 12 August' \u2014 so this one says 'since then' rather than repeating it. The + is literal, as in logOdometerDelta.",
-    "placeholders": {"distance": {"type": "String"}}
+    "description": "§10's log.odometer panel, second line. The date is on the line above it — 'Last entered … on 12 August' — so this one says 'since then' rather than repeating it. The + is literal, as in logOdometerDelta.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
   },
   "logOdometerSince": "{date} · +{distance}",
   "@logOdometerSince": {
     "description": "The odometer helper's SECOND line: the last reading's date and how far the entry is above it, joined by a middot. The + is literal, exactly as logOdometerDelta carries it — the delta is always an increase here, and a bare number reads as the reading itself rather than the gap. Both halves are already formatted and isolate-wrapped by the caller.",
-    "placeholders": {"date": {"type": "String"}, "distance": {"type": "String"}}
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
   },
   "logOdometerDelta": "+{distance} since {date}",
   "@logOdometerDelta": {
@@ -2093,43 +2298,43 @@
   },
   "expenseCategoryInsurance": "Insurance",
   "@expenseCategoryInsurance": {
-    "description": "\u00a710 log.expense category chip: an insurance premium."
+    "description": "§10 log.expense category chip: an insurance premium."
   },
   "expenseCategoryTaxRegistration": "Road tax",
   "@expenseCategoryTaxRegistration": {
-    "description": "\u00a710 log.expense category chip: road tax or registration. German is the longest string in the app and must wrap, never truncate."
+    "description": "§10 log.expense category chip: road tax or registration. German is the longest string in the app and must wrap, never truncate."
   },
   "expenseCategoryParking": "Parking",
   "@expenseCategoryParking": {
-    "description": "\u00a710 log.expense category chip: parking."
+    "description": "§10 log.expense category chip: parking."
   },
   "expenseCategoryToll": "Toll",
   "@expenseCategoryToll": {
-    "description": "\u00a710 log.expense category chip: a road toll."
+    "description": "§10 log.expense category chip: a road toll."
   },
   "expenseCategoryFine": "Fine",
   "@expenseCategoryFine": {
-    "description": "\u00a710 log.expense category chip: a traffic fine."
+    "description": "§10 log.expense category chip: a traffic fine."
   },
   "expenseCategoryWash": "Wash",
   "@expenseCategoryWash": {
-    "description": "\u00a710 log.expense category chip: a car wash."
+    "description": "§10 log.expense category chip: a car wash."
   },
   "expenseCategoryTyreStorage": "Tyre storage",
   "@expenseCategoryTyreStorage": {
-    "description": "\u00a710 log.expense category chip: seasonal tyre storage."
+    "description": "§10 log.expense category chip: seasonal tyre storage."
   },
   "expenseCategoryAccessories": "Accessory",
   "@expenseCategoryAccessories": {
-    "description": "\u00a710 log.expense category chip: an accessory. Singular \u2014 the chip names one purchase."
+    "description": "§10 log.expense category chip: an accessory. Singular — the chip names one purchase."
   },
   "expenseCategoryFinance": "Finance",
   "@expenseCategoryFinance": {
-    "description": "\u00a710 log.expense category chip: a finance or lease payment."
+    "description": "§10 log.expense category chip: a finance or lease payment."
   },
   "expenseCategoryOther": "Other",
   "@expenseCategoryOther": {
-    "description": "\u00a710 log.expense category chip: anything else. Requires a name in the label field."
+    "description": "§10 log.expense category chip: anything else. Requires a name in the label field."
   },
   "logExpenseCategoryLabel": "Category",
   "@logExpenseCategoryLabel": {
@@ -2372,5 +2577,263 @@
   "logDoneClose": "Close",
   "@logDoneClose": {
     "description": "§10's logDoneClose."
+  },
+  "deleteFillUpRecalculated": "Delete this fill-up? The consumption figure for {segment} will be recalculated.",
+  "@deleteFillUpRecalculated": {
+    "description": "SPEC.md §11's mid-chain fill-up delete body. `segment` is the already-formatted date range of the segment that will be recomputed — a range, not a number, because the user recognises the two dates and would not recognise a segment id.",
+    "placeholders": {
+      "segment": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteFillUpFiguresRemoved": "{n, plural, one{Delete this fill-up? {nText} consumption figure will be removed.} other{Delete this fill-up? {nText} consumption figures will be removed.}}",
+  "@deleteFillUpFiguresRemoved": {
+    "description": "SPEC.md §11's chain-OPENING fill-up delete body. \"Removed\", never \"recalculated\": deleting the fill that opens a chain produces no number rather than a different one, and a user told a figure will be recalculated goes looking for the new one. `nText` is the count pre-shaped in the locale's numerals.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteFillUpPlain": "Delete this fill-up?",
+  "@deleteFillUpPlain": {
+    "description": "The fill-up delete body when nothing derived hangs off it. SPEC.md §2: never state a consequence that will not happen."
+  },
+  "deleteServiceResets": "Delete this service? {items} will go back to being due from the job before this one.",
+  "@deleteServiceResets": {
+    "description": "SPEC.md §11's service delete body. `items` is the already-joined list of reminder names the record reset — joined by the caller so the list separator is the locale's, not a hard-coded comma.",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteServicePlain": "Delete this service?",
+  "@deleteServicePlain": {
+    "description": "The service delete body when the record reset no reminders."
+  },
+  "deleteTripKeepsCosts": "{n, plural, one{Delete this trip? Its {nText} expense stays — it will just stop being attached to a trip.} other{Delete this trip? Its {nText} expenses stay — they will just stop being attached to a trip.}}",
+  "@deleteTripKeepsCosts": {
+    "description": "SPEC.md §11: \"Costs are never deleted as a side effect of deleting the thing they were grouped under.\" The sentence exists to stop someone cancelling a trip deletion because they believe it takes the receipts with it. `nText` is the count pre-shaped in the locale's numerals.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteTripPlain": "Delete this trip?",
+  "@deleteTripPlain": {
+    "description": "The trip delete body when no expenses are attached to it."
+  },
+  "deleteReadingPlain": "Delete this reading?",
+  "@deleteReadingPlain": {
+    "description": "SPEC.md §11's standalone odometer reading delete body."
+  },
+  "deleteExpensePlain": "Delete this expense?",
+  "@deleteExpensePlain": {
+    "description": "The expense delete body. An expense has no derived consequence of its own."
+  },
+  "deleteBlockedOnlyReading": "This is the only odometer reading for the {vehicle}. Every car needs one.",
+  "@deleteBlockedOnlyReading": {
+    "description": "SPEC.md §11: deleting the vehicle's only odometer reading is blocked OUTRIGHT — a refusal with no Delete button, not a confirmation with a scarier body. `vehicle` is the vehicle's name.",
+    "placeholders": {
+      "vehicle": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteBlockedStartsCorrection": "This reading starts an odometer correction from {date}. Delete the correction first.",
+  "@deleteBlockedStartsCorrection": {
+    "description": "SPEC.md §11: a reading that is the `from_reading_id` of a correction blocks both delete and odometer edit. `date` is the correction's start date, already formatted in the display calendar.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "The separator between all but the last two items of a list — Arabic, Persian and Sorani use U+060C, not a Latin comma. A key rather than a Dart constant because a translator can change it and a `', '` in a switch cannot be found by one."
+  },
+  "listPairJoin": "{head} and {last}",
+  "@listPairJoin": {
+    "description": "Joins the last item of a list to everything before it: \"Oil and filter and Inspection\". SPEC.md §2 forbids assembling a sentence in Dart — the conjunction, the spacing and the ORDER are all the translator's, and Arabic in particular attaches و to the following word with no space.",
+    "placeholders": {
+      "head": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "reportTitle": "Service report",
+  "@reportTitle": {
+    "description": "SPEC.md §12: the `report.service` screen title and the document heading. German is `Serviceverlauf`, which §12 names as the wrap case for the toggle row."
+  },
+  "reportIncludeHeading": "Include in the document",
+  "@reportIncludeHeading": {
+    "description": "Heads §12's four toggles. \"In the document\", not \"in the report\": the preview IS the document, and the wording is what tells the user the chips change what a buyer will see."
+  },
+  "reportToggleCosts": "Costs",
+  "@reportToggleCosts": {
+    "description": "§12's Costs toggle, on by default."
+  },
+  "reportToggleFuel": "Fuel summary",
+  "@reportToggleFuel": {
+    "description": "§12's fuel-consumption summary toggle, on by default."
+  },
+  "reportTogglePlateVin": "Plate and VIN",
+  "@reportTogglePlateVin": {
+    "description": "§12's plate-and-VIN toggle, OFF by default — \"the identity fields are the buyer's to ask for, not the app's to leak into a group chat\". German is `Kennzeichen und Fahrgestellnummer`, which §12 names as the two-line wrap case."
+  },
+  "reportToggleNotes": "My private notes",
+  "@reportToggleNotes": {
+    "description": "§12's private-notes toggle, OFF by default."
+  },
+  "reportNotesWarning": "Your notes may say things you don’t want a buyer to read.",
+  "@reportNotesWarning": {
+    "description": "SPEC.md §12's warning under the notes toggle: notes \"say things like 'cheaper than the dealer wanted'\". It is shown whether or not the toggle is on, because the point is to be read BEFORE it is turned on."
+  },
+  "reportSharePdf": "Share PDF",
+  "@reportSharePdf": {
+    "description": "§12's primary action. The file goes to the OS share sheet; the app never picks a destination."
+  },
+  "reportCopyAsText": "Copy as text",
+  "@reportCopyAsText": {
+    "description": "§12's overflow item: the same content as plain text, \"for pasting into a classifieds listing, which is how cars are actually sold on Divar, Willhaben, Leboncoin and Marketplace\"."
+  },
+  "reportPaperSize": "Paper size",
+  "@reportPaperSize": {
+    "description": "§12's other overflow item. A4 everywhere except US, CA, MX and PH; this overrides the resolved region."
+  },
+  "reportEmptyTitle": "No services logged yet",
+  "@reportEmptyTitle": {
+    "description": "§12's no-records state. The header card still renders; only the preview is replaced."
+  },
+  "reportEmptyBody": "This report gets valuable the moment you start adding them.",
+  "@reportEmptyBody": {
+    "description": "§12's no-records body, verbatim in shape: the report \"gets valuable the moment you start adding them\". Not an apology — one documented cambelt change is worth printing."
+  },
+  "reportShareDisabledReason": "There are no services to put in a report yet.",
+  "@reportShareDisabledReason": {
+    "description": "Shown UNDER the disabled Share PDF button, never in a toast. SPEC.md §2: Save is never disabled without an explanation, and §12 says the reason goes under the button because \"the user is already stressed\"."
+  },
+  "reportOwnedSince": "Owned since {date}",
+  "@reportOwnedSince": {
+    "description": "§12's ownership span for a vehicle still owned. `date` is the purchase date, already formatted in the display calendar — the span reads open-ended rather than ending at today's date, because a document printed in September and read in November must not claim the span ended in September.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportGeneratedFooter": "Generated by Odova on {date} ({iso}) from records kept by the owner. Not verified by a third party.",
+  "@reportGeneratedFooter": {
+    "description": "SPEC.md §12's UNREMOVABLE footer. `date` is the display-calendar date and `iso` the Gregorian one in brackets — §12 requires both: a Jalali date alone is unreadable to the buyer's insurer, an ISO date alone to the seller.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "iso": {
+        "type": "String"
+      }
+    }
+  },
+  "reportEstimatedFootnote": "~ odometer estimated at the time, not read from the car.",
+  "@reportEstimatedFootnote": {
+    "description": "SPEC.md §12's single footnote for records whose odometer was estimated at the time. One per document, not one per row: \"hiding that in a document handed to a buyer is a small lie the app has no business telling.\""
+  },
+  "reportNoRecordHeading": "No record in this app",
+  "@reportNoRecordHeading": {
+    "description": "Heads §12's list of tracked items with no completion. They are listed explicitly \"because an absent row reads as a hidden row\" — a buyer cannot tell a timing belt never done from one the seller removed."
+  },
+  "reportServiceCount": "{n, plural, one{{nText} service} other{{nText} services}}",
+  "@reportServiceCount": {
+    "description": "SPEC.md §12's header count — \"34 services\". `nText` is the count pre-shaped in the locale's numerals; gen-l10n renders a bare int in Latin digits, which is wrong in four of the six shipped locales.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "reportOwnershipSpan": "{years} yr {months} mo",
+  "@reportOwnershipSpan": {
+    "description": "SPEC.md §12's ownership duration, as the reference draws it: \"8 yr 6 mo\". Both parts are pre-shaped Strings for the same reason. Abbreviated because it sits at the end edge of a header row beside a distance, and the full words wrap there in German.",
+    "placeholders": {
+      "years": {
+        "type": "String"
+      },
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "reportInvoiceRef": "Invoice {ref}",
+  "@reportInvoiceRef": {
+    "description": "SPEC.md §12's record row carries the invoice reference. It is the one field on the row a buyer can take to the workshop and verify, which is why it is labelled rather than printed bare. `ref` is the reference verbatim as typed — never digit-shaped, because it is an identifier and not a quantity.",
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "reportOdometerSpan": "{from} – {to}",
+  "@reportOdometerSpan": {
+    "description": "SPEC.md §12's header span: the odometer at purchase and the latest ENTERED reading.\n\nThe separator is an EN DASH, not the arrow the reference draws. The reference is Chrome and falls back to a system face; the app bundles Vazirmatn and Inter and neither carries U+2192 or U+2190 — `font_coverage_test.dart` refused the arrow the moment it was put here, which is what moving it out of Dart and into an ARB was for. SPEC.md §2 forbids fetching a font, so the choice is a dash or a tofu box on a document handed to a buyer. Recorded as a deviation for EPIC-17/18: either the bundled face gains the glyph or the reference set loses the arrow.\n\nIt is in a message rather than in a widget for a second reason too: it mirrors. An en dash between two numbers is direction-neutral, and the message is where a translator could change that if a locale needed it.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "reportColumnDate": "Date",
+  "@reportColumnDate": {
+    "description": "SPEC.md §12's PDF table heading. It REPEATS on every page — a reader who turns to page four otherwise sees four columns of numbers with nothing saying which is which."
+  },
+  "reportColumnOdometer": "Odometer",
+  "@reportColumnOdometer": {
+    "description": "§12's PDF table heading for the odometer column."
+  },
+  "reportColumnWork": "What was done",
+  "@reportColumnWork": {
+    "description": "§12's PDF table heading. The column holds free text and takes direction from its own content — a German workshop name inside a Persian document renders LTR inside an RTL cell."
+  },
+  "reportColumnCost": "Cost",
+  "@reportColumnCost": {
+    "description": "§12's PDF table heading for the cost column. Absent from the document entirely when the Costs toggle is off."
+  },
+  "reportPageOf": "Page {n} of {total}",
+  "@reportPageOf": {
+    "description": "SPEC.md §12: \"Page 2 of 4 in the footer.\" Both numbers are placeholders because the word order differs — Persian puts the total last, and a string built as '{n} / {total}' in Dart could not be reordered.",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "reportOwnedLabel": "Owned",
+  "@reportOwnedLabel": {
+    "description": "The ownership-span label in the plain-text export, where there is no room for the full sentence the screen uses."
+  },
+  "reportServicesLabel": "services",
+  "@reportServicesLabel": {
+    "description": "The word after the service count in the plain-text export. Not a plural key: the count beside it is already shaped by `reportServiceCount` on the screen, and the text export writes the bare number."
   }
 }

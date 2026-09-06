@@ -8,6 +8,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:odova/core/history/search_normalise.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -35,6 +36,39 @@ void applyPragmas(Database database) {
     ..execute('PRAGMA synchronous = FULL;')
     ..execute('PRAGMA foreign_keys = ON;')
     ..execute('PRAGMA busy_timeout = 5000;');
+  registerSearchFold(database);
+}
+
+/// Exposes SPEC.md §11's search normalisation to SQL.
+///
+/// §11 refuses a stored index — "a stale index surviving a Replace import
+/// would be a nasty bug" — so the fold has to happen INSIDE the query, over
+/// each text column, on every search.
+///
+/// Spelled out as nested `REPLACE`s it does not parse: seventy-two
+/// substitutions is past what SQLite's parser will nest, and it answers
+/// "parser stack overflow" rather than running slowly. A registered function
+/// is the better answer regardless, because there is then exactly ONE
+/// normaliser — `normaliseForSearch` — and both sides of the comparison call
+/// it. §11 requires "normalisation before comparison, on both sides", and two
+/// implementations cannot promise that: they drift on the first letter added
+/// to one of them.
+///
+/// Called from [applyPragmas], so it reaches the app's connection and every
+/// executor a test opens through the same hook.
+void registerSearchFold(Database database) {
+  database.createFunction(
+    functionName: 'odova_search_fold',
+    argumentCount: const AllowedArgumentCount(1),
+    // The same input always folds to the same output, so SQLite may cache it
+    // and use it in an index expression later.
+    deterministic: true,
+    directOnly: false,
+    function: (args) {
+      final value = args.first;
+      return value is String ? normaliseForSearch(value) : '';
+    },
+  );
 }
 
 /// The app's database connection, opened lazily on a background isolate.

@@ -20,6 +20,7 @@ import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
@@ -39,7 +40,9 @@ void main() {
       // A REAL database rather than an override of the edit provider: the row
       // is what the screen loads, and a fixture that skipped the load would
       // capture a screen the app cannot reach.
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = AppDatabase.forTesting(
+        NativeDatabase.memory(setup: applyPragmas),
+      );
       addTearDown(db.close);
       // The artboard's own values, so the capture is the screen doing its job
       // rather than a screen with five empty boxes — the same reasoning as

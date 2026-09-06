@@ -15,6 +15,7 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/deletion.dart';
 import 'package:odova/data/repositories/log_repositories.dart';
@@ -171,7 +172,7 @@ void main() {
           .read<int>('n');
 
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
     vehicles = VehicleRepository(db, testUlids());
     services = ServiceRepository(db, testIds());
     fillUps = FillUpRepository(db, testIds());
@@ -396,5 +397,43 @@ void main() {
       isNot(contains('deleted_at_utc_ms')),
     );
     expect(vehicleChildTables, isNot(contains('service_lines')));
+  });
+
+  test('the two child-table lists stay the same length', () {
+    // One list carries NAMES for the SQL and the other OBJECTS for drift's
+    // `updates:`. Adding a table to one and forgetting the other is a stream
+    // that quietly stops re-emitting, which is invisible until a user watches
+    // a screen not update.
+    expect(vehicleChildTableInfos(db), hasLength(vehicleChildTables.length));
+  });
+
+  test('deleting a vehicle re-emits the garage stream', () async {
+    // `customStatement` does not update stream queries — drift's own doc says
+    // so — and all three vehicle paths used it. A deleted vehicle stayed in
+    // the garage list until something unrelated wrote to `vehicles`.
+    await vehicles.save(_vehicle(_vehicleId, 'The Golf'));
+
+    final emissions = <int>[];
+    final sub = db
+        .customSelect(
+          'SELECT COUNT(*) AS n FROM vehicles '
+          'WHERE deleted_at_utc_ms IS NULL;',
+          readsFrom: {db.vehicles},
+        )
+        .watch()
+        .listen((rows) => emissions.add(rows.single.read<int>('n')));
+
+    await pumpEventQueue();
+    expect(emissions, [1]);
+
+    await softDeleteVehicle(db, _vehicleId, 5000);
+    await pumpEventQueue();
+
+    expect(
+      emissions,
+      [1, 0],
+      reason: 'the stream learned the vehicle had gone',
+    );
+    await sub.cancel();
   });
 }

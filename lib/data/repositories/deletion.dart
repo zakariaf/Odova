@@ -89,6 +89,23 @@ const vehicleChildTables = <String>[
   'trips',
 ];
 
+/// The same set as drift table objects, for `updates:`.
+///
+/// Two lists rather than one because the SQL above interpolates NAMES while
+/// drift's invalidation takes OBJECTS, and a `TableInfo` has no name that can
+/// be spliced into a statement. `deletion_test.dart` asserts they stay the
+/// same length, so adding a table to one and forgetting the other is a red
+/// test rather than a stream that quietly stops re-emitting.
+Set<TableInfo<Table, dynamic>> vehicleChildTableInfos(AppDatabase db) => {
+  db.odometerCorrections,
+  db.odometerReadings,
+  db.serviceRecords,
+  db.serviceItems,
+  db.fillUps,
+  db.expenses,
+  db.trips,
+};
+
 /// Soft-deletes a vehicle and every row that belongs to it.
 ///
 /// ONE timestamp across the whole set, in one transaction. Undo needs to
@@ -100,18 +117,32 @@ Future<Result<int, PersistFailure>> softDeleteVehicle(
   VehicleId vehicleId,
   int deletedAtUtcMs,
 ) => guardPersist(() async {
+  // `customUpdate` with `updates:`, NOT `customStatement`. Drift's own doc for
+  // `customStatement` reads: "This method does not update stream queries on
+  // this drift database." So a deleted vehicle stayed in the garage list until
+  // something unrelated happened to write to `vehicles` — the exact failure
+  // `stampLogRowDeleted`'s comment above describes as already having been
+  // fixed once, in the two places that were not this one.
   await db.transaction(() async {
     for (final table in vehicleChildTables) {
-      await db.customStatement(
+      await db.customUpdate(
         'UPDATE $table SET deleted_at_utc_ms = ? '
         'WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL;',
-        [deletedAtUtcMs, vehicleId.toString()],
+        variables: [
+          Variable.withInt(deletedAtUtcMs),
+          Variable.withString(vehicleId.toString()),
+        ],
+        updates: vehicleChildTableInfos(db),
       );
     }
-    await db.customStatement(
+    await db.customUpdate(
       'UPDATE vehicles SET deleted_at_utc_ms = ? '
       'WHERE id = ? AND deleted_at_utc_ms IS NULL;',
-      [deletedAtUtcMs, vehicleId.toString()],
+      variables: [
+        Variable.withInt(deletedAtUtcMs),
+        Variable.withString(vehicleId.toString()),
+      ],
+      updates: {db.vehicles},
     );
   });
   return Ok(deletedAtUtcMs);
@@ -128,16 +159,24 @@ Future<Result<void, PersistFailure>> undoDeleteVehicle(
   int deletedAtUtcMs,
 ) => guardPersist(() async {
   await db.transaction(() async {
-    await db.customStatement(
+    await db.customUpdate(
       'UPDATE vehicles SET deleted_at_utc_ms = NULL '
       'WHERE id = ? AND deleted_at_utc_ms = ?;',
-      [vehicleId.toString(), deletedAtUtcMs],
+      variables: [
+        Variable.withString(vehicleId.toString()),
+        Variable.withInt(deletedAtUtcMs),
+      ],
+      updates: {db.vehicles},
     );
     for (final table in vehicleChildTables) {
-      await db.customStatement(
+      await db.customUpdate(
         'UPDATE $table SET deleted_at_utc_ms = NULL '
         'WHERE vehicle_id = ? AND deleted_at_utc_ms = ?;',
-        [vehicleId.toString(), deletedAtUtcMs],
+        variables: [
+          Variable.withString(vehicleId.toString()),
+          Variable.withInt(deletedAtUtcMs),
+        ],
+        updates: vehicleChildTableInfos(db),
       );
     }
   });
@@ -202,7 +241,11 @@ Future<Result<Map<String, int>, PersistFailure>> purgeDeleted(
         'DELETE FROM $table '
         'WHERE deleted_at_utc_ms IS NOT NULL AND deleted_at_utc_ms <= ?;',
         variables: [Variable.withInt(purgeBeforeUtcMs)],
-        updates: {},
+        // Every table the purge can delete from. `{}` says "no table
+        // changed", so a screen watching a stream never learned the rows had
+        // gone — which is the same defect this file's own header comment
+        // records having fixed elsewhere.
+        updates: {db.vehicles, ...vehicleChildTableInfos(db)},
       );
       if (count > 0) removed[table] = count;
     }

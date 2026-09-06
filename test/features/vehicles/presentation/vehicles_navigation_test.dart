@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
@@ -23,7 +24,7 @@ const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 const _polo = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVB';
 
 Future<AppDatabase> _db() async {
-  final db = AppDatabase.forTesting(NativeDatabase.memory());
+  final db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
   await insertSettings(db, activeVehicleId: _golf);
   await insertVehicle(db, id: _golf);
   await insertVehicle(db, id: _polo, name: 'The Polo', sortOrder: 1);

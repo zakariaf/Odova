@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
 
@@ -26,7 +27,9 @@ const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 
 void main() {
   testWidgets('the screen is handed the id the path carries', (tester) async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = AppDatabase.forTesting(
+      NativeDatabase.memory(setup: applyPragmas),
+    );
     addTearDown(db.close);
     await insertSettings(db, activeVehicleId: _golf);
     await insertVehicle(db, id: _golf);
@@ -61,7 +64,9 @@ void main() {
     // `tryParse` that returned into a non-nullable parameter would have thrown
     // in the route builder — a crash on a URL, which is the one thing a deep
     // link must never be able to do.
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = AppDatabase.forTesting(
+      NativeDatabase.memory(setup: applyPragmas),
+    );
     addTearDown(db.close);
     await insertSettings(db, activeVehicleId: _golf);
     await insertVehicle(db, id: _golf);
@@ -102,7 +107,9 @@ void main() {
     // .vehicleNew` is `/settings/vehicles/new`, `VehicleId.tryParse('new')`
     // is null, and the router read it as a malformed link. Both doors marked
     // "+" opened an empty modal with a Save that called `() {}`.
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = AppDatabase.forTesting(
+      NativeDatabase.memory(setup: applyPragmas),
+    );
     addTearDown(db.close);
     await insertSettings(db, activeVehicleId: _golf);
     await insertVehicle(db, id: _golf);

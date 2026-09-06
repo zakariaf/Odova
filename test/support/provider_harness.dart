@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 
 /// The container and the database it reads.
@@ -32,7 +33,7 @@ DatabaseHarness containerWithDatabase({
     migrationFailed: false,
   ),
 }) {
-  final db = AppDatabase.forTesting(NativeDatabase.memory());
+  final db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
   final container = ProviderContainer(
     retry: noProviderRetry,
     overrides: [

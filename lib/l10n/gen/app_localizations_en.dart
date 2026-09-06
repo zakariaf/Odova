@@ -122,6 +122,131 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabHome => 'Home';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries',
+      one: '$nText entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bandFillUpFirstFill =>
+      'First fill-up — your first consumption figure arrives at the next full tank.';
+
+  @override
+  String get bandFillUpChainBroken =>
+      'No figure: the tank before this wasn\'t logged.';
+
+  @override
+  String get bandFillUpPartial => 'No figure: partial fill.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption over $distance since $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total over $months = $perMonth a month';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance in $days — $rate a day';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'Delete this fill-up';
+
+  @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText later fuel figures recalculated',
+      one: '$nText later fuel figure recalculated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'Saved';
+
+  @override
+  String get recomputeFillUpUpdated => 'Fill-up updated';
+
+  @override
+  String get recomputeServiceUpdated => 'Service updated';
+
+  @override
+  String get recomputeExpenseUpdated => 'Expense updated';
+
+  @override
+  String get recomputeOdometerUpdated => 'Reading updated';
+
+  @override
+  String get historyReport => 'Report';
+
+  @override
+  String get historySearchHint => 'Search';
+
+  @override
+  String get historySearchClear => 'Clear search';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'Nothing matches “$query”.';
+  }
+
+  @override
+  String get historySearch => 'Search history';
+
+  @override
+  String get historyFilterAll => 'All';
+
+  @override
+  String get historyFilterFuel => 'Fuel';
+
+  @override
+  String get historyFilterService => 'Service';
+
+  @override
+  String get historyFilterExpense => 'Expense';
+
+  @override
+  String get historyFilterTrip => 'Trips';
+
+  @override
+  String get historyFilterOdometer => 'Odometer';
+
+  @override
+  String get historyReadFailureTitle => 'Odova couldn\'t open your records.';
+
+  @override
+  String get historyReadFailureAction => 'Go to Backup & restore';
+
+  @override
+  String get historyClearFilters => 'Clear filters';
+
+  @override
+  String get historyEmptySubtitle => 'Your first fill-up starts the record.';
+
+  @override
+  String get historyEmptyTitle => 'Nothing logged yet.';
+
+  @override
+  String get historyEmptyAction => 'Log a fill-up';
+
+  @override
+  String get historyFilteredEmpty => 'No entries match these filters.';
+
+  @override
+  String get historyOdometerReading => 'Reading';
+
+  @override
   String get tabHistory => 'History';
 
   @override
@@ -1590,4 +1715,179 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logDoneClose => 'Close';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'Delete this fill-up? The consumption figure for $segment will be recalculated.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Delete this fill-up? $nText consumption figures will be removed.',
+      one: 'Delete this fill-up? $nText consumption figure will be removed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'Delete this fill-up?';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'Delete this service? $items will go back to being due from the job before this one.';
+  }
+
+  @override
+  String get deleteServicePlain => 'Delete this service?';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Delete this trip? Its $nText expenses stay — they will just stop being attached to a trip.',
+      one:
+          'Delete this trip? Its $nText expense stays — it will just stop being attached to a trip.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'Delete this trip?';
+
+  @override
+  String get deleteReadingPlain => 'Delete this reading?';
+
+  @override
+  String get deleteExpensePlain => 'Delete this expense?';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'This is the only odometer reading for the $vehicle. Every car needs one.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'This reading starts an odometer correction from $date. Delete the correction first.';
+  }
+
+  @override
+  String get listSeparator => ', ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head and $last';
+  }
+
+  @override
+  String get reportTitle => 'Service report';
+
+  @override
+  String get reportIncludeHeading => 'Include in the document';
+
+  @override
+  String get reportToggleCosts => 'Costs';
+
+  @override
+  String get reportToggleFuel => 'Fuel summary';
+
+  @override
+  String get reportTogglePlateVin => 'Plate and VIN';
+
+  @override
+  String get reportToggleNotes => 'My private notes';
+
+  @override
+  String get reportNotesWarning =>
+      'Your notes may say things you don’t want a buyer to read.';
+
+  @override
+  String get reportSharePdf => 'Share PDF';
+
+  @override
+  String get reportCopyAsText => 'Copy as text';
+
+  @override
+  String get reportPaperSize => 'Paper size';
+
+  @override
+  String get reportEmptyTitle => 'No services logged yet';
+
+  @override
+  String get reportEmptyBody =>
+      'This report gets valuable the moment you start adding them.';
+
+  @override
+  String get reportShareDisabledReason =>
+      'There are no services to put in a report yet.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'Owned since $date';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'Generated by Odova on $date ($iso) from records kept by the owner. Not verified by a third party.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ odometer estimated at the time, not read from the car.';
+
+  @override
+  String get reportNoRecordHeading => 'No record in this app';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText services',
+      one: '$nText service',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years yr $months mo';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'Invoice $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportColumnDate => 'Date';
+
+  @override
+  String get reportColumnOdometer => 'Odometer';
+
+  @override
+  String get reportColumnWork => 'What was done';
+
+  @override
+  String get reportColumnCost => 'Cost';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'Page $n of $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'Owned';
+
+  @override
+  String get reportServicesLabel => 'services';
 }

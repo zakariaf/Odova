@@ -20,6 +20,7 @@ import 'package:odova/core/result.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/core/vehicles/delete_counts.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
 import 'package:odova/features/vehicles/vehicle_edit_draft.dart';
@@ -63,7 +64,7 @@ void main() {
   late VehicleRepository repository;
 
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
     repository = VehicleRepository(
       db,
       // A fixed clock and a seeded Random: the ids are then reproducible, so a

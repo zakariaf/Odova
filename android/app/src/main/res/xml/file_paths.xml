@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The ONE directory the share hand-off may expose: the app's own cache, where
+  SPEC.md §12's report is written before it is offered.
+
+  Deliberately not `<external-path>`, `<files-path>` or a bare `<root-path>`.
+  The database lives in the application-support directory and holds eight years
+  of somebody's service history; a provider that could hand it out is the leak
+  §2 exists to prevent. Nothing outside `cache/` is reachable through this
+  provider, and the report is the only thing written there.
+-->
+<paths>
+    <cache-path name="reports" path="." />
+</paths>

@@ -45,6 +45,7 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/log_repositories.dart';
 import 'package:odova/data/repositories/odometer_repository.dart';
@@ -85,7 +86,7 @@ void main() {
   late SettingsRepository settings;
 
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
     // ONE factory across all four, as `providers.dart` wires it. A separate
     // seeded `testIds()` per repository makes them all generate the same first
     // id, and the second derived odometer reading then collides on the primary

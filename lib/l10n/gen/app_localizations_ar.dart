@@ -142,6 +142,138 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabHome => 'الرئيسية';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مدخل',
+      many: '$nText مدخلًا',
+      few: '$nText مدخلات',
+      two: 'مدخلان',
+      one: 'مدخل واحد',
+      zero: '$nText مدخل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bandFillUpFirstFill =>
+      'أول تعبئة — سيظهر أول رقم استهلاك عند الخزان الممتلئ التالي.';
+
+  @override
+  String get bandFillUpChainBroken => 'لا يوجد رقم: لم يُسجَّل الخزان السابق.';
+
+  @override
+  String get bandFillUpPartial => 'لا يوجد رقم: تعبئة جزئية.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption على $distance منذ $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total على $months = $perMonth شهريًا';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance في $days — $rate يوميًا';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'حذف هذه التعبئة';
+
+  @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText رقم استهلاك أُعيد حسابه',
+      many: '$nText رقمًا من أرقام الاستهلاك أُعيد حسابه',
+      few: '$nText أرقام استهلاك أُعيد حسابها',
+      two: 'رقما استهلاك أُعيد حسابهما',
+      one: 'رقم استهلاك واحد أُعيد حسابه',
+      zero: '$nText رقم استهلاك أُعيد حسابه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'تم الحفظ';
+
+  @override
+  String get recomputeFillUpUpdated => 'تم تحديث التعبئة';
+
+  @override
+  String get recomputeServiceUpdated => 'تم تحديث الصيانة';
+
+  @override
+  String get recomputeExpenseUpdated => 'تم تحديث المصروف';
+
+  @override
+  String get recomputeOdometerUpdated => 'تم تحديث القراءة';
+
+  @override
+  String get historyReport => 'تقرير';
+
+  @override
+  String get historySearchHint => 'بحث';
+
+  @override
+  String get historySearchClear => 'مسح البحث';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'لا شيء يطابق «$query».';
+  }
+
+  @override
+  String get historySearch => 'بحث في السجل';
+
+  @override
+  String get historyFilterAll => 'الكل';
+
+  @override
+  String get historyFilterFuel => 'الوقود';
+
+  @override
+  String get historyFilterService => 'الصيانة';
+
+  @override
+  String get historyFilterExpense => 'المصاريف';
+
+  @override
+  String get historyFilterTrip => 'الرحلات';
+
+  @override
+  String get historyFilterOdometer => 'العدّاد';
+
+  @override
+  String get historyReadFailureTitle => 'تعذّر على أودوفا فتح سجلاتك.';
+
+  @override
+  String get historyReadFailureAction => 'الانتقال إلى النسخ الاحتياطي';
+
+  @override
+  String get historyClearFilters => 'مسح المرشحات';
+
+  @override
+  String get historyEmptySubtitle => 'أول تعبئة تبدأ السجل.';
+
+  @override
+  String get historyEmptyTitle => 'لم يُسجَّل شيء بعد.';
+
+  @override
+  String get historyEmptyAction => 'سجّل تعبئة';
+
+  @override
+  String get historyFilteredEmpty => 'لا توجد إدخالات تطابق هذه المرشحات.';
+
+  @override
+  String get historyOdometerReading => 'قراءة';
+
+  @override
   String get tabHistory => 'السجل';
 
   @override
@@ -1688,4 +1820,193 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logDoneClose => 'إغلاق';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'حذف عملية التعبئة هذه؟ ستُعاد حساب قيمة الاستهلاك لـ $segment.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'حذف عملية التعبئة هذه؟ ستُحذف $nText قيمة استهلاك.',
+      many: 'حذف عملية التعبئة هذه؟ ستُحذف $nText قيمةً استهلاك.',
+      few: 'حذف عملية التعبئة هذه؟ ستُحذف $nText قيم استهلاك.',
+      two: 'حذف عملية التعبئة هذه؟ ستُحذف قيمتا استهلاك.',
+      one: 'حذف عملية التعبئة هذه؟ ستُحذف قيمة استهلاك واحدة.',
+      zero: 'حذف عملية التعبئة هذه؟ ستُحذف $nText قيمة استهلاك.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'حذف عملية التعبئة هذه؟';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'حذف هذه الصيانة؟ ستعود $items إلى الاستحقاق من الصيانة السابقة.';
+  }
+
+  @override
+  String get deleteServicePlain => 'حذف هذه الصيانة؟';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'حذف هذه الرحلة؟ ستبقى $nText نفقة — لكنها لن ترتبط برحلة بعد الآن.',
+      many:
+          'حذف هذه الرحلة؟ ستبقى $nText نفقةً — لكنها لن ترتبط برحلة بعد الآن.',
+      few:
+          'حذف هذه الرحلة؟ ستبقى $nText نفقات — لكنها لن ترتبط برحلة بعد الآن.',
+      two: 'حذف هذه الرحلة؟ ستبقى نفقتاها — لكنهما لن ترتبطا برحلة بعد الآن.',
+      one:
+          'حذف هذه الرحلة؟ ستبقى نفقتها الواحدة — لكنها لن ترتبط برحلة بعد الآن.',
+      zero:
+          'حذف هذه الرحلة؟ ستبقى $nText نفقة — لكنها لن ترتبط برحلة بعد الآن.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'حذف هذه الرحلة؟';
+
+  @override
+  String get deleteReadingPlain => 'حذف هذه القراءة؟';
+
+  @override
+  String get deleteExpensePlain => 'حذف هذه النفقة؟';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'هذه هي قراءة العداد الوحيدة لـ $vehicle. كل سيارة تحتاج إلى واحدة.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'تبدأ هذه القراءة تصحيحًا للعداد من $date. احذف التصحيح أولًا.';
+  }
+
+  @override
+  String get listSeparator => '، ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head و$last';
+  }
+
+  @override
+  String get reportTitle => 'تقرير الصيانة';
+
+  @override
+  String get reportIncludeHeading => 'تضمين في المستند';
+
+  @override
+  String get reportToggleCosts => 'التكاليف';
+
+  @override
+  String get reportToggleFuel => 'ملخص الوقود';
+
+  @override
+  String get reportTogglePlateVin => 'اللوحة ورقم الهيكل';
+
+  @override
+  String get reportToggleNotes => 'ملاحظاتي الخاصة';
+
+  @override
+  String get reportNotesWarning =>
+      'قد تحتوي ملاحظاتك على أشياء لا تريد أن يقرأها المشتري.';
+
+  @override
+  String get reportSharePdf => 'مشاركة PDF';
+
+  @override
+  String get reportCopyAsText => 'نسخ كنص';
+
+  @override
+  String get reportPaperSize => 'حجم الورق';
+
+  @override
+  String get reportEmptyTitle => 'لم تُسجَّل أي صيانة بعد';
+
+  @override
+  String get reportEmptyBody =>
+      'يصبح هذا التقرير ذا قيمة بمجرد أن تبدأ بإضافتها.';
+
+  @override
+  String get reportShareDisabledReason => 'لا توجد صيانات لوضعها في تقرير بعد.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'مملوكة منذ $date';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'أُنشئ بواسطة Odova في $date ($iso) من سجلات يحتفظ بها المالك. غير مُوثَّق من طرف ثالث.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ العداد مُقدَّر في حينه، ولم يُقرأ من السيارة.';
+
+  @override
+  String get reportNoRecordHeading => 'لا يوجد سجل في هذا التطبيق';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText صيانة',
+      many: '$nText صيانةً',
+      few: '$nText صيانات',
+      two: 'صيانتان',
+      one: 'صيانة واحدة',
+      zero: '$nText صيانة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years سنة $months شهر';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'فاتورة $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportColumnDate => 'التاريخ';
+
+  @override
+  String get reportColumnOdometer => 'العداد';
+
+  @override
+  String get reportColumnWork => 'العمل المُنجز';
+
+  @override
+  String get reportColumnCost => 'التكلفة';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'صفحة $n من $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'مملوكة';
+
+  @override
+  String get reportServicesLabel => 'صيانات';
 }

@@ -20,13 +20,17 @@ library;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 
 import '../../support/source_tree.dart';
 
 void main() {
   late AppDatabase db;
 
-  setUp(() => db = AppDatabase.forTesting(NativeDatabase.memory()));
+  setUp(
+    () =>
+        db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas)),
+  );
   tearDown(() => db.close());
 
   Future<Map<String, String>> schemas() async {

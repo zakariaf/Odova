@@ -36,6 +36,19 @@ void main() {
     );
   });
 
+  test('searchDebounce is 200 ms and is a dwell, not a transition', () {
+    // SPEC.md §11's search debounce. The third duration here that traces to no
+    // `--dur-*` token, and it is on this extension for the reason the other
+    // two are: `check_touch_targets.sh` cannot tell a debounce from an
+    // animation, and the repo has already decided twice that "it is not really
+    // motion" loses that argument.
+    //
+    // Not collapsed by reduced motion. Collapsing it would run a LIKE over
+    // every text column on every keystroke — which is the cost the debounce
+    // exists to avoid, charged hardest to the user who asked for less motion.
+    expect(calmMotion.searchDebounce, const Duration(milliseconds: 200));
+  });
+
   test('skeletonDelay is 150 ms and is not a CSS token either', () {
     // SPEC.md §9: "A skeleton appears only past 150 ms, to avoid a flash on
     // the common path." A THRESHOLD, not a transition — it sits here for the
@@ -102,6 +115,7 @@ void main() {
       sheet: Duration(seconds: 9),
       undoWindow: Duration(seconds: 9),
       skeletonDelay: Duration(seconds: 9),
+      searchDebounce: Duration(seconds: 11),
       easeStandard: Cubic(1, 1, 1, 1),
       easeOut: Cubic(1, 1, 1, 1),
       easeIn: Cubic(1, 1, 1, 1),

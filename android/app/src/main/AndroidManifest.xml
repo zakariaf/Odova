@@ -31,6 +31,23 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- SPEC.md §12's share hand-off. A FileProvider grants the receiving
+             app read access to ONE file for the length of one Intent, which is
+             why this app asks for no storage permission at all — §12: "the app
+             never asks for storage permission". A `file://` URI would also
+             throw FileUriExposedException on API 24 and above.
+
+             `android:exported="false"`: only this app may hand out grants. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

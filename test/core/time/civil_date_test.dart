@@ -408,4 +408,41 @@ void main() {
       expect(CivilDate.fromDateTime(DateTime.utc(9999, 12, 31)), isNotNull);
     });
   });
+
+  group('monthsUntil', () {
+    // SPEC.md §12's ownership span — "Owned since March 2018 · 8 yr 6 mo".
+    // WHOLE months, and computed from the calendar rather than from a day
+    // count: `daysUntil(other) ~/ 30` drifts five days a year and reports
+    // eight years and five months for a car bought exactly eight and a half
+    // years ago. It is a figure a buyer checks against the logbook.
+    CivilDate d(String t) => CivilDate.tryParse(t)!;
+
+    test('counts whole calendar months', () {
+      expect(d('2018-03-04').monthsUntil(d('2026-09-04')), 102);
+      expect(d('2018-03-04').monthsUntil(d('2026-09-02')), 101);
+    });
+
+    test('a day short of the anniversary is not the month', () {
+      // The off-by-one that makes "1 yr 0 mo" appear a day early.
+      expect(d('2025-01-15').monthsUntil(d('2026-01-14')), 11);
+      expect(d('2025-01-15').monthsUntil(d('2026-01-15')), 12);
+    });
+
+    test('the same day is zero, and going backwards is negative', () {
+      expect(d('2026-09-02').monthsUntil(d('2026-09-02')), 0);
+      expect(d('2026-09-02').monthsUntil(d('2026-08-02')), -1);
+    });
+
+    test('it survives a month-end that the target month does not have', () {
+      // 31 January to 28 February is one month, not zero. `addMonths` clamps
+      // for the same reason, and the two have to agree or a span computed one
+      // way disagrees with a due date computed the other.
+      expect(d('2024-01-31').monthsUntil(d('2024-02-29')), 1);
+      expect(d('2024-01-31').monthsUntil(d('2024-02-28')), 0);
+    });
+
+    test('it crosses a leap day without losing one', () {
+      expect(d('2024-02-28').monthsUntil(d('2025-02-28')), 12);
+    });
+  });
 }

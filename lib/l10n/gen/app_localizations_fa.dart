@@ -123,6 +123,130 @@ class AppLocalizationsFa extends AppLocalizations {
   String get tabHome => 'خانه';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد',
+      one: '$nText مورد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bandFillUpFirstFill =>
+      'اولین سوخت‌گیری — اولین عدد مصرف شما در باک پر بعدی می‌آید.';
+
+  @override
+  String get bandFillUpChainBroken => 'بدون عدد: باک قبلی ثبت نشده بود.';
+
+  @override
+  String get bandFillUpPartial => 'بدون عدد: پر کردن جزئی.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption در $distance از $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total در $months = $perMonth در ماه';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance در $days — $rate در روز';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'حذف این سوخت‌گیری';
+
+  @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText عدد مصرف بعدی دوباره محاسبه شد',
+      one: '$nText عدد مصرف بعدی دوباره محاسبه شد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'ذخیره شد';
+
+  @override
+  String get recomputeFillUpUpdated => 'سوخت‌گیری به‌روزرسانی شد';
+
+  @override
+  String get recomputeServiceUpdated => 'سرویس به‌روزرسانی شد';
+
+  @override
+  String get recomputeExpenseUpdated => 'هزینه به‌روزرسانی شد';
+
+  @override
+  String get recomputeOdometerUpdated => 'ثبت کیلومتر به‌روزرسانی شد';
+
+  @override
+  String get historyReport => 'گزارش';
+
+  @override
+  String get historySearchHint => 'جستجو';
+
+  @override
+  String get historySearchClear => 'پاک کردن جستجو';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'چیزی با «$query» مطابقت ندارد.';
+  }
+
+  @override
+  String get historySearch => 'جستجو در تاریخچه';
+
+  @override
+  String get historyFilterAll => 'همه';
+
+  @override
+  String get historyFilterFuel => 'سوخت';
+
+  @override
+  String get historyFilterService => 'سرویس';
+
+  @override
+  String get historyFilterExpense => 'هزینه';
+
+  @override
+  String get historyFilterTrip => 'سفرها';
+
+  @override
+  String get historyFilterOdometer => 'کیلومترشمار';
+
+  @override
+  String get historyReadFailureTitle => 'اودووا نتوانست سوابق شما را باز کند.';
+
+  @override
+  String get historyReadFailureAction => 'رفتن به پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get historyClearFilters => 'پاک کردن فیلترها';
+
+  @override
+  String get historyEmptySubtitle => 'اولین سوخت‌گیری شما شروع سابقه است.';
+
+  @override
+  String get historyEmptyTitle => 'هنوز چیزی ثبت نشده است.';
+
+  @override
+  String get historyEmptyAction => 'ثبت سوخت‌گیری';
+
+  @override
+  String get historyFilteredEmpty => 'هیچ موردی با این فیلترها مطابقت ندارد.';
+
+  @override
+  String get historyOdometerReading => 'ثبت کیلومتر';
+
+  @override
   String get tabHistory => 'تاریخچه';
 
   @override
@@ -1588,4 +1712,179 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get logDoneClose => 'بستن';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'این سوخت‌گیری حذف شود؟ مقدار مصرف برای $segment دوباره محاسبه می‌شود.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'این سوخت‌گیری حذف شود؟ $nText مقدار مصرف حذف می‌شود.',
+      one: 'این سوخت‌گیری حذف شود؟ $nText مقدار مصرف حذف می‌شود.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'این سوخت‌گیری حذف شود؟';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'این سرویس حذف شود؟ $items دوباره از سرویس قبلی سررسید می‌شوند.';
+  }
+
+  @override
+  String get deleteServicePlain => 'این سرویس حذف شود؟';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'این سفر حذف شود؟ $nText هزینهٔ آن می‌مانند — فقط دیگر به سفری وصل نیستند.',
+      one:
+          'این سفر حذف شود؟ $nText هزینهٔ آن می‌ماند — فقط دیگر به سفری وصل نیست.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'این سفر حذف شود؟';
+
+  @override
+  String get deleteReadingPlain => 'این کیلومترشمار حذف شود؟';
+
+  @override
+  String get deleteExpensePlain => 'این هزینه حذف شود؟';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'این تنها کیلومترشمار ثبت‌شده برای $vehicle است. هر خودرو به یکی نیاز دارد.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'این کیلومترشمار آغاز یک تصحیح از $date است. اول تصحیح را حذف کنید.';
+  }
+
+  @override
+  String get listSeparator => '، ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head و $last';
+  }
+
+  @override
+  String get reportTitle => 'گزارش سرویس';
+
+  @override
+  String get reportIncludeHeading => 'در سند گنجانده شود';
+
+  @override
+  String get reportToggleCosts => 'هزینه‌ها';
+
+  @override
+  String get reportToggleFuel => 'خلاصهٔ سوخت';
+
+  @override
+  String get reportTogglePlateVin => 'پلاک و شمارهٔ شاسی';
+
+  @override
+  String get reportToggleNotes => 'یادداشت‌های خصوصی من';
+
+  @override
+  String get reportNotesWarning =>
+      'یادداشت‌های شما ممکن است چیزهایی داشته باشد که نمی‌خواهید خریدار بخواند.';
+
+  @override
+  String get reportSharePdf => 'هم‌رسانی PDF';
+
+  @override
+  String get reportCopyAsText => 'کپی به‌صورت متن';
+
+  @override
+  String get reportPaperSize => 'اندازهٔ کاغذ';
+
+  @override
+  String get reportEmptyTitle => 'هنوز سرویسی ثبت نشده';
+
+  @override
+  String get reportEmptyBody =>
+      'این گزارش از همان لحظه‌ای که شروع به افزودن کنید ارزشمند می‌شود.';
+
+  @override
+  String get reportShareDisabledReason =>
+      'هنوز سرویسی برای قرار دادن در گزارش نیست.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'در مالکیت از $date';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'ساخته‌شده توسط اودووا در $date ($iso) از سوابق نگهداری‌شده توسط مالک. تأیید نشده توسط شخص ثالث.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ کیلومترشمار در آن زمان تخمینی بوده، از خودرو خوانده نشده.';
+
+  @override
+  String get reportNoRecordHeading => 'بدون سابقه در این برنامه';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText سرویس',
+      one: '$nText سرویس',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years سال $months ماه';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'فاکتور $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportColumnDate => 'تاریخ';
+
+  @override
+  String get reportColumnOdometer => 'کیلومترشمار';
+
+  @override
+  String get reportColumnWork => 'کار انجام‌شده';
+
+  @override
+  String get reportColumnCost => 'هزینه';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'صفحهٔ $n از $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'در مالکیت';
+
+  @override
+  String get reportServicesLabel => 'سرویس';
 }

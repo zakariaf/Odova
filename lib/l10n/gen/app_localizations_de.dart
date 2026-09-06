@@ -123,6 +123,132 @@ class AppLocalizationsDe extends AppLocalizations {
   String get tabHome => 'Start';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Einträge',
+      one: '$nText Eintrag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bandFillUpFirstFill =>
+      'Erste Betankung — Ihr erster Verbrauchswert kommt bei der nächsten Volltankung.';
+
+  @override
+  String get bandFillUpChainBroken =>
+      'Kein Wert: die Tankfüllung davor wurde nicht erfasst.';
+
+  @override
+  String get bandFillUpPartial => 'Kein Wert: Teilbetankung.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption über $distance seit $date';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total über $months = $perMonth pro Monat';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance in $days — $rate pro Tag';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'Diesen Tankvorgang löschen';
+
+  @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText spätere Verbrauchswerte neu berechnet',
+      one: '$nText späterer Verbrauchswert neu berechnet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'Gespeichert';
+
+  @override
+  String get recomputeFillUpUpdated => 'Tankvorgang aktualisiert';
+
+  @override
+  String get recomputeServiceUpdated => 'Service aktualisiert';
+
+  @override
+  String get recomputeExpenseUpdated => 'Ausgabe aktualisiert';
+
+  @override
+  String get recomputeOdometerUpdated => 'Ablesung aktualisiert';
+
+  @override
+  String get historyReport => 'Bericht';
+
+  @override
+  String get historySearchHint => 'Suchen';
+
+  @override
+  String get historySearchClear => 'Suche löschen';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'Nichts passt zu „$query“.';
+  }
+
+  @override
+  String get historySearch => 'Verlauf durchsuchen';
+
+  @override
+  String get historyFilterAll => 'Alle';
+
+  @override
+  String get historyFilterFuel => 'Kraftstoff';
+
+  @override
+  String get historyFilterService => 'Service';
+
+  @override
+  String get historyFilterExpense => 'Ausgaben';
+
+  @override
+  String get historyFilterTrip => 'Fahrten';
+
+  @override
+  String get historyFilterOdometer => 'Kilometerstand';
+
+  @override
+  String get historyReadFailureTitle => 'Odova konnte Ihre Daten nicht öffnen.';
+
+  @override
+  String get historyReadFailureAction => 'Zu Sicherung & Wiederherstellung';
+
+  @override
+  String get historyClearFilters => 'Filter zurücksetzen';
+
+  @override
+  String get historyEmptySubtitle =>
+      'Ihr erster Tankvorgang beginnt die Aufzeichnung.';
+
+  @override
+  String get historyEmptyTitle => 'Noch nichts erfasst.';
+
+  @override
+  String get historyEmptyAction => 'Tankvorgang erfassen';
+
+  @override
+  String get historyFilteredEmpty => 'Keine Einträge passen zu diesen Filtern.';
+
+  @override
+  String get historyOdometerReading => 'Ablesung';
+
+  @override
   String get tabHistory => 'Verlauf';
 
   @override
@@ -1600,4 +1726,180 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get logDoneClose => 'Schließen';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'Diese Tankfüllung löschen? Der Verbrauchswert für $segment wird neu berechnet.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Diese Tankfüllung löschen? $nText Verbrauchswerte werden entfernt.',
+      one: 'Diese Tankfüllung löschen? $nText Verbrauchswert wird entfernt.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'Diese Tankfüllung löschen?';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'Diesen Service löschen? $items sind dann wieder ab dem vorherigen Service fällig.';
+  }
+
+  @override
+  String get deleteServicePlain => 'Diesen Service löschen?';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Diese Fahrt löschen? Die $nText Ausgaben bleiben — sie sind dann nur keiner Fahrt mehr zugeordnet.',
+      one:
+          'Diese Fahrt löschen? Die $nText Ausgabe bleibt — sie ist dann nur keiner Fahrt mehr zugeordnet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'Diese Fahrt löschen?';
+
+  @override
+  String get deleteReadingPlain => 'Diesen Kilometerstand löschen?';
+
+  @override
+  String get deleteExpensePlain => 'Diese Ausgabe löschen?';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'Das ist der einzige Kilometerstand für den $vehicle. Jedes Auto braucht einen.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'Dieser Kilometerstand beginnt eine Korrektur ab $date. Lösche zuerst die Korrektur.';
+  }
+
+  @override
+  String get listSeparator => ', ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head und $last';
+  }
+
+  @override
+  String get reportTitle => 'Serviceverlauf';
+
+  @override
+  String get reportIncludeHeading => 'Im Dokument enthalten';
+
+  @override
+  String get reportToggleCosts => 'Kosten';
+
+  @override
+  String get reportToggleFuel => 'Verbrauch';
+
+  @override
+  String get reportTogglePlateVin => 'Kennzeichen und Fahrgestellnummer';
+
+  @override
+  String get reportToggleNotes => 'Meine privaten Notizen';
+
+  @override
+  String get reportNotesWarning =>
+      'Ihre Notizen enthalten vielleicht Dinge, die ein Käufer nicht lesen soll.';
+
+  @override
+  String get reportSharePdf => 'PDF teilen';
+
+  @override
+  String get reportCopyAsText => 'Als Text kopieren';
+
+  @override
+  String get reportPaperSize => 'Papierformat';
+
+  @override
+  String get reportEmptyTitle => 'Noch keine Services erfasst';
+
+  @override
+  String get reportEmptyBody =>
+      'Dieser Bericht wird wertvoll, sobald Sie welche hinzufügen.';
+
+  @override
+  String get reportShareDisabledReason =>
+      'Es gibt noch keine Services für einen Bericht.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'Im Besitz seit $date';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'Erstellt von Odova am $date ($iso) aus Aufzeichnungen des Halters. Nicht von Dritten geprüft.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ Kilometerstand damals geschätzt, nicht am Auto abgelesen.';
+
+  @override
+  String get reportNoRecordHeading => 'Kein Eintrag in dieser App';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Services',
+      one: '$nText Service',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years J. $months Mon.';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'Rechnung $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportColumnDate => 'Datum';
+
+  @override
+  String get reportColumnOdometer => 'Kilometerstand';
+
+  @override
+  String get reportColumnWork => 'Durchgeführte Arbeiten';
+
+  @override
+  String get reportColumnCost => 'Kosten';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'Seite $n von $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'Im Besitz';
+
+  @override
+  String get reportServicesLabel => 'Services';
 }

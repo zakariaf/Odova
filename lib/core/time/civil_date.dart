@@ -162,6 +162,29 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
   /// test; it is having no timezone in the code at all.
   int daysUntil(CivilDate other) => other._epochDay - _epochDay;
 
+  /// Whole calendar months from this date to [other]; negative goes back.
+  ///
+  /// CALENDAR months, not `daysUntil(other) ~/ 30`. That approximation drifts
+  /// about five days a year and reports "8 yr 5 mo" for a car owned exactly
+  /// eight and a half years — a figure SPEC.md §12 puts on a document a buyer
+  /// checks against the logbook.
+  ///
+  /// A month is complete only when the DAY has come round: 15 January to 14
+  /// January is eleven months, not twelve. Month-end clamps the same way
+  /// [addMonths] does — 31 January to 28 February is zero months and to 29
+  /// February is one — because a span computed here and a due date computed
+  /// there have to agree about the same pair of dates.
+  int monthsUntil(CivilDate other) {
+    final crude = (other.year * 12 + other.month) - (year * 12 + month);
+    // One step back when the anniversary has not arrived. `addMonths` is the
+    // authority on what the anniversary IS, so the clamp is inherited rather
+    // than reimplemented here with its own month-end rule.
+    final anniversary = addMonths(crude);
+    if (crude > 0 && anniversary._epochDay > other._epochDay) return crude - 1;
+    if (crude < 0 && anniversary._epochDay < other._epochDay) return crude + 1;
+    return crude;
+  }
+
   /// This date [days] later; negative goes back.
   CivilDate addDays(int days) {
     final civil = jdnToGregorian(_epochDay + days + kUnixEpochJdn);

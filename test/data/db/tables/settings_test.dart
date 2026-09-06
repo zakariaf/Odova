@@ -10,13 +10,17 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 
 import '../../support/rows.dart';
 
 void main() {
   late AppDatabase db;
 
-  setUp(() => db = AppDatabase.forTesting(NativeDatabase.memory()));
+  setUp(
+    () =>
+        db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas)),
+  );
   tearDown(() => db.close());
 
   test('there is exactly one settings row', () async {

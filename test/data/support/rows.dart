@@ -205,6 +205,15 @@ Future<void> insertFillUp(
   String currency = 'EUR',
   String? tripId,
   int? deletedAtUtcMs,
+  // SETTABLE, and it was not.
+  //
+  // Every row this file writes used to carry `created_at_utc_ms = 1000`, so
+  // no two rows ever differed only in the middle sort key — and §11's tuple
+  // is `(occurred_on DESC, created_at DESC, id DESC)`. Dropping `created_at`
+  // from the ORDER BY, and separately neutering it in the keyset comparison,
+  // each passed the whole suite; the second produces a pager that duplicates
+  // and skips rows.
+  int createdAtUtcMs = 1000,
 }) => _write(
   db,
   '''
@@ -214,7 +223,7 @@ Future<void> insertFillUp(
       currency, is_full_tank, chain_broken, trip_id,
       created_at_utc_ms, updated_at_utc_ms, deleted_at_utc_ms
     ) VALUES (?, ?, ?, 186512000, 'km', ?, ?, ?, ?, 'l', ?, ?, 1, 0, ?,
-              1000, 1000, ?);
+              ?, ?, ?);
   ''',
   [
     id,
@@ -227,6 +236,8 @@ Future<void> insertFillUp(
     totalCostMinor,
     currency,
     tripId,
+    createdAtUtcMs,
+    createdAtUtcMs,
     deletedAtUtcMs,
   ],
   {db.fillUps},

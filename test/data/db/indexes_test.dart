@@ -12,6 +12,7 @@ import 'package:drift/drift.dart' show Variable;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 
 import '../support/rows.dart';
 
@@ -19,7 +20,7 @@ void main() {
   late AppDatabase db;
 
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
     await insertVehicle(db);
   });
   tearDown(() => db.close());

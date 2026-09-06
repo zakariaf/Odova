@@ -123,6 +123,131 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get tabHome => 'ماڵەوە';
 
   @override
+  String historyMonthEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText تۆمار',
+      one: '$nText تۆمار',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bandFillUpFirstFill =>
+      'یەکەم سووتەمەنی — یەکەم ژمارەی خەرجکردن لە تانکی پڕی داهاتوودا دێت.';
+
+  @override
+  String get bandFillUpChainBroken => 'بێ ژمارە: تانکی پێشوو تۆمار نەکرابوو.';
+
+  @override
+  String get bandFillUpPartial => 'بێ ژمارە: پڕکردنەوەی بەشەکی.';
+
+  @override
+  String bandFillUpSegment(String consumption, String distance, String date) {
+    return '$consumption بەسەر $distance لە $dateەوە';
+  }
+
+  @override
+  String bandExpenseSpread(String total, String months, String perMonth) {
+    return '$total بەسەر $months = $perMonth لە مانگێکدا';
+  }
+
+  @override
+  String bandOdometerRate(String distance, String days, String rate) {
+    return '$distance لە $days — $rate ڕۆژانە';
+  }
+
+  @override
+  String get bandDeleteFillUp => 'ئەم سووتەمەنییە بسڕەوە';
+
+  @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ژمارەی خەرجکردنی دواتر دووبارە حیسابکرانەوە',
+      one: '$nText ژمارەی خەرجکردنی دواتر دووبارە حیسابکرایەوە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'پاشەکەوت کرا';
+
+  @override
+  String get recomputeFillUpUpdated => 'سووتەمەنی نوێ کرایەوە';
+
+  @override
+  String get recomputeServiceUpdated => 'سەرڤیس نوێ کرایەوە';
+
+  @override
+  String get recomputeExpenseUpdated => 'خەرجی نوێ کرایەوە';
+
+  @override
+  String get recomputeOdometerUpdated => 'خوێندنەوە نوێ کرایەوە';
+
+  @override
+  String get historyReport => 'ڕاپۆرت';
+
+  @override
+  String get historySearchHint => 'گەڕان';
+
+  @override
+  String get historySearchClear => 'گەڕان بسڕەوە';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'هیچ شتێک لەگەڵ «$query» ناگونجێت.';
+  }
+
+  @override
+  String get historySearch => 'گەڕان لە مێژوو';
+
+  @override
+  String get historyFilterAll => 'هەموو';
+
+  @override
+  String get historyFilterFuel => 'سووتەمەنی';
+
+  @override
+  String get historyFilterService => 'سەرڤیس';
+
+  @override
+  String get historyFilterExpense => 'خەرجی';
+
+  @override
+  String get historyFilterTrip => 'گەشتەکان';
+
+  @override
+  String get historyFilterOdometer => 'کیلۆمەترپێو';
+
+  @override
+  String get historyReadFailureTitle => 'ئۆدۆڤا نەیتوانی تۆمارەکانت بکاتەوە.';
+
+  @override
+  String get historyReadFailureAction => 'بڕۆ بۆ پاڵپشت و گەڕاندنەوە';
+
+  @override
+  String get historyClearFilters => 'پاڵاوتنەکان بسڕەوە';
+
+  @override
+  String get historyEmptySubtitle => 'یەکەم سووتەمەنیت تۆمارەکە دەست پێدەکات.';
+
+  @override
+  String get historyEmptyTitle => 'هێشتا هیچ تۆمار نەکراوە.';
+
+  @override
+  String get historyEmptyAction => 'سووتەمەنی تۆمار بکە';
+
+  @override
+  String get historyFilteredEmpty =>
+      'هیچ تۆمارێک لەگەڵ ئەم پاڵاوتنانە ناگونجێت.';
+
+  @override
+  String get historyOdometerReading => 'خوێندنەوە';
+
+  @override
   String get tabHistory => 'مێژوو';
 
   @override
@@ -1593,4 +1718,179 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get logDoneClose => 'داخستن';
+
+  @override
+  String deleteFillUpRecalculated(String segment) {
+    return 'ئەم سووتەمەنییە بسڕدرێتەوە؟ بڕی خەرجکردن بۆ $segment دووبارە دەژمێردرێتەوە.';
+  }
+
+  @override
+  String deleteFillUpFiguresRemoved(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'ئەم سووتەمەنییە بسڕدرێتەوە؟ $nText بڕی خەرجکردن دەسڕدرێنەوە.',
+      one: 'ئەم سووتەمەنییە بسڕدرێتەوە؟ $nText بڕی خەرجکردن دەسڕدرێتەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFillUpPlain => 'ئەم سووتەمەنییە بسڕدرێتەوە؟';
+
+  @override
+  String deleteServiceResets(String items) {
+    return 'ئەم خزمەتگوزارییە بسڕدرێتەوە؟ $items دەگەڕێنەوە بۆ کاتی پێویستی لە کارەکەی پێشوو.';
+  }
+
+  @override
+  String get deleteServicePlain => 'ئەم خزمەتگوزارییە بسڕدرێتەوە؟';
+
+  @override
+  String deleteTripKeepsCosts(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ئەم گەشتە بسڕدرێتەوە؟ $nText خەرجییەکانی دەمێننەوە — تەنها ئیتر بە گەشتێکەوە نابەسترێنەوە.',
+      one:
+          'ئەم گەشتە بسڕدرێتەوە؟ $nText خەرجییەکەی دەمێنێتەوە — تەنها ئیتر بە گەشتێکەوە نابەسترێتەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteTripPlain => 'ئەم گەشتە بسڕدرێتەوە؟';
+
+  @override
+  String get deleteReadingPlain => 'ئەم پێوانەیە بسڕدرێتەوە؟';
+
+  @override
+  String get deleteExpensePlain => 'ئەم خەرجییە بسڕدرێتەوە؟';
+
+  @override
+  String deleteBlockedOnlyReading(String vehicle) {
+    return 'ئەمە تەنها پێوانەی ئۆدۆمیتەرە بۆ $vehicle. هەر ئۆتۆمبێلێک پێویستی بە یەکێکە.';
+  }
+
+  @override
+  String deleteBlockedStartsCorrection(String date) {
+    return 'ئەم پێوانەیە دەستپێکی ڕاستکردنەوەی ئۆدۆمیتەرە لە $dateەوە. سەرەتا ڕاستکردنەوەکە بسڕەوە.';
+  }
+
+  @override
+  String get listSeparator => '، ';
+
+  @override
+  String listPairJoin(String head, String last) {
+    return '$head و $last';
+  }
+
+  @override
+  String get reportTitle => 'ڕاپۆرتی خزمەتگوزاری';
+
+  @override
+  String get reportIncludeHeading => 'لە بەڵگەنامەکەدا بخرێتە ناو';
+
+  @override
+  String get reportToggleCosts => 'تێچووەکان';
+
+  @override
+  String get reportToggleFuel => 'کورتەی سووتەمەنی';
+
+  @override
+  String get reportTogglePlateVin => 'پلاک و ژمارەی شاسی';
+
+  @override
+  String get reportToggleNotes => 'تێبینییە تایبەتەکانم';
+
+  @override
+  String get reportNotesWarning =>
+      'لەوانەیە تێبینییەکانت شتێکیان تێدابێت کە نەتەوێت کڕیارێک بیخوێنێتەوە.';
+
+  @override
+  String get reportSharePdf => 'هاوبەشکردنی PDF';
+
+  @override
+  String get reportCopyAsText => 'لەبەرگرتنەوە وەک دەق';
+
+  @override
+  String get reportPaperSize => 'قەبارەی کاغەز';
+
+  @override
+  String get reportEmptyTitle => 'هێشتا هیچ خزمەتگوزارییەک تۆمار نەکراوە';
+
+  @override
+  String get reportEmptyBody =>
+      'ئەم ڕاپۆرتە لەو ساتەوە بەنرخ دەبێت کە دەست بە زیادکردنیان بکەیت.';
+
+  @override
+  String get reportShareDisabledReason =>
+      'هێشتا هیچ خزمەتگوزارییەک نییە بۆ خستنە ناو ڕاپۆرتێک.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'لە خاوەندارێتیدا لە $dateەوە';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'دروستکراوە لەلایەن Odova لە $date ($iso) لە تۆمارەکانی خاوەنەکەوە. لەلایەن لایەنی سێیەمەوە پشتڕاست نەکراوەتەوە.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ ئۆدۆمیتەر لەو کاتەدا خەمڵێنراوە، لە ئۆتۆمبێلەکەوە نەخوێندراوەتەوە.';
+
+  @override
+  String get reportNoRecordHeading => 'هیچ تۆمارێک لەم ئەپەدا نییە';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خزمەتگوزاری',
+      one: '$nText خزمەتگوزاری',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years ساڵ $months مانگ';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'پسووڵە $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportColumnDate => 'بەروار';
+
+  @override
+  String get reportColumnOdometer => 'ئۆدۆمیتەر';
+
+  @override
+  String get reportColumnWork => 'ئەو کارەی کراوە';
+
+  @override
+  String get reportColumnCost => 'تێچوو';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'لاپەڕەی $n لە $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'لە خاوەندارێتیدا';
+
+  @override
+  String get reportServicesLabel => 'خزمەتگوزاری';
 }

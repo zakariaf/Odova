@@ -45,6 +45,7 @@ import 'package:odova/features/logging/domain/mark_done.dart';
 import 'package:odova/features/logging/domain/price_trio.dart';
 import 'package:odova/features/logging/domain/service_cost_model.dart';
 import 'package:odova/features/logging/domain/service_item_chips.dart';
+import 'package:odova/features/logging/ui/entry_context_band.dart';
 import 'package:odova/features/logging/ui/log_expense_body.dart';
 import 'package:odova/features/logging/ui/log_fillup_body.dart';
 import 'package:odova/features/logging/ui/log_more_sheet.dart';
@@ -58,6 +59,7 @@ import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
+import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
@@ -364,11 +366,57 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
               onChanged: (index) =>
                   setState(() => _segment = LogType.values[index]),
             ),
+          // §11's context band, above the fields and only in edit mode: "the
+          // derived numbers this record participates in, and what it is
+          // attached to." In create mode there is no record yet to be the
+          // context of.
+          if (_isEdit) EntryContextBand(lines: _bandLines(l10n)),
           _body(),
+          // §11: Delete "sits at the bottom of the form, destructive-styled,
+          // never in the app bar where Save is." Never beside Save, because
+          // the two are one slip apart and only one of them is reversible by
+          // pressing it again.
+          if (_isEdit) ...[
+            SizedBox(height: CalmSpace.of(context).s4),
+            CalmButton(
+              label: _deleteLabel(l10n),
+              variant: CalmButtonVariant.danger,
+              block: true,
+              onPressed: _confirmDelete,
+            ),
+          ],
         ],
       ),
     );
   }
+
+  /// The band's lines for this segment, already formatted.
+  ///
+  /// Empty until each form supplies the record it is editing — the DECISIONS
+  /// are `entry_band.dart`'s and are tested there; what is missing is the
+  /// prefill that gives this modal a record to describe, which arrives with
+  /// edit-mode loading.
+  // TODO(EPIC-12): task 12.7's edit-mode load supplies the record.
+  List<String> _bandLines(AppLocalizations l10n) => const [];
+
+  /// The destructive row's own words, naming what dies.
+  ///
+  /// Per SEGMENT, because "Delete this fill-up" and "Delete this expense" are
+  /// different promises and a generic "Delete" makes the user check which form
+  /// they are on before pressing it.
+  String _deleteLabel(AppLocalizations l10n) => switch (_segment) {
+    LogType.fillUp => l10n.logDeleteFillUp,
+    LogType.service => l10n.logDeleteService,
+    LogType.expense => l10n.logDeleteExpense,
+    LogType.odometer => l10n.logDeleteOdometer,
+  };
+
+  /// Opens §7's shared confirm dialog.
+  ///
+  /// EPIC-08 built it once, globally, and §7 makes it belong to no feature —
+  /// so this calls it and builds none. The cascade it names is task 12.9's.
+  // TODO(EPIC-12): task 12.9 wires dialog.confirmDelete and its guards.
+  void _confirmDelete() {}
 
   /// The form for whichever segment is showing.
   ///

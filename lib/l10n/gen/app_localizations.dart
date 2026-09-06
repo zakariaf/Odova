@@ -238,6 +238,204 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get tabHome;
 
+  /// §11's month header count — "9 entries · €412.80". `nText` is a SECOND placeholder for the same number because {n} selects the CLDR category and must be an int, and an int interpolated by gen-l10n renders in Latin digits — which would put "9" in Latin inside a Persian header while every other number on the screen is shaped. SPEC.md §5: one numbering system is active app-wide.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry} other{{nText} entries}}'**
+  String historyMonthEntryCount(int n, String nText);
+
+  /// §11 verbatim. One of three sentences a fill-up band shows INSTEAD of a figure; a row gets exactly one.
+  ///
+  /// In en, this message translates to:
+  /// **'First fill-up — your first consumption figure arrives at the next full tank.'**
+  String get bandFillUpFirstFill;
+
+  /// §11 verbatim. Shown when the tank before this one was not logged.
+  ///
+  /// In en, this message translates to:
+  /// **'No figure: the tank before this wasn\'t logged.'**
+  String get bandFillUpChainBroken;
+
+  /// §11 verbatim. Shown for a part fill, which produces no figure on its own.
+  ///
+  /// In en, this message translates to:
+  /// **'No figure: partial fill.'**
+  String get bandFillUpPartial;
+
+  /// §11's fill-up band: the segment figure with the distance and dates it covers. Every part arrives already formatted and isolate-wrapped — the numbers are shaped against the FORMATS tag and the date through the locale's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'{consumption} over {distance} since {date}'**
+  String bandFillUpSegment(String consumption, String distance, String date);
+
+  /// §11 verbatim in shape: "€ 480.00 over 12 months = € 40.00 a month." The month count is a pre-formatted, pluralised String rather than an int, so a Persian band does not render a Latin 12.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} over {months} = {perMonth} a month'**
+  String bandExpenseSpread(String total, String months, String perMonth);
+
+  /// §11 verbatim in shape: "1,240 km in 31 days — 40 km a day." Shown only where two readings are on different days; the same day implies no rate at all.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} in {days} — {rate} a day'**
+  String bandOdometerRate(String distance, String days, String rate);
+
+  /// The destructive row at the BOTTOM of log.fillup in edit mode. §11: Delete "sits at the bottom of the form, destructive-styled, never in the app bar where Save is."
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this fill-up'**
+  String get bandDeleteFillUp;
+
+  /// §11's snackbar second half, verbatim in shape: "14 later fuel figures recalculated". The count comes from the recompute DIFF and never from what was edited — a message that counted the rows the user touched would say this for an edit that changed a vendor name. `nText` is a second placeholder for the same number because {n} selects the CLDR category and must be an int, and gen-l10n renders a bare int in Latin digits.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} later fuel figure recalculated} other{{nText} later fuel figures recalculated}}'**
+  String recomputeFiguresRecalculated(int n, String nText);
+
+  /// §11's last snackbar row: shown when NOTHING derived changed. Editing a vendor name must not claim to have recalculated anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get recomputeSaved;
+
+  /// The first half of §11's fill-up snackbar. The second half — how many figures moved — is appended only when the diff says some did.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up updated'**
+  String get recomputeFillUpUpdated;
+
+  /// As recomputeFillUpUpdated, for a service record.
+  ///
+  /// In en, this message translates to:
+  /// **'Service updated'**
+  String get recomputeServiceUpdated;
+
+  /// §11's expense row, which has no second half: an expense participates in no consumption figure.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense updated'**
+  String get recomputeExpenseUpdated;
+
+  /// As recomputeFillUpUpdated, for a standalone reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading updated'**
+  String get recomputeOdometerUpdated;
+
+  /// §11's app-bar action opening report.service. A NOUN, because it names a document rather than an act — the report is a thing handed to a buyer.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get historyReport;
+
+  /// The search field's placeholder. One word — §11 makes search a mode inside history, not a screen with an explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get historySearchHint;
+
+  /// The button under a no-match result. Distinct from historyClearFilters: that one drops the chips, this one drops the query, and offering the wrong one leaves the user in the state they wanted out of.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get historySearchClear;
+
+  /// §11 verbatim, quoting the query back so the user can see what was actually searched — a typo is the commonest reason for no match, and a message that does not repeat the term cannot show it.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches “{query}”.'**
+  String historySearchNoMatch(String query);
+
+  /// The search affordance's accessible name. §11 shows it only above 200 rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Search history'**
+  String get historySearch;
+
+  /// §11's first filter chip. Selected by default.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get historyFilterAll;
+
+  /// §11's type chip for fill-ups.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get historyFilterFuel;
+
+  /// §11's type chip for service records.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get historyFilterService;
+
+  /// §11's type chip for expenses. Plural in the languages that prefer it for a category of thing.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get historyFilterExpense;
+
+  /// §11's type chip for trips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get historyFilterTrip;
+
+  /// §11's type chip for standalone readings.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get historyFilterOdometer;
+
+  /// §11's store-read failure, full screen. It names the app rather than an error code, because the user's next act is a decision about their data and not a bug report.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn\'t open your records.'**
+  String get historyReadFailureTitle;
+
+  /// The ONE button on that screen. §11: 'Get the data out of the building first' — export is the only useful act when the store will not open.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Backup & restore'**
+  String get historyReadFailureAction;
+
+  /// §11's text button under an empty filtered list. The chip row stays interactive beside it; this is the one-tap version.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get historyClearFilters;
+
+  /// §11's second line for a new vehicle. It says what starts the record rather than apologising for it being empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first fill-up starts the record.'**
+  String get historyEmptySubtitle;
+
+  /// §11's empty state for a vehicle with nothing logged. One sentence and a button; §11 gives it no illustration.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged yet.'**
+  String get historyEmptyTitle;
+
+  /// The empty state's single action. A fill-up, because it is what a new owner logs first — 2 to 6 times a month against everything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a fill-up'**
+  String get historyEmptyAction;
+
+  /// Shown when filters match nothing. The chip row STAYS visible and interactive: §11 never strands the user in a filter they cannot see.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries match these filters.'**
+  String get historyFilteredEmpty;
+
+  /// The secondary line of a standalone odometer row, per §11's type table. It names what the row IS, because the primary line is only a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get historyOdometerReading;
+
   /// Tab 2.
   ///
   /// In en, this message translates to:
@@ -2401,6 +2599,256 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get logDoneClose;
+
+  /// SPEC.md §11's mid-chain fill-up delete body. `segment` is the already-formatted date range of the segment that will be recomputed — a range, not a number, because the user recognises the two dates and would not recognise a segment id.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this fill-up? The consumption figure for {segment} will be recalculated.'**
+  String deleteFillUpRecalculated(String segment);
+
+  /// SPEC.md §11's chain-OPENING fill-up delete body. "Removed", never "recalculated": deleting the fill that opens a chain produces no number rather than a different one, and a user told a figure will be recalculated goes looking for the new one. `nText` is the count pre-shaped in the locale's numerals.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{Delete this fill-up? {nText} consumption figure will be removed.} other{Delete this fill-up? {nText} consumption figures will be removed.}}'**
+  String deleteFillUpFiguresRemoved(int n, String nText);
+
+  /// The fill-up delete body when nothing derived hangs off it. SPEC.md §2: never state a consequence that will not happen.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this fill-up?'**
+  String get deleteFillUpPlain;
+
+  /// SPEC.md §11's service delete body. `items` is the already-joined list of reminder names the record reset — joined by the caller so the list separator is the locale's, not a hard-coded comma.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this service? {items} will go back to being due from the job before this one.'**
+  String deleteServiceResets(String items);
+
+  /// The service delete body when the record reset no reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this service?'**
+  String get deleteServicePlain;
+
+  /// SPEC.md §11: "Costs are never deleted as a side effect of deleting the thing they were grouped under." The sentence exists to stop someone cancelling a trip deletion because they believe it takes the receipts with it. `nText` is the count pre-shaped in the locale's numerals.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{Delete this trip? Its {nText} expense stays — it will just stop being attached to a trip.} other{Delete this trip? Its {nText} expenses stay — they will just stop being attached to a trip.}}'**
+  String deleteTripKeepsCosts(int n, String nText);
+
+  /// The trip delete body when no expenses are attached to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this trip?'**
+  String get deleteTripPlain;
+
+  /// SPEC.md §11's standalone odometer reading delete body.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this reading?'**
+  String get deleteReadingPlain;
+
+  /// The expense delete body. An expense has no derived consequence of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this expense?'**
+  String get deleteExpensePlain;
+
+  /// SPEC.md §11: deleting the vehicle's only odometer reading is blocked OUTRIGHT — a refusal with no Delete button, not a confirmation with a scarier body. `vehicle` is the vehicle's name.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the only odometer reading for the {vehicle}. Every car needs one.'**
+  String deleteBlockedOnlyReading(String vehicle);
+
+  /// SPEC.md §11: a reading that is the `from_reading_id` of a correction blocks both delete and odometer edit. `date` is the correction's start date, already formatted in the display calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'This reading starts an odometer correction from {date}. Delete the correction first.'**
+  String deleteBlockedStartsCorrection(String date);
+
+  /// The separator between all but the last two items of a list — Arabic, Persian and Sorani use U+060C, not a Latin comma. A key rather than a Dart constant because a translator can change it and a `', '` in a switch cannot be found by one.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get listSeparator;
+
+  /// Joins the last item of a list to everything before it: "Oil and filter and Inspection". SPEC.md §2 forbids assembling a sentence in Dart — the conjunction, the spacing and the ORDER are all the translator's, and Arabic in particular attaches و to the following word with no space.
+  ///
+  /// In en, this message translates to:
+  /// **'{head} and {last}'**
+  String listPairJoin(String head, String last);
+
+  /// SPEC.md §12: the `report.service` screen title and the document heading. German is `Serviceverlauf`, which §12 names as the wrap case for the toggle row.
+  ///
+  /// In en, this message translates to:
+  /// **'Service report'**
+  String get reportTitle;
+
+  /// Heads §12's four toggles. "In the document", not "in the report": the preview IS the document, and the wording is what tells the user the chips change what a buyer will see.
+  ///
+  /// In en, this message translates to:
+  /// **'Include in the document'**
+  String get reportIncludeHeading;
+
+  /// §12's Costs toggle, on by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Costs'**
+  String get reportToggleCosts;
+
+  /// §12's fuel-consumption summary toggle, on by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel summary'**
+  String get reportToggleFuel;
+
+  /// §12's plate-and-VIN toggle, OFF by default — "the identity fields are the buyer's to ask for, not the app's to leak into a group chat". German is `Kennzeichen und Fahrgestellnummer`, which §12 names as the two-line wrap case.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate and VIN'**
+  String get reportTogglePlateVin;
+
+  /// §12's private-notes toggle, OFF by default.
+  ///
+  /// In en, this message translates to:
+  /// **'My private notes'**
+  String get reportToggleNotes;
+
+  /// SPEC.md §12's warning under the notes toggle: notes "say things like 'cheaper than the dealer wanted'". It is shown whether or not the toggle is on, because the point is to be read BEFORE it is turned on.
+  ///
+  /// In en, this message translates to:
+  /// **'Your notes may say things you don’t want a buyer to read.'**
+  String get reportNotesWarning;
+
+  /// §12's primary action. The file goes to the OS share sheet; the app never picks a destination.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF'**
+  String get reportSharePdf;
+
+  /// §12's overflow item: the same content as plain text, "for pasting into a classifieds listing, which is how cars are actually sold on Divar, Willhaben, Leboncoin and Marketplace".
+  ///
+  /// In en, this message translates to:
+  /// **'Copy as text'**
+  String get reportCopyAsText;
+
+  /// §12's other overflow item. A4 everywhere except US, CA, MX and PH; this overrides the resolved region.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper size'**
+  String get reportPaperSize;
+
+  /// §12's no-records state. The header card still renders; only the preview is replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'No services logged yet'**
+  String get reportEmptyTitle;
+
+  /// §12's no-records body, verbatim in shape: the report "gets valuable the moment you start adding them". Not an apology — one documented cambelt change is worth printing.
+  ///
+  /// In en, this message translates to:
+  /// **'This report gets valuable the moment you start adding them.'**
+  String get reportEmptyBody;
+
+  /// Shown UNDER the disabled Share PDF button, never in a toast. SPEC.md §2: Save is never disabled without an explanation, and §12 says the reason goes under the button because "the user is already stressed".
+  ///
+  /// In en, this message translates to:
+  /// **'There are no services to put in a report yet.'**
+  String get reportShareDisabledReason;
+
+  /// §12's ownership span for a vehicle still owned. `date` is the purchase date, already formatted in the display calendar — the span reads open-ended rather than ending at today's date, because a document printed in September and read in November must not claim the span ended in September.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned since {date}'**
+  String reportOwnedSince(String date);
+
+  /// SPEC.md §12's UNREMOVABLE footer. `date` is the display-calendar date and `iso` the Gregorian one in brackets — §12 requires both: a Jalali date alone is unreadable to the buyer's insurer, an ISO date alone to the seller.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated by Odova on {date} ({iso}) from records kept by the owner. Not verified by a third party.'**
+  String reportGeneratedFooter(String date, String iso);
+
+  /// SPEC.md §12's single footnote for records whose odometer was estimated at the time. One per document, not one per row: "hiding that in a document handed to a buyer is a small lie the app has no business telling."
+  ///
+  /// In en, this message translates to:
+  /// **'~ odometer estimated at the time, not read from the car.'**
+  String get reportEstimatedFootnote;
+
+  /// Heads §12's list of tracked items with no completion. They are listed explicitly "because an absent row reads as a hidden row" — a buyer cannot tell a timing belt never done from one the seller removed.
+  ///
+  /// In en, this message translates to:
+  /// **'No record in this app'**
+  String get reportNoRecordHeading;
+
+  /// SPEC.md §12's header count — "34 services". `nText` is the count pre-shaped in the locale's numerals; gen-l10n renders a bare int in Latin digits, which is wrong in four of the six shipped locales.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} service} other{{nText} services}}'**
+  String reportServiceCount(int n, String nText);
+
+  /// SPEC.md §12's ownership duration, as the reference draws it: "8 yr 6 mo". Both parts are pre-shaped Strings for the same reason. Abbreviated because it sits at the end edge of a header row beside a distance, and the full words wrap there in German.
+  ///
+  /// In en, this message translates to:
+  /// **'{years} yr {months} mo'**
+  String reportOwnershipSpan(String years, String months);
+
+  /// SPEC.md §12's record row carries the invoice reference. It is the one field on the row a buyer can take to the workshop and verify, which is why it is labelled rather than printed bare. `ref` is the reference verbatim as typed — never digit-shaped, because it is an identifier and not a quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice {ref}'**
+  String reportInvoiceRef(String ref);
+
+  /// SPEC.md §12's header span: the odometer at purchase and the latest ENTERED reading.
+  ///
+  /// The separator is an EN DASH, not the arrow the reference draws. The reference is Chrome and falls back to a system face; the app bundles Vazirmatn and Inter and neither carries U+2192 or U+2190 — `font_coverage_test.dart` refused the arrow the moment it was put here, which is what moving it out of Dart and into an ARB was for. SPEC.md §2 forbids fetching a font, so the choice is a dash or a tofu box on a document handed to a buyer. Recorded as a deviation for EPIC-17/18: either the bundled face gains the glyph or the reference set loses the arrow.
+  ///
+  /// It is in a message rather than in a widget for a second reason too: it mirrors. An en dash between two numbers is direction-neutral, and the message is where a translator could change that if a locale needed it.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String reportOdometerSpan(String from, String to);
+
+  /// SPEC.md §12's PDF table heading. It REPEATS on every page — a reader who turns to page four otherwise sees four columns of numbers with nothing saying which is which.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get reportColumnDate;
+
+  /// §12's PDF table heading for the odometer column.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get reportColumnOdometer;
+
+  /// §12's PDF table heading. The column holds free text and takes direction from its own content — a German workshop name inside a Persian document renders LTR inside an RTL cell.
+  ///
+  /// In en, this message translates to:
+  /// **'What was done'**
+  String get reportColumnWork;
+
+  /// §12's PDF table heading for the cost column. Absent from the document entirely when the Costs toggle is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get reportColumnCost;
+
+  /// SPEC.md §12: "Page 2 of 4 in the footer." Both numbers are placeholders because the word order differs — Persian puts the total last, and a string built as '{n} / {total}' in Dart could not be reordered.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n} of {total}'**
+  String reportPageOf(String n, String total);
+
+  /// The ownership-span label in the plain-text export, where there is no room for the full sentence the screen uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned'**
+  String get reportOwnedLabel;
+
+  /// The word after the service count in the plain-text export. Not a plural key: the count beside it is already shaped by `reportServiceCount` on the screen, and the text export writes the bare number.
+  ///
+  /// In en, this message translates to:
+  /// **'services'**
+  String get reportServicesLabel;
 }
 
 class _AppLocalizationsDelegate

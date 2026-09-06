@@ -19,6 +19,7 @@ import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
 import 'package:odova/core/vehicles/vehicle_colour.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -61,7 +62,7 @@ Future<AppDatabase> _pump(
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
-  final db = AppDatabase.forTesting(NativeDatabase.memory());
+  final db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
   addTearDown(db.close);
   await insertVehicle(db, id: _golf, name: name);
 
@@ -147,7 +148,7 @@ Future<AppDatabase> _pumpHosted(
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
-  final db = AppDatabase.forTesting(NativeDatabase.memory());
+  final db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
   addTearDown(db.close);
   await insertSettings(db);
   await insertVehicle(db, id: _golf);
@@ -741,7 +742,9 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final db = AppDatabase.forTesting(
+        NativeDatabase.memory(setup: applyPragmas),
+      );
       addTearDown(db.close);
       await insertSettings(db);
 

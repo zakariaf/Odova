@@ -64,10 +64,13 @@ void main() {
       'domain', // the entities a driver logs
       'due', // when the next service is due
       'fuel', // segments, consumption, the refusals
+      'history', // the timeline's entry types, cursor and filter
       'ids', // ULIDs and the typed record ids
       'l10n', // locale resolution, numerals, dates — no formatting
       'money', // Money, Currency, allocate, MoneyTotal
       'odometer', // the cumulative fold and the monotonicity rules
+      'recompute', // what a write to the past changed, as a diff
+      'report', // the document a buyer reads, with no renderer attached
       'reminders', // the seeded catalogue a new vehicle is created with
       'rounding', // half away from zero, and SPEC.md §3's decimals table
       'time', // calendar month boundaries — no formatting, no locale
