@@ -391,9 +391,17 @@ Widget _logScreen(GoRouterState state) {
   if (type == null) {
     return RouteNotFoundScreen(location: state.uri.toString());
   }
+  // The query carries the caller's prefill. EPIC-10's four mark-done intents
+  // have been pushing `?item`, `?on` and `?odometer_m` since they were built;
+  // reading them here is what makes those pushes arrive at a filled-in form
+  // rather than an empty one.
+  final query = state.uri.queryParameters;
   return LogModalShell(
     type: type,
     entryId: state.pathParameters['entryId'],
+    prefillItemId: query['item'],
+    prefillOccurredOn: query['on'],
+    prefillOdometerMetres: int.tryParse(query['odometer_m'] ?? ''),
   );
 }
 

@@ -68,7 +68,14 @@ const Key kLogSegmentBarKey = Key('log.segmentBar');
 /// The log modal, on whichever segment it was opened.
 class LogModalShell extends ConsumerStatefulWidget {
   /// Creates the shell.
-  const LogModalShell({required this.type, super.key, this.entryId});
+  const LogModalShell({
+    required this.type,
+    super.key,
+    this.entryId,
+    this.prefillItemId,
+    this.prefillOccurredOn,
+    this.prefillOdometerMetres,
+  });
 
   /// The segment the URL named. In create mode the user may change it; in edit
   /// mode it is fixed, because an entry cannot change type.
@@ -76,6 +83,23 @@ class LogModalShell extends ConsumerStatefulWidget {
 
   /// The record being edited, or null in create mode.
   final String? entryId;
+
+  /// The item this modal was opened to mark done, from `?item`.
+  ///
+  /// §10's mark-done: the originating item arrives ticked, which is what makes
+  /// the save re-anchor a reminder rather than record an unrelated service.
+  final String? prefillItemId;
+
+  /// The date the caller asked for, from `?on`.
+  final String? prefillOccurredOn;
+
+  /// The reading the caller already knows, from `?odometer_m`.
+  ///
+  /// §10 prefills it "and selected so typing replaces it", because a user
+  /// marking an oil change done is usually not standing at the car. It arrives
+  /// WITHOUT a `~`: the estimate mark belongs to an offer, and a number already
+  /// in the field is not one.
+  final int? prefillOdometerMetres;
 
   @override
   ConsumerState<LogModalShell> createState() => _LogModalShellState();
@@ -90,6 +114,13 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// live in the notifier because they must outlive a segment switch; which one
   /// is showing need not.
   late LogType _segment = widget.type;
+
+  /// The unit the odometer field shows, from the vehicle.
+  ///
+  /// Read in `build` and in `initState` alike, so it cannot be a `ref.watch`.
+  /// A vehicle that has not loaded yet answers km, which is also what the
+  /// field defaults to.
+  DistanceUnit get _vehicleUnit => _vehicle?.distanceUnit ?? DistanceUnit.km;
 
   /// The locale these forms format and PARSE in.
   ///
@@ -171,6 +202,34 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   }
 
   bool _showProblems = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // The prefill is the CALLER's, applied once. §10 is emphatic that none of
+    // this is a default: the central `+` opens an empty form, and a field that
+    // arrived filled in from somewhere the user did not ask about gets saved
+    // unread.
+    _chosenDate = widget.prefillOccurredOn;
+    final metres = widget.prefillOdometerMetres;
+    if (metres != null) {
+      // In the FIELD's unit, ungrouped and unmarked — the same shape the
+      // estimate chip writes when it is tapped. Grouping separators would have
+      // to be parsed back out on the first keystroke.
+      _odometerController.text =
+          '${Distance(metres).inUnit(_vehicleUnit).round()}';
+    }
+    final item = widget.prefillItemId;
+    if (item != null) _pendingTickItemId = item;
+  }
+
+  /// The item `?item` named, until the chip list has loaded and it can tick.
+  ///
+  /// Held rather than applied in `initState`, because the chips come from the
+  /// due snapshot and that is a stream: at `initState` there is nothing to tick
+  /// yet, and ticking an id the vehicle does not have would put a phantom
+  /// reminder on a real service record.
+  String? _pendingTickItemId;
 
   @override
   void dispose() {
@@ -400,10 +459,29 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     final vehicle = _vehicle;
     if (vehicle == null) return const [];
     final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicle.id));
-    return serviceItemChips(
+    final chips = serviceItemChips(
       assessments: snapshot?.assessments ?? const [],
       ticked: _cost.tickedItemIds.toSet(),
     );
+
+    // The `?item` tick, applied the first time the chip it names actually
+    // exists. Ticking an id the vehicle does not have would put a phantom
+    // reminder on a real service record, so an unknown id simply never fires —
+    // which is also what makes a stale notification harmless.
+    final pending = _pendingTickItemId;
+    if (pending != null) {
+      final match = chips.where((c) => c.id == pending).firstOrNull;
+      if (match != null) {
+        _pendingTickItemId = null;
+        _cost = _cost.ticked(match.id, match.label);
+        return chips
+            .map(
+              (c) => (id: c.id, label: c.label, ticked: c.id == match.id),
+            )
+            .toList();
+      }
+    }
+    return chips;
   }
 
   /// Ticks or unticks one item.
