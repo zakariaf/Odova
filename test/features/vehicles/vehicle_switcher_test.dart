@@ -24,6 +24,7 @@ import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/due_snapshot_provider.dart';
@@ -95,7 +96,7 @@ Future<ProviderContainer> _pump(
   //
   // The READ still comes from the override: `settingsProvider` is a drift
   // stream and drift streams do not deliver under `testWidgets`.
-  final db = AppDatabase.forTesting(NativeDatabase.memory());
+  final db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
   addTearDown(db.close);
   await insertSettings(db, activeVehicleId: (active ?? _golf).toString());
   final garage =

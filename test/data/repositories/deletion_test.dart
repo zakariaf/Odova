@@ -15,6 +15,7 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/deletion.dart';
 import 'package:odova/data/repositories/log_repositories.dart';
@@ -171,7 +172,7 @@ void main() {
           .read<int>('n');
 
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
     vehicles = VehicleRepository(db, testUlids());
     services = ServiceRepository(db, testIds());
     fillUps = FillUpRepository(db, testIds());

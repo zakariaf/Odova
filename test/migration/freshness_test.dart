@@ -20,6 +20,7 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/schema_version.dart';
 
 /// The version numbers `drift_schemas/odova/` actually holds.
@@ -53,14 +54,18 @@ void main() {
 
   test('AppDatabase.schemaVersion equals kLatestSchemaVersion', () async {
     // The two drifting apart means no migration runs on a user's device.
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = AppDatabase.forTesting(
+      NativeDatabase.memory(setup: applyPragmas),
+    );
     addTearDown(db.close);
 
     expect(db.schemaVersion, kLatestSchemaVersion);
   });
 
   test('a fresh database opens at the current version', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = AppDatabase.forTesting(
+      NativeDatabase.memory(setup: applyPragmas),
+    );
     addTearDown(db.close);
 
     final row = await db.customSelect('PRAGMA user_version;').getSingle();
@@ -71,7 +76,9 @@ void main() {
     // The baseline every future migration is measured against. Asserting it
     // at v1, when the ladder is empty, is what makes the same two assertions
     // meaningful after the first bump.
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final db = AppDatabase.forTesting(
+      NativeDatabase.memory(setup: applyPragmas),
+    );
     addTearDown(db.close);
 
     final integrity = await db

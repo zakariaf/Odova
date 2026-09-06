@@ -23,6 +23,7 @@ import 'package:odova/core/history/history_cursor.dart';
 import 'package:odova/core/history/history_entry.dart';
 import 'package:odova/core/history/history_filter.dart';
 import 'package:odova/core/history/month_index.dart';
+import 'package:odova/core/history/search_normalise.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
@@ -251,7 +252,8 @@ class HistoryRepository {
       "CASE WHEN quantity_ml IS NOT NULL THEN 'ml' "
       "WHEN quantity_g IS NOT NULL THEN 'g' "
       "WHEN energy_wh IS NOT NULL THEN 'wh' END AS quantity_form, "
-      'station AS label, grade AS label2, is_full_tank, chain_broken '
+      'station AS label, grade AS label2, is_full_tank, chain_broken, '
+      "${_searchOver(const ['station', 'grade', 'notes'])} AS search "
       'FROM fill_ups WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
     );
     add(
@@ -263,7 +265,14 @@ class HistoryRepository {
       'SUM(l.amount_minor) AS minor, MIN(l.currency) AS currency, '
       'r.odometer_m, NULL AS quantity, NULL AS quantity_form, '
       'MIN(l.label) AS label, r.vendor AS label2, 1 AS is_full_tank, '
-      '0 AS chain_broken '
+      '0 AS chain_broken, '
+      '${_searchOver(const [
+        'r.vendor',
+        'r.invoice_ref',
+        'r.notes',
+        'l.label',
+        'l.part_number',
+      ])} AS search '
       'FROM service_records r JOIN service_lines l '
       'ON l.service_record_id = r.id '
       'WHERE r.vehicle_id = ? AND r.deleted_at_utc_ms IS NULL '
@@ -274,7 +283,8 @@ class HistoryRepository {
       "SELECT 'expense' AS kind, id, occurred_on, created_at_utc_ms, "
       'amount_minor AS minor, currency, odometer_m, NULL AS quantity, '
       'NULL AS quantity_form, COALESCE(label, category) AS label, '
-      'vendor AS label2, 1 AS is_full_tank, 0 AS chain_broken '
+      'vendor AS label2, 1 AS is_full_tank, 0 AS chain_broken, '
+      "${_searchOver(const ['label', 'vendor', 'notes'])} AS search "
       'FROM expenses WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
     );
     add(
@@ -285,7 +295,8 @@ class HistoryRepository {
       'created_at_utc_ms, NULL AS minor, NULL AS currency, '
       'start_odometer_m AS odometer_m, NULL AS quantity, '
       'NULL AS quantity_form, title AS label, purpose AS label2, '
-      '1 AS is_full_tank, 0 AS chain_broken '
+      '1 AS is_full_tank, 0 AS chain_broken, '
+      "${_searchOver(const ['title', 'notes'])} AS search "
       'FROM trips WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
     );
     add(
@@ -295,7 +306,7 @@ class HistoryRepository {
       "SELECT 'odometer' AS kind, id, occurred_on, created_at_utc_ms, "
       'NULL AS minor, NULL AS currency, odometer_m, NULL AS quantity, '
       'NULL AS quantity_form, NULL AS label, NULL AS label2, '
-      '1 AS is_full_tank, 0 AS chain_broken '
+      "1 AS is_full_tank, 0 AS chain_broken, '' AS search "
       'FROM odometer_readings WHERE vehicle_id = ? '
       "AND source = 'manual' AND deleted_at_utc_ms IS NULL",
     );
@@ -308,7 +319,7 @@ class HistoryRepository {
       'c.created_at_utc_ms, NULL AS minor, NULL AS currency, '
       'c.new_m AS odometer_m, NULL AS quantity, NULL AS quantity_form, '
       'c.reason AS label, NULL AS label2, 1 AS is_full_tank, '
-      '0 AS chain_broken '
+      "0 AS chain_broken, '' AS search "
       'FROM odometer_corrections c '
       'JOIN odometer_readings r ON r.id = c.from_reading_id '
       'WHERE c.vehicle_id = ? AND c.deleted_at_utc_ms IS NULL',
@@ -322,6 +333,20 @@ class HistoryRepository {
       variables
         ..add(Variable<String>('$year-01-01'))
         ..add(Variable<String>('$year-12-31'));
+    }
+    // §11's search: a normalised substring over the row's own text fields.
+    // Applied to the SUBQUERY's `search` column so every arm contributes its
+    // own fields — a fill-up matches on station and grade, a service on vendor
+    // and line label, and neither matches on a category enum name or a vehicle
+    // name, which §11 excludes by not listing them.
+    if (filter.query.trim().length >= kSearchMinimumLength) {
+      // Both sides normalised, and the column side is spelled out in SQL
+      // rather than stored: §11 refuses a `search_blob` because "a stale index
+      // surviving a Replace import would be a nasty bug."
+      where.add('search LIKE ?');
+      variables.add(
+        Variable<String>('%${normaliseForSearch(filter.query)}%'),
+      );
     }
     if (after != null) {
       // The tuple comparison, spelled out. SQLite supports row values, but
@@ -367,6 +392,25 @@ class HistoryRepository {
           chainBroken: (row.readNullable<int>('chain_broken') ?? 0) == 1,
         ),
     ];
+  }
+
+  /// §11's searchable fields for one arm, normalised and joined.
+  ///
+  /// Joined with a space so a query cannot match across a boundary — without
+  /// it, `shellaral` would find a row whose station is Shell and whose grade
+  /// is Aral, which is a match the user cannot explain.
+  ///
+  /// `COALESCE` to empty, because a null column makes the whole concatenation
+  /// null in SQLite and one missing note would make a row unsearchable on
+  /// every other field it has.
+  static String _searchOver(List<String> columns) {
+    // ONE call per column, to the function `applyPragmas` registers. The
+    // fold itself is `normaliseForSearch`, so there is no second
+    // implementation to drift from the Dart side.
+    final parts = columns
+        .map((c) => "odova_search_fold(COALESCE($c, ''))")
+        .join(" || ' ' || ");
+    return '($parts)';
   }
 
   static HistoryEntryKind _kindOf(String wire) =>

@@ -24,6 +24,7 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/features/vehicles/vehicles_notifier.dart';
@@ -42,7 +43,7 @@ void main() {
   late ProviderContainer container;
 
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
     container = ProviderContainer(
       overrides: [
         appDatabaseProvider.overrideWithValue(db),

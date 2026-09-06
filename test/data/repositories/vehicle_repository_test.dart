@@ -46,7 +46,7 @@ void main() {
   late VehicleRepository repository;
 
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
     repository = VehicleRepository(db, testUlids());
   });
   tearDown(() => db.close());

@@ -19,6 +19,7 @@ import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/repositories/log_repositories.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
 
@@ -33,7 +34,7 @@ void main() {
   late FillUpRepository fillUps;
 
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
     fillUps = FillUpRepository(db, testIds());
     await VehicleRepository(db, testUlids()).save(
       Vehicle(

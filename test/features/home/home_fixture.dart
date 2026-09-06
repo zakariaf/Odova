@@ -43,6 +43,7 @@ import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/due_snapshot_provider.dart';
@@ -258,7 +259,7 @@ FillUp homeFillUp({
 /// row rather than against a recording fake that only proves a method was
 /// called.
 AppDatabase homeDatabase() {
-  final db = AppDatabase.forTesting(NativeDatabase.memory());
+  final db = AppDatabase.forTesting(NativeDatabase.memory(setup: applyPragmas));
   addTearDown(db.close);
   return db;
 }
