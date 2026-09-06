@@ -5,8 +5,10 @@
 // segment body knows none of it, which is the whole point: four forms that
 // behave differently under the same chrome read as four apps.
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/features/logging/application/log_modal_notifier.dart';
 import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
@@ -158,6 +160,50 @@ void main() {
         reason: '${type.wire} pinned Save is enabled on an EMPTY form',
       );
     }
+  });
+
+  /// Opens the modal the way the app does: over Home, from the tab bar's `+`.
+  ///
+  /// Not as the initial location — popping that empties the router's stack and
+  /// the assertion you get is about go_router, not about the modal.
+  Future<ProviderContainer> pumpOverHome(WidgetTester tester) async {
+    final container = await pumpShell(
+      tester,
+      Routes.home,
+      settings: homeSettings(golfId),
+      vehicles: [homeVehicle(golfId, 'The Golf')],
+    );
+    await tester.tap(find.byType(CalmTabFab));
+    await tester.pumpAndSettle();
+    return container;
+  }
+
+  testWidgets('a clean dismiss is silent', (tester) async {
+    // §10: "Clean → dismiss silently." A discard dialog for nothing is a
+    // dialog that teaches people to dismiss dialogs.
+    await pumpOverHome(tester);
+    expect(find.byType(LogModalShell), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LogModalShell), findsNothing);
+  });
+
+  testWidgets('a dirty dismiss opens dialog.discard', (tester) async {
+    // §10: "Dirty (any field differs from its prefill) → dialog.discard, which
+    // drops EVERY segment's draft." The draft here is on a segment that is not
+    // even showing, which is the half a guard reading only the visible body
+    // would miss.
+    final container = await pumpOverHome(tester);
+    container.read(logModalProvider.notifier).setNote(LogType.expense, 'x');
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LogModalShell), findsOneWidget);
+    expect(find.text(_l10n(tester).discardKeepEditing), findsOneWidget);
   });
 
   testWidgets('the modal covers the tab bar on every segment', (tester) async {

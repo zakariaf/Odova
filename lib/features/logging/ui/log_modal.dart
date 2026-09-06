@@ -6,10 +6,13 @@
 // four — the app bar, the segment bar, the pinned Save, the discard guard — and
 // a segment body knows none of it. Four forms that each decided their own Save
 // would read as four apps.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/features/logging/application/log_modal_notifier.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
@@ -33,6 +36,13 @@ class LogModalShell extends ConsumerStatefulWidget {
 }
 
 class _LogModalShellState extends ConsumerState<LogModalShell> {
+  /// The segment on screen.
+  ///
+  /// Widget state, seeded from the URL — a deep link and the tab bar's `+` both
+  /// name the segment in the path, and §10's "opens on Fill-up whatever the
+  /// caller" is delivered by making that the path the `+` builds. The DRAFTS
+  /// live in the notifier because they must outlive a segment switch; which one
+  /// is showing need not.
   late LogType _segment = widget.type;
 
   /// Whether this modal edits an existing row.
@@ -45,6 +55,11 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // WATCHED, not read. The provider is `autoDispose`, so without a listener
+    // it is created and disposed on the spot and every draft goes with it —
+    // which is the opposite of §10's "per-segment drafts live in memory for
+    // the life of the modal". The subscription IS that lifetime.
+    ref.watch(logModalProvider);
 
     return DirtyModalGuard(
       isDirty: _isDirty,
@@ -132,16 +147,28 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   };
 
   /// Whether anything would be lost by leaving.
-  bool _isDirty() => false;
+  ///
+  /// Asked of the MODAL, not of the visible body: a user who typed into Expense
+  /// and switched to Fill-up still has something to lose, and a guard that
+  /// asked only the segment on screen would let it go silently.
+  bool _isDirty() => ref.read(logModalProvider).isDirty;
 
   /// Drops all four drafts.
   ///
   /// ONE callback, because §10's Discard "drops EVERY segment's draft, not only
   /// the visible one" — a user who mis-tapped the segment bar twice and then
   /// discarded has said one thing, not four.
-  void _discardEverySegment() {}
+  void _discardEverySegment() => ref.read(logModalProvider.notifier).discard();
 
-  void _dismiss() => DirtyModalGuard.of(context).requestDismiss();
+  /// The ✕, routed through the guard rather than around it.
+  ///
+  /// `maybePop` and not `DirtyModalGuard.of(context).requestDismiss()`: the
+  /// guard is built INSIDE this `build`, so this State's context sits above it
+  /// and `of` would not find it without a `Builder` in between. The guard
+  /// mounts a `PopScope(canPop: false)`, so a `maybePop` from anywhere in the
+  /// route reaches it — which is how `vehicle.edit` and `reminders.edit`
+  /// already do it, and one mechanism for three modals is better than two.
+  void _dismiss() => unawaited(Navigator.of(context).maybePop());
 
   void _save() {}
 }
