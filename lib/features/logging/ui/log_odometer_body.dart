@@ -10,13 +10,12 @@
 // widget's, which is what lets the same pad serve a Persian keypad without ever
 // parsing a Persian numeral back out of its own output.
 import 'package:flutter/material.dart';
-import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/features/logging/ui/odometer_field.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
-import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
@@ -157,17 +156,12 @@ class LogOdometerBody extends StatelessWidget {
         : Distance.fromKm(n);
     if (entered.metres <= last.metres) return '';
 
-    return isolate(
-      l10n.logOdometerDelta(
-        withUnitUnisolated(
-          (entered - last).inUnit(unit),
-          distanceUnitLabel(l10n, unit),
-          formatsTag,
-          numerals: CalmNumerals.auto,
-          decimalDigits: 0,
-        ),
-        formatLongDate(on, formatsTag),
-      ),
+    return odometerDeltaLine(
+      l10n,
+      delta: entered - last,
+      sinceOccurredOn: on,
+      unit: unit,
+      formatsTag: formatsTag,
     );
   }
 }

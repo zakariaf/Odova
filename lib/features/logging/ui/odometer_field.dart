@@ -15,6 +15,7 @@ import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/odometer/monotonicity.dart';
+import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/features/logging/domain/decimal_input.dart';
@@ -41,6 +42,33 @@ const Key kOdometerEstimateChipKey = Key('log.odometer.estimateChip');
 /// user a number it would only hedge on a card". A card can wear a `~`; a field
 /// the user is about to save cannot.
 const int kOdometerEstimateMaxStaleDays = 60;
+
+/// `+432 km since 12 Mar` — one isolate-wrapped atom.
+///
+/// Top-level and shared, because `log.odometer` draws this line too and built
+/// it a second time: same message, same formatting, a hand-rolled
+/// `entered > last` rule in place of the engine's, and its own isolate
+/// wrapping. The isolate is the part that matters — it is what keeps the sign
+/// attached to the number in RTL, and it is exactly the kind of thing that
+/// gets fixed in one copy.
+String odometerDeltaLine(
+  AppLocalizations l10n, {
+  required Distance delta,
+  required String sinceOccurredOn,
+  required DistanceUnit unit,
+  required String formatsTag,
+}) => isolate(
+  l10n.logOdometerDelta(
+    withUnitUnisolated(
+      delta.inUnit(unit),
+      distanceUnitLabel(l10n, unit),
+      formatsTag,
+      numerals: CalmNumerals.auto,
+      decimalDigits: 0,
+    ),
+    formatLongDate(sinceOccurredOn, formatsTag),
+  ),
+);
 
 /// The shared odometer field.
 class OdometerField extends StatelessWidget {
@@ -106,7 +134,14 @@ class OdometerField extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final space = CalmSpace.of(context);
 
-    final entered = _entered();
+    // Computed ONCE per build and handed down. `groupingSeparatorFor` is not
+    // a lookup — it formats a number, folds its digits and compiles a RegExp —
+    // and `_lastBefore` filters and sorts the whole reading history. Between
+    // them they ran up to six times per frame, on every keystroke, for one
+    // answer that cannot change within a build.
+    final separator = groupingSeparatorFor(formatsTag);
+    final last = _lastBefore();
+    final entered = _entered(separator);
     final check = entered == null
         ? null
         : checkOdometerField(
@@ -132,7 +167,7 @@ class OdometerField extends StatelessWidget {
           inputFormatters: [
             DecimalFieldFormatter(
               decimals: 0,
-              groupingSeparator: groupingSeparatorFor(formatsTag),
+              groupingSeparator: separator,
             ),
           ],
           affix: _UnitChip(
@@ -143,8 +178,8 @@ class OdometerField extends StatelessWidget {
               unit == DistanceUnit.km ? DistanceUnit.mi : DistanceUnit.km,
             ),
           ),
-          errorText: _message(l10n, check),
-          hint: _helper(l10n, check),
+          errorText: _message(l10n, check, last, separator),
+          hint: _helper(l10n, last),
           onChanged: onChanged,
         ),
         if (_offersEstimate)
@@ -156,7 +191,7 @@ class OdometerField extends StatelessWidget {
           ),
         if (check case OdometerFieldOk(isNewEarliest: true))
           Text(l10n.logOdometerOlderThanAnything),
-        if (_delta(l10n, check) case final delta?) Text(delta),
+        if (_delta(l10n, check, last) case final delta?) Text(delta),
       ],
     );
   }
@@ -166,17 +201,23 @@ class OdometerField extends StatelessWidget {
       estimate != null && estimateStaleDays <= kOdometerEstimateMaxStaleDays;
 
   /// The typed value as a distance, or null when it is not one yet.
-  Distance? _entered() {
-    final read = parseDecimal(
-      controller.text,
-      groupingSeparator: groupingSeparatorFor(formatsTag),
-    );
-    if (read is! DecimalOk) return null;
-    final whole = read.value.round();
-    if (whole < 0) return null;
-    return unit == DistanceUnit.mi
-        ? Distance.fromMiles(whole)
-        : Distance.fromKm(whole);
+  ///
+  /// Through `OdometerEntry`, which is the app's one answer to "what does this
+  /// odometer field say". The version this replaced re-derived the parse and
+  /// dropped its overflow guard: `double.round()` CLAMPS to `int` max rather
+  /// than throwing and `Distance.fromKm` then multiplies by a thousand in
+  /// wrapping 64-bit arithmetic, so `18446744073709551` came back as 384
+  /// metres — and the whole monotonicity check ran against that, announcing
+  /// the largest number the user has ever typed as the vehicle's earliest
+  /// reading. `DecimalFieldFormatter(decimals: 0)` accepts arbitrarily many
+  /// digits, so the field is reachable.
+  Distance? _entered(String separator) {
+    final metres = OdometerEntry(
+      unit: unit,
+      groupingSeparator: separator,
+      text: controller.text,
+    ).metres;
+    return metres == null ? null : Distance(metres);
   }
 
   void _fill(Distance value) {
@@ -188,8 +229,7 @@ class OdometerField extends StatelessWidget {
   }
 
   /// The helper line: the last entered reading, and its age when it is stale.
-  String? _helper(AppLocalizations l10n, OdometerFieldCheck? check) {
-    final last = _lastBefore();
+  String? _helper(AppLocalizations l10n, ReadingPoint? last) {
     if (last == null) return null;
 
     final distance = formatWithUnit(
@@ -227,24 +267,20 @@ class OdometerField extends StatelessWidget {
     return earlier.last;
   }
 
-  /// `+432 km since 12 Mar` — one isolate-wrapped atom, so the sign never
-  /// detaches from the number.
-  String? _delta(AppLocalizations l10n, OdometerFieldCheck? check) {
+  String? _delta(
+    AppLocalizations l10n,
+    OdometerFieldCheck? check,
+    ReadingPoint? last,
+  ) {
     if (check is! OdometerFieldOk) return null;
     final since = check.sinceLast;
-    final last = _lastBefore();
     if (since == null || last == null) return null;
-    return isolate(
-      l10n.logOdometerDelta(
-        withUnitUnisolated(
-          since.inUnit(unit),
-          distanceUnitLabel(l10n, unit),
-          formatsTag,
-          numerals: CalmNumerals.auto,
-          decimalDigits: 0,
-        ),
-        formatLongDate(last.occurredOn, formatsTag),
-      ),
+    return odometerDeltaLine(
+      l10n,
+      delta: since,
+      sinceOccurredOn: last.occurredOn,
+      unit: unit,
+      formatsTag: formatsTag,
     );
   }
 
@@ -253,15 +289,20 @@ class OdometerField extends StatelessWidget {
   /// A soft warning goes HERE, in amber, and saves anyway. A below-last value
   /// does NOT: §10 gives it the three-way sheet, and a message under the field
   /// would be the app asking the user to guess which of the three it meant.
-  String? _message(AppLocalizations l10n, OdometerFieldCheck? check) {
+  String? _message(
+    AppLocalizations l10n,
+    OdometerFieldCheck? check,
+    ReadingPoint? last,
+    String separator,
+  ) {
     if (controller.text.trim().isEmpty) return emptyMessage;
     if (check is! OdometerFieldOk) return null;
     if (check.warnings.isEmpty) return null;
 
     return switch (check.warnings.first) {
       OdometerWarning.impliedRateHigh => l10n.logOdometerRateWarning(
-        _ratePerDay(l10n, check),
-        formatLongDate(_lastBefore()?.occurredOn ?? occurredOn, formatsTag),
+        _ratePerDay(l10n, check, last),
+        formatLongDate(last?.occurredOn ?? occurredOn, formatsTag),
       ),
       OdometerWarning.jumpVeryLarge => l10n.logOdometerJumpWarning(
         withUnitUnisolated(
@@ -274,7 +315,7 @@ class OdometerField extends StatelessWidget {
       ),
       OdometerWarning.probableUnitMixUp => l10n.logOdometerUnitMixUpWarning(
         formatWithUnit(
-          (_entered() ?? Distance.zero).inUnit(DistanceUnit.mi),
+          (_entered(separator) ?? Distance.zero).inUnit(DistanceUnit.mi),
           distanceUnitLabel(l10n, DistanceUnit.mi),
           formatsTag,
           numerals: CalmNumerals.auto,
@@ -284,8 +325,11 @@ class OdometerField extends StatelessWidget {
     };
   }
 
-  String _ratePerDay(AppLocalizations l10n, OdometerFieldOk check) {
-    final last = _lastBefore();
+  String _ratePerDay(
+    AppLocalizations l10n,
+    OdometerFieldOk check,
+    ReadingPoint? last,
+  ) {
     final since = check.sinceLast;
     if (last == null || since == null) return '';
     final days = _daysBetween(last.occurredOn, occurredOn);

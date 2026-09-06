@@ -204,4 +204,34 @@ void main() {
 
     expect(asked, DistanceUnit.mi);
   });
+
+  testWidgets('a reading too large to convert is not read as a small one', (
+    tester,
+  ) async {
+    // `double.round()` CLAMPS to int max rather than throwing, and
+    // `Distance.fromKm` then multiplies by a thousand in wrapping 64-bit
+    // arithmetic — so this came back as 384 metres. The whole monotonicity
+    // check then ran against 384 m: a brand-new car, sitting BELOW a history
+    // of real readings, which offers the user the below-last correction sheet
+    // for the largest number they have ever typed.
+    //
+    // `OdometerEntry.metres` already refuses this and says so at length. The
+    // field parses through it now instead of re-deriving the parse without
+    // the guard.
+    await _pump(
+      tester,
+      // Dated AFTER this entry, so a readable value here WOULD be the
+      // vehicle's new earliest and would say so.
+      existing: [_reading('2026-12-01', 187000)],
+      text: '18446744073709551',
+    );
+
+    expect(
+      find.text(_l10n(tester).logOdometerOlderThanAnything),
+      findsNothing,
+      reason:
+          'a number the app cannot convert is not a reading at all, so it is '
+          'not the vehicle earliest either',
+    );
+  });
 }
