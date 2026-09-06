@@ -200,6 +200,34 @@
   "@bandDeleteFillUp": {
     "description": "The destructive row at the BOTTOM of log.fillup in edit mode. \u00a711: Delete \"sits at the bottom of the form, destructive-styled, never in the app bar where Save is.\""
   },
+  "recomputeFiguresRecalculated": "{n, plural, one{{nText} later fuel figure recalculated} other{{nText} later fuel figures recalculated}}",
+  "@recomputeFiguresRecalculated": {
+    "description": "\u00a711's snackbar second half, verbatim in shape: \"14 later fuel figures recalculated\". The count comes from the recompute DIFF and never from what was edited \u2014 a message that counted the rows the user touched would say this for an edit that changed a vendor name. `nText` is a second placeholder for the same number because {n} selects the CLDR category and must be an int, and gen-l10n renders a bare int in Latin digits.",
+    "placeholders": {
+      "n": {"type": "int", "example": "14"},
+      "nText": {"type": "String", "example": "14"}
+    }
+  },
+  "recomputeSaved": "Saved",
+  "@recomputeSaved": {
+    "description": "\u00a711's last snackbar row: shown when NOTHING derived changed. Editing a vendor name must not claim to have recalculated anything."
+  },
+  "recomputeFillUpUpdated": "Fill-up updated",
+  "@recomputeFillUpUpdated": {
+    "description": "The first half of \u00a711's fill-up snackbar. The second half \u2014 how many figures moved \u2014 is appended only when the diff says some did."
+  },
+  "recomputeServiceUpdated": "Service updated",
+  "@recomputeServiceUpdated": {
+    "description": "As recomputeFillUpUpdated, for a service record."
+  },
+  "recomputeExpenseUpdated": "Expense updated",
+  "@recomputeExpenseUpdated": {
+    "description": "\u00a711's expense row, which has no second half: an expense participates in no consumption figure."
+  },
+  "recomputeOdometerUpdated": "Reading updated",
+  "@recomputeOdometerUpdated": {
+    "description": "As recomputeFillUpUpdated, for a standalone reading."
+  },
   "historyReport": "Report",
   "@historyReport": {
     "description": "\u00a711's app-bar action opening report.service. A NOUN, because it names a document rather than an act \u2014 the report is a thing handed to a buyer."

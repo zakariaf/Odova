@@ -162,6 +162,32 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get bandDeleteFillUp => 'ئەم سووتەمەنییە بسڕەوە';
 
   @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ژمارەی خەرجکردنی دواتر دووبارە حیسابکرانەوە',
+      one: '$nText ژمارەی خەرجکردنی دواتر دووبارە حیسابکرایەوە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'پاشەکەوت کرا';
+
+  @override
+  String get recomputeFillUpUpdated => 'سووتەمەنی نوێ کرایەوە';
+
+  @override
+  String get recomputeServiceUpdated => 'سەرڤیس نوێ کرایەوە';
+
+  @override
+  String get recomputeExpenseUpdated => 'خەرجی نوێ کرایەوە';
+
+  @override
+  String get recomputeOdometerUpdated => 'خوێندنەوە نوێ کرایەوە';
+
+  @override
   String get historyReport => 'ڕاپۆرت';
 
   @override

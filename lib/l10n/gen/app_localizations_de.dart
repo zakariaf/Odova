@@ -163,6 +163,32 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bandDeleteFillUp => 'Diesen Tankvorgang löschen';
 
   @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText spätere Verbrauchswerte neu berechnet',
+      one: '$nText späterer Verbrauchswert neu berechnet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'Gespeichert';
+
+  @override
+  String get recomputeFillUpUpdated => 'Tankvorgang aktualisiert';
+
+  @override
+  String get recomputeServiceUpdated => 'Service aktualisiert';
+
+  @override
+  String get recomputeExpenseUpdated => 'Ausgabe aktualisiert';
+
+  @override
+  String get recomputeOdometerUpdated => 'Ablesung aktualisiert';
+
+  @override
   String get historyReport => 'Bericht';
 
   @override

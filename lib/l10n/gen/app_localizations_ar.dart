@@ -185,6 +185,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bandDeleteFillUp => 'حذف هذه التعبئة';
 
   @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText رقم استهلاك أُعيد حسابه',
+      many: '$nText رقمًا من أرقام الاستهلاك أُعيد حسابه',
+      few: '$nText أرقام استهلاك أُعيد حسابها',
+      two: 'رقما استهلاك أُعيد حسابهما',
+      one: 'رقم استهلاك واحد أُعيد حسابه',
+      zero: '$nText رقم استهلاك أُعيد حسابه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'تم الحفظ';
+
+  @override
+  String get recomputeFillUpUpdated => 'تم تحديث التعبئة';
+
+  @override
+  String get recomputeServiceUpdated => 'تم تحديث الصيانة';
+
+  @override
+  String get recomputeExpenseUpdated => 'تم تحديث المصروف';
+
+  @override
+  String get recomputeOdometerUpdated => 'تم تحديث القراءة';
+
+  @override
   String get historyReport => 'تقرير';
 
   @override

@@ -169,6 +169,33 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bandDeleteFillUp => 'Supprimer ce plein';
 
   @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText valeurs de consommation recalculées',
+      many: '$nText valeurs de consommation recalculées',
+      one: '$nText valeur de consommation recalculée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'Enregistré';
+
+  @override
+  String get recomputeFillUpUpdated => 'Plein mis à jour';
+
+  @override
+  String get recomputeServiceUpdated => 'Entretien mis à jour';
+
+  @override
+  String get recomputeExpenseUpdated => 'Dépense mise à jour';
+
+  @override
+  String get recomputeOdometerUpdated => 'Relevé mis à jour';
+
+  @override
   String get historyReport => 'Rapport';
 
   @override

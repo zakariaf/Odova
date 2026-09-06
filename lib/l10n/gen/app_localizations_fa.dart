@@ -162,6 +162,32 @@ class AppLocalizationsFa extends AppLocalizations {
   String get bandDeleteFillUp => 'حذف این سوخت‌گیری';
 
   @override
+  String recomputeFiguresRecalculated(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText عدد مصرف بعدی دوباره محاسبه شد',
+      one: '$nText عدد مصرف بعدی دوباره محاسبه شد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recomputeSaved => 'ذخیره شد';
+
+  @override
+  String get recomputeFillUpUpdated => 'سوخت‌گیری به‌روزرسانی شد';
+
+  @override
+  String get recomputeServiceUpdated => 'سرویس به‌روزرسانی شد';
+
+  @override
+  String get recomputeExpenseUpdated => 'هزینه به‌روزرسانی شد';
+
+  @override
+  String get recomputeOdometerUpdated => 'ثبت کیلومتر به‌روزرسانی شد';
+
+  @override
   String get historyReport => 'گزارش';
 
   @override

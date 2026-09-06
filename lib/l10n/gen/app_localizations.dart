@@ -286,6 +286,42 @@ abstract class AppLocalizations {
   /// **'Delete this fill-up'**
   String get bandDeleteFillUp;
 
+  /// §11's snackbar second half, verbatim in shape: "14 later fuel figures recalculated". The count comes from the recompute DIFF and never from what was edited — a message that counted the rows the user touched would say this for an edit that changed a vendor name. `nText` is a second placeholder for the same number because {n} selects the CLDR category and must be an int, and gen-l10n renders a bare int in Latin digits.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} later fuel figure recalculated} other{{nText} later fuel figures recalculated}}'**
+  String recomputeFiguresRecalculated(int n, String nText);
+
+  /// §11's last snackbar row: shown when NOTHING derived changed. Editing a vendor name must not claim to have recalculated anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get recomputeSaved;
+
+  /// The first half of §11's fill-up snackbar. The second half — how many figures moved — is appended only when the diff says some did.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up updated'**
+  String get recomputeFillUpUpdated;
+
+  /// As recomputeFillUpUpdated, for a service record.
+  ///
+  /// In en, this message translates to:
+  /// **'Service updated'**
+  String get recomputeServiceUpdated;
+
+  /// §11's expense row, which has no second half: an expense participates in no consumption figure.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense updated'**
+  String get recomputeExpenseUpdated;
+
+  /// As recomputeFillUpUpdated, for a standalone reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading updated'**
+  String get recomputeOdometerUpdated;
+
   /// §11's app-bar action opening report.service. A NOUN, because it names a document rather than an act — the report is a thing handed to a buyer.
   ///
   /// In en, this message translates to:
