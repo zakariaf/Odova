@@ -1227,4 +1227,78 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reminderNoticeAheadDays => 'Prévenez-moi à l’avance de — jours';
+
+  @override
+  String get logSegmentFillUp => 'Plein';
+
+  @override
+  String get logSegmentService => 'Entretien';
+
+  @override
+  String get logSegmentExpense => 'Dépense';
+
+  @override
+  String get logSegmentOdometer => 'Compteur';
+
+  @override
+  String get logEditFillUpTitle => 'Modifier le plein';
+
+  @override
+  String get logEditServiceTitle => 'Modifier l’entretien';
+
+  @override
+  String get logEditExpenseTitle => 'Modifier la dépense';
+
+  @override
+  String get logEditOdometerTitle => 'Modifier le relevé';
+
+  @override
+  String get logSaveFillUp => 'Enregistrer le plein';
+
+  @override
+  String get logSaveService => 'Enregistrer l’entretien';
+
+  @override
+  String get logSaveExpense => 'Enregistrer la dépense';
+
+  @override
+  String get logSaveOdometer => 'Enregistrer le relevé';
+
+  @override
+  String get logDeleteFillUp => 'Supprimer ce plein';
+
+  @override
+  String get logDeleteService => 'Supprimer cet entretien';
+
+  @override
+  String get logDeleteExpense => 'Supprimer cette dépense';
+
+  @override
+  String get logDeleteOdometer => 'Supprimer ce relevé';
+
+  @override
+  String get logDiscardSummary => 'ce que vous avez saisi';
+
+  @override
+  String get logDateFutureError => 'Choisissez aujourd’hui ou un jour passé.';
+
+  @override
+  String get logOdometerRequiredError => 'Saisissez le relevé du compteur.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'Ce nombre n’est pas clair. Essayez $example.';
+  }
+
+  @override
+  String get logTitleFillUp => 'Plein';
+
+  @override
+  String get logTitleService => 'Entretien';
+
+  @override
+  String get logTitleExpense => 'Dépense';
+
+  @override
+  String get logTitleOdometer => 'Compteur';
 }

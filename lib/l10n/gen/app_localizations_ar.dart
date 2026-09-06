@@ -1288,4 +1288,78 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reminderNoticeAheadDays => 'أخبرني قبل هذا القدر — أيام';
+
+  @override
+  String get logSegmentFillUp => 'التعبئة';
+
+  @override
+  String get logSegmentService => 'الصيانة';
+
+  @override
+  String get logSegmentExpense => 'التكلفة';
+
+  @override
+  String get logSegmentOdometer => 'العدّاد';
+
+  @override
+  String get logEditFillUpTitle => 'تعديل التعبئة';
+
+  @override
+  String get logEditServiceTitle => 'تعديل الصيانة';
+
+  @override
+  String get logEditExpenseTitle => 'تعديل التكلفة';
+
+  @override
+  String get logEditOdometerTitle => 'تعديل القراءة';
+
+  @override
+  String get logSaveFillUp => 'حفظ التعبئة';
+
+  @override
+  String get logSaveService => 'حفظ الصيانة';
+
+  @override
+  String get logSaveExpense => 'حفظ التكلفة';
+
+  @override
+  String get logSaveOdometer => 'حفظ القراءة';
+
+  @override
+  String get logDeleteFillUp => 'حذف هذه التعبئة';
+
+  @override
+  String get logDeleteService => 'حذف سجل الصيانة هذا';
+
+  @override
+  String get logDeleteExpense => 'حذف هذه التكلفة';
+
+  @override
+  String get logDeleteOdometer => 'حذف هذه القراءة';
+
+  @override
+  String get logDiscardSummary => 'ما كتبته';
+
+  @override
+  String get logDateFutureError => 'اختر اليوم أو يومًا مضى.';
+
+  @override
+  String get logOdometerRequiredError => 'أدخل قراءة العدّاد.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'هذا الرقم غير واضح. جرّب $example.';
+  }
+
+  @override
+  String get logTitleFillUp => 'التعبئة';
+
+  @override
+  String get logTitleService => 'الصيانة';
+
+  @override
+  String get logTitleExpense => 'التكلفة';
+
+  @override
+  String get logTitleOdometer => 'العدّاد';
 }

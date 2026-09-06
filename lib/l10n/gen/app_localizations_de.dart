@@ -1200,4 +1200,79 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get reminderNoticeAheadDays =>
       'Wie viele Tage im Voraus soll ich Bescheid sagen?';
+
+  @override
+  String get logSegmentFillUp => 'Tanken';
+
+  @override
+  String get logSegmentService => 'Service';
+
+  @override
+  String get logSegmentExpense => 'Ausgabe';
+
+  @override
+  String get logSegmentOdometer => 'Km-Stand';
+
+  @override
+  String get logEditFillUpTitle => 'Tankfüllung bearbeiten';
+
+  @override
+  String get logEditServiceTitle => 'Service bearbeiten';
+
+  @override
+  String get logEditExpenseTitle => 'Ausgabe bearbeiten';
+
+  @override
+  String get logEditOdometerTitle => 'Ablesung bearbeiten';
+
+  @override
+  String get logSaveFillUp => 'Tankfüllung speichern';
+
+  @override
+  String get logSaveService => 'Service speichern';
+
+  @override
+  String get logSaveExpense => 'Ausgabe speichern';
+
+  @override
+  String get logSaveOdometer => 'Ablesung speichern';
+
+  @override
+  String get logDeleteFillUp => 'Diese Tankfüllung löschen';
+
+  @override
+  String get logDeleteService => 'Diesen Serviceeintrag löschen';
+
+  @override
+  String get logDeleteExpense => 'Diese Ausgabe löschen';
+
+  @override
+  String get logDeleteOdometer => 'Diese Ablesung löschen';
+
+  @override
+  String get logDiscardSummary => 'was Sie eingegeben haben';
+
+  @override
+  String get logDateFutureError =>
+      'Wählen Sie heute oder einen Tag in der Vergangenheit.';
+
+  @override
+  String get logOdometerRequiredError => 'Geben Sie den Kilometerstand ein.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'Diese Zahl ist nicht eindeutig. Versuchen Sie es mit $example.';
+  }
+
+  @override
+  String get logTitleFillUp => 'Tankfüllung';
+
+  @override
+  String get logTitleService => 'Service';
+
+  @override
+  String get logTitleExpense => 'Ausgabe';
+
+  @override
+  String get logTitleOdometer => 'Kilometerstand';
 }

@@ -1191,4 +1191,78 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reminderNoticeAheadDays => 'چقدر زودتر بگویم — روز';
+
+  @override
+  String get logSegmentFillUp => 'سوخت';
+
+  @override
+  String get logSegmentService => 'سرویس';
+
+  @override
+  String get logSegmentExpense => 'هزینه';
+
+  @override
+  String get logSegmentOdometer => 'کیلومتر';
+
+  @override
+  String get logEditFillUpTitle => 'ویرایش سوخت‌گیری';
+
+  @override
+  String get logEditServiceTitle => 'ویرایش سرویس';
+
+  @override
+  String get logEditExpenseTitle => 'ویرایش هزینه';
+
+  @override
+  String get logEditOdometerTitle => 'ویرایش عدد کیلومتر';
+
+  @override
+  String get logSaveFillUp => 'ذخیرهٔ سوخت‌گیری';
+
+  @override
+  String get logSaveService => 'ذخیرهٔ سرویس';
+
+  @override
+  String get logSaveExpense => 'ذخیرهٔ هزینه';
+
+  @override
+  String get logSaveOdometer => 'ذخیرهٔ کیلومتر';
+
+  @override
+  String get logDeleteFillUp => 'حذف این سوخت‌گیری';
+
+  @override
+  String get logDeleteService => 'حذف این رکورد سرویس';
+
+  @override
+  String get logDeleteExpense => 'حذف این هزینه';
+
+  @override
+  String get logDeleteOdometer => 'حذف این عدد کیلومتر';
+
+  @override
+  String get logDiscardSummary => 'آنچه نوشته‌اید';
+
+  @override
+  String get logDateFutureError => 'امروز یا روزی در گذشته را انتخاب کنید.';
+
+  @override
+  String get logOdometerRequiredError => 'عدد کیلومترشمار را وارد کنید.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'این عدد روشن نیست. مثلاً $example بنویسید.';
+  }
+
+  @override
+  String get logTitleFillUp => 'سوخت‌گیری';
+
+  @override
+  String get logTitleService => 'سرویس';
+
+  @override
+  String get logTitleExpense => 'هزینه';
+
+  @override
+  String get logTitleOdometer => 'کیلومترشمار';
 }

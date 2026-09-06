@@ -1730,6 +1730,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tell me this far ahead — days'**
   String get reminderNoticeAheadDays;
+
+  /// The log modal's first segment, and the title of the fill-up form. SPEC.md §10 opens on this segment from the central + whatever the caller, because a fill-up is logged ten times more often than anything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up'**
+  String get logSegmentFillUp;
+
+  /// The log modal's second segment, and the title of the service form.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get logSegmentService;
+
+  /// The log modal's third segment, and the title of the expense form.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get logSegmentExpense;
+
+  /// The log modal's fourth segment, and the title of the odometer form.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get logSegmentOdometer;
+
+  /// The title of the fill-up form in edit mode. SPEC.md §10: edit mode has no segment bar, because an entry cannot change type.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit fill-up'**
+  String get logEditFillUpTitle;
+
+  /// The title of the service form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit service'**
+  String get logEditServiceTitle;
+
+  /// The title of the expense form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit expense'**
+  String get logEditExpenseTitle;
+
+  /// The title of the odometer form in edit mode. A READING, not an odometer: what is being edited is one entry in the distance history.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reading'**
+  String get logEditOdometerTitle;
+
+  /// The full-width primary button pinned above the keyboard. SPEC.md §10 puts Save twice on every log form — the app bar's top-end corner is unreachable one-handed on a large phone, which is exactly the posture this form is designed for.
+  ///
+  /// In en, this message translates to:
+  /// **'Save fill-up'**
+  String get logSaveFillUp;
+
+  /// The pinned primary button on the service form.
+  ///
+  /// In en, this message translates to:
+  /// **'Save service'**
+  String get logSaveService;
+
+  /// The pinned primary button on the expense form.
+  ///
+  /// In en, this message translates to:
+  /// **'Save expense'**
+  String get logSaveExpense;
+
+  /// The pinned primary button on the odometer form.
+  ///
+  /// In en, this message translates to:
+  /// **'Save reading'**
+  String get logSaveOdometer;
+
+  /// The destructive last row of the fill-up form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this fill-up'**
+  String get logDeleteFillUp;
+
+  /// The destructive last row of the service form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this service record'**
+  String get logDeleteService;
+
+  /// The destructive last row of the expense form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this expense'**
+  String get logDeleteExpense;
+
+  /// The destructive last row of the odometer form in edit mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this reading'**
+  String get logDeleteOdometer;
+
+  /// The summary half of dialog.discard when the log modal is dismissed dirty. Deliberately vague where the vehicle editor is specific: the modal holds four independent drafts and naming them all would be a list, not a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'what you have typed'**
+  String get logDiscardSummary;
+
+  /// SPEC.md §10, verbatim. Shown under the date row on the fill-up, service and odometer forms. NOT on log.expense, where a future date is legitimate — prepaid insurance is real.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick today or a day in the past.'**
+  String get logDateFutureError;
+
+  /// SPEC.md §10, verbatim. The odometer is required on fill-ups and service records. Distinct from odometerEmptyError ('Enter the number on your dash.'), which is first run's wording for a user who has not met the field before.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the odometer reading.'**
+  String get logOdometerRequiredError;
+
+  /// SPEC.md §10's Field kit. Shown when a typed decimal is ambiguous — 1,234,5 — rather than guessing which separator was meant. The example is deliberately concrete: a rule about separators is unreadable, a number is not. [example] is a PLACEHOLDER and not the literal 42.61, because a baked Latin figure would sit under a field the same user is typing Extended Arabic-Indic digits into — SPEC.md §5 resolves numerals from the device REGION, and no translator can fix that from an ARB file. The caller shapes it with formatForDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'That number isn\'t clear. Try {example}.'**
+  String logNumberUnclearError(String example);
+
+  /// The fill-up form's own title, in the modal head. SEPARATE from logSegmentFillUp, which labels the segment bar: the artboard's Persian reads سوخت‌گیری here and سوخت there, so the design wants two words where English has one. A single key would have forced every RTL locale to pick which of the two to be wrong about.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up'**
+  String get logTitleFillUp;
+
+  /// The service form's title. See logTitleFillUp for why this is separate from the segment label.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get logTitleService;
+
+  /// The expense form's title. See logTitleFillUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get logTitleExpense;
+
+  /// The odometer form's title. The artboard's Persian reads کیلومترشمار here and کیلومتر in the segment bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get logTitleOdometer;
 }
 
 class _AppLocalizationsDelegate

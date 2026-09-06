@@ -163,6 +163,11 @@ void main() {
     const callers = {
       // §8: the facts form, whose draft is twenty fields deep.
       'lib/features/vehicles/presentation/vehicle_edit_screen.dart',
+      // §10: the log modal, whose FOUR drafts are the reason
+      // `DirtyModalGuard.onDiscard` is one callback rather than one per
+      // segment — "Discard drops EVERY segment's draft, not only the visible
+      // one". One entry here, not four, because there is one modal.
+      'lib/features/logging/ui/log_modal.dart',
     };
 
     final offenders = <String>[];

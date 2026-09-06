@@ -1195,4 +1195,78 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get reminderNoticeAheadDays => 'ئەوەندە پێشتر پێم بڵێ — ڕۆژ';
+
+  @override
+  String get logSegmentFillUp => 'پڕکردنەوە';
+
+  @override
+  String get logSegmentService => 'خزمەتگوزاری';
+
+  @override
+  String get logSegmentExpense => 'تێچوو';
+
+  @override
+  String get logSegmentOdometer => 'کیلۆمەتر';
+
+  @override
+  String get logEditFillUpTitle => 'دەستکاری پڕکردنەوە';
+
+  @override
+  String get logEditServiceTitle => 'دەستکاری خزمەتگوزاری';
+
+  @override
+  String get logEditExpenseTitle => 'دەستکاری تێچوو';
+
+  @override
+  String get logEditOdometerTitle => 'دەستکاری خوێندنەوە';
+
+  @override
+  String get logSaveFillUp => 'پاشەکەوتکردنی پڕکردنەوە';
+
+  @override
+  String get logSaveService => 'پاشەکەوتکردنی خزمەتگوزاری';
+
+  @override
+  String get logSaveExpense => 'پاشەکەوتکردنی تێچوو';
+
+  @override
+  String get logSaveOdometer => 'پاشەکەوتکردنی خوێندنەوە';
+
+  @override
+  String get logDeleteFillUp => 'سڕینەوەی ئەم پڕکردنەوەیە';
+
+  @override
+  String get logDeleteService => 'سڕینەوەی ئەم تۆماری خزمەتگوزارییە';
+
+  @override
+  String get logDeleteExpense => 'سڕینەوەی ئەم تێچووە';
+
+  @override
+  String get logDeleteOdometer => 'سڕینەوەی ئەم خوێندنەوەیە';
+
+  @override
+  String get logDiscardSummary => 'ئەوەی نووسیوتە';
+
+  @override
+  String get logDateFutureError => 'ئەمڕۆ یان ڕۆژێکی ڕابردوو هەڵبژێرە.';
+
+  @override
+  String get logOdometerRequiredError => 'خوێندنەوەی کیلۆمەتر بنووسە.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'ئەم ژمارەیە ڕوون نییە. وەک $example بنووسە.';
+  }
+
+  @override
+  String get logTitleFillUp => 'پڕکردنەوە';
+
+  @override
+  String get logTitleService => 'خزمەتگوزاری';
+
+  @override
+  String get logTitleExpense => 'تێچوو';
+
+  @override
+  String get logTitleOdometer => 'کیلۆمەتر';
 }

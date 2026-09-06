@@ -14,6 +14,7 @@ import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/features/home/ui/home_screen.dart';
+import 'package:odova/features/logging/ui/log_modal.dart';
 
 import '../../support/source_tree.dart';
 import 'shell_harness.dart';
@@ -145,15 +146,13 @@ void main() {
     // app. The placeholder renders whatever the route read, so the assertion is
     // that the id reached the screen — not that a particular field was touched.
     //
-    // `vehicle.edit` and `reminders.edit` are NOT in this map any more: EPIC-09
-    // and EPIC-10 gave them real screens, so their path-reading is asserted
-    // against the screen — `vehicle_edit_route_test.dart` and
-    // `reminders_edit_test.dart` — rather than against a placeholder's text.
-    // Two placeholders remain and each still earns its line.
-    const idBearing = {
-      '/costs/trips/:tripId': 'trips.edit',
-      '/log/:type/:entryId': 'log.fillup',
-    };
+    // `vehicle.edit`, `reminders.edit` and the four `log.*` forms are NOT in
+    // this map any more: EPIC-09, EPIC-10 and EPIC-11 gave them real screens,
+    // so their path-reading is asserted against the screen —
+    // `vehicle_edit_route_test.dart`, `reminders_edit_test.dart` and
+    // `log_modal_shell_test.dart` — rather than against a placeholder's text.
+    // One placeholder remains and it still earns its line.
+    const idBearing = {'/costs/trips/:tripId': 'trips.edit'};
 
     for (final MapEntry(key: path, value: screenId) in idBearing.entries) {
       final location = _concrete(path);
@@ -168,10 +167,10 @@ void main() {
       expect(screen.detail, id, reason: '$path did not read $id from the path');
     }
 
-    // And the graph declares exactly these two plus `vehicle.edit` and
-    // `reminders.edit`. A fifth added without a test is a fifth nobody proved
-    // reads its path.
-    expect(idBearing, hasLength(2));
+    // And the graph declares exactly this one plus `vehicle.edit`,
+    // `reminders.edit` and the log forms. A sixth added without a test is a
+    // sixth nobody proved reads its path.
+    expect(idBearing, hasLength(1));
   });
 
   testWidgets('an unknown location renders the error screen', (tester) async {
@@ -205,14 +204,14 @@ void main() {
     // it survived the epic.
     await pumpShell(tester, Routes.logEdit(LogType.fillUp, 'fil_x'));
 
-    // `skipOffstage: false`, and counted by SCREEN ID. The duplicate is the
-    // page underneath, which an ordinary finder skips — the version that used
-    // the default found one widget and passed against the bug.
+    // `skipOffstage: false`, and counted by SEGMENT. The duplicate is the page
+    // underneath, which an ordinary finder skips — the version that used the
+    // default found one widget and passed against the bug.
     final logScreens = tester
-        .widgetList<PlaceholderScreen>(
-          find.byType(PlaceholderScreen, skipOffstage: false),
+        .widgetList<LogModalShell>(
+          find.byType(LogModalShell, skipOffstage: false),
         )
-        .where((s) => s.screenId == LogType.fillUp.screenId);
+        .where((s) => s.type == LogType.fillUp);
 
     expect(logScreens, hasLength(1), reason: 'two identical log modals');
   });

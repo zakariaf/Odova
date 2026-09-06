@@ -1192,4 +1192,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderNoticeAheadDays => 'Tell me this far ahead — days';
+
+  @override
+  String get logSegmentFillUp => 'Fill-up';
+
+  @override
+  String get logSegmentService => 'Service';
+
+  @override
+  String get logSegmentExpense => 'Expense';
+
+  @override
+  String get logSegmentOdometer => 'Odometer';
+
+  @override
+  String get logEditFillUpTitle => 'Edit fill-up';
+
+  @override
+  String get logEditServiceTitle => 'Edit service';
+
+  @override
+  String get logEditExpenseTitle => 'Edit expense';
+
+  @override
+  String get logEditOdometerTitle => 'Edit reading';
+
+  @override
+  String get logSaveFillUp => 'Save fill-up';
+
+  @override
+  String get logSaveService => 'Save service';
+
+  @override
+  String get logSaveExpense => 'Save expense';
+
+  @override
+  String get logSaveOdometer => 'Save reading';
+
+  @override
+  String get logDeleteFillUp => 'Delete this fill-up';
+
+  @override
+  String get logDeleteService => 'Delete this service record';
+
+  @override
+  String get logDeleteExpense => 'Delete this expense';
+
+  @override
+  String get logDeleteOdometer => 'Delete this reading';
+
+  @override
+  String get logDiscardSummary => 'what you have typed';
+
+  @override
+  String get logDateFutureError => 'Pick today or a day in the past.';
+
+  @override
+  String get logOdometerRequiredError => 'Enter the odometer reading.';
+
+  @override
+  String logNumberUnclearError(String example) {
+    return 'That number isn\'t clear. Try $example.';
+  }
+
+  @override
+  String get logTitleFillUp => 'Fill-up';
+
+  @override
+  String get logTitleService => 'Service';
+
+  @override
+  String get logTitleExpense => 'Expense';
+
+  @override
+  String get logTitleOdometer => 'Odometer';
 }
