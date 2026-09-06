@@ -23,6 +23,7 @@
 // `ServiceRecord`s and a fuel summary, and there is no parameter an expense
 // could arrive through.
 import 'package:meta/meta.dart';
+import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/reading_series.dart';
@@ -68,9 +69,11 @@ class ServiceReportHeader {
   const ServiceReportHeader({
     required this.name,
     required this.ownedFrom,
+    required this.today,
     this.make,
     this.model,
     this.year,
+    this.fuelKind,
     this.colour,
     this.ownedUntil,
     this.purchaseOdometer,
@@ -84,6 +87,14 @@ class ServiceReportHeader {
   /// The vehicle's name.
   final String name;
 
+  /// What the document was generated on.
+  ///
+  /// Here as well as on the document because the ownership span is computed
+  /// from it — and it must be the CLOCK's today, never `DateTime.now()`: §3
+  /// validates the clock, and a span measured against an unvalidated one is
+  /// the projection §12 forbids arriving by a side door.
+  final CivilDate today;
+
   /// Identity, as far as it is known.
   final String? make;
 
@@ -92,6 +103,9 @@ class ServiceReportHeader {
 
   /// The model year.
   final int? year;
+
+  /// What it burns. §12's identity line reads "1.6 TDI · 2016 · Diesel".
+  final FuelKind? fuelKind;
 
   /// The colour.
   final String? colour;
@@ -359,9 +373,11 @@ ServiceReportDocument buildServiceReport({
   return ServiceReportDocument(
     header: ServiceReportHeader(
       name: vehicle.name,
+      today: today,
       make: vehicle.make,
       model: vehicle.model,
       year: vehicle.year,
+      fuelKind: vehicle.fuelKindDefault,
       colour: vehicle.colour,
       ownedFrom: vehicle.purchaseDate,
       ownedUntil: vehicle.soldOn,

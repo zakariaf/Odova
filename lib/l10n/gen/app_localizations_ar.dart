@@ -1898,4 +1898,92 @@ class AppLocalizationsAr extends AppLocalizations {
   String listPairJoin(String head, String last) {
     return '$head و$last';
   }
+
+  @override
+  String get reportTitle => 'تقرير الصيانة';
+
+  @override
+  String get reportIncludeHeading => 'تضمين في المستند';
+
+  @override
+  String get reportToggleCosts => 'التكاليف';
+
+  @override
+  String get reportToggleFuel => 'ملخص الوقود';
+
+  @override
+  String get reportTogglePlateVin => 'اللوحة ورقم الهيكل';
+
+  @override
+  String get reportToggleNotes => 'ملاحظاتي الخاصة';
+
+  @override
+  String get reportNotesWarning =>
+      'قد تحتوي ملاحظاتك على أشياء لا تريد أن يقرأها المشتري.';
+
+  @override
+  String get reportSharePdf => 'مشاركة PDF';
+
+  @override
+  String get reportCopyAsText => 'نسخ كنص';
+
+  @override
+  String get reportPaperSize => 'حجم الورق';
+
+  @override
+  String get reportEmptyTitle => 'لم تُسجَّل أي صيانة بعد';
+
+  @override
+  String get reportEmptyBody =>
+      'يصبح هذا التقرير ذا قيمة بمجرد أن تبدأ بإضافتها.';
+
+  @override
+  String get reportShareDisabledReason => 'لا توجد صيانات لوضعها في تقرير بعد.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'مملوكة منذ $date';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'أُنشئ بواسطة Odova في $date ($iso) من سجلات يحتفظ بها المالك. غير مُوثَّق من طرف ثالث.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ العداد مُقدَّر في حينه، ولم يُقرأ من السيارة.';
+
+  @override
+  String get reportNoRecordHeading => 'لا يوجد سجل في هذا التطبيق';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText صيانة',
+      many: '$nText صيانةً',
+      few: '$nText صيانات',
+      two: 'صيانتان',
+      one: 'صيانة واحدة',
+      zero: '$nText صيانة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years سنة $months شهر';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'فاتورة $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
 }

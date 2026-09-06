@@ -1785,4 +1785,89 @@ class AppLocalizationsCkb extends AppLocalizations {
   String listPairJoin(String head, String last) {
     return '$head و $last';
   }
+
+  @override
+  String get reportTitle => 'ڕاپۆرتی خزمەتگوزاری';
+
+  @override
+  String get reportIncludeHeading => 'لە بەڵگەنامەکەدا بخرێتە ناو';
+
+  @override
+  String get reportToggleCosts => 'تێچووەکان';
+
+  @override
+  String get reportToggleFuel => 'کورتەی سووتەمەنی';
+
+  @override
+  String get reportTogglePlateVin => 'پلاک و ژمارەی شاسی';
+
+  @override
+  String get reportToggleNotes => 'تێبینییە تایبەتەکانم';
+
+  @override
+  String get reportNotesWarning =>
+      'لەوانەیە تێبینییەکانت شتێکیان تێدابێت کە نەتەوێت کڕیارێک بیخوێنێتەوە.';
+
+  @override
+  String get reportSharePdf => 'هاوبەشکردنی PDF';
+
+  @override
+  String get reportCopyAsText => 'لەبەرگرتنەوە وەک دەق';
+
+  @override
+  String get reportPaperSize => 'قەبارەی کاغەز';
+
+  @override
+  String get reportEmptyTitle => 'هێشتا هیچ خزمەتگوزارییەک تۆمار نەکراوە';
+
+  @override
+  String get reportEmptyBody =>
+      'ئەم ڕاپۆرتە لەو ساتەوە بەنرخ دەبێت کە دەست بە زیادکردنیان بکەیت.';
+
+  @override
+  String get reportShareDisabledReason =>
+      'هێشتا هیچ خزمەتگوزارییەک نییە بۆ خستنە ناو ڕاپۆرتێک.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'لە خاوەندارێتیدا لە $dateەوە';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'دروستکراوە لەلایەن Odova لە $date ($iso) لە تۆمارەکانی خاوەنەکەوە. لەلایەن لایەنی سێیەمەوە پشتڕاست نەکراوەتەوە.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ ئۆدۆمیتەر لەو کاتەدا خەمڵێنراوە، لە ئۆتۆمبێلەکەوە نەخوێندراوەتەوە.';
+
+  @override
+  String get reportNoRecordHeading => 'هیچ تۆمارێک لەم ئەپەدا نییە';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خزمەتگوزاری',
+      one: '$nText خزمەتگوزاری',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years ساڵ $months مانگ';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'پسووڵە $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
 }

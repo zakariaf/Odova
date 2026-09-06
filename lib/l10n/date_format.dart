@@ -67,6 +67,45 @@ String formatLongDate(
 /// it, so the day-month ORDER comes from the locale rather than from this
 /// file — `August 12` in en-US and `12 August` in en-GB, which is the same
 /// decision `formatLongDate` already delegates.
+/// [isoDate] as a month and a year — "March 2018".
+///
+/// SPEC.md §12's ownership span. A purchase DAY is a precision the seller did
+/// not offer and the buyer has no use for, and "4 March 2018" invites a
+/// question about a date the app cannot defend.
+///
+/// Through the display calendar like every other date here, so a Persian
+/// seller's document reads `اسفند ۱۳۹۶`.
+String formatMonthYear(
+  String isoDate,
+  String formatsTag, {
+  CalmCalendar? calendar,
+}) {
+  final parsed = DateTime.tryParse(isoDate);
+  if (parsed == null) return isoDate;
+
+  final resolved = resolveCalendar(calendar, formatsTag);
+  final parts = projectDate(parsed, resolved, formatsTag);
+  final name = parts.monthName;
+
+  // ICU owns the word order for a Gregorian month-year; a projected calendar
+  // has already given us the month's name and its own year number.
+  if (name == null) return DateFormat.yMMMM(formatsTag).format(parsed);
+
+  return '$name ${formatForDisplay(
+    parts.year,
+    formatsTag,
+    numerals: CalmNumerals.auto,
+    decimalDigits: 0,
+    grouped: false,
+  )}';
+}
+
+/// SPEC.md §10's odometer helper draws the last reading's date this way,
+/// beside the delta, because the year is noise on a line whose whole job is
+/// "was that a few weeks ago or a few months". `MMMMd` is the ICU skeleton for
+/// it, so the day-month ORDER comes from the locale rather than from this
+/// file — `August 12` in en-US and `12 August` in en-GB, which is the same
+/// decision `formatLongDate` already delegates.
 String formatDayMonth(String iso, String formatsTag) {
   final parsed = DateTime.tryParse(iso);
   if (parsed == null) return iso;

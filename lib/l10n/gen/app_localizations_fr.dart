@@ -1830,4 +1830,91 @@ class AppLocalizationsFr extends AppLocalizations {
   String listPairJoin(String head, String last) {
     return '$head et $last';
   }
+
+  @override
+  String get reportTitle => 'Rapport d’entretien';
+
+  @override
+  String get reportIncludeHeading => 'Inclure dans le document';
+
+  @override
+  String get reportToggleCosts => 'Coûts';
+
+  @override
+  String get reportToggleFuel => 'Consommation';
+
+  @override
+  String get reportTogglePlateVin => 'Plaque et VIN';
+
+  @override
+  String get reportToggleNotes => 'Mes notes privées';
+
+  @override
+  String get reportNotesWarning =>
+      'Vos notes peuvent contenir des choses qu’un acheteur ne devrait pas lire.';
+
+  @override
+  String get reportSharePdf => 'Partager le PDF';
+
+  @override
+  String get reportCopyAsText => 'Copier en texte';
+
+  @override
+  String get reportPaperSize => 'Format de papier';
+
+  @override
+  String get reportEmptyTitle => 'Aucun entretien enregistré';
+
+  @override
+  String get reportEmptyBody =>
+      'Ce rapport prend de la valeur dès que vous en ajoutez.';
+
+  @override
+  String get reportShareDisabledReason =>
+      'Il n’y a pas encore d’entretiens à mettre dans un rapport.';
+
+  @override
+  String reportOwnedSince(String date) {
+    return 'Possédée depuis $date';
+  }
+
+  @override
+  String reportGeneratedFooter(String date, String iso) {
+    return 'Généré par Odova le $date ($iso) à partir des relevés du propriétaire. Non vérifié par un tiers.';
+  }
+
+  @override
+  String get reportEstimatedFootnote =>
+      '~ compteur estimé à l’époque, non relevé sur la voiture.';
+
+  @override
+  String get reportNoRecordHeading =>
+      'Aucun enregistrement dans cette application';
+
+  @override
+  String reportServiceCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entretiens',
+      many: '$nText d’entretiens',
+      one: '$nText entretien',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reportOwnershipSpan(String years, String months) {
+    return '$years a $months mo';
+  }
+
+  @override
+  String reportInvoiceRef(String ref) {
+    return 'Facture $ref';
+  }
+
+  @override
+  String reportOdometerSpan(String from, String to) {
+    return '$from – $to';
+  }
 }

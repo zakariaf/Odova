@@ -91,6 +91,8 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       // shows up against.
       'deleteFillUpFiguresRemoved' => l10n.deleteFillUpFiguresRemoved(n, nText),
       'deleteTripKeepsCosts' => l10n.deleteTripKeepsCosts(n, nText),
+      // §12's header count. Nothing else in the message varies.
+      'reportServiceCount' => l10n.reportServiceCount(n, nText),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(
         n,
