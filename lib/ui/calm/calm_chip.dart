@@ -126,11 +126,25 @@ class _CalmChipBody extends StatelessWidget {
             Icon(icon, size: 17, color: foreground), // .chip .icon { 17px }
             SizedBox(width: space.s2),
           ],
-          Text(
-            label,
-            style: type.label.copyWith(
-              color: foreground,
-              fontWeight: selected ? type.semi : type.medium,
+          // `Flexible`, so a long label WRAPS instead of overflowing.
+          //
+          // Without it the row is `mainAxisSize: min` with an unbounded label
+          // and the chip simply grows past its parent: measured at 146 pixels
+          // of overflow on a 390pt phone, in German, at text scale 1.0 —
+          // `Kennzeichen und Fahrgestellnummer`. Not an accessibility edge
+          // case; that is every German user on the default setting.
+          //
+          // Wrapping rather than ellipsis, because §11's own note on the
+          // filter chips says a chip whose word is cut is a chip nobody can
+          // name, and `accessibility-as-code` treats clip-to-fit as a floor
+          // violation.
+          Flexible(
+            child: Text(
+              label,
+              style: type.label.copyWith(
+                color: foreground,
+                fontWeight: selected ? type.semi : type.medium,
+              ),
             ),
           ),
         ],

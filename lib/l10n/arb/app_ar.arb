@@ -446,5 +446,12 @@
   "reportServiceCount": "{n, plural, zero{{nText} صيانة} one{صيانة واحدة} two{صيانتان} few{{nText} صيانات} many{{nText} صيانةً} other{{nText} صيانة}}",
   "reportOwnershipSpan": "{years} سنة {months} شهر",
   "reportInvoiceRef": "فاتورة {ref}",
-  "reportOdometerSpan": "{from} – {to}"
+  "reportOdometerSpan": "{from} – {to}",
+  "reportColumnDate": "التاريخ",
+  "reportColumnOdometer": "العداد",
+  "reportColumnWork": "العمل المُنجز",
+  "reportColumnCost": "التكلفة",
+  "reportPageOf": "صفحة {n} من {total}",
+  "reportOwnedLabel": "مملوكة",
+  "reportServicesLabel": "صيانات"
 }

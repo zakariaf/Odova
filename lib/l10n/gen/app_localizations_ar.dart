@@ -1986,4 +1986,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String reportOdometerSpan(String from, String to) {
     return '$from – $to';
   }
+
+  @override
+  String get reportColumnDate => 'التاريخ';
+
+  @override
+  String get reportColumnOdometer => 'العداد';
+
+  @override
+  String get reportColumnWork => 'العمل المُنجز';
+
+  @override
+  String get reportColumnCost => 'التكلفة';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'صفحة $n من $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'مملوكة';
+
+  @override
+  String get reportServicesLabel => 'صيانات';
 }

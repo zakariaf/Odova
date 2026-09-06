@@ -446,5 +446,12 @@
   "reportServiceCount": "{n, plural, one{{nText} خزمەتگوزاری} other{{nText} خزمەتگوزاری}}",
   "reportOwnershipSpan": "{years} ساڵ {months} مانگ",
   "reportInvoiceRef": "پسووڵە {ref}",
-  "reportOdometerSpan": "{from} – {to}"
+  "reportOdometerSpan": "{from} – {to}",
+  "reportColumnDate": "بەروار",
+  "reportColumnOdometer": "ئۆدۆمیتەر",
+  "reportColumnWork": "ئەو کارەی کراوە",
+  "reportColumnCost": "تێچوو",
+  "reportPageOf": "لاپەڕەی {n} لە {total}",
+  "reportOwnedLabel": "لە خاوەندارێتیدا",
+  "reportServicesLabel": "خزمەتگوزاری"
 }

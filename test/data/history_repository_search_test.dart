@@ -168,4 +168,104 @@ void main() {
       ['2026-09-10', '2026-05-10', '2026-01-10'],
     );
   });
+
+  group('a service record with more than one line', () {
+    // Three defects lived in one query, all of them invisible to the tests
+    // that were here: the line columns were bare under `GROUP BY r.id`, the
+    // money was `SUM` across currencies with `MIN(currency)` as the label, and
+    // the row label was `MIN(l.label)` — alphabetical rather than first.
+    //
+    // Every existing service test used ONE line, which is why all three
+    // survived: with one line, "an arbitrary row of the group" is the right
+    // row, the sum is the amount, and the alphabetical minimum is the first.
+
+    Future<void> seedTwoLine({String secondCurrency = 'EUR'}) async {
+      await insertServiceRecord(harness.db);
+      await insertServiceLine(
+        harness.db,
+        id: 'lin_01K0C4V2H9B8N3Q7ZE5RY6TMW1',
+        amountMinor: 20000,
+      );
+      await insertServiceLine(
+        harness.db,
+        id: 'lin_01K0C4V2H9B8N3Q7ZE5RY6TMW2',
+        label: 'Front brake pads',
+        amountMinor: 5000,
+        currency: secondCurrency,
+      );
+    }
+
+    test('is findable by EVERY line, not just one of them', () async {
+      await seedTwoLine();
+
+      expect(await search('oil'), hasLength(1));
+      expect(await search('brake'), hasLength(1));
+    });
+
+    test(
+      'shows the FIRST line as its label, not the alphabetical one',
+      () async {
+        await seedTwoLine();
+
+        final row = (await search('oil')).single;
+        expect(row.label, 'Oil and filter', reason: 'not "Front brake pads"');
+      },
+    );
+
+    test('in one currency, the row carries the sum', () async {
+      await seedTwoLine();
+
+      final row = (await search('oil')).single;
+      expect(row.minorUnits, 25000);
+      expect(row.currency, 'EUR');
+    });
+
+    test('in TWO currencies, the row carries no amount at all', () async {
+      // §2: never guess in a way that looks like fact. €200 plus $50 is not
+      // €250, and a document or a timeline row that says so is stating a
+      // fabricated number. No amount is the honest answer until the row model
+      // can carry a per-currency total.
+      await seedTwoLine(secondCurrency: 'USD');
+
+      final row = (await search('oil')).single;
+      expect(row.minorUnits, isNull);
+      expect(row.currency, isNull);
+    });
+  });
+
+  group('the query is not a LIKE pattern', () {
+    // `normaliseForSearch` folds digits, case and marks — it does not touch
+    // `%` or `_`, and the LIKE had no ESCAPE clause. So a user's own text was
+    // being read as wildcards.
+
+    test('an underscore matches an underscore, not any character', () async {
+      await insertFillUp(
+        harness.db,
+        id: 'fil_01K1C4V2H9B8N3Q7ZE5RY6TMU1',
+      );
+      await harness.db.customStatement(
+        "UPDATE fill_ups SET station = 'ref2024' WHERE id = ?",
+        ['fil_01K1C4V2H9B8N3Q7ZE5RY6TMU1'],
+      );
+
+      expect(
+        await search('re_2024'),
+        isEmpty,
+        reason: 'the underscore is the user text, not a wildcard',
+      );
+    });
+
+    test('a lone percent does not return the whole history', () async {
+      await insertFillUp(
+        harness.db,
+        id: 'fil_01K1C4V2H9B8N3Q7ZE5RY6TMU2',
+      );
+
+      expect(
+        await search('%%'),
+        isEmpty,
+        reason: 'the UI would show search-active over an unfiltered list',
+      );
+    });
+  });
 }

@@ -18,6 +18,7 @@
 import 'package:intl/intl.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/l10n/date_locale.dart';
 import 'package:odova/l10n/number_format.dart';
 
 /// [isoDate] — a stored `YYYY-MM-DD` — as a spelled-out date in [formatsTag].
@@ -43,7 +44,7 @@ String formatLongDate(
 
   if (parts.monthName == null) {
     // ICU owns the word order, the separators and the capitalisation.
-    return DateFormat.yMMMMd(formatsTag).format(parsed);
+    return DateFormat.yMMMMd(dateFormatLocale(formatsTag)).format(parsed);
   }
 
   String number(int value) => formatForDisplay(
@@ -89,7 +90,9 @@ String formatMonthYear(
 
   // ICU owns the word order for a Gregorian month-year; a projected calendar
   // has already given us the month's name and its own year number.
-  if (name == null) return DateFormat.yMMMM(formatsTag).format(parsed);
+  if (name == null) {
+    return DateFormat.yMMMM(dateFormatLocale(formatsTag)).format(parsed);
+  }
 
   return '$name ${formatForDisplay(
     parts.year,
@@ -109,7 +112,7 @@ String formatMonthYear(
 String formatDayMonth(String iso, String formatsTag) {
   final parsed = DateTime.tryParse(iso);
   if (parsed == null) return iso;
-  return DateFormat.MMMMd(numberFormatLocale(formatsTag)).format(parsed);
+  return DateFormat.MMMMd(dateFormatLocale(formatsTag)).format(parsed);
 }
 
 /// A date at its shortest — `2 Sep`, `2. Sep.`, `۲ سپتامبر`.
@@ -121,7 +124,7 @@ String formatDayMonth(String iso, String formatsTag) {
 String formatShortDayMonth(String iso, String formatsTag) {
   final parsed = DateTime.tryParse(iso);
   if (parsed == null) return iso;
-  return DateFormat.MMMd(numberFormatLocale(formatsTag)).format(parsed);
+  return DateFormat.MMMd(dateFormatLocale(formatsTag)).format(parsed);
 }
 
 /// A row's date: `Wed 2 Sep`, `mer. 2 sept.`, `چهارشنبه ۲ سپتامبر`.
@@ -133,5 +136,5 @@ String formatShortDayMonth(String iso, String formatsTag) {
 String formatRowDate(String iso, String formatsTag) {
   final parsed = DateTime.tryParse(iso);
   if (parsed == null) return iso;
-  return DateFormat.MMMEd(numberFormatLocale(formatsTag)).format(parsed);
+  return DateFormat.MMMEd(dateFormatLocale(formatsTag)).format(parsed);
 }

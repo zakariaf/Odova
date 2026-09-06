@@ -2807,6 +2807,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{from} – {to}'**
   String reportOdometerSpan(String from, String to);
+
+  /// SPEC.md §12's PDF table heading. It REPEATS on every page — a reader who turns to page four otherwise sees four columns of numbers with nothing saying which is which.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get reportColumnDate;
+
+  /// §12's PDF table heading for the odometer column.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get reportColumnOdometer;
+
+  /// §12's PDF table heading. The column holds free text and takes direction from its own content — a German workshop name inside a Persian document renders LTR inside an RTL cell.
+  ///
+  /// In en, this message translates to:
+  /// **'What was done'**
+  String get reportColumnWork;
+
+  /// §12's PDF table heading for the cost column. Absent from the document entirely when the Costs toggle is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get reportColumnCost;
+
+  /// SPEC.md §12: "Page 2 of 4 in the footer." Both numbers are placeholders because the word order differs — Persian puts the total last, and a string built as '{n} / {total}' in Dart could not be reordered.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n} of {total}'**
+  String reportPageOf(String n, String total);
+
+  /// The ownership-span label in the plain-text export, where there is no room for the full sentence the screen uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned'**
+  String get reportOwnedLabel;
+
+  /// The word after the service count in the plain-text export. Not a plural key: the count beside it is already shaped by `reportServiceCount` on the screen, and the text export writes the bare number.
+  ///
+  /// In en, this message translates to:
+  /// **'services'**
+  String get reportServicesLabel;
 }
 
 class _AppLocalizationsDelegate

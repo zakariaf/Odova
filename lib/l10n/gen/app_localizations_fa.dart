@@ -1864,4 +1864,27 @@ class AppLocalizationsFa extends AppLocalizations {
   String reportOdometerSpan(String from, String to) {
     return '$from – $to';
   }
+
+  @override
+  String get reportColumnDate => 'تاریخ';
+
+  @override
+  String get reportColumnOdometer => 'کیلومترشمار';
+
+  @override
+  String get reportColumnWork => 'کار انجام‌شده';
+
+  @override
+  String get reportColumnCost => 'هزینه';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'صفحهٔ $n از $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'در مالکیت';
+
+  @override
+  String get reportServicesLabel => 'سرویس';
 }

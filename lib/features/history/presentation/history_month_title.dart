@@ -12,7 +12,9 @@
 import 'package:intl/intl.dart';
 import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/l10n/calendar.dart';
+import 'package:odova/core/l10n/locale_resolution.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/l10n/date_locale.dart';
 import 'package:odova/l10n/number_format.dart';
 
 /// [key] as a month header reads it.
@@ -27,15 +29,44 @@ String historyMonthTitle(MonthKey key, String formatsTag) {
     grouped: false,
   );
 
-  return switch (key.calendar) {
-    // ICU knows the Gregorian month names for every locale the app ships, so
-    // this asks it rather than carrying twelve words six times.
+  // Through `projectDate`, which already owns every one of these decisions
+  // and owns them ONCE, beside the converter. Both branches here used to
+  // decide for themselves and both were wrong:
+  //
+  //   - Gregorian asked ICU with `numberFormatLocale`, which borrows `de` for
+  //     Maghreb Arabic and `fa` for Kurdish. Measured: `ar-MA` gave
+  //     "September 2026" — Latin script AND Latin digits on an Arabic screen —
+  //     and `ckb-IQ` gave "سپتامبر", the Persian name, where
+  //     `kurdishGregorianMonthNames` has `ئەیلوول`. `ar-IQ` got the Gulf
+  //     "سبتمبر" while `formatLongDate` two lines below used the Levantine
+  //     "أيلول", so one screen showed a month two ways.
+  //   - Persian hard-coded `jalaliMonthNames`, so a Kurdish user reading a
+  //     Jalali calendar got Persian words — which is the exact thing
+  //     `kurdishJalaliMonthNames` was added to prevent.
+  //
+  // `projectDate` returns a null `monthName` only where ICU genuinely is the
+  // authority, which is the one case left for `DateFormat` below.
+  final parts = projectDate(
+    // The month's own first day. `projectDate` converts, so for a Jalali key
+    // the DATE must already be in that calendar — which it is: `monthIndex`
+    // built the key from a converted date, and `key.month` is Mehr rather
+    // than September.
+    DateTime.utc(2000, key.calendar == CalmCalendar.persian ? 1 : key.month),
+    CalmCalendar.gregorian,
+    formatsTag,
+  );
+
+  final name = switch (key.calendar) {
+    CalmCalendar.persian =>
+      (languageOf(formatsTag) == 'ckb'
+          ? kurdishJalaliMonthNames
+          : jalaliMonthNames)[key.month - 1],
     CalmCalendar.gregorian =>
-      '${DateFormat.LLLL(
-        numberFormatLocale(formatsTag),
-      ).format(DateTime.utc(2000, key.month))} $year',
-    // ICU does not do Jalali month names, so `calendar.dart` carries them —
-    // and carries them once, beside the converter.
-    CalmCalendar.persian => '${jalaliMonthNames[key.month - 1]} $year',
+      parts.monthName ??
+          DateFormat.LLLL(
+            dateFormatLocale(formatsTag),
+          ).format(DateTime.utc(2000, key.month)),
   };
+
+  return '$name $year';
 }

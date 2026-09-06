@@ -446,5 +446,12 @@
   "reportServiceCount": "{n, plural, one{{nText} Service} other{{nText} Services}}",
   "reportOwnershipSpan": "{years} J. {months} Mon.",
   "reportInvoiceRef": "Rechnung {ref}",
-  "reportOdometerSpan": "{from} – {to}"
+  "reportOdometerSpan": "{from} – {to}",
+  "reportColumnDate": "Datum",
+  "reportColumnOdometer": "Kilometerstand",
+  "reportColumnWork": "Durchgeführte Arbeiten",
+  "reportColumnCost": "Kosten",
+  "reportPageOf": "Seite {n} von {total}",
+  "reportOwnedLabel": "Im Besitz",
+  "reportServicesLabel": "Services"
 }

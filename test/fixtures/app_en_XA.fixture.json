@@ -446,5 +446,12 @@
   "reportServiceCount": "[{n, plural, one{{nText} ŝḗřṽīçḗ} other{{nText} ŝḗřṽīçḗŝ}} ǃǃǃǃǃǃǃ]",
   "reportOwnershipSpan": "[{years} ẏř {months} ḿǿ ǃǃǃ]",
   "reportInvoiceRef": "[Īǹṽǿīçḗ {ref} ǃǃǃǃ]",
-  "reportOdometerSpan": "[{from} – {to} ǃǃ]"
+  "reportOdometerSpan": "[{from} – {to} ǃǃ]",
+  "reportColumnDate": "[Ḍáţḗ ǃǃ]",
+  "reportColumnOdometer": "[Ǿḍǿḿḗţḗř ǃǃǃǃ]",
+  "reportColumnWork": "[Ẇħáţ ẇáŝ ḍǿǹḗ ǃǃǃǃǃǃ]",
+  "reportColumnCost": "[Çǿŝţ ǃǃ]",
+  "reportPageOf": "[Ƥáḡḗ {n} ǿƒ {total} ǃǃǃǃ]",
+  "reportOwnedLabel": "[Ǿẇǹḗḍ ǃǃ]",
+  "reportServicesLabel": "[ŝḗřṽīçḗŝ ǃǃǃǃ]"
 }

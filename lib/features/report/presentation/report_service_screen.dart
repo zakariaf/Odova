@@ -14,6 +14,8 @@
 // inherited rule 4: the four toggles are CHIPS, not switches, and the header is
 // the one inverse card in the app. The sketch's switch column is not what was
 // designed.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/active_vehicle.dart';
@@ -23,6 +25,8 @@ import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/report/service_report.dart';
+import 'package:odova/core/report/service_report_text.dart';
+import 'package:odova/core/report/service_report_writer.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/repositories/providers.dart';
@@ -63,6 +67,32 @@ class ReportServiceScreen extends ConsumerWidget {
 
     final state = ref.watch(reportProvider);
     final doc = state.document;
+    final tags = ref.watch(resolvedLocaleTagsProvider);
+    final vehicle = ref
+        .watch(vehiclesProvider)
+        .value
+        ?.where((v) => v.id == vehicleId)
+        .firstOrNull;
+    final unit = effectiveDistanceUnit(
+      vehicle,
+      ref.watch(settingsProvider).value,
+    );
+
+    // The formatters the document is rendered THROUGH — the same three the
+    // preview above uses, so §12's "the preview IS the document" is a fact
+    // about the code rather than an intention. They are required parameters
+    // precisely so this cannot be forgotten.
+    final formatters = ReportFormatters(
+      date: (iso) => formatLongDate(iso, tags.formats),
+      distance: (d, {required estimated}) => formatDistanceFigure(
+        l10n,
+        tags.formats,
+        d,
+        unit,
+        estimated: estimated,
+      ),
+      money: (m) => _money(tags.formats, m),
+    );
 
     return CalmScaffold(
       appBar: CalmAppBar(
@@ -72,7 +102,26 @@ class ReportServiceScreen extends ConsumerWidget {
           CalmAppBarAction(
             label: l10n.reportCopyAsText,
             icon: Icons.more_horiz,
-            onTap: () {},
+            onTap: doc == null
+                ? null
+                : () => unawaited(
+                    ref
+                        .read(reportProvider.notifier)
+                        .copyAsText(
+                          strings: ServiceReportTextStrings(
+                            title: l10n.reportTitle,
+                            owned: l10n.reportOwnedLabel,
+                            servicesLabel: l10n.reportServicesLabel,
+                            noRecordHeading: l10n.reportNoRecordHeading,
+                            footer: l10n.reportGeneratedFooter(
+                              '{date}',
+                              '{iso}',
+                            ),
+                            estimatedFootnote: l10n.reportEstimatedFootnote,
+                          ),
+                          formatters: formatters,
+                        ),
+                  ),
           ),
         ],
       ),
@@ -87,7 +136,37 @@ class ReportServiceScreen extends ConsumerWidget {
             disabledBecause: state.canShare
                 ? null
                 : l10n.reportShareDisabledReason,
-            onPressed: state.canShare ? () {} : null,
+            onPressed: state.canShare && vehicle != null
+                ? () => unawaited(
+                    ref
+                        .read(reportProvider.notifier)
+                        .sharePdf(
+                          vehicleName: vehicle.name,
+                          // §12's positional fallback for a name that
+                          // transliterates to nothing. 1-based, and stable for
+                          // the life of the vehicle.
+                          positionalIndex: 1,
+                          strings: ServiceReportPdfStrings(
+                            title: l10n.reportTitle,
+                            pageOf: l10n.reportPageOf('{n}', '{total}'),
+                            columnDate: l10n.reportColumnDate,
+                            columnOdometer: l10n.reportColumnOdometer,
+                            columnWork: l10n.reportColumnWork,
+                            columnCost: l10n.reportColumnCost,
+                            footer: l10n.reportGeneratedFooter(
+                              '{date}',
+                              '{iso}',
+                            ),
+                            estimatedFootnote: l10n.reportEstimatedFootnote,
+                          ),
+                          formatters: formatters,
+                          // The PAGE's direction, from the resolved locale —
+                          // not a field somebody has to remember to set.
+                          rtl: Directionality.of(context) == TextDirection.rtl,
+                          region: tags.formats.split('-').lastOrNull,
+                        ),
+                  )
+                : null,
           ),
           // §12: "reason under it, not in a toast." The user is already
           // stressed, and a toast is a reason that leaves before it is read.

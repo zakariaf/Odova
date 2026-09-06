@@ -446,5 +446,12 @@
   "reportServiceCount": "‏{n, plural, one{{nText}ecivres } other{{nText}secivres }}",
   "reportOwnershipSpan": "‏{years} ry {months}om ",
   "reportInvoiceRef": "‏ eciovnI{ref}",
-  "reportOdometerSpan": "‏{from} – {to}"
+  "reportOdometerSpan": "‏{from} – {to}",
+  "reportColumnDate": "‏etaD",
+  "reportColumnOdometer": "‏retemodO",
+  "reportColumnWork": "‏enod saw tahW",
+  "reportColumnCost": "‏tsoC",
+  "reportPageOf": "‏ egaP{n} fo {total}",
+  "reportOwnedLabel": "‏denwO",
+  "reportServicesLabel": "‏secivres"
 }

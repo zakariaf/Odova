@@ -262,18 +262,42 @@ class HistoryRepository {
       // The cost is the sum of the LINES — §10 gives a record no second cost
       // field — and the label is the first line's, which §11's row then joins
       // with the rest.
+      // Three things here are aggregate-sensitive and all three were wrong.
+      //
+      // MONEY. `SUM(l.amount_minor)` with `MIN(l.currency)` added a EUR 200
+      // part to a USD 50 labour charge and labelled the result EUR 250. There
+      // is no CHECK tying a record's lines to one currency, and
+      // `ServiceRecord.total` returns a `MoneyTotal` precisely because a part
+      // billed abroad is a real case. The CASE below emits the sum ONLY for a
+      // single-currency record and NULL otherwise: SPEC.md §2 would rather a
+      // row show no amount than a fabricated one. (A per-currency total in the
+      // row model is the fuller answer, and belongs with EPIC-13's costs.)
+      //
+      // SEARCH. The line columns were bare under `GROUP BY r.id`. With two
+      // aggregates present, SQLite's single-min/max bare-column rule does not
+      // apply, so `l.label` came from an arbitrary row of the group and every
+      // line but one was unsearchable — a record with "Oil and filter" and
+      // "Front brake pads" could not be found by "oil". `GROUP_CONCAT`
+      // aggregates all of them.
+      //
+      // LABEL. `MIN(l.label)` is alphabetical, so that same record displayed
+      // "Front brake pads". §11 says the label is the FIRST line's, which is a
+      // correlated subquery ordered by id.
       "SELECT 'service' AS kind, r.id, r.occurred_on, r.created_at_utc_ms, "
-      'SUM(l.amount_minor) AS minor, MIN(l.currency) AS currency, '
+      'CASE WHEN COUNT(DISTINCT l.currency) = 1 '
+      'THEN SUM(l.amount_minor) END AS minor, '
+      'CASE WHEN COUNT(DISTINCT l.currency) = 1 '
+      'THEN MIN(l.currency) END AS currency, '
       'r.odometer_m, NULL AS quantity, NULL AS quantity_form, '
-      'MIN(l.label) AS label, r.vendor AS label2, 1 AS is_full_tank, '
+      '(SELECT f.label FROM service_lines f '
+      'WHERE f.service_record_id = r.id ORDER BY f.id LIMIT 1) AS label, '
+      'r.vendor AS label2, 1 AS is_full_tank, '
       '0 AS chain_broken, '
-      '${_searchOver(const [
-        'r.vendor',
-        'r.invoice_ref',
-        'r.notes',
-        'l.label',
-        'l.part_number',
-      ])} AS search '
+      "${_searchOver(const ['r.vendor', 'r.invoice_ref', 'r.notes'])} "
+      "|| ' ' || GROUP_CONCAT(odova_search_fold(COALESCE(l.label, '')), ' ') "
+      "|| ' ' "
+      "|| GROUP_CONCAT(odova_search_fold(COALESCE(l.part_number, '')), ' ') "
+      'AS search '
       'FROM service_records r JOIN service_lines l '
       'ON l.service_record_id = r.id '
       'WHERE r.vehicle_id = ? AND r.deleted_at_utc_ms IS NULL '
@@ -344,9 +368,15 @@ class HistoryRepository {
       // Both sides normalised, and the column side is spelled out in SQL
       // rather than stored: §11 refuses a `search_blob` because "a stale index
       // surviving a Replace import would be a nasty bug."
-      where.add('search LIKE ?');
+      // ESCAPED, and with an ESCAPE clause. `normaliseForSearch` folds
+      // digits, case and marks; it does not touch `%` or `_`, which are LIKE's
+      // own wildcards. Without this a user searching an invoice reference
+      // `re_2024` matched `ref2024` and `re-2024` and believed they had found
+      // the right one, and a search for `%` returned the entire history under
+      // a UI that said a filter was active.
+      where.add(r"search LIKE ? ESCAPE '\'");
       variables.add(
-        Variable<String>('%${normaliseForSearch(filter.query)}%'),
+        Variable<String>('%${_escapeLike(normaliseForSearch(filter.query))}%'),
       );
     }
     if (after != null) {
@@ -404,6 +434,15 @@ class HistoryRepository {
   /// `COALESCE` to empty, because a null column makes the whole concatenation
   /// null in SQLite and one missing note would make a row unsearchable on
   /// every other field it has.
+  /// Escapes LIKE's wildcards so a user's own text is matched literally.
+  ///
+  /// The backslash first, or escaping `%` would then have its own escape
+  /// escaped.
+  static String _escapeLike(String value) => value
+      .replaceAll(r'\', r'\\')
+      .replaceAll('%', r'\%')
+      .replaceAll('_', r'\_');
+
   static String _searchOver(List<String> columns) {
     // ONE call per column, to the function `applyPragmas` registers. The
     // fold itself is `normaliseForSearch`, so there is no second

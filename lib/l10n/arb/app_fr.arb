@@ -446,5 +446,12 @@
   "reportServiceCount": "{n, plural, one{{nText} entretien} many{{nText} d’entretiens} other{{nText} entretiens}}",
   "reportOwnershipSpan": "{years} a {months} mo",
   "reportInvoiceRef": "Facture {ref}",
-  "reportOdometerSpan": "{from} – {to}"
+  "reportOdometerSpan": "{from} – {to}",
+  "reportColumnDate": "Date",
+  "reportColumnOdometer": "Compteur",
+  "reportColumnWork": "Travaux effectués",
+  "reportColumnCost": "Coût",
+  "reportPageOf": "Page {n} sur {total}",
+  "reportOwnedLabel": "Possédée",
+  "reportServicesLabel": "entretiens"
 }

@@ -2799,5 +2799,41 @@
         "type": "String"
       }
     }
+  },
+  "reportColumnDate": "Date",
+  "@reportColumnDate": {
+    "description": "SPEC.md §12's PDF table heading. It REPEATS on every page — a reader who turns to page four otherwise sees four columns of numbers with nothing saying which is which."
+  },
+  "reportColumnOdometer": "Odometer",
+  "@reportColumnOdometer": {
+    "description": "§12's PDF table heading for the odometer column."
+  },
+  "reportColumnWork": "What was done",
+  "@reportColumnWork": {
+    "description": "§12's PDF table heading. The column holds free text and takes direction from its own content — a German workshop name inside a Persian document renders LTR inside an RTL cell."
+  },
+  "reportColumnCost": "Cost",
+  "@reportColumnCost": {
+    "description": "§12's PDF table heading for the cost column. Absent from the document entirely when the Costs toggle is off."
+  },
+  "reportPageOf": "Page {n} of {total}",
+  "@reportPageOf": {
+    "description": "SPEC.md §12: \"Page 2 of 4 in the footer.\" Both numbers are placeholders because the word order differs — Persian puts the total last, and a string built as '{n} / {total}' in Dart could not be reordered.",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "reportOwnedLabel": "Owned",
+  "@reportOwnedLabel": {
+    "description": "The ownership-span label in the plain-text export, where there is no room for the full sentence the screen uses."
+  },
+  "reportServicesLabel": "services",
+  "@reportServicesLabel": {
+    "description": "The word after the service count in the plain-text export. Not a plural key: the count beside it is already shaped by `reportServiceCount` on the screen, and the text export writes the bare number."
   }
 }

@@ -1879,4 +1879,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String reportOdometerSpan(String from, String to) {
     return '$from – $to';
   }
+
+  @override
+  String get reportColumnDate => 'Datum';
+
+  @override
+  String get reportColumnOdometer => 'Kilometerstand';
+
+  @override
+  String get reportColumnWork => 'Durchgeführte Arbeiten';
+
+  @override
+  String get reportColumnCost => 'Kosten';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'Seite $n von $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'Im Besitz';
+
+  @override
+  String get reportServicesLabel => 'Services';
 }

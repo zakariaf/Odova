@@ -446,5 +446,12 @@
   "reportServiceCount": "{n, plural, one{{nText} سرویس} other{{nText} سرویس}}",
   "reportOwnershipSpan": "{years} سال {months} ماه",
   "reportInvoiceRef": "فاکتور {ref}",
-  "reportOdometerSpan": "{from} – {to}"
+  "reportOdometerSpan": "{from} – {to}",
+  "reportColumnDate": "تاریخ",
+  "reportColumnOdometer": "کیلومترشمار",
+  "reportColumnWork": "کار انجام‌شده",
+  "reportColumnCost": "هزینه",
+  "reportPageOf": "صفحهٔ {n} از {total}",
+  "reportOwnedLabel": "در مالکیت",
+  "reportServicesLabel": "سرویس"
 }

@@ -1870,4 +1870,27 @@ class AppLocalizationsCkb extends AppLocalizations {
   String reportOdometerSpan(String from, String to) {
     return '$from – $to';
   }
+
+  @override
+  String get reportColumnDate => 'بەروار';
+
+  @override
+  String get reportColumnOdometer => 'ئۆدۆمیتەر';
+
+  @override
+  String get reportColumnWork => 'ئەو کارەی کراوە';
+
+  @override
+  String get reportColumnCost => 'تێچوو';
+
+  @override
+  String reportPageOf(String n, String total) {
+    return 'لاپەڕەی $n لە $total';
+  }
+
+  @override
+  String get reportOwnedLabel => 'لە خاوەندارێتیدا';
+
+  @override
+  String get reportServicesLabel => 'خزمەتگوزاری';
 }

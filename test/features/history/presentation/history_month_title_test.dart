@@ -59,4 +59,68 @@ void main() {
     expect(historyMonthTitle(key, 'en'), isNot(contains(',')));
     expect(historyMonthTitle(key, 'de'), isNot(contains('.')));
   });
+
+  group('the regional month tables are used, not a borrowed locale', () {
+    // Both branches used to decide for themselves and both were wrong. These
+    // are the measured outputs from before the fix.
+
+    test('Maghreb Arabic is in Arabic script, not German', () {
+      // Measured: "September 2026". `numberFormatLocale` borrows `de` for the
+      // Maghreb because intl has no European-separator Arabic — a SYMBOL
+      // borrow, handed to a function that returns WORDS.
+      final title = historyMonthTitle(
+        const MonthKey(calendar: CalmCalendar.gregorian, year: 2026, month: 9),
+        'ar-MA',
+      );
+
+      expect(title, isNot(contains('September')));
+      expect(
+        title.runes.any((r) => r >= 0x0600 && r <= 0x06FF),
+        isTrue,
+        reason: 'Arabic script',
+      );
+    });
+
+    test('Kurdish Gregorian uses the Kurdish name, not the Persian one', () {
+      // Measured: "سپتامبر" — Persian. `kurdishGregorianMonthNames` has
+      // `ئەیلوول`, and exists precisely so this cannot happen.
+      final title = historyMonthTitle(
+        const MonthKey(calendar: CalmCalendar.gregorian, year: 2026, month: 9),
+        'ckb-IQ',
+      );
+
+      expect(title, contains(kurdishGregorianMonthNames[8]));
+      expect(title, isNot(contains('سپتامبر')));
+    });
+
+    test('Kurdish Jalali uses the Kurdish name, not the Persian one', () {
+      // Measured: "شهریور ۱۴۰۵" — Persian words on a Kurdish screen, which is
+      // the sentence `kurdishJalaliMonthNames`' own doc comment uses.
+      final title = historyMonthTitle(
+        const MonthKey(calendar: CalmCalendar.persian, year: 1405, month: 6),
+        'ckb-IR',
+      );
+
+      expect(title, contains(kurdishJalaliMonthNames[5]));
+      expect(title, isNot(contains(jalaliMonthNames[5])));
+    });
+
+    test(
+      'Iraqi Arabic uses the Levantine name the rest of the screen uses',
+      () {
+        // The header said "سبتمبر" (Gulf) while `formatLongDate` on the same
+        // screen said "أيلول" (Levantine) — one month, two names, one screen.
+        final title = historyMonthTitle(
+          const MonthKey(
+            calendar: CalmCalendar.gregorian,
+            year: 2026,
+            month: 9,
+          ),
+          'ar-IQ',
+        );
+
+        expect(title, contains(arabicMonthNames('ar-IQ')[8]));
+      },
+    );
+  });
 }
