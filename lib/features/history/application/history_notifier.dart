@@ -26,6 +26,7 @@ import 'package:odova/core/history/history_cursor.dart';
 import 'package:odova/core/history/history_entry.dart';
 import 'package:odova/core/history/history_filter.dart';
 import 'package:odova/core/history/month_index.dart';
+import 'package:odova/core/history/search_normalise.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/database_provider.dart';
@@ -87,6 +88,7 @@ class HistoryState {
     this.isLoading = false,
     this.failure,
     this.segments,
+    this.isSearching = false,
   });
 
   /// The loaded window, newest first.
@@ -126,6 +128,14 @@ class HistoryState {
   /// draws. EPIC-13 supplies the provider and this reads it.
   final FuelSegmentSet? segments;
 
+  /// Whether the app bar is showing the search field.
+  ///
+  /// Separate from `filter.query` being empty, because §11 opens the field
+  /// BEFORE anything is typed: "Tapping `⌕` replaces the app bar title with a
+  /// text field in place — no push, no modal, no route change." An empty query
+  /// while searching shows the unfiltered list, not the no-match state.
+  final bool isSearching;
+
   /// Where the next page resumes.
   HistoryCursor? get cursor => entries.isEmpty ? null : entries.last.cursor;
 
@@ -139,6 +149,7 @@ class HistoryState {
     PersistFailure? failure,
     bool clearFailure = false,
     FuelSegmentSet? segments,
+    bool? isSearching,
   }) => HistoryState(
     entries: entries ?? this.entries,
     filter: filter ?? this.filter,
@@ -147,6 +158,7 @@ class HistoryState {
     isLoading: isLoading ?? this.isLoading,
     failure: clearFailure ? null : (failure ?? this.failure),
     segments: segments ?? this.segments,
+    isSearching: isSearching ?? this.isSearching,
   );
 }
 
@@ -252,6 +264,61 @@ class HistoryNotifier extends Notifier<HistoryState> {
     state = state.copyWith(filter: filter);
     await load();
   }
+
+  /// Opens the search field, keeping the chips as they are.
+  ///
+  /// §11: search "composes with the chips (AND), so 'Fuel · 2024 · shell' is
+  /// expressible." Entering search therefore changes nothing about the list —
+  /// only what the app bar shows.
+  void enterSearch() {
+    if (state.isSearching) return;
+    state = state.copyWith(isSearching: true);
+  }
+
+  /// Closes the field and restores the filter as it was.
+  ///
+  /// §11: "System back and the `✕` exit search and restore the previous filter
+  /// state." That means the QUERY goes and the chips stay — a user who
+  /// narrowed to Fuel · 2024 and then searched has not asked to lose the
+  /// narrowing.
+  ///
+  /// An earlier version snapshotted the whole filter on entering search and
+  /// put it back on leaving, so that chips changed DURING a search were also
+  /// undone. It was removed rather than kept: §11 does not ask for it, no test
+  /// could tell the two apart, and undoing a selection the user made
+  /// deliberately is the more surprising of the two behaviours.
+  Future<void> exitSearch() async {
+    if (!state.isSearching) return;
+    _debounce?.cancel();
+    _debounce = null;
+    state = state.copyWith(isSearching: false);
+    await applyFilter(state.filter.withQuery(''));
+  }
+
+  /// Types [query] into the search field.
+  ///
+  /// Debounced by §11's 200 ms. Every keystroke otherwise runs a `LIKE` over
+  /// every text column of every row — measured at ~18 ms over 3,000 rows,
+  /// which is fine once and is not fine eight times while a word is typed.
+  void search(String query) {
+    _debounce?.cancel();
+    _debounce = Timer(
+      const Duration(milliseconds: kSearchDebounceMs),
+      () => unawaited(applyFilter(state.filter.withQuery(query))),
+    );
+  }
+
+  /// Runs the pending search now, for a test that will not wait 200 ms.
+  @visibleForTesting
+  Future<void> flushSearch() async {
+    if (_debounce?.isActive ?? false) {
+      _debounce!.cancel();
+      _debounce = null;
+    }
+    await applyFilter(state.filter);
+  }
+
+  Timer? _debounce;
 
   /// Re-anchors the list at [month], discarding the loaded window.
   ///

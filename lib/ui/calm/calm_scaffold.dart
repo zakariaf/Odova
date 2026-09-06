@@ -297,6 +297,7 @@ class CalmAppBar extends StatelessWidget {
     bool showVehicleChevron = false,
     this.onTapVehicle,
     this.actions = const [],
+    this.titleWidget,
   }) : shape = showVehicleChevron
            ? CalmAppBarShape.vehicle
            : CalmAppBarShape.standard,
@@ -314,6 +315,7 @@ class CalmAppBar extends StatelessWidget {
     this.subtitle,
     this.actions = const [],
   }) : shape = CalmAppBarShape.large,
+       titleWidget = null,
        onTapVehicle = null,
        startLabel = null,
        startIcon = null,
@@ -329,6 +331,7 @@ class CalmAppBar extends StatelessWidget {
     super.key,
     this.actions = const [],
   }) : shape = CalmAppBarShape.vehicle,
+       titleWidget = null,
        subtitle = null,
        startLabel = null,
        startIcon = null,
@@ -350,6 +353,7 @@ class CalmAppBar extends StatelessWidget {
     super.key,
     this.startIcon,
   }) : shape = CalmAppBarShape.modal,
+       titleWidget = null,
        onTapVehicle = null,
        subtitle = null,
        actions = const [];
@@ -362,6 +366,19 @@ class CalmAppBar extends StatelessWidget {
 
   /// The caption under a [CalmAppBarShape.large] title.
   final String? subtitle;
+
+  /// A widget shown INSTEAD of [title], filling the same slot.
+  ///
+  /// One caller: SPEC.md §11's search, which "replaces the app bar title with
+  /// a text field in place — no push, no modal, no route change." The
+  /// alternative was a second app bar for a screen to swap to, which is how
+  /// two bars drift apart in height and padding and the swap becomes visible
+  /// as a jump.
+  ///
+  /// It takes the title's slot and nothing else: the bar's height, padding and
+  /// actions are unchanged, which is what "in place" has to mean if system
+  /// back is still to leave search rather than the screen.
+  final Widget? titleWidget;
 
   /// Draws the start action as a GLYPH instead of a word.
   ///
@@ -512,7 +529,7 @@ class CalmAppBar extends StatelessWidget {
         padding: EdgeInsetsDirectional.symmetric(horizontal: space.s4),
         child: Row(
           children: [
-            Expanded(child: label(type.title)),
+            Expanded(child: titleWidget ?? label(type.title)),
             ...actions,
           ],
         ),

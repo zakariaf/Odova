@@ -43,14 +43,32 @@ import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
+import 'package:odova/ui/calm/calm_search_field.dart';
 
 /// The timeline.
-class HistoryScreen extends ConsumerWidget {
+///
+/// Stateful for ONE reason: §11's search field is a `TextField` in the app bar
+/// and a controller has to outlive the rebuild each keystroke causes. The
+/// list's own state is the notifier's; nothing else lives here.
+class HistoryScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const HistoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends ConsumerState<HistoryScreen> {
+  final TextEditingController _search = TextEditingController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final vehicleId = ref.watch(activeVehicleIdProvider);
 
@@ -92,23 +110,43 @@ class HistoryScreen extends ConsumerWidget {
 
     return CalmScaffold(
       appBar: CalmAppBar(
-        title: l10n.tabHistory,
+        // §11 replaces the TITLE with the field, in place. The bar itself does
+        // not change and the route does not move, which is what makes system
+        // back leave search rather than leave the list.
+        title: state.isSearching ? '' : l10n.tabHistory,
+        titleWidget: state.isSearching
+            ? CalmSearchField(
+                controller: _search,
+                hint: l10n.historySearchHint,
+                closeLabel: l10n.historySearchClear,
+                onChanged: (query) =>
+                    ref.read(historyProvider(scope).notifier).search(query),
+                onClose: () {
+                  _search.clear();
+                  unawaited(
+                    ref.read(historyProvider(scope).notifier).exitSearch(),
+                  );
+                },
+              )
+            : null,
         actions: [
           // §11 shows the search affordance "only above 200 entries for the
           // active vehicle; below that the list is faster to scroll than the
           // keyboard is to open." The count comes from the month INDEX rather
           // than the loaded window, which is 60 rows on the first frame and
           // would hide the control on every vehicle.
-          if (_entryCount(state) > kHistorySearchThreshold)
+          if (!state.isSearching &&
+              _entryCount(state) > kHistorySearchThreshold)
             CalmAppBarAction(
               label: l10n.historySearch,
               icon: Icons.search,
-              onTap: () {},
+              onTap: ref.read(historyProvider(scope).notifier).enterSearch,
             ),
-          CalmAppBarAction(
-            label: l10n.historyReport,
-            onTap: () => unawaited(context.push(Routes.serviceReport)),
-          ),
+          if (!state.isSearching)
+            CalmAppBarAction(
+              label: l10n.historyReport,
+              onTap: () => unawaited(context.push(Routes.serviceReport)),
+            ),
         ],
       ),
       children: [
@@ -161,7 +199,23 @@ class HistoryScreen extends ConsumerWidget {
       // TWO empty states, because the remedy differs: nothing to log, or
       // something to widen.
       return [
-        if (state.filter.isEmpty)
+        // Three empty states, and which one depends on WHY the list is
+        // empty. A search that found nothing is not a filter that found
+        // nothing, and neither is a vehicle with no history — each has its own
+        // remedy, and offering the wrong one leaves the user where they were.
+        if (state.filter.query.trim().isNotEmpty)
+          HistorySearchEmptyState(
+            query: state.filter.query,
+            onClearSearch: () {
+              _search.clear();
+              unawaited(
+                ref
+                    .read(historyProvider(scope).notifier)
+                    .applyFilter(state.filter.withQuery('')),
+              );
+            },
+          )
+        else if (state.filter.isEmpty)
           HistoryEmptyState(
             onLogFillUp: () =>
                 unawaited(context.push(Routes.log(LogType.fillUp))),

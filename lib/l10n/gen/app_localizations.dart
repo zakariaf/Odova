@@ -250,6 +250,24 @@ abstract class AppLocalizations {
   /// **'Report'**
   String get historyReport;
 
+  /// The search field's placeholder. One word — §11 makes search a mode inside history, not a screen with an explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get historySearchHint;
+
+  /// The button under a no-match result. Distinct from historyClearFilters: that one drops the chips, this one drops the query, and offering the wrong one leaves the user in the state they wanted out of.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get historySearchClear;
+
+  /// §11 verbatim, quoting the query back so the user can see what was actually searched — a typo is the commonest reason for no match, and a message that does not repeat the term cannot show it.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches “{query}”.'**
+  String historySearchNoMatch(String query);
+
   /// The search affordance's accessible name. §11 shows it only above 200 rows.
   ///
   /// In en, this message translates to:

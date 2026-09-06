@@ -143,6 +143,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get historyReport => 'Rapport';
 
   @override
+  String get historySearchHint => 'Rechercher';
+
+  @override
+  String get historySearchClear => 'Effacer la recherche';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'Rien ne correspond à « $query ».';
+  }
+
+  @override
   String get historySearch => 'Rechercher';
 
   @override

@@ -137,6 +137,17 @@ class AppLocalizationsFa extends AppLocalizations {
   String get historyReport => 'گزارش';
 
   @override
+  String get historySearchHint => 'جستجو';
+
+  @override
+  String get historySearchClear => 'پاک کردن جستجو';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'چیزی با «$query» مطابقت ندارد.';
+  }
+
+  @override
   String get historySearch => 'جستجو در تاریخچه';
 
   @override

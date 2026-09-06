@@ -160,6 +160,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get historyReport => 'تقرير';
 
   @override
+  String get historySearchHint => 'بحث';
+
+  @override
+  String get historySearchClear => 'مسح البحث';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'لا شيء يطابق «$query».';
+  }
+
+  @override
   String get historySearch => 'بحث في السجل';
 
   @override

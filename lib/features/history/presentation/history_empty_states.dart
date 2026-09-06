@@ -143,3 +143,55 @@ class HistoryReadFailureState extends StatelessWidget {
     );
   }
 }
+
+/// §11's no-match state: the query, quoted, and one way out.
+///
+/// Quoting the term back is the point. A typo is the commonest reason for no
+/// match, and a message that does not repeat what was searched cannot show the
+/// user their own mistake.
+///
+/// Its button is **Clear search** and not Clear filters. They are different
+/// acts — one drops the query, the other drops the chips — and offering the
+/// wrong one leaves the user in the state they were trying to leave.
+class HistorySearchEmptyState extends StatelessWidget {
+  /// Creates the state.
+  const HistorySearchEmptyState({
+    required this.query,
+    required this.onClearSearch,
+    super.key,
+  });
+
+  /// What was typed.
+  final String query;
+
+  /// Empties the field, keeping the chips.
+  final VoidCallback onClearSearch;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = CalmColors.of(context);
+    final space = CalmSpace.of(context);
+    final type = CalmType.of(context);
+
+    return Padding(
+      padding: EdgeInsetsDirectional.symmetric(vertical: space.s7),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: space.s3,
+        children: [
+          Text(
+            l10n.historySearchNoMatch(query),
+            textAlign: TextAlign.center,
+            style: type.body.copyWith(color: colors.ink3),
+          ),
+          CalmButton(
+            label: l10n.historySearchClear,
+            variant: CalmButtonVariant.quiet,
+            onPressed: onClearSearch,
+          ),
+        ],
+      ),
+    );
+  }
+}

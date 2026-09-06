@@ -173,6 +173,19 @@
   "@historyReport": {
     "description": "\u00a711's app-bar action opening report.service. A NOUN, because it names a document rather than an act \u2014 the report is a thing handed to a buyer."
   },
+  "historySearchHint": "Search",
+  "@historySearchHint": {
+    "description": "The search field's placeholder. One word \u2014 \u00a711 makes search a mode inside history, not a screen with an explanation."
+  },
+  "historySearchClear": "Clear search",
+  "@historySearchClear": {
+    "description": "The button under a no-match result. Distinct from historyClearFilters: that one drops the chips, this one drops the query, and offering the wrong one leaves the user in the state they wanted out of."
+  },
+  "historySearchNoMatch": "Nothing matches “{query}”.",
+  "@historySearchNoMatch": {
+    "description": "\u00a711 verbatim, quoting the query back so the user can see what was actually searched \u2014 a typo is the commonest reason for no match, and a message that does not repeat the term cannot show it.",
+    "placeholders": {"query": {"type": "String"}}
+  },
   "historySearch": "Search history",
   "@historySearch": {
     "description": "The search affordance's accessible name. \u00a711 shows it only above 200 rows."

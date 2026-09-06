@@ -137,6 +137,17 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get historyReport => 'ڕاپۆرت';
 
   @override
+  String get historySearchHint => 'گەڕان';
+
+  @override
+  String get historySearchClear => 'گەڕان بسڕەوە';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'هیچ شتێک لەگەڵ «$query» ناگونجێت.';
+  }
+
+  @override
   String get historySearch => 'گەڕان لە مێژوو';
 
   @override

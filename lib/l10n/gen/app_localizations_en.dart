@@ -136,6 +136,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyReport => 'Report';
 
   @override
+  String get historySearchHint => 'Search';
+
+  @override
+  String get historySearchClear => 'Clear search';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'Nothing matches “$query”.';
+  }
+
+  @override
   String get historySearch => 'Search history';
 
   @override

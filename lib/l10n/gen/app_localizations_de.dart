@@ -137,6 +137,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get historyReport => 'Bericht';
 
   @override
+  String get historySearchHint => 'Suchen';
+
+  @override
+  String get historySearchClear => 'Suche löschen';
+
+  @override
+  String historySearchNoMatch(String query) {
+    return 'Nichts passt zu „$query“.';
+  }
+
+  @override
   String get historySearch => 'Verlauf durchsuchen';
 
   @override
