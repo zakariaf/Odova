@@ -1393,6 +1393,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logOdometerPadBackspace => 'Supprimer le dernier chiffre';
 
   @override
+  String get expenseCategoryInsurance => 'Assurance';
+
+  @override
+  String get expenseCategoryTaxRegistration => 'Taxe de circulation';
+
+  @override
+  String get expenseCategoryParking => 'Stationnement';
+
+  @override
+  String get expenseCategoryToll => 'Péage';
+
+  @override
+  String get expenseCategoryFine => 'Amende';
+
+  @override
+  String get expenseCategoryWash => 'Lavage';
+
+  @override
+  String get expenseCategoryTyreStorage => 'Stockage des pneus';
+
+  @override
+  String get expenseCategoryAccessories => 'Accessoire';
+
+  @override
+  String get expenseCategoryFinance => 'Financement';
+
+  @override
+  String get expenseCategoryOther => 'Autre';
+
+  @override
   String get logExpenseCategoryLabel => 'Catégorie';
 
   @override

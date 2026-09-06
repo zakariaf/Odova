@@ -34,6 +34,7 @@ import 'package:odova/features/logging/domain/expense_draft.dart';
 import 'package:odova/features/logging/domain/fillup_draft.dart';
 import 'package:odova/features/logging/domain/price_trio.dart';
 import 'package:odova/features/logging/domain/service_cost_model.dart';
+import 'package:odova/features/logging/domain/service_item_chips.dart';
 import 'package:odova/features/logging/ui/log_expense_body.dart';
 import 'package:odova/features/logging/ui/log_fillup_body.dart';
 import 'package:odova/features/logging/ui/log_more_sheet.dart';
@@ -41,6 +42,7 @@ import 'package:odova/features/logging/ui/log_odometer_body.dart';
 import 'package:odova/features/logging/ui/log_service_body.dart';
 import 'package:odova/features/logging/ui/odometer_field.dart';
 import 'package:odova/l10n/date_format.dart';
+import 'package:odova/l10n/expense_labels.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/ui/calm/calm_button.dart';
@@ -248,11 +250,11 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       LogType.service => LogServiceBody(
         odometer: _odometerField(),
         dateRow: _dateRow(),
-        items: const [],
+        items: _itemChips(),
         moreRow: _moreRow(l10n),
         cost: _cost,
         totalController: _totalController,
-        onToggleItem: (_) {},
+        onToggleItem: _toggleItem,
         onAddOther: () {},
         onTotalChanged: (text) => setState(() => _cost = _cost.withTotal(text)),
         onSplitChanged: (on) =>
@@ -343,6 +345,34 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     ),
   );
 
+  /// §10's *What was done* chips: the vehicle's active items, in §9's order.
+  ///
+  /// From the due snapshot, so the order here is the one Home and
+  /// `reminders.list` already use. A second comparator would be a second
+  /// opinion about which item to name first.
+  List<ServiceItemChip> _itemChips() {
+    final vehicle = _vehicle;
+    if (vehicle == null) return const [];
+    final snapshot = ref.watch(vehicleDueSnapshotProvider(vehicle.id));
+    return serviceItemChips(
+      assessments: snapshot?.assessments ?? const [],
+      ticked: _cost.tickedItemIds.toSet(),
+    );
+  }
+
+  /// Ticks or unticks one item.
+  ///
+  /// Unticking keeps the money and drops only the reset — §10: "Unticking a
+  /// chip whose amount was typed keeps the amount", because the work was still
+  /// paid for even if it is not what re-anchors a reminder.
+  void _toggleItem(String id) {
+    final chip = _itemChips().where((c) => c.id == id).firstOrNull;
+    if (chip == null) return;
+    setState(() {
+      _cost = chip.ticked ? _cost.unticked(id) : _cost.ticked(id, chip.label);
+    });
+  }
+
   /// The expense form, with its three error slots read from ONE validation.
   ///
   /// `problems()` parses the amount and both window dates, and it was called
@@ -353,7 +383,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     return LogExpenseBody(
       draft: _expense,
       moreRow: _moreRow(l10n),
-      categoryLabel: (c) => c.wire,
+      categoryLabel: (c) => expenseCategoryLabel(l10n, c),
       amountController: _amountController,
       labelController: _labelController,
       onCategoryChanged: (c) =>

@@ -1454,6 +1454,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logOdometerPadBackspace => 'حذف آخر رقم';
 
   @override
+  String get expenseCategoryInsurance => 'التأمين';
+
+  @override
+  String get expenseCategoryTaxRegistration => 'رسوم الطريق';
+
+  @override
+  String get expenseCategoryParking => 'وقوف السيارات';
+
+  @override
+  String get expenseCategoryToll => 'رسوم المرور';
+
+  @override
+  String get expenseCategoryFine => 'مخالفة';
+
+  @override
+  String get expenseCategoryWash => 'غسيل';
+
+  @override
+  String get expenseCategoryTyreStorage => 'تخزين الإطارات';
+
+  @override
+  String get expenseCategoryAccessories => 'ملحقات';
+
+  @override
+  String get expenseCategoryFinance => 'تمويل';
+
+  @override
+  String get expenseCategoryOther => 'أخرى';
+
+  @override
   String get logExpenseCategoryLabel => 'الفئة';
 
   @override

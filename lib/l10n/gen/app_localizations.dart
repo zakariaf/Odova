@@ -1988,6 +1988,66 @@ abstract class AppLocalizations {
   /// **'Delete last digit'**
   String get logOdometerPadBackspace;
 
+  /// §10 log.expense category chip: an insurance premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance'**
+  String get expenseCategoryInsurance;
+
+  /// §10 log.expense category chip: road tax or registration. German is the longest string in the app and must wrap, never truncate.
+  ///
+  /// In en, this message translates to:
+  /// **'Road tax'**
+  String get expenseCategoryTaxRegistration;
+
+  /// §10 log.expense category chip: parking.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking'**
+  String get expenseCategoryParking;
+
+  /// §10 log.expense category chip: a road toll.
+  ///
+  /// In en, this message translates to:
+  /// **'Toll'**
+  String get expenseCategoryToll;
+
+  /// §10 log.expense category chip: a traffic fine.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine'**
+  String get expenseCategoryFine;
+
+  /// §10 log.expense category chip: a car wash.
+  ///
+  /// In en, this message translates to:
+  /// **'Wash'**
+  String get expenseCategoryWash;
+
+  /// §10 log.expense category chip: seasonal tyre storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tyre storage'**
+  String get expenseCategoryTyreStorage;
+
+  /// §10 log.expense category chip: an accessory. Singular — the chip names one purchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessory'**
+  String get expenseCategoryAccessories;
+
+  /// §10 log.expense category chip: a finance or lease payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get expenseCategoryFinance;
+
+  /// §10 log.expense category chip: anything else. Requires a name in the label field.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get expenseCategoryOther;
+
   /// The logExpenseCategoryLabel label on log.expense. SPEC.md §10.
   ///
   /// In en, this message translates to:

@@ -1354,6 +1354,36 @@ class AppLocalizationsFa extends AppLocalizations {
   String get logOdometerPadBackspace => 'حذف آخرین رقم';
 
   @override
+  String get expenseCategoryInsurance => 'بیمه';
+
+  @override
+  String get expenseCategoryTaxRegistration => 'عوارض و مالیات';
+
+  @override
+  String get expenseCategoryParking => 'پارکینگ';
+
+  @override
+  String get expenseCategoryToll => 'عوارض راه';
+
+  @override
+  String get expenseCategoryFine => 'جریمه';
+
+  @override
+  String get expenseCategoryWash => 'کارواش';
+
+  @override
+  String get expenseCategoryTyreStorage => 'نگهداری لاستیک';
+
+  @override
+  String get expenseCategoryAccessories => 'لوازم جانبی';
+
+  @override
+  String get expenseCategoryFinance => 'اقساط';
+
+  @override
+  String get expenseCategoryOther => 'سایر';
+
+  @override
   String get logExpenseCategoryLabel => 'دسته';
 
   @override

@@ -1359,6 +1359,36 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get logOdometerPadBackspace => 'سڕینەوەی دوا ژمارە';
 
   @override
+  String get expenseCategoryInsurance => 'دڵنیایی';
+
+  @override
+  String get expenseCategoryTaxRegistration => 'باجی ڕێگا';
+
+  @override
+  String get expenseCategoryParking => 'پارکینگ';
+
+  @override
+  String get expenseCategoryToll => 'باجی ڕێگا‌بڕین';
+
+  @override
+  String get expenseCategoryFine => 'غەرامە';
+
+  @override
+  String get expenseCategoryWash => 'شوشتن';
+
+  @override
+  String get expenseCategoryTyreStorage => 'هەڵگرتنی تایە';
+
+  @override
+  String get expenseCategoryAccessories => 'پێداویستی';
+
+  @override
+  String get expenseCategoryFinance => 'دارایی';
+
+  @override
+  String get expenseCategoryOther => 'ئەوانی تر';
+
+  @override
   String get logExpenseCategoryLabel => 'پۆل';
 
   @override
