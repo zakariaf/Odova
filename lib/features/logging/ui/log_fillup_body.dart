@@ -18,6 +18,7 @@ class LogFillUpBody extends StatelessWidget {
   const LogFillUpBody({
     required this.odometer,
     required this.dateRow,
+    required this.moreRow,
     required this.trio,
     required this.quantityUnit,
     required this.isFullTank,
@@ -62,6 +63,9 @@ class LogFillUpBody extends StatelessWidget {
 
   /// The trio's one message, when fewer than two carry a value.
   final String? trioError;
+
+  /// §10's More section, built by the shell so all three agree.
+  final Widget moreRow;
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +117,7 @@ class LogFillUpBody extends StatelessWidget {
           onChanged: onTrioChanged,
         ),
         dateRow,
+        moreRow,
       ],
     );
   }

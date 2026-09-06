@@ -341,5 +341,17 @@
   "logServiceSplit": "Répartir le coût par élément",
   "logServiceCostError": "Le coût ne peut pas être négatif. Une intervention sous garantie vaut {zero}.",
   "logServiceCostEmptyError": "Saisissez le coût, ou {zero}.",
-  "logServiceGenericLine": "Entretien"
+  "logServiceGenericLine": "Entretien",
+  "logMoreRow": "Plus",
+  "logMoreFillUpSummary": "Station · Carburant · Trajet",
+  "logMoreServiceSummary": "Garage · Facture",
+  "logMoreExpenseSummary": "Payé à · Notes",
+  "logFillUpStation": "Station",
+  "logFillUpGrade": "Carburant",
+  "logFillUpChainBroken": "J’ai oublié d’enregistrer un plein avant celui-ci",
+  "logFillUpChainBrokenHint": "Vos valeurs de consommation repartent de ce plein.",
+  "logServiceWorkshop": "Garage",
+  "logServiceInvoice": "N° de facture",
+  "logNotes": "Notes",
+  "logExpensePaidTo": "Payé à"
 }

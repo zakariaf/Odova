@@ -341,5 +341,17 @@
   "logServiceSplit": "‏meti yb tsoc eht tilpS",
   "logServiceCostError": "‏ si boj ytnarraw A .evitagen eb t'nac tsoC{zero}.",
   "logServiceCostEmptyError": "‏ ro ,tsoc ti tahw retnE{zero}.",
-  "logServiceGenericLine": "‏ecivreS"
+  "logServiceGenericLine": "‏ecivreS",
+  "logMoreRow": "‏eroM",
+  "logMoreFillUpSummary": "‏pirT · edarG · noitatS",
+  "logMoreServiceSummary": "‏setoN · eciovnI · pohskroW",
+  "logMoreExpenseSummary": "‏setoN · pirT · ot diaP",
+  "logFillUpStation": "‏noitatS",
+  "logFillUpGrade": "‏edarG",
+  "logFillUpChainBroken": "‏siht erofeb pu-llif a gniggol dessim I",
+  "logFillUpChainBrokenHint": "‏.pu-llif siht morf hserf trats serugif noitpmusnoc ruoY",
+  "logServiceWorkshop": "‏pohskroW",
+  "logServiceInvoice": "‏.on eciovnI",
+  "logNotes": "‏setoN",
+  "logExpensePaidTo": "‏ot diaP"
 }

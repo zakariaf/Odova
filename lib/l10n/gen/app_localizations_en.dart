@@ -1458,4 +1458,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logServiceGenericLine => 'Service';
+
+  @override
+  String get logMoreRow => 'More';
+
+  @override
+  String get logMoreFillUpSummary => 'Station · Grade · Trip';
+
+  @override
+  String get logMoreServiceSummary => 'Workshop · Invoice · Notes';
+
+  @override
+  String get logMoreExpenseSummary => 'Paid to · Trip · Notes';
+
+  @override
+  String get logFillUpStation => 'Station';
+
+  @override
+  String get logFillUpGrade => 'Grade';
+
+  @override
+  String get logFillUpChainBroken => 'I missed logging a fill-up before this';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'Your consumption figures start fresh from this fill-up.';
+
+  @override
+  String get logServiceWorkshop => 'Workshop';
+
+  @override
+  String get logServiceInvoice => 'Invoice no.';
+
+  @override
+  String get logNotes => 'Notes';
+
+  @override
+  String get logExpensePaidTo => 'Paid to';
 }

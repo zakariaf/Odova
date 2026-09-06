@@ -341,5 +341,17 @@
   "logServiceSplit": "تقسيم التكلفة حسب البند",
   "logServiceCostError": "لا يمكن أن تكون التكلفة سالبة. العمل تحت الضمان {zero}.",
   "logServiceCostEmptyError": "أدخل التكلفة، أو {zero}.",
-  "logServiceGenericLine": "الصيانة"
+  "logServiceGenericLine": "الصيانة",
+  "logMoreRow": "المزيد",
+  "logMoreFillUpSummary": "المحطة · النوع · الرحلة",
+  "logMoreServiceSummary": "الورشة · الفاتورة",
+  "logMoreExpenseSummary": "دُفع إلى · ملاحظات",
+  "logFillUpStation": "المحطة",
+  "logFillUpGrade": "النوع",
+  "logFillUpChainBroken": "لم أسجّل تعبئة سابقة",
+  "logFillUpChainBrokenHint": "تبدأ أرقام استهلاكك من جديد بهذه التعبئة.",
+  "logServiceWorkshop": "الورشة",
+  "logServiceInvoice": "رقم الفاتورة",
+  "logNotes": "ملاحظات",
+  "logExpensePaidTo": "دُفع إلى"
 }

@@ -1461,4 +1461,41 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get logServiceGenericLine => 'خزمەتگوزاری';
+
+  @override
+  String get logMoreRow => 'زیاتر';
+
+  @override
+  String get logMoreFillUpSummary => 'بنزینخانە · جۆر · گەشت';
+
+  @override
+  String get logMoreServiceSummary => 'تاقیگە · پسووڵە';
+
+  @override
+  String get logMoreExpenseSummary => 'دراوە بە · تێبینی';
+
+  @override
+  String get logFillUpStation => 'بنزینخانە';
+
+  @override
+  String get logFillUpGrade => 'جۆر';
+
+  @override
+  String get logFillUpChainBroken => 'پڕکردنەوەیەکی پێشووم تۆمار نەکرد';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'ژمارەکانی خەرجکردنت لەم پڕکردنەوەیەوە لە نوێ دەست پێدەکەن.';
+
+  @override
+  String get logServiceWorkshop => 'تاقیگە';
+
+  @override
+  String get logServiceInvoice => 'ژمارەی پسووڵە';
+
+  @override
+  String get logNotes => 'تێبینی';
+
+  @override
+  String get logExpensePaidTo => 'دراوە بە';
 }

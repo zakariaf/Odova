@@ -1467,4 +1467,42 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get logServiceGenericLine => 'Service';
+
+  @override
+  String get logMoreRow => 'Mehr';
+
+  @override
+  String get logMoreFillUpSummary => 'Tankstelle · Sorte · Fahrt';
+
+  @override
+  String get logMoreServiceSummary => 'Werkstatt · Rechnung';
+
+  @override
+  String get logMoreExpenseSummary => 'Bezahlt an · Notizen';
+
+  @override
+  String get logFillUpStation => 'Tankstelle';
+
+  @override
+  String get logFillUpGrade => 'Sorte';
+
+  @override
+  String get logFillUpChainBroken =>
+      'Ich habe eine frühere Tankfüllung nicht erfasst';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'Ihre Verbrauchswerte beginnen mit dieser Tankfüllung neu.';
+
+  @override
+  String get logServiceWorkshop => 'Werkstatt';
+
+  @override
+  String get logServiceInvoice => 'Rechnungsnr.';
+
+  @override
+  String get logNotes => 'Notizen';
+
+  @override
+  String get logExpensePaidTo => 'Bezahlt an';
 }

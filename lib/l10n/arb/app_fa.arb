@@ -341,5 +341,17 @@
   "logServiceSplit": "تقسیم هزینه بر اساس مورد",
   "logServiceCostError": "هزینه نمی‌تواند منفی باشد. کار گارانتی {zero} است.",
   "logServiceCostEmptyError": "هزینه را بنویسید، یا {zero}.",
-  "logServiceGenericLine": "سرویس"
+  "logServiceGenericLine": "سرویس",
+  "logMoreRow": "بیشتر",
+  "logMoreFillUpSummary": "پمپ بنزین · نوع · سفر",
+  "logMoreServiceSummary": "تعمیرگاه · فاکتور",
+  "logMoreExpenseSummary": "پرداخت به · یادداشت",
+  "logFillUpStation": "پمپ بنزین",
+  "logFillUpGrade": "نوع سوخت",
+  "logFillUpChainBroken": "سوخت‌گیری قبلی را ثبت نکردم",
+  "logFillUpChainBrokenHint": "عددهای مصرف شما از این سوخت‌گیری از نو شروع می‌شود.",
+  "logServiceWorkshop": "تعمیرگاه",
+  "logServiceInvoice": "شمارهٔ فاکتور",
+  "logNotes": "یادداشت",
+  "logExpensePaidTo": "پرداخت به"
 }

@@ -341,5 +341,17 @@
   "logServiceSplit": "دابەشکردنی تێچوو بەپێی بەش",
   "logServiceCostError": "تێچوو ناتوانێت نەرێنی بێت. کاری گەرەنتی {zero}ە.",
   "logServiceCostEmptyError": "تێچووەکە بنووسە، یان {zero}.",
-  "logServiceGenericLine": "خزمەتگوزاری"
+  "logServiceGenericLine": "خزمەتگوزاری",
+  "logMoreRow": "زیاتر",
+  "logMoreFillUpSummary": "بنزینخانە · جۆر · گەشت",
+  "logMoreServiceSummary": "تاقیگە · پسووڵە",
+  "logMoreExpenseSummary": "دراوە بە · تێبینی",
+  "logFillUpStation": "بنزینخانە",
+  "logFillUpGrade": "جۆر",
+  "logFillUpChainBroken": "پڕکردنەوەیەکی پێشووم تۆمار نەکرد",
+  "logFillUpChainBrokenHint": "ژمارەکانی خەرجکردنت لەم پڕکردنەوەیەوە لە نوێ دەست پێدەکەن.",
+  "logServiceWorkshop": "تاقیگە",
+  "logServiceInvoice": "ژمارەی پسووڵە",
+  "logNotes": "تێبینی",
+  "logExpensePaidTo": "دراوە بە"
 }

@@ -22,6 +22,7 @@ class LogServiceBody extends StatelessWidget {
   const LogServiceBody({
     required this.odometer,
     required this.dateRow,
+    required this.moreRow,
     required this.items,
     required this.cost,
     required this.totalController,
@@ -66,6 +67,9 @@ class LogServiceBody extends StatelessWidget {
 
   /// The Total's one message.
   final String? costError;
+
+  /// §10's More section, built by the shell so all three agree.
+  final Widget moreRow;
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +126,7 @@ class LogServiceBody extends StatelessWidget {
             ),
           ],
         ),
+        moreRow,
       ],
     );
   }

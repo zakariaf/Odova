@@ -1497,4 +1497,42 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get logServiceGenericLine => 'Entretien';
+
+  @override
+  String get logMoreRow => 'Plus';
+
+  @override
+  String get logMoreFillUpSummary => 'Station · Carburant · Trajet';
+
+  @override
+  String get logMoreServiceSummary => 'Garage · Facture';
+
+  @override
+  String get logMoreExpenseSummary => 'Payé à · Notes';
+
+  @override
+  String get logFillUpStation => 'Station';
+
+  @override
+  String get logFillUpGrade => 'Carburant';
+
+  @override
+  String get logFillUpChainBroken =>
+      'J’ai oublié d’enregistrer un plein avant celui-ci';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'Vos valeurs de consommation repartent de ce plein.';
+
+  @override
+  String get logServiceWorkshop => 'Garage';
+
+  @override
+  String get logServiceInvoice => 'N° de facture';
+
+  @override
+  String get logNotes => 'Notes';
+
+  @override
+  String get logExpensePaidTo => 'Payé à';
 }

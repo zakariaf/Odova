@@ -1556,4 +1556,41 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logServiceGenericLine => 'الصيانة';
+
+  @override
+  String get logMoreRow => 'المزيد';
+
+  @override
+  String get logMoreFillUpSummary => 'المحطة · النوع · الرحلة';
+
+  @override
+  String get logMoreServiceSummary => 'الورشة · الفاتورة';
+
+  @override
+  String get logMoreExpenseSummary => 'دُفع إلى · ملاحظات';
+
+  @override
+  String get logFillUpStation => 'المحطة';
+
+  @override
+  String get logFillUpGrade => 'النوع';
+
+  @override
+  String get logFillUpChainBroken => 'لم أسجّل تعبئة سابقة';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'تبدأ أرقام استهلاكك من جديد بهذه التعبئة.';
+
+  @override
+  String get logServiceWorkshop => 'الورشة';
+
+  @override
+  String get logServiceInvoice => 'رقم الفاتورة';
+
+  @override
+  String get logNotes => 'ملاحظات';
+
+  @override
+  String get logExpensePaidTo => 'دُفع إلى';
 }

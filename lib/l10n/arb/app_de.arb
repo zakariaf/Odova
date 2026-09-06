@@ -341,5 +341,17 @@
   "logServiceSplit": "Kosten nach Position aufteilen",
   "logServiceCostError": "Die Kosten dürfen nicht negativ sein. Eine Garantiearbeit ist {zero}.",
   "logServiceCostEmptyError": "Geben Sie die Kosten ein, oder {zero}.",
-  "logServiceGenericLine": "Service"
+  "logServiceGenericLine": "Service",
+  "logMoreRow": "Mehr",
+  "logMoreFillUpSummary": "Tankstelle · Sorte · Fahrt",
+  "logMoreServiceSummary": "Werkstatt · Rechnung",
+  "logMoreExpenseSummary": "Bezahlt an · Notizen",
+  "logFillUpStation": "Tankstelle",
+  "logFillUpGrade": "Sorte",
+  "logFillUpChainBroken": "Ich habe eine frühere Tankfüllung nicht erfasst",
+  "logFillUpChainBrokenHint": "Ihre Verbrauchswerte beginnen mit dieser Tankfüllung neu.",
+  "logServiceWorkshop": "Werkstatt",
+  "logServiceInvoice": "Rechnungsnr.",
+  "logNotes": "Notizen",
+  "logExpensePaidTo": "Bezahlt an"
 }

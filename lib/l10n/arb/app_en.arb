@@ -2194,5 +2194,53 @@
   "logServiceGenericLine": "Service",
   "@logServiceGenericLine": {
     "description": "The label a service line takes when several items are ticked or none is. SPEC.md §10's cost model: un-split, the record is one line, and splitting one invoice across the ticked items would be inventing a breakdown the user did not give."
+  },
+  "logMoreRow": "More",
+  "@logMoreRow": {
+    "description": "The collapsed section every log form carries. SPEC.md §10: 'More is collapsed by default and collapsed again next time: nothing inside it changes a consumption figure.' The artboard draws it as a nav row with a summary of what is inside rather than an inline disclosure."
+  },
+  "logMoreFillUpSummary": "Station · Grade · Trip",
+  "@logMoreFillUpSummary": {
+    "description": "What is behind More on log.fillup, listed on the row itself so the section can be skipped without opening it."
+  },
+  "logMoreServiceSummary": "Workshop · Invoice · Notes",
+  "@logMoreServiceSummary": {
+    "description": "What is behind More on log.service. THREE items at most: the value is end-aligned beside the row's title and has no room to wrap, and four overflowed a compact row at 390pt. German and French carry two, because their words are longer and a truncated summary is worse than a shorter honest one."
+  },
+  "logMoreExpenseSummary": "Paid to · Trip · Notes",
+  "@logMoreExpenseSummary": {
+    "description": "What is behind More on log.expense. See logMoreServiceSummary for the length rule."
+  },
+  "logFillUpStation": "Station",
+  "@logFillUpStation": {
+    "description": "§10's logFillUpStation label."
+  },
+  "logFillUpGrade": "Grade",
+  "@logFillUpGrade": {
+    "description": "§10's logFillUpGrade label."
+  },
+  "logFillUpChainBroken": "I missed logging a fill-up before this",
+  "@logFillUpChainBroken": {
+    "description": "The checkbox under More. It sits there because it is rare and because ticking it DISCARDS a fuel segment — SPEC.md §10."
+  },
+  "logFillUpChainBrokenHint": "Your consumption figures start fresh from this fill-up.",
+  "@logFillUpChainBrokenHint": {
+    "description": "Shown when the chain-broken box is ticked. It states the consequence, because a discarded segment is invisible otherwise."
+  },
+  "logServiceWorkshop": "Workshop",
+  "@logServiceWorkshop": {
+    "description": "§10's logServiceWorkshop label."
+  },
+  "logServiceInvoice": "Invoice no.",
+  "@logServiceInvoice": {
+    "description": "Forced LTR, start-aligned and never digit-shaped — SPEC.md §10: 'an identifier, not a quantity'."
+  },
+  "logNotes": "Notes",
+  "@logNotes": {
+    "description": "§10's logNotes label."
+  },
+  "logExpensePaidTo": "Paid to",
+  "@logExpensePaidTo": {
+    "description": "§10's logExpensePaidTo label."
   }
 }

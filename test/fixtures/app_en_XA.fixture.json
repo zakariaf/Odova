@@ -341,5 +341,17 @@
   "logServiceSplit": "[Ŝƥŀīţ ţħḗ çǿŝţ ḅẏ īţḗḿ ǃǃǃǃǃǃǃǃǃ]",
   "logServiceCostError": "[Çǿŝţ çáǹ'ţ ḅḗ ǹḗḡáţīṽḗ. Á ẇářřáǹţẏ ĵǿḅ īŝ {zero}. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "logServiceCostEmptyError": "[Ḗǹţḗř ẇħáţ īţ çǿŝţ, ǿř {zero}. ǃǃǃǃǃǃǃǃǃǃ]",
-  "logServiceGenericLine": "[Ŝḗřṽīçḗ ǃǃǃ]"
+  "logServiceGenericLine": "[Ŝḗřṽīçḗ ǃǃǃ]",
+  "logMoreRow": "[Ḿǿřḗ ǃǃ]",
+  "logMoreFillUpSummary": "[Ŝţáţīǿǹ · Ḡřáḍḗ · Ţřīƥ ǃǃǃǃǃǃǃǃǃ]",
+  "logMoreServiceSummary": "[Ẇǿřķŝħǿƥ · Īǹṽǿīçḗ · Ǹǿţḗŝ ǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logMoreExpenseSummary": "[Ƥáīḍ ţǿ · Ţřīƥ · Ǹǿţḗŝ ǃǃǃǃǃǃǃǃǃ]",
+  "logFillUpStation": "[Ŝţáţīǿǹ ǃǃǃ]",
+  "logFillUpGrade": "[Ḡřáḍḗ ǃǃ]",
+  "logFillUpChainBroken": "[Ī ḿīŝŝḗḍ ŀǿḡḡīǹḡ á ƒīŀŀ-ǔƥ ḅḗƒǿřḗ ţħīŝ ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logFillUpChainBrokenHint": "[Ẏǿǔř çǿǹŝǔḿƥţīǿǹ ƒīḡǔřḗŝ ŝţářţ ƒřḗŝħ ƒřǿḿ ţħīŝ ƒīŀŀ-ǔƥ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logServiceWorkshop": "[Ẇǿřķŝħǿƥ ǃǃǃǃ]",
+  "logServiceInvoice": "[Īǹṽǿīçḗ ǹǿ. ǃǃǃǃǃ]",
+  "logNotes": "[Ǹǿţḗŝ ǃǃ]",
+  "logExpensePaidTo": "[Ƥáīḍ ţǿ ǃǃǃ]"
 }

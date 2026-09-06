@@ -1456,4 +1456,41 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get logServiceGenericLine => 'سرویس';
+
+  @override
+  String get logMoreRow => 'بیشتر';
+
+  @override
+  String get logMoreFillUpSummary => 'پمپ بنزین · نوع · سفر';
+
+  @override
+  String get logMoreServiceSummary => 'تعمیرگاه · فاکتور';
+
+  @override
+  String get logMoreExpenseSummary => 'پرداخت به · یادداشت';
+
+  @override
+  String get logFillUpStation => 'پمپ بنزین';
+
+  @override
+  String get logFillUpGrade => 'نوع سوخت';
+
+  @override
+  String get logFillUpChainBroken => 'سوخت‌گیری قبلی را ثبت نکردم';
+
+  @override
+  String get logFillUpChainBrokenHint =>
+      'عددهای مصرف شما از این سوخت‌گیری از نو شروع می‌شود.';
+
+  @override
+  String get logServiceWorkshop => 'تعمیرگاه';
+
+  @override
+  String get logServiceInvoice => 'شمارهٔ فاکتور';
+
+  @override
+  String get logNotes => 'یادداشت';
+
+  @override
+  String get logExpensePaidTo => 'پرداخت به';
 }

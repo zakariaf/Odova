@@ -209,6 +209,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       odometer: _odometerField(),
       dateRow: _dateRow(),
       trio: _trio,
+      moreRow: _moreRow(AppLocalizations.of(context)),
       quantityUnit: _quantityUnit,
       isFullTank: _isFullTank,
       controllers: _trioControllers,
@@ -219,6 +220,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       odometer: _odometerField(),
       dateRow: _dateRow(),
       items: const [],
+      moreRow: _moreRow(AppLocalizations.of(context)),
       cost: _cost,
       totalController: _totalController,
       onToggleItem: (_) {},
@@ -229,6 +231,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     ),
     LogType.expense => LogExpenseBody(
       draft: _expense,
+      moreRow: _moreRow(AppLocalizations.of(context)),
       categoryLabel: (c) => c.wire,
       amountController: _amountController,
       labelController: _labelController,
@@ -268,6 +271,40 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     formatsTag: 'en',
     onChanged: (_) => setState(() {}),
     onUnitChanged: (_) {},
+  );
+
+  /// §10's More row: a nav row naming what is inside it.
+  ///
+  /// A ROW and not an inline disclosure, because that is what the artboard
+  /// draws — `row--nav` with the value "Station · Grade · Trip" and a chevron.
+  /// §10's prose sketches it as `── More ── ▾`; the two agree on the behaviour
+  /// that matters ("collapsed by default and collapsed again next time:
+  /// nothing inside it changes a consumption figure") and disagree only about
+  /// the affordance, so CLAUDE.md §7 gives it to the reference.
+  Widget _moreRow(AppLocalizations l10n) => CalmRowGroup(
+    rows: [
+      CalmListRow(
+        title: l10n.logMoreRow,
+        // The summary is the SUBTITLE, not the end value. The artboard draws it
+        // end-aligned beside the title, and at 390pt with a chevron there
+        // is not room: "Station · Grade · Trip" overflows by 54pt and the
+        // German service summary by 114. A subtitle gets the full width, wraps
+        // rather than truncating, and keeps the information the artboard is
+        // showing — which is the half that matters, since the point of the row
+        // is to let the section be skipped without opening it.
+        subtitle: switch (_segment) {
+          LogType.fillUp => l10n.logMoreFillUpSummary,
+          LogType.service => l10n.logMoreServiceSummary,
+          LogType.expense => l10n.logMoreExpenseSummary,
+          // `log.odometer` has no More section at all — §10: "one more optional
+          // field would be a net loss" — and never draws this row.
+          LogType.odometer => '',
+        },
+        showChevron: true,
+        size: CalmRowSize.compact,
+        onTap: () {},
+      ),
+    ],
   );
 
   /// The date row every form carries.

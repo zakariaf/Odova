@@ -18,6 +18,7 @@ class LogExpenseBody extends StatelessWidget {
   /// Creates the body.
   const LogExpenseBody({
     required this.draft,
+    required this.moreRow,
     required this.categoryLabel,
     required this.amountController,
     required this.labelController,
@@ -64,6 +65,9 @@ class LogExpenseBody extends StatelessWidget {
 
   /// The category chips' message.
   final String? categoryError;
+
+  /// §10's More section, built by the shell so all three agree.
+  final Widget moreRow;
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +121,7 @@ class LogExpenseBody extends StatelessWidget {
             ),
           ],
         ),
+        moreRow,
       ],
     );
   }

@@ -2173,6 +2173,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Service'**
   String get logServiceGenericLine;
+
+  /// The collapsed section every log form carries. SPEC.md §10: 'More is collapsed by default and collapsed again next time: nothing inside it changes a consumption figure.' The artboard draws it as a nav row with a summary of what is inside rather than an inline disclosure.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get logMoreRow;
+
+  /// What is behind More on log.fillup, listed on the row itself so the section can be skipped without opening it.
+  ///
+  /// In en, this message translates to:
+  /// **'Station · Grade · Trip'**
+  String get logMoreFillUpSummary;
+
+  /// What is behind More on log.service. THREE items at most: the value is end-aligned beside the row's title and has no room to wrap, and four overflowed a compact row at 390pt. German and French carry two, because their words are longer and a truncated summary is worse than a shorter honest one.
+  ///
+  /// In en, this message translates to:
+  /// **'Workshop · Invoice · Notes'**
+  String get logMoreServiceSummary;
+
+  /// What is behind More on log.expense. See logMoreServiceSummary for the length rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid to · Trip · Notes'**
+  String get logMoreExpenseSummary;
+
+  /// §10's logFillUpStation label.
+  ///
+  /// In en, this message translates to:
+  /// **'Station'**
+  String get logFillUpStation;
+
+  /// §10's logFillUpGrade label.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get logFillUpGrade;
+
+  /// The checkbox under More. It sits there because it is rare and because ticking it DISCARDS a fuel segment — SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'I missed logging a fill-up before this'**
+  String get logFillUpChainBroken;
+
+  /// Shown when the chain-broken box is ticked. It states the consequence, because a discarded segment is invisible otherwise.
+  ///
+  /// In en, this message translates to:
+  /// **'Your consumption figures start fresh from this fill-up.'**
+  String get logFillUpChainBrokenHint;
+
+  /// §10's logServiceWorkshop label.
+  ///
+  /// In en, this message translates to:
+  /// **'Workshop'**
+  String get logServiceWorkshop;
+
+  /// Forced LTR, start-aligned and never digit-shaped — SPEC.md §10: 'an identifier, not a quantity'.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice no.'**
+  String get logServiceInvoice;
+
+  /// §10's logNotes label.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get logNotes;
+
+  /// §10's logExpensePaidTo label.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid to'**
+  String get logExpensePaidTo;
 }
 
 class _AppLocalizationsDelegate
