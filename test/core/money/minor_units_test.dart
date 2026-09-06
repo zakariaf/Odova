@@ -78,4 +78,37 @@ void main() {
     expect(minorUnitsFrom('92233720368547758.075', _eur), isNull);
     expect(minorUnitsFrom('92233720368547758.07', _eur), isNotNull);
   });
+
+  group('scaleByPowerOfTen — the arithmetic without the currency', () {
+    test('scales by string at any number of places', () {
+      expect(scaleByPowerOfTen('8500.50', 2), 850050);
+      expect(scaleByPowerOfTen('8.7', 3), 8700);
+      expect(scaleByPowerOfTen('12', 0), 12);
+      expect(scaleByPowerOfTen('1.2345', 3), 1235);
+    });
+
+    test('the half-way cases a double loses, at each exponent', () {
+      // 8500.005 * 100 is 850000.49999999994 as a double, and rounds DOWN.
+      expect(scaleByPowerOfTen('8500.005', 2), 850001);
+      expect(scaleByPowerOfTen('-8500.005', 2), -850001);
+      // 1.0005 * 1000 is 1000.4999999999999 as a double.
+      expect(scaleByPowerOfTen('1.0005', 3), 1001);
+      expect(scaleByPowerOfTen('0.045', 2), 5);
+      expect(scaleByPowerOfTen('0.085', 2), 9);
+    });
+
+    test('minorUnitsFrom is this function at the currency exponent', () {
+      for (final amount in ['8500.005', '0.045', '12', '-0.085', '1.4999']) {
+        expect(minorUnitsFrom(amount, _eur), scaleByPowerOfTen(amount, 2));
+        expect(minorUnitsFrom(amount, _jpy), scaleByPowerOfTen(amount, 0));
+        expect(minorUnitsFrom(amount, _kwd), scaleByPowerOfTen(amount, 3));
+      }
+    });
+
+    test('refuses what is not a canonical decimal', () {
+      expect(scaleByPowerOfTen('', 2), isNull);
+      expect(scaleByPowerOfTen('1,5', 2), isNull);
+      expect(scaleByPowerOfTen('1.2.3', 2), isNull);
+    });
+  });
 }

@@ -57,7 +57,7 @@ NextDue nextDueAfterMarkDone({
         : record.odometer! + interval,
     date: months == null
         ? null
-        : _plusMonths(_anchorDate(item, record, previousDueOn), months),
+        : _anchorDate(item, record, previousDueOn).addMonths(months),
   );
 }
 
@@ -76,21 +76,4 @@ CivilDate _anchorDate(
     if (due != null) return due;
   }
   return CivilDate.tryParse(record.occurredOn) ?? CivilDate.epoch;
-}
-
-/// [from] plus [months], clamped to the end of a shorter month.
-///
-/// 31 January plus one month is 28 February, not 3 March: a service interval
-/// that skidded past the end of a month would drift a day or two every year.
-CivilDate _plusMonths(CivilDate from, int months) {
-  final total = from.month - 1 + months;
-  final year = from.year + total ~/ 12;
-  final month = total % 12 + 1;
-  final day = from.day.clamp(1, CivilDate.daysInMonth(year, month));
-  return CivilDate.tryParse(
-        '${year.toString().padLeft(4, '0')}-'
-        '${month.toString().padLeft(2, '0')}-'
-        '${day.toString().padLeft(2, '0')}',
-      ) ??
-      from;
 }

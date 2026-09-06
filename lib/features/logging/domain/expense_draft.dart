@@ -11,6 +11,7 @@
 // user has said what this was.
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/money/minor_units.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/features/logging/domain/decimal_input.dart';
 
@@ -153,31 +154,21 @@ class ExpenseDraft {
   int? signedMinorUnits({required int exponent}) {
     final read = parseDecimal(amount, groupingSeparator: ',');
     if (read is! DecimalOk) return null;
-    final minor = _scale(read.canonical, exponent);
+    final minor = scaleByPowerOfTen(read.canonical, exponent);
     if (minor == null) return null;
     return isRefund ? -minor : minor;
   }
 
-  static int? _scale(String canonical, int exponent) {
-    final read = parseDecimal(canonical, groupingSeparator: ',');
-    if (read is! DecimalOk) return null;
-    var factor = 1;
-    for (var i = 0; i < exponent; i++) {
-      factor *= 10;
-    }
-    return (read.value * factor).round();
-  }
-
   /// One day short of a year after [from] — a policy period, not 365 days.
-  static String _yearFrom(CivilDate from) {
-    final year = from.month == 1 && from.day == 1 ? from.year : from.year + 1;
-    final anniversary = CivilDate.tryParse(
-      '${year.toString().padLeft(4, '0')}-'
-      '${from.month.toString().padLeft(2, '0')}-'
-      '${from.day.toString().padLeft(2, '0')}',
-    );
-    return (anniversary ?? from).addDays(-1).toString();
-  }
+  ///
+  /// `addMonths` clamps, so a 29 February policy ends 27 February rather than
+  /// falling off the calendar. The hand-rolled version this replaced had two
+  /// ways to return a window that ended BEFORE it began: it kept `from.year`
+  /// for a 1 January start, and it fell back to `from` when the anniversary
+  /// did not parse — both of which `problems()` then reported as
+  /// `periodBackwards` on a window the user never touched.
+  static String _yearFrom(CivilDate from) =>
+      from.addMonths(12).addDays(-1).toString();
 
   ExpenseDraft _copy({
     ExpenseCategory? category,

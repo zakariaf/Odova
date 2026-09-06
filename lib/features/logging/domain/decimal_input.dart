@@ -86,26 +86,17 @@ int? gramsFrom(String canonical) => _scaled(canonical, 3);
 /// Whole watt-hours from a canonical decimal — a charge is sold by energy.
 int? wattHoursFrom(String canonical) => _scaled(canonical, 3);
 
-/// [canonical] × 10^[places], rounded half away from zero, by STRING.
+/// [canonical] × 10^[places] for a QUANTITY, or null if it is not one.
 ///
-/// `minorUnitsFrom` does exactly this for money and says why: the version that
-/// multiplied a double and rounded once took half a cent off every amount
-/// ending `.005`. Volume, mass and energy scale by the same factor of a
-/// thousand and deserve the same arithmetic, so this reuses it — the currency
-/// is a stand-in for "a unit with three decimal places", which is what
-/// millilitres-per-litre is.
-int? _scaled(String canonical, int places) {
-  if (canonical.startsWith('-')) return null;
-  return minorUnitsFrom(canonical, _milli);
-}
-
-/// A three-decimal-place stand-in currency.
+/// The scaling itself is `scaleByPowerOfTen`, which money already uses and
+/// which exists because multiplying a double and rounding once took half a
+/// cent off every amount ending `.005`. Volume, mass and energy scale by the
+/// same factor of a thousand and deserve the same arithmetic.
 ///
-/// Not a real currency and never shown: `minorUnitsFrom` needs something that
-/// answers `minorPerMajor`, and 1,000 millilitres to the litre is the same
-/// question as 1,000 fils to the dinar. KWD is the exponent-3 entry in
-/// `currencyExponents`, so this is that arithmetic borrowed, not re-derived.
-final Currency _milli = Currency.tryParse('KWD')!;
+/// What this adds is the sign rule: §10 gives the keypad no minus key, so a
+/// negative litre figure can only arrive by paste, and it is not a volume.
+int? _scaled(String canonical, int places) =>
+    canonical.startsWith('-') ? null : scaleByPowerOfTen(canonical, places);
 
 /// How many decimal places a money field in [currency] accepts.
 ///

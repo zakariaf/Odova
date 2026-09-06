@@ -52,8 +52,8 @@ DateFieldRange dateFieldRange({
   required CivilDate today,
   required bool allowFuture,
 }) => DateFieldRange(
-  first: _shiftYears(today, -kDateFieldPastYears),
-  last: allowFuture ? _shiftYears(today, kDateFieldFutureYears) : today,
+  first: today.addMonths(-kDateFieldPastYears * 12),
+  last: allowFuture ? today.addMonths(kDateFieldFutureYears * 12) : today,
 );
 
 /// The date a field opens on.
@@ -94,15 +94,4 @@ int? dateFieldFarFutureDays({
   final floor = newest != null && newest > today ? newest : today;
   final days = floor.daysUntil(chosen);
   return days > 1 ? days : null;
-}
-
-CivilDate _shiftYears(CivilDate from, int years) {
-  final year = from.year + years;
-  final day = from.day.clamp(1, CivilDate.daysInMonth(year, from.month));
-  return CivilDate.tryParse(
-        '${year.toString().padLeft(4, '0')}-'
-        '${from.month.toString().padLeft(2, '0')}-'
-        '${day.toString().padLeft(2, '0')}',
-      ) ??
-      from;
 }

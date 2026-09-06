@@ -8,6 +8,7 @@
 // A second stored total would be a number that could disagree with its own
 // lines, and the first time it did nobody would know which was true.
 import 'package:meta/meta.dart';
+import 'package:odova/core/money/minor_units.dart';
 import 'package:odova/features/logging/domain/decimal_input.dart';
 
 /// The id a `+ Other` line carries instead of a service item's.
@@ -129,20 +130,15 @@ class ServiceCostModel {
     for (final amount in amounts.values) {
       final read = parseDecimal(amount, groupingSeparator: ',');
       if (read is! DecimalOk) continue;
-      // Two decimal places by string, for the same reason money always is.
-      final scaled = _hundredths(read.canonical);
+      // Two decimal places by string, for the same reason money always is:
+      // `1.005 * 100` is 100.49999999999999 as a double and rounds DOWN.
+      final scaled = scaleByPowerOfTen(read.canonical, 2);
       if (scaled == null) continue;
       minor += scaled;
       any = true;
     }
     if (!any) return '';
     return (minor / 100).toStringAsFixed(2);
-  }
-
-  static int? _hundredths(String canonical) {
-    final read = parseDecimal(canonical, groupingSeparator: ',');
-    if (read is! DecimalOk) return null;
-    return (read.value * 100).round();
   }
 
   ServiceCostModel _copy({

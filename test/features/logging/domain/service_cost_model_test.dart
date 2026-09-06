@@ -59,6 +59,20 @@ void main() {
     expect(model.totalIsReadOnly, isTrue);
   });
 
+  test('a split sums by string, so a half cent is not lost', () {
+    // 1.005 as a binary double is 1.00499999999999989, so `* 100` is
+    // 100.49999999999999 and rounds DOWN to 100. Same for 2.005. Through a
+    // double this sum is 3.00; by string it is 3.02.
+    final model = const ServiceCostModel()
+        .ticked('oil', 'Oil and filter')
+        .ticked('air', 'Air filter')
+        .split()
+        .withAmount('oil', '1.005')
+        .withAmount('air', '2.005');
+
+    expect(model.sum, '3.02');
+  });
+
   test('split lines carry their own item link', () {
     final model = const ServiceCostModel()
         .ticked('oil', 'Oil and filter')

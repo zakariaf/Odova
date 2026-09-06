@@ -110,6 +110,54 @@ void main() {
     expect(draft.signedMinorUnits(exponent: 2), 8000);
   });
 
+  test('a half minor unit rounds away from zero, not through a double', () {
+    // 8500.005 * 100 is 850000.49999999994 as a binary double and rounds
+    // DOWN, which is the app taking half a cent off a number the user typed
+    // exactly. `scaleByPowerOfTen` is why this is 850001 and not 850000.
+    final draft = const ExpenseDraft(
+      amount: '8500.005',
+    ).withCategory(ExpenseCategory.fine);
+
+    expect(draft.signedMinorUnits(exponent: 2), 850001);
+    expect(draft.refunded().signedMinorUnits(exponent: 2), -850001);
+  });
+
+  test('a zero-decimal currency takes the integer part, rounded', () {
+    final draft = const ExpenseDraft(
+      amount: '1250.5',
+    ).withCategory(ExpenseCategory.fine);
+
+    expect(draft.signedMinorUnits(exponent: 0), 1251);
+  });
+
+  test('a 1 January policy covers that year, not the one before it', () {
+    // The prefilled window is a year forward from the purchase. A start on
+    // 1 January is not a special case: 2026-01-01 covers to 2026-12-31, and
+    // the version that kept `from.year` produced 2025-12-31 — a window that
+    // ends eleven months before it starts, which `problems()` would then
+    // report as `periodBackwards` on a window the user never touched.
+    final draft = const ExpenseDraft(
+      occurredOn: '2026-01-01',
+    ).withCategory(ExpenseCategory.insurance);
+
+    expect(draft.coversFrom, '2026-01-01');
+    expect(draft.coversTo, '2026-12-31');
+    expect(draft.problems(), isNot(contains(ExpenseProblem.periodBackwards)));
+  });
+
+  test('a 29 February policy clamps forward, not backwards', () {
+    // 2029 has no 29 February. Clamping to 28 February 2029 keeps the window
+    // a year long; the version that string-built `2029-02-29`, got null and
+    // fell back to `from` ended the window the day BEFORE it started.
+    final draft = const ExpenseDraft(
+      occurredOn: '2028-02-29',
+    ).withCategory(ExpenseCategory.insurance);
+
+    expect(draft.coversFrom, '2028-02-29');
+    expect(draft.coversTo, '2029-02-27');
+    expect(draft.problems(), isNot(contains(ExpenseProblem.periodBackwards)));
+  });
+
   test('there is no repeat switch anywhere on the form', () {
     // Asserted against the draft's own surface: a field that does not exist
     // cannot be wired up later by accident.

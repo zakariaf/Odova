@@ -27,7 +27,28 @@ import 'package:odova/core/money/currency.dart';
 /// digit after the last one that fits: `8500.005` in EUR is `850001`, and
 /// `-8500.005` is `-850001`. Fewer are padded. A currency with no minor unit
 /// at all — JPY, IRR — takes the integer part, rounded the same way.
-int? minorUnitsFrom(String canonical, Currency currency) {
+int? minorUnitsFrom(String canonical, Currency currency) =>
+    scaleByPowerOfTen(canonical, currency.exponent);
+
+/// [canonical] × 10^[places], rounded half away from zero, or null.
+///
+/// The arithmetic `minorUnitsFrom` is, without the currency — because money is
+/// not the only thing this app scales by a power of ten on its way to an
+/// integer column. Millilitres are litres at 3 places, grams are kilograms at
+/// 3, watt-hours are kilowatt-hours at 3, and a split service line is a money
+/// amount at 2. Every one of them loses the same half unit through a double,
+/// for the same reason, so every one of them uses this.
+///
+/// [canonical] is `NumericInputOk.canonical` — ASCII, an optional leading `-`,
+/// digits and at most one `.`. Anything else returns null rather than a
+/// plausible wrong number: a value the app cannot read exactly is a value it
+/// refuses, the same way `normalizeNumericInput` refuses an ambiguous one.
+///
+/// More decimals than [places] are rounded HALF AWAY FROM ZERO on the digit
+/// after the last one that fits: `8500.005` at 2 places is `850001`, and
+/// `-8500.005` is `-850001`. Fewer are padded. [places] of 0 takes the integer
+/// part, rounded the same way.
+int? scaleByPowerOfTen(String canonical, int places) {
   final negative = canonical.startsWith('-');
   final digits = negative ? canonical.substring(1) : canonical;
   if (digits.isEmpty) return null;
@@ -41,12 +62,11 @@ int? minorUnitsFrom(String canonical, Currency currency) {
   // but this function is public and its callers will not all be this file.
   if (!_isDigits(whole) || !_isDigits(fraction)) return null;
 
-  final exponent = currency.exponent;
   // Padded to one MORE digit than fits, because that extra digit is the one
   // the rounding decision reads.
-  final padded = fraction.padRight(exponent + 1, '0');
-  final kept = padded.substring(0, exponent);
-  final decider = padded.codeUnitAt(exponent) - _zero;
+  final padded = fraction.padRight(places + 1, '0');
+  final kept = padded.substring(0, places);
+  final decider = padded.codeUnitAt(places) - _zero;
 
   final magnitude = int.tryParse('${whole.isEmpty ? '0' : whole}$kept');
   // And the ROUNDING has to fit too. `int.tryParse` refuses anything past the
