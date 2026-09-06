@@ -155,9 +155,18 @@ void main() {
     await seedSecondVehicleEntries(harness.db);
     final rows = (await page()).entries;
 
-    expect(rows, isNotEmpty);
+    // COUNT, not a substring on the id. `e.id` is the fill-up's id, not the
+    // vehicle's, so `!e.id.contains('OTHER')` was true of every row whichever
+    // vehicle it came from — rewriting `vehicle_id = ?` as
+    // `(vehicle_id = ? OR 1=1)` passed all 13 tests with both vehicles' rows
+    // in the page.
     expect(
-      rows.every((e) => !e.id.contains('OTHER')),
+      rows,
+      hasLength(1),
+      reason: "the seeded vehicle's one row, and not the other vehicle's",
+    );
+    expect(
+      rows.every((e) => !e.id.endsWith('OT')),
       isTrue,
       reason: "a second vehicle's rows never leak in",
     );
@@ -261,6 +270,35 @@ void main() {
       (result as Ok<HistoryPage, PersistFailure>).value.entries,
       isNotEmpty,
       reason: 'the anchor landed in 2026, not in the year 1405',
+    );
+  });
+
+  test('two rows on the same day order by created_at, then by id', () async {
+    // The MIDDLE sort key, which no fixture exercised: every row in
+    // `rows.dart` is written with `created_at_utc_ms = 1000`, so no two rows
+    // ever differed only in `created_at`. Dropping it from the ORDER BY, and
+    // separately neutering it in the keyset tuple, each passed 27 tests — and
+    // the second produces a pager that duplicates and skips rows.
+    //
+    // SPEC.md §14 makes this the tie-break for two fills on the same day, and
+    // §11 makes the ULID id the third so the order survives a rebuild.
+    for (final (i, created) in [3000, 1000, 2000].indexed) {
+      await insertFillUp(
+        harness.db,
+        id: 'fil_01K1C4V2H9B8N3Q7ZE5RY6TMWT$i',
+        occurredOn: '2026-04-01',
+        createdAtUtcMs: created,
+      );
+    }
+
+    final rows = (await page()).entries
+        .where((e) => e.occurredOn == '2026-04-01')
+        .toList();
+
+    expect(
+      rows.map((e) => e.createdAtUtcMs).toList(),
+      [3000, 2000, 1000],
+      reason: 'newest created_at first, within one day',
     );
   });
 }

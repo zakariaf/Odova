@@ -87,25 +87,32 @@ ServiceRecord record(int i) => ServiceRecord(
   updatedAtUtcMs: 1,
 );
 
-ServiceReportDocument doc({int records = 3, String? vin, String? plate}) =>
-    buildServiceReport(
-      vehicle: Vehicle(
-        id: _veh,
-        name: 'VW Golf',
-        vehicleType: VehicleType.car,
-        fuelKindDefault: FuelKind.diesel,
-        status: VehicleStatus.active,
-        vin: vin,
-        plate: plate,
-        createdAtUtcMs: 1,
-        updatedAtUtcMs: 1,
-      ),
-      records: [for (var i = 1; i <= records; i++) record(i)],
-      items: const [],
-      series: ReadingSeries.from(const [], const []),
-      options: ServiceReportOptions(plateAndVin: vin != null || plate != null),
-      today: day('2026-09-02'),
-    );
+ServiceReportDocument doc({
+  int records = 3,
+  String? vin,
+  String? plate,
+  bool costs = true,
+}) => buildServiceReport(
+  vehicle: Vehicle(
+    id: _veh,
+    name: 'VW Golf',
+    vehicleType: VehicleType.car,
+    fuelKindDefault: FuelKind.diesel,
+    status: VehicleStatus.active,
+    vin: vin,
+    plate: plate,
+    createdAtUtcMs: 1,
+    updatedAtUtcMs: 1,
+  ),
+  records: [for (var i = 1; i <= records; i++) record(i)],
+  items: const [],
+  series: ReadingSeries.from(const [], const []),
+  options: ServiceReportOptions(
+    plateAndVin: vin != null || plate != null,
+    costs: costs,
+  ),
+  today: day('2026-09-02'),
+);
 
 RecordingCanvas write(
   ServiceReportDocument document, {
@@ -175,6 +182,67 @@ void main() {
       canvas.textsIn(PdfSlot.pageNumber),
       hasLength(total),
       reason: 'one per page, none missing',
+    );
+  });
+
+  test('the first page holds its budget and the next holds the other', () {
+    // The assertion the pagination group was missing. `pages.length` is
+    // `pageCountFor(rows.length)` no matter what the row loop does, because
+    // `beginPage` is called once per iteration of the page loop — so a writer
+    // that put every record on page one passed the whole group. It did:
+    // replacing the budget with `page == 0 ? rows.length : 0` left 31 tests
+    // green with pages 2..N empty.
+    //
+    // Which page a record LANDS on is the thing pagination is for.
+    final canvas = write(doc(records: 40));
+
+    expect(
+      canvas.texts
+          .where((t) => t.$1 == 0 && t.$3 == PdfSlot.recordOdometer)
+          .length,
+      kFirstPageRowBudget,
+    );
+    expect(
+      canvas.texts
+          .where((t) => t.$1 == 1 && t.$3 == PdfSlot.recordOdometer)
+          .length,
+      kPageRowBudget,
+    );
+  });
+
+  test('a Costs-off document prints no price anywhere', () {
+    // §12's Costs toggle, on the artifact handed to a buyer. The text renderer
+    // had this test; the PDF did not, and `PdfSlot.recordCost` appeared in no
+    // assertion at all — so removing the guard around the per-line cost left
+    // every writer test green. A seller who turned Costs off would have
+    // shared a document with every price in it.
+    final canvas = RecordingCanvas();
+    writeServiceReportPdf(
+      doc(costs: false),
+      canvas: canvas,
+      paper: PaperSize.a4,
+      rtl: false,
+      scriptFamily: 'Inter',
+      strings: const ServiceReportPdfStrings(
+        title: 'Service history',
+        pageOf: 'Page {n} of {total}',
+        columnDate: 'Date',
+        columnOdometer: 'Odometer',
+        columnWork: 'What was done',
+        columnCost: 'Cost',
+        footer: 'Generated on {date} ({iso}).',
+        estimatedFootnote: '~ estimated.',
+      ),
+      formatDate: (d) => d,
+      formatDistance: (d, {required estimated}) => '${d.metres ~/ 1000} km',
+      formatMoney: (m) => 'PRICE-${m.amountMinor}',
+    );
+
+    expect(canvas.textsIn(PdfSlot.recordCost), isEmpty);
+    expect(
+      canvas.texts.where((t) => t.$2.contains('PRICE-')),
+      isEmpty,
+      reason: 'no money reached the page by any slot',
     );
   });
 
