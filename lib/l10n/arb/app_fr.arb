@@ -328,6 +328,7 @@
   "logFillUpTotalLabel": "Total payé",
   "logFillUpFullTank": "Plein complet",
   "logFillUpPartFill": "Plein partiel",
+  "logFillUpOverTankWarning": "C'est plus que la contenance de votre réservoir. Enregistré tel quel.",
   "logFillUpPartFillHint": "Les pleins partiels ne donnent pas de valeur à eux seuls. Celui-ci sera ajouté à votre prochain plein complet.",
   "logFillUpTrioError": "Saisissez la quantité de carburant, puis le prix au litre ou le total.",
   "logFillUpQuantityError": "La quantité doit être supérieure à zéro.",

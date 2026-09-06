@@ -1447,6 +1447,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logFillUpPartFill => 'Plein partiel';
 
   @override
+  String get logFillUpOverTankWarning =>
+      'C\'est plus que la contenance de votre réservoir. Enregistré tel quel.';
+
+  @override
   String get logFillUpPartFillHint =>
       'Les pleins partiels ne donnent pas de valeur à eux seuls. Celui-ci sera ajouté à votre prochain plein complet.';
 

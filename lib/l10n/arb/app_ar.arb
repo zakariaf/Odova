@@ -328,6 +328,7 @@
   "logFillUpTotalLabel": "المبلغ المدفوع",
   "logFillUpFullTank": "ملأت الخزان",
   "logFillUpPartFill": "تعبئة جزئية",
+  "logFillUpOverTankWarning": "هذا أكثر مما يتسع له خزانك. سيُحفظ كما أُدخل.",
   "logFillUpPartFillHint": "التعبئة الجزئية لا تعطي رقمًا بمفردها. ستُضاف إلى خزانك الممتلئ التالي.",
   "logFillUpTrioError": "أدخل كمية الوقود، ثم سعر اللتر أو المبلغ الإجمالي.",
   "logFillUpQuantityError": "يجب أن تكون الكمية أكبر من صفر.",

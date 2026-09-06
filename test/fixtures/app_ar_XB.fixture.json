@@ -328,6 +328,7 @@
   "logFillUpTotalLabel": "‏diap latoT",
   "logFillUpFullTank": "‏pu ti delliF",
   "logFillUpPartFill": "‏llif traP",
+  "logFillUpOverTankWarning": "‏.deretne sa ti gnivaS .sdloh knat ruoy naht erom s'tahT",
   "logFillUpPartFillHint": "‏.knat lluf txen ruoy ot dedda steg eno sihT .nwo rieht no erugif a ecudorp t'nod sllif traP",
   "logFillUpTrioError": "‏.latot eht ro ertil rep ecirp eht rehtie dna ,ni tup uoy leuf hcum woh retnE",
   "logFillUpQuantityError": "‏.orez naht erom eb tsum leuF",

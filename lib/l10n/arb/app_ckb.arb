@@ -328,6 +328,7 @@
   "logFillUpTotalLabel": "کۆی دراو",
   "logFillUpFullTank": "تانکەکەم پڕکردەوە",
   "logFillUpPartFill": "پڕکردنەوەی بەشەکی",
+  "logFillUpOverTankWarning": "ئەمە زیاترە لەوەی تانکەکەت هەڵیدەگرێت. وەک ئەوەی نووسراوە پاشەکەوت دەکرێت.",
   "logFillUpPartFillHint": "پڕکردنەوەی بەشەکی بە تەنها ژمارە نادات. ئەمە بۆ تانکی پڕی داهاتووت زیاد دەکرێت.",
   "logFillUpTrioError": "بنووسە چەند سووتەمەنیت کرد، و نرخی لیتر یان کۆی گشتی.",
   "logFillUpQuantityError": "بڕەکە دەبێت لە سفر زیاتر بێت.",

@@ -1507,6 +1507,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logFillUpPartFill => 'تعبئة جزئية';
 
   @override
+  String get logFillUpOverTankWarning =>
+      'هذا أكثر مما يتسع له خزانك. سيُحفظ كما أُدخل.';
+
+  @override
   String get logFillUpPartFillHint =>
       'التعبئة الجزئية لا تعطي رقمًا بمفردها. ستُضاف إلى خزانك الممتلئ التالي.';
 

@@ -2090,6 +2090,12 @@ abstract class AppLocalizations {
   /// **'Part fill'**
   String get logFillUpPartFill;
 
+  /// §10's over-capacity warning. Amber, never a refusal: the app does not know the tank was replaced, and refusing would lose a real fill-up to a spec sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s more than your tank holds. Saving it as entered.'**
+  String get logFillUpOverTankWarning;
+
   /// Shown when Part fill is chosen. §10 uses a two-option segmented control and not a checkbox: 'Not a full tank' as a negative checkbox is misread by a meaningful fraction of people, and this flag decides whether a consumption figure exists at all.
   ///
   /// In en, this message translates to:

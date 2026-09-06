@@ -1407,6 +1407,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get logFillUpPartFill => 'پر کردن جزئی';
 
   @override
+  String get logFillUpOverTankWarning =>
+      'این بیشتر از گنجایش باک شماست. همان‌طور که وارد شده ذخیره می‌شود.';
+
+  @override
   String get logFillUpPartFillHint =>
       'پر کردن جزئی به‌تنهایی عددی نمی‌دهد. این یکی به باک پر بعدی اضافه می‌شود.';
 

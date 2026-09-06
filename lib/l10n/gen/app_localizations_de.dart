@@ -1418,6 +1418,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get logFillUpPartFill => 'Teilbetankung';
 
   @override
+  String get logFillUpOverTankWarning =>
+      'Das ist mehr, als Ihr Tank fasst. Wird so gespeichert, wie eingegeben.';
+
+  @override
   String get logFillUpPartFillHint =>
       'Teilbetankungen ergeben allein keinen Wert. Diese wird Ihrer nächsten Volltankung zugerechnet.';
 

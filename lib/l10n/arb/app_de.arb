@@ -328,6 +328,7 @@
   "logFillUpTotalLabel": "Gesamtbetrag",
   "logFillUpFullTank": "Vollgetankt",
   "logFillUpPartFill": "Teilbetankung",
+  "logFillUpOverTankWarning": "Das ist mehr, als Ihr Tank fasst. Wird so gespeichert, wie eingegeben.",
   "logFillUpPartFillHint": "Teilbetankungen ergeben allein keinen Wert. Diese wird Ihrer nächsten Volltankung zugerechnet.",
   "logFillUpTrioError": "Geben Sie ein, wie viel Sie getankt haben, und entweder den Literpreis oder den Gesamtbetrag.",
   "logFillUpQuantityError": "Die Menge muss größer als null sein.",

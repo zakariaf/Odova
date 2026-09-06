@@ -1409,6 +1409,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logFillUpPartFill => 'Part fill';
 
   @override
+  String get logFillUpOverTankWarning =>
+      'That\'s more than your tank holds. Saving it as entered.';
+
+  @override
   String get logFillUpPartFillHint =>
       'Part fills don\'t produce a figure on their own. This one gets added to your next full tank.';
 

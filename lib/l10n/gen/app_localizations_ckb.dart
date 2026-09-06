@@ -1412,6 +1412,10 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get logFillUpPartFill => 'پڕکردنەوەی بەشەکی';
 
   @override
+  String get logFillUpOverTankWarning =>
+      'ئەمە زیاترە لەوەی تانکەکەت هەڵیدەگرێت. وەک ئەوەی نووسراوە پاشەکەوت دەکرێت.';
+
+  @override
   String get logFillUpPartFillHint =>
       'پڕکردنەوەی بەشەکی بە تەنها ژمارە نادات. ئەمە بۆ تانکی پڕی داهاتووت زیاد دەکرێت.';
 

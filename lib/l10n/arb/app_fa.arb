@@ -328,6 +328,7 @@
   "logFillUpTotalLabel": "مبلغ کل",
   "logFillUpFullTank": "باک را پر کردم",
   "logFillUpPartFill": "پر کردن جزئی",
+  "logFillUpOverTankWarning": "این بیشتر از گنجایش باک شماست. همان‌طور که وارد شده ذخیره می‌شود.",
   "logFillUpPartFillHint": "پر کردن جزئی به‌تنهایی عددی نمی‌دهد. این یکی به باک پر بعدی اضافه می‌شود.",
   "logFillUpTrioError": "بنویسید چقدر سوخت زدید، و قیمت هر لیتر یا مبلغ کل را.",
   "logFillUpQuantityError": "مقدار سوخت باید بیشتر از صفر باشد.",
