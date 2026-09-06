@@ -28,6 +28,8 @@ import 'package:odova/features/logging/application/expense_save.dart';
 import 'package:odova/features/logging/application/fillup_save.dart';
 import 'package:odova/features/logging/application/log_modal_notifier.dart';
 import 'package:odova/features/logging/application/log_save_service.dart';
+import 'package:odova/features/logging/application/odometer_log_save.dart';
+import 'package:odova/features/logging/application/service_save.dart';
 import 'package:odova/features/logging/domain/expense_draft.dart';
 import 'package:odova/features/logging/domain/fillup_draft.dart';
 import 'package:odova/features/logging/domain/price_trio.dart';
@@ -624,9 +626,10 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
   /// The three steps this save takes, in §10's order.
   ///
-  /// `log.fillup` and `log.expense` supply real ones. The other two still hand
-  /// back the placeholder, which writes nothing and says so — they arrive with
-  /// their own tasks.
+  /// All four segments supply real ones now. `_PendingSteps` survives for the
+  /// two cases where there is genuinely nothing to write — no vehicle loaded
+  /// yet, or a keypad with no readable number in it — and it still writes
+  /// nothing and says so.
   LogSaveSteps _steps() {
     final vehicle = _vehicle;
     final currency = _currency;
@@ -655,9 +658,53 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
             _undoWritten = () =>
                 ref.read(expenseSaveProvider.notifier).undo(expense),
       ),
-      // `log.service` and `log.odometer` arrive with their own tasks.
-      _ => _PendingSteps(),
+      LogType.service => _ServiceSteps(
+        save: ref.read(serviceSaveProvider.notifier),
+        recomputeDue: recompute,
+        vehicle: vehicle,
+        cost: _cost,
+        occurredOn: _occurredOn,
+        currency: currency,
+        // The localised "Service", carried down rather than looked up: this
+        // layer has no BuildContext, and a record labelled in English on a
+        // Persian phone is a row the user cannot read back.
+        fallbackLabel: AppLocalizations.of(context).logTitleService,
+        odometer: _enteredOdometer(),
+        onWritten: (record) =>
+            _undoWritten = () =>
+                ref.read(serviceSaveProvider.notifier).undo(record),
+      ),
+      LogType.odometer => switch (_keypadOdometer()) {
+        final Distance reading => _OdometerSteps(
+          save: ref.read(odometerLogSaveProvider.notifier),
+          recomputeDue: recompute,
+          vehicle: vehicle,
+          odometer: reading,
+          occurredOn: _occurredOn,
+          onWritten: (written) =>
+              _undoWritten = () =>
+                  ref.read(odometerLogSaveProvider.notifier).undo(written),
+        ),
+        // Nothing readable in the pad. `problems()` refuses this upstream, so
+        // reaching here means the form asked for a save it has no number for.
+        _ => _PendingSteps(),
+      },
     };
+  }
+
+  /// The keypad's value as a distance, or null.
+  ///
+  /// `log.odometer` types into `_odometer` rather than a controller — the pad
+  /// reports digits, not text — so it parses from there. Through
+  /// `OdometerEntry` all the same, because the overflow guard is not optional
+  /// on the form whose whole job is one number.
+  Distance? _keypadOdometer() {
+    final metres = OdometerEntry(
+      unit: DistanceUnit.km,
+      groupingSeparator: _groupingSeparator,
+      text: _odometer,
+    ).metres;
+    return metres == null ? null : Distance(metres);
   }
 
   /// The reading the shared odometer field is showing, or null.
@@ -783,6 +830,95 @@ class _ExpenseSteps implements LogSaveSteps {
         return const Ok<void, PersistFailure>(null);
       }(),
       ExpenseSaveFailed(:final failure) => Err(failure),
+    };
+  }
+
+  @override
+  Future<void> recompute() async => recomputeDue();
+
+  @override
+  Future<void> reschedule() async {}
+}
+
+class _ServiceSteps implements LogSaveSteps {
+  _ServiceSteps({
+    required this.save,
+    required this.recomputeDue,
+    required this.vehicle,
+    required this.cost,
+    required this.occurredOn,
+    required this.currency,
+    required this.fallbackLabel,
+    required this.odometer,
+    required this.onWritten,
+  });
+
+  final ServiceSave save;
+  final VoidCallback recomputeDue;
+  final Vehicle vehicle;
+  final ServiceCostModel cost;
+  final String occurredOn;
+  final Currency currency;
+  final String fallbackLabel;
+  final Distance? odometer;
+  final ValueChanged<ServiceRecord> onWritten;
+
+  @override
+  Future<Result<void, PersistFailure>> persist() async {
+    final written = await save.save(
+      vehicle: vehicle,
+      cost: cost,
+      occurredOn: occurredOn,
+      currency: currency,
+      fallbackLabel: fallbackLabel,
+      odometer: odometer,
+    );
+    return switch (written) {
+      ServiceSaved(:final record) => () {
+        onWritten(record);
+        return const Ok<void, PersistFailure>(null);
+      }(),
+      ServiceSaveFailed(:final failure) => Err(failure),
+    };
+  }
+
+  @override
+  Future<void> recompute() async => recomputeDue();
+
+  @override
+  Future<void> reschedule() async {}
+}
+
+class _OdometerSteps implements LogSaveSteps {
+  _OdometerSteps({
+    required this.save,
+    required this.recomputeDue,
+    required this.vehicle,
+    required this.odometer,
+    required this.occurredOn,
+    required this.onWritten,
+  });
+
+  final OdometerLogSave save;
+  final VoidCallback recomputeDue;
+  final Vehicle vehicle;
+  final Distance odometer;
+  final String occurredOn;
+  final ValueChanged<OdometerReading> onWritten;
+
+  @override
+  Future<Result<void, PersistFailure>> persist() async {
+    final written = await save.save(
+      vehicle: vehicle,
+      odometer: odometer,
+      occurredOn: occurredOn,
+    );
+    return switch (written) {
+      OdometerLogSaved(:final reading) => () {
+        onWritten(reading);
+        return const Ok<void, PersistFailure>(null);
+      }(),
+      OdometerLogSaveFailed(:final failure) => Err(failure),
     };
   }
 
