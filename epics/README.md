@@ -98,13 +98,13 @@ skill bends.
 | [09](EPIC-09-first-run-and-garage.md) | First run, the garage and vehicles | 03, 04, 05, 07, 08 | 5 — `firstrun.language`, `firstrun.vehicle`, `vehicles`, `vehicle.edit`, `vehicle.switcher` | 11 h · ~11 weeks |
 | [10](EPIC-10-home-and-reminders.md) | Home and the reminder screens | 07, 09 | 3 — `home`, `reminders.list`, `reminders.edit` | 11.5 h · ~3 months |
 | [11](EPIC-11-logging.md) | Logging: fill-up, service, expense, odometer | 06, 10 | 4 — `log.fillup`, `log.service`, `log.expense`, `log.odometer` | 13 h · ~3 months |
-| [12](EPIC-12-history-and-report.md) | History, entry detail and the service report | 11 | 2 — `history`, `report.service` | 12 h · ~12 weeks |
-| [13](EPIC-13-costs-fuel-and-trips.md) | Costs, fuel insights and trips | 11 | 4 — `costs`, `costs.fuel`, `trips.list`, `trips.edit` | 13 h · ~13 weeks |
-| [14](EPIC-14-settings.md) | Settings, units, language and about | 04, 09 | 5 — `settings`, `settings.language`, `settings.units`, `settings.notifications`, `settings.about` | 7.5 h · ~7–8 weeks |
-| [15](EPIC-15-backup-export-import.md) | Backup, export and import | 05, 14 | 2 — `settings.backup`, `settings.import` | 12.5 h · ~3 months |
-| [16](EPIC-16-reminders-and-notifications.md) | Reminders and local notifications | 07, 10 | none — it schedules and routes; every deep-link target already exists | 13 h · ~3 months |
-| [17](EPIC-17-accessibility-and-scale.md) | Accessibility, text scale and screen readers | 10, 11 | all 28, as a sweep | 14 h · ~3 months |
-| [18](EPIC-18-visual-parity-sweep.md) | The visual parity and design review sweep | 09–15 | all 28, as a sweep | 8.5 h · ~8.5 weeks |
+| [12](EPIC-12-history-and-report.md) | History, entry detail and the service report | 11 | 2 — `history`, `report.service` | 8 h · ~8 weeks |
+| [13](EPIC-13-costs-fuel-and-trips.md) | Costs, fuel insights and trips | 11 | 4 — `costs`, `costs.fuel`, `trips.list`, `trips.edit` | 8 h · ~8 weeks |
+| [14](EPIC-14-settings.md) | Settings, units, language and about | 04, 09 | 5 — `settings`, `settings.language`, `settings.units`, `settings.notifications`, `settings.about` | 8 h · ~8 weeks |
+| [15](EPIC-15-backup-export-import.md) | Backup, export and import | 05, 14 | 2 — `settings.backup`, `settings.import` | 8 h · ~8 weeks |
+| [16](EPIC-16-reminders-and-notifications.md) | Reminders and local notifications | 07, 10 | none — it schedules and routes; every deep-link target already exists | 8 h · ~8 weeks |
+| [17](EPIC-17-accessibility-and-scale.md) | Accessibility, text scale and screen readers | 10, 11 | all 28, as a sweep | 8 h · ~8 weeks |
+| [18](EPIC-18-visual-parity-sweep.md) | The visual parity and design review sweep | 09–15 | all 28, as a sweep | 8 h · ~8 weeks |
 | [19](EPIC-19-release.md) | Release engineering and store shipping | 17, 18 | none | 8.5 h · ~8.5 weeks |
 
 Eight epics build the 28 screens — 08 through 15 — and each screen is built exactly once.
@@ -211,14 +211,14 @@ Every epic carries its own total in its front matter, and every task carries its
 
 ## The whole build
 
-**201 h (CC) · ~3.9 years (human)**
+**176.5 h (CC) · ~3.4 years (human)**
 
-That is 25 working days of Claude Code, executed serially. Taking the widest fork — the design
-track against the data track after EPIC-01 — brings the critical path to roughly **180 h**.
+That is 22 working days of Claude Code, executed serially. Taking the widest fork — the design
+track against the data track after EPIC-01 — brings the critical path to roughly **155 h**.
 
 | Phase | Epics | CC time |
 |---|---|---|
 | Foundations | 01–07 | 67.5 h |
 | The shell | 08 | 9 h |
-| Screens | 09–15 | 80.5 h |
-| Gates and release | 16–19 | 44 h |
+| Screens | 09–15 | 67.5 h |
+| Gates and release | 16–19 | 32.5 h |

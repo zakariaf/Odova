@@ -4,7 +4,7 @@
 |---|---|
 | **Epic** | EPIC-13 — Costs, fuel insights and trips |
 | **Depends on** | EPIC-11 |
-| **Estimate** | **13 h (CC) · ~13 weeks (human)** over 10 tasks |
+| **Estimate** | **8 h (CC) · ~8 weeks (human)** over 10 tasks |
 | **Spec sections** | §12 Fuel insights, costs and reports (excluding `report.service`, which EPIC-12 owns) |
 | **Screens** | `costs`, `costs.fuel`, `trips.list`, `trips.edit` |
 
@@ -198,7 +198,7 @@ Open `flutter-conventions-index` first; it routes everything else.
   - [ ] No figure mixes currencies anywhere, including shares and per-distance figures.
   - [ ] Every dash carries a one-sentence reason from the pure core, not the widget.
   - [ ] Nothing derived is written to storage.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 13.3 — Build the `costs` screen
 
@@ -294,7 +294,7 @@ Open `flutter-conventions-index` first; it routes everything else.
   - [ ] Bucketing, thinning and scaling are pure and unit-tested; the painter has no logic.
   - [ ] The RTL assertion above is in the test file, not in a comment.
   - [ ] The chart reads no colour that is not a Calm token.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 13.5 — All-vehicles comparison and the business split
 
@@ -333,7 +333,7 @@ Open `flutter-conventions-index` first; it routes everything else.
 - **Done when**
   - [ ] `activeVehicleId` is provably untouched by anything in this task.
   - [ ] Cross-currency household totals group and never sum.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 13.6 — Fuel insight maths
 
@@ -377,7 +377,7 @@ Open `flutter-conventions-index` first; it routes everything else.
 - **Done when**
   - [ ] Every average is total-over-total.
   - [ ] The mixed-currency segment rule is enforced in the core, not in the screen.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 13.7 — Build `costs.fuel` with both charts
 
@@ -446,7 +446,7 @@ Open `flutter-conventions-index` first; it routes everything else.
         icon shape or optical alignment.
   - [ ] Both charts have an accessible summary and per-mark semantics.
   - [ ] Consumption units come from our ARBs, not the platform unit formatter.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 13.8 — Build `trips.list`
 
@@ -495,7 +495,7 @@ Open `flutter-conventions-index` first; it routes everything else.
         icon shape or optical alignment.
   - [ ] The business percentage is the only aggregate this screen computes beyond the header
         strip's three facts.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 13.9 — Build `trips.edit`
 
@@ -557,7 +557,7 @@ Open `flutter-conventions-index` first; it routes everything else.
         icon shape or optical alignment.
   - [ ] A trip is never the source of truth for vehicle distance.
   - [ ] The trip save ends in the recompute contract EPIC-12 built.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 13.10 — Costs CSV, the estimate sheet, and the navigation edges
 
@@ -597,7 +597,7 @@ Open `flutter-conventions-index` first; it routes everything else.
   - [ ] Exactly one CSV generator exists in the tree.
   - [ ] The two-push depth rule is enforced by a test.
   - [ ] Every §12 navigation edge is exercised.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ---
 

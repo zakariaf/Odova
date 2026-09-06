@@ -4,7 +4,7 @@
 |---|---|
 | **Epic** | EPIC-17 — Accessibility, text scale and screen readers |
 | **Depends on** | EPIC-08, EPIC-10, EPIC-11 |
-| **Estimate** | **14 h (CC) · ~3 months (human)** over 10 tasks |
+| **Estimate** | **8 h (CC) · ~8 weeks (human)** over 10 tasks |
 | **Spec sections** | §17 Definition of done → Accessibility gate (the release blocker) · §17 → Per-locale gate · §14 Edge cases → Language and input |
 | **Screens** | all 28, as a sweep: `home` · `history` · `costs` · `costs.fuel` · `report.service` · `reminders.list` · `reminders.edit` · `log.fillup` · `log.service` · `log.expense` · `log.odometer` · `trips.list` · `trips.edit` · `vehicles` · `vehicle.edit` · `vehicle.switcher` · `settings` · `settings.language` · `settings.units` · `settings.notifications` · `settings.backup` · `settings.import` · `settings.about` · `firstrun.language` · `firstrun.vehicle` · `dialog.discard` · `dialog.confirmDelete` · `dialog.snooze` |
 
@@ -198,7 +198,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 17.3 — Semantics that read the meaning: Home and the vehicle surfaces
 
@@ -262,7 +262,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 17.4 — Semantics and one-handed reach: the log modals, trips and dialogs
 
@@ -322,7 +322,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 > **Resolved before this epic starts.** `dialog.snooze` was the one screen in the §7 table
 > with no reference image. The artboard was added to `design/calm/screens.html` and the four
@@ -377,7 +377,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 17.6 — 200% text scale, in six locales, on every screen
 
@@ -429,7 +429,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 17.7 — The colour-blind and grayscale pass
 
@@ -476,7 +476,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 17.8 — Focus order, traversal and reachability, including RTL
 
@@ -522,7 +522,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 17.9 — Touch targets, everywhere, including the awkward ones
 
@@ -561,7 +561,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 > **Two floors, one number.** `SPEC.md` §17 says 48×48 dp. `accessibility-as-code` rule 8
 > says 44×44 logical pixels (the iOS/WCAG 2.5.5 floor). `calm-components` sets a 52 pt hit
@@ -611,7 +611,7 @@ This epic makes them cheap and short; it cannot do them.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type
         weight, icon shape or optical alignment.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ---
 

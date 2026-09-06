@@ -4,7 +4,7 @@
 |---|---|
 | **Epic** | EPIC-12 — History, entry detail and the service report |
 | **Depends on** | EPIC-08, EPIC-11 |
-| **Estimate** | **12 h (CC) · ~12 weeks (human)** over 11 tasks |
+| **Estimate** | **8 h (CC) · ~8 weeks (human)** over 11 tasks |
 | **Spec sections** | §11 History, timeline, entry detail and search · §12 (`report.service` only) |
 | **Screens** | `history`, `report.service` |
 
@@ -183,7 +183,7 @@ Open `flutter-conventions-index` first; it routes everything else.
   - [ ] Headers, scrubber and empty state all read the index, and none of them reads the
         loaded window.
   - [ ] Jalali month boundaries are asserted by test, not by inspection.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 12.3 — The row model and its flag badges
 
@@ -255,7 +255,7 @@ Open `flutter-conventions-index` first; it routes everything else.
   - [ ] Two instances of the provider hold independent filter state.
   - [ ] Memory is flat at 40 records or 4,000, asserted by the window test.
   - [ ] No fire-and-forget `Future`; every load is awaited or explicitly handled.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 12.5 — Build the `history` screen
 
@@ -351,7 +351,7 @@ Open `flutter-conventions-index` first; it routes everything else.
 - **Done when**
   - [ ] No persisted index, no fuzzy matching, no saved searches.
   - [ ] The field takes first-strong direction from its content.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 12.7 — Entry detail: `log.*` in edit mode and the context band
 
@@ -431,7 +431,7 @@ Open `flutter-conventions-index` first; it routes everything else.
   - [ ] Nothing derived is written to storage at any point.
   - [ ] The snackbar's count comes from the diff, not from a guess.
   - [ ] The notification rebuild is driven by the diff, not fired unconditionally.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 12.9 — Two-sided monotonicity, delete guards and wiring `dialog.confirmDelete`
 
@@ -473,7 +473,7 @@ Open `flutter-conventions-index` first; it routes everything else.
         with the exact §11 message.
   - [ ] No screen lists deleted rows and there is no bin.
   - [ ] A killed app cannot leave a soft-deleted row behind.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 12.10 — `report.service`: the document model and the live preview
 
@@ -529,7 +529,7 @@ Open `flutter-conventions-index` first; it routes everything else.
         icon shape or optical alignment.
   - [ ] The document model is pure and has no `BuildContext`; the screen renders it.
   - [ ] Nothing in §12's "Never in the document" list can reach the preview.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 12.11 — PDF production, paper size, share and Copy as text
 
@@ -576,7 +576,7 @@ Open `flutter-conventions-index` first; it routes everything else.
   - [ ] The PDF canvas and the share sheet are behind injected interfaces, faked in tests.
   - [ ] No network dependency was added — check `bash tools/audit_deps.sh` is still green.
   - [ ] The temp file is cleaned up on cancel and on failure.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ---
 

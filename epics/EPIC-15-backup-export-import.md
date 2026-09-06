@@ -4,7 +4,7 @@
 |---|---|
 | **Epic** | EPIC-15 — Backup, export and import |
 | **Depends on** | EPIC-05, EPIC-14 |
-| **Estimate** | **12.5 h (CC) · ~3 months (human)** over 9 tasks |
+| **Estimate** | **8 h (CC) · ~8 weeks (human)** over 9 tasks |
 | **Spec sections** | §6 Backup, export and import (all ten subsections); §13 → `settings.backup`, `settings.import` |
 | **Screens** | `settings.backup`, `settings.import` |
 
@@ -327,7 +327,7 @@ Open `flutter-conventions-index` first; it routes the rest.
   - [ ] Every fill-in row from §6 §3.1 has a test.
   - [ ] The corpus is checked in with sidecars and wired into CI.
   - [ ] A newer `format_version` is refused outright and the file is untouched.
-- **Estimate** — `2 h (CC) · ~2 weeks (human)`
+- **Estimate** — `1 h (CC) · ~1 week (human)`
 
 ---
 
@@ -396,7 +396,7 @@ Open `flutter-conventions-index` first; it routes the rest.
   - [ ] The publish is a single atomic rename after every handle is closed.
   - [ ] The post-swap order is corrections → derived → cancel-all-and-reschedule.
   - [ ] All three safety-copy kinds exist independently, with the re-import suppression rule.
-- **Estimate** — `2 h (CC) · ~2 weeks (human)`
+- **Estimate** — `1 h (CC) · ~1 week (human)`
 
 ---
 
@@ -451,7 +451,7 @@ Open `flutter-conventions-index` first; it routes the rest.
   - [ ] Every failure path deletes the temp file and publishes nothing.
   - [ ] `last_backup_at` is stamped on hand-off.
   - [ ] Nothing exports automatically, ever.
-- **Estimate** — `1 h (CC) · ~1 week (human)`
+- **Estimate** — `0.5 h (CC) · ~half a week (human)`
 
 ---
 
@@ -528,7 +528,7 @@ Open `flutter-conventions-index` first; it routes the rest.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type weight,
         icon shape or optical alignment.
-- **Estimate** — `1 h (CC) · ~1 week (human)`
+- **Estimate** — `0.5 h (CC) · ~half a week (human)`
 
 ---
 
@@ -611,7 +611,7 @@ Open `flutter-conventions-index` first; it routes the rest.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type weight,
         icon shape or optical alignment.
-- **Estimate** — `2 h (CC) · ~2 weeks (human)`
+- **Estimate** — `1 h (CC) · ~1 week (human)`
 
 ---
 
@@ -661,7 +661,7 @@ Open `flutter-conventions-index` first; it routes the rest.
   - [ ] BOM, CRLF, RFC 4180 quoting and formula-injection escaping all tested against a real parser.
   - [ ] Rows stream; nothing is assembled in a `String`.
   - [ ] CSV is refused as a restore source.
-- **Estimate** — `1 h (CC) · ~1 week (human)`
+- **Estimate** — `0.5 h (CC) · ~half a week (human)`
 
 ---
 

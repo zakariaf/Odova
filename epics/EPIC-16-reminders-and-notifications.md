@@ -4,7 +4,7 @@
 |---|---|
 | **Epic** | EPIC-16 — Reminders and local notifications |
 | **Depends on** | EPIC-07, EPIC-08, EPIC-10 |
-| **Estimate** | **13 h (CC) · ~3 months (human)** over 10 tasks |
+| **Estimate** | **8 h (CC) · ~8 weeks (human)** over 10 tasks |
 | **Spec sections** | §4 Reminders and notifications · §14 Edge cases (Notifications; Time and dates) · §17 Definition of done (functional and offline gates) |
 | **Screens** | none — this epic computes, schedules, delivers and routes. Every deep-link target is a screen an earlier epic already built, and this epic changes none of their pixels. |
 
@@ -207,7 +207,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
         `SPEC.md`, each used everywhere its own meaning applies.
   - [ ] `DueConfidence.defaulted` cannot produce a date or a figure through any code path.
   - [ ] A reading 61–180 days old is proven to be both projected and `needsOdometer`.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 > **Settled — two constants, not one contradiction.** EPIC-07's finding **F-7.2** corrects
 > §14 and closes this: §4.1.3's **180 days** is the *projection expiry* — past it
@@ -262,7 +262,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
   - [ ] All six kinds round-trip; every `reminderId` rule in the §4.4.2 table is a test.
   - [ ] A stale or unknown payload is a typed failure, never a default route.
   - [ ] Back from any deep-linked modal reaches Home, never the launcher.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 16.4 — The gateway port, the adapter and the fake
 
@@ -308,7 +308,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
   - [ ] `tz.local` is set in `bootstrap()` before any scheduling call can run.
   - [ ] `USE_EXACT_ALARM` appears nowhere in `android/`.
   - [ ] The new packages pull in no HTTP client — the offline gate still passes.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 16.5 — The slot builder: horizon, quiet hours, coalescing, the cap
 
@@ -403,7 +403,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
   - [ ] Hysteresis is 7 days, stated once, with the reason in its dartdoc.
   - [ ] `fire_at_local` is wall-clock; no UTC instant is persisted for a recurring stage.
   - [ ] Two consecutive reconciles over unchanged data issue zero OS calls.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 16.7 — The nudge that asks for a reading without nagging
 
@@ -448,7 +448,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
   - [ ] Every row of the §4.3.3 cadence table is a named test.
   - [ ] The give-up rule silences the notification and never the card.
   - [ ] The nudge competes for slots under the same cap as everything else.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 16.8 — The pre-prompt, and being useful when the answer is no
 
@@ -505,7 +505,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
   - [ ] The OS dialog is raised from exactly one call site.
   - [ ] All three triggers and the three-strikes cadence are tested.
   - [ ] Every screen renders with permission denied, and nothing is disabled.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 16.9 — Rebuilds: reboot, update, timezone, locale, import, and the keeper
 
@@ -561,7 +561,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
   - [ ] No fire time is stored as a UTC instant.
   - [ ] The tap isolate performs no database write.
   - [ ] The real-device soak is either done or recorded as outstanding in the progress file.
-- **Estimate** — 2 h (CC) · ~2 weeks (human)
+- **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 16.10 — Done, Snooze, and the rollover rule
 
@@ -617,7 +617,7 @@ Deliberately still missing when this epic starts, and still missing when it ends
   - [ ] `from_due` applies to exactly three built-in kinds.
   - [ ] Both estimate flags reach the JSON export and the service history.
   - [ ] Dismissal is provably inert.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ---
 

@@ -4,7 +4,7 @@
 |---|---|
 | **Epic** | EPIC-18 — The visual parity and design review sweep |
 | **Depends on** | EPIC-09, EPIC-10, EPIC-11, EPIC-12, EPIC-13, EPIC-14, EPIC-15 |
-| **Estimate** | **8.5 h (CC) · ~8.5 weeks (human)** total |
+| **Estimate** | **8 h (CC) · ~8 weeks (human)** total |
 | **Spec sections** | §17 Definition of done for v1 (per-locale gate, accessibility gate, offline gate) |
 | **Screens** | all 28: `firstrun.language`, `firstrun.vehicle`, `home`, `vehicle.switcher`, `reminders.list`, `reminders.edit`, `log.fillup`, `log.service`, `log.expense`, `log.odometer`, `history`, `report.service`, `costs`, `costs.fuel`, `trips.list`, `trips.edit`, `settings`, `vehicles`, `vehicle.edit`, `settings.language`, `settings.units`, `settings.notifications`, `settings.backup`, `settings.import`, `settings.about`, `dialog.discard`, `dialog.confirmDelete`, `dialog.snooze` |
 
@@ -215,7 +215,7 @@ EPIC-19; this epic's only output for it is the sign-off.
   - [ ] One fixture, one seed, reproducible twice in a row.
   - [ ] The RTL captures are real Persian with extarab numerals and Jalali dates.
   - [ ] All five due statuses appear somewhere in the 112 captures.
-- **Estimate** — 0.5 h (CC) · ~0.5 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 18.3 — Close the Calm contrast finding, and regenerate the reference set if it is fixed
 
@@ -420,7 +420,7 @@ EPIC-19; this epic's only output for it is the sign-off.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type weight,
         icon shape or optical alignment.
-- **Estimate** — 0.5 h (CC) · ~0.5 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 18.7 — Fix the RTL class: mirroring that stopped being consistent
 
@@ -564,7 +564,7 @@ EPIC-19; this epic's only output for it is the sign-off.
   - [ ] On-device pass done on real floor-device-class hardware, destructive steps last, with
         the aeroplane-mode walk of every screen included.
   - [ ] Every finding graded; every accessibility-floor miss is a BLOCKER.
-- **Estimate** — 1 h (CC) · ~1 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ### Task 18.10 — One scoped fix round, then the dated sign-off
 
@@ -612,7 +612,7 @@ EPIC-19; this epic's only output for it is the sign-off.
   - [ ] All four reference combinations pass `calm-visual-parity`.
   - [ ] The side-by-side sheet has been opened and looked at — the tool cannot see type weight,
         icon shape or optical alignment.
-- **Estimate** — 0.5 h (CC) · ~0.5 week (human)
+- **Estimate** — 0.5 h (CC) · ~half a week (human)
 
 ## Definition of done
 
