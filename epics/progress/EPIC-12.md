@@ -36,3 +36,20 @@
   "Oil and filter" to "Inspection" with a Dart `' and '`. `sweepDeletedOnStartup`
   wired unawaited into `bootstrap()` — the gap §3 had, since every soft-delete
   was purged only by a timer that dies with the process.
+- **Task 12.10 (model).** `buildServiceReport` is pure and Flutter-free — the
+  preview IS the document, so one model feeds the screen, the PDF and the
+  clipboard. §12's exclusion list is enforced by CONSTRUCTION (no parameter a
+  fine could arrive through), not by a filter. Header reads `ReadingSeries`
+  directly so a stale vehicle prints June's entered figure, never a projection.
+  Five mutations checked; one initially SURVIVED because my fixture used
+  single-line records, so "count services" and "count lines" agreed — fixed.
+- **Task 12.11 (pure half).** Paper (four regions, not a continent), the ASCII
+  filename with the positional fallback every RTL name needs, pagination pinned
+  to §12's own 34→3 and 200→12 figures, and the clipboard renderer.
+  `check_status_encoding.sh` caught me concatenating `~` in Dart again — the
+  estimated flag now goes into the injected formatter. A `trimRight` no test
+  could distinguish was deleted rather than kept.
+- **Deferred to a follow-up within this epic:** 12.10's `report_service_screen`
+  and its four-way parity run; 12.11's `PdfCanvas` port, platform
+  implementation, share service and the `report_share_test` widget cases. The
+  pure logic all three rest on is built and gated.
