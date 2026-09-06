@@ -10,12 +10,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/features/logging/domain/fillup_draft.dart';
+import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/features/logging/ui/log_more_sheet.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 
+import '../../../app/routing/shell_harness.dart';
 import '../../../support/device.dart';
 import '../../../support/pump_app.dart';
+import '../../home/home_fixture.dart';
 
 AppLocalizations _l10n(WidgetTester tester) =>
     AppLocalizations.of(tester.element(find.byType(LogMoreSheet)));
@@ -90,6 +93,30 @@ void main() {
       _field(tester, l10n.logFillUpStation).controller.text,
       'Shell A61',
     );
+  });
+
+  testWidgets('every form that has a More section shows its Date row', (
+    tester,
+  ) async {
+    // The Date row and the More row are one card, built by the shell. When the
+    // two slots were collapsed into one, `log.expense` — which had a `moreRow`
+    // and no `dateRow` to rename — lost both, and the form shipped with no way
+    // to change the date at all. Asserted per segment so a fourth body cannot
+    // quietly drop it again.
+    for (final type in [LogType.fillUp, LogType.service, LogType.expense]) {
+      tester.useDevice(Device.tallForm);
+      await pumpShell(
+        tester,
+        Routes.log(type),
+        settings: homeSettings(golfId),
+        vehicles: [homeVehicle(golfId, 'The Golf')],
+      );
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(LogModalShell)),
+      );
+      expect(find.text(l10n.logDateLabel), findsOneWidget, reason: type.wire);
+      expect(find.text(l10n.logMoreRow), findsOneWidget, reason: type.wire);
+    }
   });
 
   testWidgets('log.odometer has no More section', (tester) async {

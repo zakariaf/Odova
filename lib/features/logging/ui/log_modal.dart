@@ -540,6 +540,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     final problems = _expense.problems().toSet();
     return LogExpenseBody(
       draft: _expense,
+      navRows: _dateAndMoreRows(l10n),
       categoryLabel: (c) => expenseCategoryLabel(l10n, c),
       amountController: _amountController,
       labelController: _labelController,

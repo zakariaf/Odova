@@ -18,6 +18,7 @@ class LogExpenseBody extends StatelessWidget {
   /// Creates the body.
   const LogExpenseBody({
     required this.draft,
+    required this.navRows,
     required this.categoryLabel,
     required this.amountController,
     required this.labelController,
@@ -30,6 +31,14 @@ class LogExpenseBody extends StatelessWidget {
     this.labelError,
     this.categoryError,
   });
+
+  /// §10's Date row, and the More row under it.
+  ///
+  /// Built by the shell so all four forms agree about the grouping. It was
+  /// dropped entirely when the two slots were collapsed into one — this body
+  /// had no `dateRow` to rename, only a `moreRow` to delete — which left
+  /// `log.expense` with no date control at all.
+  final Widget navRows;
 
   /// What has been entered so far.
   final ExpenseDraft draft;
@@ -78,6 +87,7 @@ class LogExpenseBody extends StatelessWidget {
         CalmLabelled(
           label: l10n.logExpenseCategoryLabel,
           child: CalmChipBar(
+            wrap: true,
             chips: [
               for (final category in ExpenseCategory.values)
                 CalmChip(
@@ -119,6 +129,7 @@ class LogExpenseBody extends StatelessWidget {
             ),
           ],
         ),
+        navRows,
       ],
     );
   }

@@ -142,16 +142,37 @@ class _CalmChipBody extends StatelessWidget {
 /// The horizontally scrolling filter row.
 class CalmChipBar extends StatelessWidget {
   /// Creates a chip bar.
-  const CalmChipBar({required this.chips, super.key});
+  const CalmChipBar({required this.chips, super.key, this.wrap = false});
 
   /// The chips, in order. The row starts at the `start` edge in both
   /// directions — Flutter reverses a horizontal scroll view under RTL, so
   /// there is nothing to mirror by hand and nothing to get wrong.
   final List<Widget> chips;
 
+  /// Whether the chips WRAP instead of scrolling sideways.
+  ///
+  /// Scrolling is the default and is right for a short, browsable set — a
+  /// horizontally scrolled row keeps the form's vertical rhythm.
+  ///
+  /// It is wrong wherever the set is a CHOICE the user has to see all of.
+  /// SPEC.md §10 says so of `log.expense`'s categories in as many words:
+  /// "Category chips carry the longest strings in the app
+  /// (`Reifeneinlagerung`, `Zulassung und Steuer`, `پارکینگ`); they wrap to
+  /// three rows in German at large text scales and must never truncate." A
+  /// scroller does not truncate, but it hides options off the edge, which for
+  /// a required field is the same failure wearing a different coat.
+  final bool wrap;
+
   @override
   Widget build(BuildContext context) {
     final space = CalmSpace.of(context);
+
+    if (wrap) {
+      return Padding(
+        padding: EdgeInsetsDirectional.symmetric(vertical: space.s1),
+        child: Wrap(spacing: space.s2, runSpacing: space.s2, children: chips),
+      );
+    }
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
