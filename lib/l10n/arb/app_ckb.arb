@@ -310,5 +310,17 @@
   "logOdometerSwitchUnitPrompt": "لە ئێستاوە هەموو خوێندنەوەکانت بە کیلۆمەتر پیشان بدرێن؟",
   "logOdometerUnitChipLabel": "یەکەی ئەم تۆمارە",
   "logOdometerPadClear": "سڕینەوە",
-  "logOdometerPadBackspace": "سڕینەوەی دوا ژمارە"
+  "logOdometerPadBackspace": "سڕینەوەی دوا ژمارە",
+  "logExpenseCategoryLabel": "پۆل",
+  "logExpenseCategoryError": "هەڵبژێرە ئەمە بۆ چی بوو.",
+  "logExpenseNameLabel": "ئەمە چی بوو؟",
+  "logExpenseNameError": "ناوێک بدە بەم تێچووە.",
+  "logExpenseAmountLabel": "بڕ",
+  "logExpenseAmountError": "ئەوەی دایتووە بنووسە.",
+  "logExpenseRefundLabel": "ئەمە گەڕاندنەوەیە",
+  "logExpenseDatePaidLabel": "بەرواری پارەدان",
+  "logExpenseCoversLabel": "ماوەیەک دەگرێتەوە",
+  "logExpenseCoversFrom": "لە",
+  "logExpenseCoversTo": "بۆ",
+  "logExpenseCoversError": "بەرواری کۆتایی پێش بەرواری دەستپێکە."
 }

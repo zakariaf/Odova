@@ -1987,6 +1987,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete last digit'**
   String get logOdometerPadBackspace;
+
+  /// The logExpenseCategoryLabel label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get logExpenseCategoryLabel;
+
+  /// Shown when Save is pressed with no category chosen. Category comes FIRST on this form because it is the only field that changes the rest of it.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick what this was for.'**
+  String get logExpenseCategoryError;
+
+  /// The field that appears under the chips when Other is picked, and takes focus. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'What was it?'**
+  String get logExpenseNameLabel;
+
+  /// Required for the Other category only — `expenses` has a CHECK that refuses a custom expense with no label.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this expense a name.'**
+  String get logExpenseNameError;
+
+  /// The logExpenseAmountLabel label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get logExpenseAmountLabel;
+
+  /// Shown for an empty amount. Zero IS allowed: a warranty job and a comped wash both really cost nothing, and refusing 0 would make the user lie.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what you paid.'**
+  String get logExpenseAmountError;
+
+  /// The switch that flips the stored sign. SPEC.md §10 uses a switch and not a minus key: a minus on a numeric pad is inconsistent across platforms and reverses badly in RTL, while a switch reads the same in six languages.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a refund'**
+  String get logExpenseRefundLabel;
+
+  /// The logExpenseDatePaidLabel label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Date paid'**
+  String get logExpenseDatePaidLabel;
+
+  /// The switch that reveals a coverage window. On by default for Insurance and Road tax. There is no recurrence engine anywhere: one payment is one row with a window, which the cost views spread — twelve generated rows would be twelve rows to maintain, edit and delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers a period'**
+  String get logExpenseCoversLabel;
+
+  /// The logExpenseCoversFrom label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get logExpenseCoversFrom;
+
+  /// The logExpenseCoversTo label on log.expense. SPEC.md §10.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get logExpenseCoversTo;
+
+  /// Shown under To. The only ordering rule on this form; a FUTURE date is allowed, because prepaid insurance is real.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date is before the start date.'**
+  String get logExpenseCoversError;
 }
 
 class _AppLocalizationsDelegate

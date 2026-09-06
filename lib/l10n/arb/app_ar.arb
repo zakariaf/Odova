@@ -310,5 +310,17 @@
   "logOdometerSwitchUnitPrompt": "عرض كل قراءاتك بالكيلومترات من الآن فصاعدًا؟",
   "logOdometerUnitChipLabel": "وحدة هذا الإدخال",
   "logOdometerPadClear": "مسح",
-  "logOdometerPadBackspace": "حذف آخر رقم"
+  "logOdometerPadBackspace": "حذف آخر رقم",
+  "logExpenseCategoryLabel": "الفئة",
+  "logExpenseCategoryError": "اختر الغرض من هذا.",
+  "logExpenseNameLabel": "ما هذا؟",
+  "logExpenseNameError": "امنح هذه التكلفة اسمًا.",
+  "logExpenseAmountLabel": "المبلغ",
+  "logExpenseAmountError": "أدخل ما دفعته.",
+  "logExpenseRefundLabel": "هذا استرداد",
+  "logExpenseDatePaidLabel": "تاريخ الدفع",
+  "logExpenseCoversLabel": "يغطي فترة",
+  "logExpenseCoversFrom": "من",
+  "logExpenseCoversTo": "إلى",
+  "logExpenseCoversError": "تاريخ الانتهاء قبل تاريخ البدء."
 }

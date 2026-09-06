@@ -1391,4 +1391,41 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get logOdometerPadBackspace => 'Supprimer le dernier chiffre';
+
+  @override
+  String get logExpenseCategoryLabel => 'Catégorie';
+
+  @override
+  String get logExpenseCategoryError => 'Choisissez à quoi cela correspond.';
+
+  @override
+  String get logExpenseNameLabel => 'De quoi s’agissait-il ?';
+
+  @override
+  String get logExpenseNameError => 'Donnez un nom à cette dépense.';
+
+  @override
+  String get logExpenseAmountLabel => 'Montant';
+
+  @override
+  String get logExpenseAmountError => 'Saisissez ce que vous avez payé.';
+
+  @override
+  String get logExpenseRefundLabel => 'C’est un remboursement';
+
+  @override
+  String get logExpenseDatePaidLabel => 'Date de paiement';
+
+  @override
+  String get logExpenseCoversLabel => 'Couvre une période';
+
+  @override
+  String get logExpenseCoversFrom => 'Du';
+
+  @override
+  String get logExpenseCoversTo => 'Au';
+
+  @override
+  String get logExpenseCoversError =>
+      'La date de fin précède la date de début.';
 }

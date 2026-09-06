@@ -310,5 +310,17 @@
   "logOdometerSwitchUnitPrompt": "از این پس همهٔ عددهای شما به کیلومتر نمایش داده شود؟",
   "logOdometerUnitChipLabel": "یکای این ثبت",
   "logOdometerPadClear": "پاک کردن",
-  "logOdometerPadBackspace": "حذف آخرین رقم"
+  "logOdometerPadBackspace": "حذف آخرین رقم",
+  "logExpenseCategoryLabel": "دسته",
+  "logExpenseCategoryError": "انتخاب کنید این بابت چه بود.",
+  "logExpenseNameLabel": "این چه بود؟",
+  "logExpenseNameError": "برای این هزینه نامی بگذارید.",
+  "logExpenseAmountLabel": "مبلغ",
+  "logExpenseAmountError": "مبلغ پرداختی را وارد کنید.",
+  "logExpenseRefundLabel": "این بازپرداخت است",
+  "logExpenseDatePaidLabel": "تاریخ پرداخت",
+  "logExpenseCoversLabel": "یک بازه را پوشش می‌دهد",
+  "logExpenseCoversFrom": "از",
+  "logExpenseCoversTo": "تا",
+  "logExpenseCoversError": "تاریخ پایان پیش از تاریخ شروع است."
 }

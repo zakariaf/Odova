@@ -1357,4 +1357,40 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get logOdometerPadBackspace => 'سڕینەوەی دوا ژمارە';
+
+  @override
+  String get logExpenseCategoryLabel => 'پۆل';
+
+  @override
+  String get logExpenseCategoryError => 'هەڵبژێرە ئەمە بۆ چی بوو.';
+
+  @override
+  String get logExpenseNameLabel => 'ئەمە چی بوو؟';
+
+  @override
+  String get logExpenseNameError => 'ناوێک بدە بەم تێچووە.';
+
+  @override
+  String get logExpenseAmountLabel => 'بڕ';
+
+  @override
+  String get logExpenseAmountError => 'ئەوەی دایتووە بنووسە.';
+
+  @override
+  String get logExpenseRefundLabel => 'ئەمە گەڕاندنەوەیە';
+
+  @override
+  String get logExpenseDatePaidLabel => 'بەرواری پارەدان';
+
+  @override
+  String get logExpenseCoversLabel => 'ماوەیەک دەگرێتەوە';
+
+  @override
+  String get logExpenseCoversFrom => 'لە';
+
+  @override
+  String get logExpenseCoversTo => 'بۆ';
+
+  @override
+  String get logExpenseCoversError => 'بەرواری کۆتایی پێش بەرواری دەستپێکە.';
 }

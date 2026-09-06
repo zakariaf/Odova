@@ -1452,4 +1452,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logOdometerPadBackspace => 'حذف آخر رقم';
+
+  @override
+  String get logExpenseCategoryLabel => 'الفئة';
+
+  @override
+  String get logExpenseCategoryError => 'اختر الغرض من هذا.';
+
+  @override
+  String get logExpenseNameLabel => 'ما هذا؟';
+
+  @override
+  String get logExpenseNameError => 'امنح هذه التكلفة اسمًا.';
+
+  @override
+  String get logExpenseAmountLabel => 'المبلغ';
+
+  @override
+  String get logExpenseAmountError => 'أدخل ما دفعته.';
+
+  @override
+  String get logExpenseRefundLabel => 'هذا استرداد';
+
+  @override
+  String get logExpenseDatePaidLabel => 'تاريخ الدفع';
+
+  @override
+  String get logExpenseCoversLabel => 'يغطي فترة';
+
+  @override
+  String get logExpenseCoversFrom => 'من';
+
+  @override
+  String get logExpenseCoversTo => 'إلى';
+
+  @override
+  String get logExpenseCoversError => 'تاريخ الانتهاء قبل تاريخ البدء.';
 }

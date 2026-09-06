@@ -310,5 +310,17 @@
   "logOdometerSwitchUnitPrompt": "[Ŝħǿẇ áŀŀ ẏǿǔř řḗáḍīǹḡŝ īǹ ķīŀǿḿḗţřḗŝ ƒřǿḿ ǹǿẇ ǿǹ? ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "logOdometerUnitChipLabel": "[Ǔǹīţ ƒǿř ţħīŝ ḗǹţřẏ ǃǃǃǃǃǃǃǃ]",
   "logOdometerPadClear": "[Çŀḗář ǃǃ]",
-  "logOdometerPadBackspace": "[Ḍḗŀḗţḗ ŀáŝţ ḍīḡīţ ǃǃǃǃǃǃǃ]"
+  "logOdometerPadBackspace": "[Ḍḗŀḗţḗ ŀáŝţ ḍīḡīţ ǃǃǃǃǃǃǃ]",
+  "logExpenseCategoryLabel": "[Çáţḗḡǿřẏ ǃǃǃǃ]",
+  "logExpenseCategoryError": "[Ƥīçķ ẇħáţ ţħīŝ ẇáŝ ƒǿř. ǃǃǃǃǃǃǃǃǃǃ]",
+  "logExpenseNameLabel": "[Ẇħáţ ẇáŝ īţ? ǃǃǃǃǃ]",
+  "logExpenseNameError": "[Ḡīṽḗ ţħīŝ ḗẋƥḗǹŝḗ á ǹáḿḗ. ǃǃǃǃǃǃǃǃǃǃ]",
+  "logExpenseAmountLabel": "[Áḿǿǔǹţ ǃǃǃ]",
+  "logExpenseAmountError": "[Ḗǹţḗř ẇħáţ ẏǿǔ ƥáīḍ. ǃǃǃǃǃǃǃǃ]",
+  "logExpenseRefundLabel": "[Ţħīŝ īŝ á řḗƒǔǹḍ ǃǃǃǃǃǃǃ]",
+  "logExpenseDatePaidLabel": "[Ḍáţḗ ƥáīḍ ǃǃǃǃ]",
+  "logExpenseCoversLabel": "[Çǿṽḗřŝ á ƥḗřīǿḍ ǃǃǃǃǃǃ]",
+  "logExpenseCoversFrom": "[Ƒřǿḿ ǃǃ]",
+  "logExpenseCoversTo": "[Ţǿ ǃ]",
+  "logExpenseCoversError": "[Ţħḗ ḗǹḍ ḍáţḗ īŝ ḅḗƒǿřḗ ţħḗ ŝţářţ ḍáţḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]"
 }

@@ -2047,5 +2047,53 @@
   "logOdometerPadBackspace": "Delete last digit",
   "@logOdometerPadBackspace": {
     "description": "The backspace key's spoken name. It carries a glyph and no text, so without this a screen reader announces 'button'."
+  },
+  "logExpenseCategoryLabel": "Category",
+  "@logExpenseCategoryLabel": {
+    "description": "The logExpenseCategoryLabel label on log.expense. SPEC.md §10."
+  },
+  "logExpenseCategoryError": "Pick what this was for.",
+  "@logExpenseCategoryError": {
+    "description": "Shown when Save is pressed with no category chosen. Category comes FIRST on this form because it is the only field that changes the rest of it."
+  },
+  "logExpenseNameLabel": "What was it?",
+  "@logExpenseNameLabel": {
+    "description": "The field that appears under the chips when Other is picked, and takes focus. SPEC.md §10."
+  },
+  "logExpenseNameError": "Give this expense a name.",
+  "@logExpenseNameError": {
+    "description": "Required for the Other category only — `expenses` has a CHECK that refuses a custom expense with no label."
+  },
+  "logExpenseAmountLabel": "Amount",
+  "@logExpenseAmountLabel": {
+    "description": "The logExpenseAmountLabel label on log.expense. SPEC.md §10."
+  },
+  "logExpenseAmountError": "Enter what you paid.",
+  "@logExpenseAmountError": {
+    "description": "Shown for an empty amount. Zero IS allowed: a warranty job and a comped wash both really cost nothing, and refusing 0 would make the user lie."
+  },
+  "logExpenseRefundLabel": "This is a refund",
+  "@logExpenseRefundLabel": {
+    "description": "The switch that flips the stored sign. SPEC.md §10 uses a switch and not a minus key: a minus on a numeric pad is inconsistent across platforms and reverses badly in RTL, while a switch reads the same in six languages."
+  },
+  "logExpenseDatePaidLabel": "Date paid",
+  "@logExpenseDatePaidLabel": {
+    "description": "The logExpenseDatePaidLabel label on log.expense. SPEC.md §10."
+  },
+  "logExpenseCoversLabel": "Covers a period",
+  "@logExpenseCoversLabel": {
+    "description": "The switch that reveals a coverage window. On by default for Insurance and Road tax. There is no recurrence engine anywhere: one payment is one row with a window, which the cost views spread — twelve generated rows would be twelve rows to maintain, edit and delete."
+  },
+  "logExpenseCoversFrom": "From",
+  "@logExpenseCoversFrom": {
+    "description": "The logExpenseCoversFrom label on log.expense. SPEC.md §10."
+  },
+  "logExpenseCoversTo": "To",
+  "@logExpenseCoversTo": {
+    "description": "The logExpenseCoversTo label on log.expense. SPEC.md §10."
+  },
+  "logExpenseCoversError": "The end date is before the start date.",
+  "@logExpenseCoversError": {
+    "description": "Shown under To. The only ordering rule on this form; a FUTURE date is allowed, because prepaid insurance is real."
   }
 }

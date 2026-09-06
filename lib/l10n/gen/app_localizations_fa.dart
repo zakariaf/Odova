@@ -1352,4 +1352,40 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get logOdometerPadBackspace => 'حذف آخرین رقم';
+
+  @override
+  String get logExpenseCategoryLabel => 'دسته';
+
+  @override
+  String get logExpenseCategoryError => 'انتخاب کنید این بابت چه بود.';
+
+  @override
+  String get logExpenseNameLabel => 'این چه بود؟';
+
+  @override
+  String get logExpenseNameError => 'برای این هزینه نامی بگذارید.';
+
+  @override
+  String get logExpenseAmountLabel => 'مبلغ';
+
+  @override
+  String get logExpenseAmountError => 'مبلغ پرداختی را وارد کنید.';
+
+  @override
+  String get logExpenseRefundLabel => 'این بازپرداخت است';
+
+  @override
+  String get logExpenseDatePaidLabel => 'تاریخ پرداخت';
+
+  @override
+  String get logExpenseCoversLabel => 'یک بازه را پوشش می‌دهد';
+
+  @override
+  String get logExpenseCoversFrom => 'از';
+
+  @override
+  String get logExpenseCoversTo => 'تا';
+
+  @override
+  String get logExpenseCoversError => 'تاریخ پایان پیش از تاریخ شروع است.';
 }

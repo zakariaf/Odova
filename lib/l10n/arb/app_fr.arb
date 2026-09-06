@@ -310,5 +310,17 @@
   "logOdometerSwitchUnitPrompt": "Afficher désormais tous vos relevés en kilomètres ?",
   "logOdometerUnitChipLabel": "Unité pour cette saisie",
   "logOdometerPadClear": "Effacer",
-  "logOdometerPadBackspace": "Supprimer le dernier chiffre"
+  "logOdometerPadBackspace": "Supprimer le dernier chiffre",
+  "logExpenseCategoryLabel": "Catégorie",
+  "logExpenseCategoryError": "Choisissez à quoi cela correspond.",
+  "logExpenseNameLabel": "De quoi s’agissait-il ?",
+  "logExpenseNameError": "Donnez un nom à cette dépense.",
+  "logExpenseAmountLabel": "Montant",
+  "logExpenseAmountError": "Saisissez ce que vous avez payé.",
+  "logExpenseRefundLabel": "C’est un remboursement",
+  "logExpenseDatePaidLabel": "Date de paiement",
+  "logExpenseCoversLabel": "Couvre une période",
+  "logExpenseCoversFrom": "Du",
+  "logExpenseCoversTo": "Au",
+  "logExpenseCoversError": "La date de fin précède la date de début."
 }

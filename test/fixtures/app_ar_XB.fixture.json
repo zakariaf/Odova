@@ -310,5 +310,17 @@
   "logOdometerSwitchUnitPrompt": "‏?no won morf sertemolik ni sgnidaer ruoy lla wohS",
   "logOdometerUnitChipLabel": "‏yrtne siht rof tinU",
   "logOdometerPadClear": "‏raelC",
-  "logOdometerPadBackspace": "‏tigid tsal eteleD"
+  "logOdometerPadBackspace": "‏tigid tsal eteleD",
+  "logExpenseCategoryLabel": "‏yrogetaC",
+  "logExpenseCategoryError": "‏.rof saw siht tahw kciP",
+  "logExpenseNameLabel": "‏?ti saw tahW",
+  "logExpenseNameError": "‏.eman a esnepxe siht eviG",
+  "logExpenseAmountLabel": "‏tnuomA",
+  "logExpenseAmountError": "‏.diap uoy tahw retnE",
+  "logExpenseRefundLabel": "‏dnufer a si sihT",
+  "logExpenseDatePaidLabel": "‏diap etaD",
+  "logExpenseCoversLabel": "‏doirep a srevoC",
+  "logExpenseCoversFrom": "‏morF",
+  "logExpenseCoversTo": "‏oT",
+  "logExpenseCoversError": "‏.etad trats eht erofeb si etad dne ehT"
 }
