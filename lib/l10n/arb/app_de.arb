@@ -481,5 +481,12 @@
   "costsSpanCaption": "{from} – {to}",
   "costsPerKilometre": "{amount} pro Kilometer",
   "costsPerMile": "{amount} pro Meile",
-  "costsInMonths": "{n, plural, one{{amount} in {nText} Monat} other{{amount} in {nText} Monaten}}"
+  "costsInMonths": "{n, plural, one{{amount} in {nText} Monat} other{{amount} in {nText} Monaten}}",
+  "costsAllVehicles": "Alle Fahrzeuge",
+  "costsIncludeInactive": "Verkaufte und archivierte einbeziehen",
+  "costsHiddenVehicles": "{n, plural, one{{nText} Fahrzeug ausgeblendet} other{{nText} Fahrzeuge ausgeblendet}}",
+  "costsBusinessRow": "Geschäftlich {share}% · {amount}",
+  "costsBusinessCaption": "Berechnet aus den erfassten Fahrten, nicht aus allen gefahrenen Kilometern.",
+  "costsVehicleSold": "Verkauft",
+  "costsVehicleArchived": "Archiviert"
 }

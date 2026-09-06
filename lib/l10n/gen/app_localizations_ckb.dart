@@ -2008,4 +2008,36 @@ class AppLocalizationsCkb extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get costsAllVehicles => 'هەموو ئۆتۆمبێلەکان';
+
+  @override
+  String get costsIncludeInactive => 'فرۆشراوەکان و ئەرشیفکراوەکان لەخۆبگرێت';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ئۆتۆمبێل شاراوەن',
+      one: '$nText ئۆتۆمبێل شاراوەیە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'کاری $share٪ · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'لە گەشتەکانی تۆمارکراوتەوە دەرهێنراوە، نەک لە هەموو لێخوڕینەکەت.';
+
+  @override
+  String get costsVehicleSold => 'فرۆشراو';
+
+  @override
+  String get costsVehicleArchived => 'ئەرشیفکراو';
 }

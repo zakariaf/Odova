@@ -2132,4 +2132,40 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get costsAllVehicles => 'كل المركبات';
+
+  @override
+  String get costsIncludeInactive => 'تضمين المباعة والمؤرشفة';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مركبة مخفية',
+      many: '$nText مركبةً مخفية',
+      few: '$nText مركبات مخفية',
+      two: 'مركبتان مخفيتان',
+      one: 'مركبة واحدة مخفية',
+      zero: '$nText مركبة مخفية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'عمل $share٪ · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'محسوب من الرحلات التي سجّلتها، وليس من كل قيادتك.';
+
+  @override
+  String get costsVehicleSold => 'مباعة';
+
+  @override
+  String get costsVehicleArchived => 'مؤرشفة';
 }

@@ -481,5 +481,12 @@
   "costsSpanCaption": "[{from} – {to} ǃǃ]",
   "costsPerKilometre": "[{amount} ƥḗř ķīŀǿḿḗţřḗ ǃǃǃǃǃǃ]",
   "costsPerMile": "[{amount} ƥḗř ḿīŀḗ ǃǃǃǃ]",
-  "costsInMonths": "[{n, plural, one{{amount} īǹ {nText} ḿǿǹţħ} other{{amount} īǹ {nText} ḿǿǹţħŝ}} ǃǃǃǃǃǃǃǃǃ]"
+  "costsInMonths": "[{n, plural, one{{amount} īǹ {nText} ḿǿǹţħ} other{{amount} īǹ {nText} ḿǿǹţħŝ}} ǃǃǃǃǃǃǃǃǃ]",
+  "costsAllVehicles": "[Áŀŀ ṽḗħīçŀḗŝ ǃǃǃǃǃ]",
+  "costsIncludeInactive": "[Īǹçŀǔḍḗ ŝǿŀḍ áǹḍ ářçħīṽḗḍ ǃǃǃǃǃǃǃǃǃǃ]",
+  "costsHiddenVehicles": "[{n, plural, one{{nText} ṽḗħīçŀḗ ħīḍḍḗǹ} other{{nText} ṽḗħīçŀḗŝ ħīḍḍḗǹ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "costsBusinessRow": "[Ḅǔŝīǹḗŝŝ {share}% · {amount} ǃǃǃǃǃǃ]",
+  "costsBusinessCaption": "[Ẇǿřķḗḍ ǿǔţ ƒřǿḿ ţħḗ ţřīƥŝ ẏǿǔ ŀǿḡḡḗḍ, ǹǿţ ƒřǿḿ áŀŀ ẏǿǔř ḍřīṽīǹḡ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "costsVehicleSold": "[Ŝǿŀḍ ǃǃ]",
+  "costsVehicleArchived": "[Ářçħīṽḗḍ ǃǃǃǃ]"
 }

@@ -481,5 +481,12 @@
   "costsSpanCaption": "{from} – {to}",
   "costsPerKilometre": "{amount} در هر کیلومتر",
   "costsPerMile": "{amount} در هر مایل",
-  "costsInMonths": "{n, plural, one{{amount} در {nText} ماه} other{{amount} در {nText} ماه}}"
+  "costsInMonths": "{n, plural, one{{amount} در {nText} ماه} other{{amount} در {nText} ماه}}",
+  "costsAllVehicles": "همهٔ خودروها",
+  "costsIncludeInactive": "شامل فروخته‌شده و بایگانی",
+  "costsHiddenVehicles": "{n, plural, one{{nText} خودرو پنهان است} other{{nText} خودرو پنهان است}}",
+  "costsBusinessRow": "کاری {share}٪ · {amount}",
+  "costsBusinessCaption": "از سفرهایی که ثبت کرده‌اید محاسبه شده، نه از همهٔ رانندگی شما.",
+  "costsVehicleSold": "فروخته‌شده",
+  "costsVehicleArchived": "بایگانی‌شده"
 }

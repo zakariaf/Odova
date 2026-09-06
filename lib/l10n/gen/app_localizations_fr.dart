@@ -2057,4 +2057,37 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get costsAllVehicles => 'Tous les véhicules';
+
+  @override
+  String get costsIncludeInactive => 'Inclure vendus et archivés';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText véhicules masqués',
+      many: '$nText de véhicules masqués',
+      one: '$nText véhicule masqué',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'Professionnel $share% · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'Calculé à partir des trajets enregistrés, pas de toute votre conduite.';
+
+  @override
+  String get costsVehicleSold => 'Vendu';
+
+  @override
+  String get costsVehicleArchived => 'Archivé';
 }

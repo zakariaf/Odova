@@ -91,6 +91,7 @@ class CostsState {
     this.perDistance,
     this.thisMonthSoFar,
     this.chart,
+    this.includeInactive = false,
     this.isLoaded = false,
   });
 
@@ -118,6 +119,13 @@ class CostsState {
 
   /// §12's stacked chart, already bucketed and thinned.
   final MonthlyChart? chart;
+
+  /// Whether §12's household list includes sold and archived vehicles.
+  ///
+  /// OFF by default. A sold car's costs are real history, but a household
+  /// average that silently included a car nobody drives any more would be
+  /// wrong in the direction of looking cheap.
+  final bool includeInactive;
 
   /// Whether the first read has landed.
   final bool isLoaded;
@@ -170,6 +178,7 @@ class CostsNotifier extends Notifier<CostsState> {
       perDistance: state.perDistance,
       thisMonthSoFar: state.thisMonthSoFar,
       chart: state.chart,
+      includeInactive: state.includeInactive,
       isLoaded: state.isLoaded,
     );
     await _reload(vehicleId, today: today);
@@ -231,7 +240,34 @@ class CostsNotifier extends Notifier<CostsState> {
               points: data.monthlyPoints,
               currency: dominant,
             ),
+      includeInactive: state.includeInactive,
       isLoaded: true,
+    );
+  }
+
+  /// Toggles §12's sold-and-archived inclusion.
+  ///
+  /// Writes ONLY to this notifier's own state. §7's `activeVehicleId` is not
+  /// read here and not written — this is the one screen-scoped exception to
+  /// the app-wide vehicle scope, and it stays scoped by not having the
+  /// provider in reach.
+  ///
+  /// The RANGE is carried through unchanged: §12 preserves it across the
+  /// toggle, because a household comparison that silently answered a different
+  /// question from the one on screen a moment ago is a comparison nobody can
+  /// trust.
+  void toggleAllVehicles({required bool includeInactive}) {
+    state = CostsState(
+      choice: state.choice,
+      range: state.range,
+      total: state.total,
+      categories: state.categories,
+      perMonth: state.perMonth,
+      perDistance: state.perDistance,
+      thisMonthSoFar: state.thisMonthSoFar,
+      chart: state.chart,
+      includeInactive: includeInactive,
+      isLoaded: state.isLoaded,
     );
   }
 

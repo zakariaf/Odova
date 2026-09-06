@@ -89,3 +89,18 @@
   history feature.** A shared helper belongs in `core` or `l10n`; reaching
   across features is how two screens stop being able to change independently.
   The tick uses `formatMonthYear` now.
+- **Task 13.5 (complete).** `businessShare` divides by LOGGED TRIP distance,
+  never vehicle distance — §12 says elsewhere that trip distances are never
+  summed into vehicle distance because people log some trips and not all, so
+  using the odometer would understate the share by whatever went unlogged. On
+  a tax form that is not a rounding error, and the odometer is the tempting
+  mistake precisely because it looks more complete. A commute is NOT business:
+  rolling it in is the easiest way to overstate a deduction. No trips returns
+  NULL rather than 0, because zero is a claim.
+  `buildHousehold` groups per currency and sorts WITHIN a currency — comparing
+  30,000 minor EUR against 30,000 minor GBP is the forbidden sum wearing a
+  comparison instead of an addition. Ties break by name so the list does not
+  flicker between builds.
+  §7's one exception is asserted rather than asserted-in-a-comment: the test
+  reads `activeVehicleIdProvider` across a toggle and expects it unchanged.
+  Five mutations checked.

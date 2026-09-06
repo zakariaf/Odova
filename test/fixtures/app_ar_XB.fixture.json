@@ -481,5 +481,12 @@
   "costsSpanCaption": "‏{from} – {to}",
   "costsPerKilometre": "‏{amount}ertemolik rep ",
   "costsPerMile": "‏{amount}elim rep ",
-  "costsInMonths": "‏{n, plural, one{{amount} ni {nText}htnom } other{{amount} ni {nText}shtnom }}"
+  "costsInMonths": "‏{n, plural, one{{amount} ni {nText}htnom } other{{amount} ni {nText}shtnom }}",
+  "costsAllVehicles": "‏selcihev llA",
+  "costsIncludeInactive": "‏devihcra dna dlos edulcnI",
+  "costsHiddenVehicles": "‏{n, plural, one{{nText}neddih elcihev } other{{nText}neddih selcihev }}",
+  "costsBusinessRow": "‏ ssenisuB{share} · %{amount}",
+  "costsBusinessCaption": "‏.gnivird ruoy lla morf ton ,deggol uoy spirt eht morf tuo dekroW",
+  "costsVehicleSold": "‏dloS",
+  "costsVehicleArchived": "‏devihcrA"
 }

@@ -97,6 +97,8 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'costsRangeMonths' => l10n.costsRangeMonths(n, nText),
       // §12's range total. The AMOUNT is pinned and the count varies.
       'costsInMonths' => l10n.costsInMonths(n, nText, '2,184'),
+      // §12's household trailing line. The count is the whole message.
+      'costsHiddenVehicles' => l10n.costsHiddenVehicles(n, nText),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(
         n,

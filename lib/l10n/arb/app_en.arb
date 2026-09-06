@@ -3002,5 +3002,49 @@
         "type": "String"
       }
     }
+  },
+  "costsAllVehicles": "All vehicles",
+  "@costsAllVehicles": {
+    "description": "SPEC.md §12's household toggle, shown only with two or more non-archived vehicles. It changes what tab 3 SHOWS and never the active vehicle — §7's app-wide scope has exactly one exception and it is scoped to this tab."
+  },
+  "costsIncludeInactive": "Include sold and archived",
+  "@costsIncludeInactive": {
+    "description": "§12's second toggle, OFF by default. A sold car's costs are real history, but a household average that silently included a car nobody drives any more would be wrong in the direction of looking cheap."
+  },
+  "costsHiddenVehicles": "{n, plural, one{{nText} vehicle hidden} other{{nText} vehicles hidden}}",
+  "@costsHiddenVehicles": {
+    "description": "§12's trailing line when vehicles are excluded. A hidden vehicle the user is not told about is a household total they cannot reconcile against the list above it.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "costsBusinessRow": "Business {share}% · {amount}",
+  "@costsBusinessRow": {
+    "description": "SPEC.md §12's business split: `Business 62% · 1,391 €`. Both parts are pre-shaped — a bare int renders Latin digits in four locales, and the amount is money.",
+    "placeholders": {
+      "share": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "costsBusinessCaption": "Worked out from the trips you logged, not from all your driving.",
+  "@costsBusinessCaption": {
+    "description": "SPEC.md §12's caption under the business row, verbatim in intent. The denominator is LOGGED TRIP distance and not vehicle distance, and this sentence is what stops a user reading the figure as a claim about all their driving — which on a tax form matters."
+  },
+  "costsVehicleSold": "Sold",
+  "@costsVehicleSold": {
+    "description": "The status label on a household row for a sold vehicle, so a row is never mistaken for a live car."
+  },
+  "costsVehicleArchived": "Archived",
+  "@costsVehicleArchived": {
+    "description": "The same for an archived one."
   }
 }

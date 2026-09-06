@@ -3017,6 +3017,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, one{{amount} in {nText} month} other{{amount} in {nText} months}}'**
   String costsInMonths(int n, String nText, String amount);
+
+  /// SPEC.md §12's household toggle, shown only with two or more non-archived vehicles. It changes what tab 3 SHOWS and never the active vehicle — §7's app-wide scope has exactly one exception and it is scoped to this tab.
+  ///
+  /// In en, this message translates to:
+  /// **'All vehicles'**
+  String get costsAllVehicles;
+
+  /// §12's second toggle, OFF by default. A sold car's costs are real history, but a household average that silently included a car nobody drives any more would be wrong in the direction of looking cheap.
+  ///
+  /// In en, this message translates to:
+  /// **'Include sold and archived'**
+  String get costsIncludeInactive;
+
+  /// §12's trailing line when vehicles are excluded. A hidden vehicle the user is not told about is a household total they cannot reconcile against the list above it.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} vehicle hidden} other{{nText} vehicles hidden}}'**
+  String costsHiddenVehicles(int n, String nText);
+
+  /// SPEC.md §12's business split: `Business 62% · 1,391 €`. Both parts are pre-shaped — a bare int renders Latin digits in four locales, and the amount is money.
+  ///
+  /// In en, this message translates to:
+  /// **'Business {share}% · {amount}'**
+  String costsBusinessRow(String share, String amount);
+
+  /// SPEC.md §12's caption under the business row, verbatim in intent. The denominator is LOGGED TRIP distance and not vehicle distance, and this sentence is what stops a user reading the figure as a claim about all their driving — which on a tax form matters.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from the trips you logged, not from all your driving.'**
+  String get costsBusinessCaption;
+
+  /// The status label on a household row for a sold vehicle, so a row is never mistaken for a live car.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get costsVehicleSold;
+
+  /// The same for an archived one.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get costsVehicleArchived;
 }
 
 class _AppLocalizationsDelegate

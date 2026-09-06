@@ -481,5 +481,12 @@
   "costsSpanCaption": "{from} – {to}",
   "costsPerKilometre": "{amount} لكل كيلومتر",
   "costsPerMile": "{amount} لكل ميل",
-  "costsInMonths": "{n, plural, zero{{amount} في {nText} شهر} one{{amount} في شهر واحد} two{{amount} في شهرين} few{{amount} في {nText} أشهر} many{{amount} في {nText} شهرًا} other{{amount} في {nText} شهر}}"
+  "costsInMonths": "{n, plural, zero{{amount} في {nText} شهر} one{{amount} في شهر واحد} two{{amount} في شهرين} few{{amount} في {nText} أشهر} many{{amount} في {nText} شهرًا} other{{amount} في {nText} شهر}}",
+  "costsAllVehicles": "كل المركبات",
+  "costsIncludeInactive": "تضمين المباعة والمؤرشفة",
+  "costsHiddenVehicles": "{n, plural, zero{{nText} مركبة مخفية} one{مركبة واحدة مخفية} two{مركبتان مخفيتان} few{{nText} مركبات مخفية} many{{nText} مركبةً مخفية} other{{nText} مركبة مخفية}}",
+  "costsBusinessRow": "عمل {share}٪ · {amount}",
+  "costsBusinessCaption": "محسوب من الرحلات التي سجّلتها، وليس من كل قيادتك.",
+  "costsVehicleSold": "مباعة",
+  "costsVehicleArchived": "مؤرشفة"
 }

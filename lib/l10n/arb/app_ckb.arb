@@ -481,5 +481,12 @@
   "costsSpanCaption": "{from} – {to}",
   "costsPerKilometre": "{amount} بۆ هەر کیلۆمەترێک",
   "costsPerMile": "{amount} بۆ هەر مایلێک",
-  "costsInMonths": "{n, plural, one{{amount} لە {nText} مانگدا} other{{amount} لە {nText} مانگدا}}"
+  "costsInMonths": "{n, plural, one{{amount} لە {nText} مانگدا} other{{amount} لە {nText} مانگدا}}",
+  "costsAllVehicles": "هەموو ئۆتۆمبێلەکان",
+  "costsIncludeInactive": "فرۆشراوەکان و ئەرشیفکراوەکان لەخۆبگرێت",
+  "costsHiddenVehicles": "{n, plural, one{{nText} ئۆتۆمبێل شاراوەیە} other{{nText} ئۆتۆمبێل شاراوەن}}",
+  "costsBusinessRow": "کاری {share}٪ · {amount}",
+  "costsBusinessCaption": "لە گەشتەکانی تۆمارکراوتەوە دەرهێنراوە، نەک لە هەموو لێخوڕینەکەت.",
+  "costsVehicleSold": "فرۆشراو",
+  "costsVehicleArchived": "ئەرشیفکراو"
 }

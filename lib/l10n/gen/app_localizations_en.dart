@@ -2005,4 +2005,36 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get costsAllVehicles => 'All vehicles';
+
+  @override
+  String get costsIncludeInactive => 'Include sold and archived';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText vehicles hidden',
+      one: '$nText vehicle hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'Business $share% · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'Worked out from the trips you logged, not from all your driving.';
+
+  @override
+  String get costsVehicleSold => 'Sold';
+
+  @override
+  String get costsVehicleArchived => 'Archived';
 }

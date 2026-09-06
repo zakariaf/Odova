@@ -2017,4 +2017,36 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get costsAllVehicles => 'Alle Fahrzeuge';
+
+  @override
+  String get costsIncludeInactive => 'Verkaufte und archivierte einbeziehen';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Fahrzeuge ausgeblendet',
+      one: '$nText Fahrzeug ausgeblendet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'Geschäftlich $share% · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'Berechnet aus den erfassten Fahrten, nicht aus allen gefahrenen Kilometern.';
+
+  @override
+  String get costsVehicleSold => 'Verkauft';
+
+  @override
+  String get costsVehicleArchived => 'Archiviert';
 }

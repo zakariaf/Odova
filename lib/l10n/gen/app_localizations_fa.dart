@@ -2002,4 +2002,36 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get costsAllVehicles => 'همهٔ خودروها';
+
+  @override
+  String get costsIncludeInactive => 'شامل فروخته‌شده و بایگانی';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خودرو پنهان است',
+      one: '$nText خودرو پنهان است',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'کاری $share٪ · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'از سفرهایی که ثبت کرده‌اید محاسبه شده، نه از همهٔ رانندگی شما.';
+
+  @override
+  String get costsVehicleSold => 'فروخته‌شده';
+
+  @override
+  String get costsVehicleArchived => 'بایگانی‌شده';
 }

@@ -6,11 +6,14 @@
 // later with a figure whose window they have no reason to remember.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/core/costs/cost_aggregates.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/costs/application/costs_notifier.dart';
 
 import '../../../support/costs_fake_repository.dart';
+import '../../home/home_fixture.dart';
 
 final CivilDate _today = CivilDate.tryParse('2026-09-02')!;
 
@@ -19,6 +22,12 @@ ProviderContainer _container({FakeCostsRepository? repository}) {
     overrides: [
       costsRepositoryProvider.overrideWithValue(
         repository ?? FakeCostsRepository(),
+      ),
+      // The active-vehicle provider derives from settings, and settings opens
+      // the database. Overridden so the guarantee below tests the TOGGLE
+      // rather than the platform channels underneath it.
+      settingsProvider.overrideWith(
+        (ref) => Stream.value(homeSettings(golfId)),
       ),
     ],
   );
@@ -34,6 +43,14 @@ Future<CostsNotifier> _loaded(ProviderContainer c) async {
 }
 
 void main() {
+  // The active-vehicle provider reads settings, which reaches the platform
+  // bindings through the settings stream.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  //  reads settings, which reaches the platform
+  // bindings through the settings stream.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('twelve months is the default, per §12', () {
     expect(
       _container().read(costsProvider).choice,
@@ -130,5 +147,51 @@ void main() {
     await Future<void>.delayed(Duration.zero);
 
     expect(repository.reads, reads);
+  });
+
+  group('§7s one exception', () {
+    test('the household toggle never touches activeVehicleId', () async {
+      // §7 gives the app ONE active vehicle and every screen reads it. §12's
+      // all-vehicles toggle is the single documented exception, and it is
+      // scoped to tab 3: it changes what tab 3 SHOWS.
+      //
+      // Watched rather than asserted by comment. A toggle that wrote to the
+      // vehicle scope would silently change Home, History and every log form
+      // — from a glance at a comparison.
+      final container = _container();
+      final before = container.read(activeVehicleIdProvider);
+      final notifier = await _loaded(container);
+
+      notifier.toggleAllVehicles(includeInactive: true);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(
+        container.read(activeVehicleIdProvider),
+        before,
+        reason: 'the active vehicle is exactly where it was',
+      );
+      expect(container.read(costsProvider).includeInactive, isTrue);
+    });
+
+    test('and the range survives the toggle', () async {
+      // §12: "the range is preserved across the toggle." Resetting it would
+      // make a household comparison silently answer a different question from
+      // the one on screen a moment earlier.
+      final container = _container();
+      final notifier = await _loaded(container);
+      await notifier.choose(
+        CostsRangeChoice.threeMonths,
+        'veh_1',
+        today: _today,
+      );
+
+      notifier.toggleAllVehicles(includeInactive: true);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(
+        container.read(costsProvider).choice,
+        CostsRangeChoice.threeMonths,
+      );
+    });
   });
 }
