@@ -72,6 +72,7 @@ ServiceRecord record(
   int i, {
   required String on,
   required int km,
+  bool priceless = false,
   int cents = 18450,
   bool estimated = false,
   String? vendor = 'Werkstatt Krüger',
@@ -85,6 +86,7 @@ ServiceRecord record(
   odometer: Distance.fromKm(km),
   odometerUnit: DistanceUnit.km,
   odometerEstimated: estimated,
+  costEstimated: priceless,
   vendor: vendor,
   lines: [
     ServiceLine(
@@ -119,6 +121,19 @@ OdometerReading reading(int i, String on, int km, {bool estimated = false}) =>
       createdAtUtcMs: 1 + i,
       updatedAtUtcMs: 1 + i,
     );
+
+/// The cluster swap: 188,412 km became 1,000 on the reading at 2026-02-01.
+final OdometerCorrection _correction = OdometerCorrection(
+  id: OdometerCorrectionId.tryParse('cor_${_b(50)}')!,
+  vehicleId: _veh,
+  fromReadingId: OdometerReadingId.tryParse('odo_${_b(1)}')!,
+  previous: const Distance.fromKm(188412),
+  replacement: const Distance.fromKm(1000),
+  odometerUnit: DistanceUnit.km,
+  reason: OdometerCorrectionReason.clusterReplaced,
+  createdAtUtcMs: 10,
+  updatedAtUtcMs: 10,
+);
 
 ServiceReportDocument build({
   Vehicle? v,
@@ -458,5 +473,108 @@ void main() {
       fromLines,
       reason: 'every figure in the document is the sum of service lines',
     );
+  });
+
+  group('a job with no cost recorded', () {
+    // `ServiceLine.amount`'s doc: "zero means 'not recorded'", and
+    // `cost_estimated` is stored to tell that from a warranty job that really
+    // was free. §10 prints an em dash rather than 0 for the first.
+    //
+    // Summed as zero, a user who logs services without prices handed a buyer
+    // a document reading "34 services · €0.00" — every year heading and every
+    // line at zero. Eight years of maintenance presented as free.
+
+    test('is left out of the totals rather than counted as zero', () {
+      final doc = build(
+        records: [
+          record(1, on: '2026-06-14', km: 174300, cents: 0, priceless: true),
+        ],
+      );
+
+      expect(
+        doc.summary?.totals,
+        isEmpty,
+        reason: 'no figure at all, not a zero one',
+      );
+      expect(doc.years.single.subtotals, isEmpty);
+    });
+
+    test('but it still COUNTS as a service', () {
+      // The job happened. §12's "34 services" is a count of visits, and a
+      // buyer reading "33 services" over a history with 34 in it would be
+      // right to wonder which one was hidden.
+      final doc = build(
+        records: [
+          record(1, on: '2026-06-14', km: 174300, cents: 0, priceless: true),
+        ],
+      );
+
+      expect(doc.summary?.serviceCount, 1);
+      expect(doc.years.single.records, hasLength(1));
+    });
+
+    test('and a priced job beside it is still totalled', () {
+      // The arm that keeps this honest: excluding everything would pass the
+      // first test.
+      final doc = build(
+        records: [
+          record(1, on: '2026-06-14', km: 174300, cents: 0, priceless: true),
+          record(2, on: '2026-02-02', km: 168110, cents: 41200),
+        ],
+      );
+
+      expect(doc.summary?.totals[_eur]?.amountMinor, 41200);
+    });
+  });
+
+  group('a corrected odometer', () {
+    // The header reads `ReadingSeries`, whose values are CUMULATIVE. A service
+    // record's odometer is the raw dash number. Subtracting one from the other
+    // mixes two scales, and after a cluster swap the difference IS the swap:
+    // a belt done 100 km ago printed as "187,512 km ago".
+    test('puts the glance on the same scale as the header', () {
+      final done = item(1, label: 'Timing belt');
+      final doc = buildServiceReport(
+        vehicle: vehicle(),
+        records: [
+          record(1, on: '2026-03-01', km: 3000, completes: [done.id]),
+        ],
+        items: [done],
+        series: ReadingSeries.from(
+          [reading(1, '2026-02-01', 1000), reading(2, '2026-03-15', 3100)],
+          [_correction],
+        ),
+        readings: [
+          (
+            id: reading(1, '2026-02-01', 1000).id.body,
+            occurredOn: '2026-02-01',
+            createdAtUtcMs: 2,
+            odometer: const Distance.fromKm(1000),
+          ),
+          (
+            id: reading(2, '2026-03-15', 3100).id.body,
+            occurredOn: '2026-03-15',
+            createdAtUtcMs: 3,
+            odometer: const Distance.fromKm(3100),
+          ),
+        ],
+        corrections: [
+          (
+            fromReadingId: reading(1, '2026-02-01', 1000).id.body,
+            previous: const Distance.fromKm(188412),
+            replacement: const Distance.fromKm(1000),
+          ),
+        ],
+        options: const ServiceReportOptions(),
+        today: day('2026-09-02'),
+      );
+
+      final since = doc.glance.single.distanceSince!;
+      expect(
+        since.metres ~/ 1000,
+        lessThan(1000),
+        reason: 'about 100 km, not 187,512',
+      );
+    });
   });
 }

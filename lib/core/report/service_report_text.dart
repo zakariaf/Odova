@@ -68,6 +68,12 @@ String renderServiceReportText(
   required String Function(String isoDate) formatDate,
   required String Function(Distance, {required bool estimated}) formatDistance,
   required String Function(Money) formatMoney,
+
+  /// A whole number, shaped in the locale's numerals.
+  ///
+  /// `grouped: false` for a YEAR — a year is a label, not a quantity, and
+  /// "2,026" is a formatting bug that reads as a number of things.
+  required String Function(int, {required bool grouped}) formatNumber,
 }) {
   final out = StringBuffer()
     ..writeln(doc.header.name)
@@ -103,7 +109,10 @@ String renderServiceReportText(
   final summary = doc.summary;
   if (summary != null) {
     out.writeln(
-      '${summary.serviceCount} ${strings.servicesLabel}'
+      // Through the formatter. A bare `int` renders Latin digits, which is
+      // wrong in four of the six shipped locales.
+      '${formatNumber(summary.serviceCount, grouped: true)} '
+      '${strings.servicesLabel}'
       // Grouped, never summed. §12 prints "6,842 € · £310" and this is that
       // line: one formatted amount per currency, joined.
       '${summary.totals.isEmpty ? '' : ' · '
@@ -115,7 +124,7 @@ String renderServiceReportText(
     out
       ..writeln()
       ..writeln(
-        '${year.year}'
+        '${formatNumber(year.year, grouped: false)}'
         // Absent when Costs is off, because the map is empty then — not
         // zeroed, which would say the year's work was free.
         '${year.subtotals.isEmpty ? '' : ' — '
@@ -175,7 +184,14 @@ String renderServiceReportText(
   out
     ..writeln()
     ..writeln(
-      strings.footer.replaceAll('{date}', doc.generatedOn.toString()),
+      // BOTH placeholders, and `{date}` through the formatter. This printed a
+      // literal "{iso}" in every locale and gave `{date}` the raw ISO string,
+      // so a Persian seller's clipboard carried no Jalali date — the same
+      // defect the on-screen footer had, in the renderer that goes into a
+      // public classifieds advert.
+      strings.footer
+          .replaceAll('{date}', formatDate(doc.generatedOn.toString()))
+          .replaceAll('{iso}', doc.generatedOn.toString()),
     );
 
   // No trim on the way out. The footer is unremovable and is always the last

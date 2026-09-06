@@ -92,6 +92,13 @@ class ReportServiceScreen extends ConsumerWidget {
         estimated: estimated,
       ),
       money: (m) => _money(tags.formats, m),
+      number: (n, {required grouped}) => formatForDisplay(
+        n,
+        tags.formats,
+        numerals: CalmNumerals.auto,
+        decimalDigits: 0,
+        grouped: grouped,
+      ),
     );
 
     return CalmScaffold(
@@ -434,15 +441,20 @@ class _HeaderRow extends StatelessWidget {
         textBaseline: TextBaseline.alphabetic,
         children: [
           Expanded(
-            child: forceLtr
-                ? Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: Text(
-                      label,
-                      style: type.body.copyWith(color: colors.ink3),
-                    ),
-                  )
-                : Text(label, style: type.body.copyWith(color: colors.ink3)),
+            // Isolated, not re-directed. Wrapping the VIN in
+            // `Directionality(ltr)` did force its glyph order — but it also
+            // flipped `TextAlign.start` from the RTL start edge to the LEFT
+            // margin, so on an Arabic page the plate sat at the right edge
+            // and the VIN directly under it sat at the left. §12 asks for
+            // "forced LTR WITH start-of-line alignment even on an RTL page",
+            // and both halves matter.
+            //
+            // U+2066 LRI … U+2069 PDI pins the run's direction while leaving
+            // the paragraph — and therefore the alignment — the page's own.
+            child: Text(
+              forceLtr ? '\u2066$label\u2069' : label,
+              style: type.body.copyWith(color: colors.ink3),
+            ),
           ),
           if (value.isNotEmpty)
             Text(
@@ -613,7 +625,21 @@ class _YearHeading extends ConsumerWidget {
       padding: EdgeInsetsDirectional.only(bottom: space.s4),
       child: Row(
         children: [
-          Expanded(child: Text('${year.year}', style: type.label)),
+          Expanded(
+            child: Text(
+              // Shaped, and NOT grouped. A bare `int` renders Latin digits in
+              // four of the six locales, directly above record dates that
+              // `formatLongDate` shapes — and a grouped year reads as "2,026".
+              formatForDisplay(
+                year.year,
+                tag,
+                numerals: CalmNumerals.auto,
+                decimalDigits: 0,
+                grouped: false,
+              ),
+              style: type.label,
+            ),
+          ),
           // Absent when Costs is off, because the map is empty then — not
           // zeroed, which would say the year's work was free.
           Text(

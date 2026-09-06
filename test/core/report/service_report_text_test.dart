@@ -99,6 +99,14 @@ String render({
     formatDistance: (d, {required estimated}) =>
         '${estimated ? '~' : ''}${d.metres ~/ 1000} km',
     formatMoney: (m) => '${m.amountMinor / 100} ${m.currency.code}',
+    // Mirrors the app's `formatForDisplay`: a year is ungrouped, a count is
+    // not. A fake that ignored `grouped` would pass against "2,026".
+    formatNumber: (n, {required grouped}) => grouped
+        ? n.toString().replaceAllMapped(
+            RegExp(r'(\d)(?=(\d{3})+$)'),
+            (m) => '${m[1]},',
+          )
+        : n.toString(),
   );
 }
 
@@ -200,6 +208,7 @@ void main() {
       formatDistance: (d, {required estimated}) =>
           '${estimated ? '~' : ''}${d.metres ~/ 1000} km',
       formatMoney: (m) => '${m.amountMinor}',
+      formatNumber: (n, {required grouped}) => n.toString(),
     );
 
     expect(text, contains('~174300 km'));

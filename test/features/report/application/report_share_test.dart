@@ -85,6 +85,7 @@ final ReportFormatters _formatters = ReportFormatters(
   distance: (d, {required estimated}) =>
       '${estimated ? '~' : ''}${d.metres ~/ 1000} km',
   money: (m) => '${m.amountMinor}',
+  number: (n, {required grouped}) => n.toString(),
 );
 
 const ServiceReportPdfStrings _pdfStrings = ServiceReportPdfStrings(

@@ -131,8 +131,32 @@ EditVerdict checkEdit({
     );
   }
 
-  final others = [...existing.where((p) => p.id != edited.id)]
+  // Corrections FOLDED IN before anything is compared, exactly as
+  // `checkReading` does and for the reason its comment gives: "checking the
+  // raw dash number against a corrected neighbour is how a legitimate
+  // post-cluster-swap reading gets refused."
+  //
+  // Without this, after any downward cluster swap EVERY edit of EVERY
+  // pre-swap reading was refused — a pre-swap value always exceeds the
+  // post-swap raw number — and the refusal named a figure no screen in the
+  // app shows. The result fields are called `previousCumulative` and
+  // `collidedCumulative`; now they hold cumulative values.
+  final sorted = [...existing.where((p) => p.id != edited.id), edited]
     ..sort(compareReadings);
+  final cumulative = cumulativeBySorted(sorted, corrections);
+
+  ReadingPoint folded(ReadingPoint p) => (
+    id: p.id,
+    occurredOn: p.occurredOn,
+    createdAtUtcMs: p.createdAtUtcMs,
+    odometer: cumulative[p.id] ?? p.odometer,
+  );
+
+  final editedFolded = folded(edited);
+  final others = [
+    for (final p in sorted)
+      if (p.id != edited.id) folded(p),
+  ];
 
   // Neighbours by DATE ORDER, not by value: the list is what the user sees,
   // and "the reading before this one" means the one above it on the screen.
@@ -149,15 +173,16 @@ EditVerdict checkEdit({
   // Upwards first. A value can only collide with one side at a time on a
   // consistent history, and on an inconsistent one the later collision is the
   // one that cannot be resolved — so it is the one to report.
-  if (later != null && edited.odometer.metres >= later.odometer.metres) {
+  if (later != null && editedFolded.odometer.metres >= later.odometer.metres) {
     return EditRefused(
       collidedOccurredOn: later.occurredOn,
       collidedCumulative: later.odometer,
-      attemptedCumulative: edited.odometer,
+      attemptedCumulative: editedFolded.odometer,
     );
   }
 
-  if (earlier != null && edited.odometer.metres <= earlier.odometer.metres) {
+  if (earlier != null &&
+      editedFolded.odometer.metres <= earlier.odometer.metres) {
     // The fork §11 draws. Only the NEWEST reading may open a correction,
     // because a correction rewrites every cumulative value after its anchor
     // and there is nothing after the newest one.
@@ -165,12 +190,12 @@ EditVerdict checkEdit({
         ? EditNeedsCorrection(
             previousCumulative: earlier.odometer,
             previousOccurredOn: earlier.occurredOn,
-            attemptedCumulative: edited.odometer,
+            attemptedCumulative: editedFolded.odometer,
           )
         : EditRefused(
             collidedOccurredOn: earlier.occurredOn,
             collidedCumulative: earlier.odometer,
-            attemptedCumulative: edited.odometer,
+            attemptedCumulative: editedFolded.odometer,
           );
   }
 
@@ -179,7 +204,7 @@ EditVerdict checkEdit({
         ? const []
         : softOdometerWarnings(
             from: earlier.odometer,
-            to: edited.odometer,
+            to: editedFolded.odometer,
             fromDate: earlier.occurredOn,
             toDate: edited.occurredOn,
             vehicleUnit: vehicleUnit,

@@ -259,6 +259,7 @@ class ReportNotifier extends Notifier<ReportState> {
           formatDate: formatters.date,
           formatDistance: formatters.distance,
           formatMoney: formatters.money,
+          formatNumber: formatters.number,
         ),
       ),
     );
@@ -299,6 +300,7 @@ class ReportFormatters {
     required this.date,
     required this.distance,
     required this.money,
+    required this.number,
   });
 
   /// An ISO date as the display calendar renders it.
@@ -309,6 +311,9 @@ class ReportFormatters {
 
   /// Money, isolated, in its own currency.
   final String Function(Money) money;
+
+  /// A whole number in the locale's numerals. `grouped: false` for a year.
+  final String Function(int, {required bool grouped}) number;
 }
 
 /// The share port, overridden in tests.

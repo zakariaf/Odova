@@ -167,4 +167,72 @@ void main() {
       isA<EditAccepted>(),
     );
   });
+
+  group('after a cluster swap', () {
+    // The defect: `checkEdit` used `corrections` only for the lock test and
+    // then compared RAW dash numbers, while naming its result fields
+    // `previousCumulative` and `collidedCumulative`.
+    //
+    // A pre-swap value always exceeds the post-swap raw number, so EVERY edit
+    // of EVERY pre-swap reading was refused — and the refusal named a figure
+    // (1,000 km) that no screen in the app shows.
+
+    final swapped = [
+      r('a', '2026-01-01', 188000),
+      r('b', '2026-02-01', 1000, created: 2),
+      r('c', '2026-03-01', 3000, created: 3),
+    ];
+
+    final correction = [
+      (
+        fromReadingId: 'b',
+        previous: const Distance.fromKm(188412),
+        replacement: const Distance.fromKm(1000),
+      ),
+    ];
+
+    test('a typo fix on a PRE-swap reading is accepted', () {
+      // 188,000 -> 187,000 is monotonic on the cumulative scale: b folds to
+      // 188,412, which is above it.
+      expect(
+        checkEdit(
+          edited: r('a', '2026-01-01', 187000),
+          existing: swapped,
+          corrections: correction,
+          vehicleUnit: DistanceUnit.km,
+        ),
+        isA<EditAccepted>(),
+      );
+    });
+
+    test('and one that really does collide is still refused', () {
+      // The arm that keeps this honest: accepting everything would pass the
+      // test above. 189,000 is above b's folded 188,412.
+      expect(
+        checkEdit(
+          edited: r('a', '2026-01-01', 189000),
+          existing: swapped,
+          corrections: correction,
+          vehicleUnit: DistanceUnit.km,
+        ),
+        isA<EditRefused>(),
+      );
+    });
+
+    test('the refusal names a CUMULATIVE figure, not a raw one', () {
+      // 1,000 km is the raw dash number after the swap. It appears on no
+      // screen, and a user told their edit collided with it has nothing to
+      // act on.
+      final verdict =
+          checkEdit(
+                edited: r('a', '2026-01-01', 189000),
+                existing: swapped,
+                corrections: correction,
+                vehicleUnit: DistanceUnit.km,
+              )
+              as EditRefused;
+
+      expect(verdict.collidedCumulative, const Distance.fromKm(188412));
+    });
+  });
 }

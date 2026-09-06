@@ -31,6 +31,7 @@ import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/money/money_total.dart';
+import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 
@@ -323,6 +324,8 @@ ServiceReportDocument buildServiceReport({
   required ReadingSeries series,
   required ServiceReportOptions options,
   required CivilDate today,
+  List<ReadingPoint> readings = const [],
+  List<CorrectionPoint> corrections = const [],
   FuelSummaryFacts? fuel,
 }) {
   // The latest ENTERED reading, which is what `ReadingSeries` holds: it is
@@ -339,6 +342,33 @@ ServiceReportDocument buildServiceReport({
           : b.createdAtUtcMs.compareTo(a.createdAtUtcMs);
     });
 
+  // Every record's odometer on the SAME scale as the header's.
+  //
+  // The header reads `ReadingSeries`, whose values are cumulative — every
+  // correction at or before them applied. `ServiceRecord.odometer` is the raw
+  // dash number. Subtracting one from the other mixes two scales, and after a
+  // cluster swap the difference is the swap itself: a timing belt done 100 km
+  // ago printed as "187,512 km ago" on the one page §12 says a buyer will
+  // believe.
+  //
+  // Folded by handing the records to `cumulativeBySorted` AS readings, so the
+  // correction rule — including its "at or after the boundary" semantics — is
+  // the one that already exists rather than a second copy of it here.
+  final foldedOdometers = cumulativeBySorted(
+    [
+      ...readings,
+      for (final r in records)
+        if (r.odometer != null)
+          (
+            id: r.id.body,
+            occurredOn: r.occurredOn,
+            createdAtUtcMs: r.createdAtUtcMs,
+            odometer: r.odometer!,
+          ),
+    ]..sort(compareReadings),
+    corrections,
+  );
+
   // Maintenance at a glance. Tracked items only — an untracked one is not a
   // maintenance obligation this vehicle has, and listing it under "no record"
   // invents one the owner never took on.
@@ -353,7 +383,7 @@ ServiceReportDocument buildServiceReport({
       noRecord.add(it.id);
       continue;
     }
-    final at = completion.odometer;
+    final at = foldedOdometers[completion.id.body] ?? completion.odometer;
     glance.add(
       ServiceGlanceRow(
         itemId: it.id,
@@ -448,7 +478,20 @@ ServiceReportDocument buildServiceReport({
 /// document needs: the same records must print their amounts in the same
 /// order every time they are rendered.
 Map<Currency, Money> _totals(List<ServiceRecord> records) {
-  final total = MoneyTotal(records.expand((r) => r.lines).map((l) => l.amount));
+  // `cost_estimated` records are EXCLUDED, not summed as zero.
+  //
+  // `ServiceLine.amount`'s own doc says "zero means 'not recorded'", and
+  // `service_save.dart` stores the flag precisely to tell a warranty job that
+  // really cost nothing from one where nothing was entered — §10 prints an
+  // em dash rather than 0 for the second.
+  //
+  // Summing them made a user who logs services without prices hand a buyer a
+  // document reading "34 services · €0.00", with every year heading and every
+  // line at zero: eight years of maintenance presented as free. An empty map
+  // renders no figure at all, which is what `ServiceReportYear.subtotals`'
+  // own doc comment already promised and only the toggle delivered.
+  final priced = records.where((r) => !r.costEstimated);
+  final total = MoneyTotal(priced.expand((r) => r.lines).map((l) => l.amount));
   return {
     for (final e in total.byCurrency.entries) e.key: Money(e.value, e.key),
   };
