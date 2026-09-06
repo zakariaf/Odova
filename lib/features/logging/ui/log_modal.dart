@@ -12,11 +12,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/active_vehicle.dart';
+import 'package:odova/app/id_provider.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/app/today.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/due/due_summary.dart';
+import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/odometer/odometer_entry.dart';
@@ -36,6 +39,7 @@ import 'package:odova/features/logging/application/service_save.dart';
 import 'package:odova/features/logging/domain/date_field.dart';
 import 'package:odova/features/logging/domain/expense_draft.dart';
 import 'package:odova/features/logging/domain/fillup_draft.dart';
+import 'package:odova/features/logging/domain/mark_done.dart';
 import 'package:odova/features/logging/domain/price_trio.dart';
 import 'package:odova/features/logging/domain/service_cost_model.dart';
 import 'package:odova/features/logging/domain/service_item_chips.dart';
@@ -45,10 +49,13 @@ import 'package:odova/features/logging/ui/log_more_sheet.dart';
 import 'package:odova/features/logging/ui/log_odometer_body.dart';
 import 'package:odova/features/logging/ui/log_service_body.dart';
 import 'package:odova/features/logging/ui/odometer_field.dart';
+import 'package:odova/features/logging/ui/service_confirmation_panel.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/expense_labels.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/unit_format.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
@@ -350,6 +357,12 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// the chrome returns the compliment.
   Widget _body() {
     final l10n = AppLocalizations.of(context);
+    // §10: a mark-done save "replaces the body with the confirmation panel for
+    // five seconds or until Close". A panel and not a snackbar because BOTH
+    // halves of the next-due pair have to be visible at once — "the
+    // consequence of finishing 3,000 km early is what a user needs to see
+    // once", and a snackbar can carry one fact.
+    if (_confirmation case final panel?) return panel;
     return switch (_segment) {
       LogType.fillUp => _fillUpBody(l10n),
       LogType.service => LogServiceBody(
@@ -449,6 +462,21 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       onFillUpChanged: (next) => setState(() => _fillUp = next),
     ),
   );
+
+  /// The confirmation panel, while a mark-done save is being shown.
+  ///
+  /// Null on every other save. A save from the `+` skips it entirely — nothing
+  /// was reset, so there is no consequence to show — which is why this is a
+  /// field set by the save rather than a branch on the segment.
+  ServiceConfirmationPanel? _confirmation;
+
+  /// Closes the panel and leaves.
+  void _closeConfirmation() {
+    if (!mounted) return;
+    setState(() => _confirmation = null);
+    final router = GoRouter.of(context);
+    if (router.canPop()) router.pop();
+  }
 
   /// §10's *What was done* chips: the vehicle's active items, in §9's order.
   ///
@@ -756,6 +784,16 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       return;
     }
 
+    // §10: a MARK-DONE stays and shows the panel; every other save pops and
+    // gets the snackbar. The difference is whether a reminder was reset, not
+    // which segment was showing — a service logged from the `+` with no chip
+    // ticked reset nothing and has no consequence to explain.
+    final panel = _confirmationFor(l10n);
+    if (panel != null) {
+      setState(() => _confirmation = panel);
+      return;
+    }
+
     if (router.canPop()) router.pop();
     snackbars.show(
       message: _savedMessage(l10n),
@@ -763,6 +801,69 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       onAction: _undo,
     );
   }
+
+  /// The panel this save earns, or null when it earns none.
+  ///
+  /// Null unless a service save actually ticked an item. §10: "A save from the
+  /// `+` skips it entirely — nothing was reset, so there is no consequence to
+  /// show."
+  ServiceConfirmationPanel? _confirmationFor(AppLocalizations l10n) {
+    if (_segment != LogType.service) return null;
+    final ticked = _cost.tickedItemIds;
+    if (ticked.isEmpty) return null;
+
+    final vehicle = _vehicle;
+    final assessments = vehicle == null
+        ? const <AssessedItem>[]
+        : ref.read(vehicleDueSnapshotProvider(vehicle.id))?.assessments ??
+              const <AssessedItem>[];
+    final assessed = assessments
+        .where((a) => a.$1.id.toString() == ticked.first)
+        .firstOrNull;
+    if (assessed == null) return null;
+
+    final unit = _vehicleUnit;
+    final next = nextDueAfterMarkDone(
+      item: assessed.$1,
+      record: _markDoneRecord(assessed.$1),
+      previousDueOn: assessed.$2.dueOn?.toString(),
+    );
+
+    return ServiceConfirmationPanel(
+      itemLabel: assessed.$1.label ?? l10n.logTitleService,
+      facts: formatLongDate(_occurredOn, _formatsTag),
+      nextOdometer: next.odometer == null
+          ? null
+          : formatWithUnit(
+              next.odometer!.inUnit(unit),
+              distanceUnitLabel(l10n, unit),
+              _formatsTag,
+              numerals: CalmNumerals.auto,
+              decimalDigits: 0,
+            ),
+      nextDate: next.date == null
+          ? null
+          : formatLongDate(next.date.toString(), _formatsTag),
+      onClose: _closeConfirmation,
+    );
+  }
+
+  /// The record the re-anchor measures from.
+  ///
+  /// The odometer is the one the user ENTERED, which is the entire point:
+  /// `mark_done.dart` exists because anchoring on the value the item was due at
+  /// "would quietly steal 1,412 km of interval from anyone who serviced their
+  /// car late, every cycle, for ever".
+  ServiceRecord _markDoneRecord(ServiceItem item) => ServiceRecord(
+    id: ServiceRecordId.mint(ref.read(ulidFactoryProvider)),
+    vehicleId: item.vehicleId,
+    occurredOn: _occurredOn,
+    odometer: _enteredOdometer(),
+    odometerUnit: _vehicleUnit,
+    lines: const [],
+    createdAtUtcMs: 0,
+    updatedAtUtcMs: 0,
+  );
 
   /// One expense problem's sentence, or null when it does not apply yet.
   String? _expenseError(
