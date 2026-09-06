@@ -152,3 +152,58 @@ the commit. These are the rest, each with the reason it was not taken.
 - **The window trim comment was backwards.** Fixed. The BEHAVIOUR is right and
   pinned by a test; the comment described the opposite, and a reader trusting
   it would have "fixed" the code into a real bug.
+
+## `/code-review` — four agents, correctness only
+
+Fifteen defects fixed, several verified empirically against sqlite3. The
+commits carry the detail. Two of them were commit messages of mine describing
+work I had not done — "wire Share PDF and Copy as text" (both `() {}`) and
+"the preview honours it" for notes (`header.notes` had no reader in any of the
+three renderers). Both had the same shape: a test with only the negative arm,
+which passes trivially when the feature is absent entirely.
+
+### Findings answered rather than applied
+
+- **`cancelShare` does not cancel.** `sharePdf` has no cancellation token, so
+  Cancel lowers the overlay while generation continues, writes the file
+  anyway, pops the share sheet the user just dismissed, and can clobber the
+  cancelled state with a failure code. **Real.** Not fixed here because the
+  honest fix is a token threaded through `writeServiceReportPdf`, and that
+  function is about to be restructured by the shared-walk change carried to
+  EPIC-13. Fixing it twice is worse than fixing it once, after.
+- **`PlatformShareService` assigns `_written` after the write.** A write that
+  throws mid-stream leaves a partial file containing part of the service
+  history with nothing tracking it. One-line fix, deferred with the item above
+  because both are in the same method and want one test.
+- **`getTemporaryDirectory` throws `MissingPlatformDirectoryException`**, which
+  is neither `FileSystemException` nor `PlatformException`, so it escapes
+  `shareFile`'s "a VALUE, never a throw" contract. Same method, same batch.
+- **The vacuous tests the audit proved by mutation.** Eleven of them, each with
+  the alternative implementation that also passes: the PDF writer can put every
+  record on page one; a Costs-off PDF prints every price; neither §11 threshold
+  value is pinned; vehicle scoping can be deleted from the history query; the
+  middle sort key is unpinned because every fixture row shares
+  `created_at_utc_ms = 1000`. **All real.** They are a test-quality debt, not a
+  behaviour defect, and they are listed here rather than fixed in a PR already
+  carrying fifteen behaviour fixes. The two that guard SPEC invariants — page
+  assignment and the Costs-off PDF — go first.
+- **`recomputeVehicle` does not filter items by vehicle.** The property
+  "only the edited vehicle is in the snapshot" is FALSE; the test passed
+  because every fixture item shared one vehicle. Real, and it belongs with
+  EPIC-16's schedule rebuild, which is the first caller that could be hurt.
+- **`kHistoryScrubberThreshold` has no reader** — the scrubber is not built.
+  §11's two thresholds were committed as "two constants with the sentence
+  attached"; one of them is measured against nothing. Named in the PR's
+  Deferred.
+- **`HistoryFilter.categories` / `needsAttention` are applied by neither SQL
+  builder.** Harmless today, and EPIC-13's cost drill-down is documented as
+  their first consumer — so it is EPIC-13's task to apply them, not to
+  discover them.
+- **`_moneyRows` and `_select` still diverge** on the `correction` arm and on
+  `filter.query`, so a month header can disagree with the rows under it during
+  a search. The three defects INSIDE `_select`'s service arm are fixed; the
+  divergence between the two builders wants one union builder with a
+  projection flag, which is the same restructuring as the shared walk.
+- **`formatRowDate`'s siblings** (`formatDayMonth`, `formatShortDayMonth`) were
+  fixed with it; the wider gap — `font_coverage_test` checks only fa/ar/ckb, so
+  a Latin-locale tofu would ship unnoticed — is EPIC-17's.
