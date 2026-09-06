@@ -153,8 +153,14 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
   late final String _groupingSeparator = groupingSeparatorFor(_formatsTag);
 
+  /// The character this locale separates a fraction with.
+  late final String _decimalSeparator = decimalSeparatorFor(_formatsTag);
+
   late FillUpDraft _fillUp = FillUpDraft(
-    trio: PriceTrio(groupingSeparator: _groupingSeparator),
+    trio: PriceTrio(
+      groupingSeparator: _groupingSeparator,
+      decimalSeparator: _decimalSeparator,
+    ),
   );
   late ServiceCostModel _cost = ServiceCostModel(
     groupingSeparator: _groupingSeparator,

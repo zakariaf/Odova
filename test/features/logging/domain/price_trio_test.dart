@@ -135,4 +135,27 @@ void main() {
 
     expect(PriceTrio.persisted, {TrioField.quantity, TrioField.total});
   });
+
+  test('the computed field is written in the form this locale READS', () {
+    // German groups with `.` and separates a fraction with `,`. A computed
+    // value emitted as an ASCII `42.61` is re-read by the same trio against a
+    // dot grouping and comes back as four thousand two hundred and sixty-one —
+    // the trio disagreeing with itself in the one place it is authoritative.
+    const de = PriceTrio(
+      groupingSeparator: '.',
+      decimalSeparator: ',',
+    );
+    final filled = de
+        .edited(TrioField.total, '76,66')
+        .edited(TrioField.quantity, '42,61');
+
+    expect(filled.computedField, TrioField.pricePerUnit);
+    expect(filled.pricePerUnit, contains(','));
+    expect(filled.pricePerUnit, isNot(contains('.')));
+    expect(
+      filled.quantityMillilitres,
+      42610,
+      reason: 'and the value it reads back is still the one displayed',
+    );
+  });
 }

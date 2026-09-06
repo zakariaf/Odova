@@ -40,6 +40,7 @@ class PriceTrio {
     this.touched = const [],
     this.totalDecimals = 2,
     this.groupingSeparator = ',',
+    this.decimalSeparator = '.',
   });
 
   /// The quantity, as displayed.
@@ -56,6 +57,15 @@ class PriceTrio {
 
   /// The currency's ISO 4217 exponent — 2 for EUR, 0 for JPY, 3 for KWD.
   final int totalDecimals;
+
+  /// The character this locale separates a fraction with.
+  ///
+  /// The computed field is written back into the form and then READ BACK by
+  /// the same parser, so it has to come out in the form that parser accepts.
+  /// `toStringAsFixed` always emits an ASCII dot; under `de`, where grouping is
+  /// `.`, a computed `42.61` was re-read as 4,261 — the trio disagreeing with
+  /// itself in the one place it is supposed to be authoritative.
+  final String decimalSeparator;
 
   /// The thousands separator of the locale this form is being typed in.
   ///
@@ -117,6 +127,7 @@ class PriceTrio {
       touched: order,
       totalDecimals: totalDecimals,
       groupingSeparator: groupingSeparator,
+      decimalSeparator: decimalSeparator,
     );
     return next._recomputed();
   }
@@ -142,6 +153,7 @@ class PriceTrio {
       touched: touched,
       totalDecimals: totalDecimals,
       groupingSeparator: groupingSeparator,
+      decimalSeparator: decimalSeparator,
     );
   }
 
@@ -172,19 +184,29 @@ class PriceTrio {
         values[TrioField.quantity]!,
         3,
       ),
-      TrioField.total =>
-        (values[TrioField.quantity]! * values[TrioField.pricePerUnit]!)
-            .toStringAsFixed(totalDecimals),
+      TrioField.total => _fixed(
+        values[TrioField.quantity]! * values[TrioField.pricePerUnit]!,
+        totalDecimals,
+      ),
     };
   }
+
+  /// [value] at [places], written the way THIS form reads numbers back.
+  ///
+  /// `toStringAsFixed` always emits an ASCII dot. The computed field is written
+  /// into the form and then parsed again by `_valueOf`, `quantityMillilitres`
+  /// and `FillUpSave`, all of which read against this locale's separators — so
+  /// a computed `42.61` under `de`, where grouping is `.`, came back as 4,261.
+  String _fixed(double value, int places) =>
+      value.toStringAsFixed(places).replaceFirst('.', decimalSeparator);
 
   /// [a] / [b] at [places], or null rather than an infinity.
   ///
   /// A zero denominator is a half-typed form, not an error to report: the user
   /// is on their way to a real number and a field that shouted at them for
   /// passing through zero would be shouting on every entry.
-  static String? _divide(double a, double b, int places) =>
-      b == 0 ? null : (a / b).toStringAsFixed(places);
+  String? _divide(double a, double b, int places) =>
+      b == 0 ? null : _fixed(a / b, places);
 
   String _value(TrioField field) => switch (field) {
     TrioField.quantity => quantity,
