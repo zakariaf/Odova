@@ -28,6 +28,9 @@ class LogFillUpBody extends StatelessWidget {
     super.key,
     this.isFirstEver = false,
     this.trioError,
+    this.priceError,
+    this.totalError,
+    this.overTankWarning,
   });
 
   /// §10's shared odometer field, built by the shell.
@@ -63,6 +66,15 @@ class LogFillUpBody extends StatelessWidget {
 
   /// The trio's one message, when fewer than two carry a value.
   final String? trioError;
+
+  /// The message under Price per unit, or null.
+  final String? priceError;
+
+  /// The message under Total, or null.
+  final String? totalError;
+
+  /// The amber over-capacity line, or null. Never a refusal — §10 saves it.
+  final String? overTankWarning;
 
   /// §10's More section, built by the shell so all three agree.
   final Widget moreRow;
@@ -102,12 +114,16 @@ class LogFillUpBody extends StatelessWidget {
           onChanged: onTrioChanged,
           errorText: trioError,
         ),
+        // §10 puts the over-capacity line here, under the quantity it is about,
+        // in amber and never as a refusal.
+        if (overTankWarning case final warning?) Text(warning),
         _TrioField(
           field: TrioField.pricePerUnit,
           label: l10n.logFillUpPricePerUnitLabel(quantityUnit),
           trio: trio,
           controllers: controllers,
           onChanged: onTrioChanged,
+          errorText: priceError,
         ),
         _TrioField(
           field: TrioField.total,
@@ -115,6 +131,7 @@ class LogFillUpBody extends StatelessWidget {
           trio: trio,
           controllers: controllers,
           onChanged: onTrioChanged,
+          errorText: totalError,
         ),
         dateRow,
         moreRow,

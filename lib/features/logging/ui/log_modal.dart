@@ -17,10 +17,12 @@ import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/core/units/volume.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/features/logging/application/log_modal_notifier.dart';
 import 'package:odova/features/logging/application/log_save_service.dart';
 import 'package:odova/features/logging/domain/expense_draft.dart';
+import 'package:odova/features/logging/domain/fillup_draft.dart';
 import 'package:odova/features/logging/domain/price_trio.dart';
 import 'package:odova/features/logging/domain/service_cost_model.dart';
 import 'package:odova/features/logging/ui/log_expense_body.dart';
@@ -85,7 +87,9 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
   late final String _groupingSeparator = groupingSeparatorFor(_formatsTag);
 
-  late PriceTrio _trio = PriceTrio(groupingSeparator: _groupingSeparator);
+  late FillUpDraft _fillUp = FillUpDraft(
+    trio: PriceTrio(groupingSeparator: _groupingSeparator),
+  );
   late ServiceCostModel _cost = ServiceCostModel(
     groupingSeparator: _groupingSeparator,
   );
@@ -93,7 +97,6 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     groupingSeparator: _groupingSeparator,
   );
   String _odometer = '';
-  bool _isFullTank = true;
   String get _quantityUnit => 'L';
 
   final Map<TrioField, TextEditingController> _trioControllers = {
@@ -129,13 +132,14 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// is never touched and their caret never moves.
   void _onTrioChanged(TrioField field, String text) {
     setState(() {
-      _trio = _trio.edited(field, text);
-      final computed = _trio.computedField;
+      _fillUp = _fillUp.withTrio(_fillUp.trio.edited(field, text));
+      final trio = _fillUp.trio;
+      final computed = trio.computedField;
       if (computed == null) return;
       final value = switch (computed) {
-        TrioField.quantity => _trio.quantity,
-        TrioField.pricePerUnit => _trio.pricePerUnit,
-        TrioField.total => _trio.total,
+        TrioField.quantity => trio.quantity,
+        TrioField.pricePerUnit => trio.pricePerUnit,
+        TrioField.total => trio.total,
       };
       if (_trioControllers[computed]!.text != value) {
         _trioControllers[computed]!.text = value;
@@ -230,17 +234,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   Widget _body() {
     final l10n = AppLocalizations.of(context);
     return switch (_segment) {
-      LogType.fillUp => LogFillUpBody(
-        odometer: _odometerField(),
-        dateRow: _dateRow(),
-        trio: _trio,
-        moreRow: _moreRow(l10n),
-        quantityUnit: _quantityUnit,
-        isFullTank: _isFullTank,
-        controllers: _trioControllers,
-        onTrioChanged: _onTrioChanged,
-        onFullTankChanged: (full) => setState(() => _isFullTank = full),
-      ),
+      LogType.fillUp => _fillUpBody(l10n),
       LogType.service => LogServiceBody(
         odometer: _odometerField(),
         dateRow: _dateRow(),
@@ -265,6 +259,64 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       ),
     };
   }
+
+  /// The fill-up form, with its error slots read from ONE validation.
+  ///
+  /// §10's messages appear when Save is PRESSED and not while the user is
+  /// typing, so every slot is null until `_showProblems`. The over-capacity
+  /// line is the exception in the other direction: it is a warning, it is not
+  /// gated on Save, and it never blocks one.
+  Widget _fillUpBody(AppLocalizations l10n) {
+    final problems = _fillUp.problems(today: _occurredOn).toSet();
+    final warnings = _fillUp.warnings(tankCapacity: _tankCapacity);
+
+    String? error(FillUpProblem problem, String message) =>
+        _showProblems && problems.contains(problem) ? message : null;
+
+    return LogFillUpBody(
+      odometer: _odometerField(),
+      dateRow: _dateRow(),
+      trio: _fillUp.trio,
+      moreRow: _moreRow(l10n),
+      quantityUnit: _quantityUnit,
+      isFullTank: _fillUp.isFullTank,
+      controllers: _trioControllers,
+      onTrioChanged: _onTrioChanged,
+      onFullTankChanged: (full) =>
+          setState(() => _fillUp = _fillUp.withFullTank(full: full)),
+      // Both land under Quantity: §10 puts the trio sentence there because it
+      // is the field the user is most likely to have filled in first.
+      trioError:
+          error(
+            FillUpProblem.quantityNotPositive,
+            l10n.logFillUpQuantityError,
+          ) ??
+          error(FillUpProblem.trioIncomplete, l10n.logFillUpTrioError),
+      priceError: error(FillUpProblem.priceNegative, l10n.logFillUpPriceError),
+      totalError: error(
+        FillUpProblem.totalNegative,
+        l10n.logFillUpTotalError(
+          formatForDisplay(
+            0,
+            _formatsTag,
+            numerals: CalmNumerals.auto,
+            decimalDigits: 0,
+          ),
+        ),
+      ),
+      overTankWarning: warnings.contains(FillUpWarning.overTank)
+          ? l10n.logFillUpOverTankWarning
+          : null,
+    );
+  }
+
+  /// This vehicle's tank capacity, or null when the app does not know it.
+  ///
+  /// Null is a real answer and produces no warning at all: SPEC.md §2 forbids
+  /// guessing in a way that looks like fact, and "more than your tank holds"
+  /// is a claim about a tank the app may never have been told the size of.
+  // TODO(EPIC-11): read from the selected vehicle.
+  Volume? get _tankCapacity => null;
 
   /// The expense form, with its three error slots read from ONE validation.
   ///
@@ -418,8 +470,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   bool _isDirty() =>
       ref.read(logModalProvider).isDirty ||
       _odometer.trim().isNotEmpty ||
-      !_isFullTank ||
-      _trio.isDirty ||
+      _fillUp.isDirty ||
       _cost.isDirty ||
       _expense.isDirty ||
       _allControllers.any((c) => c.text.trim().isNotEmpty);
@@ -518,10 +569,14 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
   /// Everything wrong with the visible segment, in the order it reads.
   List<Object> _problems() => switch (_segment) {
+    LogType.fillUp => _fillUp.problems(
+      today: _occurredOn,
+      tankCapacity: _tankCapacity,
+    ),
     LogType.expense => _expense.problems(),
-    // The other three forms' validation arrives with their save wiring; an
-    // empty list here is not "valid", it is "not yet asked", and the tests that
-    // will assert each rule are the ones that make it real.
+    // `log.service` and `log.odometer` arrive with their own tasks. An empty
+    // list here is not "valid", it is "not yet asked", and the tests that will
+    // assert each rule are the ones that make it real.
     _ => const [],
   };
 
