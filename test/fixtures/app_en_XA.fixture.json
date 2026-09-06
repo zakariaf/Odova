@@ -353,5 +353,10 @@
   "logServiceWorkshop": "[Ẇǿřķŝħǿƥ ǃǃǃǃ]",
   "logServiceInvoice": "[Īǹṽǿīçḗ ǹǿ. ǃǃǃǃǃ]",
   "logNotes": "[Ǹǿţḗŝ ǃǃ]",
-  "logExpensePaidTo": "[Ƥáīḍ ţǿ ǃǃǃ]"
+  "logExpensePaidTo": "[Ƥáīḍ ţǿ ǃǃǃ]",
+  "logDoneTitle": "[{item} ḍǿǹḗ ǃǃ]",
+  "logDoneNextBoth": "[Ǹḗẋţ ḍǔḗ áţ {odometer} ǿř {date} — ẇħīçħḗṽḗř çǿḿḗŝ ƒīřŝţ ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "logDoneNextDistance": "[Ǹḗẋţ ḍǔḗ áţ {odometer} ǃǃǃǃǃ]",
+  "logDoneNextDate": "[Ǹḗẋţ ḍǔḗ {date} ǃǃǃǃ]",
+  "logDoneClose": "[Çŀǿŝḗ ǃǃ]"
 }

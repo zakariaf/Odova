@@ -353,5 +353,10 @@
   "logServiceWorkshop": "Garage",
   "logServiceInvoice": "N° de facture",
   "logNotes": "Notes",
-  "logExpensePaidTo": "Payé à"
+  "logExpensePaidTo": "Payé à",
+  "logDoneTitle": "{item} effectué",
+  "logDoneNextBoth": "Prochaine échéance à {odometer} ou {date} — au premier des deux",
+  "logDoneNextDistance": "Prochaine échéance à {odometer}",
+  "logDoneNextDate": "Prochaine échéance {date}",
+  "logDoneClose": "Fermer"
 }

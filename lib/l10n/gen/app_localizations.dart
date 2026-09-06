@@ -2245,6 +2245,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paid to'**
   String get logExpensePaidTo;
+
+  /// The confirmation panel's headline after a mark-done save. SPEC.md §10 replaces the body for five seconds rather than showing a snackbar, because both the resulting due date AND the due odometer have to be visible — the consequence of finishing 3,000 km early is what a user needs to see once.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} done'**
+  String logDoneTitle(String item);
+
+  /// The next-due pair. Both halves, because seeing only one hides the consequence the panel exists to show.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due at {odometer} or {date} — whichever comes first'**
+  String logDoneNextBoth(String odometer, String date);
+
+  /// The next-due line for a distance-only item. §10: 'A distance-only or time-only item names one axis' — inventing the other would be a fact the app made up.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due at {odometer}'**
+  String logDoneNextDistance(String odometer);
+
+  /// The next-due line for a time-only item. [date] arrives already fuzzy ('around September 2027') when the projection's confidence is not measured.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due {date}'**
+  String logDoneNextDate(String date);
+
+  /// §10's logDoneClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get logDoneClose;
 }
 
 class _AppLocalizationsDelegate

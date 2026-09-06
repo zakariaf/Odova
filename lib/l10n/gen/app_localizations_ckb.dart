@@ -1498,4 +1498,27 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get logExpensePaidTo => 'دراوە بە';
+
+  @override
+  String logDoneTitle(String item) {
+    return '$item کرا';
+  }
+
+  @override
+  String logDoneNextBoth(String odometer, String date) {
+    return 'دواتر لە $odometer یان $date — کامیان زووتر بێت';
+  }
+
+  @override
+  String logDoneNextDistance(String odometer) {
+    return 'دواتر لە $odometer';
+  }
+
+  @override
+  String logDoneNextDate(String date) {
+    return 'دواتر $date';
+  }
+
+  @override
+  String get logDoneClose => 'داخستن';
 }

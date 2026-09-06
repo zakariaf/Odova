@@ -353,5 +353,10 @@
   "logServiceWorkshop": "الورشة",
   "logServiceInvoice": "رقم الفاتورة",
   "logNotes": "ملاحظات",
-  "logExpensePaidTo": "دُفع إلى"
+  "logExpensePaidTo": "دُفع إلى",
+  "logDoneTitle": "تم {item}",
+  "logDoneNextBoth": "الاستحقاق التالي عند {odometer} أو {date} — أيهما أقرب",
+  "logDoneNextDistance": "الاستحقاق التالي عند {odometer}",
+  "logDoneNextDate": "الاستحقاق التالي {date}",
+  "logDoneClose": "إغلاق"
 }

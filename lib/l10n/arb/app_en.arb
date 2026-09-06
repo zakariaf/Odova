@@ -2242,5 +2242,48 @@
   "logExpensePaidTo": "Paid to",
   "@logExpensePaidTo": {
     "description": "§10's logExpensePaidTo label."
+  },
+  "logDoneTitle": "{item} done",
+  "@logDoneTitle": {
+    "description": "The confirmation panel's headline after a mark-done save. SPEC.md §10 replaces the body for five seconds rather than showing a snackbar, because both the resulting due date AND the due odometer have to be visible — the consequence of finishing 3,000 km early is what a user needs to see once.",
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "logDoneNextBoth": "Next due at {odometer} or {date} — whichever comes first",
+  "@logDoneNextBoth": {
+    "description": "The next-due pair. Both halves, because seeing only one hides the consequence the panel exists to show.",
+    "placeholders": {
+      "odometer": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logDoneNextDistance": "Next due at {odometer}",
+  "@logDoneNextDistance": {
+    "description": "The next-due line for a distance-only item. §10: 'A distance-only or time-only item names one axis' — inventing the other would be a fact the app made up.",
+    "placeholders": {
+      "odometer": {
+        "type": "String"
+      }
+    }
+  },
+  "logDoneNextDate": "Next due {date}",
+  "@logDoneNextDate": {
+    "description": "The next-due line for a time-only item. [date] arrives already fuzzy ('around September 2027') when the projection's confidence is not measured.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "logDoneClose": "Close",
+  "@logDoneClose": {
+    "description": "§10's logDoneClose."
   }
 }

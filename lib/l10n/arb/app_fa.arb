@@ -353,5 +353,10 @@
   "logServiceWorkshop": "تعمیرگاه",
   "logServiceInvoice": "شمارهٔ فاکتور",
   "logNotes": "یادداشت",
-  "logExpensePaidTo": "پرداخت به"
+  "logExpensePaidTo": "پرداخت به",
+  "logDoneTitle": "{item} انجام شد",
+  "logDoneNextBoth": "سررسید بعدی در {odometer} یا {date} — هرکدام زودتر رسید",
+  "logDoneNextDistance": "سررسید بعدی در {odometer}",
+  "logDoneNextDate": "سررسید بعدی {date}",
+  "logDoneClose": "بستن"
 }

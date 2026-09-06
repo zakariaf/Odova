@@ -353,5 +353,10 @@
   "logServiceWorkshop": "تاقیگە",
   "logServiceInvoice": "ژمارەی پسووڵە",
   "logNotes": "تێبینی",
-  "logExpensePaidTo": "دراوە بە"
+  "logExpensePaidTo": "دراوە بە",
+  "logDoneTitle": "{item} کرا",
+  "logDoneNextBoth": "دواتر لە {odometer} یان {date} — کامیان زووتر بێت",
+  "logDoneNextDistance": "دواتر لە {odometer}",
+  "logDoneNextDate": "دواتر {date}",
+  "logDoneClose": "داخستن"
 }

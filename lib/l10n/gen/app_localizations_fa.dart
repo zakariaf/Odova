@@ -1493,4 +1493,27 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get logExpensePaidTo => 'پرداخت به';
+
+  @override
+  String logDoneTitle(String item) {
+    return '$item انجام شد';
+  }
+
+  @override
+  String logDoneNextBoth(String odometer, String date) {
+    return 'سررسید بعدی در $odometer یا $date — هرکدام زودتر رسید';
+  }
+
+  @override
+  String logDoneNextDistance(String odometer) {
+    return 'سررسید بعدی در $odometer';
+  }
+
+  @override
+  String logDoneNextDate(String date) {
+    return 'سررسید بعدی $date';
+  }
+
+  @override
+  String get logDoneClose => 'بستن';
 }

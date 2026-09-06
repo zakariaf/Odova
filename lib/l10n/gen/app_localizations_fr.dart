@@ -1535,4 +1535,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get logExpensePaidTo => 'Payé à';
+
+  @override
+  String logDoneTitle(String item) {
+    return '$item effectué';
+  }
+
+  @override
+  String logDoneNextBoth(String odometer, String date) {
+    return 'Prochaine échéance à $odometer ou $date — au premier des deux';
+  }
+
+  @override
+  String logDoneNextDistance(String odometer) {
+    return 'Prochaine échéance à $odometer';
+  }
+
+  @override
+  String logDoneNextDate(String date) {
+    return 'Prochaine échéance $date';
+  }
+
+  @override
+  String get logDoneClose => 'Fermer';
 }

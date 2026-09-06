@@ -353,5 +353,10 @@
   "logServiceWorkshop": "Werkstatt",
   "logServiceInvoice": "Rechnungsnr.",
   "logNotes": "Notizen",
-  "logExpensePaidTo": "Bezahlt an"
+  "logExpensePaidTo": "Bezahlt an",
+  "logDoneTitle": "{item} erledigt",
+  "logDoneNextBoth": "Nächste Fälligkeit bei {odometer} oder {date} — je nachdem, was zuerst eintritt",
+  "logDoneNextDistance": "Nächste Fälligkeit bei {odometer}",
+  "logDoneNextDate": "Nächste Fälligkeit {date}",
+  "logDoneClose": "Schließen"
 }

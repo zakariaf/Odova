@@ -353,5 +353,10 @@
   "logServiceWorkshop": "‏pohskroW",
   "logServiceInvoice": "‏.on eciovnI",
   "logNotes": "‏setoN",
-  "logExpensePaidTo": "‏ot diaP"
+  "logExpensePaidTo": "‏ot diaP",
+  "logDoneTitle": "‏{item}enod ",
+  "logDoneNextBoth": "‏ ta eud txeN{odometer} ro {date}tsrif semoc revehcihw — ",
+  "logDoneNextDistance": "‏ ta eud txeN{odometer}",
+  "logDoneNextDate": "‏ eud txeN{date}",
+  "logDoneClose": "‏esolC"
 }
