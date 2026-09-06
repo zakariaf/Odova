@@ -488,5 +488,10 @@
   "costsBusinessRow": "عمل {share}٪ · {amount}",
   "costsBusinessCaption": "محسوب من الرحلات التي سجّلتها، وليس من كل قيادتك.",
   "costsVehicleSold": "مباعة",
-  "costsVehicleArchived": "مؤرشفة"
+  "costsVehicleArchived": "مؤرشفة",
+  "fuelTitle": "الوقود والاستهلاك",
+  "fuelConsumptionPerTank": "الاستهلاك لكل خزان",
+  "fuelEmptyTitle": "لا توجد عمليات تعبئة بعد.",
+  "fuelEmptyAction": "سجّل تعبئة",
+  "fuelFirstFigure": "سيظهر أول رقم لك عند التعبئة الكاملة القادمة."
 }

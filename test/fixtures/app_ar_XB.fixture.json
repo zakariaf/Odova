@@ -488,5 +488,10 @@
   "costsBusinessRow": "‏ ssenisuB{share} · %{amount}",
   "costsBusinessCaption": "‏.gnivird ruoy lla morf ton ,deggol uoy spirt eht morf tuo dekroW",
   "costsVehicleSold": "‏dloS",
-  "costsVehicleArchived": "‏devihcrA"
+  "costsVehicleArchived": "‏devihcrA",
+  "fuelTitle": "‏noitpmusnoc & leuF",
+  "fuelConsumptionPerTank": "‏knat rep noitpmusnoC",
+  "fuelEmptyTitle": "‏.tey spu-llif oN",
+  "fuelEmptyAction": "‏pu-llif a goL",
+  "fuelFirstFigure": "‏.llif lluf txen ruoy ta sevirra erugif tsrif ruoY"
 }

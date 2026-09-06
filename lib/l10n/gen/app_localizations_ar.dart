@@ -2168,4 +2168,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get costsVehicleArchived => 'مؤرشفة';
+
+  @override
+  String get fuelTitle => 'الوقود والاستهلاك';
+
+  @override
+  String get fuelConsumptionPerTank => 'الاستهلاك لكل خزان';
+
+  @override
+  String get fuelEmptyTitle => 'لا توجد عمليات تعبئة بعد.';
+
+  @override
+  String get fuelEmptyAction => 'سجّل تعبئة';
+
+  @override
+  String get fuelFirstFigure => 'سيظهر أول رقم لك عند التعبئة الكاملة القادمة.';
 }

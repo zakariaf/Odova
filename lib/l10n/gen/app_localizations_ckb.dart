@@ -2040,4 +2040,20 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get costsVehicleArchived => 'ئەرشیفکراو';
+
+  @override
+  String get fuelTitle => 'سووتەمەنی و خەرجکردن';
+
+  @override
+  String get fuelConsumptionPerTank => 'خەرجکردن بۆ هەر تانکێک';
+
+  @override
+  String get fuelEmptyTitle => 'هێشتا هیچ سووتەمەنییەک نییە.';
+
+  @override
+  String get fuelEmptyAction => 'سووتەمەنییەک تۆمار بکە';
+
+  @override
+  String get fuelFirstFigure =>
+      'یەکەم ژمارەت لە پڕکردنەوەی تەواوی داهاتوودا دێت.';
 }

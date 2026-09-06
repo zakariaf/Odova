@@ -321,6 +321,44 @@ This is the whole cycle. Do not start the next epic until the current one is mer
 Steps 7 and 8 happen **before** the PR is opened, not after. A reviewer's time is not the
 place to find what a tool would have caught.
 
+## 6a. Velocity decision — 2026-09-07
+
+**Owner's call, recorded here rather than applied quietly.** For the run from
+EPIC-13 task 13.7 onwards, two of the rules below are relaxed:
+
+- **Parity captures are deferred wholesale to EPIC-18.** Screen tasks no longer
+  end with a four-way capture and a band-profile reading. §7 still governs what
+  the screens must look like, and the reference is still the authority — the
+  *check* moves, not the standard.
+- **Tests are thinner.** One or two cases per behaviour rather than the full
+  matrix, and mutation checks reserved for the rules where being wrong is
+  silent (money, units, dates, direction).
+
+This is a trade, and the cost is worth stating plainly. Parity has earned its
+keep on every screen it has run on: it found a tofu box where §12's arrow
+should be, a divider one pixel wide, three header rows at the wrong size, a
+preview building 400 rows, and bars laid out at 0×77 pixels. **Every one of
+those passed the widget tests.** Deferring the capture means defects of that
+shape will now be found in EPIC-18 instead of at the task that caused them,
+by someone who has to reconstruct why the code is as it is.
+
+The same is true of thinner tests. Four of this project's worst defects were
+found by mutation over cases that looked redundant — a service record with two
+lines, a household with two currencies, a fixture with two distinct
+`created_at` values. Fewer cases means fewer of those.
+
+**What is NOT relaxed:** TDD's red step, the gates, `flutter analyze
+--fatal-infos --fatal-warnings`, six-locale ARB parity, no derived value
+persisted, no currency summed, and green CI before a merge. Those are the ones
+that catch data loss and silent wrongness, and they cost little.
+
+`check_parity.sh` already passes 0 of 45 combinations at `main` and is not in
+CI, so EPIC-18 was always going to be the first real enforcement rather than a
+sweep over working screens. This decision widens that backlog; it does not
+create it.
+
+---
+
 ## 7. Visual parity — a screen is not done until it matches
 
 `design/reference/calm/` holds **112 images: 28 screens × light/dark × LTR/RTL**, produced

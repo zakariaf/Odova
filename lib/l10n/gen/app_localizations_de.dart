@@ -2049,4 +2049,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get costsVehicleArchived => 'Archiviert';
+
+  @override
+  String get fuelTitle => 'Kraftstoff und Verbrauch';
+
+  @override
+  String get fuelConsumptionPerTank => 'Verbrauch pro Tankfüllung';
+
+  @override
+  String get fuelEmptyTitle => 'Noch keine Tankfüllungen.';
+
+  @override
+  String get fuelEmptyAction => 'Tankfüllung erfassen';
+
+  @override
+  String get fuelFirstFigure =>
+      'Ihr erster Wert kommt bei der nächsten vollen Tankfüllung.';
 }

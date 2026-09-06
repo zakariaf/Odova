@@ -2037,4 +2037,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get costsVehicleArchived => 'Archived';
+
+  @override
+  String get fuelTitle => 'Fuel & consumption';
+
+  @override
+  String get fuelConsumptionPerTank => 'Consumption per tank';
+
+  @override
+  String get fuelEmptyTitle => 'No fill-ups yet.';
+
+  @override
+  String get fuelEmptyAction => 'Log a fill-up';
+
+  @override
+  String get fuelFirstFigure =>
+      'Your first figure arrives at your next full fill.';
 }

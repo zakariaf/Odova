@@ -488,5 +488,10 @@
   "costsBusinessRow": "Professionnel {share}% · {amount}",
   "costsBusinessCaption": "Calculé à partir des trajets enregistrés, pas de toute votre conduite.",
   "costsVehicleSold": "Vendu",
-  "costsVehicleArchived": "Archivé"
+  "costsVehicleArchived": "Archivé",
+  "fuelTitle": "Carburant et consommation",
+  "fuelConsumptionPerTank": "Consommation par plein",
+  "fuelEmptyTitle": "Aucun plein pour l’instant.",
+  "fuelEmptyAction": "Enregistrer un plein",
+  "fuelFirstFigure": "Votre premier chiffre arrivera au prochain plein complet."
 }

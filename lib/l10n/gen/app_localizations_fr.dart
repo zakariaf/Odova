@@ -2090,4 +2090,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get costsVehicleArchived => 'Archivé';
+
+  @override
+  String get fuelTitle => 'Carburant et consommation';
+
+  @override
+  String get fuelConsumptionPerTank => 'Consommation par plein';
+
+  @override
+  String get fuelEmptyTitle => 'Aucun plein pour l’instant.';
+
+  @override
+  String get fuelEmptyAction => 'Enregistrer un plein';
+
+  @override
+  String get fuelFirstFigure =>
+      'Votre premier chiffre arrivera au prochain plein complet.';
 }

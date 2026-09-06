@@ -2034,4 +2034,19 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get costsVehicleArchived => 'بایگانی‌شده';
+
+  @override
+  String get fuelTitle => 'سوخت و مصرف';
+
+  @override
+  String get fuelConsumptionPerTank => 'مصرف در هر باک';
+
+  @override
+  String get fuelEmptyTitle => 'هنوز سوخت‌گیری‌ای نیست.';
+
+  @override
+  String get fuelEmptyAction => 'ثبت سوخت‌گیری';
+
+  @override
+  String get fuelFirstFigure => 'اولین عدد شما در سوخت‌گیری کامل بعدی می‌آید.';
 }

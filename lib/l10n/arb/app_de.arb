@@ -488,5 +488,10 @@
   "costsBusinessRow": "Geschäftlich {share}% · {amount}",
   "costsBusinessCaption": "Berechnet aus den erfassten Fahrten, nicht aus allen gefahrenen Kilometern.",
   "costsVehicleSold": "Verkauft",
-  "costsVehicleArchived": "Archiviert"
+  "costsVehicleArchived": "Archiviert",
+  "fuelTitle": "Kraftstoff und Verbrauch",
+  "fuelConsumptionPerTank": "Verbrauch pro Tankfüllung",
+  "fuelEmptyTitle": "Noch keine Tankfüllungen.",
+  "fuelEmptyAction": "Tankfüllung erfassen",
+  "fuelFirstFigure": "Ihr erster Wert kommt bei der nächsten vollen Tankfüllung."
 }

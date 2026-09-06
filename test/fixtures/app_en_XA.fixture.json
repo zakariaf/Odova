@@ -488,5 +488,10 @@
   "costsBusinessRow": "[Ḅǔŝīǹḗŝŝ {share}% · {amount} ǃǃǃǃǃǃ]",
   "costsBusinessCaption": "[Ẇǿřķḗḍ ǿǔţ ƒřǿḿ ţħḗ ţřīƥŝ ẏǿǔ ŀǿḡḡḗḍ, ǹǿţ ƒřǿḿ áŀŀ ẏǿǔř ḍřīṽīǹḡ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "costsVehicleSold": "[Ŝǿŀḍ ǃǃ]",
-  "costsVehicleArchived": "[Ářçħīṽḗḍ ǃǃǃǃ]"
+  "costsVehicleArchived": "[Ářçħīṽḗḍ ǃǃǃǃ]",
+  "fuelTitle": "[Ƒǔḗŀ & çǿǹŝǔḿƥţīǿǹ ǃǃǃǃǃǃǃǃ]",
+  "fuelConsumptionPerTank": "[Çǿǹŝǔḿƥţīǿǹ ƥḗř ţáǹķ ǃǃǃǃǃǃǃǃ]",
+  "fuelEmptyTitle": "[Ǹǿ ƒīŀŀ-ǔƥŝ ẏḗţ. ǃǃǃǃǃǃǃ]",
+  "fuelEmptyAction": "[Ŀǿḡ á ƒīŀŀ-ǔƥ ǃǃǃǃǃǃ]",
+  "fuelFirstFigure": "[Ẏǿǔř ƒīřŝţ ƒīḡǔřḗ ářřīṽḗŝ áţ ẏǿǔř ǹḗẋţ ƒǔŀŀ ƒīŀŀ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]"
 }

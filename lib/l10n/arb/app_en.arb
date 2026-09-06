@@ -3046,5 +3046,25 @@
   "costsVehicleArchived": "Archived",
   "@costsVehicleArchived": {
     "description": "The same for an archived one."
+  },
+  "fuelTitle": "Fuel & consumption",
+  "@fuelTitle": {
+    "description": "SPEC.md §12's `costs.fuel` title."
+  },
+  "fuelConsumptionPerTank": "Consumption per tank",
+  "@fuelConsumptionPerTank": {
+    "description": "Heads §12's consumption chart. PER TANK, not over time: a segment is a discrete measurement between two full fills, at irregular intervals."
+  },
+  "fuelEmptyTitle": "No fill-ups yet.",
+  "@fuelEmptyTitle": {
+    "description": "§12's empty state for `costs.fuel`."
+  },
+  "fuelEmptyAction": "Log a fill-up",
+  "@fuelEmptyAction": {
+    "description": "The action beside it — straight to `log.fillup`, because on this screen there is only one kind of record worth adding."
+  },
+  "fuelFirstFigure": "Your first figure arrives at your next full fill.",
+  "@fuelFirstFigure": {
+    "description": "SPEC.md §3: \"your first figure arrives at your next full fill.\" Shown where the consumption chart would be with fewer than two full tanks — it explains an absence that would otherwise look like a fault."
   }
 }

@@ -3059,6 +3059,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Archived'**
   String get costsVehicleArchived;
+
+  /// SPEC.md §12's `costs.fuel` title.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel & consumption'**
+  String get fuelTitle;
+
+  /// Heads §12's consumption chart. PER TANK, not over time: a segment is a discrete measurement between two full fills, at irregular intervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumption per tank'**
+  String get fuelConsumptionPerTank;
+
+  /// §12's empty state for `costs.fuel`.
+  ///
+  /// In en, this message translates to:
+  /// **'No fill-ups yet.'**
+  String get fuelEmptyTitle;
+
+  /// The action beside it — straight to `log.fillup`, because on this screen there is only one kind of record worth adding.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a fill-up'**
+  String get fuelEmptyAction;
+
+  /// SPEC.md §3: "your first figure arrives at your next full fill." Shown where the consumption chart would be with fewer than two full tanks — it explains an absence that would otherwise look like a fault.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first figure arrives at your next full fill.'**
+  String get fuelFirstFigure;
 }
 
 class _AppLocalizationsDelegate

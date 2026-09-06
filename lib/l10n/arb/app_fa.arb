@@ -488,5 +488,10 @@
   "costsBusinessRow": "کاری {share}٪ · {amount}",
   "costsBusinessCaption": "از سفرهایی که ثبت کرده‌اید محاسبه شده، نه از همهٔ رانندگی شما.",
   "costsVehicleSold": "فروخته‌شده",
-  "costsVehicleArchived": "بایگانی‌شده"
+  "costsVehicleArchived": "بایگانی‌شده",
+  "fuelTitle": "سوخت و مصرف",
+  "fuelConsumptionPerTank": "مصرف در هر باک",
+  "fuelEmptyTitle": "هنوز سوخت‌گیری‌ای نیست.",
+  "fuelEmptyAction": "ثبت سوخت‌گیری",
+  "fuelFirstFigure": "اولین عدد شما در سوخت‌گیری کامل بعدی می‌آید."
 }

@@ -488,5 +488,10 @@
   "costsBusinessRow": "کاری {share}٪ · {amount}",
   "costsBusinessCaption": "لە گەشتەکانی تۆمارکراوتەوە دەرهێنراوە، نەک لە هەموو لێخوڕینەکەت.",
   "costsVehicleSold": "فرۆشراو",
-  "costsVehicleArchived": "ئەرشیفکراو"
+  "costsVehicleArchived": "ئەرشیفکراو",
+  "fuelTitle": "سووتەمەنی و خەرجکردن",
+  "fuelConsumptionPerTank": "خەرجکردن بۆ هەر تانکێک",
+  "fuelEmptyTitle": "هێشتا هیچ سووتەمەنییەک نییە.",
+  "fuelEmptyAction": "سووتەمەنییەک تۆمار بکە",
+  "fuelFirstFigure": "یەکەم ژمارەت لە پڕکردنەوەی تەواوی داهاتوودا دێت."
 }
