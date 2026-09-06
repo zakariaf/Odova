@@ -12,14 +12,22 @@
 // 3.6 ms.
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
+import 'package:odova/app/pdf/pdf_document_canvas.dart';
 import 'package:odova/app/share/share_service.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/reading_series.dart';
+import 'package:odova/core/money/money.dart';
 import 'package:odova/core/report/service_report.dart';
+import 'package:odova/core/report/service_report_pdf.dart';
+import 'package:odova/core/report/service_report_text.dart';
+import 'package:odova/core/report/service_report_writer.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/core/units/distance.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Everything `report.service` reads, in one shot.
@@ -62,6 +70,8 @@ class ReportState {
   const ReportState({
     this.options = const ServiceReportOptions(),
     this.document,
+    this.isBuilding = false,
+    this.shareFailureCode,
   });
 
   /// The four toggles.
@@ -78,13 +88,33 @@ class ReportState {
   bool get canShare =>
       document?.years.expand((y) => y.records).isNotEmpty ?? false;
 
+  /// Set while §12's blocking "Building your report…" is on screen.
+  ///
+  /// Only above 200 records — §12 makes generation synchronous below that,
+  /// because a progress dialog for work that takes 12 ms is a flash the user
+  /// reads as a fault.
+  final bool isBuilding;
+
+  /// Why the last share did not happen, or null.
+  ///
+  /// A CODE, never a sentence: §2 keeps user-facing strings out of failures so
+  /// they can be translated, mirrored and digit-shaped at the edge.
+  final String? shareFailureCode;
+
   /// A copy with [options] applied.
   ReportState copyWith({
     ServiceReportOptions? options,
     ServiceReportDocument? document,
+    bool? isBuilding,
+    // A sentinel rather than `String?`, so clearing the failure and leaving it
+    // alone are different calls. `null` meaning "unchanged" is why a retry
+    // would keep showing the error it just cleared.
+    bool clearFailure = false,
   }) => ReportState(
     options: options ?? this.options,
     document: document ?? this.document,
+    isBuilding: isBuilding ?? this.isBuilding,
+    shareFailureCode: clearFailure ? null : shareFailureCode,
   );
 }
 
@@ -139,6 +169,107 @@ class ReportNotifier extends Notifier<ReportState> {
     );
   }
 
+  /// Builds §12's PDF and hands it to the OS share sheet.
+  ///
+  /// The blocking "Building your report…" is raised only above §12's 200-record
+  /// threshold. A progress dialog for work that takes twelve milliseconds is a
+  /// flash the user reads as a fault; a frozen button for work that takes two
+  /// seconds is an app they force-quit.
+  Future<void> sharePdf({
+    required String vehicleName,
+    required int positionalIndex,
+    required ServiceReportPdfStrings strings,
+    required ReportFormatters formatters,
+    String? region,
+    PaperSize? paperOverride,
+  }) async {
+    final doc = state.document;
+    if (doc == null) return;
+
+    final records = doc.years.expand((y) => y.records).length;
+    final blocking = needsProgressUi(recordCount: records);
+    // Cleared FIRST, so a retry does not sit under a failure it has already
+    // superseded — the user would read that as failing twice.
+    state = state.copyWith(isBuilding: blocking, clearFailure: true);
+
+    try {
+      final canvas = PdfDocumentCanvas(fontBytes: await loadReportFont());
+      writeServiceReportPdf(
+        doc,
+        canvas: canvas,
+        paper: paperFor(region, override: paperOverride),
+        rtl: _rtl,
+        scriptFamily: 'Vazirmatn',
+        strings: strings,
+        formatDate: formatters.date,
+        formatDistance: formatters.distance,
+        formatMoney: formatters.money,
+      );
+
+      final shared = await ref
+          .read(shareServiceProvider)
+          .shareFile(
+            bytes: await canvas.save(),
+            fileName: reportFileName(
+              vehicleName: vehicleName,
+              on: doc.generatedOn,
+              positionalIndex: positionalIndex,
+            ),
+            mimeType: 'application/pdf',
+          );
+
+      state = ReportState(
+        options: state.options,
+        document: state.document,
+        shareFailureCode: switch (shared) {
+          Ok() => null,
+          Err(:final failure) => failure.code,
+        },
+      );
+    } finally {
+      // In a `finally`, so a throw from the writer cannot leave the blocking
+      // overlay on screen forever with no way past it.
+      if (state.isBuilding) state = state.copyWith(isBuilding: false);
+    }
+  }
+
+  /// §12's Cancel: abandons generation and deletes the temp file.
+  ///
+  /// A cancelled report that leaves a copy of somebody's service history in a
+  /// cache directory is the leak §2 exists to prevent.
+  Future<void> cancelShare() async {
+    await ref.read(shareServiceProvider).discard();
+    state = state.copyWith(isBuilding: false, clearFailure: true);
+  }
+
+  /// §12's Copy as text — the same document, as plain text on the clipboard.
+  Future<void> copyAsText({
+    required ServiceReportTextStrings strings,
+    required ReportFormatters formatters,
+  }) async {
+    final doc = state.document;
+    if (doc == null) return;
+
+    await Clipboard.setData(
+      ClipboardData(
+        text: renderServiceReportText(
+          doc,
+          strings: strings,
+          formatDate: formatters.date,
+          formatDistance: formatters.distance,
+          formatMoney: formatters.money,
+        ),
+      ),
+    );
+  }
+
+  /// Whether the document mirrors. Set by the screen, which knows the locale.
+  bool _rtl = false;
+
+  /// Tells the notifier which direction the document takes.
+  // ignore: avoid_setters_without_getters
+  set documentIsRtl(bool value) => _rtl = value;
+
   static ServiceReportDocument _build(
     ReportInputs inputs,
     ServiceReportOptions options,
@@ -152,6 +283,38 @@ class ReportNotifier extends Notifier<ReportState> {
     options: options,
     today: today,
   );
+}
+
+/// The three formatters §12's document is rendered through.
+///
+/// REQUIRED, with no fallback. An earlier version defaulted them to stubs that
+/// built a distance as `'\${estimated ? '~' : ''}\${metres ~/ 1000}'`, and
+/// `check_status_encoding.sh` refused it — correctly, and for the third time
+/// in this epic. The estimate mark belongs inside the app's real formatter,
+/// which places it in a bidi isolate; a tilde concatenated in Dart lands on the
+/// wrong side of the number on an RTL page.
+///
+/// The deeper problem with the stubs was not the tilde. A default formatter is
+/// one that SHIPS the day a caller forgets to pass the real one, and it would
+/// ship Latin digits into a Persian document. Making them required means that
+/// mistake is a compile error.
+@immutable
+class ReportFormatters {
+  /// Creates the set.
+  const ReportFormatters({
+    required this.date,
+    required this.distance,
+    required this.money,
+  });
+
+  /// An ISO date as the display calendar renders it.
+  final String Function(String isoDate) date;
+
+  /// A distance with its unit, and the estimate mark placed by the formatter.
+  final String Function(Distance, {required bool estimated}) distance;
+
+  /// Money, isolated, in its own currency.
+  final String Function(Money) money;
 }
 
 /// The share port, overridden in tests.
