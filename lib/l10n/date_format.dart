@@ -84,3 +84,15 @@ String formatShortDayMonth(String iso, String formatsTag) {
   if (parsed == null) return iso;
   return DateFormat.MMMd(numberFormatLocale(formatsTag)).format(parsed);
 }
+
+/// A row's date: `Wed 2 Sep`, `mer. 2 sept.`, `چهارشنبه ۲ سپتامبر`.
+///
+/// SPEC.md §11's rows carry the weekday because the timeline is read for
+/// recall — "was that the Saturday I drove to Munich" — and drop the year
+/// because the month header above the row already carries it. `MMMEd` is the
+/// ICU skeleton for exactly that, so the field ORDER is the locale's.
+String formatRowDate(String iso, String formatsTag) {
+  final parsed = DateTime.tryParse(iso);
+  if (parsed == null) return iso;
+  return DateFormat.MMMEd(numberFormatLocale(formatsTag)).format(parsed);
+}

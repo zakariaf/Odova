@@ -28,7 +28,10 @@ HistoryRowContent historyRowContent(
   required String formatsTag,
   required DistanceUnit unit,
 }) {
-  final date = formatLongDate(entry.occurredOn, formatsTag);
+  // The ROW date — weekday, day, month, no year. §11's month header above the
+  // row already carries the year, and repeating it in every row is the
+  // difference between a line that fits and one that wraps.
+  final date = formatRowDate(entry.occurredOn, formatsTag);
   final odometer = entry.odometerM == null
       ? null
       : formatWithUnit(
@@ -100,6 +103,9 @@ String? _quantityText(
     label,
     formatsTag,
     numerals: CalmNumerals.auto,
-    decimalDigits: 2,
+    // TRIMMED. `42.80 L` is a false precision a pump does not give and a
+    // character the row does not have room for; §11's own sketch reads
+    // `52.10 L` where the tenth is significant and `42.8 L` where it is not.
+    decimalDigits: value == value.roundToDouble() ? 0 : 1,
   );
 }

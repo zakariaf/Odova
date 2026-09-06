@@ -17,8 +17,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/history/history_entry.dart';
 import 'package:odova/core/history/history_filter.dart';
+import 'package:odova/core/history/history_row.dart';
 import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/l10n/numerals.dart';
@@ -37,6 +39,7 @@ import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/money_format.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
@@ -221,6 +224,16 @@ class HistoryScreen extends ConsumerWidget {
                 amount: entry.minorUnits == null || entry.currency == null
                     ? null
                     : _money(entry.currency!, entry.minorUnits!, formatsTag),
+                // §11's trailing figure, "only where `buildFuelSegments`
+                // returns one for the segment ending at that fill. Otherwise
+                // the slot is blank; never `0.0`." `consumptionFor` is what
+                // decides that; this only formats what it hands back.
+                trailingFigure: _consumption(
+                  entry,
+                  state.segments,
+                  l10n,
+                  formatsTag,
+                ),
                 // §11: each row is "one tap from being corrected."
                 onTap: () => unawaited(
                   context.push(
@@ -261,6 +274,36 @@ class HistoryScreen extends ConsumerWidget {
       Money(minor, currency),
       formatsTag,
       numerals: CalmNumerals.auto,
+    );
+  }
+
+  /// `6.4 L/100 km`, or null where the engine closed no segment there.
+  static String? _consumption(
+    HistoryEntry entry,
+    FuelSegmentSet? segments,
+    AppLocalizations l10n,
+    String formatsTag,
+  ) {
+    if (segments == null || entry.kind != HistoryEntryKind.fillUp) return null;
+    final figure = consumptionFor(entry.id, segments);
+    if (figure == null) return null;
+    return formatWithUnit(
+      figure,
+      // The "100" is shaped, not a literal: §5 keeps one numbering system
+      // active app-wide, and a Latin 100 inside a Persian unit is the mixed
+      // rendering that rule exists to stop.
+      l10n.unitConsumptionPerDistance(
+        formatForDisplay(
+          100,
+          formatsTag,
+          numerals: CalmNumerals.auto,
+          decimalDigits: 0,
+          grouped: false,
+        ),
+      ),
+      formatsTag,
+      numerals: CalmNumerals.auto,
+      decimalDigits: 1,
     );
   }
 

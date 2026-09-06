@@ -21,6 +21,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show NotifierProviderFamily;
 import 'package:meta/meta.dart';
+import 'package:odova/core/fuel/fuel_segment.dart';
 import 'package:odova/core/history/history_cursor.dart';
 import 'package:odova/core/history/history_entry.dart';
 import 'package:odova/core/history/history_filter.dart';
@@ -85,6 +86,7 @@ class HistoryState {
     this.hasMore = true,
     this.isLoading = false,
     this.failure,
+    this.segments,
   });
 
   /// The loaded window, newest first.
@@ -108,6 +110,22 @@ class HistoryState {
   /// The last read failure, or null.
   final PersistFailure? failure;
 
+  /// The vehicle's fuel segments, or null before they are known.
+  ///
+  /// §11's trailing consumption figure comes from these and from nothing else:
+  /// "renders only where `buildFuelSegments` returns one for the segment ending
+  /// at that fill." A row cannot compute its own — a segment spans two fills,
+  /// and the one that closes it is not the one that opened it.
+  ///
+  /// **Null today, and deliberately.** Filling it needs the correction-aware
+  /// cumulative for each fill's own derived reading, which is the fuel
+  /// pipeline EPIC-13 builds for `costs.fuel`. Writing a second copy of it
+  /// here is the thing CLAUDE.md names first among the don'ts, and null is not
+  /// a broken state: §11 says the slot is "blank; never `0.0`", so a timeline
+  /// with no segments draws exactly what a timeline with no closed segment
+  /// draws. EPIC-13 supplies the provider and this reads it.
+  final FuelSegmentSet? segments;
+
   /// Where the next page resumes.
   HistoryCursor? get cursor => entries.isEmpty ? null : entries.last.cursor;
 
@@ -120,6 +138,7 @@ class HistoryState {
     bool? isLoading,
     PersistFailure? failure,
     bool clearFailure = false,
+    FuelSegmentSet? segments,
   }) => HistoryState(
     entries: entries ?? this.entries,
     filter: filter ?? this.filter,
@@ -127,6 +146,7 @@ class HistoryState {
     hasMore: hasMore ?? this.hasMore,
     isLoading: isLoading ?? this.isLoading,
     failure: clearFailure ? null : (failure ?? this.failure),
+    segments: segments ?? this.segments,
   );
 }
 

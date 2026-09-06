@@ -25,7 +25,11 @@ import 'package:odova/ui/calm/calm_icon_tile.dart';
 /// Sized to the widest amount the app formats at default scale plus its
 /// symbol; a column that fitted the CONTENT would jump every time a month with
 /// a four-figure service scrolled into view.
-const double kHistoryAmountColumnWidth = 112;
+///
+/// And no wider than that. Every point here is a point the primary line does
+/// not have, and the line that loses it wraps — which is what turned a 76pt
+/// row into a 140pt one in the first capture.
+const double kHistoryAmountColumnWidth = 76;
 
 /// One row on the timeline.
 class HistoryRowTile extends StatelessWidget {
