@@ -50,6 +50,18 @@ dependencies:
   # dependency and is declared as one. It arrives transitively through drift
   # either way; relying on that is how a transitive bump becomes a compile
   # error in a file that never mentioned it.
+  # The PDF writer for SPEC.md §12's service report. Pure Dart: its whole
+  # transitive tree is archive, image, xml, barcode, qr, bidi and path — local
+  # processing, no socket, no platform channel, nothing that can reach a
+  # network. `tools/audit_deps.sh` walks it and reports clean.
+  #
+  # `share_plus` was considered for the hand-off and REFUSED. It drags in
+  # `url_launcher_web`, `url_launcher_linux` and `url_launcher_windows`, which
+  # are navigation surfaces — and §2's claim is that the store listing's "zero
+  # network calls" is true BY CONSTRUCTION, not by which platform we happen to
+  # ship. The share sheet is one platform intent; it gets a method channel of
+  # our own rather than a package that can open a URL.
+  pdf: ^3.11.0
   sqlite3: ^2.9.1
   # The SQLite binary itself, bundled. Without it the app uses whatever SQLite
   # the OS shipped, which on older Android is too old for STRICT tables — and
