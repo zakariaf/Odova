@@ -31,3 +31,20 @@
   - Home's `_ownedFor` answers "how long has this owner had the car" a second
     way, through `bucketRelativeDays`' `days / 30.44`, and disagrees with
     `CivilDate.monthsUntil`. One ownership-span function over `monthsUntil`.
+- **Task 13.2 (complete).** The cost aggregates. `CostFigure` is sealed with
+  three variants because §12's three treatments are three SCREENS — exact
+  prints a number, estimated prints one with the soft treatment and a tap
+  explanation, absent prints a dash. Collapsing estimated into absent hides a
+  usable figure; collapsing it into exact states a shaky one as fact.
+  `costPerDistance` takes readings and corrections and deliberately does NOT
+  import the estimate engine: §12's reason is that a projection grows while
+  the app sits unopened, so the same records would give a different cost per
+  kilometre tomorrow. The test advances the clock 30 days and asserts the
+  figure does not move. Four refusals mutation-checked: the 100 km floor, the
+  45-day boundary tolerance, the correction fold, and the sub-month dash.
+  Category shares reuse `allocateByWeight`, so the two places this app splits
+  a whole into parts cannot disagree about how — and "the largest row absorbs
+  the remainder" falls out of the sort order rather than needing its own rule.
+  `rowForCategory` is an exhaustive switch with NO default, so an
+  `ExpenseCategory` added later is a compile error rather than a silent
+  arrival in Other.
