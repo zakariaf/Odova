@@ -22,10 +22,21 @@ import 'package:drift/drift.dart' show Variable;
 import 'package:odova/core/history/history_cursor.dart';
 import 'package:odova/core/history/history_entry.dart';
 import 'package:odova/core/history/history_filter.dart';
+import 'package:odova/core/history/month_index.dart';
+import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
+
+/// One row of money on a date, before it is grouped into a month.
+///
+/// `minorUnits` and not `amountMinor`: that name is reserved by
+/// `no_conversion_on_write_test` for the minor half of a `Money` being
+/// unwrapped into a column, and this is the opposite direction — a raw column
+/// READ that never stops travelling beside its currency. Borrowing the gate's
+/// vocabulary for a different meaning is how a gate stops meaning anything.
+typedef _MoneyRow = ({String occurredOn, int? minorUnits, String? currency});
 
 /// Reads the timeline.
 class HistoryRepository {
@@ -90,6 +101,127 @@ class HistoryRepository {
       ),
       limit: limit,
     );
+  }
+
+  /// The month index: a header's count and subtotals, with no entry loaded.
+  ///
+  /// §11: "Eight years is ~96 rows, and it drives the header subtotal, the
+  /// year scrubber and the 'no entries in 2021' empty state without loading an
+  /// entry row. Folding totals out of the loaded window instead would give a
+  /// subtotal that grows as you scroll, because the bottom month is
+  /// half-loaded."
+  ///
+  /// So this is an AGGREGATE over the whole vehicle, and the grouping happens
+  /// in Dart rather than in SQL for one reason: the month depends on the
+  /// user's calendar (§5), and SQLite cannot do Jalali. What it returns is one
+  /// row per (date, currency, amount) — bounded by the number of ENTRIES, not
+  /// by their contents — which is folded here.
+  Future<Result<List<MonthIndexEntry>, PersistFailure>> monthIndex({
+    required String vehicleId,
+    required HistoryFilter filter,
+    required CalmCalendar calendar,
+  }) => guardPersist(() async {
+    final rows = await _moneyRows(vehicleId: vehicleId, filter: filter);
+
+    final counts = <MonthKey, int>{};
+    final totals = <MonthKey, Map<String, int>>{};
+    for (final row in rows) {
+      final key = monthKeyOrNull(row.occurredOn, calendar);
+      if (key == null) continue;
+      counts[key] = (counts[key] ?? 0) + 1;
+      // A trip contributes no money: §11's month total is what was PAID, and
+      // a trip's costs are the fills and expenses already counted under it.
+      // Adding them again would double every business month.
+      if (row.currency == null || row.minorUnits == null) continue;
+      final byCurrency = totals.putIfAbsent(key, () => <String, int>{});
+      byCurrency[row.currency!] =
+          (byCurrency[row.currency!] ?? 0) + row.minorUnits!;
+    }
+
+    final keys = counts.keys.toList()..sort(compareMonthKeysNewestFirst);
+    return Ok([
+      // Months with no entries are ABSENT, not present at zero: §11's
+      // "no entries in 2021" empty state is the scrubber finding nothing here,
+      // and a zero-count row would draw an empty header instead.
+      for (final key in keys)
+        MonthIndexEntry(
+          monthKey: key,
+          count: counts[key]!,
+          totals: Map.unmodifiable(totals[key] ?? const <String, int>{}),
+        ),
+    ]);
+  });
+
+  Future<List<_MoneyRow>> _moneyRows({
+    required String vehicleId,
+    required HistoryFilter filter,
+  }) async {
+    final variables = <Variable<Object>>[];
+    final union = <String>[];
+
+    void add(HistoryEntryKind kind, String sql) {
+      if (!filter.allows(kind)) return;
+      union.add(sql);
+      variables.add(Variable<String>(vehicleId));
+    }
+
+    add(
+      HistoryEntryKind.fillUp,
+      'SELECT occurred_on, total_cost_minor AS amount, currency '
+      'FROM fill_ups WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
+    );
+    add(
+      HistoryEntryKind.service,
+      // A record's cost is the sum of its LINES — §10 gives it no second cost
+      // field — so the money comes from the join, not from the record.
+      'SELECT r.occurred_on, SUM(l.amount_minor) AS amount, l.currency '
+      'FROM service_records r JOIN service_lines l '
+      'ON l.service_record_id = r.id '
+      'WHERE r.vehicle_id = ? AND r.deleted_at_utc_ms IS NULL '
+      'GROUP BY r.id, l.currency',
+    );
+    add(
+      HistoryEntryKind.expense,
+      // Counted in the month it was PAID. History is cash, not accrual — the
+      // coverage window spreads a policy across months on EPIC-13's cost
+      // dashboard, and letting that leak here would make a September total
+      // disagree with the September rows under it.
+      'SELECT occurred_on, amount_minor AS amount, currency '
+      'FROM expenses WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
+    );
+    add(
+      HistoryEntryKind.trip,
+      'SELECT started_on AS occurred_on, NULL AS amount, NULL AS currency '
+      'FROM trips WHERE vehicle_id = ? AND deleted_at_utc_ms IS NULL',
+    );
+    add(
+      HistoryEntryKind.odometer,
+      'SELECT occurred_on, NULL AS amount, NULL AS currency '
+      'FROM odometer_readings WHERE vehicle_id = ? '
+      "AND source = 'manual' AND deleted_at_utc_ms IS NULL",
+    );
+
+    if (union.isEmpty) return const [];
+
+    var sql =
+        'SELECT occurred_on, amount, currency FROM '
+        '(${union.join(' UNION ALL ')})';
+    if (filter.year case final int year) {
+      sql += ' WHERE occurred_on >= ? AND occurred_on <= ?';
+      variables
+        ..add(Variable<String>('$year-01-01'))
+        ..add(Variable<String>('$year-12-31'));
+    }
+
+    final rows = await _db.customSelect(sql, variables: variables).get();
+    return [
+      for (final row in rows)
+        (
+          occurredOn: row.read<String>('occurred_on'),
+          minorUnits: row.readNullable<int>('amount'),
+          currency: row.readNullable<String>('currency'),
+        ),
+    ];
   }
 
   Future<List<HistoryEntry>> _select({
