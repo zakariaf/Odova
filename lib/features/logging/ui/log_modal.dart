@@ -33,6 +33,7 @@ import 'package:odova/features/logging/domain/price_trio.dart';
 import 'package:odova/features/logging/domain/service_cost_model.dart';
 import 'package:odova/features/logging/ui/log_expense_body.dart';
 import 'package:odova/features/logging/ui/log_fillup_body.dart';
+import 'package:odova/features/logging/ui/log_more_sheet.dart';
 import 'package:odova/features/logging/ui/log_odometer_body.dart';
 import 'package:odova/features/logging/ui/log_service_body.dart';
 import 'package:odova/features/logging/ui/odometer_field.dart';
@@ -324,6 +325,21 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   // TODO(EPIC-11): read from the selected vehicle.
   Volume? get _tankCapacity => null;
 
+  /// Opens §10's More section.
+  ///
+  /// A sheet and not an inline expansion, because the artboard draws the row
+  /// as `row--nav` with a chevron. It is rebuilt from the draft each time it
+  /// opens, which is also what makes "collapsed again next time" true: there
+  /// is no expansion state to remember.
+  void _openMore() => unawaited(
+    showLogMoreSheet(
+      context,
+      type: _segment,
+      fillUp: _fillUp,
+      onFillUpChanged: (next) => setState(() => _fillUp = next),
+    ),
+  );
+
   /// The expense form, with its three error slots read from ONE validation.
   ///
   /// `problems()` parses the amount and both window dates, and it was called
@@ -401,7 +417,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         },
         showChevron: true,
         size: CalmRowSize.compact,
-        onTap: () {},
+        onTap: _openMore,
       ),
     ],
   );
