@@ -176,4 +176,47 @@ void main() {
     expect(await liveCount('expenses'), 1);
     expect(await liveCount('fill_ups'), 0, reason: 'the older delete stands');
   });
+
+  test('a delete and an undo both reach a watching stream', () async {
+    // The screen that shows the Undo is watching this list. `customUpdate`
+    // takes an `updates:` set naming the tables it touched, and drift uses it
+    // to decide which streams re-emit — an empty set means "nothing changed",
+    // so Home would keep showing the fill-up the user just removed until
+    // something unrelated invalidated the table.
+    await fillUps.save(fillUp());
+
+    final seen = <int>[];
+    final sub = fillUps
+        .watchForVehicle(_vehicleId)
+        .listen((rows) => seen.add(rows.length));
+    await pumpEventQueue();
+
+    await fillUps.delete(fillUp().id, deletedAtUtcMs: 2000);
+    await pumpEventQueue();
+
+    await fillUps.undelete(fillUp().id);
+    await pumpEventQueue();
+
+    await sub.cancel();
+    expect(seen, [1, 0, 1]);
+  });
+
+  test('deleting a service record re-emits its watching stream', () async {
+    await services.saveRecord(record());
+
+    final seen = <int>[];
+    final sub = services
+        .watchRecords(_vehicleId)
+        .listen((rows) => seen.add(rows.length));
+    await pumpEventQueue();
+
+    await services.deleteRecord(record().id, deletedAtUtcMs: 2000);
+    await pumpEventQueue();
+
+    await services.undeleteRecord(record().id);
+    await pumpEventQueue();
+
+    await sub.cancel();
+    expect(seen, [1, 0, 1]);
+  });
 }

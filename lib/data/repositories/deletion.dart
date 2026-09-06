@@ -10,12 +10,68 @@
 //   3. After the window, the row is PURGED. A settled database has
 //      `deleted_at IS NULL` on every row that exists: no bin, no tombstones,
 //      nothing deleted in the export.
-import 'package:drift/drift.dart' show Variable;
+import 'package:drift/drift.dart' show Table, TableInfo, Variable;
+import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/guard.dart';
+
+/// Soft-deletes or restores one log row and the reading it derived.
+///
+/// The four tables logging writes — `fill_ups`, `expenses`, `service_records`
+/// and their derived `odometer_readings` — all stamp the same way, so they
+/// stamp through one function. Two copies of this existed for a day and had
+/// already started to disagree.
+///
+/// [deletedAtUtcMs] null RESTORES, and the guard flips with it: a delete only
+/// matches a live row and a restore only matches a deleted one, so deleting
+/// something twice reports `NotFound` rather than stamping a second timestamp
+/// over the first and breaking the Undo that names it.
+///
+/// **`updates` is not optional.** It is how drift decides which watching
+/// streams re-emit, and both copies of this passed `updates: {}` — which says
+/// "no table changed". Every `watchForVehicle` stayed silent through a delete
+/// and through its Undo, so the screen showing the snackbar kept rendering the
+/// row the user had just removed until something unrelated invalidated the
+/// table. The tables come from their generated `TableInfo`, so the name in the
+/// SQL and the name in the stream key cannot drift apart.
+///
+/// The derived reading moves WITH the record, both ways. A delete that left it
+/// behind would leave the due engine computing distance from a fill-up the user
+/// has just undone; an undo that did not bring it back would resurrect the
+/// record with a hole in the odometer series.
+Future<Result<void, PersistFailure>> stampLogRowDeleted(
+  AppDatabase db, {
+  required TableInfo<Table, dynamic> table,
+  required String id,
+  required OdometerSource source,
+  required int? deletedAtUtcMs,
+}) => guardPersist(() async {
+  final name = table.actualTableName;
+  final rows = await db.customUpdate(
+    'UPDATE $name SET deleted_at_utc_ms = ? WHERE id = ? '
+    'AND deleted_at_utc_ms IS ${deletedAtUtcMs == null ? 'NOT NULL' : 'NULL'};',
+    variables: [Variable<int>(deletedAtUtcMs), Variable<String>(id)],
+    updates: {table},
+  );
+  // NotFound on zero rows, never a silent success — the caller is showing an
+  // Undo, and an Undo for something that did not happen is worse than an error.
+  if (rows == 0) return Err(NotFound(id));
+
+  await db.customUpdate(
+    'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
+    'WHERE source_id = ? AND source = ?;',
+    variables: [
+      Variable<int>(deletedAtUtcMs),
+      Variable<String>(id),
+      Variable<String>(source.wire),
+    ],
+    updates: {db.odometerReadings},
+  );
+  return const Ok(null);
+});
 
 /// The tables a vehicle's delete cascades to, child-first.
 ///

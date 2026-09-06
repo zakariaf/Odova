@@ -14,6 +14,7 @@ import 'package:odova/core/value_equality.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/mappers/row_mappers.dart';
 import 'package:odova/data/failures/persist_failure.dart';
+import 'package:odova/data/repositories/deletion.dart';
 import 'package:odova/data/repositories/guard.dart';
 import 'package:odova/data/repositories/odometer_fan_out.dart';
 import 'package:odova/data/repositories/watch.dart';
@@ -282,42 +283,23 @@ class ServiceRepository {
   Future<Result<void, PersistFailure>> deleteRecord(
     ServiceRecordId id, {
     required int deletedAtUtcMs,
-  }) => _stampRecordDeleted(id, deletedAtUtcMs);
+  }) => stampLogRowDeleted(
+    _db,
+    table: _db.serviceRecords,
+    id: id.toString(),
+    source: OdometerSource.service,
+    deletedAtUtcMs: deletedAtUtcMs,
+  );
 
   /// Puts back what [deleteRecord] removed.
   Future<Result<void, PersistFailure>> undeleteRecord(ServiceRecordId id) =>
-      _stampRecordDeleted(id, null);
-
-  Future<Result<void, PersistFailure>> _stampRecordDeleted(
-    ServiceRecordId id,
-    int? deletedAtUtcMs,
-  ) => guardPersist(() async {
-    final rows = await _db.customUpdate(
-      'UPDATE service_records SET deleted_at_utc_ms = ? WHERE id = ? '
-      'AND deleted_at_utc_ms IS '
-      '${deletedAtUtcMs == null ? 'NOT NULL' : 'NULL'};',
-      variables: [
-        Variable<int>(deletedAtUtcMs),
-        Variable<String>(id.toString()),
-      ],
-      updates: {},
-    );
-    if (rows == 0) return Err(NotFound(id.toString()));
-
-    // The derived reading moves with the record, both ways: a delete that left
-    // it behind leaves the due engine computing from work the user has undone.
-    await _db.customUpdate(
-      'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
-      'WHERE source_id = ? AND source = ?;',
-      variables: [
-        Variable<int>(deletedAtUtcMs),
-        Variable<String>(id.toString()),
-        Variable<String>(OdometerSource.service.wire),
-      ],
-      updates: {},
-    );
-    return const Ok(null);
-  });
+      stampLogRowDeleted(
+        _db,
+        table: _db.serviceRecords,
+        id: id.toString(),
+        source: OdometerSource.service,
+        deletedAtUtcMs: null,
+      );
 
   /// Soft-deletes one item, for the Undo the snackbar offers.
   Future<Result<void, PersistFailure>> deleteItem(
