@@ -426,3 +426,75 @@ here so it arrives there as a measured number rather than a surprise.
   one is a shared `CalmField` concern with cursor-position subtleties.
 - **A weekday in the log date row** — reference "Wed 2 September 2026", app
   "September 2, 2026".
+
+## The `/code-review` pass
+
+Fifteen findings. **All fifteen applied; none answered.** Every one of them
+passed 192 green logging tests, which is the point of running the pass at all.
+
+They share a cause worth naming: **state written once and read many times,
+where the write and the read disagree about which copy is current.** Nine of
+the fifteen are that shape.
+
+**Three made a form unusable:**
+
+1. **An expense could never be saved.** `_expense` is built once with
+   `occurredOn: ''` and nothing wrote a date into it. `problems()` does not
+   check the date, so validation passed and `ExpenseSave` failed on
+   `CivilDate.tryParse('')` — reported to the user as "your phone may be out of
+   space", over a Date row showing the correct date the whole time.
+2. **The odometer was parsed as km whatever the vehicle's unit.** `100000` on a
+   miles vehicle stored 100,000,000 m instead of 160,934,400 — a 38% error into
+   the series the due engine reads, under a helper line saying "mi".
+3. **Save reported success over a write that never happened.**
+   `_PendingSteps.persist()` returned `Ok(null)`, so the modal popped and showed
+   "saved" with a dead Undo whenever the pad was empty or the vehicle had not
+   loaded.
+
+**Two switches only went one way.** `refunded()` and `split()` had no inverse,
+so `on ? x.refunded() : x` made turning either off a no-op. The refund switch
+stuck on and kept negating the amount — on the only money field allowed to be
+negative. The split switch trapped the user in a record that could not cost
+anything: Total read-only, no per-item input rendered, every line written at
+zero.
+
+**`_copy` could not clear a field.** `?? this.coversFrom` cannot express "clear
+this", so leaving Insurance for Parking kept the old coverage window — which
+`problems()` then reported as `periodBackwards` on a window the user never
+touched, the exact failure `_yearFrom`'s doc says was fixed.
+
+**`ServiceCostModel.sum` hardcoded two decimals** while `ServiceSave` scales by
+the currency exponent. In KWD, lines of 1.234 and 2.345 store 3579 fils and the
+sum displayed 3.58 — a total contradicting its own lines.
+
+**The future-date rule could never fire** — `problems(today: _occurredOn)`
+compared the entry's date against itself.
+
+**The success snackbar showed the button's label** — "Save fill-up", an
+imperative, beside an Undo, after the user had already saved.
+
+**The More sheet discarded the first field edited.** Pushed as its own route, so
+the shell's `setState` never rebuilds it; every handler derived from a
+`widget.fillUp` frozen at open.
+
+Plus: every persist failure reported as "out of space"; a stale typed Total
+under a split; a unit chip that announced itself to a screen reader and did
+nothing; `_itemChips()` mutating State during `build`; and a computed trio value
+emitted as an ASCII dot and re-read against the locale's grouping separator —
+latent only because `_formatsTag` is still hardcoded to `'en'`.
+
+### What testing the More sheet taught
+
+The frozen-draft fix took three attempts to test HONESTLY, and the two failures
+are the useful part:
+
+- A `StatefulBuilder` harness that feeds each change back in **rebuilds the
+  sheet**, which is exactly what the real route does not do. It passed against
+  the broken code.
+- Driving it through the real route and reopening it **also** passed against the
+  broken code.
+
+The test that works holds `fillUp` constant — the actual production condition —
+and asserts on what the sheet emits. Every fix in this pass was then verified by
+mutating it back out and watching the test fail; a green test that has not been
+seen red against the specific defect it names is not evidence.
