@@ -284,3 +284,145 @@ per build instead of three times; the shared `odometerDeltaLine`; the
 
 `/code-review` has NOT been run. It runs after the epic's tasks are done, over
 the finished code, per `epics/README.md`'s inherited rule 3.
+
+## Tasks 11.4 – 11.8 — built
+
+### The four write paths
+
+Definition-of-done item 3 — "every save is one transaction ending in a due-state
+recompute" — is met for all four segments. `FillUpSave`, `ExpenseSave`,
+`ServiceSave` and `OdometerLogSave` are shaped like `StripOdometerSave`, which
+EPIC-10 established: a `Notifier` with `save` and `undo`, returning a sealed
+outcome rather than throwing.
+
+Every one of them was verified by MUTATION and not by being green. Dropping the
+quantity, the refund sign, the coverage window, the split lines or the odometer
+each fails a specific test; so does inverting `from_due`/`from_actual`, treating
+a zero total as negative, and writing CNG as a volume.
+
+Notable decisions:
+
+- **`recompute()` invalidates the due snapshot rather than writing anything.**
+  SPEC.md §2 makes every derived value a pure function computed at read time, so
+  there is nothing to write. `reschedule()` is empty and belongs to EPIC-16.
+- **`OdometerLogSave` deliberately does not reuse `StripOdometerSave`.** That
+  notifier carries §9's yield-to-modal outcome, which exists because the strip
+  has somewhere to hand the user off TO. This form IS that somewhere, so the
+  same outcome would be a loop.
+- **The Undo is a callback, not a held row.** Four segments write four record
+  types and the snackbar only needs to know how to take one back — and because
+  the steps that did the writing set it, a segment that writes nothing cannot
+  leave a stale Undo pointing at someone else's row.
+
+### What the reference sheets found that the tests could not
+
+CLAUDE.md §7 says to open the side-by-side and look. Doing so found six defects
+no assertion was going to catch:
+
+1. **The price trio was three stacked full-width fields.** §10's sketch and the
+   artboard both draw one row of three. Stacked, they read as three unrelated
+   money fields; they are one arithmetic, and the `ƒ` badge only means anything
+   beside the two values it was worked out from.
+2. **Date and More were two cards.** The artboard draws one, with a divider.
+3. **The date row was labelled `reminderOnceOnDate`** — "Or once, on date",
+   which is `reminders.edit`'s string about a schedule, not the day a thing
+   happened.
+4. **`log.odometer` had a Date row at all**, where §10 allows two fields and
+   nothing else and the artboard puts the date on a pad key beside Save.
+5. **`log.expense` had NO date row**, a regression from collapsing the two
+   slots into one: that body had a `moreRow` and no `dateRow` to rename, so the
+   delete landed and the rename did not.
+6. **The category chips scrolled sideways** where §10 says in as many words
+   that they "wrap to three rows in German at large text scales and must never
+   truncate".
+
+Two more were found by wiring, not by looking: the shell read its vehicle with
+`ref.read` on two STREAMS — so on the first frame it got null and never asked
+again, and the form would have lived its whole life with no vehicle, no
+history, no currency and a save path that wrote nothing — and the odometer field
+was handed `existing: const []`, which made the entire rule engine inert on all
+three forms that carry it.
+
+### `todayProvider` moved to `lib/app/`
+
+`structure_test` refused the cross-feature import and was right: "two features
+share code by lifting it down to core/ or data/, or they meet via a route —
+never by importing each other." It started under `features/home/` because Home
+was its only reader; §10 dates every log form from the same day, so a clock the
+whole app agrees about is app infrastructure.
+
+`pumpShell` gained a `clock:` parameter as a consequence — every test that taps
+the tab bar's `+` now mounts a screen that asks what day it is. It is NAMED for
+the reason `facts` and `settings` already are: Riverpod refuses two overrides of
+one provider, so a caller cannot add its own on top of a harness default. Six
+call sites moved, keeping the specific dates their assertions turn on.
+
+## The parity gate — measured, and not met
+
+**`check_parity.sh` is not in CI and has never passed in this repository.**
+
+Run against `main` at `0283d6d` in a scratch worktree, with EPIC-10 merged and
+its CI green: **0 of 45 combinations pass.** Every screen from EPIC-08, EPIC-09
+and EPIC-10 fails the band profile today, and `.github/workflows/ci.yml` does
+not invoke the script. CLAUDE.md §7's "a screen is not done until it matches"
+has been enforced by nothing but a person choosing to run it.
+
+Part of the reason is now fixed and is not this epic's: **`parity_capture.dart`
+pumped ONCE**, so every capture in the repo was photographed before its
+providers delivered — a loading frame compared against a reference full of
+content. It pumps three times now, which is shared by all 61 combinations and
+took the set from **0/45 on `main` to 6/61 on this branch**: `firstrun.language`
+in all four and `vehicles` in both LTR combinations now pass.
+
+This epic's own four screens improved and do not pass:
+
+| screen | before | after |
+|---|---|---|
+| `log.fillup` | 64–68% absent | 48–60% |
+| `log.service` | 67–69% | 60–68% |
+| `log.expense` | 71–72% | 55–64% |
+| `log.odometer` | 77–80% | 67–72% |
+
+against a threshold of 25%. **No tolerance was widened and no reference was
+regenerated.** `captureParity` gained a test-side `settle` hook so a capture can
+type the artboard's own values — four of these references draw a screen mid-use,
+and an empty trio has no `ƒ` badge and no computed-field caption, so those bands
+cannot exist. It is deliberately not a production prefill seam: reproducing the
+reference's state is the harness's job, and a parameter added to the real widget
+so a screenshot could be taken would be a feature nobody asked for.
+
+**The decision taken, and it is a decision rather than an oversight:** EPIC-11
+merges with the parity item deferred, exactly as EPIC-08, EPIC-09 and EPIC-10
+did. Holding this epic behind a gate its four predecessors also fail would bury
+an EPIC-08/09/10 debt inside an EPIC-11 pull request, and chasing only these
+four screens to green would make them the only ones in the app that meet a rule
+the app does not keep. The gate is the thing that needs fixing — either wire it
+into CI and clear the 55-combination backlog as its own epic, or change what §7
+claims. EPIC-18 is the parity sweep and is where that lands; this is written
+here so it arrives there as a measured number rather than a surprise.
+
+## Deferred, with reasons
+
+- **Export/import round-trip** (Definition of done item 5) — carried to
+  EPIC-15, which builds the writer. `lib/data/backup/` holds only
+  `migration_safety_copy.dart`; the epic's preamble was wrong about EPIC-06
+  having delivered it.
+- **The notification half of item 3** — `reschedule()` is empty. EPIC-16 owns
+  the scheduler.
+- **Trip on the More sheet** — needs the trip picker and the "only open trips
+  and trips whose range contains the fill date" filter. Trips are EPIC-13's.
+- **The confirmation panel's five-second auto-dismiss** — it closes on Close
+  today.
+- **The fuzzy projection in the panel** — it accepts a pre-formatted string and
+  the caller passes an exact date. §10 wants "around September 2027" when the
+  projection is unmeasured.
+- **The duplicate-fill-up prompt** (§10's "You logged a fill-up on 2 September
+  … Add this one too?").
+- **The coverage-window UI on `log.expense`** — `ExpenseDraft` computes the
+  window and `problems()` validates it; the From/To rows and the "Spread across
+  12 months" caption are not built.
+- **Odometer digit grouping** — the reference shows `187,412` and the field
+  shows `187412`. No grouping input formatter exists anywhere in the app; adding
+  one is a shared `CalmField` concern with cursor-position subtleties.
+- **A weekday in the log date row** — reference "Wed 2 September 2026", app
+  "September 2, 2026".
