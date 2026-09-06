@@ -181,3 +181,106 @@ largest single risk to the RTL launch, and this is the first concrete evidence:
   `homeEstimatedFrom`, but it assumes the rendered date always ends in a form
   that takes the suffix — which may not hold for Extended Arabic-Indic numerals
   or a Jalali date under `ckb-IR`.
+
+## Tasks 11.4 – 11.8 — partially built, and the parity gate says so
+
+The domain layer and the four bodies exist; the forms behind them do not. What
+is on the branch:
+
+- **11.4** `price_trio.dart` and `log_fillup_body.dart`. **No**
+  `fillup_draft_notifier.dart`, no `test/features/logging/log_fillup_test.dart`,
+  and none of the twenty-one assertions that task lists.
+- **11.5** `service_cost_model.dart` and `log_service_body.dart`, called with
+  `items: const []` — the chip bar has nothing to draw.
+- **11.6** `mark_done.dart` and `service_confirmation_panel.dart`, pure and
+  tested, wired to nothing.
+- **11.7** `expense_draft.dart` and `log_expense_body.dart`, with
+  `categoryLabel: (c) => c.wire` — the category chips render enum wire names.
+- **11.8** `log_odometer_body.dart` over `CalmNumberPad`, with no monotonicity
+  check, no warnings and no unit-mix-up detection. §10 says the odometer field
+  "behaves identically on `log.fillup`, `log.service` and `log.odometer`", and
+  on the third one it does not.
+
+**The save path is a stub.** `_PendingSteps implements LogSaveSteps` and writes
+nothing, and `_save()` treats its `Ok(null)` as a successful write: it pops the
+route and shows the Saved snackbar with an Undo wired to an empty `_undo()`.
+Definition-of-done item 3 — "every save is one transaction ending in a due-state
+recompute and a notification" — is not met, and the four forms currently
+announce a save that did not happen.
+
+**Parity is red on all four screens.** Theme and Calm-token surfaces pass;
+60–80% of the reference's band edges are absent against a threshold of 25%.
+That is the missing form content, not a tolerance question, and it will not
+move until the fields above exist. No tolerance was widened and no reference
+was regenerated.
+
+The date picker is also still `void _pickDate() {}` — `date_field.dart` built
+its range and default in task 11.3's seam and has no production caller yet.
+
+## The `/simplify` pass
+
+Run over the branch with four review agents (reuse, simplification, efficiency,
+altitude). Thirty-one findings, deduplicated to eighteen distinct ones. It was
+run early — the epic is not at close-out — but the findings are in the domain
+code the remaining tasks build on top of, so they were applied now rather than
+on top of four more forms.
+
+**Four were live bugs, each reproduced as a failing test before the fix:**
+
+1. **Money scaled through a double**, in `ExpenseDraft.signedMinorUnits` and
+   `ServiceCostModel.sum`, both under comments claiming the arithmetic was done
+   by string. `minorUnitsFrom` had already been fixed for this once; its
+   reasoning is about scaling a typed decimal to an integer column and is not
+   about money, so it is now `scaleByPowerOfTen` and four callers share it.
+   `decimal_input._scaled` took a `places` argument and ignored it.
+2. **`ExpenseDraft._yearFrom` returned a coverage window ending before it
+   started**, two different ways: a 1 January purchase prefilled
+   `2026-01-01 → 2025-12-31`, and a 29 February purchase prefilled
+   `2028-02-29 → 2028-02-28`. Both made `problems()` report `periodBackwards`
+   on a window the user never touched. `CivilDate.addMonths` already did this
+   correctly, as it did for `_plusMonths` and `_shiftYears`.
+3. **Undo never reached the screen showing the Undo.** Both new soft-delete
+   helpers passed `updates: {}` to `customUpdate`, which tells drift no table
+   changed. A watching stream saw `[1]` where it should have seen `[1, 0, 1]`.
+   §10 makes that snackbar the only confirmation logging gets.
+4. **The discard guard could not fire.** `_isDirty()` read a notifier field
+   nothing in `lib/` ever wrote, so a user who typed and tapped ✕ lost it
+   silently — the exact failure §10's cancel rule exists to prevent, and the
+   one EPIC-10 handed to this epic by name.
+
+Plus **the odometer field dropped `OdometerEntry`'s overflow guard**: it
+re-derived the parse, and `18446744073709551` came back as 384 metres and was
+announced to the user as the vehicle's earliest reading.
+
+**Applied without a behaviour change:** the two soft-delete helpers merged into
+`stampLogRowDeleted`; `checkOdometerField` reading the neighbour from the
+verdict instead of re-sorting the history; `groupingSeparatorFor` and
+`_lastBefore` hoisted out of per-frame recomputation; `problems()` called once
+per build instead of three times; the shared `odometerDeltaLine`; the
+`dateRow` slot on `log.odometer`; `CalmLabelled` on two chip groups;
+`kExpenseCoverageMonths` given its caller; `showSegment` deleted.
+
+**Answered rather than applied:**
+
+- **`PriceTrio.computedField` recomputes to null-check.** The cheap fix reads
+  the target field's emptiness, which is only equivalent for a trio produced by
+  `edited()` and silently wrong for a directly-constructed one. The correct fix
+  stores the value and costs `const` construction across the tests. Task 11.4.
+- **`quantityFormsSet` has no production caller.** It is a named seam for
+  11.4's "exactly one of `quantity_ml` / `quantity_g` / `energy_wh`" assertion,
+  like `PriceTrio.persisted` and `tickedItemIds`. Kept.
+- **`log_odometer_body._digits` shapes ten glyphs per build.** A static memo
+  would fix it and would also be a never-evicted cache for a marginal gain on a
+  six-locale set. Not worth the state.
+- **`no_drift_in_signatures_test` does not see `stampLogRowDeleted`'s
+  `TableInfo` parameter**, because it only scans members of public classes. That
+  matches `softDeleteVehicle` beside it, which takes `AppDatabase`: the rule is
+  about the repository API features consume, not about helpers internal to
+  `lib/data/repositories/`. Left as-is rather than widened without a decision.
+- **The altitude review's largest finding — move all seven pieces of form state
+  out of the widget and into the notifier** — is the right shape and is task
+  11.4's work, not a cleanup. The half that mattered (the dirty flag being
+  unreachable) is fixed; the rest lands when the four draft notifiers are built.
+
+`/code-review` has NOT been run. It runs after the epic's tasks are done, over
+the finished code, per `epics/README.md`'s inherited rule 3.
