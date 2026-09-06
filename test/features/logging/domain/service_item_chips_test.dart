@@ -18,8 +18,9 @@ import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/features/logging/domain/service_item_chips.dart';
 import 'package:test/test.dart';
 
-final VehicleId _vehicleId =
-    VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD')!;
+final VehicleId _vehicleId = VehicleId.tryParse(
+  'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+)!;
 
 // A ULID is 26 CROCKFORD characters, so the varying one comes from that
 // alphabet rather than from a counter that reaches ten and produces a 27th.

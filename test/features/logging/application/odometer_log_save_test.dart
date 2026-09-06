@@ -24,8 +24,9 @@ import 'package:odova/features/logging/application/odometer_log_save.dart';
 import '../../../data/support/test_ids.dart';
 import '../../../support/provider_harness.dart';
 
-final VehicleId _vehicleId =
-    VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD')!;
+final VehicleId _vehicleId = VehicleId.tryParse(
+  'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+)!;
 
 Vehicle _vehicle() => Vehicle(
   id: _vehicleId,
@@ -116,7 +117,8 @@ void main() {
               vehicle: _vehicle(),
               odometer: const Distance.fromKm(187412),
               occurredOn: '2026-09-02',
-            ) as OdometerLogSaved;
+            )
+            as OdometerLogSaved;
 
     final undone = await s.undo(written.reading);
 

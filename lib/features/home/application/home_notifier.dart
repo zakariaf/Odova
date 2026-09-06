@@ -10,6 +10,7 @@
 // midnight and app resume — are task 10.9's.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/active_vehicle.dart';
+import 'package:odova/app/today.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
@@ -23,7 +24,6 @@ import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/data/ui_state/ui_state_provider.dart';
 import 'package:odova/data/ui_state/ui_state_store.dart';
 import 'package:odova/features/home/application/home_state.dart';
-import 'package:odova/features/home/application/today.dart';
 import 'package:odova/features/home/domain/home_strips.dart';
 import 'package:odova/features/home/domain/home_view_model.dart';
 import 'package:odova/l10n/vehicle_labels.dart';

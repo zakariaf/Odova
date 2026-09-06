@@ -26,8 +26,9 @@ import '../../../data/support/test_ids.dart';
 import '../../../support/provider_harness.dart';
 
 final Currency _eur = Currency.tryParse('EUR')!;
-final VehicleId _vehicleId =
-    VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD')!;
+final VehicleId _vehicleId = VehicleId.tryParse(
+  'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+)!;
 
 Vehicle _vehicle() => Vehicle(
   id: _vehicleId,
@@ -91,7 +92,8 @@ void main() {
                 amount: '80.00',
               ).withCategory(ExpenseCategory.fine).refunded(),
               currency: _eur,
-            ) as ExpenseSaved;
+            )
+            as ExpenseSaved;
 
     expect(written.expense.amount.amountMinor, -8000);
   });
@@ -108,7 +110,8 @@ void main() {
                 amount: '640.00',
               ).withCategory(ExpenseCategory.insurance),
               currency: _eur,
-            ) as ExpenseSaved;
+            )
+            as ExpenseSaved;
 
     expect(written.expense.coversFrom, '2026-09-02');
     expect(written.expense.coversTo, '2027-09-01');
@@ -125,7 +128,8 @@ void main() {
                 amount: '8500.005',
               ).withCategory(ExpenseCategory.parking),
               currency: _eur,
-            ) as ExpenseSaved;
+            )
+            as ExpenseSaved;
 
     expect(written.expense.amount.amountMinor, 850001);
   });
@@ -140,7 +144,8 @@ void main() {
                 amount: '4.50',
               ).withCategory(ExpenseCategory.parking),
               currency: _eur,
-            ) as ExpenseSaved;
+            )
+            as ExpenseSaved;
 
     final undone = await s.undo(written.expense);
 

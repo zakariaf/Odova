@@ -13,7 +13,6 @@ import 'package:clock/clock.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/data/db/app_database.dart';
@@ -36,14 +35,14 @@ void main() {
       tester,
       '/settings/vehicles/$_golf',
       liveStreams: true,
+      clock: Clock.fixed(DateTime.utc(2026, 11, 20)),
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
         // `clockProvider` throws until `bootstrap()` overrides it — the year
         // bound on the form reads it, and a test that pumps the real screen
-        // has to supply what production injects.
-        clockProvider.overrideWithValue(
-          Clock.fixed(DateTime.utc(2026, 11, 20)),
-        ),
+        // has to supply what production injects — through `clock:`, because
+        // the harness now supplies a default and Riverpod refuses two
+        // overrides of one provider.
       ],
     );
 
@@ -71,14 +70,14 @@ void main() {
       tester,
       '/settings/vehicles/not-an-id',
       liveStreams: true,
+      clock: Clock.fixed(DateTime.utc(2026, 11, 20)),
       overrides: <Override>[
         appDatabaseProvider.overrideWithValue(db),
         // `clockProvider` throws until `bootstrap()` overrides it — the year
         // bound on the form reads it, and a test that pumps the real screen
-        // has to supply what production injects.
-        clockProvider.overrideWithValue(
-          Clock.fixed(DateTime.utc(2026, 11, 20)),
-        ),
+        // has to supply what production injects — through `clock:`, because
+        // the harness now supplies a default and Riverpod refuses two
+        // overrides of one provider.
       ],
     );
 
@@ -112,12 +111,8 @@ void main() {
       tester,
       Routes.vehicleNew,
       liveStreams: true,
-      overrides: <Override>[
-        appDatabaseProvider.overrideWithValue(db),
-        clockProvider.overrideWithValue(
-          Clock.fixed(DateTime.utc(2026, 11, 20)),
-        ),
-      ],
+      clock: Clock.fixed(DateTime.utc(2026, 11, 20)),
+      overrides: <Override>[appDatabaseProvider.overrideWithValue(db)],
     );
 
     final screen = tester.widget<VehicleEditScreen>(

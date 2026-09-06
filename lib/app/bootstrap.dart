@@ -1,19 +1,20 @@
 import 'package:clock/clock.dart';
-// Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:odova/app/error_handlers.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
+import 'package:odova/app/today.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/settings_repository.dart';
 import 'package:odova/data/ui_state/ui_state_provider.dart';
 import 'package:odova/data/ui_state/ui_state_store.dart';
-import 'package:odova/features/home/application/today.dart';
 import 'package:odova/theme/calm/font_licences.dart';
 import 'package:path_provider/path_provider.dart';
+
+// Override lives in misc.dart in Riverpod 3.x, not the root library.
 
 /// Builds the real infrastructure once and returns it as provider overrides.
 ///

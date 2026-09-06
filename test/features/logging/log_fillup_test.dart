@@ -38,9 +38,7 @@ CalmField _field(WidgetTester tester, String label) => tester
     .firstWhere((f) => f.label == label);
 
 Future<void> _tapSave(WidgetTester tester) async {
-  final save = find
-      .byWidgetPredicate((w) => w is CalmButton && w.block)
-      .first;
+  final save = find.byWidgetPredicate((w) => w is CalmButton && w.block).first;
   await tester.ensureVisible(save);
   await tester.tap(save);
   await tester.pump();

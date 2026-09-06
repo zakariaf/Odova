@@ -11,6 +11,7 @@ library;
 
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
@@ -42,6 +43,12 @@ Future<ProviderContainer> pumpShell(
     liveVehicleCount: 1,
     migrationFailed: false,
   ),
+  // NAMED for the same reason `facts` is, and supplied by default because the
+  // log modal reads `todayProvider` — §10 dates every form from it, and
+  // `dateFieldDefault` needs a day before it can offer one. Every test that
+  // taps the tab bar's `+` now mounts a screen that asks what day it is, and
+  // `clockProvider` has no default in the app on purpose.
+  Clock clock = const _FixedTestClock(),
   // SUPPLIED unless the caller brings a real database, and named for the same
   // reason `facts` is: Riverpod refuses two overrides of one provider, so a
   // caller cannot add its own on top of a default this harness inserts.
@@ -70,6 +77,7 @@ Future<ProviderContainer> pumpShell(
       // test that needed a fresh install could not simply pass another — it
       // got "Tried to override a provider twice" from inside the harness.
       initialLaunchFactsProvider.overrideWithValue(facts),
+      clockProvider.overrideWithValue(clock),
       if (!liveStreams) ...[
         settingsProvider.overrideWith((ref) => Stream.value(settings)),
         vehiclesProvider.overrideWith((ref) => Stream.value(vehicles)),
@@ -196,3 +204,18 @@ PopScope<Object?> shellGuard(WidgetTester tester) =>
 
 /// Pops the top route, the way a modal's Save does.
 void goBack(WidgetTester tester) => GoRouter.of(_shellElement(tester)).pop();
+
+/// A fixed date for every shell test that does not care what day it is.
+///
+/// A CONSTANT, so two runs of the same test see the same day and a suite that
+/// straddles local midnight does not flake. The value is arbitrary and only
+/// has to be a real date.
+class _FixedTestClock implements Clock {
+  const _FixedTestClock();
+
+  @override
+  DateTime now() => DateTime.utc(2026, 9, 2, 10);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}

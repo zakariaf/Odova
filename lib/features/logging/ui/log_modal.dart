@@ -7,18 +7,21 @@
 // a segment body knows none of it. Four forms that each decided their own Save
 // would read as four apps.
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/app/routing/dirty_modal_guard.dart';
 import 'package:odova/app/routing/routes.dart';
+import 'package:odova/app/today.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:odova/data/failures/persist_failure.dart';
@@ -30,6 +33,7 @@ import 'package:odova/features/logging/application/log_modal_notifier.dart';
 import 'package:odova/features/logging/application/log_save_service.dart';
 import 'package:odova/features/logging/application/odometer_log_save.dart';
 import 'package:odova/features/logging/application/service_save.dart';
+import 'package:odova/features/logging/domain/date_field.dart';
 import 'package:odova/features/logging/domain/expense_draft.dart';
 import 'package:odova/features/logging/domain/fillup_draft.dart';
 import 'package:odova/features/logging/domain/price_trio.dart';
@@ -119,11 +123,53 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   final TextEditingController _labelController = TextEditingController();
   final TextEditingController _odometerController = TextEditingController();
 
-  /// The date every form on this modal is dated.
+  /// The date every form on this modal is dated, or null until Today is read.
   ///
   /// One value for all four segments: a user who typed a date, switched
   /// segments and switched back would not expect to have to type it again.
-  final String _occurredOn = '2026-09-02';
+  String? _chosenDate;
+
+  /// The date the forms use — what was picked, or what the field defaults to.
+  ///
+  /// Through `dateFieldDefault`, which is §10 *Dates and a suspect clock*: "in
+  /// clock-suspect mode every date field defaults to the newest `occurred_on`
+  /// in the database rather than today", because a phone whose clock reads
+  /// 2050 would otherwise stamp every entry with it and the whole history
+  /// would be wrong in a way no single row looks wrong in.
+  String get _occurredOn =>
+      _chosenDate ??
+      dateFieldDefault(
+        today: ref.watch(todayProvider) ?? CivilDate.epoch,
+        newestOccurredOn: _newestOccurredOn,
+        clockIsSuspect: _clockIsSuspect,
+      ).toString();
+
+  /// The newest `occurred_on` this vehicle has, for the suspect-clock fallback.
+  ///
+  /// From the ODOMETER readings, which is the closest thing the app has to
+  /// "the newest date in the database": §3 makes every record carrying an
+  /// odometer emit one, so this table sees fill-ups, services, expenses and
+  /// trips as well as manual entries. An expense with no odometer is the one
+  /// kind it misses, and a fallback that is one row stale is still enormously
+  /// better than a clock reading 2050.
+  String? get _newestOccurredOn {
+    final vehicle = _vehicle;
+    if (vehicle == null) return null;
+    final readings = ref.watch(odometerReadingsProvider(vehicle.id)).value;
+    if (readings == null || readings.isEmpty) return null;
+    return readings
+        .map((r) => r.occurredOn)
+        .reduce((a, b) => a.compareTo(b) >= 0 ? a : b);
+  }
+
+  /// Whether the device clock is not to be trusted with a date.
+  bool get _clockIsSuspect {
+    final vehicle = _vehicle;
+    if (vehicle == null) return false;
+    return ref.watch(vehicleDueSnapshotProvider(vehicle.id))?.clock.isSuspect ??
+        false;
+  }
+
   bool _showProblems = false;
 
   @override
@@ -474,8 +520,51 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   );
 
   /// Opens §10's date picker.
-  // TODO(EPIC-11): task 11.4 builds the picker this opens.
-  void _pickDate() {}
+  ///
+  /// The RANGE is `dateFieldRange`'s, which is the part the four forms have to
+  /// agree about: thirty years back because a second-hand car's service book
+  /// goes back that far, and no future at all except on `log.expense`, where
+  /// prepaid insurance is real. The picker STOPS at the boundary rather than
+  /// offering tomorrow and refusing it at Save — "a rule the user meets as a
+  /// disabled day is a rule they never have to discover".
+  ///
+  /// `showDatePicker` renders it. §10's Field kit asks for "correct first day
+  /// of week per locale", which `MaterialLocalizations` supplies and
+  /// `supported_locales.dart` has already wired for all six including the ckb
+  /// fallback. A hand-built Calm calendar would be a month grid, six locales
+  /// of weekday order and a Jalali question §18 has not answered; that is a
+  /// deliberate deferral, recorded in the progress file rather than taken
+  /// quietly.
+  Future<void> _pickDate() async {
+    final today = ref.read(todayProvider) ?? CivilDate.epoch;
+    final range = dateFieldRange(
+      today: today,
+      // §10 allows a future date on `log.expense` alone.
+      allowFuture: _segment == LogType.expense,
+    );
+    final current = CivilDate.tryParse(_occurredOn) ?? today;
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _asPickerDate(current),
+      firstDate: _asPickerDate(range.first),
+      lastDate: _asPickerDate(range.last),
+    );
+    if (picked == null || !mounted) return;
+    final chosen = CivilDate.fromDateTime(picked);
+    if (chosen == null) return;
+    setState(() => _chosenDate = chosen.toString());
+  }
+
+  /// A [CivilDate] as the LOCAL midnight `showDatePicker` compares against.
+  ///
+  /// Local and not UTC on purpose. The picker builds its grid from local
+  /// `DateTime`s, so a UTC midnight handed to `firstDate` lands on the
+  /// previous day west of Greenwich and disables a day the range allows.
+  /// `civil_date.dart`'s header is about exactly this hazard in the other
+  /// direction; the conversion belongs at the boundary, and this is it.
+  DateTime _asPickerDate(CivilDate date) =>
+      DateTime(date.year, date.month, date.day);
 
   /// The modal's title: the form's own name in create mode, the record's in
   /// edit mode.

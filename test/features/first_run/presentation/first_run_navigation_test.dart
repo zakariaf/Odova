@@ -16,7 +16,6 @@ import 'package:clock/clock.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/data/db/app_database.dart';
@@ -31,7 +30,6 @@ Future<AppDatabase> _emptyDb() async =>
 
 List<Override> _overrides(AppDatabase db) => <Override>[
   appDatabaseProvider.overrideWithValue(db),
-  clockProvider.overrideWithValue(Clock.fixed(DateTime.utc(2026, 11, 20))),
 ];
 
 /// A FRESH install: no settings row, no vehicle.
@@ -54,6 +52,7 @@ void main() {
     await pumpShell(
       tester,
       Routes.firstRunLanguage,
+      clock: Clock.fixed(DateTime.utc(2026, 11, 20)),
       overrides: _overrides(db),
       facts: _fresh,
     );
@@ -84,6 +83,7 @@ void main() {
     await pumpShell(
       tester,
       Routes.firstRunLanguage,
+      clock: Clock.fixed(DateTime.utc(2026, 11, 20)),
       overrides: _overrides(db),
       facts: _fresh,
     );

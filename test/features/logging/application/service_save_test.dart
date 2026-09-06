@@ -27,8 +27,9 @@ import '../../../data/support/test_ids.dart';
 import '../../../support/provider_harness.dart';
 
 final Currency _eur = Currency.tryParse('EUR')!;
-final VehicleId _vehicleId =
-    VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD')!;
+final VehicleId _vehicleId = VehicleId.tryParse(
+  'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD',
+)!;
 
 Vehicle _vehicle() => Vehicle(
   id: _vehicleId,
@@ -91,7 +92,8 @@ void main() {
               occurredOn: '2026-09-02',
               currency: _eur,
               fallbackLabel: 'Service',
-            ) as ServiceSaved;
+            )
+            as ServiceSaved;
 
     expect(written.record.lines, hasLength(1));
     expect(written.record.lines.single.label, 'Service');
@@ -111,7 +113,8 @@ void main() {
               occurredOn: '2026-09-02',
               currency: _eur,
               fallbackLabel: 'Service',
-            ) as ServiceSaved;
+            )
+            as ServiceSaved;
 
     expect(written.record.lines, hasLength(1));
     expect(written.record.lines.single.label, 'Oil and filter');
@@ -130,7 +133,8 @@ void main() {
               occurredOn: '2026-09-02',
               currency: _eur,
               fallbackLabel: 'Service',
-            ) as ServiceSaved;
+            )
+            as ServiceSaved;
 
     expect(written.record.lines, hasLength(2));
     expect(
@@ -150,7 +154,8 @@ void main() {
               currency: _eur,
               fallbackLabel: 'Service',
               odometer: const Distance.fromKm(187412),
-            ) as ServiceSaved;
+            )
+            as ServiceSaved;
 
     final undone = await s.undo(written.record);
 
