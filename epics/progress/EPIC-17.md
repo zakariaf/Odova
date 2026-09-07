@@ -276,3 +276,50 @@ sit at the start edge — the left in LTR, the right in RTL.
 Traversal reads `debugListChildrenInOrder(traversalOrder)` rather than
 `visitChildren`, which walks construction order — what a developer wrote, not
 what the platform reads.
+
+## Task 17.5 — the chart summary, and the half that is not built
+
+**A painted chart has no semantics at all.** A `CustomPainter` draws pixels, so
+a screen reader walking the tree finds an empty box where twelve months of
+spending is. There is no widget-level fix and no label to add — the summary has
+to be authored, and then it has to be right.
+
+**Computed from the plotted series, never written by hand.** The epic requires
+it and the reason is one this project keeps meeting: a hand-written summary and
+a painted chart are two representations that drift, and the drifted one is the
+one nobody can see.
+
+Two decisions inside it worth reading:
+
+- **The trend is measured against the SPAN, not against the first value.** A 0.2
+  change is the whole story on a series that moves by 0.3 and noise on one that
+  moves by 4; a fraction of the first value says neither. Mutation-checked in
+  both directions.
+- **There is a noise floor at 5%.** Consumption wanders between tanks for
+  reasons that have nothing to do with the car — a headwind, a cold morning, a
+  pump cutting off early. Calling that "trending up" is the app guessing in a
+  way that looks like fact, in the one channel a user cannot check against the
+  picture.
+
+`lowest` and `highest` are the EXTREMES, not the ends: a chart MARKS the best
+and worst points and a mark is not announced, so a series peaking in the middle
+would otherwise announce a range it never reached.
+
+Fewer than two points returns null rather than a summary with an invented
+direction — the chart renders nothing below two points for the same reason, so
+the two agree.
+
+### NOT built, and named in the gate rather than left to look finished
+
+**The accessible data table behind one control, and the wiring.** §17 asks for a
+summary *and* a table behind one control on each chart. The summary exists and
+is tested; the table does not, and neither chart calls the summary yet.
+
+That is a UI change on two REFERENCED screens — `costs` and `costs.fuel` — so it
+moves the band profile and requires re-shooting the reference set, which is the
+epic's own instruction. It is the right shape of work for a task that owns those
+screens, and doing half of it now would leave a control on two artboards that
+the reference set does not have.
+
+`test/a11y/gate_coverage_test.dart` records the row as partly covered with the
+gap named, which is the mechanism that stops this being forgotten.

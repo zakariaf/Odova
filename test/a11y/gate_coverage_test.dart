@@ -63,8 +63,13 @@ const _gate = <GateRow>[
   ),
   (
     rule: 'Both charts have a non-visual alternative',
-    coveredBy: 'not yet — EPIC-17 task 17.5',
-    notCovered: 'neither chart has a screen-reader summary or a data table',
+    coveredBy:
+        'test/a11y/chart_summary_test.dart — the summary is computed '
+        'from the plotted series, so the sentence and the painting cannot '
+        'drift apart',
+    notCovered:
+        'the accessible DATA TABLE behind one control is not built, '
+        'and neither chart is wired to the summary yet',
   ),
   (
     rule: 'Save in the log modal is reachable one-handed',
