@@ -10,24 +10,14 @@
 // In `lib/app/` and not `lib/services/`: `structure_test.dart` allows seven
 // top-level directories and `services` is not one of them.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:odova/core/notifications/permission_preprompt.dart';
 
-/// What the OS says about Odova's notification permission.
-///
-/// THREE values, and the third is not "denied by the OS". `neverAsked` is a
-/// different screen from `denied`: one still has a door — the app can ask —
-/// and the other's only remaining door is the phone's own settings. Collapsing
-/// them into a boolean is how a user who has never been asked gets told to go
-/// and change something they never turned off.
-enum NotificationPermission {
-  /// The app has not asked yet.
-  neverAsked,
-
-  /// Granted; reminders can be delivered.
-  granted,
-
-  /// Refused, or turned off later in the phone's settings.
-  denied,
-}
+// `NotificationPermission` moved to lib/core/notifications/ so the PRE-PROMPT
+// DECISION can read it without importing this layer. Re-exported here because
+// every existing caller reads it from this file, and it is still this port's
+// vocabulary — the move is about which layer may depend on which.
+export 'package:odova/core/notifications/permission_preprompt.dart'
+    show NotificationPermission;
 
 /// Reads the OS permission.
 // ignore: one_member_abstracts

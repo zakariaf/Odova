@@ -392,3 +392,28 @@ more useful half of this task:
 
 Both are the same lesson: a fixture that makes the assertion true for the wrong
 reason is worse than no fixture, and only a mutation finds it.
+
+## Task 16.8 — the pre-prompt decision
+
+**Both answers count as a show.** The 30-day and three-times rules are about the
+SHEET having appeared, not about what was said — counting only declines would
+let somebody who taps "Turn on reminders" and then dismisses the OS dialog see
+the sheet forever.
+
+**A later OS-level revoke does not restart it.** `permission != neverAsked` ends
+it in both directions: the user turned it off on purpose, and asking again is
+the app arguing with them.
+
+**`NotificationPermission` moved to `lib/core/notifications/`**, same shape and
+same reason as `DeepLinkKind` in 16.3: the pure decision needs it and cannot
+import `lib/app/`. The port re-exports it, so no existing caller changed.
+
+**Not built here: the sheet itself.** It is a `CalmSheet`, not an addressable
+screen, `design/reference/calm/` holds no artboard for it, and the epic says so
+explicitly. The three ARB keys and the widget belong with the settings screen
+work; what is built is the decision they ask.
+
+Three mutations reported "the `from` text was not found" because I wrote the
+two-field deletion form with a trailing ` ::`, which the harness reads as part
+of the `from`. That is the harness being right and the input being wrong — and
+it is now written in the harness's own usage note rather than rediscovered.

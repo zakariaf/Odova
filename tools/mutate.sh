@@ -9,6 +9,11 @@
 #          label :: from-to-delete
 #          EOF
 #
+# NOTE the two-field form takes NO trailing separator. `label :: from ::` is
+# read as a `from` that ends in " ::", which is not in the file — so it reports
+# "proved nothing" rather than deleting. That is the harness being right and the
+# input being wrong, and it cost three re-runs before it was written down.
+#
 # `from` and `to` are literal single-line strings separated by ` :: `. Omitting
 # the third field DELETES the `from` text, which is the commonest mutation of
 # all — a guard removed. Multi-line `from` is not supported on purpose: it
