@@ -348,3 +348,59 @@ user did with the file.
 - **The nudge predicate has no scheduler.** EPIC-16 task 16.x places
   `backup.nudge` in the slot builder. The predicate and its ninety-day
   bookkeeping are done and tested.
+
+## Task 15.6 — `settings.backup`, and the delete-all flow
+
+The seven states are `resolveBackupChrome`'s — a pure function with eleven
+cases, including the pair the epic's table does not resolve: an empty store AND
+a failed migration. Both apply; emptiness disables the export, the failure
+disables everything else.
+
+**The screen lives in `lib/features/backup/`, not `lib/features/settings/`**,
+although §13 files it under Settings. `structure_test` refuses one feature
+importing another, and it is right: this is the backup feature with a Settings
+row pointing at it, and the settings screen reaches it by route constant. The
+first version put the chrome under `settings/` and the gate caught it.
+
+**Three defects found by tests written first:**
+
+1. **At 200% text scale in German the card overflowed by 485 pixels.** §13
+   promises the button clears the fold at that scale, which it cannot do if the
+   card above it has already overflowed. Both rows are `Wrap`s now — the text
+   moves rather than shrinking, per `accessibility-as-code`.
+2. **`register_test` flagged a correct German string.** `dein\w*` matches
+   `deinstallieren`, the verb "to uninstall". That file's own comment says what
+   happens to a gate that cries wolf, so the gate was fixed — narrowed with a
+   lookahead and given a case asserting both arms.
+3. **`check_component_hygiene` caught a hand-built `BoxDecoration`** for the
+   "3 months ago" pill. `CalmBadge` is that pill, and it gained an optional
+   `icon` for the ⚠ the reference draws. The icon-less form keeps its exact old
+   subtree: the first attempt shifted the label a fraction of a pixel and broke
+   a committed golden by 495px on a badge that had not changed.
+
+`showConfirmDeleteDialog` gained optional `title`/`body` overrides rather than a
+second dialog. Delete-all's subject is the word the user TYPES, and "Delete
+DELETE and 3,006 entries?" is not a sentence — but the typing lock, the bidi
+isolation and the action order are all wanted unchanged.
+
+**The wipe safety copy is written BEFORE the dialog opens**, and a copy that
+could not be written stops the flow. A cancelled dialog leaves the copy in
+place, which the next tap reuses.
+
+**Five distinct delete words across six locales** — Arabic and Persian share
+`حذف`, correctly. Each asserted three ways, including that it folds to something
+a user can type: a word that folded to empty would leave the lock permanently
+shut, the same class of bug the dialog already guards for an empty vehicle name.
+
+**Deferred from 15.6, and each needs a real caller:**
+
+- **`BackupActions` has no production implementation.** `NoBackupActions` is
+  named rather than throwing, so a tap does nothing instead of crashing — but
+  nothing is wired: not the export service from 15.5, not the picker, not the
+  importer from 15.4, not `deleteLeftoverExports` on launch. **This is the
+  single largest open item in the epic**, and it is what task 15.7 has to close
+  along with its own screen.
+- **`backupInitialStateProvider` returns an empty store.** The real counts, the
+  on-disk size, the safety-copy listing and `migrationFailed` all need reading.
+- **The CSV and PDF rows call actions that do nothing.** Tasks 15.8 and 15.9.
+- **Parity captures**, per the §6a velocity decision.
