@@ -6,6 +6,8 @@
 // twelve milliseconds is a flash the user reads as a fault, and a frozen button
 // for work that takes two seconds is an app they force-quit.
 
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,6 +42,17 @@ class _FakeShare implements ShareService {
       bytes: bytes.length,
     ));
     return const Ok(null);
+  }
+
+  @override
+  Future<Result<void, ShareFailure>> shareWrittenFile({
+    required File file,
+    required String mimeType,
+  }) async {
+    // §12's report renders to bytes in memory and never takes this path. The
+    // backup export does (EPIC-15 task 15.5); a fake that quietly returned Ok
+    // here would be a fake that lies about the port it implements.
+    fail('the report shares bytes, never a written file');
   }
 
   @override

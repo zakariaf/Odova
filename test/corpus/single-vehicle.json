@@ -1,0 +1,110 @@
+{
+  "format": "odova.backup",
+  "format_version": 1,
+  "app_version": "1.0.0",
+  "app_build": "42",
+  "platform": "android",
+  "exported_at": "2026-09-07T08:30:00Z",
+  "exported_at_local": "2026-09-07T10:30:00+02:00",
+  "units": {
+    "distance": "m",
+    "volume": "ml",
+    "mass": "g",
+    "energy": "wh",
+    "money": "minor"
+  },
+  "derived_fields": [
+    "reminders.last_done_date",
+    "reminders.last_done_odometer_m",
+    "reminders.last_done_service_id"
+  ],
+  "record_counts": {
+    "vehicles": 1,
+    "reminders": 0,
+    "odometer_readings": 0,
+    "odometer_corrections": 0,
+    "fillups": 3,
+    "services": 0,
+    "expenses": 0,
+    "trips": 0,
+    "total": 4
+  },
+  "content_hash": "sha256:1c867f7b57c15cb3f2d4388395128191e56c87c0bc92eb48e923009e2fd1a097",
+  "settings": {
+    "currency_default": "EUR",
+    "language": "en"
+  },
+  "vehicles": [
+    {
+      "id": "veh_0000000000000000000000YGJ1",
+      "name": "Golf",
+      "type": "car",
+      "fuel_kind_default": "diesel",
+      "status": "active",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "reminders": [],
+  "odometer_readings": [],
+  "odometer_corrections": [],
+  "fillups": [
+    {
+      "id": "fil_0000000000000000000000YGJ0",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 214256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGJ1",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 214756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGJ2",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 215256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    }
+  ],
+  "services": [],
+  "expenses": [],
+  "trips": []
+}

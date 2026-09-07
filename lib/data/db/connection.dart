@@ -15,6 +15,14 @@ import 'package:sqlite3/sqlite3.dart';
 /// The database file's name inside the application support directory.
 const databaseFileName = 'odova.sqlite';
 
+/// The database file inside [directory].
+///
+/// Here rather than joined at the call site, because the name is this layer's
+/// and `lib/app` composing a path out of it is `lib/app` knowing where the
+/// database lives.
+File databaseFileIn(Directory directory) =>
+    File('${directory.path}/$databaseFileName');
+
 /// Applies the four pragmas to a raw connection.
 ///
 /// One function, called from `setup`, because a second call site is a second

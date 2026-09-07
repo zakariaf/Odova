@@ -18,6 +18,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/data/backup/migration_safety_copy.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/connection.dart';
@@ -70,6 +71,7 @@ final class OpenedCleanly extends OpenOutcome {
 final class MigrationRefused extends OpenOutcome {
   /// Creates the outcome.
   const MigrationRefused({
+    required this.database,
     required this.atVersion,
     required this.expectedVersion,
     required this.reason,
@@ -83,6 +85,18 @@ final class MigrationRefused extends OpenOutcome {
 
   /// Why the copy could not be written.
   final SafetyCopyFailure reason;
+
+  /// The database, opened on the OLD schema.
+  ///
+  /// Carried here so the caller never builds one. `bootstrap()` did, and that
+  /// put `package:drift` in `lib/app` — which `check_drift_confinement`
+  /// refuses, correctly: opening a database is this layer's job, and a caller
+  /// that constructs its own is a caller that can pick different pragmas.
+  ///
+  /// §14: the app comes up READ-ONLY rather than refusing to launch. The user
+  /// must be able to open it and get their data out; a crash loop leaves
+  /// uninstalling as the only remedy, and uninstalling deletes it.
+  final AppDatabase database;
 }
 
 /// The migration threw, and the snapshot was restored.
@@ -93,6 +107,7 @@ final class MigrationRefused extends OpenOutcome {
 final class MigrationRolledBack extends OpenOutcome {
   /// Creates the outcome.
   const MigrationRolledBack({
+    required this.database,
     required this.atVersion,
     required this.expectedVersion,
     required this.error,
@@ -110,6 +125,9 @@ final class MigrationRolledBack extends OpenOutcome {
 
   /// Where the JSON copy went, when one was written.
   final File? safetyCopy;
+
+  /// The database, reopened on the restored snapshot. See [MigrationRefused].
+  final AppDatabase database;
 }
 
 /// Opens [dbFile], migrating it and restoring it if that fails.
@@ -121,6 +139,7 @@ final class MigrationRolledBack extends OpenOutcome {
 Future<OpenOutcome> openMigratedDatabase(
   File dbFile, {
   required Directory safetyDirectory,
+  required ExportStamp stamp,
   AppDatabase Function(QueryExecutor)? openDatabase,
 }) async {
   final build = openDatabase ?? AppDatabase.forTesting;
@@ -148,9 +167,18 @@ Future<OpenOutcome> openMigratedDatabase(
     dbFile,
     fromVersion,
     safetyDirectory,
+    stamp,
   );
   if (copyFailure != null) {
     return MigrationRefused(
+      // `degraded`, not `build`. Drift opens LAZILY and runs `onUpgrade` on
+      // the first query, so handing back an ordinary connection here ran the
+      // migration this outcome exists to refuse — on the disk too full to
+      // write an escape route, or on the file from a newer build this binary
+      // has no reader for.
+      database: AppDatabase.degraded(
+        NativeDatabase(dbFile, setup: applyPragmas),
+      ),
       atVersion: fromVersion,
       expectedVersion: expected,
       reason: copyFailure,
@@ -187,6 +215,13 @@ Future<OpenOutcome> openMigratedDatabase(
     restored = true;
 
     return MigrationRolledBack(
+      // `degraded`, for the same reason and a worse consequence: an ordinary
+      // connection's first query would re-attempt the migration that just
+      // threw, out of `readLaunchFacts`, which is §14's cold-launch crash
+      // loop — and a crash loop leaves uninstalling as the only remedy.
+      database: AppDatabase.degraded(
+        NativeDatabase(dbFile, setup: applyPragmas),
+      ),
       atVersion: fromVersion,
       expectedVersion: expected,
       error: error,
@@ -223,6 +258,7 @@ Future<(File?, SafetyCopyFailure?)> _writeSafetyCopy(
   File dbFile,
   int fromVersion,
   Directory directory,
+  ExportStamp stamp,
 ) async {
   final database = sqlite3.open(dbFile.path);
   try {
@@ -230,6 +266,7 @@ Future<(File?, SafetyCopyFailure?)> _writeSafetyCopy(
       database: database,
       fromVersion: fromVersion,
       directory: directory,
+      stamp: stamp,
     );
   } finally {
     database.dispose();

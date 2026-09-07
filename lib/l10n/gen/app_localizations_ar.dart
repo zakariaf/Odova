@@ -2608,4 +2608,611 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonListSeparator => '، ';
+
+  @override
+  String importFailTooLarge(String size) {
+    return 'هذا الملف أكبر من أن يكون نسخة احتياطية لـ Odova ($size). حتى عقد كامل من السجلات لا يتجاوز بضعة ميجابايت، فربما يكون ملفًا آخر.';
+  }
+
+  @override
+  String get importFailCompressed =>
+      'هذا الملف مضغوط. فُكَّ ضغطه أولاً، ثم استورد ملف json. الموجود بداخله.';
+
+  @override
+  String get importFailNotUtf8 =>
+      'لا يستطيع Odova قراءة النص في هذا الملف. ربما غيّره برنامج آخر. جرّب الملف الأصلي الذي صدّرته.';
+
+  @override
+  String get importFailTruncated =>
+      'هذا الملف غير مكتمل. ربما لم يكتمل تنزيله أو نسخه. احصل على الملف مرة أخرى ثم حاول مجددًا.';
+
+  @override
+  String get importFailNotOdova =>
+      'هذا الملف ليس نسخة احتياطية من Odova. نسخ Odova هي ملفات json. تُنشَأ من الإعدادات، قسم التصدير. اختر ملفًا آخر.';
+
+  @override
+  String get importFailNotMadeByOdova =>
+      'لم يُنشئ هذا الملف بواسطة Odova. الملف سليم، لكن Odova لا يستطيع قراءته. لم يتغير شيء على هاتفك.';
+
+  @override
+  String get importFailTooNew =>
+      'أُنشئت هذه النسخة بإصدار أحدث من Odova. حدّث Odova ثم استوردها من جديد. لم يتغير ملفك.';
+
+  @override
+  String get importFailDamagedVersion =>
+      'ملف النسخة هذا تالف ولا يستطيع Odova معرفة إصداره. إن كانت لديك نسخة أخرى أو نسخة أقدم، فجرّبها.';
+
+  @override
+  String get importFailDamagedFile =>
+      'ملف النسخة هذا تالف ولا يستطيع Odova قراءة محتواه. إن كانت لديك نسخة أخرى أو نسخة أقدم، فجرّبها.';
+
+  @override
+  String get importFailCannotOpen =>
+      'تعذّر على Odova فتح ذلك الملف. انسخه أولاً إلى تطبيق الملفات في هاتفك، ثم استورده من هناك.';
+
+  @override
+  String importFailNotEnoughSpace(String size) {
+    return 'لا توجد مساحة كافية على هاتفك لاستيراد هذه النسخة. فرّغ نحو $size ثم حاول مجددًا.';
+  }
+
+  @override
+  String importFailTooDamaged(String readable, String total) {
+    return 'جزء كبير من هذه النسخة تالف ولا يمكن استيرادها بأمان. تمكّن Odova من قراءة $readable من أصل $total سجل، واستيراد جزء من سجلك سيترك فجوات. جرّب نسخة أقدم إن كانت لديك. لم يتغير شيء على هاتفك.';
+  }
+
+  @override
+  String get importWarnContentHash =>
+      'عُدِّل هذا الملف بعد أن حفظه Odova. لا بأس إن كنت غيّرته عمدًا. راجع الأرقام أدناه قبل المتابعة.';
+
+  @override
+  String importWarnRecordCount(String declared, String found) {
+    return 'لا يحتوي هذا الملف على كل ما يذكره — يشير إلى $declared سجل وعُثر على $found. ربما اقتُطع. راجع الأرقام أدناه.';
+  }
+
+  @override
+  String get importWarnMissingArray =>
+      'جزء من هذه النسخة مفقود. سيُستورد كل ما تمكّن Odova من إيجاده.';
+
+  @override
+  String importWarnSkipped(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'تعذّرت قراءة $nText سجل ولن تُستورد. سيُستورد كل ما عداها. اضغط لمعرفتها.',
+      many:
+          'تعذّرت قراءة $nText سجلًا ولن تُستورد. سيُستورد كل ما عداها. اضغط لمعرفتها.',
+      few:
+          'تعذّرت قراءة $nText سجلات ولن تُستورد. سيُستورد كل ما عداها. اضغط لمعرفتها.',
+      two:
+          'تعذّرت قراءة سجلَّين ولن يُستورَدا. سيُستورد كل ما عداهما. اضغط لمعرفتهما.',
+      one:
+          'تعذّرت قراءة سجل واحد ولن يُستورد. سيُستورد كل ما عداه. اضغط لمعرفته.',
+      zero:
+          'تعذّرت قراءة $nText سجل ولن تُستورد. سيُستورد كل ما عداها. اضغط لمعرفتها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOrphans(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText سجل لا يذكر المركبة التي يتبعها. ستُستورد تحت مركبة باسم «سجلات مستردة» لتتمكن من ترتيبها أو حذفها.',
+      many:
+          '$nText سجلًا لا تذكر المركبة التي تتبعها. ستُستورد تحت مركبة باسم «سجلات مستردة» لتتمكن من ترتيبها أو حذفها.',
+      few:
+          '$nText سجلات لا تذكر المركبة التي تتبعها. ستُستورد تحت مركبة باسم «سجلات مستردة» لتتمكن من ترتيبها أو حذفها.',
+      two:
+          'سجلان لا يذكران المركبة التي يتبعانها. سيُستورَدان تحت مركبة باسم «سجلات مستردة» لتتمكن من ترتيبهما أو حذفهما.',
+      one:
+          'سجل واحد لا يذكر المركبة التي يتبعها. سيُستورد تحت مركبة باسم «سجلات مستردة» لتتمكن من ترتيبه أو حذفه.',
+      zero:
+          '$nText سجل لا يذكر المركبة التي يتبعها. ستُستورد تحت مركبة باسم «سجلات مستردة» لتتمكن من ترتيبها أو حذفها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnmatchedCorrections(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'تعذّر مطابقة $nText تصحيح للعدّاد بأي قراءة. قد يبدو سجل مسافاتك خاطئًا حيث استُبدل العدّاد. اضغط لمعرفتها.',
+      many:
+          'تعذّر مطابقة $nText تصحيحًا للعدّاد بأي قراءة. قد يبدو سجل مسافاتك خاطئًا حيث استُبدل العدّاد. اضغط لمعرفتها.',
+      few:
+          'تعذّر مطابقة $nText تصحيحات للعدّاد بأي قراءة. قد يبدو سجل مسافاتك خاطئًا حيث استُبدل العدّاد. اضغط لمعرفتها.',
+      two:
+          'تعذّر مطابقة تصحيحَين للعدّاد بأي قراءة. قد يبدو سجل مسافاتك خاطئًا حيث استُبدل العدّاد. اضغط لمعرفتهما.',
+      one:
+          'تعذّر مطابقة تصحيح واحد للعدّاد بأي قراءة. قد يبدو سجل مسافاتك خاطئًا حيث استُبدل العدّاد. اضغط لمعرفته.',
+      zero:
+          'تعذّر مطابقة $nText تصحيح للعدّاد بأي قراءة. قد يبدو سجل مسافاتك خاطئًا حيث استُبدل العدّاد. اضغط لمعرفتها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDroppedRules(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'استخدم $nText تذكير إعدادًا لم يعد في Odova. صارت تنبّهك عند الأسبق — راجعها في التذكيرات.',
+      many:
+          'استخدم $nText تذكيرًا إعدادًا لم يعد في Odova. صارت تنبّهك عند الأسبق — راجعها في التذكيرات.',
+      few:
+          'استخدمت $nText تذكيرات إعدادًا لم يعد في Odova. صارت تنبّهك عند الأسبق — راجعها في التذكيرات.',
+      two:
+          'استخدم تذكيران إعدادًا لم يعد في Odova. صارا ينبّهانك عند الأسبق — راجعهما في التذكيرات.',
+      one:
+          'استخدم تذكير واحد إعدادًا لم يعد في Odova. صار ينبّهك عند الأسبق — راجعه في التذكيرات.',
+      zero:
+          'استخدم $nText تذكير إعدادًا لم يعد في Odova. صارت تنبّهك عند الأسبق — راجعها في التذكيرات.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnCoercedEnums(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'استخدم $nText سجل إعدادات لا يعرفها Odova. استُوردت بإعدادات Odova بدلاً منها.',
+      many:
+          'استخدم $nText سجلًا إعدادات لا يعرفها Odova. استُوردت بإعدادات Odova بدلاً منها.',
+      few:
+          'استخدمت $nText سجلات إعدادات لا يعرفها Odova. استُوردت بإعدادات Odova بدلاً منها.',
+      two:
+          'استخدم سجلان إعدادًا لا يعرفه Odova. استُورِدا بإعداد Odova بدلاً منه.',
+      one:
+          'استخدم سجل واحد إعدادًا لا يعرفه Odova. استُورد بإعداد Odova بدلاً منه.',
+      zero:
+          'استخدم $nText سجل إعدادات لا يعرفها Odova. استُوردت بإعدادات Odova بدلاً منها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOutOfRangeDates(int n, String nText, String year) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'لدى $nText سجل تواريخ تبدو خاطئة — قبل $year أو بعد إنشاء هذه النسخة. استُوردت لتتمكن من تصحيحها.',
+      many:
+          'لدى $nText سجلًا تواريخ تبدو خاطئة — قبل $year أو بعد إنشاء هذه النسخة. استُوردت لتتمكن من تصحيحها.',
+      few:
+          'لدى $nText سجلات تواريخ تبدو خاطئة — قبل $year أو بعد إنشاء هذه النسخة. استُوردت لتتمكن من تصحيحها.',
+      two:
+          'لدى سجلَّين تاريخان يبدوان خاطئَين — قبل $year أو بعد إنشاء هذه النسخة. استُورِدا لتتمكن من تصحيحهما.',
+      one:
+          'لدى سجل واحد تاريخ يبدو خاطئًا — قبل $year أو بعد إنشاء هذه النسخة. استُورد لتتمكن من تصحيحه.',
+      zero:
+          'لدى $nText سجل تواريخ تبدو خاطئة — قبل $year أو بعد إنشاء هذه النسخة. استُوردت لتتمكن من تصحيحها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnresolvedLinks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'أشار $nText سجل إلى رحلة أو تذكير غير موجود في هذا الملف. استُوردت بدونه.',
+      many:
+          'أشار $nText سجلًا إلى رحلة أو تذكير غير موجود في هذا الملف. استُوردت بدونه.',
+      few:
+          'أشارت $nText سجلات إلى رحلة أو تذكير غير موجود في هذا الملف. استُوردت بدونه.',
+      two:
+          'أشار سجلان إلى رحلة أو تذكير غير موجود في هذا الملف. استُورِدا بدونه.',
+      one:
+          'أشار سجل واحد إلى رحلة أو تذكير غير موجود في هذا الملف. استُورد بدونه.',
+      zero:
+          'أشار $nText سجل إلى رحلة أو تذكير غير موجود في هذا الملف. استُوردت بدونه.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDuplicateIds(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'يذكر هذا الملف $nText سجل مرتين. سيستورد Odova النسخة الأولى من كل منها.',
+      many:
+          'يذكر هذا الملف $nText سجلًا مرتين. سيستورد Odova النسخة الأولى من كل منها.',
+      few:
+          'يذكر هذا الملف $nText سجلات مرتين. سيستورد Odova النسخة الأولى من كل منها.',
+      two:
+          'يذكر هذا الملف سجلَّين مرتين. سيستورد Odova النسخة الأولى من كل منهما.',
+      one: 'يذكر هذا الملف سجلاً واحدًا مرتين. سيستورد Odova النسخة الأولى.',
+      zero:
+          'يذكر هذا الملف $nText سجل مرتين. سيستورد Odova النسخة الأولى من كل منها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnTruncatedStrings(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'كانت $nText ملاحظة طويلة جدًا فاختُصرت.',
+      many: 'كانت $nText ملاحظةً طويلة جدًا فاختُصرت.',
+      few: 'كانت $nText ملاحظات طويلة جدًا فاختُصرت.',
+      two: 'كانت ملاحظتان طويلتين جدًا فاختُصرتا.',
+      one: 'كانت ملاحظة واحدة طويلة جدًا فاختُصرت.',
+      zero: 'كانت $nText ملاحظة طويلة جدًا فاختُصرت.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSuccess(String vehicles, String records) {
+    return 'تم الاستيراد. استُعيدت $vehicles و$records. أُعيد حساب تذكيراتك.';
+  }
+
+  @override
+  String importRecordCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText سجل',
+      many: '$nText سجلًا',
+      few: '$nText سجلات',
+      two: 'سجلان',
+      one: 'سجل واحد',
+      zero: '$nText سجل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importRecoveredVehicleName => 'سجلات مستردة';
+
+  @override
+  String get importTypeVehicle => 'مركبة';
+
+  @override
+  String get importTypeReminder => 'تذكير';
+
+  @override
+  String get importTypeReading => 'قراءة العدّاد';
+
+  @override
+  String get importTypeCorrection => 'تصحيح العدّاد';
+
+  @override
+  String get importTypeFillup => 'تعبئة وقود';
+
+  @override
+  String get importTypeService => 'صيانة';
+
+  @override
+  String get importTypeExpense => 'مصروف';
+
+  @override
+  String get importTypeTrip => 'رحلة';
+
+  @override
+  String get importSkipDate => 'كان التاريخ مفقودًا';
+
+  @override
+  String get importSkipFuel => 'كانت كمية الوقود مفقودة';
+
+  @override
+  String get importSkipMoney => 'كان المبلغ مفقودًا';
+
+  @override
+  String get importSkipCurrency => 'لم تكن العملة معروفة لدى Odova';
+
+  @override
+  String get importSkipCorrection =>
+      'القراءة التي يصححها غير موجودة في هذا الملف';
+
+  @override
+  String get importSkipIncomplete => 'كان جزء منه مفقودًا';
+
+  @override
+  String importSkipEntry(String type, String date, String reason) {
+    return '$type، $date — $reason';
+  }
+
+  @override
+  String importSkipEntryNoDate(String type, String reason) {
+    return '$type — $reason';
+  }
+
+  @override
+  String get backupTitle => 'النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get backupLastLabel => 'آخر نسخة احتياطية';
+
+  @override
+  String get backupNever => 'لم تُنشئ نسخة احتياطية من قبل.';
+
+  @override
+  String backupEntriesSince(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText إدخال منذ ذلك الحين',
+      many: '$nText إدخالًا منذ ذلك الحين',
+      few: '$nText إدخالات منذ ذلك الحين',
+      two: 'إدخالان منذ ذلك الحين',
+      one: 'إدخال واحد منذ ذلك الحين',
+      zero: '$nText إدخال منذ ذلك الحين',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntriesOnlyHere(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText إدخال موجود على هذا الهاتف فقط.',
+      many: '$nText إدخالًا موجودة على هذا الهاتف فقط.',
+      few: '$nText إدخالات موجودة على هذا الهاتف فقط.',
+      two: 'إدخالان موجودان على هذا الهاتف فقط.',
+      one: 'إدخال واحد موجود على هذا الهاتف فقط.',
+      zero: '$nText إدخال موجود على هذا الهاتف فقط.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupNow => 'أنشئ نسخة الآن';
+
+  @override
+  String get backupNothingToBackUp => 'لا شيء لحفظه بعد.';
+
+  @override
+  String get backupPreparing => 'يجري تجهيز نسختك…';
+
+  @override
+  String get backupNotEncrypted =>
+      'ملف نسختك الاحتياطية غير محمي بكلمة مرور. أي شخص يفتحه يستطيع قراءة كل ما فيه.';
+
+  @override
+  String get backupAlsoExport => 'تصدير أيضًا';
+
+  @override
+  String get backupFillUpsCsv => 'تعبئات الوقود (CSV)';
+
+  @override
+  String get backupAllCostsCsv => 'كل التكاليف (CSV)';
+
+  @override
+  String get backupServiceHistoryPdf => 'سجل الصيانة (PDF)';
+
+  @override
+  String get backupRestoreHeader => 'استعادة';
+
+  @override
+  String get backupRestoreRow => 'الاستعادة من نسخة احتياطية';
+
+  @override
+  String get backupUndoImport => 'التراجع عن آخر استيراد';
+
+  @override
+  String get backupUndoWipe => 'التراجع عن حذف كل البيانات';
+
+  @override
+  String backupUndoUntil(String date) {
+    return 'حتى $date';
+  }
+
+  @override
+  String get backupCopiesGoOnUninstall => 'تُحذف هذه النسخ إذا أزلت Odova.';
+
+  @override
+  String backupOnDiskSize(String size) {
+    return 'يستخدم Odova $size على هذا الهاتف.';
+  }
+
+  @override
+  String get backupDeleteAll => 'حذف كل البيانات';
+
+  @override
+  String get backupDeleteWord => 'حذف';
+
+  @override
+  String get backupMigrationBanner =>
+      'لم يتمكن Odova من إكمال التحديث وعاد إلى بياناتك السابقة. لا يمكنك إضافة إدخالات جديدة حتى يُحل هذا — أنشئ نسخة احتياطية الآن.';
+
+  @override
+  String backupExportNoSpace(String size) {
+    return 'لا توجد مساحة كافية لإنشاء نسخة احتياطية. تلزم نحو $size. فرّغ بعض المساحة ثم حاول مجددًا.';
+  }
+
+  @override
+  String get backupExportWriteFailed =>
+      'لم يتمكن Odova من إكمال النسخة الاحتياطية. لم يتغير شيء على هذا الهاتف. حاول بعد قليل.';
+
+  @override
+  String get backupExportNoShare =>
+      'لا يسمح هذا الهاتف لـ Odova بتسليم الملف إلى تطبيق آخر. بياناتك بأمان — أعد تشغيل الهاتف ثم حاول مجددًا.';
+
+  @override
+  String get backupDeleteAllTitle => 'حذف كل شيء؟';
+
+  @override
+  String backupDeleteAllBody(String vehicles, String entries, String since) {
+    return 'يؤدي هذا إلى حذف $vehicles و$entries، رجوعًا إلى $since.';
+  }
+
+  @override
+  String backupDeleteAllNote(String days) {
+    return 'تُحفظ نسخة على هذا الهاتف لمدة $days يومًا حتى تتمكن من التراجع. تُحذف إذا أزلت Odova.';
+  }
+
+  @override
+  String backupVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مركبة',
+      many: '$nText مركبةً',
+      few: '$nText مركبات',
+      two: 'مركبتان',
+      one: 'مركبة واحدة',
+      zero: '$nText مركبة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText إدخال',
+      many: '$nText إدخالًا',
+      few: '$nText إدخالات',
+      two: 'إدخالان',
+      one: 'إدخال واحد',
+      zero: '$nText إدخال',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importTitle => 'استعادة';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'أُنشئ في $date الساعة $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'ما الذي يتغير';
+
+  @override
+  String get importNow => 'الآن';
+
+  @override
+  String get importAfter => 'بعد ذلك';
+
+  @override
+  String get importReplacesEverything =>
+      'سيُستبدل كل ما في Odova الآن بهذا الملف.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'تُحفظ نسخة من بياناتك الحالية أولاً. يمكنك التراجع خلال $days يومًا.';
+  }
+
+  @override
+  String get importNothingToReplace => 'Odova فارغ، لذا لن يُستبدل شيء.';
+
+  @override
+  String get importAlreadyRestored =>
+      'هذه هي النسخة التي استعدتها بالفعل. لن يتغير شيء على هذا الهاتف.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'بياناتك قبل $date، $time';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText إدخال لا يمكن قراءته وسيُترك.',
+      many: '$nText إدخالًا لا يمكن قراءتها وستُترك.',
+      few: '$nText إدخالات لا يمكن قراءتها وستُترك.',
+      two: 'إدخالان لا يمكن قراءتهما وسيُتركان.',
+      one: 'إدخال واحد لا يمكن قراءته وسيُترك.',
+      zero: '$nText إدخال لا يمكن قراءته وسيُترك.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'أيها';
+
+  @override
+  String get importReplaceMyData => 'استبدل بياناتي';
+
+  @override
+  String get importImport => 'استيراد';
+
+  @override
+  String get importReplaceAnyway => 'استبدل على أي حال';
+
+  @override
+  String get importRestoring => 'يجري استعادة بياناتك…';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'تمت الاستعادة. $vehicles و$entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'لم تكتمل عملية الاستعادة الأخيرة. لم يتغير شيء.';
+
+  @override
+  String get importKindVehicles => 'المركبات';
+
+  @override
+  String get importKindFillups => 'تعبئات الوقود';
+
+  @override
+  String get importKindServices => 'الصيانات';
+
+  @override
+  String get importKindExpenses => 'المصروفات';
+
+  @override
+  String get importKindTrips => 'الرحلات';
+
+  @override
+  String get importKindReminders => 'التذكيرات';
+
+  @override
+  String get importKindReadings => 'قراءات العدّاد';
+
+  @override
+  String get commonDone => 'تم';
+
+  @override
+  String get backupPickVehicle => 'أي مركبة؟';
+
+  @override
+  String get backupAllVehicles => 'كل المركبات';
+
+  @override
+  String get importKindCorrections => 'تصحيحات العدّاد';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'و$nText إدخال آخر',
+      many: 'و$nText إدخالًا آخر',
+      few: 'و$nText إدخالات أخرى',
+      two: 'وإدخالان آخران',
+      one: 'وإدخال واحد آخر',
+      zero: 'و$nText إدخال آخر',
+    );
+    return '$_temp0';
+  }
 }

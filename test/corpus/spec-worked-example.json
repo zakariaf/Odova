@@ -1,0 +1,233 @@
+{
+  "format": "odova.backup",
+  "format_version": 1,
+  "app_version": "1.4.2",
+  "app_build": 1402,
+  "platform": "android",
+  "exported_at": "2026-09-02T16:41:07Z",
+  "exported_at_local": "2026-09-02T18:41:07+02:00",
+  "units": { "distance": "m", "volume": "ml", "mass": "g", "energy": "wh", "money": "minor" },
+  "derived_fields": [
+    "reminders.last_done_date",
+    "reminders.last_done_odometer_m",
+    "reminders.last_done_service_id"
+  ],
+  "record_counts": {
+    "vehicles": 1, "reminders": 1, "odometer_readings": 1, "odometer_corrections": 0,
+    "fillups": 1, "services": 1, "expenses": 1, "trips": 1, "total": 7
+  },
+  "content_hash": "sha256:0f7e1d0d3a6c9e2b4f8a1c5d7e9b0a2c4d6e8f0a1b3c5d7e9f1a3b5c7d9e1f30",
+
+  "settings": {
+    "language": "de",
+    "theme": "system",
+    "currency_default": "EUR",
+    "currency_display": "none",
+    "distance_unit": "km",
+    "volume_unit": "l",
+    "consumption_unit": "l_100km",
+    "first_day_of_week": 1,
+    "calendar": "gregorian",
+    "numerals": "latin",
+    "notification_time": "09:00",
+    "quiet_hours_from": "21:00",
+    "quiet_hours_to": "08:00",
+    "weekdays_only": false,
+    "notify_service": true,
+    "notify_odometer": true,
+    "notify_backup": true,
+    "notice_days": 14,
+    "notice_distance_m": 500000,
+    "active_vehicle_id": "veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD",
+    "last_backup_at": "2026-06-11T15:02:44Z"
+  },
+
+  "vehicles": [
+    {
+      "id": "veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD",
+      "name": "Golf",
+      "make": "Volkswagen",
+      "model": "Golf VII 1.6 TDI",
+      "year": 2016,
+      "plate": "M-AB 1234",
+      "vin": "WVWZZZ1KZGW123456",
+      "vehicle_type": "car",
+      "fuel_kind_default": "diesel",
+      "is_business": false,
+      "tank_capacity_ml": 50000,
+      "distance_unit": null,
+      "volume_unit": null,
+      "consumption_unit": null,
+      "currency": null,
+      "expected_annual_m": 18000000,
+      "notice_distance_m": null,
+      "notice_days": null,
+      "status": "active",
+      "sold_on": null,
+      "sold_price": null,
+      "purchase_date": "2019-04-06",
+      "purchase_odometer_m": 86450000,
+      "purchase_price": { "amount_minor": 1290000, "currency": "EUR" },
+      "notifications_muted": false,
+      "sort_order": 0,
+      "colour": "#2F6FB2",
+      "notes": "Zahnriemen laut Werkstatt bei ca. 210.000 km fällig.",
+      "created_at": "2019-04-08T09:12:44Z",
+      "updated_at": "2026-08-30T07:03:19Z",
+      "deleted_at": null
+    }
+  ],
+
+  "reminders": [
+    {
+      "id": "rem_01JV7B5X4G2K9M6P0S3D8FNRTC",
+      "vehicle_id": "veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD",
+      "kind": "oil_and_filter",
+      "label": null,
+      "interval_distance_m": 15000000,
+      "interval_distance_unit": "km",
+      "interval_months": 12,
+      "target_odometer_m": null,
+      "target_date": null,
+      "baseline_date": null,
+      "baseline_odometer_m": null,
+      "notify": true,
+      "priority": "normal",
+      "rollover": "from_actual",
+      "repeats": true,
+      "is_tracked": true,
+      "is_active": true,
+      "notice_distance_m": 500000,
+      "notice_days": 14,
+      "snoozed_until": null,
+      "snooze_until_odometer_m": null,
+      "snooze_count": 0,
+      "last_done_date": "2026-05-22",
+      "last_done_odometer_m": 208940000,
+      "last_done_service_id": "srv_01K0C4V2H9B8N3Q7ZE5RY6TMWX",
+      "notes": null,
+      "created_at": "2019-04-08T09:19:02Z",
+      "updated_at": "2026-05-22T15:41:10Z",
+      "deleted_at": null
+    }
+  ],
+
+  "odometer_readings": [
+    {
+      "id": "odo_01K2S1D9F4H7J0P3N6Q9T2W5YB",
+      "vehicle_id": "veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD",
+      "occurred_on": "2026-09-01",
+      "odometer_m": 215104000,
+      "odometer_unit": "km",
+      "source": "manual",
+      "notes": "Monatsablesung",
+      "created_at": "2026-09-01T07:55:12Z",
+      "updated_at": "2026-09-01T07:55:12Z",
+      "deleted_at": null
+    }
+  ],
+
+  "odometer_corrections": [],
+
+  "fillups": [
+    {
+      "id": "fil_01K1Y4T8R2E6W0Q3A7S1D5F9GH",
+      "vehicle_id": "veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 214256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": { "amount_minor": 7351, "currency": "EUR" },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "station": "Shell Rosenheimer Str.",
+      "grade": "Diesel B7",
+      "notes": "",
+      "trip_id": null,
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z",
+      "deleted_at": null
+    }
+  ],
+
+  "services": [
+    {
+      "id": "srv_01K0C4V2H9B8N3Q7ZE5RY6TMWX",
+      "vehicle_id": "veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD",
+      "occurred_on": "2026-05-22",
+      "odometer_m": 208940000,
+      "odometer_unit": "km",
+      "odometer_estimated": false,
+      "cost_estimated": false,
+      "lines": [
+        {
+          "id": "lin_01K0C4V2H9B8N3Q7ZE5RY6TMX1",
+          "service_item_id": "rem_01JV7B5X4G2K9M6P0S3D8FNRTC",
+          "label": "Ölwechsel",
+          "amount_minor": 9820,
+          "currency": "EUR",
+          "part_number": "Castrol Edge 5W-30",
+          "notes": "4,3 l"
+        },
+        {
+          "id": "lin_01K0C4V2H9B8N3Q7ZE5RY6TMX2",
+          "service_item_id": null,
+          "label": "Innenraumfilter",
+          "amount_minor": 4700,
+          "currency": "EUR",
+          "part_number": "Mann CU 2939",
+          "notes": ""
+        }
+      ],
+      "vendor": "Kfz-Werkstatt Reiter, München",
+      "invoice_ref": "R-2026-0488",
+      "warranty_until": "2027-05-22",
+      "notes": "Bremsbeläge vorne bei der nächsten Inspektion prüfen.",
+      "created_at": "2026-05-22T15:41:10Z",
+      "updated_at": "2026-05-22T15:41:10Z",
+      "deleted_at": null
+    }
+  ],
+
+  "expenses": [
+    {
+      "id": "exp_01K1R9T6Y2W5Q8Z3E7B0N4MJDF",
+      "vehicle_id": "veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD",
+      "occurred_on": "2026-01-03",
+      "odometer_m": 201430000,
+      "odometer_unit": "km",
+      "category": "insurance",
+      "label": "Kfz-Haftpflicht + Teilkasko 2026",
+      "amount": { "amount_minor": 61200, "currency": "EUR" },
+      "vendor": "HUK-Coburg",
+      "notes": "SF-Klasse 22, 300 € Selbstbeteiligung.",
+      "covers_from": "2026-01-01",
+      "covers_to": "2026-12-31",
+      "trip_id": null,
+      "created_at": "2026-01-03T10:02:51Z",
+      "updated_at": "2026-01-03T10:02:51Z",
+      "deleted_at": null
+    }
+  ],
+
+  "trips": [
+    {
+      "id": "trp_01K2P0M4A7C1V9X6H2P5S8GQZR",
+      "vehicle_id": "veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD",
+      "title": "Kundenbesuch Nürnberg",
+      "purpose": "business",
+      "started_on": "2026-08-21",
+      "ended_on": "2026-08-21",
+      "start_odometer_m": 214438000,
+      "end_odometer_m": 214870000,
+      "odometer_unit": "km",
+      "manual_distance_m": null,
+      "notes": "",
+      "created_at": "2026-08-21T17:10:44Z",
+      "updated_at": "2026-08-21T17:10:44Z",
+      "deleted_at": null
+    }
+  ]
+}

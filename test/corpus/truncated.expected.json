@@ -1,0 +1,5 @@
+{
+  "why": "A download that stopped. The parse fails at EOF, which is a DIFFERENT message from a file edited in the middle: \"get the file again\" fixes this one and cannot fix that one.",
+  "outcome": "refused",
+  "failure": "truncated"
+}

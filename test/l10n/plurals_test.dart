@@ -114,6 +114,38 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
         2,
         '2',
       ),
+      // §6 §5.2's import report. Every one of these counts RECORDS, and the
+      // two that carry a second value carry a pinned one so the count is the
+      // only thing that varies.
+      'importWarnSkipped' => l10n.importWarnSkipped(n, nText),
+      'importWarnOrphans' => l10n.importWarnOrphans(n, nText),
+      'importWarnUnmatchedCorrections' => l10n.importWarnUnmatchedCorrections(
+        n,
+        nText,
+      ),
+      'importWarnDroppedRules' => l10n.importWarnDroppedRules(n, nText),
+      'importWarnCoercedEnums' => l10n.importWarnCoercedEnums(n, nText),
+      'importWarnOutOfRangeDates' => l10n.importWarnOutOfRangeDates(
+        n,
+        nText,
+        '1990',
+      ),
+      'importWarnUnresolvedLinks' => l10n.importWarnUnresolvedLinks(n, nText),
+      'importWarnDuplicateIds' => l10n.importWarnDuplicateIds(n, nText),
+      'importWarnTruncatedStrings' => l10n.importWarnTruncatedStrings(n, nText),
+      'importRecordCount' => l10n.importRecordCount(n, nText),
+      // §13's `settings.backup` count lines. Two of them, because "68 entries
+      // since" makes no sense when there is no since.
+      'backupEntriesSince' => l10n.backupEntriesSince(n, nText),
+      'backupEntriesOnlyHere' => l10n.backupEntriesOnlyHere(n, nText),
+      // The two halves of §13's delete-all sentence, so both pluralise in
+      // their own language rather than one being glued to the other.
+      'backupVehicleCount' => l10n.backupVehicleCount(n, nText),
+      'backupEntryCount' => l10n.backupEntryCount(n, nText),
+      // §4.3's warning row. NO `=0` — a preview with nothing skipped does not
+      // draw the row, so a zero form would be copy nobody can reach.
+      'importSkippedCount' => l10n.importSkippedCount(n, nText),
+      'importAndMore' => l10n.importAndMore(n, nText),
       _ => throw StateError(
         'plural key "$key" is in the ARB but not in this matrix — add it',
       ),

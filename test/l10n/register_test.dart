@@ -28,8 +28,16 @@ void main() {
     // there is no noun `du`, `dir`, `dich` or `dein-`. Capitalised `Sie` needs
     // no counterpart rule: it is the correct form and it is also the plural
     // `sie`, so a positive test for it would pass on the wrong word.
+    //
+    // ONE exception, and it is the gate's own bug rather than a loophole:
+    // `dein\w*` matches `deinstallieren`, which is the verb "to uninstall" and
+    // has nothing to do with the possessive. It cried wolf on a correct string
+    // — "wenn Sie Odova deinstallieren" — and this file's own comment says
+    // what happens to a gate that does that. `dein(?!stall)` also covers
+    // `Deinstallation`, and no German possessive begins `deinstall-`, so it
+    // still catches `deine`, `deinem` and `deiner`.
     final informal = RegExp(
-      r'\b(du|dir|dich|dein\w*)\b',
+      r'\b(du|dir|dich|dein(?!stall)\w*)\b',
       caseSensitive: false,
       unicode: true,
     );
@@ -44,6 +52,33 @@ void main() {
           'SPEC.md §5: German is formal. Rewrite with Sie/Ihr-, or change the '
           'spec deliberately and delete this test.',
     );
+  });
+
+  test('the German net catches the possessive and not the verb', () {
+    // Guard the guard, both ways. Without the second half this is a gate that
+    // has been widened until it catches nothing; without the first it is a
+    // gate that blocks the word for "uninstall".
+    final informal = RegExp(
+      r'\b(du|dir|dich|dein(?!stall)\w*)\b',
+      caseSensitive: false,
+      unicode: true,
+    );
+
+    for (final caught in const [
+      'Hast du das gesichert?',
+      'Wir zeigen dir deine Einträge.',
+      'Das gehört dir.',
+      'deinem Fahrzeug',
+    ]) {
+      expect(informal.hasMatch(caught), isTrue, reason: caught);
+    }
+    for (final allowed in const [
+      'wenn Sie Odova deinstallieren',
+      'Die Deinstallation entfernt die Kopien.',
+      'Ihre Einträge',
+    ]) {
+      expect(informal.hasMatch(allowed), isFalse, reason: allowed);
+    }
   });
 
   test('French addresses the user as vous, never tu', () {

@@ -1,0 +1,6 @@
+{
+  "why": "Everything a free-text field can carry that breaks a naive reader: apostrophes, quotes, commas, an embedded newline, emoji, right-to-left text with a bidi isolate, a whitespace-only string, the largest integer JavaScript-compatible JSON can hold, and a null-versus-empty pair. The literal string \"null\" is a vehicle NAME, because somebody will do that.",
+  "outcome": "ok",
+  "records": 3,
+  "warnings": []
+}

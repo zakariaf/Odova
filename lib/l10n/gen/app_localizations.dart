@@ -3815,6 +3815,635 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **', '**
   String get commonListSeparator;
+
+  /// SPEC.md §6 §5.2, rung 1. The SIZE is quoted because “it’s 203 MB” is what makes the sentence land — a ten-year backup is a few megabytes, so the number is the argument.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too large to be an Odova backup (it’s {size}). Even a decade of records comes to a few megabytes, so this is probably a different file.'**
+  String importFailTooLarge(String size);
+
+  /// Rung 2. The remedy is one action and the message is that action.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is compressed. Unzip it first, then import the .json file inside.'**
+  String get importFailCompressed;
+
+  /// Rung 2. “Text” rather than “encoding”: the user has no way to check an encoding and every way to find the original file.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova can’t read the text in this file. It may have been changed by another program. Try the original file you exported.'**
+  String get importFailNotUtf8;
+
+  /// Rung 3, when the parse dies at EOF. A DIFFERENT sentence from “not valid”, because “get the file again” fixes this one and cannot fix the other.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is incomplete. It may not have finished downloading or copying. Get the file again and try once more.'**
+  String get importFailTruncated;
+
+  /// Rungs 3 and 4 when the file is not JSON at all — a PDF, a photo. The `.json` is the name the file picker shows, which is the opposite of jargon: it is the thing the user is looking at.
+  ///
+  /// In en, this message translates to:
+  /// **'That file isn’t an Odova backup. Odova backups are .json files made from Settings → Export. Pick a different file.'**
+  String get importFailNotOdova;
+
+  /// Rung 4, when the document is valid but carries no `format` key. Separate from the sentence above because this file plainly IS something, and calling it invalid would read as the app being wrong rather than the file.
+  ///
+  /// In en, this message translates to:
+  /// **'This file wasn’t made by Odova. It’s a valid file, but not one Odova can read. Nothing on your phone has changed.'**
+  String get importFailNotMadeByOdova;
+
+  /// Rung 5. Downgrade is not supported and never will be: a newer file may carry a field this build has no column for, and importing it would mean deciding what to throw away on the user’s behalf.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was made with a newer version of Odova. Update Odova, then import again. Your file hasn’t been changed.'**
+  String get importFailTooNew;
+
+  /// Rung 5 when the version is missing or is not a number. “Damaged” rather than “invalid”, and the remedy is the one that actually helps: try another copy.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup file is damaged and Odova can’t tell which version it is. If you have another copy or an older backup, try that one.'**
+  String get importFailDamagedVersion;
+
+  /// Rung 7’s malformed array, and §5.4’s over-deep document. The same situation for the user — the file is not shaped like a backup — and therefore the same sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup file is damaged and Odova can’t read what’s inside it. If you have another copy or an older backup, try that one.'**
+  String get importFailDamagedFile;
+
+  /// §5.2’s provider-error row. “Copy it into Files first” is the one action that reliably works when a picker hands back a permission it did not really grant.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t open that file. Try copying it to your phone’s Files app first, then import it from there.'**
+  String get importFailCannotOpen;
+
+  /// §5.2’s storage row. The SIZE is named because “free up some space” is advice a user cannot act on and “free up about 40 MB” is.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough space on your phone to import this backup. Free up about {size} and try again.'**
+  String importFailNotEnoughSpace(String size);
+
+  /// Rung 13. Refused rather than partly imported: §2 makes import a REPLACE, so a partial import is not most of a history — it is most of a history standing where all of it used to be, with no way to tell which parts are missing. Both numbers are named because that is what makes the refusal believable.
+  ///
+  /// In en, this message translates to:
+  /// **'Too much of this backup is damaged to import safely. Odova could read {readable} of your {total} records, and importing part of your history would leave gaps. Try an older backup if you have one. Nothing on your phone has changed.'**
+  String importFailTooDamaged(String readable, String total);
+
+  /// Rung 8, a WARNING and never a refusal: there is no secret and no signature, so anyone who edits the file can recompute the check — a mismatch means “not byte-for-byte what Odova wrote”, which is also true of a deliberate hand-edit.
+  ///
+  /// In en, this message translates to:
+  /// **'This file has been edited since Odova saved it. That’s fine if you changed it on purpose. Check the numbers below before you continue.'**
+  String get importWarnContentHash;
+
+  /// Rung 8. Both numbers, because “it lists 1,204 records and 1,180 were found” is a fact the user can act on and “the counts do not match” is not.
+  ///
+  /// In en, this message translates to:
+  /// **'This file doesn’t contain everything it says it should — it lists {declared} records and {found} were found. It may have been cut short. Check the numbers below.'**
+  String importWarnRecordCount(String declared, String found);
+
+  /// Rung 7’s absent array. A file that OMITS a section might be an older export, so it is a warning; one that puts something else where the records go is a refusal.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of this backup is missing. Everything Odova could find will still be imported.'**
+  String get importWarnMissingArray;
+
+  /// Rung 9’s skipped records. “Tap to see which ones” is what turns a number into something a user can act on: somebody who knows exactly what was lost can retype three rows.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record couldn’t be read and won’t be imported. Everything else will. Tap to see which one.} other{{nText} records couldn’t be read and won’t be imported. Everything else will. Tap to see which ones.}}'**
+  String importWarnSkipped(int n, String nText);
+
+  /// §5.3’s never-silently-drop rule, in one sentence. A placeholder vehicle the user can see beats a number in a report they will not read.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record doesn’t say which vehicle it belongs to. It’ll be imported under a vehicle called “Recovered records” so you can sort it out or delete it.} other{{nText} records don’t say which vehicle they belong to. They’ll be imported under a vehicle called “Recovered records” so you can sort them out or delete them.}}'**
+  String importWarnOrphans(int n, String nText);
+
+  /// Rung 11’s one link failure that must not be repaired by guessing: applying a correction to an arbitrary reading rewrites a mileage history that looked fine, and the user has no way of knowing which number the app invented.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} odometer correction couldn’t be matched to a reading. Your mileage history may look wrong where the odometer was replaced. Tap to see which.} other{{nText} odometer corrections couldn’t be matched to a reading. Your mileage history may look wrong where the odometer was replaced. Tap to see which.}}'**
+  String importWarnUnmatchedCorrections(int n, String nText);
+
+  /// §5.2’s dropped-`rule` row. It names where to look, because a reminder that quietly changed how it warns is a reminder the user should re-check once.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} reminder used a setting Odova no longer has. It now warns you at whichever comes first — check it under Reminders.} other{{nText} reminders used a setting Odova no longer has. They now warn you at whichever comes first — check them under Reminders.}}'**
+  String importWarnDroppedRules(int n, String nText);
+
+  /// Rung 9’s coercion. The record SURVIVES — an unknown category must not cost a user their insurance row — and the sentence says what happened to it instead of hiding it.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record used a setting Odova doesn’t have. It’s been imported with Odova’s own setting instead.} other{{nText} records used settings Odova doesn’t have. They’ve been imported with Odova’s own settings instead.}}'**
+  String importWarnCoercedEnums(int n, String nText);
+
+  /// Rung 10. Imported, then flagged: a phone whose clock was wrong is still the user’s history, and they are the only one who can say which date was meant. The year is a placeholder so it is shaped like every other number.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record has a date that looks wrong — before {year}, or after this backup was made. It’s been imported so you can fix it.} other{{nText} records have dates that look wrong — before {year}, or after this backup was made. They’ve been imported so you can fix them.}}'**
+  String importWarnOutOfRangeDates(int n, String nText, String year);
+
+  /// Rung 11’s nulled links. The link is a convenience; the amount and the date are the record.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record pointed at a trip or a reminder that isn’t in this file. It’s been imported without it.} other{{nText} records pointed at a trip or a reminder that isn’t in this file. They’ve been imported without it.}}'**
+  String importWarnUnresolvedLinks(int n, String nText);
+
+  /// Rung 12. The first copy wins, and the message says so, because a user who appended a file to itself needs to know which half survived.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{This file lists {nText} record twice. Odova will import the first copy.} other{This file lists {nText} records twice. Odova will import the first copy of each.}}'**
+  String importWarnDuplicateIds(int n, String nText);
+
+  /// §5.4’s string cap. Shortened rather than dropped: a note the user can still mostly read beats a fill-up they have to retype.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} note was too long and has been shortened.} other{{nText} notes were too long and have been shortened.}}'**
+  String importWarnTruncatedStrings(int n, String nText);
+
+  /// §5.2’s success row. It names what was restored AND that the reminders were recalculated, because a due date is derived and a user who did not see that sentence would wonder why the dates moved.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported. {vehicles} and {records} restored. Your reminders have been recalculated.'**
+  String importSuccess(String vehicles, String records);
+
+  /// The record half of the success sentence, so both halves pluralise in their own language.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record} other{{nText} records}}'**
+  String importRecordCount(int n, String nText);
+
+  /// §5.3’s placeholder vehicle. Named as a message key in the domain and resolved here, because a garage in Arabic must not contain one row in English.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovered records'**
+  String get importRecoveredVehicleName;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get importTypeVehicle;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get importTypeReminder;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer reading'**
+  String get importTypeReading;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer correction'**
+  String get importTypeCorrection;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up'**
+  String get importTypeFillup;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get importTypeService;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get importTypeExpense;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get importTypeTrip;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the date was missing'**
+  String get importSkipDate;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the amount of fuel was missing'**
+  String get importSkipFuel;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the amount was missing'**
+  String get importSkipMoney;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the currency wasn’t one Odova recognises'**
+  String get importSkipCurrency;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the reading it corrects isn’t in this file'**
+  String get importSkipCorrection;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'part of it was missing'**
+  String get importSkipIncomplete;
+
+  /// One line of the skipped-entry list, with a date. Never an identifier: a ULID tells the user nothing and makes the list look like a crash report.
+  ///
+  /// In en, this message translates to:
+  /// **'{type}, {date} — {reason}'**
+  String importSkipEntry(String type, String date, String reason);
+
+  /// The same line when the date was the thing that was missing.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} — {reason}'**
+  String importSkipEntryNoDate(String type, String reason);
+
+  /// SPEC.md §13's `settings.backup` title. “Sicherung & Wiederherstellung” is the two-line German one, and it is what sets the width of the whole screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & restore'**
+  String get backupTitle;
+
+  /// The quiet label above the date.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup'**
+  String get backupLastLabel;
+
+  /// §13's never-exported state. Amber, with the count line always shown beneath it.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve never made a backup.'**
+  String get backupNever;
+
+  /// §13's count line. It exists to make “three months ago” concrete, which is why it is hidden on a recent backup with little written since.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry since} other{{nText} entries since}}'**
+  String backupEntriesSince(int n, String nText);
+
+  /// The never-backed-up count. A different sentence from the one above, because “68 entries since” makes no sense when there is no since.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry is only on this phone.} other{{nText} entries are only on this phone.}}'**
+  String backupEntriesOnlyHere(int n, String nText);
+
+  /// §13: the ONLY filled button on the screen. Calm allows one primary element, and two primaries means the screen has failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNow;
+
+  /// §13's empty state, as the button's subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to back up yet.'**
+  String get backupNothingToBackUp;
+
+  /// The inline progress state that REPLACES the button — §13. A spinner beside a live button invites a second tap, and a second export writes a second copy of the whole history.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your backup…'**
+  String get backupPreparing;
+
+  /// One of the two most heavily reviewed strings in the app (§13). A single ICU message, never concatenated, and it sits DIRECTLY beneath the button — not in a footnote, not behind an info icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Your backup file is not password-protected. Anyone who opens it can read everything in it.'**
+  String get backupNotEncrypted;
+
+  /// §13's group header over the CSV and PDF rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Also export'**
+  String get backupAlsoExport;
+
+  /// §13's fill-ups CSV row.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-ups (CSV)'**
+  String get backupFillUpsCsv;
+
+  /// §13's costs CSV row.
+  ///
+  /// In en, this message translates to:
+  /// **'All costs (CSV)'**
+  String get backupAllCostsCsv;
+
+  /// §13's PDF row.
+  ///
+  /// In en, this message translates to:
+  /// **'Service history (PDF)'**
+  String get backupServiceHistoryPdf;
+
+  /// §13's group header over Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get backupRestoreHeader;
+
+  /// §13's restore row. It opens the OS document picker, and a cancelled picker changes nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup'**
+  String get backupRestoreRow;
+
+  /// §6 §4.4's Undo last import.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo last import'**
+  String get backupUndoImport;
+
+  /// §6 §4.4's Undo delete all data, which sits beside the import one when both copies exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo delete all data'**
+  String get backupUndoWipe;
+
+  /// Each Undo row's expiry, on its own line. The row disappears at thirty days rather than greying out.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {date}'**
+  String backupUndoUntil(String date);
+
+  /// §13's one line of small print, next to the buttons. A seatbelt, not a vault — the user's own exported file remains the real backup.
+  ///
+  /// In en, this message translates to:
+  /// **'These copies are removed if you uninstall Odova.'**
+  String get backupCopiesGoOnUninstall;
+
+  /// §13's storage line. Digit-shaped per `numerals`, like every other number on the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova is using {size} on this phone.'**
+  String backupOnDiskSize(String size);
+
+  /// §13's last row, separated, in the destructive colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data'**
+  String get backupDeleteAll;
+
+  /// The word the user types to confirm — the localised IMPERATIVE, shown verbatim in the sentence above the field and matched case-insensitively after Unicode normalisation. Uppercase where the script has case; the three RTL scripts have none.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get backupDeleteWord;
+
+  /// §6 §3.3's banner, verbatim. It is the reason the app may open on this screen instead of home.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t finish updating and has gone back to your previous data. You can’t add new entries until this is fixed — back up now.'**
+  String get backupMigrationBanner;
+
+  /// §13's first export error. The FIGURE is what makes it actionable.
+  ///
+  /// In en, this message translates to:
+  /// **'There isn’t enough free space to make a backup. It needs about {size}. Free up some space and try again.'**
+  String backupExportNoSpace(String size);
+
+  /// §13's second export error. It says nothing changed, because nothing did.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t finish the backup. Nothing on this phone has changed. Try again in a moment.'**
+  String get backupExportWriteFailed;
+
+  /// §13's third. The remedy is odd and it is the one that works.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone won’t let Odova hand the file to another app. Your data is safe — try again after restarting your phone.'**
+  String get backupExportNoShare;
+
+  /// §13's delete-all dialog title. Not the generated “Delete {subject}?”, because the subject here is the word the user TYPES.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything?'**
+  String get backupDeleteAllTitle;
+
+  /// §13's body. The three numbers are what make it real — “3 vehicles and 3,006 entries, going back to March 2018” is a history, where “all your data” is an abstraction nobody weighs.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes {vehicles} and {entries}, going back to {since}.'**
+  String backupDeleteAllBody(String vehicles, String entries, String since);
+
+  /// §13's reassurance, and it is true: the copy is written BEFORE the dialog opens. It also says where the copy goes, because uninstalling deletes it and the user should know that before they rely on it. The thirty is a PLACEHOLDER, not baked copy: SPEC.md §5 allows one numbering system per screen, and a Latin 30 beside Persian-shaped digits is the shape that rule exists to prevent.
+  ///
+  /// In en, this message translates to:
+  /// **'A copy is saved on this phone for {days} days, so you can undo this. It is removed if you uninstall Odova.'**
+  String backupDeleteAllNote(String days);
+
+  /// The vehicle half of the delete-all sentence, so both halves pluralise in their own language.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} vehicle} other{{nText} vehicles}}'**
+  String backupVehicleCount(int n, String nText);
+
+  /// The entry half.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry} other{{nText} entries}}'**
+  String backupEntryCount(int n, String nText);
+
+  /// §13's `settings.import` title. “Restore”, not “Import a file”: the user is not filing something, they are getting their life back.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get importTitle;
+
+  /// §4.3's header line: the export date in the user's own calendar and numerals, plus what is in the file. The FILENAME sits above it, forced LTR.
+  ///
+  /// In en, this message translates to:
+  /// **'Made on {date} at {time} · {vehicles} · {entries}'**
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  );
+
+  /// §4.3's comparison header.
+  ///
+  /// In en, this message translates to:
+  /// **'What changes'**
+  String get importWhatChanges;
+
+  /// The NOW column.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get importNow;
+
+  /// The AFTER column.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get importAfter;
+
+  /// One of the two most heavily reviewed strings in the app (§13). A single ICU message, never concatenated, never softened. It is the sentence a future PR will try to make gentler, and the test asserts it verbatim for that reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything now in Odova will be replaced by this file.'**
+  String get importReplacesEverything;
+
+  /// §4.3's one line of reassurance, and it is TRUE — the test asserts the copy is actually written on confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'A copy of what you have now is saved first. You can undo this for {days} days.'**
+  String importCopySavedFirst(String days);
+
+  /// §4.3's empty-device sentence. The replacement sentence is true on an empty phone and would be frightening for no reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova is empty, so nothing will be replaced.'**
+  String get importNothingToReplace;
+
+  /// §4.3's already-restored case, and the answer to the question the user is actually asking.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the backup you already restored. Nothing on this phone will change.'**
+  String get importAlreadyRestored;
+
+  /// §4.4's undo header. A moment, not a filename: the user is looking for a time.
+  ///
+  /// In en, this message translates to:
+  /// **'The data you had before {date}, {time}'**
+  String importUndoHeader(String date, String time);
+
+  /// §4.3's warning row. All six Arabic categories, and NO `=0` — a preview with nothing skipped does not draw the row at all, so a zero form would be copy nobody can reach.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry can’t be read and will be left out.} other{{nText} entries can’t be read and will be left out.}}'**
+  String importSkippedCount(int n, String nText);
+
+  /// The disclosure that opens the skipped list. §4.3: a user who knows exactly what was lost can retype three rows.
+  ///
+  /// In en, this message translates to:
+  /// **'See which'**
+  String get importSeeWhich;
+
+  /// §4.3's primary. “Replace my data”, because that is what it does — and the preview IS the confirmation, so there is no second dialog behind it.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace my data'**
+  String get importReplaceMyData;
+
+  /// §4.3's primary on an empty device, where nothing is being replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importImport;
+
+  /// The text button beneath Done in the already-restored variant. Beneath, and quiet: the user asked a question and the answer was no, but it is still their data.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace anyway'**
+  String get importReplaceAnyway;
+
+  /// The progress state. Non-cancellable, and it says why it cannot be stopped by saying what it is doing.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring your data…'**
+  String get importRestoring;
+
+  /// §4.3's success line.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored. {vehicles} and {entries}.'**
+  String importRestored(String vehicles, String entries);
+
+  /// The snackbar on the launch after a crash mid-import. It says the one thing the user needs: nothing was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last restore didn’t finish. Nothing was changed.'**
+  String get importDidNotFinish;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles'**
+  String get importKindVehicles;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-ups'**
+  String get importKindFillups;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get importKindServices;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get importKindExpenses;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get importKindTrips;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get importKindReminders;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer readings'**
+  String get importKindReadings;
+
+  /// The acknowledging action. Used where there is nothing to confirm and nothing to undo — §6 §4.3's already-restored preview, and the import result the user has to tap past because a snackbar cannot carry a list.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get commonDone;
+
+  /// The vehicle picker's title — §13's export flow. Asked once, and only when there is more than one answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Which vehicle?'**
+  String get backupPickVehicle;
+
+  /// The extra answer only the all-costs CSV offers. §6 §8.1 calls that file the one somebody opens to build a pivot table, and a pivot over a household is what a household wants.
+  ///
+  /// In en, this message translates to:
+  /// **'All vehicles'**
+  String get backupAllVehicles;
+
+  /// One row label in §6 §4.3's comparison. It was missing, so the switch's catch-all rendered odometer CORRECTIONS as 'Odometer readings' — two different record types under one name, on the screen whose whole job is showing the user what is about to change.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer corrections'**
+  String get importKindCorrections;
+
+  /// The tail of §6 §4.3's skipped list, which is capped. Rung 13 permits up to six hundred skipped records on a large file, and the list exists so somebody can retype three rows — past a few dozen the count is the message.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{and {nText} more} other{and {nText} more}}'**
+  String importAndMore(int n, String nText);
 }
 
 class _AppLocalizationsDelegate

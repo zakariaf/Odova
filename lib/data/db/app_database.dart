@@ -139,11 +139,33 @@ const _linesItem =
 )
 class AppDatabase extends _$AppDatabase {
   /// Opens the app's own database, in the application support directory.
-  AppDatabase() : super(openConnection());
+  AppDatabase() : _degraded = false, super(openConnection());
 
   /// Opens against a caller-supplied executor — an in-memory database in a
   /// test, or a specific file in a migration.
-  AppDatabase.forTesting(super.e);
+  AppDatabase.forTesting(super.e) : _degraded = false;
+
+  /// Opens a database that MUST NOT be migrated, on whatever schema it holds.
+  ///
+  /// SPEC.md §6.3.3 and §14: after a refused or rolled-back migration the app
+  /// comes up read-only on the OLD schema. Reads still work — seeing the
+  /// history and being able to export it is the whole point of not crashing.
+  ///
+  /// A separate constructor because drift opens LAZILY and runs `onUpgrade` on
+  /// the first query. Handing back an ordinary `AppDatabase` from the refusal
+  /// path therefore ran the migration §6.4.4 had just refused — on the disk
+  /// too full to write an escape route, or on the file from a newer build this
+  /// binary has no reader for — and the rolled-back path re-attempted the
+  /// migration that had just thrown, out of `readLaunchFacts`, which is the
+  /// cold-launch crash loop §14 names as the worst possible outcome.
+  ///
+  /// Found by the review pass over EPIC-15, which also names why the tests
+  /// missed it: they asserted the FILE was intact when `openMigratedDatabase`
+  /// returned, and never queried the database it returned.
+  AppDatabase.degraded(super.e) : _degraded = true;
+
+  /// Whether this connection refuses to migrate. See [AppDatabase.degraded].
+  final bool _degraded;
 
   /// The schema this build of the app expects.
   ///
@@ -155,7 +177,19 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => kLatestSchemaVersion;
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(
+  MigrationStrategy get migration => _degraded ? _refusesToMigrate : _theLadder;
+
+  /// The strategy for a connection that must not touch the schema.
+  ///
+  /// Empty on purpose — not `createAll`, not an upgrade step, not a throw. The
+  /// file is what it is and this connection reads it.
+  MigrationStrategy get _refusesToMigrate => MigrationStrategy(
+    onCreate: (m) async {},
+    onUpgrade: (m, from, to) async {},
+  );
+
+  /// The real one.
+  MigrationStrategy get _theLadder => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll();
       for (final statement in schemaIndexes) {
@@ -181,7 +215,9 @@ class AppDatabase extends _$AppDatabase {
         await stepByStep()(m, from, to);
       });
 
-      final orphans = await customSelect('PRAGMA foreign_key_check;').get();
+      final orphans = await customSelect(
+        'PRAGMA foreign_key_check;',
+      ).get();
       if (orphans.isNotEmpty) {
         throw StateError(
           'the migration left ${orphans.length} orphaned row(s): '

@@ -7,6 +7,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:odova/core/export/content_hash.dart';
+import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
 import 'package:sqlite3/common.dart';
 
@@ -40,6 +42,11 @@ enum SafetyCopyFailure {
 
 /// Writes the pre-migration safety copy for [database], read at [fromVersion].
 ///
+/// The file is §6's backup document, not a raw table dump. §6.4.4 calls this
+/// the escape route, and a dump nothing in the app can read back is not one:
+/// what is written here goes through `BackupReader` like any other file, and
+/// `migration_safety_copy_test` asserts exactly that.
+///
 /// Read through the NUMBERED reader for the version on disk, never through the
 /// current code. A copy taken by the code that is about to migrate is a copy
 /// taken through the crash: if the new mapper misreads a column, the copy
@@ -52,13 +59,25 @@ Future<(File?, SafetyCopyFailure?)> writeMigrationSafetyCopy({
   required CommonDatabase database,
   required int fromVersion,
   required Directory directory,
+  required ExportStamp stamp,
 }) async {
   final reader = readerForVersion(fromVersion);
   if (reader == null) return (null, SafetyCopyFailure.unknownSchemaVersion);
 
   final String encoded;
   try {
-    encoded = const JsonEncoder.withIndent('  ').convert(reader.read(database));
+    // Stamped AFTER encoding, over the bytes as written — the same order
+    // `BackupWriter` uses, and the only order that produces a hash the reader
+    // can verify. The projection leaves the placeholder; this replaces it.
+    //
+    // Until the review pass over EPIC-15 the field was written as `null`, so
+    // every pre-migration copy imported with "this file has been edited since
+    // Odova saved it" — on the one file a user reaches after a bad update.
+    encoded = withContentHash(
+      const JsonEncoder.withIndent('  ').convert(
+        reader.toBackupDocument(reader.read(database), stamp),
+      ),
+    );
   } on Object {
     // `on Object`, not `on FileSystemException`. `SELECT *` throws
     // `SqliteException` for a missing table or a corrupt page, and

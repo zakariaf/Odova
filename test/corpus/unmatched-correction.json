@@ -1,0 +1,788 @@
+{
+  "format": "odova.backup",
+  "format_version": 1,
+  "app_version": "1.0.0",
+  "app_build": "42",
+  "platform": "android",
+  "exported_at": "2026-09-07T08:30:00Z",
+  "exported_at_local": "2026-09-07T10:30:00+02:00",
+  "units": {
+    "distance": "m",
+    "volume": "ml",
+    "mass": "g",
+    "energy": "wh",
+    "money": "minor"
+  },
+  "derived_fields": [
+    "reminders.last_done_date",
+    "reminders.last_done_odometer_m",
+    "reminders.last_done_service_id"
+  ],
+  "record_counts": {
+    "vehicles": 1,
+    "reminders": 0,
+    "odometer_readings": 0,
+    "odometer_corrections": 1,
+    "fillups": 40,
+    "services": 0,
+    "expenses": 0,
+    "trips": 0,
+    "total": 42
+  },
+  "content_hash": "sha256:c674469ea21cf98130865704041cb3d144d29f1bcd232d11c1b86bb0a4fbe78a",
+  "settings": {
+    "currency_default": "EUR",
+    "language": "en"
+  },
+  "vehicles": [
+    {
+      "id": "veh_0000000000000000000000YGJ1",
+      "name": "Golf",
+      "type": "car",
+      "fuel_kind_default": "diesel",
+      "status": "active",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "reminders": [],
+  "odometer_readings": [],
+  "odometer_corrections": [
+    {
+      "id": "cor_0000000000000000000000YGJ1",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "from_reading_id": "odo_0000000000000000000000YHH7",
+      "previous_m": 215104000,
+      "replacement_m": 15104000,
+      "odometer_unit": "km",
+      "reason": "cluster_replaced",
+      "created_at": "2026-09-01T00:00:00Z",
+      "updated_at": "2026-09-01T00:00:00Z"
+    }
+  ],
+  "fillups": [
+    {
+      "id": "fil_0000000000000000000000YGR8",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 314256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGR9",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 314756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRA",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 315256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRB",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 315756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRC",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 316256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRD",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 316756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRE",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 317256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRF",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 317756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRG",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 318256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRH",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 318756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRJ",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 319256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRK",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 319756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRM",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 320256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRN",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 320756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRP",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 321256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRQ",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 321756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRR",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 322256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRS",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 322756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRT",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 323256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRV",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 323756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRW",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 324256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRX",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 324756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRY",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 325256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGRZ",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 325756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS0",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 326256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS1",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 326756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS2",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 327256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS3",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 327756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS4",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 328256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS5",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 328756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS6",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 329256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS7",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 329756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS8",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 330256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGS9",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 330756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGSA",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 331256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGSB",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 331756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGSC",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 332256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGSD",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 332756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGSE",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 333256000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    },
+    {
+      "id": "fil_0000000000000000000000YGSF",
+      "vehicle_id": "veh_0000000000000000000000YGJ1",
+      "occurred_on": "2026-07-29",
+      "odometer_m": 333756000,
+      "odometer_unit": "km",
+      "quantity_ml": 44020,
+      "quantity_unit": "l",
+      "total_cost": {
+        "amount_minor": 7351,
+        "currency": "EUR"
+      },
+      "is_full_tank": true,
+      "chain_broken": false,
+      "fuel_kind": "diesel",
+      "created_at": "2026-07-29T05:15:38Z",
+      "updated_at": "2026-07-29T05:15:38Z"
+    }
+  ],
+  "services": [],
+  "expenses": [],
+  "trips": []
+}

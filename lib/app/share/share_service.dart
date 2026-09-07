@@ -18,8 +18,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:odova/core/result.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// The one channel. Named here so a test can mock it by the same constant the
 /// implementation uses — a string typed twice is a mock that silently stops
@@ -50,6 +52,22 @@ abstract interface class ShareService {
   Future<Result<void, ShareFailure>> shareFile({
     required Uint8List bytes,
     required String fileName,
+    required String mimeType,
+  });
+
+  /// Offers a file the caller has ALREADY written.
+  ///
+  /// Added for the backup export (EPIC-15 task 15.5), and the reason is the
+  /// one thing `shareFile` cannot do: it takes the whole file as a
+  /// `Uint8List`, and a 12,000-record backup assembled in memory is tens of
+  /// megabytes of it on a phone that is already low — arriving at the exact
+  /// moment the user is trying to rescue their data. The backup writer streams
+  /// to a temp file and hands over the path.
+  ///
+  /// The file becomes this service's to clean up, exactly as if [shareFile]
+  /// had written it: `discard` deletes it, and so does the next share.
+  Future<Result<void, ShareFailure>> shareWrittenFile({
+    required File file,
     required String mimeType,
   });
 
@@ -99,6 +117,22 @@ class PlatformShareService implements ShareService {
       return Err(ShareFailure('share_write', detail: error.message));
     }
 
+    return _offer(file, mimeType);
+  }
+
+  @override
+  Future<Result<void, ShareFailure>> shareWrittenFile({
+    required File file,
+    required String mimeType,
+  }) async {
+    // The previous file goes first, for the same reason as above: the button
+    // can be pressed twice a minute.
+    await discard();
+    _written = file;
+    return _offer(file, mimeType);
+  }
+
+  Future<Result<void, ShareFailure>> _offer(File file, String mimeType) async {
     try {
       await kShareChannel.invokeMethod<void>('shareFile', {
         'path': file.path,
@@ -131,3 +165,18 @@ class PlatformShareService implements ShareService {
     }
   }
 }
+
+/// The share port, overridden in tests.
+///
+/// Moved here from `report_notifier.dart` when the backup export became its
+/// second caller: `structure_test` refuses one feature importing another, and
+/// two features needing the same port is exactly what "it belongs to the app,
+/// not to a feature" looks like.
+///
+/// A temp directory, never a place the app chooses to keep — §12's file is
+/// written, offered, and forgotten. On Android the manifest's FileProvider
+/// exposes `cache/` and nothing else, which is why the app asks for no storage
+/// permission at all.
+final Provider<ShareService> shareServiceProvider = Provider<ShareService>(
+  (ref) => PlatformShareService(directory: getTemporaryDirectory),
+);

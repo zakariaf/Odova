@@ -1,0 +1,8 @@
+{
+  "why": "§5.3's never-silently-drop rule. Three fills name a vehicle the file does not contain; they arrive under the placeholder vehicle rather than being deleted.",
+  "outcome": "ok",
+  "records": 44,
+  "warnings": [
+    "orphan_records"
+  ]
+}

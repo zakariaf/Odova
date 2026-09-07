@@ -20,6 +20,8 @@ import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import '../support/export_stamp.dart';
+
 import 'support/large_fixture.dart';
 
 void main() {
@@ -66,7 +68,11 @@ void main() {
       );
 
       final stopwatch = Stopwatch()..start();
-      final outcome = await openMigratedDatabase(dbFile, safetyDirectory: dir);
+      final outcome = await openMigratedDatabase(
+        dbFile,
+        safetyDirectory: dir,
+        stamp: kTestExportStamp,
+      );
       stopwatch.stop();
 
       expect(outcome, isA<OpenedCleanly>());

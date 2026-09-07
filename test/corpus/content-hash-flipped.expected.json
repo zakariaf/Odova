@@ -1,0 +1,8 @@
+{
+  "why": "A warning and never a refusal. There is no secret, so anyone who edits the file can recompute the check — a mismatch means \"not byte-for-byte what Odova wrote\", which is also true of a deliberate hand-edit.",
+  "outcome": "ok",
+  "records": 1,
+  "warnings": [
+    "content_hash_mismatch"
+  ]
+}

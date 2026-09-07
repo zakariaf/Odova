@@ -1,0 +1,45 @@
+{
+  "format": "odova.backup",
+  "format_version": 1,
+  "app_version": "1.0.0",
+  "app_build": "42",
+  "platform": "android",
+  "exported_at": "2026-09-07T08:30:00Z",
+  "exported_at_local": "2026-09-07T10:30:00+02:00",
+  "units": {
+    "distance": "m",
+    "volume": "ml",
+    "mass": "g",
+    "energy": "wh",
+    "money": "minor"
+  },
+  "derived_fields": [
+    "reminders.last_done_date",
+    "reminders.last_done_odometer_m",
+    "reminders.last_done_service_id"
+  ],
+  "record_counts": {
+    "vehicles": 0,
+    "reminders": 0,
+    "odometer_readings": 0,
+    "odometer_corrections": 0,
+    "fillups": 0,
+    "services": 0,
+    "expenses": 0,
+    "trips": 0,
+    "total": 0
+  },
+  "content_hash": "sha256:f3268370befbfdfeddb1c5a176e6510ed5192c0eaeb4543ec6e17241ec9c2013",
+  "settings": {
+    "currency_default": "EUR",
+    "language": "en"
+  },
+  "vehicles": [],
+  "reminders": [],
+  "odometer_readings": [],
+  "odometer_corrections": [],
+  "fillups": [],
+  "services": [],
+  "expenses": [],
+  "trips": []
+}

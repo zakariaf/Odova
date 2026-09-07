@@ -10,8 +10,11 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/data/backup/migration_safety_copy.dart';
+import 'package:odova/data/db/schema_readers/schema_v1_backup.dart';
 import 'package:sqlite3/common.dart' show CommonDatabase;
 import 'package:sqlite3/sqlite3.dart';
+
+import '../../support/export_stamp.dart';
 
 void main() {
   late Directory dir;
@@ -46,6 +49,7 @@ void main() {
       database: database,
       fromVersion: 1,
       directory: dir,
+      stamp: kTestExportStamp,
     );
 
     expect(failure, isNull);
@@ -62,6 +66,7 @@ void main() {
         database: database,
         fromVersion: 1,
         directory: dir,
+        stamp: kTestExportStamp,
       );
     }
 
@@ -81,6 +86,7 @@ void main() {
       database: database,
       fromVersion: 99,
       directory: dir,
+      stamp: kTestExportStamp,
     );
 
     expect(file, isNull);
@@ -88,25 +94,48 @@ void main() {
     expect(dir.listSync(), isEmpty);
   });
 
-  test('the copy is plain, readable JSON with the rows in it', () async {
-    // Readable by a human and by a future importer that has never heard of
-    // this version's Dart classes. That is the whole reason it is JSON and not
-    // a byte copy — the byte snapshot is a separate mechanism with a separate
-    // job.
+  test("the copy is SPEC §6's backup document, not a raw dump", () async {
+    // Changed in EPIC-15 task 15.3, and this is why: §6.4.4 calls this file
+    // the escape route, and until now it was a table dump nothing in the app
+    // could read back. A copy the user cannot restore from is not a copy.
+    //
+    // The rows are the same rows; the SHAPE is the one `BackupReader` accepts.
     final (file, _) = await writeMigrationSafetyCopy(
       database: database,
       fromVersion: 1,
       directory: dir,
+      stamp: kTestExportStamp,
     );
 
-    final content = jsonDecode(await file!.readAsString());
-    expect(content, isA<Map<String, Object?>>());
+    final content =
+        jsonDecode(await file!.readAsString()) as Map<String, Object?>;
 
-    final tables =
-        (content as Map<String, Object?>)['tables']! as Map<String, Object?>;
-    expect((tables['vehicles']! as List).single, {
-      'id': 'veh_1',
-      'name': 'The Golf',
-    });
+    expect(content['format'], 'odova.backup');
+    expect(content['format_version'], 1);
+    expect((content['record_counts']! as Map)['vehicles'], 1);
+    final vehicle = (content['vehicles']! as List).single as Map;
+    expect(vehicle['id'], 'veh_1');
+    expect(vehicle['name'], 'The Golf');
   });
+
+  test(
+    "the version in the file is v1's own, never a moving constant",
+    () async {
+      // A v5 binary writing a v1 database must stamp `format_version: 1`. If it
+      // tracked `kSupportedFormatVersion` it would claim a v1 document was v5,
+      // and the importer would read v1 columns as if they meant what v5 says —
+      // the exact misreading the numbered readers exist to prevent.
+      final (file, _) = await writeMigrationSafetyCopy(
+        database: database,
+        fromVersion: 1,
+        directory: dir,
+        stamp: kTestExportStamp,
+      );
+
+      final content =
+          jsonDecode(await file!.readAsString()) as Map<String, Object?>;
+      expect(content['format_version'], kSchemaV1FormatVersion);
+      expect(kSchemaV1FormatVersion, 1);
+    },
+  );
 }

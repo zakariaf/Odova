@@ -287,6 +287,16 @@ List<CalmSpecimen> calmSpecimens() => [
               const CalmBadge.dot()
             else
               CalmBadge(label: kind.name, kind: kind),
+          // The icon form, which §13's `settings.backup` draws as the amber
+          // "3 months ago" pill. Here because a golden that covered only the
+          // icon-less badge left the affordance unpinned — which is what the
+          // first version of that change did, by branching the layout to keep
+          // this sheet from moving.
+          const CalmBadge(
+            label: 'icon',
+            kind: CalmBadgeKind.due,
+            icon: Icons.warning_amber_rounded,
+          ),
         ],
       ),
     ],

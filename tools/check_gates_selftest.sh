@@ -87,6 +87,14 @@ perl -0pi -e 's/("record_counts":\s*\{\s*"vehicles":\s*)\d+/${1}99/' SPEC.md
 assert 1 "red when record_counts disagrees with the arrays" python3 tools/check_spec_examples.py
 restore_all
 assert 0 "green again once restored" python3 tools/check_spec_examples.py
+plant SPEC.md
+# An id no Odova build could ever write: Crockford base32 has no letter L, so
+# `RecordId.tryParse` refuses it and the example describes a file the app would
+# refuse to import. The spec really did carry two of these.
+perl -0pi -e 's/"fil_01K1Y4T8R2E6W0Q3A7S1D5F9GH"/"fil_01K1Y4T8R2E6W0Q3A7S1D5F9LH"/' SPEC.md
+assert 1 "red on an id outside Crockford base32" python3 tools/check_spec_examples.py
+restore_all
+assert 0 "green again once restored" python3 tools/check_spec_examples.py
 
 echo "== check_lint_include =="
 # Hermetic, like the audit_deps graph arms and for the same reason: this runs in

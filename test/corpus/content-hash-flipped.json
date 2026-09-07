@@ -1,0 +1,55 @@
+{
+  "format": "odova.backup",
+  "format_version": 1,
+  "app_version": "1.0.0",
+  "app_build": "42",
+  "platform": "android",
+  "exported_at": "2026-09-07T08:30:00Z",
+  "exported_at_local": "2026-09-07T10:30:00+02:00",
+  "units": {
+    "distance": "m",
+    "volume": "ml",
+    "mass": "g",
+    "energy": "wh",
+    "money": "minor"
+  },
+  "derived_fields": [
+    "reminders.last_done_date",
+    "reminders.last_done_odometer_m",
+    "reminders.last_done_service_id"
+  ],
+  "record_counts": {
+    "vehicles": 1,
+    "reminders": 0,
+    "odometer_readings": 0,
+    "odometer_corrections": 0,
+    "fillups": 0,
+    "services": 0,
+    "expenses": 0,
+    "trips": 0,
+    "total": 1
+  },
+  "content_hash": "sha256:058b96237c7efd9a4c7708e3c8baf0783786f114379befbbd8644ee3c64c2bb4",
+  "settings": {
+    "currency_default": "EUR",
+    "language": "en"
+  },
+  "vehicles": [
+    {
+      "id": "veh_0000000000000000000000YGJ1",
+      "name": "Golf",
+      "type": "car",
+      "fuel_kind_default": "diesel",
+      "status": "active",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "reminders": [],
+  "odometer_readings": [],
+  "odometer_corrections": [],
+  "fillups": [],
+  "services": [],
+  "expenses": [],
+  "trips": []
+}

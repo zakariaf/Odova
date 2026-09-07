@@ -2468,4 +2468,517 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get commonListSeparator => '، ';
+
+  @override
+  String importFailTooLarge(String size) {
+    return 'این فایل برای پشتیبان ادووا خیلی بزرگ است ($size). حتی یک دهه سابقه هم چند مگابایت بیشتر نیست؛ احتمالاً فایل دیگری است.';
+  }
+
+  @override
+  String get importFailCompressed =>
+      'این فایل فشرده است. اول آن را از حالت فشرده خارج کنید، سپس فایل json. داخل آن را وارد کنید.';
+
+  @override
+  String get importFailNotUtf8 =>
+      'ادووا نمی‌تواند متن این فایل را بخواند. شاید برنامه‌ی دیگری آن را تغییر داده باشد. همان فایلی را که خروجی گرفتید امتحان کنید.';
+
+  @override
+  String get importFailTruncated =>
+      'این فایل کامل نیست. شاید دانلود یا کپی آن تمام نشده باشد. فایل را دوباره بگیرید و دوباره امتحان کنید.';
+
+  @override
+  String get importFailNotOdova =>
+      'این فایل پشتیبان ادووا نیست. پشتیبان‌های ادووا فایل‌های json. هستند که از تنظیمات، بخش خروجی ساخته می‌شوند. فایل دیگری انتخاب کنید.';
+
+  @override
+  String get importFailNotMadeByOdova =>
+      'این فایل را ادووا نساخته است. فایل سالمی است، اما ادووا نمی‌تواند آن را بخواند. هیچ چیزی روی گوشی شما تغییر نکرده است.';
+
+  @override
+  String get importFailTooNew =>
+      'این پشتیبان با نسخه‌ی تازه‌تری از ادووا ساخته شده است. ادووا را به‌روز کنید، سپس دوباره وارد کنید. فایل شما تغییر نکرده است.';
+
+  @override
+  String get importFailDamagedVersion =>
+      'این فایل پشتیبان آسیب دیده است و ادووا نمی‌داند از کدام نسخه است. اگر نسخه‌ی دیگر یا پشتیبان قدیمی‌تری دارید، آن را امتحان کنید.';
+
+  @override
+  String get importFailDamagedFile =>
+      'این فایل پشتیبان آسیب دیده است و ادووا نمی‌تواند محتوای آن را بخواند. اگر نسخه‌ی دیگر یا پشتیبان قدیمی‌تری دارید، آن را امتحان کنید.';
+
+  @override
+  String get importFailCannotOpen =>
+      'ادووا نتوانست آن فایل را باز کند. اول آن را به برنامه‌ی فایل‌های گوشی کپی کنید، سپس از آنجا وارد کنید.';
+
+  @override
+  String importFailNotEnoughSpace(String size) {
+    return 'فضای کافی برای وارد کردن این پشتیبان روی گوشی شما نیست. حدود $size آزاد کنید و دوباره امتحان کنید.';
+  }
+
+  @override
+  String importFailTooDamaged(String readable, String total) {
+    return 'بخش زیادی از این پشتیبان آسیب دیده و وارد کردن آن امن نیست. ادووا توانست $readable از $total رکورد را بخواند و وارد کردن بخشی از سابقه، جای خالی به جا می‌گذارد. اگر پشتیبان قدیمی‌تری دارید آن را امتحان کنید. هیچ چیزی روی گوشی شما تغییر نکرده است.';
+  }
+
+  @override
+  String get importWarnContentHash =>
+      'این فایل پس از ذخیره شدن توسط ادووا ویرایش شده است. اگر خودتان آن را تغییر داده‌اید اشکالی ندارد. پیش از ادامه، عددهای زیر را ببینید.';
+
+  @override
+  String importWarnRecordCount(String declared, String found) {
+    return 'این فایل همه‌ی آنچه می‌گوید را ندارد — $declared رکورد اعلام کرده و $found پیدا شد. شاید ناقص مانده باشد. عددهای زیر را ببینید.';
+  }
+
+  @override
+  String get importWarnMissingArray =>
+      'بخشی از این پشتیبان وجود ندارد. هر چه ادووا پیدا کرده باشد باز هم وارد می‌شود.';
+
+  @override
+  String importWarnSkipped(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText رکورد خوانده نشدند و وارد نمی‌شوند. بقیه وارد می‌شوند. برای دیدن آن‌ها ضربه بزنید.',
+      one:
+          '$nText رکورد خوانده نشد و وارد نمی‌شود. بقیه وارد می‌شوند. برای دیدن آن ضربه بزنید.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOrphans(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText رکورد نمی‌گویند به کدام خودرو تعلق دارند. زیر خودرویی به نام «رکوردهای بازیابی‌شده» وارد می‌شوند تا بتوانید مرتبشان کنید یا حذفشان کنید.',
+      one:
+          '$nText رکورد نمی‌گوید به کدام خودرو تعلق دارد. زیر خودرویی به نام «رکوردهای بازیابی‌شده» وارد می‌شود تا بتوانید مرتبش کنید یا حذفش کنید.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnmatchedCorrections(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText اصلاح کیلومترشمار به هیچ ثبتی وصل نشدند. تاریخچه‌ی کارکرد شما ممکن است جایی که کیلومترشمار عوض شده اشتباه به نظر برسد. برای دیدن ضربه بزنید.',
+      one:
+          '$nText اصلاح کیلومترشمار به هیچ ثبتی وصل نشد. تاریخچه‌ی کارکرد شما ممکن است جایی که کیلومترشمار عوض شده اشتباه به نظر برسد. برای دیدن ضربه بزنید.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDroppedRules(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText یادآور از تنظیمی استفاده می‌کردند که دیگر در ادووا نیست. حالا هر کدام زودتر برسد هشدار می‌دهند — در یادآورها بررسی‌شان کنید.',
+      one:
+          '$nText یادآور از تنظیمی استفاده می‌کرد که دیگر در ادووا نیست. حالا هر کدام زودتر برسد هشدار می‌دهد — در یادآورها بررسی‌اش کنید.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnCoercedEnums(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText رکورد از تنظیم‌هایی استفاده کرده‌اند که ادووا ندارد. به‌جای آن‌ها با تنظیم‌های خود ادووا وارد شدند.',
+      one:
+          '$nText رکورد از تنظیمی استفاده کرده که ادووا ندارد. به‌جای آن با تنظیم خود ادووا وارد شد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOutOfRangeDates(int n, String nText, String year) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText رکورد تاریخ‌هایی دارند که درست به نظر نمی‌رسند — پیش از $year یا پس از ساخت این پشتیبان. وارد شده‌اند تا بتوانید اصلاحشان کنید.',
+      one:
+          '$nText رکورد تاریخی دارد که درست به نظر نمی‌رسد — پیش از $year یا پس از ساخت این پشتیبان. وارد شده تا بتوانید اصلاحش کنید.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnresolvedLinks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText رکورد به سفری یا یادآوری اشاره داشتند که در این فایل نیست. بدون آن وارد شدند.',
+      one:
+          '$nText رکورد به سفری یا یادآوری اشاره داشت که در این فایل نیست. بدون آن وارد شد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDuplicateIds(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'این فایل $nText رکورد را دو بار آورده است. ادووا نسخه‌ی اول هرکدام را وارد می‌کند.',
+      one:
+          'این فایل $nText رکورد را دو بار آورده است. ادووا نسخه‌ی اول را وارد می‌کند.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnTruncatedStrings(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText یادداشت خیلی بلند بودند و کوتاه شدند.',
+      one: '$nText یادداشت خیلی بلند بود و کوتاه شد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSuccess(String vehicles, String records) {
+    return 'وارد شد. $vehicles و $records بازیابی شد. یادآورهای شما دوباره محاسبه شدند.';
+  }
+
+  @override
+  String importRecordCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText رکورد',
+      one: '$nText رکورد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importRecoveredVehicleName => 'رکوردهای بازیابی‌شده';
+
+  @override
+  String get importTypeVehicle => 'خودرو';
+
+  @override
+  String get importTypeReminder => 'یادآور';
+
+  @override
+  String get importTypeReading => 'ثبت کیلومترشمار';
+
+  @override
+  String get importTypeCorrection => 'اصلاح کیلومترشمار';
+
+  @override
+  String get importTypeFillup => 'سوخت‌گیری';
+
+  @override
+  String get importTypeService => 'سرویس';
+
+  @override
+  String get importTypeExpense => 'هزینه';
+
+  @override
+  String get importTypeTrip => 'سفر';
+
+  @override
+  String get importSkipDate => 'تاریخ نداشت';
+
+  @override
+  String get importSkipFuel => 'مقدار سوخت نداشت';
+
+  @override
+  String get importSkipMoney => 'مبلغ نداشت';
+
+  @override
+  String get importSkipCurrency => 'واحد پول برای ادووا شناخته نبود';
+
+  @override
+  String get importSkipCorrection => 'ثبتی که اصلاح می‌کند در این فایل نیست';
+
+  @override
+  String get importSkipIncomplete => 'بخشی از آن نبود';
+
+  @override
+  String importSkipEntry(String type, String date, String reason) {
+    return '$type، $date — $reason';
+  }
+
+  @override
+  String importSkipEntryNoDate(String type, String reason) {
+    return '$type — $reason';
+  }
+
+  @override
+  String get backupTitle => 'پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get backupLastLabel => 'آخرین پشتیبان';
+
+  @override
+  String get backupNever => 'هرگز پشتیبانی نگرفته‌اید.';
+
+  @override
+  String backupEntriesSince(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد از آن زمان',
+      one: '$nText مورد از آن زمان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntriesOnlyHere(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد فقط روی همین گوشی هستند.',
+      one: '$nText مورد فقط روی همین گوشی است.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupNow => 'اکنون پشتیبان بگیر';
+
+  @override
+  String get backupNothingToBackUp => 'هنوز چیزی برای پشتیبان‌گیری نیست.';
+
+  @override
+  String get backupPreparing => 'در حال آماده‌سازی پشتیبان…';
+
+  @override
+  String get backupNotEncrypted =>
+      'فایل پشتیبان شما رمز ندارد. هر کسی آن را باز کند می‌تواند همه‌چیز داخلش را بخواند.';
+
+  @override
+  String get backupAlsoExport => 'خروجی‌های دیگر';
+
+  @override
+  String get backupFillUpsCsv => 'سوخت‌گیری‌ها (CSV)';
+
+  @override
+  String get backupAllCostsCsv => 'همه‌ی هزینه‌ها (CSV)';
+
+  @override
+  String get backupServiceHistoryPdf => 'تاریخچه‌ی سرویس (PDF)';
+
+  @override
+  String get backupRestoreHeader => 'بازیابی';
+
+  @override
+  String get backupRestoreRow => 'بازیابی از یک پشتیبان';
+
+  @override
+  String get backupUndoImport => 'واگردانی آخرین ورود اطلاعات';
+
+  @override
+  String get backupUndoWipe => 'واگردانی حذف همه‌ی داده‌ها';
+
+  @override
+  String backupUndoUntil(String date) {
+    return 'تا $date';
+  }
+
+  @override
+  String get backupCopiesGoOnUninstall =>
+      'اگر ادووا را حذف کنید این نسخه‌ها هم پاک می‌شوند.';
+
+  @override
+  String backupOnDiskSize(String size) {
+    return 'ادووا $size از این گوشی را استفاده می‌کند.';
+  }
+
+  @override
+  String get backupDeleteAll => 'حذف همه‌ی داده‌ها';
+
+  @override
+  String get backupDeleteWord => 'حذف';
+
+  @override
+  String get backupMigrationBanner =>
+      'ادووا نتوانست به‌روزرسانی را تمام کند و به داده‌های قبلی شما برگشت. تا وقتی این درست نشود نمی‌توانید مورد تازه‌ای اضافه کنید — همین حالا پشتیبان بگیرید.';
+
+  @override
+  String backupExportNoSpace(String size) {
+    return 'فضای کافی برای پشتیبان‌گیری نیست. حدود $size لازم است. کمی فضا آزاد کنید و دوباره امتحان کنید.';
+  }
+
+  @override
+  String get backupExportWriteFailed =>
+      'ادووا نتوانست پشتیبان‌گیری را تمام کند. هیچ چیزی روی این گوشی تغییر نکرده است. کمی بعد دوباره امتحان کنید.';
+
+  @override
+  String get backupExportNoShare =>
+      'این گوشی اجازه نمی‌دهد ادووا فایل را به برنامه‌ی دیگری بدهد. داده‌های شما سالم است — گوشی را دوباره روشن کنید و امتحان کنید.';
+
+  @override
+  String get backupDeleteAllTitle => 'همه‌چیز حذف شود؟';
+
+  @override
+  String backupDeleteAllBody(String vehicles, String entries, String since) {
+    return 'این کار $vehicles و $entries را حذف می‌کند، تا $since.';
+  }
+
+  @override
+  String backupDeleteAllNote(String days) {
+    return 'یک نسخه $days روز روی این گوشی می‌ماند تا بتوانید این کار را واگردانید. اگر ادووا را حذف کنید آن هم پاک می‌شود.';
+  }
+
+  @override
+  String backupVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خودرو',
+      one: '$nText خودرو',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد',
+      one: '$nText مورد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importTitle => 'بازیابی';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'ساخته‌شده در $date ساعت $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'چه چیزی تغییر می‌کند';
+
+  @override
+  String get importNow => 'اکنون';
+
+  @override
+  String get importAfter => 'پس از آن';
+
+  @override
+  String get importReplacesEverything =>
+      'هر چیزی که اکنون در ادووا هست با این فایل جایگزین می‌شود.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'ابتدا یک نسخه از داده‌های فعلی شما ذخیره می‌شود. تا $days روز می‌توانید این کار را واگردانید.';
+  }
+
+  @override
+  String get importNothingToReplace =>
+      'ادووا خالی است، پس چیزی جایگزین نمی‌شود.';
+
+  @override
+  String get importAlreadyRestored =>
+      'این همان پشتیبانی است که قبلاً بازیابی کردید. هیچ چیزی روی این گوشی تغییر نمی‌کند.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'داده‌هایی که پیش از $date، $time داشتید';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد خوانده نمی‌شوند و کنار گذاشته می‌شوند.',
+      one: '$nText مورد خوانده نمی‌شود و کنار گذاشته می‌شود.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'کدام‌ها';
+
+  @override
+  String get importReplaceMyData => 'داده‌هایم را جایگزین کن';
+
+  @override
+  String get importImport => 'وارد کن';
+
+  @override
+  String get importReplaceAnyway => 'با این حال جایگزین کن';
+
+  @override
+  String get importRestoring => 'در حال بازیابی داده‌های شما…';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'بازیابی شد. $vehicles و $entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'بازیابی قبلی شما تمام نشد. هیچ چیزی تغییر نکرد.';
+
+  @override
+  String get importKindVehicles => 'خودروها';
+
+  @override
+  String get importKindFillups => 'سوخت‌گیری‌ها';
+
+  @override
+  String get importKindServices => 'سرویس‌ها';
+
+  @override
+  String get importKindExpenses => 'هزینه‌ها';
+
+  @override
+  String get importKindTrips => 'سفرها';
+
+  @override
+  String get importKindReminders => 'یادآورها';
+
+  @override
+  String get importKindReadings => 'ثبت‌های کیلومترشمار';
+
+  @override
+  String get commonDone => 'تمام';
+
+  @override
+  String get backupPickVehicle => 'کدام خودرو؟';
+
+  @override
+  String get backupAllVehicles => 'همه‌ی خودروها';
+
+  @override
+  String get importKindCorrections => 'اصلاح‌های کیلومترشمار';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'و $nText مورد دیگر',
+      one: 'و $nText مورد دیگر',
+    );
+    return '$_temp0';
+  }
 }

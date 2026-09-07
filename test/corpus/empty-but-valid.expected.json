@@ -1,0 +1,6 @@
+{
+  "why": "A first-run phone with nothing logged yet still exports, and the file it writes must import. The degenerate case is the one an importer written against a realistic fixture gets wrong.",
+  "outcome": "ok",
+  "records": 0,
+  "warnings": []
+}

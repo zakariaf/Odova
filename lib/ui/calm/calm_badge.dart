@@ -59,16 +59,29 @@ class CalmBadge extends StatelessWidget {
     required String this.label,
     super.key,
     this.kind = CalmBadgeKind.neutral,
+    this.icon,
   }) : assert(
          kind != CalmBadgeKind.dot,
          'CalmBadgeKind.dot carries no label — use CalmBadge.dot().',
        );
 
   /// Creates the label-less 10pt dot.
-  const CalmBadge.dot({super.key}) : label = null, kind = CalmBadgeKind.dot;
+  const CalmBadge.dot({super.key})
+    : label = null,
+      kind = CalmBadgeKind.dot,
+      icon = null;
 
   /// The text, already localised. Null only for [CalmBadgeKind.dot].
   final String? label;
+
+  /// An optional glyph before the label, in the badge's own ink.
+  ///
+  /// Added for §13's `settings.backup`, where the reference draws a ⚠ inside
+  /// the amber "3 months ago" pill. It is a parameter and not a character in
+  /// the copy: a glyph baked into a translated string is a glyph six
+  /// translators can drop, and `font_coverage_test` would then be asserting a
+  /// codepoint that only appears in one locale.
+  final IconData? icon;
 
   /// The treatment.
   final CalmBadgeKind kind;
@@ -146,20 +159,39 @@ class CalmBadge extends StatelessWidget {
           // Both factors, not just widthFactor: a Center with an unbounded
           // height factor expands to the full 600pt of a loose parent, and a
           // badge that fills the column reads as a background.
+          // ONE layout, for both forms. The first version branched — keeping
+          // the old subtree when there was no icon — so that the committed
+          // golden would not move by the fraction of a pixel a `Row` wrapper
+          // costs. That bought an unchanged baseline for the path nothing had
+          // changed and left the NEW path in no golden at all: `specimens.dart`
+          // iterates `CalmBadgeKind.values` and never passed an icon.
+          //
+          // A widget with two layout paths and a golden over one of them is a
+          // widget whose next padding change is checked on the wrong one. The
+          // baseline moved instead, through `run-goldens-rebaseline`, and the
+          // specimen sheet gained an icon badge.
           child: Center(
             widthFactor: 1,
             heightFactor: 1,
-            child: Text(
-              label!,
-              textAlign: TextAlign.center,
-              style: type.caption.copyWith(
-                color: foreground,
-                fontWeight: type.semi,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon case final glyph?) ...[
+                  Icon(glyph, size: space.iconSm, color: foreground),
+                  SizedBox(width: space.s1),
+                ],
+                _label(type, foreground),
+              ],
             ),
           ),
         ),
       ),
     );
   }
+
+  Widget _label(CalmType type, Color? foreground) => Text(
+    label!,
+    textAlign: TextAlign.center,
+    style: type.caption.copyWith(color: foreground, fontWeight: type.semi),
+  );
 }

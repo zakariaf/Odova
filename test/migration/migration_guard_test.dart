@@ -17,8 +17,9 @@ import 'package:odova/data/backup/migration_safety_copy.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/app_database_opener.dart';
 import 'package:odova/data/db/connection.dart';
-import 'package:odova/data/db/schema_readers/schema_reader.dart';
 import 'package:sqlite3/sqlite3.dart';
+
+import '../support/export_stamp.dart';
 
 /// A migration that throws before it changes anything.
 ///
@@ -123,10 +124,53 @@ void main() {
   }
 
   test(
+    'a refused migration hands back a database that does NOT migrate',
+    () async {
+      // The bug this exists for: drift opens LAZILY and runs `onUpgrade` on the
+      // first query, so a refusal that handed back an ordinary connection ran
+      // the migration §6.4.4 had just refused. `bootstrap()` queries it
+      // immediately — `readLaunchFacts` — so the refusal lasted microseconds.
+      //
+      // The old tests could not see it: they asserted the FILE was intact
+      // when `openMigratedDatabase` returned, and never queried what it
+      // returned.
+      await seedV1();
+      final before = dbFile.readAsBytesSync();
+
+      final outcome = await openMigratedDatabase(
+        dbFile,
+        safetyDirectory: dir,
+        stamp: kTestExportStamp,
+        openDatabase: _ThrowingDatabase.new,
+      );
+
+      final database = switch (outcome) {
+        OpenedCleanly(:final database) => database,
+        MigrationRefused(:final database) => database,
+        MigrationRolledBack(:final database) => database,
+      };
+
+      // The query that used to trigger it, and it must not throw either.
+      final rows = await database
+          .customSelect('SELECT COUNT(*) AS n FROM vehicles;')
+          .getSingle();
+      expect(rows.read<int>('n'), 1);
+      await database.close();
+
+      // And the file is STILL untouched, after the query rather than before it.
+      expect(dbFile.readAsBytesSync(), before);
+    },
+  );
+
+  test(
     'a database already at the current version opens with no copy',
     () async {
       await seedV1();
-      final outcome = await openMigratedDatabase(dbFile, safetyDirectory: dir);
+      final outcome = await openMigratedDatabase(
+        dbFile,
+        safetyDirectory: dir,
+        stamp: kTestExportStamp,
+      );
 
       expect(outcome, isA<OpenedCleanly>());
       await (outcome as OpenedCleanly).database.close();
@@ -153,6 +197,7 @@ void main() {
     final outcome = await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _ThrowingDatabase.new,
     );
 
@@ -175,6 +220,7 @@ void main() {
     final outcome = await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -202,6 +248,7 @@ void main() {
       final outcome = await openMigratedDatabase(
         dbFile,
         safetyDirectory: dir,
+        stamp: kTestExportStamp,
         openDatabase: _ThrowingDatabase.new,
       );
 
@@ -212,12 +259,13 @@ void main() {
 
       final content =
           jsonDecode(await copy.readAsString()) as Map<String, Object?>;
-      expect(content['schema_version'], 1);
+      // SPEC §6's document, so the escape route is a file the app can
+      // actually import — changed in EPIC-15 task 15.3, where the writer that
+      // produces this shape was finally built.
+      expect(content['format'], 'odova.backup');
+      expect(content['format_version'], 1);
 
-      final tables = content['tables']! as Map<String, Object?>;
-      // Every table the v1 reader lists, and the vehicle's real values.
-      expect(tables.keys, containsAll(const SchemaReaderV1().tables));
-      final vehicles = tables['vehicles']! as List<Object?>;
+      final vehicles = content['vehicles']! as List<Object?>;
       expect(vehicles, hasLength(1));
       expect((vehicles.single! as Map)['name'], 'The Golf');
     },
@@ -244,6 +292,7 @@ void main() {
       final outcome = await openMigratedDatabase(
         dbFile,
         safetyDirectory: dir,
+        stamp: kTestExportStamp,
         openDatabase: _CommittingThenThrowingDatabase.new,
       );
 
@@ -270,6 +319,7 @@ void main() {
     final outcome = await openMigratedDatabase(
       dbFile,
       safetyDirectory: unwritable,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -291,6 +341,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -303,6 +354,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -324,6 +376,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _ThrowingDatabase.new,
     );
 
@@ -337,6 +390,7 @@ void main() {
       await openMigratedDatabase(
         dbFile,
         safetyDirectory: dir,
+        stamp: kTestExportStamp,
         openDatabase: _ThrowingDatabase.new,
       );
     }
@@ -388,6 +442,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -424,6 +479,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -447,6 +503,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _ThrowingDatabase.new,
     );
 
@@ -464,6 +521,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _ThrowingDatabase.new,
     );
 
@@ -486,7 +544,11 @@ void main() {
   });
 
   test('a missing database file opens cleanly with no copy', () async {
-    final outcome = await openMigratedDatabase(dbFile, safetyDirectory: dir);
+    final outcome = await openMigratedDatabase(
+      dbFile,
+      safetyDirectory: dir,
+      stamp: kTestExportStamp,
+    );
     expect(outcome, isA<OpenedCleanly>());
     await (outcome as OpenedCleanly).database.close();
     expect(outcome.safetyCopy, isNull);

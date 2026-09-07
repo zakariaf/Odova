@@ -70,6 +70,10 @@ void main() {
       'money', // Money, Currency, allocate, MoneyTotal
       'odometer', // the cumulative fold and the monotonicity rules
       'costs', // ranges and the accrual allocator, in minor units
+      // Who wrote a file and when. In core because BOTH the backup writer and
+      // the pre-migration safety copy stamp it, and they live in different
+      // layers — the feature and `lib/data` — so neither can own it.
+      'export',
       'recompute', // what a write to the past changed, as a diff
       'report', // the document a buyer reads, with no renderer attached
       'reminders', // the seeded catalogue a new vehicle is created with

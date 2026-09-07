@@ -10,6 +10,21 @@ dependencies:
   # An injectable now(). SPEC.md §3's due engine is a pure function of the
   # date, so the date has to be an argument and never a global.
   clock: ^1.1.2
+  # SHA-256 for the backup file's `content_hash`. SPEC.md §6 §2.6 makes it an
+  # INTEGRITY check and not a signature — §2 has no server and no key, so
+  # anybody can recompute it after editing the file. What it catches is a
+  # truncated download or a half-written file, which is the failure that
+  # actually happens to a backup.
+  #
+  # Pure Dart, no plugin, no platform channel, and its own dependencies are
+  # `typed_data` and `collection` — `tools/audit_deps.sh` walks the resolved
+  # tree and finds no socket.
+  #
+  # It was a DEV dependency until EPIC-15, for the zero-record-loss oracle's
+  # own hash. It ships now because the backup file carries one, and the two
+  # uses are the same function for the same reason: noticing that a copy of
+  # the data differs from the original in a way a record count cannot see.
+  crypto: ^3.0.7
   # SQLite with a typed Dart API and real migrations. Chosen over sqflite for
   # the migration ladder specifically: SPEC.md §6.3.3 requires a step-by-step
   # migration whose every from->to pair is tested against a committed schema
@@ -72,11 +87,13 @@ dev_dependencies:
   # Drift's code generator and the schema-snapshot tooling. Dev-only: the
   # generated .g.dart is committed, so no generator ships.
   build_runner: ^2.10.1
-  # SHA-256 for the migration test's content hash. DEV-ONLY: it never ships,
-  # and it is not a security boundary — it is how the zero-record-loss oracle
-  # notices a migration that copied the right NUMBER of rows with the wrong
-  # values in them, which counts alone cannot see.
-  crypto: ^3.0.7
+  # An INDEPENDENT CSV parser, for EPIC-15 task 15.8. DEV-ONLY and pure Dart —
+  # no I/O of any kind, let alone a socket. It is here because round-tripping a
+  # file through the code that wrote it proves the two halves agree with each
+  # other and nothing about whether either is right: RFC 4180's quoting rules
+  # are exactly the kind of thing a writer and a matching reader can both get
+  # wrong in the same direction. `tools/audit_deps.sh` walks the resolved tree.
+  csv: ^6.0.0
   drift_dev: ^2.28.3
   # A controllable clock for `Timer`, from the Dart team. DEV-ONLY, and pure
   # Dart with no I/O of any kind — it replaces the zone's timers with a queue

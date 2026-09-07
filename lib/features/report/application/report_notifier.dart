@@ -28,7 +28,6 @@ import 'package:odova/core/report/service_report_writer.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
-import 'package:path_provider/path_provider.dart';
 
 /// Everything `report.service` reads, in one shot.
 ///
@@ -315,16 +314,6 @@ class ReportFormatters {
   /// A whole number in the locale's numerals. `grouped: false` for a year.
   final String Function(int, {required bool grouped}) number;
 }
-
-/// The share port, overridden in tests.
-///
-/// A temp directory, never a place the app chooses to keep: §12's file is
-/// written, offered, and forgotten. On Android the manifest's FileProvider
-/// exposes `cache/` and nothing else, which is why the app asks for no storage
-/// permission at all.
-final Provider<ShareService> shareServiceProvider = Provider<ShareService>(
-  (ref) => PlatformShareService(directory: getTemporaryDirectory),
-);
 
 /// The report screen's provider.
 final NotifierProvider<ReportNotifier, ReportState> reportProvider =

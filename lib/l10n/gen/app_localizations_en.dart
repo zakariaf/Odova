@@ -2473,4 +2473,518 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonListSeparator => ', ';
+
+  @override
+  String importFailTooLarge(String size) {
+    return 'This file is too large to be an Odova backup (it’s $size). Even a decade of records comes to a few megabytes, so this is probably a different file.';
+  }
+
+  @override
+  String get importFailCompressed =>
+      'This file is compressed. Unzip it first, then import the .json file inside.';
+
+  @override
+  String get importFailNotUtf8 =>
+      'Odova can’t read the text in this file. It may have been changed by another program. Try the original file you exported.';
+
+  @override
+  String get importFailTruncated =>
+      'This file is incomplete. It may not have finished downloading or copying. Get the file again and try once more.';
+
+  @override
+  String get importFailNotOdova =>
+      'That file isn’t an Odova backup. Odova backups are .json files made from Settings → Export. Pick a different file.';
+
+  @override
+  String get importFailNotMadeByOdova =>
+      'This file wasn’t made by Odova. It’s a valid file, but not one Odova can read. Nothing on your phone has changed.';
+
+  @override
+  String get importFailTooNew =>
+      'This backup was made with a newer version of Odova. Update Odova, then import again. Your file hasn’t been changed.';
+
+  @override
+  String get importFailDamagedVersion =>
+      'This backup file is damaged and Odova can’t tell which version it is. If you have another copy or an older backup, try that one.';
+
+  @override
+  String get importFailDamagedFile =>
+      'This backup file is damaged and Odova can’t read what’s inside it. If you have another copy or an older backup, try that one.';
+
+  @override
+  String get importFailCannotOpen =>
+      'Odova couldn’t open that file. Try copying it to your phone’s Files app first, then import it from there.';
+
+  @override
+  String importFailNotEnoughSpace(String size) {
+    return 'Not enough space on your phone to import this backup. Free up about $size and try again.';
+  }
+
+  @override
+  String importFailTooDamaged(String readable, String total) {
+    return 'Too much of this backup is damaged to import safely. Odova could read $readable of your $total records, and importing part of your history would leave gaps. Try an older backup if you have one. Nothing on your phone has changed.';
+  }
+
+  @override
+  String get importWarnContentHash =>
+      'This file has been edited since Odova saved it. That’s fine if you changed it on purpose. Check the numbers below before you continue.';
+
+  @override
+  String importWarnRecordCount(String declared, String found) {
+    return 'This file doesn’t contain everything it says it should — it lists $declared records and $found were found. It may have been cut short. Check the numbers below.';
+  }
+
+  @override
+  String get importWarnMissingArray =>
+      'Part of this backup is missing. Everything Odova could find will still be imported.';
+
+  @override
+  String importWarnSkipped(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText records couldn’t be read and won’t be imported. Everything else will. Tap to see which ones.',
+      one:
+          '$nText record couldn’t be read and won’t be imported. Everything else will. Tap to see which one.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOrphans(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText records don’t say which vehicle they belong to. They’ll be imported under a vehicle called “Recovered records” so you can sort them out or delete them.',
+      one:
+          '$nText record doesn’t say which vehicle it belongs to. It’ll be imported under a vehicle called “Recovered records” so you can sort it out or delete it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnmatchedCorrections(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText odometer corrections couldn’t be matched to a reading. Your mileage history may look wrong where the odometer was replaced. Tap to see which.',
+      one:
+          '$nText odometer correction couldn’t be matched to a reading. Your mileage history may look wrong where the odometer was replaced. Tap to see which.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDroppedRules(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText reminders used a setting Odova no longer has. They now warn you at whichever comes first — check them under Reminders.',
+      one:
+          '$nText reminder used a setting Odova no longer has. It now warns you at whichever comes first — check it under Reminders.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnCoercedEnums(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText records used settings Odova doesn’t have. They’ve been imported with Odova’s own settings instead.',
+      one:
+          '$nText record used a setting Odova doesn’t have. It’s been imported with Odova’s own setting instead.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOutOfRangeDates(int n, String nText, String year) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText records have dates that look wrong — before $year, or after this backup was made. They’ve been imported so you can fix them.',
+      one:
+          '$nText record has a date that looks wrong — before $year, or after this backup was made. It’s been imported so you can fix it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnresolvedLinks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText records pointed at a trip or a reminder that isn’t in this file. They’ve been imported without it.',
+      one:
+          '$nText record pointed at a trip or a reminder that isn’t in this file. It’s been imported without it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDuplicateIds(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'This file lists $nText records twice. Odova will import the first copy of each.',
+      one:
+          'This file lists $nText record twice. Odova will import the first copy.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnTruncatedStrings(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText notes were too long and have been shortened.',
+      one: '$nText note was too long and has been shortened.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSuccess(String vehicles, String records) {
+    return 'Imported. $vehicles and $records restored. Your reminders have been recalculated.';
+  }
+
+  @override
+  String importRecordCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText records',
+      one: '$nText record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importRecoveredVehicleName => 'Recovered records';
+
+  @override
+  String get importTypeVehicle => 'Vehicle';
+
+  @override
+  String get importTypeReminder => 'Reminder';
+
+  @override
+  String get importTypeReading => 'Odometer reading';
+
+  @override
+  String get importTypeCorrection => 'Odometer correction';
+
+  @override
+  String get importTypeFillup => 'Fill-up';
+
+  @override
+  String get importTypeService => 'Service';
+
+  @override
+  String get importTypeExpense => 'Expense';
+
+  @override
+  String get importTypeTrip => 'Trip';
+
+  @override
+  String get importSkipDate => 'the date was missing';
+
+  @override
+  String get importSkipFuel => 'the amount of fuel was missing';
+
+  @override
+  String get importSkipMoney => 'the amount was missing';
+
+  @override
+  String get importSkipCurrency => 'the currency wasn’t one Odova recognises';
+
+  @override
+  String get importSkipCorrection =>
+      'the reading it corrects isn’t in this file';
+
+  @override
+  String get importSkipIncomplete => 'part of it was missing';
+
+  @override
+  String importSkipEntry(String type, String date, String reason) {
+    return '$type, $date — $reason';
+  }
+
+  @override
+  String importSkipEntryNoDate(String type, String reason) {
+    return '$type — $reason';
+  }
+
+  @override
+  String get backupTitle => 'Backup & restore';
+
+  @override
+  String get backupLastLabel => 'Last backup';
+
+  @override
+  String get backupNever => 'You’ve never made a backup.';
+
+  @override
+  String backupEntriesSince(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries since',
+      one: '$nText entry since',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntriesOnlyHere(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries are only on this phone.',
+      one: '$nText entry is only on this phone.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get backupNothingToBackUp => 'Nothing to back up yet.';
+
+  @override
+  String get backupPreparing => 'Preparing your backup…';
+
+  @override
+  String get backupNotEncrypted =>
+      'Your backup file is not password-protected. Anyone who opens it can read everything in it.';
+
+  @override
+  String get backupAlsoExport => 'Also export';
+
+  @override
+  String get backupFillUpsCsv => 'Fill-ups (CSV)';
+
+  @override
+  String get backupAllCostsCsv => 'All costs (CSV)';
+
+  @override
+  String get backupServiceHistoryPdf => 'Service history (PDF)';
+
+  @override
+  String get backupRestoreHeader => 'Restore';
+
+  @override
+  String get backupRestoreRow => 'Restore from a backup';
+
+  @override
+  String get backupUndoImport => 'Undo last import';
+
+  @override
+  String get backupUndoWipe => 'Undo delete all data';
+
+  @override
+  String backupUndoUntil(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String get backupCopiesGoOnUninstall =>
+      'These copies are removed if you uninstall Odova.';
+
+  @override
+  String backupOnDiskSize(String size) {
+    return 'Odova is using $size on this phone.';
+  }
+
+  @override
+  String get backupDeleteAll => 'Delete all data';
+
+  @override
+  String get backupDeleteWord => 'DELETE';
+
+  @override
+  String get backupMigrationBanner =>
+      'Odova couldn’t finish updating and has gone back to your previous data. You can’t add new entries until this is fixed — back up now.';
+
+  @override
+  String backupExportNoSpace(String size) {
+    return 'There isn’t enough free space to make a backup. It needs about $size. Free up some space and try again.';
+  }
+
+  @override
+  String get backupExportWriteFailed =>
+      'Odova couldn’t finish the backup. Nothing on this phone has changed. Try again in a moment.';
+
+  @override
+  String get backupExportNoShare =>
+      'This phone won’t let Odova hand the file to another app. Your data is safe — try again after restarting your phone.';
+
+  @override
+  String get backupDeleteAllTitle => 'Delete everything?';
+
+  @override
+  String backupDeleteAllBody(String vehicles, String entries, String since) {
+    return 'This removes $vehicles and $entries, going back to $since.';
+  }
+
+  @override
+  String backupDeleteAllNote(String days) {
+    return 'A copy is saved on this phone for $days days, so you can undo this. It is removed if you uninstall Odova.';
+  }
+
+  @override
+  String backupVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText vehicles',
+      one: '$nText vehicle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries',
+      one: '$nText entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importTitle => 'Restore';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'Made on $date at $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'What changes';
+
+  @override
+  String get importNow => 'Now';
+
+  @override
+  String get importAfter => 'After';
+
+  @override
+  String get importReplacesEverything =>
+      'Everything now in Odova will be replaced by this file.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'A copy of what you have now is saved first. You can undo this for $days days.';
+  }
+
+  @override
+  String get importNothingToReplace =>
+      'Odova is empty, so nothing will be replaced.';
+
+  @override
+  String get importAlreadyRestored =>
+      'This is the backup you already restored. Nothing on this phone will change.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'The data you had before $date, $time';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries can’t be read and will be left out.',
+      one: '$nText entry can’t be read and will be left out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'See which';
+
+  @override
+  String get importReplaceMyData => 'Replace my data';
+
+  @override
+  String get importImport => 'Import';
+
+  @override
+  String get importReplaceAnyway => 'Replace anyway';
+
+  @override
+  String get importRestoring => 'Restoring your data…';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'Restored. $vehicles and $entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'Your last restore didn’t finish. Nothing was changed.';
+
+  @override
+  String get importKindVehicles => 'Vehicles';
+
+  @override
+  String get importKindFillups => 'Fill-ups';
+
+  @override
+  String get importKindServices => 'Services';
+
+  @override
+  String get importKindExpenses => 'Expenses';
+
+  @override
+  String get importKindTrips => 'Trips';
+
+  @override
+  String get importKindReminders => 'Reminders';
+
+  @override
+  String get importKindReadings => 'Odometer readings';
+
+  @override
+  String get commonDone => 'Done';
+
+  @override
+  String get backupPickVehicle => 'Which vehicle?';
+
+  @override
+  String get backupAllVehicles => 'All vehicles';
+
+  @override
+  String get importKindCorrections => 'Odometer corrections';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'and $nText more',
+      one: 'and $nText more',
+    );
+    return '$_temp0';
+  }
 }
