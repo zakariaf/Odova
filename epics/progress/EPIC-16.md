@@ -270,3 +270,39 @@ nowhere in the suite — and is bounded by the size of the taken set so a pure
 function on the cold-launch path cannot spin.
 
 Seven mutations, all caught, in one `tools/mutate.sh` pass.
+
+## Task 16.6 — the reconcile diff
+
+Three sources of truth meet in `reconcile()` and §6.1 says they are not
+interchangeable: `desired` is what the scheduler recomputed from the database,
+`pendingIds` is what the OS says it holds — the truth for WHETHER — and
+`scheduled_notifications` is the truth for WHY. Without the third there is no
+telling a notification the user dismissed from one iOS silently discarded for
+cap, and only the second is a bug worth chasing.
+
+Four behaviours are worth naming:
+
+- **A row marked pending that the OS is not holding gets rescheduled.** That is
+  the repair path for an iOS cap discard and the only way the app ever learns
+  one happened.
+- **A fired stage is never rescheduled** (§4.2.2 rule 4). Re-delivering history
+  is the most confusing thing this app could do: the user marked the oil change
+  done and is told again that it is due.
+- **An id the OS holds that no row explains is cancelled.** A leftover from a
+  previous install fires carrying a payload nothing can route.
+- **`dropped` is not `cancelled`.** The distinction is the entire reason the
+  table exists.
+
+**A mutation removing the sorts survived the determinism test**, and the reason
+is a lesson about that kind of test: two runs over the same input have the same
+INSERTION order, so a stability check cannot see an unsorted result. What it
+hides is a diff whose call order depends on how the caller built its list — two
+devices with identical data issuing cancels in different orders. Now covered by
+its own ordering test, and the mutation is red.
+
+**The harness gained a two-field form.** Several mutations reported "the `from`
+text was not found" rather than passing, which is the behaviour that matters:
+the commonest mutation of all is a guard DELETED, and expressing it needed an
+empty replacement that ` :: ` could not carry. Multi-line `from` is deliberately
+still unsupported — it invites near-miss whitespace that silently fails to
+apply, which is the failure the harness exists to refuse.

@@ -6,10 +6,14 @@
 #
 #   usage: mutate.sh <source-file> <test-target> <<'EOF'
 #          label :: from :: to
-#          label :: from :: to
+#          label :: from-to-delete
 #          EOF
 #
-# `from` and `to` are literal strings, one mutation per line, separated by ` :: `.
+# `from` and `to` are literal single-line strings separated by ` :: `. Omitting
+# the third field DELETES the `from` text, which is the commonest mutation of
+# all — a guard removed. Multi-line `from` is not supported on purpose: it
+# invites near-miss whitespace that silently fails to apply, and the two-field
+# form covers the case it was wanted for.
 # A mutation whose `from` is not found is a FAILURE — a mutation that silently
 # did not apply reports "caught" while proving nothing, which is the exact
 # failure mode this whole discipline exists to prevent.
@@ -31,8 +35,10 @@ while IFS= read -r line; do
 
   label="${line%% :: *}"
   rest="${line#* :: }"
-  from="${rest%% :: *}"
-  to="${rest#* :: }"
+  case "$rest" in
+    *" :: "*) from="${rest%% :: *}"; to="${rest##* :: }" ;;
+    *) from="$rest"; to="" ;;
+  esac
 
   if ! FROM="$from" TO="$to" SRC="$src" python3 - <<'PY'
 import os, sys
