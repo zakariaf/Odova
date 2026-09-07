@@ -24,6 +24,25 @@ move_aside() { # move_aside <file> — the file must be ABSENT for the arm
 }
 scratch=()
 write_scratch() { # write_scratch <file> <<'EOF' ... EOF
+  # REFUSES to clobber a file this run did not create. `scratch` deletes
+  # everything it registered, so pointing it at a real committed file destroys
+  # that file — which is what happened to drift_schema_v2.json the first time
+  # this ran after EPIC-16 added a v2 snapshot. The arm planting a "snapshot
+  # with no bump" had hardcoded v2, a safe name right up until it was not.
+  #
+  # Rewriting a probe this run already created is fine and several arms do it:
+  # the check is "already in `scratch`", not "already on disk".
+  local already=0
+  local existing
+  for existing in "${scratch[@]:-}"; do
+    [ "$existing" = "$1" ] && already=1 && break
+  done
+  if [ -e "$1" ] && [ "$already" -eq 0 ]; then
+    printf 'FAIL  write_scratch would clobber %s, which it did not create\n' \
+      "$1" >&2
+    rc=1
+    return 1
+  fi
   mkdir -p "$(dirname "$1")"
   cat >"$1"
   scratch+=("$1")
@@ -867,8 +886,15 @@ assert 0 "check_schema_freshness is green on the real tree" bash "$FRESH"
 # `stepByStep` throws "Unknown migration from 1" on the device of every user who
 # had the old version.
 plant lib/data/db/schema_version.dart
-perl -0pi -e 's/kLatestSchemaVersion = 1/kLatestSchemaVersion = 2/' \
-  lib/data/db/schema_version.dart
+# Version-INDEPENDENT: reads the current number and plants the next one. It was
+# `s/= 1/= 2/`, and EPIC-16's bump to v2 turned both arms below into no-ops —
+# the substitution matched nothing, the gate stayed green, and two arms about
+# data loss passed by not running. The same literal-outlives-the-fact bug the
+# migration guard test had, in the file whose whole job is to prove gates fail.
+current="$(perl -ne 'print $1 if /kLatestSchemaVersion = (\d+)/' \
+  lib/data/db/schema_version.dart)"
+perl -0pi -e "s/kLatestSchemaVersion = $current/kLatestSchemaVersion = \
+$((current + 1))/" lib/data/db/schema_version.dart
 assert 1 "check_schema_freshness is red on a bump with no snapshot" \
   bash "$FRESH"
 restore_all
@@ -876,7 +902,7 @@ restore_all
 # The other direction, which is just as silent: a snapshot exported and the
 # constant left alone, so the migration never runs and the app reads columns
 # that are not there.
-write_scratch drift_schemas/odova/drift_schema_v2.json <<'JSON'
+write_scratch "drift_schemas/odova/drift_schema_v$((current + 1)).json" <<'JSON'
 {"_meta": {"description": "selftest plant"}, "options": {}, "entities": []}
 JSON
 assert 1 "check_schema_freshness is red on a snapshot with no bump" \
@@ -905,7 +931,7 @@ Future<void> sync(db) async {
   ''', [1, 2]);
 }
 DART
-assert 1 "check_stream_notify is red on a raw INSERT with no notifyUpdates" \
+assert 1 "check_stream_notify is red on a raw INSERT" \
   bash "$NOTIFY" --root .selftest/repos
 
 # The DELETE arm, which is the one that emptied six tables through a cascade.
@@ -914,18 +940,38 @@ Future<void> erase(db) async {
   await db.customStatement('DELETE FROM vehicles WHERE id = ?;', [1]);
 }
 DART
-assert 1 "check_stream_notify is red on a raw DELETE with no notifyUpdates" \
+assert 1 "check_stream_notify is red on a raw DELETE" \
   bash "$NOTIFY" --root .selftest/repos
 
-# And green once it announces — otherwise the gate would be satisfied by
-# deleting the statement rather than by fixing it.
+# Green once the write goes through the API that carries its own announcement.
+# The FIRST version of this gate accepted a raw write plus a follow-up
+# `notifyUpdates` anywhere in the file — which could not see a file with two
+# raw writes and one announcement, and that is exactly the file it was written
+# for. The contract now is the API, not the workaround.
 write_scratch .selftest/repos/probe.dart <<'DART'
 Future<void> erase(db) async {
-  await db.customStatement('DELETE FROM vehicles WHERE id = ?;', [1]);
-  db.notifyUpdates({TableUpdate.onTable(db.vehicles)});
+  await db.customUpdate(
+    'DELETE FROM vehicles WHERE id = ?;',
+    variables: [Variable.withInt(1)],
+    updates: {db.vehicles},
+  );
 }
 DART
-assert 0 "check_stream_notify is green once the writer announces" \
+assert 0 "check_stream_notify is green on customUpdate" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# And a comment naming the banned call must not trip the gate that bans it.
+write_scratch .selftest/repos/probe.dart <<'DART'
+// Never use customStatement for an INSERT INTO — it announces nothing.
+Future<void> erase(db) async {
+  await db.customUpdate(
+    'DELETE FROM vehicles WHERE id = ?;',
+    variables: [Variable.withInt(1)],
+    updates: {db.vehicles},
+  );
+}
+DART
+assert 0 "check_stream_notify ignores a comment naming the ban" \
   bash "$NOTIFY" --root .selftest/repos
 
 # A raw READ needs no announcement, and a gate that fired on one would be

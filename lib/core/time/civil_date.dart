@@ -218,14 +218,6 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
     );
   }
 
-  /// Days since 1970-01-01.
-  ///
-  /// Through `lib/core/time/julian_day.dart`, which `lib/core/l10n/jalali.dart`
-  /// has used since EPIC-04. This file first wrote its OWN integer day count —
-  /// Hinnant's `days_from_civil` against the other's Fliegel-Van Flandern — and
-  /// they agree over 100,000 consecutive days with zero mismatches, which is
-  /// the good outcome. The bad one is a repo where two day counts disagree
-  /// somewhere nobody looked, and there is no reason to keep two.
   /// The ISO weekday, Monday = 1 through Sunday = 7.
   ///
   /// Same numbering as `DateTime.weekday`, so the `Weekday` constants in
@@ -239,6 +231,14 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
   /// somebody flies.
   int get weekday => ((_epochDay + 3) % 7) + 1;
 
+  /// Days since 1970-01-01.
+  ///
+  /// Through `lib/core/time/julian_day.dart`, which `lib/core/l10n/jalali.dart`
+  /// has used since EPIC-04. This file first wrote its OWN integer day count —
+  /// Hinnant's `days_from_civil` against the other's Fliegel-Van Flandern — and
+  /// they agree over 100,000 consecutive days with zero mismatches, which is
+  /// the good outcome. The bad one is a repo where two day counts disagree
+  /// somewhere nobody looked, and there is no reason to keep two.
   int get _epochDay => gregorianToJdn(year, month, day) - kUnixEpochJdn;
 
   @override

@@ -490,3 +490,87 @@ silent.
 Eleven mutations after one of my own turned out to be a no-op — I wrote
 identical `from` and `to`, and the harness reported it as SURVIVED, which is the
 correct reading of "the tests do not distinguish these two identical programs".
+
+## The gap this epic nearly shipped with
+
+Every task above was green, every gate passed, and **none of it ran in the app.**
+
+- `notificationGatewayProvider` threw and `bootstrap()` never overrode it.
+- `syncNotifications()` — the entrypoint the skill calls "the reliability
+  backbone" — did not exist.
+- Nothing consumed `PlannedNotification`, so the render step from plan to
+  `ScheduledNotification` was missing.
+
+This repo has documented that exact shape five times: `CalmDialog`'s two-action
+constructor (EPIC-08), the odometer field's range (EPIC-11), `quantityFormsSet`
+(EPIC-11), `CostRange.thisMonthSoFar` (EPIC-14), and `openMigratedDatabase`,
+which EPIC-15's `/simplify` pass caught with the note that "a port with no
+production caller" is the named problem. A sixth — and this time the whole
+epic's worth of logic — is not a defensible thing to merge.
+
+`syncNotifications()` is built and tested against the fake gateway, including
+the assertion the whole design exists for: **zero calls on the second run over
+unchanged input.** It is deliberately pure of the database — it takes what the
+caller read and returns the rows the caller should write, so the transaction
+belongs to the caller and the one function that proves §4.2.2 does not sit
+behind a drift dependency.
+
+It also refuses to lie about what happened: a row is written only for a schedule
+call that RETURNED. A row claiming `pending` for a call that threw makes §6.1's
+"truth for why" a record of what the app intended rather than of what it did.
+
+## `/simplify` — four agents, and the deepest finding was about a gate I wrote
+
+**The stream-notification fix was at the wrong altitude, and the gate compensated
+for it.** `deletion.dart` already used `db.customUpdate(..., updates: {...})` —
+drift's API where the write and the announcement are ONE CALL — with a comment
+saying the same failure "was already fixed once, in the two places that were not
+this one". I added a third and fourth `customStatement` write plus a follow-up
+`notifyUpdates`, and then ~150 lines of shell gate and self-test arms to catch
+people forgetting the follow-up.
+
+Worse, that gate could not see the bug it was written for: it checked
+file-scoped that `notifyUpdates` appears somewhere, and `odometer_fan_out.dart`
+had TWO raw writes. Delete one announcement and the gate stays green and the
+defect ships again, in the same file, in the same shape.
+
+Both sites now use `customUpdate`, and the gate checks the rule with no reason
+to break it — **no raw write at all in `lib/data/repositories/`**. It strips
+comments first, because otherwise it fires on the paragraph explaining itself.
+
+**A functional gap, not just duplication.** `delivery_slot.dart` declared its
+own `const` copies of the delivery time and both quiet-hours bounds. Those three
+already exist on `AppSettings` and are **user-editable** — the settings screen
+writes them — so a user who moved quiet hours to 22:00 got 21:00 behaviour and
+nothing anywhere would have gone red. `SchedulePreferences.from(AppSettings)` is
+the one place they meet now, and `isQuietWindow` is one definition of the
+predicate: the hand-rolled copy handled only a WRAPPING window, so a
+13:00–14:00 window a user can set was quiet all day.
+
+**`rollover.dart` was deleted entirely.** `resolveAnchor` and
+`due_engine._distanceAxis` already implement §4.7.4, and my version was the
+naive reading of §3 that `_anchorDate` documents CORRECTING — so the two
+disagreed on exactly the class of item where being wrong is a legal deadline.
+The worked example (128,400, not 125,000) now runs against the real one, in
+`resolve_anchor_test.dart`.
+
+**`wallClockOfMinutes` was a fourth copy**, and the one without the clamp —
+that helper's own doc records three copies landing in one epic and one writing
+`25:00` for a stored 1500. `FlnNotificationGateway` parses that string.
+
+Also: `ClockSuspicion` renamed `BackwardsClockJump` (the name was already taken
+in `core/due/` for a different question); two `const bool`s that were spec
+sentences dressed as declarations deleted, with the cap claim asserted where it
+is actually enforced; unused parameters removed from `nextDistanceThreshold` and
+`applyPrePromptAnswer`; `kNudgeHorizonDays` now references `kHorizonDays`; the
+`deep_link.dart` re-export removed because it preserved ZERO production callers
+while widening the surface (the permission port's stays — it has three).
+
+**And the self-test destroyed a committed file.** `write_scratch` was pointed at
+`drift_schema_v2.json` by an arm that hardcoded v2 — a safe name until EPIC-16
+made it real — and the cleanup then deleted it. `write_scratch` now refuses to
+clobber a file it did not create, and the schema-freshness arms read the current
+version rather than assuming 1.
+
+Which is the same bug as the migration guard's, in the file whose entire job is
+to prove that gates fail.

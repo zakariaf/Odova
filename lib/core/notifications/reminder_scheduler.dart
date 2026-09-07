@@ -24,6 +24,7 @@
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/notifications/delivery_slot.dart';
+import 'package:odova/core/notifications/notification_payload.dart';
 import 'package:odova/core/notifications/notification_stage.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/value_equality.dart';

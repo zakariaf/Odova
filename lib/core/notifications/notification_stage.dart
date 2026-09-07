@@ -14,9 +14,6 @@
 import 'package:odova/core/notifications/notification_payload.dart';
 import 'package:odova/core/time/civil_date.dart';
 
-export 'package:odova/core/notifications/notification_payload.dart'
-    show DeepLinkKind;
-
 /// 120 days. SPEC.md §6.1.
 ///
 /// This is what makes the pending cap a CONSEQUENCE rather than a mechanism:

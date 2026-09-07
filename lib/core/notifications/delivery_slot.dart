@@ -12,18 +12,10 @@
 // type in this file is therefore zone-free on purpose, and adding a `DateTime`
 // to any of them reintroduces the bug.
 import 'package:meta/meta.dart';
+import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/value_equality.dart';
-
-/// 09:00. See the file comment for why this hour and not another.
-const int kDefaultDeliveryMinutes = 9 * 60;
-
-/// 21:00 — the first minute that is too late.
-const int kQuietStartMinutes = 21 * 60;
-
-/// 08:00 — the first minute that is no longer too early.
-const int kQuietEndMinutes = 8 * 60;
 
 /// The app-level delivery settings the scheduler reads.
 ///
@@ -35,14 +27,45 @@ const int kQuietEndMinutes = 8 * 60;
 @immutable
 class SchedulePreferences with ValueEquality {
   /// Creates the preferences.
+  ///
+  /// The defaults come from `AppSettings`, not from a second set of constants
+  /// declared here. They were declared twice, and the copy was worse than
+  /// untidy: `AppSettings.quietHoursFromMinutes` is USER-EDITABLE — the
+  /// settings screen writes it — while the scheduler's copy was `const`, so a
+  /// user who moved quiet hours to 22:00 got 21:00 behaviour and nothing
+  /// anywhere would have gone red.
   const SchedulePreferences({
-    this.deliveryMinutes = kDefaultDeliveryMinutes,
+    this.deliveryMinutes = kDefaultNotificationMinutes,
+    this.quietFromMinutes = kDefaultQuietFromMinutes,
+    this.quietToMinutes = kDefaultQuietToMinutes,
     this.weekdaysOnly = false,
     this.weekend = const <Weekday>{},
   });
 
+  /// Everything the scheduler needs, read off the user's own settings.
+  ///
+  /// The one place the two representations meet. [weekend] cannot come from
+  /// `AppSettings` — it is CLDR region data keyed off the formats tag, not a
+  /// stored preference — so it is passed in beside it.
+  factory SchedulePreferences.from(
+    AppSettings settings, {
+    required Set<Weekday> weekend,
+  }) => SchedulePreferences(
+    deliveryMinutes: settings.notificationTimeMinutes,
+    quietFromMinutes: settings.quietHoursFromMinutes,
+    quietToMinutes: settings.quietHoursToMinutes,
+    weekdaysOnly: settings.weekdaysOnly,
+    weekend: weekend,
+  );
+
   /// Minutes past local midnight.
   final int deliveryMinutes;
+
+  /// When quiet hours open.
+  final int quietFromMinutes;
+
+  /// When they close.
+  final int quietToMinutes;
 
   /// Whether weekend fire dates move to the next working day.
   final bool weekdaysOnly;
@@ -55,6 +78,19 @@ class SchedulePreferences with ValueEquality {
   /// reminder moved to the wrong day", which they cannot.
   final Set<Weekday> weekend;
 
+  /// Whether [minutes] falls inside quiet hours.
+  ///
+  /// Through `isQuietWindow`, the one definition, which handles BOTH a wrapping
+  /// window
+  /// (21:00-08:00, the default) and a non-wrapping one (13:00-14:00, which a
+  /// user can set). The version written here handled only the wrapping case —
+  /// correct for the defaults and silently wrong for anything else.
+  bool isQuiet(int minutes) => isQuietWindow(
+    minutes: minutes,
+    fromMinutes: quietFromMinutes,
+    toMinutes: quietToMinutes,
+  );
+
   // The weekend is SORTED and spread for the same reason a list is spread in
   // `PlannedNotification`: `==` on two distinct Sets is identity, so an
   // unspread set makes two identical preference objects unequal. Sorted
@@ -63,6 +99,8 @@ class SchedulePreferences with ValueEquality {
   @override
   List<Object?> get props => [
     deliveryMinutes,
+    quietFromMinutes,
+    quietToMinutes,
     weekdaysOnly,
     ...(weekend.toList()..sort()),
   ];
@@ -81,11 +119,12 @@ class DeliverySlot with ValueEquality implements Comparable<DeliverySlot> {
   final int minutes;
 
   /// `YYYY-MM-DDTHH:MM`, the form `ScheduledNotification.fireAtLocal` takes.
-  String get wallClock {
-    final h = (minutes ~/ 60).toString().padLeft(2, '0');
-    final m = (minutes % 60).toString().padLeft(2, '0');
-    return '${date}T$h:$m';
-  }
+  ///
+  /// Through `wallClockOfMinutes`, which CLAMPS. This was a fourth hand-rolled
+  /// copy of the same two lines, and the one without the clamp — that helper's
+  /// own doc records three copies landing in one epic and one of them writing
+  /// `25:00` for a stored 1500. `FlnNotificationGateway` parses this string.
+  String get wallClock => '${date}T${wallClockOfMinutes(minutes)}';
 
   @override
   int compareTo(DeliverySlot other) {
@@ -116,15 +155,17 @@ DeliverySlot resolveSlot({
   var minutes = prefs.deliveryMinutes;
 
   // Quiet hours WRAP midnight, which is where this arithmetic is usually
-  // wrong: `21*60 <= m && m < 8*60` is false for every minute, so 03:00 sails
-  // through and the phone buzzes at three in the morning.
-  if (minutes >= kQuietStartMinutes || minutes < kQuietEndMinutes) {
+  // wrong: `from <= m && m < to` is false for every minute of a 21:00–08:00
+  // window, so 03:00 sails through and the phone buzzes at three in the
+  // morning. `AppSettings.isQuiet` already carries that rule and handles a
+  // non-wrapping window too.
+  if (prefs.isQuiet(minutes)) {
     // Late evening belongs to tomorrow; the small hours are already tomorrow.
     // Either way the delivery goes to a DAY's slot at the default hour and
     // never to the end of the quiet window — §4.5 forbids releasing a batch at
     // 08:00, which is what clamping would do.
-    if (minutes >= kQuietStartMinutes) day = day.addDays(1);
-    minutes = kDefaultDeliveryMinutes;
+    if (minutes >= prefs.quietFromMinutes) day = day.addDays(1);
+    minutes = kDefaultNotificationMinutes;
   }
 
   if (prefs.weekdaysOnly && prefs.weekend.isNotEmpty) {

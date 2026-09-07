@@ -10,6 +10,7 @@
 // 240 notifications the naive arithmetic suggests: a date eight months out will
 // be recomputed dozens of times before it arrives, so scheduling it now is
 // wasted budget and a stale body.
+import 'package:odova/core/notifications/notification_payload.dart';
 import 'package:odova/core/notifications/notification_stage.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:test/test.dart';

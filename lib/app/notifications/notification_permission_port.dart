@@ -14,8 +14,15 @@ import 'package:odova/core/notifications/permission_preprompt.dart';
 
 // `NotificationPermission` moved to lib/core/notifications/ so the PRE-PROMPT
 // DECISION can read it without importing this layer. Re-exported here because
-// every existing caller reads it from this file, and it is still this port's
-// vocabulary — the move is about which layer may depend on which.
+// THREE production files read it from this one — the settings chrome, the
+// settings model and the notifications screen — so the export earns its keep.
+//
+// `deep_link.dart` got the same treatment and had it removed again: its
+// re-export preserved zero production callers (only two test files import that
+// file at all) while widening its surface with `encodePayload`/`decodePayload`,
+// which never lived there. A re-export that saves three imports is a
+// convenience; one that saves none is a second name for the boundary the move
+// was made to draw.
 export 'package:odova/core/notifications/permission_preprompt.dart'
     show NotificationPermission;
 

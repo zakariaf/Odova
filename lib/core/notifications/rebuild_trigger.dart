@@ -36,16 +36,6 @@ const int kClockSuppressionMs = 60 * 60 * 1000;
 /// its delivery re-arms before the queue actually empties.
 const int keeperOffsetDays = kHorizonDays - 7;
 
-/// §4.4.2: a `keeper` payload names a vehicle and no item.
-const bool keeperCarriesReminderId = false;
-
-/// §6.2: "It counts against the weekly cap."
-///
-/// A constant rather than a comment, because the two-a-week promise in §4.3 has
-/// no exceptions and the keeper is the one notification somebody would be
-/// tempted to make one.
-const bool keeperCountsAgainstCap = true;
-
 /// Three unconfirmed deliveries before the OEM card appears. SPEC.md §6.4.
 const int kBackgroundRestrictionStrikes = 3;
 
@@ -73,15 +63,7 @@ enum RebuildTrigger {
   permissionGranted,
 
   /// Cancel that vehicle's keys first, then rebuild.
-  vehicleArchivedOrDeleted;
-
-  /// Every member of this enum forces one.
-  ///
-  /// The property is spelled out rather than assumed because the enum is the
-  /// list of things that DO — a DST transition is deliberately not a member,
-  /// and the day somebody adds it, this getter is where they will notice they
-  /// have to answer for it.
-  bool get forcesFullRebuild => true;
+  vehicleArchivedOrDeleted,
 }
 
 /// Whether the app version changed since the last build.
@@ -116,10 +98,19 @@ bool needsRebuildForLocale({
 }) => lastLocale != current;
 
 /// What a backwards clock jump means.
+///
+/// NOT `ClockSuspicion` — `lib/core/due/clock_suspicion.dart` already has that
+/// name for a different question (is the device clock plausible against the
+/// build date). Two unrelated concepts under one name in one package means the
+/// first file needing both takes an import prefix, and anyone grepping the name
+/// gets two answers.
 @immutable
-class ClockSuspicion with ValueEquality {
+class BackwardsClockJump with ValueEquality {
   /// Creates a verdict.
-  const ClockSuspicion({required this.moved, required this.suppressWithinMs});
+  const BackwardsClockJump({
+    required this.moved,
+    required this.suppressWithinMs,
+  });
 
   /// Whether the clock moved back far enough to be a person.
   final bool moved;
@@ -135,13 +126,13 @@ class ClockSuspicion with ValueEquality {
 ///
 /// Forward is never suspicious — time passing is the normal case, and treating
 /// it as a trigger would rebuild on every launch.
-ClockSuspicion clockMovedBackwards({
+BackwardsClockJump clockMovedBackwards({
   required int lastSeenUtcMs,
   required int nowUtcMs,
 }) {
   final backwards = lastSeenUtcMs - nowUtcMs;
   final moved = backwards > kClockSuspicionMs;
-  return ClockSuspicion(
+  return BackwardsClockJump(
     moved: moved,
     suppressWithinMs: moved ? kClockSuppressionMs : 0,
   );

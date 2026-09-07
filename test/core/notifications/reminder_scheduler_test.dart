@@ -14,6 +14,7 @@
 // competing for about 34 slots.
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/notifications/delivery_slot.dart';
+import 'package:odova/core/notifications/notification_payload.dart';
 import 'package:odova/core/notifications/notification_stage.dart';
 import 'package:odova/core/notifications/reminder_scheduler.dart';
 import 'package:odova/core/time/civil_date.dart';
@@ -505,6 +506,42 @@ void main() {
       );
       // It got the day it asked for, ahead of twelve earlier-dated warnings.
       expect(urgent.slot.date, today.addDays(25).toString());
+    });
+
+    test('a keeper counts against the weekly cap like anything else', () {
+      // §6.2 says so explicitly, and it was a `const bool` in
+      // rebuild_trigger.dart asserted against its own literal — a spec sentence
+      // dressed as a declaration, which no code could branch on. The claim is
+      // about THIS function, so it is asserted here: a keeper competing for a
+      // third slot in one week is refused like anything else.
+      final plan = ReminderScheduler.compute(
+        candidates: [
+          item(
+            vehicle: 'v1',
+            reminder: 'a',
+            stage: NotificationStage.due,
+            stageDate: '2026-09-10',
+          ),
+          item(
+            vehicle: 'v2',
+            reminder: 'b',
+            stage: NotificationStage.due,
+            stageDate: '2026-09-11',
+          ),
+          item(
+            vehicle: 'v3',
+            reminder: 'c',
+            stage: NotificationStage.overdue2,
+            stageDate: '2026-09-12',
+          ),
+        ],
+        today: today,
+        prefs: const SchedulePreferences(),
+      );
+
+      final dates = plan.map((p) => d(p.slot.date)).toList()..sort();
+      final firstWeek = dates.where((x) => x <= d('2026-09-16')).length;
+      expect(firstWeek, lessThanOrEqualTo(2));
     });
 
     test('a nudge counts against the weekly cap like anything else', () {

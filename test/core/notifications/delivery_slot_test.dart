@@ -13,7 +13,9 @@
 //     app's markets are Friday-Saturday, so a hard-coded Sat+Sun would push an
 //     Iranian user's reminder from Saturday onto Sunday, which is a working
 //     day there, and leave Friday alone, which is not.
+import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/l10n/calendar.dart';
+import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/notifications/delivery_slot.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:test/test.dart';
@@ -129,6 +131,72 @@ void main() {
         ),
         const DeliverySlot(date: '2026-10-12', minutes: 1259),
       );
+    });
+  });
+
+  group('quiet hours the USER set, not the defaults', () {
+    // The gap `/simplify` found: the scheduler declared its own `const` copies
+    // of three values that live on `AppSettings` and are USER-EDITABLE. A user
+    // who moved quiet hours got the default behaviour and nothing anywhere
+    // went red.
+    test('a moved window is honoured', () {
+      const prefs = SchedulePreferences(
+        deliveryMinutes: 21 * 60 + 30,
+        quietFromMinutes: 22 * 60,
+        quietToMinutes: 6 * 60,
+      );
+
+      // 21:30 is no longer quiet, because the user pushed the window to 22:00.
+      expect(
+        resolveSlot(date: d('2026-10-12'), prefs: prefs),
+        const DeliverySlot(date: '2026-10-12', minutes: 21 * 60 + 30),
+      );
+    });
+
+    test('a NON-wrapping window works too', () {
+      // 13:00-14:00 is a window a user can set, and the hand-rolled predicate
+      // could not express it: `m >= 13:00 || m < 14:00` is true all day.
+      const prefs = SchedulePreferences(
+        deliveryMinutes: 13 * 60 + 30,
+        quietFromMinutes: 13 * 60,
+        quietToMinutes: 14 * 60,
+      );
+
+      expect(resolveSlot(date: d('2026-10-12'), prefs: prefs).minutes, 540);
+      expect(
+        resolveSlot(
+          date: d('2026-10-12'),
+          prefs: const SchedulePreferences(
+            deliveryMinutes: 15 * 60,
+            quietFromMinutes: 13 * 60,
+            quietToMinutes: 14 * 60,
+          ),
+        ).minutes,
+        15 * 60,
+        reason: '15:00 is outside a 13:00-14:00 window',
+      );
+    });
+
+    test('is built from AppSettings, so the two cannot drift', () {
+      final prefs = SchedulePreferences.from(
+        AppSettings(
+          schemaVersion: 1,
+          currencyDefault: Currency.tryParse('EUR')!,
+          notificationTimeMinutes: 8 * 60,
+          quietHoursFromMinutes: 23 * 60,
+          quietHoursToMinutes: 7 * 60,
+          weekdaysOnly: true,
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+        ),
+        weekend: weekShape('de-DE').weekend,
+      );
+
+      expect(prefs.deliveryMinutes, 8 * 60);
+      expect(prefs.quietFromMinutes, 23 * 60);
+      expect(prefs.weekdaysOnly, isTrue);
+      expect(prefs.isQuiet(23 * 60 + 30), isTrue);
+      expect(prefs.isQuiet(8 * 60), isFalse);
     });
   });
 

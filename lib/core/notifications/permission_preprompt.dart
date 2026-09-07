@@ -137,5 +137,7 @@ bool shouldShowPrePrompt(PrePromptFacts facts) {
 /// Both answers count. The cadence rules are about the SHEET having been shown,
 /// not about what was said — counting only declines would let somebody who taps
 /// "Turn on reminders" and then dismisses the OS dialog see the sheet forever.
-int applyPrePromptAnswer(PrePromptAnswer answer, {required int timesShown}) =>
-    timesShown + 1;
+///
+/// Takes no answer. It had one and never read it, which promised the count
+/// depended on what the user tapped when it deliberately does not.
+int nextPrePromptShowCount(int timesShown) => timesShown + 1;

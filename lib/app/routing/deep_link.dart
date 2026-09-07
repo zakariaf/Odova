@@ -19,14 +19,6 @@ import 'package:odova/core/notifications/notification_payload.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/value_equality.dart';
 
-// `DeepLinkKind` and `DeepLinkRequest` moved to lib/core/notifications/ so the
-// SCHEDULER can build a payload without importing the router. They are exported
-// from here because every existing caller reads them from this file, and the
-// two names are still routing's vocabulary — the move is about which layer may
-// depend on which, not about who the types belong to.
-export 'package:odova/core/notifications/notification_payload.dart'
-    show DeepLinkKind, DeepLinkRequest, decodePayload, encodePayload;
-
 /// What still exists.
 ///
 /// Passed in rather than looked up, which is what keeps [locationFor] pure.

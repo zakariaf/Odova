@@ -20,7 +20,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/notifications/fake_notification_gateway.dart';
-import 'package:odova/app/routing/deep_link.dart';
 import 'package:odova/core/notifications/notification_payload.dart';
 import 'package:odova/core/notifications/scheduled_notification.dart';
 import 'package:odova/core/result.dart';

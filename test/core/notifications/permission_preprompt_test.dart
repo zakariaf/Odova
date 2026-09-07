@@ -122,21 +122,13 @@ void main() {
       expect(PrePromptAnswer.notNow.raisesOsDialog, isFalse);
     });
 
-    test('Not now writes the counter and nothing else', () {
-      final after = applyPrePromptAnswer(
-        PrePromptAnswer.notNow,
-        timesShown: 1,
-      );
-
-      expect(after, 2);
-    });
-
-    test('Turn on also counts as shown', () {
-      // The sheet was shown either way, and the 30-day and three-times rules
-      // are about the SHEET rather than about the answer. Counting only
-      // declines would let a user who taps "Turn on" and then dismisses the OS
-      // dialog see the sheet forever.
-      expect(applyPrePromptAnswer(PrePromptAnswer.turnOn, timesShown: 1), 2);
+    test('the show count rises whatever the answer was', () {
+      // The 30-day and three-times rules are about the SHEET having appeared,
+      // not about what was said — counting only declines would let a user who
+      // taps "Turn on" and then dismisses the OS dialog see it forever. The
+      // function takes no answer at all now, which is the signature saying so.
+      expect(nextPrePromptShowCount(1), 2);
+      expect(nextPrePromptShowCount(0), 1);
     });
   });
 

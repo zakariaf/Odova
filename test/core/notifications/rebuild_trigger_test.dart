@@ -14,10 +14,6 @@ import 'package:test/test.dart';
 
 void main() {
   group('what forces a full rebuild', () {
-    test('a reboot', () {
-      expect(RebuildTrigger.bootCompleted.forcesFullRebuild, isTrue);
-    });
-
     test('a version change, because bodies and payloads may have moved', () {
       expect(
         needsRebuildForVersion(lastBuilt: '1.2.0', current: '1.3.0'),
@@ -62,14 +58,19 @@ void main() {
       expect(needsRebuildForLocale(lastLocale: 'ar', current: 'ar'), isFalse);
     });
 
-    test('an import, a permission grant, and a vehicle going away', () {
-      for (final trigger in [
-        RebuildTrigger.dataImported,
-        RebuildTrigger.permissionGranted,
-        RebuildTrigger.vehicleArchivedOrDeleted,
-      ]) {
-        expect(trigger.forcesFullRebuild, isTrue, reason: trigger.name);
-      }
+    test('the enum lists exactly the events that force one', () {
+      // Asserted as a SET. A DST transition is deliberately NOT a member — the
+      // rule §6.2 states as "no action" — so adding one here fails rather than
+      // silently rebuilding the queue twice a year.
+      expect(RebuildTrigger.values.map((t) => t.name).toSet(), {
+        'bootCompleted',
+        'versionChanged',
+        'timeZoneChanged',
+        'localeChanged',
+        'dataImported',
+        'permissionGranted',
+        'vehicleArchivedOrDeleted',
+      });
     });
   });
 
@@ -117,17 +118,11 @@ void main() {
       expect(keeperOffsetDays, 113);
     });
 
-    test('carries no reminderId', () {
-      // §4.4.2's table. A keeper names a vehicle and no item, so a tap lands on
-      // Home with nothing pinned.
-      expect(keeperCarriesReminderId, isFalse);
-    });
-
-    test('counts against the weekly cap', () {
-      // §6.2 says so explicitly. It is a notification like any other and the
-      // two-a-week promise has no exceptions.
-      expect(keeperCountsAgainstCap, isTrue);
-    });
+    // `keeperCarriesReminderId` and `keeperCountsAgainstCap` were `const bool`s
+    // asserted against their own literals — spec sentences dressed as
+    // declarations, which no code could branch on and no test could fail.
+    // The cap claim is a statement about `ReminderScheduler`, and it is
+    // asserted there, over a keeper candidate competing for a real slot.
   });
 
   group('the away digest', () {

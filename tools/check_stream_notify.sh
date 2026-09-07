@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Contract: a repository that WRITES through customStatement also calls
-# notifyUpdates, so drift's stream layer learns the table changed.
+# Contract: no repository writes through customStatement. Writes go through
+# customUpdate, which takes the tables it touched as an ARGUMENT.
 #
 # The failure this gate exists for is completely silent, and it shipped.
 # `customStatement` hands SQLite a raw string; drift cannot parse it to learn
@@ -14,6 +14,19 @@
 # that query. And `eraseVehiclePermanently` deletes one row that cascades
 # through six tables, so the vehicle was gone from the database and still on
 # the screen with all of its history.
+#
+# **This gate was first written the shallow way** — "a file that writes raw
+# must also mention notifyUpdates somewhere" — and that version could not see
+# the bug it was written for. `odometer_fan_out.dart` had TWO raw writes; drop
+# one announcement and `notifyUpdates` still appeared in the file, so the gate
+# stayed green and the defect shipped again in the same file in the same shape.
+#
+# The fix was to stop needing the gate: `customUpdate` takes `updates:` as an
+# argument, so the write and the announcement cannot come apart. `deletion.dart`
+# already used it, with a comment saying the same failure "was already fixed
+# once, in the two places that were not this one" — the repo knew, and the
+# first version of this gate compensated for the wrong API instead of changing
+# it. What is checked now is the rule with no reason to break it.
 #
 # Neither showed up in a suite of 4,600 tests, because a test that writes and
 # then reads `.first` opens a NEW subscription and re-runs the query. Only a
@@ -52,15 +65,22 @@ while IFS= read -r file; do
   # keyword may sit lines below the call — `customStatement('''` opens a heredoc
   # — so the whole file is the unit, which is also why the remedy is
   # file-scoped: one `_announce` helper per file is the shape we want anyway.
-  grep -q 'customStatement' "$file" || continue
-  grep -Eqi "(INSERT[[:space:]]+INTO|UPDATE[[:space:]]+[a-z_]+[[:space:]]+SET|DELETE[[:space:]]+FROM)" "$file" || continue
-  if ! grep -q 'notifyUpdates' "$file"; then
-    printf 'FAIL  %s writes through customStatement and never calls notifyUpdates\n' "$file"
-    fail=1
-  fi
+  # COMMENTS STRIPPED FIRST. Without this the gate fires on the paragraph in
+  # each file explaining why `customStatement` is not used — the same trap
+  # tools/check_notification_manifest.sh has, and the reason both strip. A gate
+  # that refuses its own explanation is a gate somebody deletes.
+  code="$(sed 's|//.*||' "$file")"
+
+  # A raw WRITE is the offence; a raw read is fine and always was. The verb may
+  # sit lines below the call — `customStatement('''` opens a heredoc — so the
+  # window is the whole call, which at this scale is the whole file.
+  printf '%s' "$code" | grep -q 'customStatement' || continue
+  printf '%s' "$code" | grep -Eqi "(INSERT[[:space:]]+INTO|UPDATE[[:space:]]+[a-z_]+[[:space:]]+SET|DELETE[[:space:]]+FROM)" || continue
+  printf 'FAIL  %s writes through customStatement — use customUpdate(..., updates: {...})\n' "$file"
+  fail=1
 done < <(find "$root" -name '*.dart' -type f | sort)
 
 if [ "$fail" -eq 0 ]; then
-  printf 'ok    every raw writer under %s announces its tables\n' "$root"
+  printf 'ok    no raw writer under %s; writes go through customUpdate\n' "$root"
 fi
 exit "$fail"

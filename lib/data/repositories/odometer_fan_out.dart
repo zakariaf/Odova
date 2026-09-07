@@ -12,7 +12,7 @@
 // written in a second transaction is a moment where the parent exists and its
 // reading does not, and a monotonicity check in between sees a history with a
 // hole in it.
-import 'package:drift/drift.dart' show TableUpdate, UpdateKind, Variable;
+import 'package:drift/drift.dart' show Variable;
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/ids/ulid.dart';
@@ -64,12 +64,23 @@ Future<void> syncDerivedReading(
     // purge that eventually removes it is the same one that removes the
     // correction — together, after the Undo window, rather than silently on an
     // edit.
-    await db.customStatement(
+    // `customUpdate` with `updates:`, NOT `customStatement`. Drift's own doc
+    // for `customStatement` says "This method does not update stream queries
+    // on this drift database" — it is handed a raw string and cannot know what
+    // the string touched. `deletion.dart` already learned this twice; this file
+    // was the third and fourth place, and it fixed it with a follow-up
+    // `notifyUpdates` call, which is the API that lets you forget over the API
+    // that does not.
+    await db.customUpdate(
       'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
       'WHERE source_id = ? AND source = ? AND deleted_at_utc_ms IS NULL;',
-      [nowUtcMs, parentId, source.wire],
+      variables: [
+        Variable.withInt(nowUtcMs),
+        Variable.withString(parentId),
+        Variable.withString(source.wire),
+      ],
+      updates: {db.odometerReadings},
     );
-    _announce(db, UpdateKind.update);
     return;
   }
 
@@ -90,7 +101,7 @@ Future<void> syncDerivedReading(
   // The id is minted unconditionally and discarded on the update path. That is
   // one ULID and costs nothing; reading the row first to find out whether it
   // was needed is what cost something.
-  await db.customStatement(
+  await db.customUpdate(
     '''
       INSERT INTO odometer_readings (
         id, vehicle_id, occurred_on, odometer_m, odometer_unit, source,
@@ -113,41 +124,20 @@ Future<void> syncDerivedReading(
         updated_at_utc_ms = excluded.updated_at_utc_ms,
         deleted_at_utc_ms = NULL;
     ''',
-    [
-      OdometerReadingId.mint(ids).toString(),
-      vehicleId.toString(),
-      occurredOn,
-      odometerM,
-      odometerUnit.wire,
-      source.wire,
-      parentId,
-      nowUtcMs,
-      nowUtcMs,
+    variables: [
+      Variable.withString(OdometerReadingId.mint(ids).toString()),
+      Variable.withString(vehicleId.toString()),
+      Variable.withString(occurredOn),
+      Variable.withInt(odometerM),
+      Variable.withString(odometerUnit.wire),
+      Variable.withString(source.wire),
+      Variable.withString(parentId),
+      Variable.withInt(nowUtcMs),
+      Variable.withInt(nowUtcMs),
     ],
+    updates: {db.odometerReadings},
   );
-  _announce(db, UpdateKind.insert);
 }
-
-/// Tells drift that `odometer_readings` changed.
-///
-/// **Required, and easy to forget.** Both writes above go through
-/// `customStatement`, which hands SQLite a raw string — drift cannot parse it
-/// to learn which tables it touched, so it dispatches no update and every open
-/// `.watch()` on the table keeps serving its cached result. The row really is
-/// written; the screen watching for it never hears.
-///
-/// That is not a stale pixel. `vehicleReadingsProvider` is a `StreamProvider`
-/// over exactly this query, and a fill-up — the app's commonest write, with a
-/// REQUIRED odometer — derives its reading through here. SPEC.md §4.2.1 makes
-/// re-projection a consequence of the same streams, so a stream that does not
-/// fire is a due date that never recomputes.
-///
-/// Inside a transaction drift batches these and dispatches once on commit, so
-/// a trip's two readings wake the subscriber once rather than twice, and a
-/// rolled-back transaction wakes it not at all.
-void _announce(AppDatabase db, UpdateKind kind) => db.notifyUpdates({
-  TableUpdate.onTable(db.odometerReadings, kind: kind),
-});
 
 /// Whether the reading [parentId] is about to emit would break monotonicity.
 ///

@@ -22,6 +22,7 @@
 // shape this would fail in.
 import 'package:meta/meta.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/notifications/notification_stage.dart';
 import 'package:odova/core/value_equality.dart';
 
 /// 15% of the smallest active distance interval. SPEC.md §4.3.1.
@@ -31,8 +32,13 @@ import 'package:odova/core/value_equality.dart';
 /// the tightest interval is the one the estimate has to be good enough for.
 const double kNudgeDriftFraction = 0.15;
 
-/// Nothing due inside this is worth asking about. SPEC.md §4.3.1.
-const int kNudgeHorizonDays = 120;
+/// Nothing due beyond this is worth asking about. SPEC.md §4.3.1.
+///
+/// The SAME 120 as the scheduling horizon, and referenced rather than repeated:
+/// §4.3.1 and §6.1 state it separately, but a reading that sharpens an estimate
+/// nothing is scheduled against is a question with no purpose, so if one moves
+/// the other has to.
+const int kNudgeHorizonDays = kHorizonDays;
 
 /// The escalation window — due this soon and a reading this old asks anyway.
 const int kNudgeEscalationDays = 21;
