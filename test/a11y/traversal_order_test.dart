@@ -38,9 +38,7 @@ List<String> traversal(WidgetTester tester) {
     final ordered = node.debugListChildrenInOrder(
       DebugSemanticsDumpOrder.traversalOrder,
     );
-    for (final child in ordered) {
-      walk(child);
-    }
+    ordered.forEach(walk);
   }
 
   final handle = tester.ensureSemantics();
