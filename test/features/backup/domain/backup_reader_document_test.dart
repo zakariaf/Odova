@@ -283,6 +283,21 @@ void main() {
     expect(warnings.map((w) => w.code), isNot(contains('unknown_key')));
   });
 
+  test('§8.1 — a CSV is refused as a restore source', () async {
+    // "CSV is export-only. There is no CSV import in v1." An export artifact
+    // must never be a restore source: the round-trip path is the JSON backup,
+    // and a CSV has no vehicle ids, no units block and no way to say what its
+    // numbers mean.
+    final csv = _file(
+      utf8.encode(
+        '\uFEFFdate,vehicle,type,amount,currency\r\n'
+        '2026-01-01,Golf,fuel,73.51,EUR\r\n',
+      ),
+    );
+
+    expect(await _refusal(csv), isA<NotValidJson>());
+  });
+
   test('a file that cannot be opened yields CannotOpenFile', () async {
     final failure = await const BackupReader().read(
       File('${_dir.path}/nothing-here.json'),

@@ -87,6 +87,13 @@ dev_dependencies:
   # Drift's code generator and the schema-snapshot tooling. Dev-only: the
   # generated .g.dart is committed, so no generator ships.
   build_runner: ^2.10.1
+  # An INDEPENDENT CSV parser, for EPIC-15 task 15.8. DEV-ONLY and pure Dart —
+  # no I/O of any kind, let alone a socket. It is here because round-tripping a
+  # file through the code that wrote it proves the two halves agree with each
+  # other and nothing about whether either is right: RFC 4180's quoting rules
+  # are exactly the kind of thing a writer and a matching reader can both get
+  # wrong in the same direction. `tools/audit_deps.sh` walks the resolved tree.
+  csv: ^6.0.0
   drift_dev: ^2.28.3
   # A controllable clock for `Timer`, from the Dart team. DEV-ONLY, and pure
   # Dart with no I/O of any kind — it replaces the zone's timers with a queue
