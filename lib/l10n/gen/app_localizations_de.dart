@@ -2388,4 +2388,76 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'Was Odova sendet';
+
+  @override
+  String get notifGroupWhen => 'Wann';
+
+  @override
+  String get notifGroupHowFar => 'Wie früh';
+
+  @override
+  String get notifAllowed => 'Erlaubt';
+
+  @override
+  String get notifRowService => 'Service-Erinnerungen';
+
+  @override
+  String get notifRowOdometer => 'Kilometerstand-Abfragen';
+
+  @override
+  String get notifRowBackup => 'Sicherungs-Erinnerungen';
+
+  @override
+  String get notifRowTimeOfDay => 'Uhrzeit';
+
+  @override
+  String get notifRowQuietHours => 'Ruhezeiten';
+
+  @override
+  String get notifRowByDistance => 'Nach Strecke';
+
+  @override
+  String get notifRowByTime => 'Nach Zeit';
+
+  @override
+  String get notifAutomatic => 'Automatisch';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'Automatisch bedeutet etwa $percent% vor der Fälligkeit.';
+  }
+
+  @override
+  String get notifCapFooter =>
+      'Höchstens zwei Benachrichtigungen pro Woche. Nie zwei an einem Tag.';
+
+  @override
+  String get notifQuietOff => 'Aus';
+
+  @override
+  String get notifOffTitle => 'Erinnerungen sind aus.';
+
+  @override
+  String get notifOffAction => 'Erinnerungen einschalten';
+
+  @override
+  String get notifBlockedTitle =>
+      'Odova kann keine Erinnerungen senden, weil Benachrichtigungen für Odova in den Telefoneinstellungen ausgeschaltet sind.';
+
+  @override
+  String get notifBlockedAction => 'Telefoneinstellungen öffnen';
+
+  @override
+  String get notifBackgroundTitle =>
+      'Ihr Telefon blockiert möglicherweise Odovas Erinnerungen.';
+
+  @override
+  String get notifSilentFooter =>
+      'Odova sendet Ihnen nichts. Was fällig ist, steht weiterhin auf dem Startbildschirm.';
+
+  @override
+  String get notifRowCalendar => 'Erinnerungen zu meinem Kalender hinzufügen';
 }

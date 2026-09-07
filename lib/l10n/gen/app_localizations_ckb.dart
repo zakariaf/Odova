@@ -2374,4 +2374,76 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'ئۆدۆڤا چی دەنێرێت';
+
+  @override
+  String get notifGroupWhen => 'کەی';
+
+  @override
+  String get notifGroupHowFar => 'چەند زوو';
+
+  @override
+  String get notifAllowed => 'ڕێپێدراو';
+
+  @override
+  String get notifRowService => 'بیرخەرەوەی خزمەت';
+
+  @override
+  String get notifRowOdometer => 'تۆمارکردنی کیلۆمەتر';
+
+  @override
+  String get notifRowBackup => 'بیرخەرەوەی پاڵپشت';
+
+  @override
+  String get notifRowTimeOfDay => 'کاتی ڕۆژ';
+
+  @override
+  String get notifRowQuietHours => 'کاتژمێری بێدەنگی';
+
+  @override
+  String get notifRowByDistance => 'بەپێی دووری';
+
+  @override
+  String get notifRowByTime => 'بەپێی کات';
+
+  @override
+  String get notifAutomatic => 'خۆکار';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'خۆکار واتە نزیکەی $percent٪ پێش کاتی خۆی.';
+  }
+
+  @override
+  String get notifCapFooter =>
+      'زۆرترین دوو ئاگادارکردنەوە لە هەفتەیەکدا. هەرگیز دووان لە یەک ڕۆژدا.';
+
+  @override
+  String get notifQuietOff => 'ناکارا';
+
+  @override
+  String get notifOffTitle => 'بیرخەرەوەکان کوژاونەتەوە.';
+
+  @override
+  String get notifOffAction => 'کردنەوەی بیرخەرەوەکان';
+
+  @override
+  String get notifBlockedTitle =>
+      'ئۆدۆڤا ناتوانێت بیرخەرەوە بنێرێت، چونکە ئاگادارکردنەوەکانی ئۆدۆڤا لە ڕێکخستنەکانی مۆبایلەکەت کوژاونەتەوە.';
+
+  @override
+  String get notifBlockedAction => 'کردنەوەی ڕێکخستنەکانی مۆبایل';
+
+  @override
+  String get notifBackgroundTitle =>
+      'لەوانەیە مۆبایلەکەت ڕێگر بێت لە بیرخەرەوەکانی ئۆدۆڤا.';
+
+  @override
+  String get notifSilentFooter =>
+      'ئۆدۆڤا هیچت بۆ نانێرێت. ئەوەی کاتی هاتووە هێشتا لە شاشەی سەرەکیدا دیارە.';
+
+  @override
+  String get notifRowCalendar => 'زیادکردنی بیرخەرەوەکان بۆ ڕۆژژمێرەکەم';
 }

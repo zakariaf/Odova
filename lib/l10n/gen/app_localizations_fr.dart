@@ -2429,4 +2429,76 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'Ce qu’Odova envoie';
+
+  @override
+  String get notifGroupWhen => 'Quand';
+
+  @override
+  String get notifGroupHowFar => 'Combien de temps avant';
+
+  @override
+  String get notifAllowed => 'Autorisé';
+
+  @override
+  String get notifRowService => 'Rappels d’entretien';
+
+  @override
+  String get notifRowOdometer => 'Relevés de compteur';
+
+  @override
+  String get notifRowBackup => 'Rappels de sauvegarde';
+
+  @override
+  String get notifRowTimeOfDay => 'Heure';
+
+  @override
+  String get notifRowQuietHours => 'Heures silencieuses';
+
+  @override
+  String get notifRowByDistance => 'Par distance';
+
+  @override
+  String get notifRowByTime => 'Par durée';
+
+  @override
+  String get notifAutomatic => 'Automatique';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'Automatique, c’est environ $percent% avant l’échéance.';
+  }
+
+  @override
+  String get notifCapFooter =>
+      'Deux notifications par semaine au maximum. Jamais deux le même jour.';
+
+  @override
+  String get notifQuietOff => 'Désactivées';
+
+  @override
+  String get notifOffTitle => 'Les rappels sont désactivés.';
+
+  @override
+  String get notifOffAction => 'Activer les rappels';
+
+  @override
+  String get notifBlockedTitle =>
+      'Odova ne peut pas envoyer de rappels : les notifications sont désactivées pour Odova dans les réglages du téléphone.';
+
+  @override
+  String get notifBlockedAction => 'Ouvrir les réglages du téléphone';
+
+  @override
+  String get notifBackgroundTitle =>
+      'Votre téléphone empêche peut-être les rappels d’Odova.';
+
+  @override
+  String get notifSilentFooter =>
+      'Odova ne vous enverra rien. Ce qui est dû reste affiché sur l’écran d’accueil.';
+
+  @override
+  String get notifRowCalendar => 'Ajouter les rappels à mon calendrier';
 }

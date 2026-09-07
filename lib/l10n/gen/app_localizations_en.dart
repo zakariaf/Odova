@@ -2371,4 +2371,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'What Odova sends';
+
+  @override
+  String get notifGroupWhen => 'When';
+
+  @override
+  String get notifGroupHowFar => 'How far ahead';
+
+  @override
+  String get notifAllowed => 'Allowed';
+
+  @override
+  String get notifRowService => 'Service reminders';
+
+  @override
+  String get notifRowOdometer => 'Odometer check-ins';
+
+  @override
+  String get notifRowBackup => 'Backup reminders';
+
+  @override
+  String get notifRowTimeOfDay => 'Time of day';
+
+  @override
+  String get notifRowQuietHours => 'Quiet hours';
+
+  @override
+  String get notifRowByDistance => 'By distance';
+
+  @override
+  String get notifRowByTime => 'By time';
+
+  @override
+  String get notifAutomatic => 'Automatic';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'Automatic is about $percent% before it is due.';
+  }
+
+  @override
+  String get notifCapFooter =>
+      'At most two notifications a week. Never two in one day.';
+
+  @override
+  String get notifQuietOff => 'Off';
+
+  @override
+  String get notifOffTitle => 'Reminders are off.';
+
+  @override
+  String get notifOffAction => 'Turn on reminders';
+
+  @override
+  String get notifBlockedTitle =>
+      'Odova can’t send reminders because notifications are turned off for Odova in your phone’s settings.';
+
+  @override
+  String get notifBlockedAction => 'Open phone settings';
+
+  @override
+  String get notifBackgroundTitle =>
+      'Your phone may be stopping Odova’s reminders.';
+
+  @override
+  String get notifSilentFooter =>
+      'Odova won’t send you anything. What’s due still shows on the home screen.';
+
+  @override
+  String get notifRowCalendar => 'Add reminders to my calendar';
 }

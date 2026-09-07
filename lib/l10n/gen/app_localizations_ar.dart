@@ -2507,4 +2507,75 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'ما ترسله أودوفا';
+
+  @override
+  String get notifGroupWhen => 'متى';
+
+  @override
+  String get notifGroupHowFar => 'قبل بكم';
+
+  @override
+  String get notifAllowed => 'مسموح';
+
+  @override
+  String get notifRowService => 'تذكيرات الصيانة';
+
+  @override
+  String get notifRowOdometer => 'تسجيل قراءة العداد';
+
+  @override
+  String get notifRowBackup => 'تذكيرات النسخ الاحتياطي';
+
+  @override
+  String get notifRowTimeOfDay => 'وقت اليوم';
+
+  @override
+  String get notifRowQuietHours => 'ساعات الهدوء';
+
+  @override
+  String get notifRowByDistance => 'حسب المسافة';
+
+  @override
+  String get notifRowByTime => 'حسب الوقت';
+
+  @override
+  String get notifAutomatic => 'تلقائي';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'التلقائي يعني نحو $percent٪ قبل الاستحقاق.';
+  }
+
+  @override
+  String get notifCapFooter =>
+      'إشعاران في الأسبوع على الأكثر. ولا إشعاران في يوم واحد أبدًا.';
+
+  @override
+  String get notifQuietOff => 'معطّلة';
+
+  @override
+  String get notifOffTitle => 'التذكيرات معطّلة.';
+
+  @override
+  String get notifOffAction => 'تفعيل التذكيرات';
+
+  @override
+  String get notifBlockedTitle =>
+      'لا تستطيع أودوفا إرسال التذكيرات لأن الإشعارات معطّلة لأودوفا في إعدادات هاتفك.';
+
+  @override
+  String get notifBlockedAction => 'فتح إعدادات الهاتف';
+
+  @override
+  String get notifBackgroundTitle => 'قد يمنع هاتفك تذكيرات أودوفا.';
+
+  @override
+  String get notifSilentFooter =>
+      'لن ترسل لك أودوفا شيئًا. ما هو مستحق يظل ظاهرًا على الشاشة الرئيسية.';
+
+  @override
+  String get notifRowCalendar => 'إضافة التذكيرات إلى تقويمي';
 }

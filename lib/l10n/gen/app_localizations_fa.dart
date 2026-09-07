@@ -2367,4 +2367,75 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'اودووا چه می‌فرستد';
+
+  @override
+  String get notifGroupWhen => 'چه زمانی';
+
+  @override
+  String get notifGroupHowFar => 'چقدر زودتر';
+
+  @override
+  String get notifAllowed => 'مجاز';
+
+  @override
+  String get notifRowService => 'یادآور سرویس';
+
+  @override
+  String get notifRowOdometer => 'یادآور کیلومترشمار';
+
+  @override
+  String get notifRowBackup => 'یادآور پشتیبان';
+
+  @override
+  String get notifRowTimeOfDay => 'ساعت روز';
+
+  @override
+  String get notifRowQuietHours => 'ساعات سکوت';
+
+  @override
+  String get notifRowByDistance => 'بر پایهٔ مسافت';
+
+  @override
+  String get notifRowByTime => 'بر پایهٔ زمان';
+
+  @override
+  String get notifAutomatic => 'خودکار';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'خودکار یعنی حدود $percent٪ پیش از سررسید.';
+  }
+
+  @override
+  String get notifCapFooter => 'حداکثر دو اعلان در هفته. هرگز دو تا در یک روز.';
+
+  @override
+  String get notifQuietOff => 'خاموش';
+
+  @override
+  String get notifOffTitle => 'یادآورها خاموش‌اند.';
+
+  @override
+  String get notifOffAction => 'روشن کردن یادآورها';
+
+  @override
+  String get notifBlockedTitle =>
+      'اودووا نمی‌تواند یادآور بفرستد، چون اعلان‌های اودووا در تنظیمات گوشی خاموش است.';
+
+  @override
+  String get notifBlockedAction => 'باز کردن تنظیمات گوشی';
+
+  @override
+  String get notifBackgroundTitle =>
+      'ممکن است گوشی شما جلوی یادآورهای اودووا را بگیرد.';
+
+  @override
+  String get notifSilentFooter =>
+      'اودووا چیزی برایتان نمی‌فرستد. آنچه سررسید شده همچنان در صفحهٔ خانه دیده می‌شود.';
+
+  @override
+  String get notifRowCalendar => 'افزودن یادآورها به تقویم من';
 }

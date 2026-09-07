@@ -259,3 +259,53 @@ every record table that no screen has needed yet; the A–Z list works without
 it. Search matches on the CODE only; matching a localised currency NAME needs
 a name table the app does not have, and inventing six translations of 35
 currency names is EPIC-17 work at best.
+
+## Tasks 14.6 and 14.7 — the notification states and the screen
+
+Built `lib/app/notifications/notification_permission_port.dart`,
+`domain/notifications_chrome.dart`, `domain/notice_window.dart` and
+`presentation/notifications_screen.dart`.
+
+**The port declares three values, not a boolean**, and that is the whole
+reason it is an enum. `neverAsked` still has a door — the app can ask — and
+`denied`'s only remaining door is the phone's own settings. Collapsed into a
+boolean, a user who has never been asked gets told to go and change something
+they never turned off.
+
+**The chrome is resolved in one pure function** because §13's five states
+differ in more than a sentence: the blocked state MOVES the calendar row above
+the delivery group. Under a blocked permission the `.ics` export is the only
+thing on the screen that still delivers anything, and leaving it under four
+rows of dead controls hides the one door that is open. A widget switching on a
+boolean cannot express that; a widget switching on five cannot be read.
+
+Two rules the resolver holds that a screen would not have:
+
+- **Permission outranks the delivery ledger.** Telling a blocked user their
+  phone may be restricting the app answers a question they did not ask.
+- **A blocked permission suppresses the silent footer.** Two sentences
+  explaining the same silence, and only one of them can be acted on.
+
+The notice options are defined **per unit system and never converted**: 500 km
+is a round number a driver recognises and 311 miles is the same distance and
+is not. Automatic stores NULL for both windows — a stored number is a number
+that stops tracking the item's own interval.
+
+Quiet hours are ONE isolate around the whole range. Under RTL a half-isolated
+range reads back-to-front, and `08:00–21:00` is a different window from the
+one the user set. `from == to` is OFF rather than a zero-length window: a user
+who dragged both ends together meant "no quiet hours", and a rule that
+silences nothing while looking like a rule is worse than no rule.
+
+**The EPIC-16 boundary held.** This task consumes the permission port and
+presents nothing EPIC-16 owns: the pre-prompt sheet and the OS deep link are
+wired to no-op actions rather than written a second time for EPIC-16 to
+delete. The port lives in `lib/app/notifications/` beside the reschedule one,
+not in `lib/services/` — same seven-directory rule as 14.1.
+
+**Deferred.** The parity capture, per §6a. The `Allowed` chip beside the first
+group's header in the granted state — the string exists, and drawing it needs
+a header slot `CalmRowGroup` has not got; it is a component change and belongs
+with EPIC-18's sweep rather than in a screen commit. The weekdays-only row and
+its CLDR weekend naming, and the per-channel cancel — both need EPIC-16's
+scheduler to have anything to act on.

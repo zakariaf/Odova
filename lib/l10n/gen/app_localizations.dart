@@ -3635,6 +3635,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **' · '**
   String get commonSeparator;
+
+  /// The first group's header.
+  ///
+  /// In en, this message translates to:
+  /// **'What Odova sends'**
+  String get notifGroupWhat;
+
+  /// The second.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get notifGroupWhen;
+
+  /// The third.
+  ///
+  /// In en, this message translates to:
+  /// **'How far ahead'**
+  String get notifGroupHowFar;
+
+  /// The permission chip beside the first group's header, in the granted state.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get notifAllowed;
+
+  /// §13's first category. The ARB comment caps these at 22 characters so the switch never pushes the label to two lines.
+  ///
+  /// In en, this message translates to:
+  /// **'Service reminders'**
+  String get notifRowService;
+
+  /// The second.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer check-ins'**
+  String get notifRowOdometer;
+
+  /// The third.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup reminders'**
+  String get notifRowBackup;
+
+  /// The daily delivery time, stored as local wall-clock minutes and never as an instant.
+  ///
+  /// In en, this message translates to:
+  /// **'Time of day'**
+  String get notifRowTimeOfDay;
+
+  /// The window notifications are held out of.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet hours'**
+  String get notifRowQuietHours;
+
+  /// §3's notice window, by distance.
+  ///
+  /// In en, this message translates to:
+  /// **'By distance'**
+  String get notifRowByDistance;
+
+  /// And by date.
+  ///
+  /// In en, this message translates to:
+  /// **'By time'**
+  String get notifRowByTime;
+
+  /// The computed default for either notice window. Stores NULL — a stored number is a number that stops tracking the item's own interval.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get notifAutomatic;
+
+  /// What Automatic means, under the two rows. `percent` is pre-shaped; a bare int renders Latin digits in four locales.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic is about {percent}% before it is due.'**
+  String notifAutomaticNote(String percent);
+
+  /// §14's delivery cap, stated as a FACT and not offered as a switch. A user who could raise it would, and then blame the app for the noise.
+  ///
+  /// In en, this message translates to:
+  /// **'At most two notifications a week. Never two in one day.'**
+  String get notifCapFooter;
+
+  /// The quiet-hours value when the window is empty — `from == to` is not a zero-length window, it is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get notifQuietOff;
+
+  /// §13's never-asked card.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are off.'**
+  String get notifOffTitle;
+
+  /// Its one action; EPIC-16 owns the sheet it presents.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on reminders'**
+  String get notifOffAction;
+
+  /// §13's denied card, verbatim. It names WHERE the setting is, because the app cannot change it and the user has to.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova can’t send reminders because notifications are turned off for Odova in your phone’s settings.'**
+  String get notifBlockedTitle;
+
+  /// The only remaining door.
+  ///
+  /// In en, this message translates to:
+  /// **'Open phone settings'**
+  String get notifBlockedAction;
+
+  /// §14's OEM background-restriction card, shown once after three unconfirmed deliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone may be stopping Odova’s reminders.'**
+  String get notifBackgroundTitle;
+
+  /// Shown when every category is off. It says what still works, because the alternative reading is that the app has stopped doing anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova won’t send you anything. What’s due still shows on the home screen.'**
+  String get notifSilentFooter;
+
+  /// The `.ics` export. Moves ABOVE the delivery group when notifications are blocked — it is then the only thing on the screen that still delivers anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminders to my calendar'**
+  String get notifRowCalendar;
 }
 
 class _AppLocalizationsDelegate

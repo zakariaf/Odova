@@ -3516,5 +3516,99 @@
   "commonSeparator": " · ",
   "@commonSeparator": {
     "description": "The mark that joins two facts on one line. In the ARB because WHICH mark is a translation decision — and because a `' · '` literal in Dart is exactly what `check_status_encoding.sh` was written to find. Identical in all six today, and that is a translator's finding rather than an assumption."
+  },
+  "notifGroupWhat": "What Odova sends",
+  "@notifGroupWhat": {
+    "description": "The first group's header."
+  },
+  "notifGroupWhen": "When",
+  "@notifGroupWhen": {
+    "description": "The second."
+  },
+  "notifGroupHowFar": "How far ahead",
+  "@notifGroupHowFar": {
+    "description": "The third."
+  },
+  "notifAllowed": "Allowed",
+  "@notifAllowed": {
+    "description": "The permission chip beside the first group's header, in the granted state."
+  },
+  "notifRowService": "Service reminders",
+  "@notifRowService": {
+    "description": "§13's first category. The ARB comment caps these at 22 characters so the switch never pushes the label to two lines."
+  },
+  "notifRowOdometer": "Odometer check-ins",
+  "@notifRowOdometer": {
+    "description": "The second."
+  },
+  "notifRowBackup": "Backup reminders",
+  "@notifRowBackup": {
+    "description": "The third."
+  },
+  "notifRowTimeOfDay": "Time of day",
+  "@notifRowTimeOfDay": {
+    "description": "The daily delivery time, stored as local wall-clock minutes and never as an instant."
+  },
+  "notifRowQuietHours": "Quiet hours",
+  "@notifRowQuietHours": {
+    "description": "The window notifications are held out of."
+  },
+  "notifRowByDistance": "By distance",
+  "@notifRowByDistance": {
+    "description": "§3's notice window, by distance."
+  },
+  "notifRowByTime": "By time",
+  "@notifRowByTime": {
+    "description": "And by date."
+  },
+  "notifAutomatic": "Automatic",
+  "@notifAutomatic": {
+    "description": "The computed default for either notice window. Stores NULL — a stored number is a number that stops tracking the item's own interval."
+  },
+  "notifAutomaticNote": "Automatic is about {percent}% before it is due.",
+  "@notifAutomaticNote": {
+    "description": "What Automatic means, under the two rows. `percent` is pre-shaped; a bare int renders Latin digits in four locales.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "10"
+      }
+    }
+  },
+  "notifCapFooter": "At most two notifications a week. Never two in one day.",
+  "@notifCapFooter": {
+    "description": "§14's delivery cap, stated as a FACT and not offered as a switch. A user who could raise it would, and then blame the app for the noise."
+  },
+  "notifQuietOff": "Off",
+  "@notifQuietOff": {
+    "description": "The quiet-hours value when the window is empty — `from == to` is not a zero-length window, it is off."
+  },
+  "notifOffTitle": "Reminders are off.",
+  "@notifOffTitle": {
+    "description": "§13's never-asked card."
+  },
+  "notifOffAction": "Turn on reminders",
+  "@notifOffAction": {
+    "description": "Its one action; EPIC-16 owns the sheet it presents."
+  },
+  "notifBlockedTitle": "Odova can’t send reminders because notifications are turned off for Odova in your phone’s settings.",
+  "@notifBlockedTitle": {
+    "description": "§13's denied card, verbatim. It names WHERE the setting is, because the app cannot change it and the user has to."
+  },
+  "notifBlockedAction": "Open phone settings",
+  "@notifBlockedAction": {
+    "description": "The only remaining door."
+  },
+  "notifBackgroundTitle": "Your phone may be stopping Odova’s reminders.",
+  "@notifBackgroundTitle": {
+    "description": "§14's OEM background-restriction card, shown once after three unconfirmed deliveries."
+  },
+  "notifSilentFooter": "Odova won’t send you anything. What’s due still shows on the home screen.",
+  "@notifSilentFooter": {
+    "description": "Shown when every category is off. It says what still works, because the alternative reading is that the app has stopped doing anything."
+  },
+  "notifRowCalendar": "Add reminders to my calendar",
+  "@notifRowCalendar": {
+    "description": "The `.ics` export. Moves ABOVE the delivery group when notifications are blocked — it is then the only thing on the screen that still delivers anything."
   }
 }
