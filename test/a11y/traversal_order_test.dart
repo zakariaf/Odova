@@ -35,10 +35,9 @@ List<String> traversal(WidgetTester tester) {
     // and the whole point of this file is that direction changes what the user
     // gets. Falls back to `visitChildren` if the debug list is unavailable, and
     // says so rather than silently asserting the wrong order.
-    final ordered = node.debugListChildrenInOrder(
-      DebugSemanticsDumpOrder.traversalOrder,
-    );
-    ordered.forEach(walk);
+    node
+        .debugListChildrenInOrder(DebugSemanticsDumpOrder.traversalOrder)
+        .forEach(walk);
   }
 
   final handle = tester.ensureSemantics();
