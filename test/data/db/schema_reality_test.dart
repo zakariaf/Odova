@@ -160,6 +160,23 @@ void main() {
       // reading is deleted with its parent by that code, not by a constraint —
       // which is a real weakening and is why it is written down here.
       'source_id',
+      // NOT a row id at all. `scheduled_notifications.os_id` is the 31-bit
+      // integer the operating system knows a notification by — it points at
+      // something outside this database entirely, and the `_id` suffix is the
+      // platform's word rather than ours.
+      'os_id',
+    };
+
+    // Two real pointers that deliberately carry no REFERENCES, and the reason
+    // is the same for both: `scheduled_notifications` is a record of what the
+    // OS WAS TOLD, and it has to outlive the thing it names by exactly long
+    // enough to cancel it. A cascade would delete the row holding the id that
+    // still needs cancelling, leaving a notification about a car the user
+    // deleted with nothing left that can find it. SPEC.md §6.2 cancels a
+    // vehicle's keys explicitly, in code, before rebuilding.
+    const cancelledInCodeNotByCascade = {
+      'scheduled_notifications.vehicle_id',
+      'scheduled_notifications.reminder_id',
     };
 
     final missing = <String>[];
@@ -173,6 +190,7 @@ void main() {
       for (final column in columns) {
         final name = column.read<String>('name');
         if (!name.endsWith('_id') || knownNotForeign.contains(name)) continue;
+        if (cancelledInCodeNotByCascade.contains('$table.$name')) continue;
         if (!declared.contains(name)) missing.add('$table.$name');
       }
     }

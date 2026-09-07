@@ -306,3 +306,56 @@ the commonest mutation of all is a guard DELETED, and expressing it needed an
 empty replacement that ` :: ` could not carry. Multi-line `from` is deliberately
 still unsupported — it invites near-miss whitespace that silently fails to
 apply, which is the failure the harness exists to refuse.
+
+## Task 16.6 — `scheduled_notifications`, and five things the schema bump broke
+
+The table is **deliberately not an entity**: no ULID, no `created_at`, no soft
+delete. It is device bookkeeping, not history — it does not go in the backup
+(§6 §7), does not survive an import, and §6.2 rebuilds it from scratch after
+one. Giving it the entity shape would invite the next person writing an export
+projection to include it, putting one phone's OS notification ids into a file
+restored onto another, where cancelling them cancels whatever holds those ids
+now.
+
+`vehicle_id` and `reminder_id` carry **no foreign key on purpose**. The row is a
+record of what the OS WAS TOLD and has to outlive the thing it names by exactly
+long enough to cancel it; a cascade would delete the row holding the id that
+still needs cancelling. §6.2 cancels a vehicle's keys explicitly, in code.
+
+**The bump to v2 broke five things, and four of them were gates doing their
+job.**
+
+1. **Four migration-guard tests went green by not running.** Their fake
+   databases claimed `schemaVersion => 2` to force an upgrade; once the real
+   version WAS 2 no upgrade ran, and every guard reported `OpenedCleanly`. Four
+   tests about data loss passed while testing nothing. The file's own comment
+   had predicted this — "a bump would make this test the thing that breaks every
+   time the ladder grows" — and a literal was written anyway. Now
+   `kLatestSchemaVersion + 1`, along with every other version-pinned literal in
+   that file.
+2. **`withLength` emits no SQL.** `schema_reality_test` refuses it, correctly: it
+   is a Dart-side validator, so a row written by a raw statement — which the
+   fan-out and the migration both use — passes it unchecked. Replaced with
+   `CHECK (length(fire_at_local) = 16)`.
+3. **The audit-columns and `*_id`-REFERENCES gates** both fired. Exempted with
+   the argument written next to the exemption, per the `*_id` gate's own rule
+   that "every exception is named, with the reason, because 'it isn't a foreign
+   key' is exactly what somebody says about a column that should have been one."
+4. **`format_version` is not `schema_version`.** They had been the same number
+   because there was one of each, and `safety_copy_imports_test` asserted the
+   reader's schema version. Schema v2 projects the v1 DOCUMENT — the backup does
+   not carry the new table — so the format version must stay 1. Bumping it would
+   make every v2 build write files that older builds refuse as `TooNew`, over a
+   table that is not in them. `SchemaReader` now declares
+   `backupFormatVersion` per reader, as a literal.
+5. The index list and its count, which is the gate working as designed.
+
+**`make-migrations` could not run**: it reads `schemaVersion` from the source and
+this app returns `kLatestSchemaVersion`, not a literal. The four commands from
+`schema_version.dart`'s own ritual were run individually instead —
+`schema dump`, `schema steps`, `schema generate --data-classes --companions`,
+`build_runner build`. Worth correcting in that doc.
+
+The migration test seeds a row in **every** table, migrates, and counts again.
+An additive step that silently rebuilt `vehicles` and lost every row would pass
+a shape check and `integrity_check` too.

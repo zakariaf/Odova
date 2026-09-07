@@ -56,8 +56,9 @@ void main() {
       'idx_corrections_vehicle',
       'idx_lines_record',
       'idx_lines_item',
+      'idx_scheduled_vehicle',
     });
-    expect(schemaIndexes, hasLength(10));
+    expect(schemaIndexes, hasLength(11));
   });
 
   test('the reading history query uses idx_readings_vehicle_order', () async {

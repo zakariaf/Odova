@@ -13,6 +13,7 @@ import 'package:odova/data/db/tables/expenses.dart';
 import 'package:odova/data/db/tables/fill_ups.dart';
 import 'package:odova/data/db/tables/odometer_corrections.dart';
 import 'package:odova/data/db/tables/odometer_readings.dart';
+import 'package:odova/data/db/tables/scheduled_notifications.dart';
 import 'package:odova/data/db/tables/service_items.dart';
 import 'package:odova/data/db/tables/service_records.dart';
 import 'package:odova/data/db/tables/settings.dart';
@@ -43,7 +44,18 @@ const schemaIndexes = <String>[
   _correctionsVehicle,
   _linesRecord,
   _linesItem,
+  _scheduledByVehicle,
 ];
+
+/// Cancelling every key belonging to one vehicle, on archive or delete.
+///
+/// SPEC.md §6.2's "vehicle archived or deleted → cancel that vehicle's keys,
+/// then rebuild". Without the index that is a full scan of the table on a
+/// path the user is watching, and with five cars and a full queue it is the
+/// difference between a delete that feels instant and one that does not.
+const _scheduledByVehicle =
+    'CREATE INDEX idx_scheduled_vehicle ON scheduled_notifications '
+    '(vehicle_id)';
 
 /// History pagination and the cumulative fold, which reads every reading for
 /// one vehicle in `(occurred_on, created_at)` order — the exact order
@@ -135,6 +147,7 @@ const _linesItem =
     Expenses,
     OdometerReadings,
     OdometerCorrections,
+    ScheduledNotifications,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -212,7 +225,25 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (m, from, to) async {
       await customStatement('PRAGMA foreign_keys = OFF;');
       await m.database.transaction(() async {
-        await stepByStep()(m, from, to);
+        await stepByStep(
+          // v1 -> v2: `scheduled_notifications`, EPIC-16 / SPEC.md §6.1.
+          //
+          // Additive and nothing else — one new table and its index, no
+          // existing table touched, no data moved. That is the safest shape a
+          // migration can have and it is worth saying out loud, because the
+          // step that follows it will not be: this is the first entry in a
+          // ladder that eight years of somebody's service history has to walk.
+          //
+          // The table is device bookkeeping, so there is nothing to backfill.
+          // An upgrading phone starts with an empty queue and the first
+          // reconcile after launch fills it — which is exactly what §6.2's
+          // "rebuild on first launch after a version change" already does, for
+          // its own reasons.
+          from1To2: (migrator, schema) async {
+            await migrator.create(schema.scheduledNotifications);
+            await customStatement(_scheduledByVehicle);
+          },
+        )(m, from, to);
       });
 
       final orphans = await customSelect(

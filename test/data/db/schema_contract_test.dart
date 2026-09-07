@@ -95,6 +95,23 @@ void main() {
         // that lives and dies with its parent, and `settings` is a singleton
         // whose id is the literal string `settings`.
         const childRows = {'service_lines'};
+
+        // And one table that is not an ENTITY at all.
+        //
+        // `scheduled_notifications` is device bookkeeping — what the app
+        // believes the OS is holding (SPEC.md §6.1). It has no ULID, no
+        // created-at and no soft delete because it is not history: it does not
+        // go in the backup (§6 §7), it does not survive an import, and §6.2
+        // rebuilds it from scratch after one. Its identity is the notification
+        // KEY, which is `<vehicle>:<reminder>:<stage>` and is meaningful, not
+        // generated.
+        //
+        // Exempted here rather than given the audit columns, because giving it
+        // an `id` and a `deleted_at` would make it look like an entity — and
+        // the next person to write an export projection would include it,
+        // putting one phone's OS notification ids into a file that gets
+        // restored onto another.
+        const notEntities = {'scheduled_notifications'};
         const required = {
           'id',
           'created_at_utc_ms',
@@ -108,6 +125,7 @@ void main() {
               .customSelect('PRAGMA table_info($table);')
               .get();
           final names = columns.map((c) => c.read<String>('name')).toSet();
+          if (notEntities.contains(table)) continue;
           final want = childRows.contains(table) ? {'id'} : required;
           for (final column in want) {
             if (!names.contains(column)) missing.add('$table.$column');

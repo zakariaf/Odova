@@ -81,9 +81,9 @@ void main() {
     //
     // Comments stripped, because the manifest carries a paragraph explaining
     // why these are absent and it names both of them.
-    final manifest = File('android/app/src/main/AndroidManifest.xml')
-        .readAsStringSync()
-        .replaceAll(RegExp('<!--.*?-->', dotAll: true), '');
+    final manifest = File(
+      'android/app/src/main/AndroidManifest.xml',
+    ).readAsStringSync().replaceAll(RegExp('<!--.*?-->', dotAll: true), '');
 
     expect(manifest, isNot(contains('USE_EXACT_ALARM')));
     expect(manifest, isNot(contains('SCHEDULE_EXACT_ALARM')));

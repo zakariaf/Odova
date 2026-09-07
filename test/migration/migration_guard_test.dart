@@ -17,6 +17,7 @@ import 'package:odova/data/backup/migration_safety_copy.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/app_database_opener.dart';
 import 'package:odova/data/db/connection.dart';
+import 'package:odova/data/db/schema_version.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../support/export_stamp.dart';
@@ -26,11 +27,17 @@ import '../support/export_stamp.dart';
 /// Injected rather than produced by a real schema bump: a bump would need its
 /// own committed snapshot and would make this test the thing that breaks every
 /// time the ladder grows.
+///
+/// `kLatestSchemaVersion + 1`, not a literal. It WAS a literal 2, and EPIC-16's
+/// bump to v2 turned these fakes into no-ops — the seeded file was already at
+/// the version they claimed, so no upgrade ran and every guard reported
+/// `OpenedCleanly`. Four tests about DATA LOSS went green by not running. The
+/// comment above predicted exactly this and the literal was written anyway.
 class _ThrowingDatabase extends AppDatabase {
   _ThrowingDatabase(super.e) : super.forTesting();
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => kLatestSchemaVersion + 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -56,7 +63,7 @@ class _CommittingThenThrowingDatabase extends AppDatabase {
   _CommittingThenThrowingDatabase(super.e) : super.forTesting();
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => kLatestSchemaVersion + 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -203,7 +210,7 @@ void main() {
 
     expect(outcome, isA<MigrationRolledBack>());
     expect(readVehicles(), before);
-    expect(userVersion(), 1);
+    expect(userVersion(), kLatestSchemaVersion);
   });
 
   test('a throw AFTER the commit is undone by the snapshot', () async {
@@ -226,14 +233,14 @@ void main() {
 
     expect(outcome, isA<MigrationRolledBack>());
     final rolled = outcome as MigrationRolledBack;
-    expect(rolled.atVersion, 1);
-    expect(rolled.expectedVersion, 2);
+    expect(rolled.atVersion, kLatestSchemaVersion);
+    expect(rolled.expectedVersion, kLatestSchemaVersion + 1);
     expect(rolled.error, isA<StateError>());
 
     // Byte for byte, and row for row.
     expect(await dbFile.readAsBytes(), beforeBytes);
     expect(readVehicles(), before);
-    expect(userVersion(), 1);
+    expect(userVersion(), kLatestSchemaVersion);
   });
 
   test(
@@ -254,8 +261,14 @@ void main() {
 
       final copy = (outcome as MigrationRolledBack).safetyCopy;
       expect(copy, isNotNull);
-      expect(copy!.path, endsWith(migrationSafetyCopyName(1)));
-      expect(copy.path, endsWith('odova-safety-migration-1.json'));
+      expect(
+        copy!.path,
+        endsWith(migrationSafetyCopyName(kLatestSchemaVersion)),
+      );
+      expect(
+        copy.path,
+        endsWith('odova-safety-migration-$kLatestSchemaVersion.json'),
+      );
 
       final content =
           jsonDecode(await copy.readAsString()) as Map<String, Object?>;
@@ -345,7 +358,9 @@ void main() {
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
-    final copy = File('${dir.path}/${migrationSafetyCopyName(1)}');
+    final copy = File(
+      '${dir.path}/${migrationSafetyCopyName(kLatestSchemaVersion)}',
+    );
     final first = await copy.readAsString();
     expect(jsonDecode(first), isA<Map<String, Object?>>());
 
@@ -404,7 +419,7 @@ void main() {
 
     // Named for the VERSION, not a timestamp: a user who has updated four
     // times has one file, not four.
-    expect(copies, ['odova-safety-migration-1.json']);
+    expect(copies, ['odova-safety-migration-$kLatestSchemaVersion.json']);
   });
 
   test('the restore leaves no sidecar holding the failed attempt', () async {
