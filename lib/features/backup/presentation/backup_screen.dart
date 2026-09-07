@@ -24,6 +24,7 @@ import 'package:odova/l10n/relative_past_text.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/ui/calm/calm_badge.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_card.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
@@ -237,13 +238,20 @@ class _LastBackupCard extends ConsumerWidget {
                 style: type.caption.copyWith(color: colors.ink2),
               ),
               if (state.lastBackupAtUtcMs case final at?)
-                _AgePill(
-                  text: formatDaysAgo(
+                // A `CalmBadge`, not a hand-built pill. Only `lib/ui/calm/`
+                // builds a decoration, and the first version of this screen
+                // did — caught by `check_component_hygiene`, which is exactly
+                // the drift it exists to stop: a one-off pill on one screen
+                // becomes a second pill on the next one that is four pixels
+                // shorter.
+                CalmBadge(
+                  label: formatDaysAgo(
                     l10n,
                     tags.formats,
                     (state.nowUtcMs - at) ~/ Duration.millisecondsPerDay,
                   ),
-                  amber: amber,
+                  kind: amber ? CalmBadgeKind.due : CalmBadgeKind.ok,
+                  icon: amber ? Icons.warning_amber_rounded : null,
                 ),
             ],
           ),
@@ -317,56 +325,6 @@ class _LastBackupCard extends ConsumerWidget {
                   : null,
             ),
         ],
-      ),
-    );
-  }
-}
-
-/// The "3 months ago" pill beside the label — amber past ninety days.
-///
-/// Not a `CalmNotice`: a notice is a block that fills its width, and this sits
-/// inside a Row beside a label. Building it here keeps the Row constrained and
-/// the notice component honest about what it is for.
-class _AgePill extends StatelessWidget {
-  const _AgePill({required this.text, required this.amber});
-
-  final String text;
-  final bool amber;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = CalmColors.of(context);
-    final space = CalmSpace.of(context);
-    final type = CalmType.of(context);
-    final status = amber ? colors.due : colors.ok;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: status.tint,
-        borderRadius: BorderRadius.circular(space.s5),
-      ),
-      child: Padding(
-        padding: EdgeInsetsDirectional.symmetric(
-          horizontal: space.s3,
-          vertical: space.s2,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (amber) ...[
-              Icon(
-                Icons.warning_amber_rounded,
-                size: space.iconSm,
-                color: status.ink,
-              ),
-              SizedBox(width: space.s2),
-            ],
-            Text(
-              text,
-              style: type.label.copyWith(color: status.ink),
-            ),
-          ],
-        ),
       ),
     );
   }
