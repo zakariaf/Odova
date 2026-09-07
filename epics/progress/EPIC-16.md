@@ -238,3 +238,35 @@ It read a props entry as `^\w+$` after stripping `...`, so it recognised
 `SchedulePreferences` as omitting a field it does not omit. A gate that cries
 wolf is a gate somebody deletes, so the parser now reads the first identifier
 inside a spread, with both arms tested directly.
+
+## Task 16.6 — deterministic ids and the hysteresis
+
+**The id folds in the resolved fire instant and the body, not just the key.**
+`getPending()` returns ids and nothing else, so an id derived from the key alone
+is unchanged when the delivery hour moves 09:00 → 14:00 on the same date — and
+the reconcile's cancel loop and its schedule loop would BOTH skip it, leaving it
+to fire at the old time forever. This is the classic bug in this design and it
+is invisible to a suite that only checks the set of keys. Two mutations pin it.
+
+**FNV-1a written out rather than `Object.hash`.** Dart seeds `Object.hash` per
+isolate in some versions, which would give two devices — and two launches of the
+same app — different ids for the same notification. The prime is written as
+shifts so the multiply cannot overflow into arbitrary-precision integers on the
+VM and behave differently from the web's doubles.
+
+**The hysteresis is an ABSOLUTE difference.** The obvious `to - from >= 7`
+silently never reschedules anything that moved EARLIER, and earlier is the
+direction that matters: it is the one where not rescheduling means a late
+notification and a missed service. Mutation-checked.
+
+**An unreadable stored time reschedules rather than being skipped.** Failing
+toward doing the work: a row whose time cannot be parsed is a row we know
+nothing about, and leaving it pending is how a notification fires carrying a
+body from four months ago.
+
+The probe wraps inside 31 bits rather than growing past them — running off the
+top is where an off-by-one becomes a platform exception on one user's phone and
+nowhere in the suite — and is bounded by the size of the taken set so a pure
+function on the cold-launch path cannot spin.
+
+Seven mutations, all caught, in one `tools/mutate.sh` pass.
