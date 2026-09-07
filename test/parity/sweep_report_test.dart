@@ -85,9 +85,9 @@ void main() {
   });
 
   test('the raw output it was written from is kept', () {
-    // The table is a summary and the summary can be wrong. Keeping the tool's
-    // own output beside it means a disagreement is settleable without re-running
-    // a sweep whose inputs may have moved.
+    // The table is a summary and the summary can be wrong. Keeping the
+    // tool's own output beside it means a disagreement is settleable without
+    // re-running a sweep whose inputs may have moved.
     final raw = File('design/review/parity-raw.txt');
     expect(raw.existsSync(), isTrue);
     expect(raw.readAsStringSync(), contains('band edges are absent'));

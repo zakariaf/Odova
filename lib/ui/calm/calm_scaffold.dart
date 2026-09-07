@@ -308,6 +308,32 @@ class CalmAppBar extends StatelessWidget {
        endLabel = null,
        onEnd = null;
 
+  /// The standard bar with `.appbar__lead` — a pushed screen's way back.
+  ///
+  /// Twelve of the 28 artboards draw this lead and, until EPIC-18 put all 28
+  /// side by side, no screen in the app drew one: every pushed screen left
+  /// Android's system gesture as the only way out, and on iOS nothing at all.
+  /// Each of those screens passed its own parity test, because a missing
+  /// element is a band edge nobody was comparing against anything.
+  ///
+  /// [startLabel] is required and not defaulted. A bare glyph announced as
+  /// "button" is the only way off a screen, unnamed — the same reason
+  /// [CalmAppBar.modal]'s ✕ carries `commonClose` — and a default here would
+  /// be an English word in five languages that do not share it.
+  const CalmAppBar.pushed({
+    required this.title,
+    required String this.startLabel,
+    required VoidCallback this.onStart,
+    super.key,
+    this.actions = const [],
+  }) : shape = CalmAppBarShape.standard,
+       subtitle = null,
+       titleWidget = null,
+       onTapVehicle = null,
+       startIcon = null,
+       endLabel = null,
+       onEnd = null;
+
   /// The two-line bar: `type.titleLg` over an optional caption.
   const CalmAppBar.large({
     required this.title,
@@ -529,6 +555,17 @@ class CalmAppBar extends StatelessWidget {
         padding: EdgeInsetsDirectional.symmetric(horizontal: space.s4),
         child: Row(
           children: [
+            // `.appbar__lead`, and only when the screen asked for one. §7
+            // gives the four tab roots nothing behind them, so a bar that grew
+            // an arrow unconditionally would put a dead control on `home`,
+            // `history`, `costs` and `settings`.
+            if (onStart case final onStart?)
+              CalmAppBarAction(
+                label: startLabel!,
+                onTap: onStart,
+                icon: Icons.arrow_back,
+                directional: true,
+              ),
             Expanded(child: titleWidget ?? label(type.title)),
             ...actions,
           ],
@@ -603,6 +640,7 @@ class CalmAppBarAction extends StatelessWidget {
     super.key,
     this.primary = false,
     this.icon,
+    this.directional = false,
   });
 
   /// The word, already localised — or, when [icon] is set, the glyph's name.
@@ -610,6 +648,14 @@ class CalmAppBarAction extends StatelessWidget {
 
   /// Drawn instead of [label], which then becomes the accessible name.
   final IconData? icon;
+
+  /// Whether [icon] mirrors under RTL.
+  ///
+  /// True for the back lead and false for everything else in a bar today.
+  /// `CalmDirectionalIcon` flips whatever it is given, so wrapping every action
+  /// would mirror `+` and `✕` as well — harmless for a symmetric glyph and
+  /// wrong the moment one is not.
+  final bool directional;
 
   /// Null draws it disabled.
   final VoidCallback? onTap;
@@ -644,7 +690,13 @@ class CalmAppBarAction extends StatelessWidget {
           child: Align(
             widthFactor: 1,
             child: icon != null
-                ? Icon(icon, size: space.iconMd, color: foreground)
+                ? (directional
+                      ? CalmDirectionalIcon(
+                          icon!,
+                          size: space.iconMd,
+                          color: foreground,
+                        )
+                      : Icon(icon, size: space.iconMd, color: foreground))
                 : Text(
                     label,
                     textAlign: TextAlign.center,

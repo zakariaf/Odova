@@ -152,3 +152,70 @@ The differing-pixel percentages are deliberately absent from the table. They are
 informational by the skill's own rule, and a number in a triage table is a
 number somebody sorts by.
 
+## Tasks 18.5, 18.6, 18.7 — the three fix classes
+
+Full detail is in `design/review/parity-sweep.md`, which the sweep regenerates.
+The short version, and what each one cost.
+
+**18.5, bands — the capture drew no phone chrome.** Every artboard has an iOS
+status bar and a home indicator; the harness reserved 54pt and 34pt for them and
+painted nothing, which is three band edges absent from all 112 comparisons.
+Drawing them is not a widened tolerance: `--band-tolerance` is untouched, no
+reference moved, and a screen whose own bands are wrong still fails. It removes
+an artefact of the harness from the comparison.
+
+Two bugs found while doing it, both mine and both instructive. The strip
+measured 54+6 because the height sat inside the padding, putting the time six
+logical pixels low — twelve physical, three times the check's tolerance. And
+`9:41` rendered as a solid black box, because a `Text` with no `Material`
+ancestor gets Flutter's missing-style treatment — **the same defect this
+harness already documents, in a comment, for the tab bar.** I read that comment
+and wrote the bug anyway.
+
+Median band miss 59% → 53%, max 74% → 66%.
+
+**18.6, colour — the census could not see a scrim.** `--scrim` is an `rgba()`
+and `tokensOf` reads `#RRGGBB`, so it was never in the token map. A modal screen
+paints its whole backdrop through the scrim, so every composited pixel was
+reported as an untokenised surface: 17 comparisons, all on the five screens that
+draw one and none anywhere else. `dialog.discard` in light additionally failed
+the THEME check, because a light ground under a 44% brown scrim lands nearer a
+dark token than a light one.
+
+The scrim is now composited over every token of its own theme and the results
+join the map, named `--color-x under --scrim`. 17 colour failures → 11, 2 theme
+failures → 0. `--token-tolerance` is untouched: this is the check learning what
+the design system paints, not being told to mind less.
+
+**18.7, RTL — there is no RTL class, and looking for one found the epic's best
+finding.** Median band miss is 53.5% in RTL against 53.0% in LTR. The mirror is
+broadly right, which is worth knowing after five epics of RTL work.
+
+What the RTL sheets showed instead: `vehicles` passes in LTR and fails in RTL,
+so its sheet was worth opening — and the app bar has no back arrow where the
+artboard draws one. Counting `.appbar__lead` in `screens.html`: **twelve
+artboards draw one, and no screen in the app drew any.** Not a mirroring
+problem, not an RTL problem — a missing element on a third of the app, on every
+screen that is pushed rather than a tab root. Each of those screens passed its
+own per-screen parity test for four epics, because a missing element is a band
+edge nobody was comparing.
+
+`CalmAppBar.pushed` now carries it, with `startLabel` REQUIRED rather than
+defaulted — a bare glyph announced as "button" is the only way off a screen,
+unnamed, and a default would put an English word into five languages. The arrow
+goes through `CalmDirectionalIcon`, so it points at the start edge in both
+directions; `CalmAppBarAction` gained a `directional` flag rather than wrapping
+every icon, because that widget flips whatever it is given and `+` and `✕` must
+not mirror. Ten screens wired; `settings.import` is a sheet and
+`dialog.confirmDelete` inherits the bar behind it.
+
+**The back-lead fix moves the band numbers barely at all** — an arrow shares a
+row with the title beside it — which is the honest measure of what a band
+profile can and cannot see, and exactly why §7 says to open the sheet and look.
+
+**Still open: the band class, on 106 of 112, median 53%.** The remaining
+difference is vertical rhythm and it is real — on `settings` the app's first
+card starts 16px lower than the reference's and every band below inherits the
+offset. Establishing the cause is the side-by-side read Task 18.8 is, and that
+task is not done. It is carried into the sign-off rather than closed quietly.
+

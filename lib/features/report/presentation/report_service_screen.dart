@@ -102,7 +102,9 @@ class ReportServiceScreen extends ConsumerWidget {
     );
 
     return CalmScaffold(
-      appBar: CalmAppBar(
+      appBar: CalmAppBar.pushed(
+        startLabel: l10n.commonBack,
+        onStart: () => Navigator.of(context).maybePop(),
         title: l10n.reportTitle,
         actions: [
           // §12's overflow: "Copy as text. Paper size. Nothing else."

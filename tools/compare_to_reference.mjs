@@ -72,6 +72,8 @@ const appRaw = await sharp(appPath).resize(W, H, { fit: 'fill' }).ensureAlpha().
 const { readFile } = await import('node:fs/promises');
 const cssText = await readFile(join(ROOT, 'design', system, 'odova.css'), 'utf8');
 
+const hex = (r, g, b) => [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+
 function tokensOf(selector) {
   const i = cssText.indexOf(selector);
   if (i === -1) return new Map();
@@ -85,15 +87,50 @@ function tokensOf(selector) {
   }
   return m;
 }
-const lightTokens = tokensOf(':root,\n.theme-light {');
-const darkTokens = tokensOf(':root[data-theme="dark"],\n.theme-dark {');
+// The scrim is an `rgba()`, so `tokensOf` — which reads `#RRGGBB` — never sees
+// it. That is not a parsing gap to shrug at: a modal screen paints its whole
+// backdrop through the scrim, and the census then reports every composited
+// pixel as an untokenised surface. In the first full sweep that was 17 of the
+// 112 comparisons and every one of them was on the five screens that draw one:
+// the three dialogs, `settings.import` and `vehicle.switcher`. `dialog.discard`
+// in LIGHT went further and failed the THEME check, because the light ground
+// under a 44% brown scrim lands nearer a dark token than a light one.
+//
+// So the scrim is composited over every token of its own theme and the results
+// join the map. This is not a widened tolerance — `--token-tolerance` is
+// untouched and a genuinely wrong colour still fails by the same margin. It is
+// the check learning what the design system actually paints.
+function scrimOf(selector) {
+  const i = cssText.indexOf(selector);
+  if (i === -1) return null;
+  const body = cssText.slice(i, cssText.indexOf('}', i));
+  const m = body.match(/--scrim\s*:\s*rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)/);
+  return m ? { r: +m[1], g: +m[2], b: +m[3], a: +m[4] } : null;
+}
+
+function withScrim(map, scrim) {
+  if (!scrim) return map;
+  const out = new Map(map);
+  const over = (c, s) => Math.round(scrim.a * s + (1 - scrim.a) * c);
+  for (const [h, name] of map) {
+    const r = over(parseInt(h.slice(0, 2), 16), scrim.r);
+    const g = over(parseInt(h.slice(2, 4), 16), scrim.g);
+    const b = over(parseInt(h.slice(4, 6), 16), scrim.b);
+    const k = hex(r, g, b);
+    if (!out.has(k)) out.set(k, `${name} under --scrim`);
+  }
+  return out;
+}
+
+const lightBase = tokensOf(':root,\n.theme-light {');
+const darkBase = tokensOf(':root[data-theme="dark"],\n.theme-dark {');
+const lightTokens = withScrim(lightBase, scrimOf(':root,\n.theme-light {'));
+const darkTokens = withScrim(darkBase, scrimOf(':root[data-theme="dark"],\n.theme-dark {'));
 // Scale, radius and motion tokens are declared once, in the light block; a colour
 // that appears in both blocks is theme-neutral and never decides the theme.
 const themeTokens = theme === 'dark' ? darkTokens : lightTokens;
 const otherTokens = theme === 'dark' ? lightTokens : darkTokens;
 const tokens = new Map([...lightTokens, ...darkTokens]);
-
-const hex = (r, g, b) => [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('').toUpperCase();
 
 // ---- colour census: what does each image actually paint, and is it a token?
 function census(raw) {

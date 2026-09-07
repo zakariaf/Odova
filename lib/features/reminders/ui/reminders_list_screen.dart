@@ -52,7 +52,11 @@ class RemindersListScreen extends ConsumerWidget {
 
     if (vehicle == null || groups == null) {
       return CalmScaffold(
-        appBar: CalmAppBar(title: l10n.remindersTitle),
+        appBar: CalmAppBar.pushed(
+          title: l10n.remindersTitle,
+          startLabel: l10n.commonBack,
+          onStart: () => Navigator.of(context).maybePop(),
+        ),
         children: const [],
       );
     }
@@ -64,7 +68,9 @@ class RemindersListScreen extends ConsumerWidget {
     );
 
     return CalmScaffold(
-      appBar: CalmAppBar(
+      appBar: CalmAppBar.pushed(
+        startLabel: l10n.commonBack,
+        onStart: () => Navigator.of(context).maybePop(),
         title: l10n.remindersTitle,
         actions: [
           CalmAppBarAction(

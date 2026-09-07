@@ -74,7 +74,9 @@ class TripsListScreen extends ConsumerWidget {
     );
 
     return CalmScaffold(
-      appBar: CalmAppBar(
+      appBar: CalmAppBar.pushed(
+        startLabel: l10n.commonBack,
+        onStart: () => Navigator.of(context).maybePop(),
         title: l10n.tripsTitle,
         actions: [
           CalmAppBarAction(

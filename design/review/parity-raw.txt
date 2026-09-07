@@ -1,263 +1,232 @@
 FAIL  costs-dark-ltr
-        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  50% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  costs-dark-rtl
-        FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  costs-light-ltr
         FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  costs-light-ltr
+        FAIL  49% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  costs-light-rtl
-        FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  costs.fuel-dark-ltr
-        FAIL  66% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  costs.fuel-dark-rtl
-        FAIL  67% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  costs.fuel-light-ltr
-        FAIL  67% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  costs.fuel-light-rtl
-        FAIL  68% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.confirmDelete-dark-ltr
-        FAIL  #070605 covers 1.1% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ36)
-        FAIL  #040302 covers 0.9% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ45)
-        FAIL  64% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  #040302 covers 0.9% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ28)
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.confirmDelete-dark-rtl
-        FAIL  #070605 covers 1.2% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ36)
-        FAIL  #040302 covers 0.9% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ45)
-        FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  #040302 covers 0.9% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ28)
+        FAIL  55% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.confirmDelete-light-ltr
-        FAIL  57% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.confirmDelete-light-rtl
-        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  49% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.discard-dark-ltr
-        FAIL  #080705 covers 1.2% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ34)
-        FAIL  #050403 covers 0.9% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ42)
-        FAIL  33% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  #050403 covers 0.9% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ25)
+        FAIL  30% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.discard-dark-rtl
-        FAIL  #080705 covers 1.2% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ34)
-        FAIL  #040302 covers 0.7% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ45)
-        FAIL  38% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  dialog.discard-light-ltr
-        FAIL  #9B9287 covers 12.1% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ33)
-        FAIL  #9E8F86 covers 0.9% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ32)
-        FAIL  #9E8E85 covers 0.5% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ30)
-        FAIL  #9E968E covers 36% and belongs to the dark palette — this build is in the wrong theme
-        FAIL  36% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  dialog.discard-light-rtl
-        FAIL  #9B9287 covers 9.0% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ33)
-        FAIL  #9E968E covers 36% and belongs to the dark palette — this build is in the wrong theme
-        FAIL  43% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  dialog.snooze-dark-ltr
-        FAIL  #0A0806 covers 1.0% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ30)
-        FAIL  #050403 covers 0.8% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ42)
+        FAIL  #040302 covers 0.7% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ28)
         FAIL  34% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  dialog.discard-light-ltr
+        FAIL  33% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  dialog.discard-light-rtl
+        FAIL  38% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  dialog.snooze-dark-ltr
+        FAIL  #050403 covers 0.8% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ25)
+        FAIL  30% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.snooze-dark-rtl
-        FAIL  #050403 covers 1.0% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ42)
-        FAIL  #070605 covers 0.7% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ36)
-        FAIL  36% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  #050403 covers 1.0% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ25)
+        FAIL  33% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.snooze-light-ltr
-        FAIL  #9B9287 covers 5.6% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ33)
-        FAIL  37% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  33% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  dialog.snooze-light-rtl
-        FAIL  #9B9287 covers 3.6% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ33)
-        FAIL  36% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  31% of the reference's band edges are absent — something is a different height or in a different place
 ok    firstrun.language-dark-ltr
 ok    firstrun.language-dark-rtl
 ok    firstrun.language-light-ltr
 ok    firstrun.language-light-rtl
 FAIL  firstrun.vehicle-dark-ltr
-        FAIL  47% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  40% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  firstrun.vehicle-dark-rtl
-        FAIL  45% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  36% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  firstrun.vehicle-light-ltr
-        FAIL  44% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  firstrun.vehicle-light-rtl
-        FAIL  44% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  history-dark-ltr
-        FAIL  65% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  history-dark-rtl
-        FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  history-light-ltr
-        FAIL  66% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  history-light-rtl
-        FAIL  61% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  home-dark-ltr
         FAIL  39% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  home-dark-rtl
-        FAIL  48% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  home-light-ltr
-        FAIL  38% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  home-light-rtl
-        FAIL  44% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.expense-dark-ltr
-        FAIL  58% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.expense-dark-rtl
-        FAIL  64% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.expense-light-ltr
-        FAIL  56% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.expense-light-rtl
-        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.fillup-dark-ltr
-        FAIL  58% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.fillup-dark-rtl
-        FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.fillup-light-ltr
-        FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.fillup-light-rtl
-        FAIL  50% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.odometer-dark-ltr
-        FAIL  68% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.odometer-dark-rtl
-        FAIL  66% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.odometer-light-ltr
-        FAIL  70% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.odometer-light-rtl
-        FAIL  67% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.service-dark-ltr
-        FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.service-dark-rtl
-        FAIL  57% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.service-light-ltr
+FAIL  firstrun.vehicle-light-rtl
+        FAIL  35% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  history-dark-ltr
         FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  log.service-light-rtl
-        FAIL  55% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  reminders.edit-dark-ltr
-        FAIL  64% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  reminders.edit-dark-rtl
-        FAIL  69% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  reminders.edit-light-ltr
-        FAIL  65% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  reminders.edit-light-rtl
-        FAIL  70% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  reminders.list-dark-ltr
-        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  reminders.list-dark-rtl
-        FAIL  57% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  reminders.list-light-ltr
-        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  reminders.list-light-rtl
-        FAIL  56% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  report.service-dark-ltr
+FAIL  history-dark-rtl
         FAIL  51% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  report.service-dark-rtl
-        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  report.service-light-ltr
-        FAIL  49% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  report.service-light-rtl
-        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings-dark-ltr
+FAIL  history-light-ltr
+        FAIL  61% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  history-light-rtl
+        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  home-dark-ltr
+        FAIL  34% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  home-dark-rtl
+        FAIL  41% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  home-light-ltr
+        FAIL  34% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  home-light-rtl
+        FAIL  37% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.expense-dark-ltr
+        FAIL  51% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.expense-dark-rtl
+        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.expense-light-ltr
+        FAIL  50% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.expense-light-rtl
+        FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.fillup-dark-ltr
+        FAIL  51% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.fillup-dark-rtl
+        FAIL  44% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.fillup-light-ltr
         FAIL  52% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings-dark-rtl
-        FAIL  63% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings-light-ltr
-        FAIL  52% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings-light-rtl
-        FAIL  63% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings.about-dark-ltr
-        FAIL  65% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings.about-dark-rtl
-        FAIL  66% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings.about-light-ltr
-        FAIL  65% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings.about-light-rtl
-        FAIL  67% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings.backup-dark-ltr
+FAIL  log.fillup-light-rtl
+        FAIL  42% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.odometer-dark-ltr
         FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings.backup-dark-rtl
+FAIL  log.odometer-dark-rtl
+        FAIL  56% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.odometer-light-ltr
+        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.odometer-light-rtl
         FAIL  57% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings.backup-light-ltr
-        FAIL  57% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  settings.backup-light-rtl
+FAIL  log.service-dark-ltr
+        FAIL  52% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.service-dark-rtl
+        FAIL  48% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.service-light-ltr
+        FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  log.service-light-rtl
+        FAIL  46% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  reminders.edit-dark-ltr
+        FAIL  58% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  reminders.edit-dark-rtl
+        FAIL  61% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  reminders.edit-light-ltr
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  reminders.edit-light-rtl
+        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  reminders.list-dark-ltr
+        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  reminders.list-dark-rtl
+        FAIL  49% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  reminders.list-light-ltr
         FAIL  55% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  reminders.list-light-rtl
+        FAIL  48% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  report.service-dark-ltr
+        FAIL  45% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  report.service-dark-rtl
+        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  report.service-light-ltr
+        FAIL  43% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  report.service-light-rtl
+        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings-dark-ltr
+        FAIL  47% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings-dark-rtl
+        FAIL  55% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings-light-ltr
+        FAIL  47% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings-light-rtl
+        FAIL  56% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings.about-dark-ltr
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings.about-dark-rtl
+        FAIL  57% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings.about-light-ltr
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings.about-light-rtl
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings.backup-dark-ltr
+        FAIL  55% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings.backup-dark-rtl
+        FAIL  50% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings.backup-light-ltr
+        FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  settings.backup-light-rtl
+        FAIL  49% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.import-dark-ltr
-        FAIL  #000000 covers 3.2% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ54)
-        FAIL  #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)
+        FAIL  #000000 covers 3.2% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ37)
         FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.import-dark-rtl
-        FAIL  #0B0908 covers 1.1% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ26)
-        FAIL  #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)
-        FAIL  #000000 covers 0.6% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ54)
-        FAIL  61% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  #000000 covers 0.6% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ37)
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.import-light-ltr
-        FAIL  #000000 covers 0.9% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ54)
-        FAIL  61% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  #000000 covers 0.9% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ37)
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.import-light-rtl
-        FAIL  58% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  55% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.language-dark-ltr
-        FAIL  51% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  45% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.language-dark-rtl
-        FAIL  51% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  40% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.language-light-ltr
-        FAIL  52% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  46% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.language-light-rtl
-        FAIL  52% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  41% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.notifications-dark-ltr
-        FAIL  58% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.notifications-dark-rtl
-        FAIL  51% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  44% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.notifications-light-ltr
-        FAIL  56% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  52% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.notifications-light-rtl
-        FAIL  51% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  43% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.units-dark-ltr
-        FAIL  68% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  63% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.units-dark-rtl
-        FAIL  67% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.units-light-ltr
-        FAIL  66% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  61% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.units-light-rtl
-        FAIL  66% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  58% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  trips.edit-dark-ltr
-        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  55% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  trips.edit-dark-rtl
-        FAIL  68% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  trips.edit-light-ltr
-        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  trips.edit-light-rtl
-        FAIL  66% of the reference's band edges are absent — something is a different height or in a different place
-FAIL  trips.list-dark-ltr
         FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  trips.edit-light-ltr
+        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  trips.edit-light-rtl
+        FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
+FAIL  trips.list-dark-ltr
+        FAIL  53% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  trips.list-dark-rtl
-        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  trips.list-light-ltr
-        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  55% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  trips.list-light-rtl
-        FAIL  64% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  56% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  vehicle.edit-dark-ltr
-        FAIL  71% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  64% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  vehicle.edit-dark-rtl
-        FAIL  74% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  64% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  vehicle.edit-light-ltr
-        FAIL  70% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  64% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  vehicle.edit-light-rtl
-        FAIL  74% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  66% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  vehicle.switcher-dark-ltr
-        FAIL  #070605 covers 1.5% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ36)
-        FAIL  #040302 covers 1.1% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ45)
-        FAIL  #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)
+        FAIL  #040302 covers 1.1% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ28)
         FAIL  29% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  vehicle.switcher-dark-rtl
-        FAIL  #070605 covers 1.5% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ36)
-        FAIL  #040302 covers 1.1% and is not a Calm token — nearest is --color-bg-sunk #151110 (Δ45)
-        FAIL  #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)
+        FAIL  #040302 covers 1.1% and is not a Calm token — nearest is --color-bg-sunk under --scrim #0F0C0A (Δ28)
         FAIL  63% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  vehicle.switcher-light-ltr
-        FAIL  #9B9287 covers 7.1% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ33)
-        FAIL  #9E8F86 covers 0.9% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ32)
-        FAIL  #9F9189 covers 0.8% and is not a Calm token — nearest is --color-needs-odometer #A99D8F (Δ28)
-        FAIL  #9E9087 covers 0.7% and is not a Calm token — nearest is --color-needs-odometer #A99D8F (Δ32)
-        FAIL  #9E8E85 covers 0.5% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ30)
-        FAIL  29% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  28% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  vehicle.switcher-light-rtl
-        FAIL  #9B9287 covers 7.9% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ33)
-        FAIL  #9E8F86 covers 1.0% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ32)
-        FAIL  #9F9189 covers 0.8% and is not a Calm token — nearest is --color-needs-odometer #A99D8F (Δ28)
-        FAIL  #9E9087 covers 0.7% and is not a Calm token — nearest is --color-needs-odometer #A99D8F (Δ32)
-        FAIL  #9E8E85 covers 0.5% and is not a Calm token — nearest is --color-ink-4 #968776 (Δ30)
-        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
 ok    vehicles-dark-ltr
 FAIL  vehicles-dark-rtl
-        FAIL  43% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  35% of the reference's band edges are absent — something is a different height or in a different place
 ok    vehicles-light-ltr
 FAIL  vehicles-light-rtl
-        FAIL  42% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  34% of the reference's band edges are absent — something is a different height or in a different place
 
 FAIL  a screen does not match the design reference.
       The reference is the authority. Fix the screen, or change the design
