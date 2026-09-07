@@ -67,8 +67,8 @@
   /* Ink ramp — warm brown-black, never pure black */
   --color-ink: #2C241E;
   --color-ink-2: #5C4E43;
-  --color-ink-3: #8B7B6C;
-  --color-ink-4: #AC9C8B;
+  --color-ink-3: #6B5F53;
+  --color-ink-4: #7D6C5A;
   --color-ink-inverse: #FFFBF4;
 
   /* Brand — clay. The one action colour. */
@@ -116,7 +116,7 @@
 
   --color-danger: #A5402B;
   --color-danger-tint: #F7DED6;
-  --color-focus: #A8794F;
+  --color-focus: #8A5F3A;
 
   /* Chart series */
   --chart-1: #7A5340;
@@ -125,7 +125,7 @@
   --chart-4: #5B7C8A;
   --chart-5: #7C5E74;
   --chart-grid: #E4D7C4;
-  --chart-axis-ink: #8B7B6C;
+  --chart-axis-ink: #6B5F53;
   --chart-plot: #FFFCF7;
 
   /* Type scale — nothing below 13px, ever */
@@ -218,8 +218,8 @@
 
   --color-ink: #F3EADE;
   --color-ink-2: #C6B6A4;
-  --color-ink-3: #9C8B79;
-  --color-ink-4: #7B6C5C;
+  --color-ink-3: #B0A18F;
+  --color-ink-4: #968776;
   --color-ink-inverse: #241D17;
 
   --color-brand: #D3A480;
@@ -273,7 +273,7 @@
   --chart-4: #93B6C3;
   --chart-5: #C6A2C0;
   --chart-grid: #3A3028;
-  --chart-axis-ink: #9C8B79;
+  --chart-axis-ink: #B0A18F;
   --chart-plot: #272019;
 
   --elev-0: none;
@@ -1692,7 +1692,10 @@ svg { display: block; }
 .textarea { min-height: 108px; resize: none; font-weight: var(--fw-regular); }
 
 .input::placeholder,
-.textarea::placeholder { color: var(--color-ink-4); font-weight: var(--fw-regular); }
+/* `--color-ink-3`, not `--color-ink-4`. A placeholder is TEXT and 1.4.3 does
+   not exempt it the way it exempts a disabled control — ink-4 measured 2.60:1
+   on `--color-surface`, below even the 3:1 non-text floor. EPIC-17 task 17.2. */
+.textarea::placeholder { color: var(--color-ink-3); font-weight: var(--fw-regular); }
 
 .input:hover,
 .textarea:hover,

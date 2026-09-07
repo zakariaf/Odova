@@ -153,103 +153,23 @@ List<ContrastPair> declaredPairs() => [
 /// re-shoot PLUS re-running the parity check on all 28 built screens.
 const knownContrastExceptions =
     <({String pair, String theme, double measured, String decision})>[
-      // Finding 1 — the single biggest a11y defect in the palette.
-      // `--color-ink-3` is `color:` in 47 CSS rules, 25 of them at 13px or
-      // 14px: `.row__sub`, `.section__hint`, `.duecard__anchor`.
-      (
-        pair: 'ink3 on bg',
-        theme: 'light',
-        measured: 3.67,
-        decision: 'deferred to EPIC-17; #6B5F53 clears all four light surfaces',
-      ),
-      (
-        pair: 'ink3 on surface',
-        theme: 'light',
-        measured: 3.99,
-        decision: 'same finding',
-      ),
-      (
-        pair: 'ink3 on surface2',
-        theme: 'light',
-        measured: 3.42,
-        decision: 'same finding',
-      ),
-      (
-        pair: 'ink3 on surface3',
-        theme: 'light',
-        measured: 3.02,
-        decision: 'same finding; the worst of the four',
-      ),
-      // Dark is not clean either, and the finding document does not say so —
-      // it reports ink3 as light-theme-only. Found by this test.
-      (
-        pair: 'ink3 on surface2',
-        theme: 'dark',
-        measured: 4.39,
-        decision: 'same finding, DARK theme — not in ACCESSIBILITY-FINDING.md',
-      ),
-      (
-        pair: 'ink3 on surface3',
-        theme: 'dark',
-        measured: 3.84,
-        decision: 'same finding, DARK theme — not in ACCESSIBILITY-FINDING.md',
-      ),
-      // `--chart-axis-ink` IS `--color-ink-3` in light, and a chart axis label
-      // is real 13px text rather than a graphic. One value, two findings.
-      (
-        pair: 'chartAxisInk on chartPlot',
-        theme: 'light',
-        measured: 3.99,
-        decision: 'chartAxisInk is ink3; fixing ink3 fixes this',
-      ),
-      // The disclosure chevron, 2026-09-03, EPIC-03 task 3.3. `--color-ink-4`
-      // is #AC9C8B; against `--color-surface` it is 2.60:1, below SC 1.4.11's
-      // 3:1 floor for a graphical object. It is the same design decision as
-      // ink3 and the focus ring — deferred to EPIC-17, which must take all
-      // three or the chevron stays invisible. Dark on `surface` clears at
-      // 3.17:1 and is deliberately NOT excepted, so darkening light to match
-      // dark would close five of these six entries at once.
-      (
-        pair: 'ink4 on surface',
-        theme: 'light',
-        measured: 2.60,
-        decision: 'deferred to EPIC-17 with ink3 and the focus ring',
-      ),
-      (
-        pair: 'ink4 on surface2',
-        theme: 'light',
-        measured: 2.23,
-        decision: 'same finding; a tinted group',
-      ),
-      (
-        pair: 'ink4 on surface3',
-        theme: 'light',
-        measured: 1.97,
-        decision: 'same finding; a pressed row, the worst pair in the palette',
-      ),
-      (
-        pair: 'ink4 on surface2',
-        theme: 'dark',
-        measured: 2.85,
-        decision: 'same finding, DARK theme; a tinted group',
-      ),
-      (
-        pair: 'ink4 on surface3',
-        theme: 'dark',
-        measured: 2.49,
-        decision: 'same finding, DARK theme; a pressed row',
-      ),
-      // Finding 4 — a focus ring on the warmest surface. SC 1.4.11 holds a
-      // focus indicator to 3:1, and a control inside a `surface3` container
-      // gets a ring the user cannot see.
-      (
-        pair: 'focus on surface3',
-        theme: 'light',
-        measured: 2.82,
-        decision:
-            'deferred to EPIC-17 with ink3; EPIC-17 must take both, or '
-            'the focus ring stays invisible on one surface',
-      ),
+      // EMPTY, and that is the point of the mechanism above.
+      //
+      // Every entry here asserted that a pair **still fails**, so the day the
+      // design was fixed this test went red and forced their removal. It did,
+      // in EPIC-17 task 17.2, on 2026-09-07 — eleven entries went at once:
+      // four light `ink3` pairs, two dark `ink3` pairs the finding document
+      // never mentioned, `chartAxisInk` (which IS `ink3`), three light `ink4`
+      // pairs, two dark `ink4` pairs, and the light focus ring.
+      //
+      // The decision was the owner's, recorded with a date in
+      // `design/calm/ACCESSIBILITY-FINDING.md` and in
+      // `epics/progress/EPIC-17.md`: fix the tokens and re-shoot the reference
+      // set in the same PR, rather than accept Calm's softness as worth a
+      // WCAG 1.4.3 failure.
+      //
+      // Leave this list empty. A new entry needs a named person and a date,
+      // and it is not a place to park a failure until later.
     ];
 
 /// The ratio, at the precision WCAG is verified in.
@@ -388,18 +308,29 @@ void main() {
       expect(failures, isEmpty);
     });
 
-    test('ink3 in DARK is an APCA failure that WCAG 2.x passes', () {
-      // The reason both are run. `--color-ink-3` on `--color-surface` measures
-      // 4.6:1 in dark — a WCAG pass — and 39.1 Lc, which is below even the
-      // 45 non-text floor, let alone the 60 for body text. Light measures
-      // 66.4 Lc and passes.
+    test('ink3 in dark clears WCAG AA and still misses APCA body text', () {
+      // The reason both are run, and the residual EPIC-17 did NOT close.
       //
-      // This is the SAME ink3 finding deferred to EPIC-17, with a second piece
-      // of evidence: fixing it is not only a light-theme change. Pinned at the
-      // measured value so the day the palette moves, this goes red.
+      // Before task 17.2 this measured 39.1 Lc — below even the 45 non-text
+      // floor. The token fix took it to 50.2, which clears the 45 floor and
+      // WCAG AA comfortably, and is still under APCA's 60 for body text.
+      //
+      // That is a real remaining gap, stated rather than rounded away. Closing
+      // it means lightening dark `ink-3` further, past the point where
+      // tertiary text stops reading as tertiary — a design judgement nobody
+      // has been asked for, and NOT the WCAG failure §17 makes a release
+      // blocker. The blocker is closed; this is the honest next question.
+      //
+      // Pinned at the measured value, as before, so the day the palette moves
+      // again this goes red and somebody re-reads the trade.
       expect(
         apcaLc(calmColorsDark.ink3, calmColorsDark.surface).abs(),
-        closeTo(39.1, 0.1),
+        closeTo(50.2, 0.1),
+      );
+      expect(
+        apcaLc(calmColorsDark.ink3, calmColorsDark.surface).abs(),
+        greaterThanOrEqualTo(largeTextAndGraphicLc),
+        reason: 'the 45 non-text floor, which it did not clear before',
       );
       expect(
         apcaLc(calmColorsLight.ink3, calmColorsLight.surface).abs(),
