@@ -3815,6 +3815,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **', '**
   String get commonListSeparator;
+
+  /// SPEC.md §6 §5.2, rung 1. The SIZE is quoted because “it’s 203 MB” is what makes the sentence land — a ten-year backup is a few megabytes, so the number is the argument.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too large to be an Odova backup (it’s {size}). Even a decade of records comes to a few megabytes, so this is probably a different file.'**
+  String importFailTooLarge(String size);
+
+  /// Rung 2. The remedy is one action and the message is that action.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is compressed. Unzip it first, then import the .json file inside.'**
+  String get importFailCompressed;
+
+  /// Rung 2. “Text” rather than “encoding”: the user has no way to check an encoding and every way to find the original file.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova can’t read the text in this file. It may have been changed by another program. Try the original file you exported.'**
+  String get importFailNotUtf8;
+
+  /// Rung 3, when the parse dies at EOF. A DIFFERENT sentence from “not valid”, because “get the file again” fixes this one and cannot fix the other.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is incomplete. It may not have finished downloading or copying. Get the file again and try once more.'**
+  String get importFailTruncated;
+
+  /// Rungs 3 and 4 when the file is not JSON at all — a PDF, a photo. The `.json` is the name the file picker shows, which is the opposite of jargon: it is the thing the user is looking at.
+  ///
+  /// In en, this message translates to:
+  /// **'That file isn’t an Odova backup. Odova backups are .json files made from Settings → Export. Pick a different file.'**
+  String get importFailNotOdova;
+
+  /// Rung 4, when the document is valid but carries no `format` key. Separate from the sentence above because this file plainly IS something, and calling it invalid would read as the app being wrong rather than the file.
+  ///
+  /// In en, this message translates to:
+  /// **'This file wasn’t made by Odova. It’s a valid file, but not one Odova can read. Nothing on your phone has changed.'**
+  String get importFailNotMadeByOdova;
+
+  /// Rung 5. Downgrade is not supported and never will be: a newer file may carry a field this build has no column for, and importing it would mean deciding what to throw away on the user’s behalf.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was made with a newer version of Odova. Update Odova, then import again. Your file hasn’t been changed.'**
+  String get importFailTooNew;
+
+  /// Rung 5 when the version is missing or is not a number. “Damaged” rather than “invalid”, and the remedy is the one that actually helps: try another copy.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup file is damaged and Odova can’t tell which version it is. If you have another copy or an older backup, try that one.'**
+  String get importFailDamagedVersion;
+
+  /// Rung 7’s malformed array, and §5.4’s over-deep document. The same situation for the user — the file is not shaped like a backup — and therefore the same sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup file is damaged and Odova can’t read what’s inside it. If you have another copy or an older backup, try that one.'**
+  String get importFailDamagedFile;
+
+  /// §5.2’s provider-error row. “Copy it into Files first” is the one action that reliably works when a picker hands back a permission it did not really grant.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t open that file. Try copying it to your phone’s Files app first, then import it from there.'**
+  String get importFailCannotOpen;
+
+  /// §5.2’s storage row. The SIZE is named because “free up some space” is advice a user cannot act on and “free up about 40 MB” is.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough space on your phone to import this backup. Free up about {size} and try again.'**
+  String importFailNotEnoughSpace(String size);
+
+  /// Rung 13. Refused rather than partly imported: §2 makes import a REPLACE, so a partial import is not most of a history — it is most of a history standing where all of it used to be, with no way to tell which parts are missing. Both numbers are named because that is what makes the refusal believable.
+  ///
+  /// In en, this message translates to:
+  /// **'Too much of this backup is damaged to import safely. Odova could read {readable} of your {total} records, and importing part of your history would leave gaps. Try an older backup if you have one. Nothing on your phone has changed.'**
+  String importFailTooDamaged(String readable, String total);
+
+  /// Rung 8, a WARNING and never a refusal: there is no secret and no signature, so anyone who edits the file can recompute the check — a mismatch means “not byte-for-byte what Odova wrote”, which is also true of a deliberate hand-edit.
+  ///
+  /// In en, this message translates to:
+  /// **'This file has been edited since Odova saved it. That’s fine if you changed it on purpose. Check the numbers below before you continue.'**
+  String get importWarnContentHash;
+
+  /// Rung 8. Both numbers, because “it lists 1,204 records and 1,180 were found” is a fact the user can act on and “the counts do not match” is not.
+  ///
+  /// In en, this message translates to:
+  /// **'This file doesn’t contain everything it says it should — it lists {declared} records and {found} were found. It may have been cut short. Check the numbers below.'**
+  String importWarnRecordCount(String declared, String found);
+
+  /// Rung 7’s absent array. A file that OMITS a section might be an older export, so it is a warning; one that puts something else where the records go is a refusal.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of this backup is missing. Everything Odova could find will still be imported.'**
+  String get importWarnMissingArray;
+
+  /// Rung 9’s skipped records. “Tap to see which ones” is what turns a number into something a user can act on: somebody who knows exactly what was lost can retype three rows.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record couldn’t be read and won’t be imported. Everything else will. Tap to see which one.} other{{nText} records couldn’t be read and won’t be imported. Everything else will. Tap to see which ones.}}'**
+  String importWarnSkipped(int n, String nText);
+
+  /// §5.3’s never-silently-drop rule, in one sentence. A placeholder vehicle the user can see beats a number in a report they will not read.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record doesn’t say which vehicle it belongs to. It’ll be imported under a vehicle called “Recovered records” so you can sort it out or delete it.} other{{nText} records don’t say which vehicle they belong to. They’ll be imported under a vehicle called “Recovered records” so you can sort them out or delete them.}}'**
+  String importWarnOrphans(int n, String nText);
+
+  /// Rung 11’s one link failure that must not be repaired by guessing: applying a correction to an arbitrary reading rewrites a mileage history that looked fine, and the user has no way of knowing which number the app invented.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} odometer correction couldn’t be matched to a reading. Your mileage history may look wrong where the odometer was replaced. Tap to see which.} other{{nText} odometer corrections couldn’t be matched to a reading. Your mileage history may look wrong where the odometer was replaced. Tap to see which.}}'**
+  String importWarnUnmatchedCorrections(int n, String nText);
+
+  /// §5.2’s dropped-`rule` row. It names where to look, because a reminder that quietly changed how it warns is a reminder the user should re-check once.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} reminder used a setting Odova no longer has. It now warns you at whichever comes first — check it under Reminders.} other{{nText} reminders used a setting Odova no longer has. They now warn you at whichever comes first — check them under Reminders.}}'**
+  String importWarnDroppedRules(int n, String nText);
+
+  /// Rung 9’s coercion. The record SURVIVES — an unknown category must not cost a user their insurance row — and the sentence says what happened to it instead of hiding it.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record used a setting Odova doesn’t have. It’s been imported with Odova’s own setting instead.} other{{nText} records used settings Odova doesn’t have. They’ve been imported with Odova’s own settings instead.}}'**
+  String importWarnCoercedEnums(int n, String nText);
+
+  /// Rung 10. Imported, then flagged: a phone whose clock was wrong is still the user’s history, and they are the only one who can say which date was meant. The year is a placeholder so it is shaped like every other number.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record has a date that looks wrong — before {year}, or after this backup was made. It’s been imported so you can fix it.} other{{nText} records have dates that look wrong — before {year}, or after this backup was made. They’ve been imported so you can fix them.}}'**
+  String importWarnOutOfRangeDates(int n, String nText, String year);
+
+  /// Rung 11’s nulled links. The link is a convenience; the amount and the date are the record.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record pointed at a trip or a reminder that isn’t in this file. It’s been imported without it.} other{{nText} records pointed at a trip or a reminder that isn’t in this file. They’ve been imported without it.}}'**
+  String importWarnUnresolvedLinks(int n, String nText);
+
+  /// Rung 12. The first copy wins, and the message says so, because a user who appended a file to itself needs to know which half survived.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{This file lists {nText} record twice. Odova will import the first copy.} other{This file lists {nText} records twice. Odova will import the first copy of each.}}'**
+  String importWarnDuplicateIds(int n, String nText);
+
+  /// §5.4’s string cap. Shortened rather than dropped: a note the user can still mostly read beats a fill-up they have to retype.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} note was too long and has been shortened.} other{{nText} notes were too long and have been shortened.}}'**
+  String importWarnTruncatedStrings(int n, String nText);
+
+  /// §5.2’s success row. It names what was restored AND that the reminders were recalculated, because a due date is derived and a user who did not see that sentence would wonder why the dates moved.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported. {vehicles} and {records} restored. Your reminders have been recalculated.'**
+  String importSuccess(String vehicles, String records);
+
+  /// The record half of the success sentence, so both halves pluralise in their own language.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} record} other{{nText} records}}'**
+  String importRecordCount(int n, String nText);
+
+  /// §5.3’s placeholder vehicle. Named as a message key in the domain and resolved here, because a garage in Arabic must not contain one row in English.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovered records'**
+  String get importRecoveredVehicleName;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get importTypeVehicle;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get importTypeReminder;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer reading'**
+  String get importTypeReading;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer correction'**
+  String get importTypeCorrection;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-up'**
+  String get importTypeFillup;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get importTypeService;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get importTypeExpense;
+
+  /// The type word in a skipped-entry line — SPEC.md §5.2: “Fill-up, 14 August 2026 — the amount of fuel was missing”.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get importTypeTrip;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the date was missing'**
+  String get importSkipDate;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the amount of fuel was missing'**
+  String get importSkipFuel;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the amount was missing'**
+  String get importSkipMoney;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the currency wasn’t one Odova recognises'**
+  String get importSkipCurrency;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'the reading it corrects isn’t in this file'**
+  String get importSkipCorrection;
+
+  /// One reason in the skipped-entry list. A phrase and not a sentence, because it is read after the type and the date.
+  ///
+  /// In en, this message translates to:
+  /// **'part of it was missing'**
+  String get importSkipIncomplete;
+
+  /// One line of the skipped-entry list, with a date. Never an identifier: a ULID tells the user nothing and makes the list look like a crash report.
+  ///
+  /// In en, this message translates to:
+  /// **'{type}, {date} — {reason}'**
+  String importSkipEntry(String type, String date, String reason);
+
+  /// The same line when the date was the thing that was missing.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} — {reason}'**
+  String importSkipEntryNoDate(String type, String reason);
 }
 
 class _AppLocalizationsDelegate

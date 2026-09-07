@@ -210,7 +210,9 @@ class BackupReader {
       final out = <T>[];
       for (final raw in arrays[name]!) {
         if (raw is! Map<String, Object?>) {
-          skipped.add(SkippedEntry(array: name, reason: 'not_a_record'));
+          skipped.add(
+            SkippedEntry(array: name, reason: SkipReason.incomplete),
+          );
           continue;
         }
         log.rejection = null;
@@ -219,7 +221,7 @@ class BackupReader {
           skipped.add(
             SkippedEntry(
               array: name,
-              reason: log.rejection ?? 'unreadable',
+              reason: log.rejection ?? SkipReason.incomplete,
               occurredOn: raw['occurred_on'] is String
                   ? raw['occurred_on']! as String
                   : null,
@@ -285,7 +287,7 @@ class BackupReader {
     );
     final unmatched = skipped
         .skip(unmatchedBefore)
-        .where((entry) => entry.reason == 'unmatched_correction')
+        .where((entry) => entry.reason == SkipReason.correction)
         .length;
 
     final fillUps = read(

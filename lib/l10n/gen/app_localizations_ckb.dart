@@ -2476,4 +2476,255 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get commonListSeparator => '، ';
+
+  @override
+  String importFailTooLarge(String size) {
+    return 'ئەم فایلە بۆ پاڵپشتی Odova زۆر گەورەیە ($size). تەنانەت دەیەک ساڵ تۆماریش تەنیا چەند میگابایتە؛ لەوانەیە فایلێکی تر بێت.';
+  }
+
+  @override
+  String get importFailCompressed =>
+      'ئەم فایلە پەستکراوە. سەرەتا لێی بکەرەوە، پاشان فایلی json. ی ناوی بهێنە ژوورەوە.';
+
+  @override
+  String get importFailNotUtf8 =>
+      'Odova ناتوانێت دەقی ئەم فایلە بخوێنێتەوە. لەوانەیە بەرنامەیەکی تر گۆڕیبێتی. هەمان فایلە سەرەتاییەکە هەوڵ بدەرەوە.';
+
+  @override
+  String get importFailTruncated =>
+      'ئەم فایلە تەواو نییە. لەوانەیە دابەزاندن یان لێکۆڵینەوەکەی تەواو نەبووبێت. فایلەکە دووبارە بهێنە و دووبارە هەوڵ بدەرەوە.';
+
+  @override
+  String get importFailNotOdova =>
+      'ئەم فایلە پاڵپشتی Odova نییە. پاڵپشتەکانی Odova فایلی json. ن کە لە ڕێکخستنەکان، بەشی ناردنەدەرەوە دروست دەبن. فایلێکی تر هەڵبژێرە.';
+
+  @override
+  String get importFailNotMadeByOdova =>
+      'ئەم فایلە لەلایەن Odova دروست نەکراوە. فایلێکی دروستە، بەڵام Odova ناتوانێت بیخوێنێتەوە. هیچ شتێک لەسەر مۆبایلەکەت نەگۆڕا.';
+
+  @override
+  String get importFailTooNew =>
+      'ئەم پاڵپشتە بە وەشانێکی نوێتری Odova دروست کراوە. Odova نوێ بکەرەوە، پاشان دووبارە بیهێنە ژوورەوە. فایلەکەت نەگۆڕا.';
+
+  @override
+  String get importFailDamagedVersion =>
+      'ئەم فایلی پاڵپشتە تێکچووە و Odova نازانێت وەشانی چییە. ئەگەر لێبیکی ترت هەیە یان پاڵپشتێکی کۆنتر، ئەوە هەوڵ بدە.';
+
+  @override
+  String get importFailDamagedFile =>
+      'ئەم فایلی پاڵپشتە تێکچووە و Odova ناتوانێت ناوەڕۆکەی بخوێنێتەوە. ئەگەر لێبیکی ترت هەیە یان پاڵپشتێکی کۆنتر، ئەوە هەوڵ بدە.';
+
+  @override
+  String get importFailCannotOpen =>
+      'Odova نەیتوانی ئەو فایلە بکاتەوە. سەرەتا بییەوە بۆ بەرنامەی فایلەکانی مۆبایلەکەت، پاشان لەوێوە بیهێنە ژوورەوە.';
+
+  @override
+  String importFailNotEnoughSpace(String size) {
+    return 'بواری پێویست لەسەر مۆبایلەکەت نییە بۆ هێنانی ئەم پاڵپشتە. نزیکەی $size بەتاڵ بکەرەوە و دووبارە هەوڵ بدەرەوە.';
+  }
+
+  @override
+  String importFailTooDamaged(String readable, String total) {
+    return 'بەشێکی زۆری ئەم پاڵپشتە تێکچووە و بە سەلامەتی ناهێنرێتە ژوورەوە. Odova توانی $readable لە $total تۆمار بخوێنێتەوە، و هێنانی بەشێک لە مێژووەکەت بۆشایی بەجێدەهێڵێت. ئەگەر پاڵپشتێکی کۆنترت هەیە ئەوە هەوڵ بدە. هیچ شتێک لەسەر مۆبایلەکەت نەگۆڕا.';
+  }
+
+  @override
+  String get importWarnContentHash =>
+      'ئەم فایلە دوای پاشەکەوتکردنی لەلایەن Odova دەستکاری کراوە. ئەگەر بە ئەنقەست گۆڕیوتە کێشە نییە. پێش بەردەوامبوون ژمارەکانی خوارەوە ببینە.';
+
+  @override
+  String importWarnRecordCount(String declared, String found) {
+    return 'ئەم فایلە هەموو ئەوەی دەیڵێت تێدا نییە — $declared تۆماری ناوبردووە و $found دۆزرایەوە. لەوانەیە بڕاوبێت. ژمارەکانی خوارەوە ببینە.';
+  }
+
+  @override
+  String get importWarnMissingArray =>
+      'بەشێکی ئەم پاڵپشتە نییە. هەرچی Odova دۆزیویەتییەوە هێشتا دەهێنرێتە ژوورەوە.';
+
+  @override
+  String importWarnSkipped(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText تۆمار نەخوێنرانەوە و ناهێنرێن. هەموو ئەوانی تر دەهێنرێن. بیکە بۆ بینینیان.',
+      one:
+          '$nText تۆمار نەخوێنرایەوە و ناهێنرێتە ژوورەوە. هەموو ئەوانی تر دەهێنرێن. بیکە بۆ بینینی.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOrphans(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText تۆمار نایڵێن سەر کام ئۆتۆمبێلن. لەژێر ئۆتۆمبێلێک بە ناوی «تۆمارە گەڕێنراوەکان» دەهێنرێن تا بتوانیت ڕێکیان بخەیت یان بیانسڕیتەوە.',
+      one:
+          '$nText تۆمار نایڵێت سەر کام ئۆتۆمبێلە. لەژێر ئۆتۆمبێلێک بە ناوی «تۆمارە گەڕێنراوەکان» دەهێنرێتە ژوورەوە تا بتوانیت ڕێکی بخەیت یان بیسڕیتەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnmatchedCorrections(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText ڕاستکردنەوەی ژمێرەری ڕێگا نەتوانران ببەسترێنەوە. لەوانەیە مێژووی ڕێگاکەت هەڵە دەربکەوێت لەو شوێنەی ژمێرەرەکە گۆڕدراوە. بیکە بۆ بینینیان.',
+      one:
+          '$nText ڕاستکردنەوەی ژمێرەری ڕێگا نەتوانرا بە هیچ خوێندنەوەیەک ببەسترێتەوە. لەوانەیە مێژووی ڕێگاکەت هەڵە دەربکەوێت لەو شوێنەی ژمێرەرەکە گۆڕدراوە. بیکە بۆ بینینی.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDroppedRules(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText بیرخەرەوە ڕێکخستنێکی بەکارهێناوە کە چیتر لە Odova نییە. ئێستا لە یەکەم کاتدا ئاگادارت دەکەنەوە — لە بیرخەرەوەکاندا بیانپشکنە.',
+      one:
+          '$nText بیرخەرەوە ڕێکخستنێکی بەکارهێناوە کە چیتر لە Odova نییە. ئێستا لە یەکەم کاتدا ئاگادارت دەکاتەوە — لە بیرخەرەوەکاندا بیپشکنە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnCoercedEnums(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText تۆمار ڕێکخستنی بەکارهێناوە کە Odova نایانناسێت. لە جیاتی ئەوان بە ڕێکخستنەکانی خۆی Odova هێنران.',
+      one:
+          '$nText تۆمار ڕێکخستنێکی بەکارهێناوە کە Odova نایناسێت. لە جیاتی ئەوە بە ڕێکخستنی خۆی Odova هێنرایە ژوورەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOutOfRangeDates(int n, String nText, String year) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText تۆمار بەروارگەلێکیان هەیە کە هەڵە دیارن — پێش $year، یان دوای دروستکردنی ئەم پاڵپشتە. هێنران تا بتوانیت ڕاستیان بکەیتەوە.',
+      one:
+          '$nText تۆمار بەروارێکی هەیە کە هەڵە دیارە — پێش $year، یان دوای دروستکردنی ئەم پاڵپشتە. هێنرایە ژوورەوە تا بتوانیت ڕاستی بکەیتەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnresolvedLinks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText تۆمار ئاماژەیان بە گەشتێک یان بیرخەرەوەیەک دەکرد کە لەم فایلەدا نییە. بەبێ ئەو هێنران.',
+      one:
+          '$nText تۆمار ئاماژەی بە گەشتێک یان بیرخەرەوەیەک دەکرد کە لەم فایلەدا نییە. بەبێ ئەو هێنرایە ژوورەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDuplicateIds(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ئەم فایلە $nText تۆمار دوو جار هێناوە. Odova یەکەم لێبەی هەریەکەیان دەهێنێتە ژوورەوە.',
+      one:
+          'ئەم فایلە $nText تۆمار دوو جار هێناوە. Odova یەکەم لێبەکە دەهێنێتە ژوورەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnTruncatedStrings(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText تێبینی زۆر درێژ بوون و کورت کرانەوە.',
+      one: '$nText تێبینی زۆر درێژ بوو و کورت کرایەوە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSuccess(String vehicles, String records) {
+    return 'هێنرایە ژوورەوە. $vehicles و $records گەڕێنرانەوە. بیرخەرەوەکانت دووبارە حساب کران.';
+  }
+
+  @override
+  String importRecordCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText تۆمار',
+      one: '$nText تۆمار',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importRecoveredVehicleName => 'تۆمارە گەڕێنراوەکان';
+
+  @override
+  String get importTypeVehicle => 'ئۆتۆمبێل';
+
+  @override
+  String get importTypeReminder => 'بیرخەرەوە';
+
+  @override
+  String get importTypeReading => 'خوێندنەوەی ژمێرەر';
+
+  @override
+  String get importTypeCorrection => 'ڕاستکردنەوەی ژمێرەر';
+
+  @override
+  String get importTypeFillup => 'پڕکردنەوە';
+
+  @override
+  String get importTypeService => 'خزمەتگوزاری';
+
+  @override
+  String get importTypeExpense => 'خەرجی';
+
+  @override
+  String get importTypeTrip => 'گەشت';
+
+  @override
+  String get importSkipDate => 'بەروارەکەی نەبوو';
+
+  @override
+  String get importSkipFuel => 'بڕی سووتەمەنییەکەی نەبوو';
+
+  @override
+  String get importSkipMoney => 'بڕەکەی نەبوو';
+
+  @override
+  String get importSkipCurrency => 'دراوەکە بۆ Odova ناسراو نەبوو';
+
+  @override
+  String get importSkipCorrection =>
+      'ئەو خوێندنەوەیەی ڕاستی دەکاتەوە لەم فایلەدا نییە';
+
+  @override
+  String get importSkipIncomplete => 'بەشێکی نەبوو';
+
+  @override
+  String importSkipEntry(String type, String date, String reason) {
+    return '$type، $date — $reason';
+  }
+
+  @override
+  String importSkipEntryNoDate(String type, String reason) {
+    return '$type — $reason';
+  }
 }

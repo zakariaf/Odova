@@ -27,6 +27,46 @@ import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/units/mass.dart';
 import 'package:odova/core/units/volume.dart';
 
+/// Why one record could not be read, as a message key.
+///
+/// SIX of them, and not one per field. §5.2's skipped-entry list is read by a
+/// person — "Fill-up, 14 August 2026 — the amount of fuel was missing" — and
+/// twenty-five reasons that all mean "something was missing" would be twenty-
+/// five strings to translate into six languages so that a user could tell
+/// `interval_distance_m` from `notice_distance_m`. These are the distinctions
+/// that change what the user would DO about it.
+abstract final class SkipReason {
+  /// The date was missing or unreadable. A record with no date has no place in
+  /// a history.
+  static const String date = 'date';
+
+  /// How much fuel went in was missing. The one field a fill-up cannot lack.
+  static const String fuel = 'fuel';
+
+  /// An amount of money was missing or unreadable.
+  static const String money = 'money';
+
+  /// The currency code was not a currency.
+  static const String currency = 'currency';
+
+  /// A correction whose reading is not in the file — never applied to an
+  /// arbitrary one.
+  static const String correction = 'correction';
+
+  /// Anything else: an id, a name, a label, a vehicle.
+  static const String incomplete = 'incomplete';
+
+  /// All six, for a presentation layer that must handle every one.
+  static const List<String> values = [
+    date,
+    fuel,
+    money,
+    currency,
+    correction,
+    incomplete,
+  ];
+}
+
 /// Which ids in the file resolve, and what to do when one does not.
 ///
 /// Passed INTO the restore functions rather than applied afterwards, because
@@ -121,9 +161,9 @@ class RestoreLog {
   }
 }
 
-/// A required string, or a rejection.
-String? requiredString(Object? value, String field, RestoreLog log) =>
-    value is String && value.isNotEmpty ? value : log.reject('missing_$field');
+/// A required string, or a rejection carrying [reason].
+String? requiredString(Object? value, String reason, RestoreLog log) =>
+    value is String && value.isNotEmpty ? value : log.reject(reason);
 
 /// An optional string, or null when it is absent or the wrong type.
 ///
@@ -132,17 +172,17 @@ String? requiredString(Object? value, String field, RestoreLog log) =>
 /// not worth the fill-up it is attached to.
 String? optionalString(Object? value) => value is String ? value : null;
 
-/// A required integer, or a rejection.
-int? requiredInt(Object? value, String field, RestoreLog log) =>
-    value is int ? value : log.reject('missing_$field');
+/// A required integer, or a rejection carrying [reason].
+int? requiredInt(Object? value, String reason, RestoreLog log) =>
+    value is int ? value : log.reject(reason);
 
 /// An optional integer, or null. A non-integer is a rejection, because a
 /// quantity that arrived as `"forty"` is not an absent quantity.
-int? optionalInt(Object? value, String field, RestoreLog log) =>
+int? optionalInt(Object? value, String reason, RestoreLog log) =>
     switch (value) {
       null => null,
       final int n => n,
-      _ => log.reject('unreadable_$field'),
+      _ => log.reject(reason),
     };
 
 /// An optional boolean, defaulting to [fallback].
@@ -150,25 +190,20 @@ bool boolOr(Object? value, {required bool fallback}) =>
     value is bool ? value : fallback;
 
 /// An optional distance in canonical metres.
-Distance? optionalDistance(Object? value, String field, RestoreLog log) {
-  final metres = optionalInt(value, field, log);
+Distance? optionalDistance(Object? value, String reason, RestoreLog log) {
+  final metres = optionalInt(value, reason, log);
   return metres == null ? null : Distance(metres);
 }
 
 /// Money from §6's nested `{amount_minor, currency}` pair.
-Money? moneyFrom(Object? value, String field, RestoreLog log) {
-  if (value is! Map<String, Object?>) return log.reject('missing_$field');
-  return moneyFromParts(value['amount_minor'], value['currency'], field, log);
+Money? moneyFrom(Object? value, RestoreLog log) {
+  if (value is! Map<String, Object?>) return log.reject(SkipReason.money);
+  return moneyFromParts(value['amount_minor'], value['currency'], log);
 }
 
 /// Money from a flat minor/code pair, which is §6's shape for a service line.
-Money? moneyFromParts(
-  Object? minor,
-  Object? code,
-  String field,
-  RestoreLog log,
-) {
-  final amount = requiredInt(minor, field, log);
+Money? moneyFromParts(Object? minor, Object? code, RestoreLog log) {
+  final amount = requiredInt(minor, SkipReason.money, log);
   if (amount == null) return null;
   final currency = code is String ? Currency.tryParse(code) : null;
   // A missing or MALFORMED currency rejects the record rather than defaulting.
@@ -180,7 +215,7 @@ Money? moneyFromParts(
   // because ISO 4217 gained a currency after this release would lose data over
   // a table that is out of date.
   return currency == null
-      ? log.reject('unknown_currency')
+      ? log.reject(SkipReason.currency)
       : Money(
           amount,
           currency,
@@ -188,8 +223,8 @@ Money? moneyFromParts(
 }
 
 /// Optional money, absent when the field is absent.
-Money? optionalMoney(Object? value, String field, RestoreLog log) =>
-    value == null ? null : moneyFrom(value, field, log);
+Money? optionalMoney(Object? value, RestoreLog log) =>
+    value == null ? null : moneyFrom(value, log);
 
 /// An enum from its wire value, coercing an unknown one to [fallback].
 ///
@@ -212,11 +247,11 @@ T enumOr<T>(
 }
 
 /// An ISO date, or a rejection. Parsed, not merely non-empty.
-String? isoDate(Object? value, String field, RestoreLog log) {
+String? isoDate(Object? value, RestoreLog log) {
   if (value is! String || !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
-    return log.reject('missing_$field');
+    return log.reject(SkipReason.date);
   }
-  return DateTime.tryParse(value) == null ? log.reject('bad_$field') : value;
+  return DateTime.tryParse(value) == null ? log.reject(SkipReason.date) : value;
 }
 
 /// An optional ISO date, absent when absent and null when unreadable.
@@ -336,8 +371,8 @@ AppSettings settingsFromBackup(
 /// One vehicle, or null when it cannot be read.
 Vehicle? vehicleFromBackup(Map<String, Object?> json, RestoreLog log) {
   final id = VehicleId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
-  final name = requiredString(json['name'], 'name', log);
+  if (id == null) return log.reject(SkipReason.incomplete);
+  final name = requiredString(json['name'], SkipReason.incomplete, log);
   if (name == null) return null;
 
   return Vehicle(
@@ -377,9 +412,9 @@ Vehicle? vehicleFromBackup(Map<String, Object?> json, RestoreLog log) {
     purchaseOdometer: json['purchase_odometer_m'] is int
         ? Distance(json['purchase_odometer_m']! as int)
         : null,
-    purchasePrice: optionalMoney(json['purchase_price'], 'purchase_price', log),
+    purchasePrice: optionalMoney(json['purchase_price'], log),
     soldOn: optionalIsoDate(json['sold_on']),
-    soldPrice: optionalMoney(json['sold_price'], 'sold_price', log),
+    soldPrice: optionalMoney(json['sold_price'], log),
     expectedAnnual: json['expected_annual_m'] is int
         ? Distance(json['expected_annual_m']! as int)
         : null,
@@ -433,9 +468,9 @@ ServiceItem? reminderFromBackup(
   BackupLinks links,
 ) {
   final id = ServiceItemId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
+  if (id == null) return log.reject(SkipReason.incomplete);
   final parsed = VehicleId.tryParse(optionalString(json['vehicle_id']) ?? '');
-  if (parsed == null) return log.reject('missing_vehicle');
+  if (parsed == null) return log.reject(SkipReason.incomplete);
   // §5.3 — a vehicle the file does not contain is not a reason to drop the
   // record. It is adopted here, at construction, because the models are
   // immutable and rewriting the field afterwards would need a `copyWith` on
@@ -469,7 +504,7 @@ ServiceItem? reminderFromBackup(
     label: optionalString(json['label']),
     intervalDistance: optionalDistance(
       json['interval_distance_m'],
-      'interval',
+      SkipReason.incomplete,
       log,
     ),
     intervalDistanceUnit: _enumOrNull(
@@ -480,15 +515,23 @@ ServiceItem? reminderFromBackup(
     intervalMonths: json['interval_months'] is int
         ? json['interval_months']! as int
         : null,
-    targetOdometer: optionalDistance(json['target_odometer_m'], 'target', log),
+    targetOdometer: optionalDistance(
+      json['target_odometer_m'],
+      SkipReason.incomplete,
+      log,
+    ),
     targetDate: optionalIsoDate(json['target_date']),
     baselineDate: optionalIsoDate(json['baseline_date']),
     baselineOdometer: optionalDistance(
       json['baseline_odometer_m'],
-      'baseline',
+      SkipReason.incomplete,
       log,
     ),
-    noticeDistance: optionalDistance(json['notice_distance_m'], 'notice', log),
+    noticeDistance: optionalDistance(
+      json['notice_distance_m'],
+      SkipReason.incomplete,
+      log,
+    ),
     noticeDays: json['notice_days'] is int ? json['notice_days']! as int : null,
     isTracked: boolOr(json['is_tracked'], fallback: false),
     isActive: boolOr(json['is_active'], fallback: true),
@@ -497,7 +540,7 @@ ServiceItem? reminderFromBackup(
     snoozedUntil: optionalIsoDate(json['snoozed_until']),
     snoozeUntilOdometer: optionalDistance(
       json['snooze_until_odometer_m'],
-      'snooze',
+      SkipReason.incomplete,
       log,
     ),
     snoozeCount: json['snooze_count'] is int ? json['snooze_count']! as int : 0,
@@ -514,17 +557,17 @@ OdometerReading? odometerReadingFromBackup(
   BackupLinks links,
 ) {
   final id = OdometerReadingId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
+  if (id == null) return log.reject(SkipReason.incomplete);
   final parsed = VehicleId.tryParse(optionalString(json['vehicle_id']) ?? '');
-  if (parsed == null) return log.reject('missing_vehicle');
+  if (parsed == null) return log.reject(SkipReason.incomplete);
   // §5.3 — a vehicle the file does not contain is not a reason to drop the
   // record. It is adopted here, at construction, because the models are
   // immutable and rewriting the field afterwards would need a `copyWith` on
   // eight of them.
   final vehicleId = links.vehicle(parsed);
-  final occurredOn = isoDate(json['occurred_on'], 'date', log);
+  final occurredOn = isoDate(json['occurred_on'], log);
   if (occurredOn == null) return null;
-  final metres = requiredInt(json['odometer_m'], 'odometer', log);
+  final metres = requiredInt(json['odometer_m'], SkipReason.incomplete, log);
   if (metres == null) return null;
 
   return OdometerReading(
@@ -562,9 +605,9 @@ OdometerCorrection? odometerCorrectionFromBackup(
   BackupLinks links,
 ) {
   final id = OdometerCorrectionId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
+  if (id == null) return log.reject(SkipReason.incomplete);
   final parsed = VehicleId.tryParse(optionalString(json['vehicle_id']) ?? '');
-  if (parsed == null) return log.reject('missing_vehicle');
+  if (parsed == null) return log.reject(SkipReason.incomplete);
   // §5.3 — a vehicle the file does not contain is not a reason to drop the
   // record. It is adopted here, at construction, because the models are
   // immutable and rewriting the field afterwards would need a `copyWith` on
@@ -573,13 +616,17 @@ OdometerCorrection? odometerCorrectionFromBackup(
   final from = OdometerReadingId.tryParse(
     optionalString(json['from_reading_id']) ?? '',
   );
-  if (from == null) return log.reject('missing_from_reading');
+  if (from == null) return log.reject(SkipReason.correction);
   // The ONE link failure that must not be repaired by guessing: a correction
   // applied to an arbitrary reading rewrites a mileage history that looked
   // fine, and the user has no way of knowing which number the app invented.
-  if (!links.readings.contains(from)) return log.reject('unmatched_correction');
-  final previous = requiredInt(json['previous_m'], 'previous', log);
-  final replacement = requiredInt(json['replacement_m'], 'replacement', log);
+  if (!links.readings.contains(from)) return log.reject(SkipReason.correction);
+  final previous = requiredInt(json['previous_m'], SkipReason.incomplete, log);
+  final replacement = requiredInt(
+    json['replacement_m'],
+    SkipReason.incomplete,
+    log,
+  );
   if (previous == null || replacement == null) return null;
 
   return OdometerCorrection(
@@ -619,17 +666,17 @@ FillUp? fillUpFromBackup(
   BackupLinks links,
 ) {
   final id = FillUpId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
+  if (id == null) return log.reject(SkipReason.incomplete);
   final parsed = VehicleId.tryParse(optionalString(json['vehicle_id']) ?? '');
-  if (parsed == null) return log.reject('missing_vehicle');
+  if (parsed == null) return log.reject(SkipReason.incomplete);
   // §5.3 — a vehicle the file does not contain is not a reason to drop the
   // record. It is adopted here, at construction, because the models are
   // immutable and rewriting the field afterwards would need a `copyWith` on
   // eight of them.
   final vehicleId = links.vehicle(parsed);
-  final occurredOn = isoDate(json['occurred_on'], 'date', log);
+  final occurredOn = isoDate(json['occurred_on'], log);
   if (occurredOn == null) return null;
-  final cost = moneyFrom(json['total_cost'], 'cost', log);
+  final cost = moneyFrom(json['total_cost'], log);
   if (cost == null) return null;
   final quantity = _quantityFrom(json, log);
   if (quantity == null) return null;
@@ -638,7 +685,7 @@ FillUp? fillUpFromBackup(
     id: id,
     vehicleId: vehicleId,
     occurredOn: occurredOn,
-    odometer: optionalDistance(json['odometer_m'], 'odometer', log),
+    odometer: optionalDistance(json['odometer_m'], SkipReason.incomplete, log),
     odometerUnit: enumOr(
       json['odometer_unit'],
       DistanceUnit.values,
@@ -688,13 +735,13 @@ FillUp? fillUpFromBackup(
 /// because a fill-up that does not say how much fuel went in is the one shape
 /// a fill-up cannot take.
 FuelQuantity? _quantityFrom(Map<String, Object?> json, RestoreLog log) {
-  final millilitres = optionalInt(json['quantity_ml'], 'quantity', log);
+  final millilitres = optionalInt(json['quantity_ml'], SkipReason.fuel, log);
   if (millilitres != null) return LiquidVolume(Volume(millilitres));
-  final grams = optionalInt(json['quantity_g'], 'quantity', log);
+  final grams = optionalInt(json['quantity_g'], SkipReason.fuel, log);
   if (grams != null) return GasMass(Mass(grams));
-  final wattHours = optionalInt(json['energy_wh'], 'quantity', log);
+  final wattHours = optionalInt(json['energy_wh'], SkipReason.fuel, log);
   if (wattHours != null) return ElectricEnergy(Energy(wattHours));
-  return log.reject('missing_quantity');
+  return log.reject(SkipReason.fuel);
 }
 
 /// One service line, or null.
@@ -705,16 +752,11 @@ ServiceLine? serviceLineFromBackup(
   BackupLinks links,
 ) {
   final id = ServiceLineId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
-  final label = requiredString(json['label'], 'label', log);
+  if (id == null) return log.reject(SkipReason.incomplete);
+  final label = requiredString(json['label'], SkipReason.incomplete, log);
   if (label == null) return null;
   // FLAT, unlike every other money field: §6 §2.5's shape for a line.
-  final amount = moneyFromParts(
-    json['amount_minor'],
-    json['currency'],
-    'amount',
-    log,
-  );
+  final amount = moneyFromParts(json['amount_minor'], json['currency'], log);
   if (amount == null) return null;
 
   return ServiceLine(
@@ -737,15 +779,15 @@ ServiceRecord? serviceFromBackup(
   BackupLinks links,
 ) {
   final id = ServiceRecordId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
+  if (id == null) return log.reject(SkipReason.incomplete);
   final parsed = VehicleId.tryParse(optionalString(json['vehicle_id']) ?? '');
-  if (parsed == null) return log.reject('missing_vehicle');
+  if (parsed == null) return log.reject(SkipReason.incomplete);
   // §5.3 — a vehicle the file does not contain is not a reason to drop the
   // record. It is adopted here, at construction, because the models are
   // immutable and rewriting the field afterwards would need a `copyWith` on
   // eight of them.
   final vehicleId = links.vehicle(parsed);
-  final occurredOn = isoDate(json['occurred_on'], 'date', log);
+  final occurredOn = isoDate(json['occurred_on'], log);
   if (occurredOn == null) return null;
 
   final rawLines = json['lines'];
@@ -765,7 +807,7 @@ ServiceRecord? serviceFromBackup(
     id: id,
     vehicleId: vehicleId,
     occurredOn: occurredOn,
-    odometer: optionalDistance(json['odometer_m'], 'odometer', log),
+    odometer: optionalDistance(json['odometer_m'], SkipReason.incomplete, log),
     odometerUnit: enumOr(
       json['odometer_unit'],
       DistanceUnit.values,
@@ -792,24 +834,24 @@ Expense? expenseFromBackup(
   BackupLinks links,
 ) {
   final id = ExpenseId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
+  if (id == null) return log.reject(SkipReason.incomplete);
   final parsed = VehicleId.tryParse(optionalString(json['vehicle_id']) ?? '');
-  if (parsed == null) return log.reject('missing_vehicle');
+  if (parsed == null) return log.reject(SkipReason.incomplete);
   // §5.3 — a vehicle the file does not contain is not a reason to drop the
   // record. It is adopted here, at construction, because the models are
   // immutable and rewriting the field afterwards would need a `copyWith` on
   // eight of them.
   final vehicleId = links.vehicle(parsed);
-  final occurredOn = isoDate(json['occurred_on'], 'date', log);
+  final occurredOn = isoDate(json['occurred_on'], log);
   if (occurredOn == null) return null;
-  final amount = moneyFrom(json['amount'], 'amount', log);
+  final amount = moneyFrom(json['amount'], log);
   if (amount == null) return null;
 
   return Expense(
     id: id,
     vehicleId: vehicleId,
     occurredOn: occurredOn,
-    odometer: optionalDistance(json['odometer_m'], 'odometer', log),
+    odometer: optionalDistance(json['odometer_m'], SkipReason.incomplete, log),
     odometerUnit: enumOr(
       json['odometer_unit'],
       DistanceUnit.values,
@@ -845,15 +887,15 @@ Trip? tripFromBackup(
   BackupLinks links,
 ) {
   final id = TripId.tryParse(optionalString(json['id']) ?? '');
-  if (id == null) return log.reject('missing_id');
+  if (id == null) return log.reject(SkipReason.incomplete);
   final parsed = VehicleId.tryParse(optionalString(json['vehicle_id']) ?? '');
-  if (parsed == null) return log.reject('missing_vehicle');
+  if (parsed == null) return log.reject(SkipReason.incomplete);
   // §5.3 — a vehicle the file does not contain is not a reason to drop the
   // record. It is adopted here, at construction, because the models are
   // immutable and rewriting the field afterwards would need a `copyWith` on
   // eight of them.
   final vehicleId = links.vehicle(parsed);
-  final startedOn = isoDate(json['started_on'], 'date', log);
+  final startedOn = isoDate(json['started_on'], log);
   if (startedOn == null) return null;
 
   return Trip(
@@ -869,8 +911,16 @@ Trip? tripFromBackup(
     ),
     startedOn: startedOn,
     endedOn: optionalIsoDate(json['ended_on']),
-    startOdometer: optionalDistance(json['start_odometer_m'], 'start', log),
-    endOdometer: optionalDistance(json['end_odometer_m'], 'end', log),
+    startOdometer: optionalDistance(
+      json['start_odometer_m'],
+      SkipReason.incomplete,
+      log,
+    ),
+    endOdometer: optionalDistance(
+      json['end_odometer_m'],
+      SkipReason.incomplete,
+      log,
+    ),
     odometerUnit: enumOr(
       json['odometer_unit'],
       DistanceUnit.values,
@@ -878,7 +928,11 @@ Trip? tripFromBackup(
       DistanceUnit.km,
       log,
     ),
-    manualDistance: optionalDistance(json['manual_distance_m'], 'manual', log),
+    manualDistance: optionalDistance(
+      json['manual_distance_m'],
+      SkipReason.incomplete,
+      log,
+    ),
     notes: optionalString(json['notes']),
     createdAtUtcMs: timestampOr(json['created_at'], 0),
     updatedAtUtcMs: timestampOr(json['updated_at'], 0),

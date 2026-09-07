@@ -2531,4 +2531,273 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonListSeparator => ', ';
+
+  @override
+  String importFailTooLarge(String size) {
+    return 'Ce fichier est trop volumineux pour une sauvegarde Odova ($size). Même une décennie d’enregistrements ne pèse que quelques mégaoctets : c’est probablement un autre fichier.';
+  }
+
+  @override
+  String get importFailCompressed =>
+      'Ce fichier est compressé. Décompressez-le d’abord, puis importez le fichier .json qu’il contient.';
+
+  @override
+  String get importFailNotUtf8 =>
+      'Odova ne parvient pas à lire le texte de ce fichier. Un autre programme l’a peut-être modifié. Essayez le fichier que vous avez exporté à l’origine.';
+
+  @override
+  String get importFailTruncated =>
+      'Ce fichier est incomplet. Son téléchargement ou sa copie ne s’est peut-être pas terminé. Récupérez le fichier et réessayez.';
+
+  @override
+  String get importFailNotOdova =>
+      'Ce fichier n’est pas une sauvegarde Odova. Les sauvegardes Odova sont des fichiers .json créés depuis Réglages → Exporter. Choisissez un autre fichier.';
+
+  @override
+  String get importFailNotMadeByOdova =>
+      'Ce fichier n’a pas été créé par Odova. Il est valide, mais Odova ne peut pas le lire. Rien n’a changé sur votre téléphone.';
+
+  @override
+  String get importFailTooNew =>
+      'Cette sauvegarde a été créée avec une version plus récente d’Odova. Mettez Odova à jour, puis réimportez. Votre fichier n’a pas été modifié.';
+
+  @override
+  String get importFailDamagedVersion =>
+      'Ce fichier de sauvegarde est endommagé et Odova ne peut pas déterminer sa version. Si vous avez une autre copie ou une sauvegarde plus ancienne, essayez celle-là.';
+
+  @override
+  String get importFailDamagedFile =>
+      'Ce fichier de sauvegarde est endommagé et Odova ne peut pas en lire le contenu. Si vous avez une autre copie ou une sauvegarde plus ancienne, essayez celle-là.';
+
+  @override
+  String get importFailCannotOpen =>
+      'Odova n’a pas pu ouvrir ce fichier. Copiez-le d’abord dans l’application Fichiers de votre téléphone, puis importez-le depuis là.';
+
+  @override
+  String importFailNotEnoughSpace(String size) {
+    return 'Espace insuffisant sur votre téléphone pour importer cette sauvegarde. Libérez environ $size et réessayez.';
+  }
+
+  @override
+  String importFailTooDamaged(String readable, String total) {
+    return 'Cette sauvegarde est trop endommagée pour être importée sans risque. Odova a pu lire $readable enregistrements sur $total, et n’importer qu’une partie laisserait des trous. Essayez une sauvegarde plus ancienne si vous en avez une. Rien n’a changé sur votre téléphone.';
+  }
+
+  @override
+  String get importWarnContentHash =>
+      'Ce fichier a été modifié depuis qu’Odova l’a enregistré. Ce n’est pas un problème si c’était volontaire. Vérifiez les chiffres ci-dessous avant de continuer.';
+
+  @override
+  String importWarnRecordCount(String declared, String found) {
+    return 'Ce fichier ne contient pas tout ce qu’il annonce : il indique $declared enregistrements et $found ont été trouvés. Il a peut-être été tronqué. Vérifiez les chiffres ci-dessous.';
+  }
+
+  @override
+  String get importWarnMissingArray =>
+      'Une partie de cette sauvegarde est absente. Tout ce qu’Odova a pu trouver sera quand même importé.';
+
+  @override
+  String importWarnSkipped(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText enregistrements n’ont pas pu être lus et ne seront pas importés. Tout le reste le sera. Touchez pour voir lesquels.',
+      many:
+          '$nText enregistrements n’ont pas pu être lus et ne seront pas importés. Tout le reste le sera. Touchez pour voir lesquels.',
+      one:
+          '$nText enregistrement n’a pas pu être lu et ne sera pas importé. Tout le reste le sera. Touchez pour voir lequel.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOrphans(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText enregistrements n’indiquent pas leur véhicule. Ils seront importés sous un véhicule nommé « Enregistrements récupérés » pour que vous puissiez les reclasser ou les supprimer.',
+      many:
+          '$nText enregistrements n’indiquent pas leur véhicule. Ils seront importés sous un véhicule nommé « Enregistrements récupérés » pour que vous puissiez les reclasser ou les supprimer.',
+      one:
+          '$nText enregistrement n’indique pas son véhicule. Il sera importé sous un véhicule nommé « Enregistrements récupérés » pour que vous puissiez le reclasser ou le supprimer.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnmatchedCorrections(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText corrections de compteur n’ont pas pu être rattachées à un relevé. Votre historique de kilométrage peut sembler faux là où le compteur a été remplacé. Touchez pour voir lesquelles.',
+      many:
+          '$nText corrections de compteur n’ont pas pu être rattachées à un relevé. Votre historique de kilométrage peut sembler faux là où le compteur a été remplacé. Touchez pour voir lesquelles.',
+      one:
+          '$nText correction de compteur n’a pas pu être rattachée à un relevé. Votre historique de kilométrage peut sembler faux là où le compteur a été remplacé. Touchez pour voir laquelle.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDroppedRules(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText rappels utilisaient un réglage qu’Odova n’a plus. Ils vous préviennent désormais au premier des deux — vérifiez-les dans Rappels.',
+      many:
+          '$nText rappels utilisaient un réglage qu’Odova n’a plus. Ils vous préviennent désormais au premier des deux — vérifiez-les dans Rappels.',
+      one:
+          '$nText rappel utilisait un réglage qu’Odova n’a plus. Il vous prévient désormais au premier des deux — vérifiez-le dans Rappels.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnCoercedEnums(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText enregistrements utilisaient des réglages qu’Odova ne connaît pas. Ils ont été importés avec les réglages d’Odova à la place.',
+      many:
+          '$nText enregistrements utilisaient des réglages qu’Odova ne connaît pas. Ils ont été importés avec les réglages d’Odova à la place.',
+      one:
+          '$nText enregistrement utilisait un réglage qu’Odova ne connaît pas. Il a été importé avec le réglage d’Odova à la place.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOutOfRangeDates(int n, String nText, String year) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText enregistrements ont des dates qui semblent erronées — avant $year, ou après la création de cette sauvegarde. Ils ont été importés pour que vous puissiez les corriger.',
+      many:
+          '$nText enregistrements ont des dates qui semblent erronées — avant $year, ou après la création de cette sauvegarde. Ils ont été importés pour que vous puissiez les corriger.',
+      one:
+          '$nText enregistrement a une date qui semble erronée — avant $year, ou après la création de cette sauvegarde. Il a été importé pour que vous puissiez le corriger.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnresolvedLinks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText enregistrements renvoyaient à un trajet ou un rappel absent de ce fichier. Ils ont été importés sans ce lien.',
+      many:
+          '$nText enregistrements renvoyaient à un trajet ou un rappel absent de ce fichier. Ils ont été importés sans ce lien.',
+      one:
+          '$nText enregistrement renvoyait à un trajet ou un rappel absent de ce fichier. Il a été importé sans ce lien.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDuplicateIds(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Ce fichier liste $nText enregistrements deux fois. Odova importera la première copie de chacun.',
+      many:
+          'Ce fichier liste $nText enregistrements deux fois. Odova importera la première copie de chacun.',
+      one:
+          'Ce fichier liste $nText enregistrement deux fois. Odova importera la première copie.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnTruncatedStrings(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText notes étaient trop longues et ont été raccourcies.',
+      many: '$nText notes étaient trop longues et ont été raccourcies.',
+      one: '$nText note était trop longue et a été raccourcie.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSuccess(String vehicles, String records) {
+    return 'Importé. $vehicles et $records restaurés. Vos rappels ont été recalculés.';
+  }
+
+  @override
+  String importRecordCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText enregistrements',
+      many: '$nText enregistrements',
+      one: '$nText enregistrement',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importRecoveredVehicleName => 'Enregistrements récupérés';
+
+  @override
+  String get importTypeVehicle => 'Véhicule';
+
+  @override
+  String get importTypeReminder => 'Rappel';
+
+  @override
+  String get importTypeReading => 'Relevé de compteur';
+
+  @override
+  String get importTypeCorrection => 'Correction de compteur';
+
+  @override
+  String get importTypeFillup => 'Plein';
+
+  @override
+  String get importTypeService => 'Entretien';
+
+  @override
+  String get importTypeExpense => 'Dépense';
+
+  @override
+  String get importTypeTrip => 'Trajet';
+
+  @override
+  String get importSkipDate => 'la date était absente';
+
+  @override
+  String get importSkipFuel => 'la quantité de carburant était absente';
+
+  @override
+  String get importSkipMoney => 'le montant était absent';
+
+  @override
+  String get importSkipCurrency => 'la devise n’était pas reconnue par Odova';
+
+  @override
+  String get importSkipCorrection =>
+      'le relevé qu’elle corrige est absent de ce fichier';
+
+  @override
+  String get importSkipIncomplete => 'une partie était absente';
+
+  @override
+  String importSkipEntry(String type, String date, String reason) {
+    return '$type, $date — $reason';
+  }
+
+  @override
+  String importSkipEntryNoDate(String type, String reason) {
+    return '$type — $reason';
+  }
 }

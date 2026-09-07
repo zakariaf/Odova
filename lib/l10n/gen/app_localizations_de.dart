@@ -2490,4 +2490,255 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get commonListSeparator => ', ';
+
+  @override
+  String importFailTooLarge(String size) {
+    return 'Diese Datei ist zu groß für ein Odova-Backup ($size). Selbst ein Jahrzehnt an Einträgen ergibt nur wenige Megabyte – das ist wahrscheinlich eine andere Datei.';
+  }
+
+  @override
+  String get importFailCompressed =>
+      'Diese Datei ist komprimiert. Entpacken Sie sie zuerst und importieren Sie dann die .json-Datei darin.';
+
+  @override
+  String get importFailNotUtf8 =>
+      'Odova kann den Text in dieser Datei nicht lesen. Möglicherweise hat ein anderes Programm sie verändert. Versuchen Sie die ursprünglich exportierte Datei.';
+
+  @override
+  String get importFailTruncated =>
+      'Diese Datei ist unvollständig. Möglicherweise wurde sie nicht fertig heruntergeladen oder kopiert. Holen Sie die Datei erneut und versuchen Sie es noch einmal.';
+
+  @override
+  String get importFailNotOdova =>
+      'Diese Datei ist kein Odova-Backup. Odova-Backups sind .json-Dateien aus Einstellungen → Export. Wählen Sie eine andere Datei.';
+
+  @override
+  String get importFailNotMadeByOdova =>
+      'Diese Datei stammt nicht von Odova. Sie ist gültig, aber nicht für Odova lesbar. Auf Ihrem Telefon hat sich nichts geändert.';
+
+  @override
+  String get importFailTooNew =>
+      'Dieses Backup stammt aus einer neueren Odova-Version. Aktualisieren Sie Odova und importieren Sie erneut. Ihre Datei wurde nicht verändert.';
+
+  @override
+  String get importFailDamagedVersion =>
+      'Diese Backup-Datei ist beschädigt und Odova kann die Version nicht erkennen. Falls Sie eine andere Kopie oder ein älteres Backup haben, versuchen Sie es damit.';
+
+  @override
+  String get importFailDamagedFile =>
+      'Diese Backup-Datei ist beschädigt und Odova kann ihren Inhalt nicht lesen. Falls Sie eine andere Kopie oder ein älteres Backup haben, versuchen Sie es damit.';
+
+  @override
+  String get importFailCannotOpen =>
+      'Odova konnte diese Datei nicht öffnen. Kopieren Sie sie zuerst in die Dateien-App Ihres Telefons und importieren Sie sie von dort.';
+
+  @override
+  String importFailNotEnoughSpace(String size) {
+    return 'Nicht genug Speicherplatz auf Ihrem Telefon für diesen Import. Geben Sie etwa $size frei und versuchen Sie es erneut.';
+  }
+
+  @override
+  String importFailTooDamaged(String readable, String total) {
+    return 'Zu viel an diesem Backup ist beschädigt, um es sicher zu importieren. Odova konnte $readable von $total Einträgen lesen; ein Teilimport würde Lücken hinterlassen. Versuchen Sie ein älteres Backup, falls vorhanden. Auf Ihrem Telefon hat sich nichts geändert.';
+  }
+
+  @override
+  String get importWarnContentHash =>
+      'Diese Datei wurde nach dem Speichern durch Odova bearbeitet. Das ist in Ordnung, wenn Sie es absichtlich getan haben. Prüfen Sie die Zahlen unten, bevor Sie fortfahren.';
+
+  @override
+  String importWarnRecordCount(String declared, String found) {
+    return 'Diese Datei enthält nicht alles, was sie angibt – sie nennt $declared Einträge, gefunden wurden $found. Möglicherweise wurde sie abgeschnitten. Prüfen Sie die Zahlen unten.';
+  }
+
+  @override
+  String get importWarnMissingArray =>
+      'Ein Teil dieses Backups fehlt. Alles, was Odova finden konnte, wird trotzdem importiert.';
+
+  @override
+  String importWarnSkipped(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText Einträge konnten nicht gelesen werden und werden nicht importiert. Alles andere schon. Tippen Sie, um zu sehen, welche.',
+      one:
+          '$nText Eintrag konnte nicht gelesen werden und wird nicht importiert. Alles andere schon. Tippen Sie, um zu sehen, welcher.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOrphans(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Bei $nText Einträgen fehlt das Fahrzeug. Sie werden unter einem Fahrzeug namens „Gerettete Einträge“ importiert, damit Sie sie zuordnen oder löschen können.',
+      one:
+          'Bei $nText Eintrag fehlt das Fahrzeug. Er wird unter einem Fahrzeug namens „Gerettete Einträge“ importiert, damit Sie ihn zuordnen oder löschen können.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnmatchedCorrections(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText Kilometerstand-Korrekturen ließen sich keinem Ablesewert zuordnen. Ihr Kilometerverlauf kann dort falsch aussehen, wo der Tacho getauscht wurde. Tippen Sie, um zu sehen, welche.',
+      one:
+          '$nText Kilometerstand-Korrektur ließ sich keinem Ablesewert zuordnen. Ihr Kilometerverlauf kann dort falsch aussehen, wo der Tacho getauscht wurde. Tippen Sie, um zu sehen, welche.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDroppedRules(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText Erinnerungen nutzten eine Einstellung, die es in Odova nicht mehr gibt. Sie warnen jetzt beim jeweils Früheren – prüfen Sie sie unter Erinnerungen.',
+      one:
+          '$nText Erinnerung nutzte eine Einstellung, die es in Odova nicht mehr gibt. Sie warnt jetzt beim jeweils Früheren – prüfen Sie sie unter Erinnerungen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnCoercedEnums(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText Einträge nutzten Einstellungen, die Odova nicht kennt. Sie wurden stattdessen mit Odovas eigenen Einstellungen importiert.',
+      one:
+          '$nText Eintrag nutzte eine Einstellung, die Odova nicht kennt. Er wurde stattdessen mit Odovas eigener Einstellung importiert.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnOutOfRangeDates(int n, String nText, String year) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText Einträge haben Daten, die falsch aussehen – vor $year oder nach der Erstellung dieses Backups. Sie wurden importiert, damit Sie sie korrigieren können.',
+      one:
+          '$nText Eintrag hat ein Datum, das falsch aussieht – vor $year oder nach der Erstellung dieses Backups. Er wurde importiert, damit Sie ihn korrigieren können.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnUnresolvedLinks(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText Einträge verwiesen auf eine Fahrt oder Erinnerung, die nicht in dieser Datei ist. Sie wurden ohne diesen Verweis importiert.',
+      one:
+          '$nText Eintrag verwies auf eine Fahrt oder Erinnerung, die nicht in dieser Datei ist. Er wurde ohne diesen Verweis importiert.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnDuplicateIds(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Diese Datei führt $nText Einträge doppelt auf. Odova importiert jeweils die erste Kopie.',
+      one:
+          'Diese Datei führt $nText Eintrag doppelt auf. Odova importiert die erste Kopie.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnTruncatedStrings(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Notizen waren zu lang und wurden gekürzt.',
+      one: '$nText Notiz war zu lang und wurde gekürzt.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSuccess(String vehicles, String records) {
+    return 'Importiert. $vehicles und $records wiederhergestellt. Ihre Erinnerungen wurden neu berechnet.';
+  }
+
+  @override
+  String importRecordCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Einträge',
+      one: '$nText Eintrag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importRecoveredVehicleName => 'Gerettete Einträge';
+
+  @override
+  String get importTypeVehicle => 'Fahrzeug';
+
+  @override
+  String get importTypeReminder => 'Erinnerung';
+
+  @override
+  String get importTypeReading => 'Kilometerstand';
+
+  @override
+  String get importTypeCorrection => 'Kilometerstand-Korrektur';
+
+  @override
+  String get importTypeFillup => 'Tankfüllung';
+
+  @override
+  String get importTypeService => 'Service';
+
+  @override
+  String get importTypeExpense => 'Ausgabe';
+
+  @override
+  String get importTypeTrip => 'Fahrt';
+
+  @override
+  String get importSkipDate => 'das Datum fehlte';
+
+  @override
+  String get importSkipFuel => 'die Kraftstoffmenge fehlte';
+
+  @override
+  String get importSkipMoney => 'der Betrag fehlte';
+
+  @override
+  String get importSkipCurrency => 'die Währung war Odova unbekannt';
+
+  @override
+  String get importSkipCorrection =>
+      'der zugehörige Ablesewert fehlt in dieser Datei';
+
+  @override
+  String get importSkipIncomplete => 'ein Teil davon fehlte';
+
+  @override
+  String importSkipEntry(String type, String date, String reason) {
+    return '$type, $date – $reason';
+  }
+
+  @override
+  String importSkipEntryNoDate(String type, String reason) {
+    return '$type – $reason';
+  }
 }

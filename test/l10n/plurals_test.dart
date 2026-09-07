@@ -114,6 +114,26 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
         2,
         '2',
       ),
+      // §6 §5.2's import report. Every one of these counts RECORDS, and the
+      // two that carry a second value carry a pinned one so the count is the
+      // only thing that varies.
+      'importWarnSkipped' => l10n.importWarnSkipped(n, nText),
+      'importWarnOrphans' => l10n.importWarnOrphans(n, nText),
+      'importWarnUnmatchedCorrections' => l10n.importWarnUnmatchedCorrections(
+        n,
+        nText,
+      ),
+      'importWarnDroppedRules' => l10n.importWarnDroppedRules(n, nText),
+      'importWarnCoercedEnums' => l10n.importWarnCoercedEnums(n, nText),
+      'importWarnOutOfRangeDates' => l10n.importWarnOutOfRangeDates(
+        n,
+        nText,
+        '1990',
+      ),
+      'importWarnUnresolvedLinks' => l10n.importWarnUnresolvedLinks(n, nText),
+      'importWarnDuplicateIds' => l10n.importWarnDuplicateIds(n, nText),
+      'importWarnTruncatedStrings' => l10n.importWarnTruncatedStrings(n, nText),
+      'importRecordCount' => l10n.importRecordCount(n, nText),
       _ => throw StateError(
         'plural key "$key" is in the ARB but not in this matrix — add it',
       ),
