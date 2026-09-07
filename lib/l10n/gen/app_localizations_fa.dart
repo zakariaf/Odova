@@ -1887,4 +1887,328 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reportServicesLabel => 'سرویس';
+
+  @override
+  String get costsTitle => 'هزینه‌ها';
+
+  @override
+  String get costsRangeThisYear => 'امسال';
+
+  @override
+  String get costsRangeAll => 'همه';
+
+  @override
+  String get costsPerMonth => 'در ماه';
+
+  @override
+  String get costsWhereMoneyGoes => 'پول کجا می‌رود';
+
+  @override
+  String get costsAccrualNote =>
+      'هزینه‌های سالانه مانند بیمه روی ماه‌هایی که پوشش می‌دهند پخش می‌شود.';
+
+  @override
+  String costsThisMonthSoFar(String amount) {
+    return 'این ماه تا کنون: $amount';
+  }
+
+  @override
+  String get costsEmptyTitle => 'هنوز هزینه‌ای نیست.';
+
+  @override
+  String get costsEmptyAction => 'چیزی ثبت کنید';
+
+  @override
+  String get costsCategoryFuel => 'سوخت';
+
+  @override
+  String get costsCategoryService => 'سرویس و تعمیرات';
+
+  @override
+  String get costsCategoryInsuranceTax => 'بیمه و مالیات';
+
+  @override
+  String get costsCategoryFinance => 'تأمین مالی';
+
+  @override
+  String get costsCategoryParkingTolls => 'پارکینگ و عوارض';
+
+  @override
+  String get costsCategoryOther => 'سایر';
+
+  @override
+  String get costsFuelRow => 'سوخت و مصرف';
+
+  @override
+  String get costsTripsRow => 'سفرها';
+
+  @override
+  String get costsNoCompletedMonth =>
+      'بعد از پایان ماه برگردید — هنوز یک ماه کامل برای میانگین‌گیری نیست.';
+
+  @override
+  String get costsNotEnoughDistance =>
+      'در این دوره مسافت کافی ثبت نشده تا هزینه به ازای هر کیلومتر محاسبه شود.';
+
+  @override
+  String costsBoundaryStale(String days) {
+    return 'از کیلومترشمارهایی محاسبه شده که $days روز با تاریخ‌های نشان‌داده‌شده فاصله دارند.';
+  }
+
+  @override
+  String get costsUpdateOdometer => 'به‌روزرسانی کیلومترشمار';
+
+  @override
+  String costsRangeMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ماه',
+      one: '$nText ماه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsHeadlineCaption(String vehicle, String range) {
+    return '$vehicle · $range';
+  }
+
+  @override
+  String get costsRangeThisYearSoFar => 'امسال تا کنون';
+
+  @override
+  String costsSpanCaption(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String costsPerKilometre(String amount) {
+    return '$amount در هر کیلومتر';
+  }
+
+  @override
+  String costsPerMile(String amount) {
+    return '$amount در هر مایل';
+  }
+
+  @override
+  String costsInMonths(int n, String nText, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$amount در $nText ماه',
+      one: '$amount در $nText ماه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get costsAllVehicles => 'همهٔ خودروها';
+
+  @override
+  String get costsIncludeInactive => 'شامل فروخته‌شده و بایگانی';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خودرو پنهان است',
+      one: '$nText خودرو پنهان است',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'کاری $share٪ · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'از سفرهایی که ثبت کرده‌اید محاسبه شده، نه از همهٔ رانندگی شما.';
+
+  @override
+  String get costsVehicleSold => 'فروخته‌شده';
+
+  @override
+  String get costsVehicleArchived => 'بایگانی‌شده';
+
+  @override
+  String get fuelTitle => 'سوخت و مصرف';
+
+  @override
+  String get fuelConsumptionPerTank => 'مصرف در هر باک';
+
+  @override
+  String get fuelEmptyTitle => 'هنوز سوخت‌گیری‌ای نیست.';
+
+  @override
+  String get fuelEmptyAction => 'ثبت سوخت‌گیری';
+
+  @override
+  String get fuelFirstFigure => 'اولین عدد شما در سوخت‌گیری کامل بعدی می‌آید.';
+
+  @override
+  String get tripsTitle => 'سفرها';
+
+  @override
+  String get tripsEmptyTitle => 'هنوز سفری نیست.';
+
+  @override
+  String get tripsEmptyBody => 'یکی ثبت کنید تا ببینید یک سفر چقدر هزینه دارد.';
+
+  @override
+  String get tripsAddAction => 'افزودن سفر';
+
+  @override
+  String get tripsOpenBadge => 'باز';
+
+  @override
+  String get tripsFinishAction => 'پایان این سفر';
+
+  @override
+  String get tripsPurposeBusiness => 'کاری';
+
+  @override
+  String get tripsPurposeCommute => 'رفت‌وآمد';
+
+  @override
+  String get tripsPurposePersonal => 'شخصی';
+
+  @override
+  String get tripsPurposeOther => 'سایر';
+
+  @override
+  String tripsLoggedLabel(String unit) {
+    return '$unit ثبت‌شده';
+  }
+
+  @override
+  String get tripsBusinessLabel => 'کاری';
+
+  @override
+  String get tripsCostsLabel => 'هزینهٔ سفرها';
+
+  @override
+  String get tripsEarlier => 'پیش‌تر';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText سفر',
+      one: '$nText سفر',
+      zero: 'بدون سفر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'آغاز $date · از $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'آغاز $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'کیلومتر پایان ثبت نشده';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get tripEditTitle => 'ویرایش سفر';
+
+  @override
+  String get tripNewTitle => 'سفر';
+
+  @override
+  String get tripSaveAction => 'ذخیرهٔ سفر';
+
+  @override
+  String get tripPurposeLabel => 'هدف';
+
+  @override
+  String get tripTitleLabel => 'عنوان';
+
+  @override
+  String get tripStartsLabel => 'آغاز';
+
+  @override
+  String get tripEndsLabel => 'پایان';
+
+  @override
+  String get tripStillGoing => 'هنوز ادامه دارد';
+
+  @override
+  String get tripStartOdometerLabel => 'کیلومترشمار آغاز';
+
+  @override
+  String get tripEndOdometerLabel => 'کیلومترشمار پایان';
+
+  @override
+  String get tripDistanceLabel => 'مسافت';
+
+  @override
+  String get tripExpensesLabel => 'هزینه‌ها';
+
+  @override
+  String get tripAddExpense => 'افزودن هزینه';
+
+  @override
+  String get tripNoExpenses => 'هنوز چیزی به این سفر اختصاص نیافته است.';
+
+  @override
+  String get tripDeleteAction => 'حذف سفر';
+
+  @override
+  String get tripStartInFuture => 'امروز یا روزی در گذشته را انتخاب کنید.';
+
+  @override
+  String get tripEndBeforeStart => 'تاریخ پایان پیش از تاریخ آغاز است.';
+
+  @override
+  String get tripEndBelowStart => 'عدد پایان کمتر از عدد آغاز است.';
+
+  @override
+  String get tripDistanceNotPositive => 'مسافت باید بیشتر از صفر باشد.';
+
+  @override
+  String get tripSavedToast => 'سفر ذخیره شد';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'ابتدا سفر را ذخیره کنید، سپس هزینه‌ها را به آن اختصاص دهید.';
+
+  @override
+  String get costsEstimateTitle => 'این عدد چگونه به دست آمده';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'از کیلومترشمارهایی محاسبه شده که $days روز با تاریخ‌های نشان‌داده‌شده فاصله دارند.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'در این بازه مسافت کافی ثبت نشده تا هزینهٔ هر کیلومتر محاسبه شود.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'پس از پایان ماه سر بزنید — هنوز یک ماه کامل برای میانگین‌گیری نیست.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'در این بازه هیچ کیلومترشماری برای اندازه‌گیری وجود ندارد.';
+
+  @override
+  String get fuelEmptyBody =>
+      'نخستین عدد مصرف شما در دومین باک پر به دست می‌آید.';
 }

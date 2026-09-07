@@ -2009,4 +2009,342 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reportServicesLabel => 'صيانات';
+
+  @override
+  String get costsTitle => 'التكاليف';
+
+  @override
+  String get costsRangeThisYear => 'هذا العام';
+
+  @override
+  String get costsRangeAll => 'الكل';
+
+  @override
+  String get costsPerMonth => 'شهريًا';
+
+  @override
+  String get costsWhereMoneyGoes => 'أين تذهب الأموال';
+
+  @override
+  String get costsAccrualNote =>
+      'تُوزَّع التكاليف السنوية مثل التأمين على الأشهر التي تغطيها.';
+
+  @override
+  String costsThisMonthSoFar(String amount) {
+    return 'هذا الشهر حتى الآن: $amount';
+  }
+
+  @override
+  String get costsEmptyTitle => 'لا توجد تكاليف بعد.';
+
+  @override
+  String get costsEmptyAction => 'سجّل شيئًا';
+
+  @override
+  String get costsCategoryFuel => 'الوقود';
+
+  @override
+  String get costsCategoryService => 'الصيانة والإصلاحات';
+
+  @override
+  String get costsCategoryInsuranceTax => 'التأمين والضريبة';
+
+  @override
+  String get costsCategoryFinance => 'التمويل';
+
+  @override
+  String get costsCategoryParkingTolls => 'مواقف ورسوم';
+
+  @override
+  String get costsCategoryOther => 'أخرى';
+
+  @override
+  String get costsFuelRow => 'الوقود والاستهلاك';
+
+  @override
+  String get costsTripsRow => 'الرحلات';
+
+  @override
+  String get costsNoCompletedMonth =>
+      'عُد بعد نهاية الشهر — لا يوجد شهر كامل للمتوسط بعد.';
+
+  @override
+  String get costsNotEnoughDistance =>
+      'لم تُسجَّل مسافة كافية في هذه الفترة لحساب التكلفة لكل كيلومتر.';
+
+  @override
+  String costsBoundaryStale(String days) {
+    return 'حُسب من قراءات عداد تبعد $days يومًا عن التواريخ المعروضة.';
+  }
+
+  @override
+  String get costsUpdateOdometer => 'تحديث العداد';
+
+  @override
+  String costsRangeMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText شهر',
+      many: '$nText شهرًا',
+      few: '$nText أشهر',
+      two: 'شهران',
+      one: 'شهر واحد',
+      zero: '$nText شهر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsHeadlineCaption(String vehicle, String range) {
+    return '$vehicle · $range';
+  }
+
+  @override
+  String get costsRangeThisYearSoFar => 'هذا العام حتى الآن';
+
+  @override
+  String costsSpanCaption(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String costsPerKilometre(String amount) {
+    return '$amount لكل كيلومتر';
+  }
+
+  @override
+  String costsPerMile(String amount) {
+    return '$amount لكل ميل';
+  }
+
+  @override
+  String costsInMonths(int n, String nText, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$amount في $nText شهر',
+      many: '$amount في $nText شهرًا',
+      few: '$amount في $nText أشهر',
+      two: '$amount في شهرين',
+      one: '$amount في شهر واحد',
+      zero: '$amount في $nText شهر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get costsAllVehicles => 'كل المركبات';
+
+  @override
+  String get costsIncludeInactive => 'تضمين المباعة والمؤرشفة';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مركبة مخفية',
+      many: '$nText مركبةً مخفية',
+      few: '$nText مركبات مخفية',
+      two: 'مركبتان مخفيتان',
+      one: 'مركبة واحدة مخفية',
+      zero: '$nText مركبة مخفية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'عمل $share٪ · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'محسوب من الرحلات التي سجّلتها، وليس من كل قيادتك.';
+
+  @override
+  String get costsVehicleSold => 'مباعة';
+
+  @override
+  String get costsVehicleArchived => 'مؤرشفة';
+
+  @override
+  String get fuelTitle => 'الوقود والاستهلاك';
+
+  @override
+  String get fuelConsumptionPerTank => 'الاستهلاك لكل خزان';
+
+  @override
+  String get fuelEmptyTitle => 'لا توجد عمليات تعبئة بعد.';
+
+  @override
+  String get fuelEmptyAction => 'سجّل تعبئة';
+
+  @override
+  String get fuelFirstFigure => 'سيظهر أول رقم لك عند التعبئة الكاملة القادمة.';
+
+  @override
+  String get tripsTitle => 'الرحلات';
+
+  @override
+  String get tripsEmptyTitle => 'لا توجد رحلات بعد.';
+
+  @override
+  String get tripsEmptyBody => 'سجّل واحدة لترى كم تكلف الرحلة.';
+
+  @override
+  String get tripsAddAction => 'إضافة رحلة';
+
+  @override
+  String get tripsOpenBadge => 'مفتوحة';
+
+  @override
+  String get tripsFinishAction => 'إنهاء هذه الرحلة';
+
+  @override
+  String get tripsPurposeBusiness => 'عمل';
+
+  @override
+  String get tripsPurposeCommute => 'تنقل';
+
+  @override
+  String get tripsPurposePersonal => 'شخصي';
+
+  @override
+  String get tripsPurposeOther => 'أخرى';
+
+  @override
+  String tripsLoggedLabel(String unit) {
+    return '$unit مسجلة';
+  }
+
+  @override
+  String get tripsBusinessLabel => 'عمل';
+
+  @override
+  String get tripsCostsLabel => 'تكاليف الرحلات';
+
+  @override
+  String get tripsEarlier => 'سابقًا';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText رحلة',
+      many: '$nText رحلةً',
+      few: '$nText رحلات',
+      two: 'رحلتان',
+      one: 'رحلة واحدة',
+      zero: 'لا رحلات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'بدأت $date · من $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'بدأت $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'لا قراءة نهاية بعد';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get tripEditTitle => 'تعديل الرحلة';
+
+  @override
+  String get tripNewTitle => 'رحلة';
+
+  @override
+  String get tripSaveAction => 'حفظ الرحلة';
+
+  @override
+  String get tripPurposeLabel => 'الغرض';
+
+  @override
+  String get tripTitleLabel => 'العنوان';
+
+  @override
+  String get tripStartsLabel => 'يبدأ';
+
+  @override
+  String get tripEndsLabel => 'ينتهي';
+
+  @override
+  String get tripStillGoing => 'ما زالت جارية';
+
+  @override
+  String get tripStartOdometerLabel => 'عداد البداية';
+
+  @override
+  String get tripEndOdometerLabel => 'عداد النهاية';
+
+  @override
+  String get tripDistanceLabel => 'المسافة';
+
+  @override
+  String get tripExpensesLabel => 'المصروفات';
+
+  @override
+  String get tripAddExpense => 'إضافة مصروف';
+
+  @override
+  String get tripNoExpenses => 'لم يُحمّل شيء على هذه الرحلة بعد.';
+
+  @override
+  String get tripDeleteAction => 'حذف الرحلة';
+
+  @override
+  String get tripStartInFuture => 'اختر اليوم أو يومًا مضى.';
+
+  @override
+  String get tripEndBeforeStart => 'تاريخ النهاية قبل تاريخ البداية.';
+
+  @override
+  String get tripEndBelowStart => 'قراءة النهاية أقل من قراءة البداية.';
+
+  @override
+  String get tripDistanceNotPositive => 'يجب أن تكون المسافة أكبر من صفر.';
+
+  @override
+  String get tripSavedToast => 'تم حفظ الرحلة';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'احفظ الرحلة أولًا، ثم حمّل عليها المصروفات.';
+
+  @override
+  String get costsEstimateTitle => 'كيف حُسب هذا';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'حُسب من قراءات عداد تبعد $days يومًا عن التواريخ المعروضة.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'لم تُسجَّل مسافة كافية في هذه الفترة لحساب التكلفة لكل كيلومتر.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'عد بعد نهاية الشهر — لا يوجد شهر كامل للمتوسط بعد.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'لا توجد قراءات عداد في هذه الفترة للقياس بينها.';
+
+  @override
+  String get fuelEmptyBody => 'يظهر أول رقم استهلاك عند ثاني خزان ممتلئ.';
 }

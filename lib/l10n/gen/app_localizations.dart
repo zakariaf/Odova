@@ -2849,6 +2849,522 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'services'**
   String get reportServicesLabel;
+
+  /// SPEC.md §12's tab-3 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Costs'**
+  String get costsTitle;
+
+  /// §12's range chip, HIDDEN during January — there is no completed month of this year yet.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get costsRangeThisYear;
+
+  /// §12's range chip: the month of the vehicle's first record onwards.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get costsRangeAll;
+
+  /// The unit under §12's headline figure. A separate key from the figure so the number can be shaped and isolated independently of the word.
+  ///
+  /// In en, this message translates to:
+  /// **'per month'**
+  String get costsPerMonth;
+
+  /// Heads §12's category list.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the money goes'**
+  String get costsWhereMoneyGoes;
+
+  /// SPEC.md §12: "One line under the headline says so." Costs are accrual and History is cash — without this sentence a yearly premium appears to have vanished from the month it was paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly costs like insurance are spread over the months they cover.'**
+  String get costsAccrualNote;
+
+  /// §12 reports the current month SEPARATELY, because it is out of the numerator and the denominator alike: "an average including a two-day-old month halves itself on the 2nd of every month." `amount` is pre-formatted money.
+  ///
+  /// In en, this message translates to:
+  /// **'This month so far: {amount}'**
+  String costsThisMonthSoFar(String amount);
+
+  /// §12's first-run state for tab 3.
+  ///
+  /// In en, this message translates to:
+  /// **'No costs yet.'**
+  String get costsEmptyTitle;
+
+  /// The action beside it. It opens the log sheet rather than a specific form: on first run the app does not know which kind of record the user has.
+  ///
+  /// In en, this message translates to:
+  /// **'Log something'**
+  String get costsEmptyAction;
+
+  /// §12's category row. Sources: FillUp.total_cost.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get costsCategoryFuel;
+
+  /// §12's category row. Sources: ServiceLine.amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Service & repairs'**
+  String get costsCategoryService;
+
+  /// §12's category row. Sources: the `insurance` and `tax_registration` expense categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance & tax'**
+  String get costsCategoryInsuranceTax;
+
+  /// §12's category row. Source: the `finance` expense category.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get costsCategoryFinance;
+
+  /// §12's category row. Sources: `parking` and `toll`.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking & tolls'**
+  String get costsCategoryParkingTolls;
+
+  /// §12's category row. Sources: `fine`, `wash`, `tyre_storage`, `accessories`, `other`. Everything §12 does not give a row of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get costsCategoryOther;
+
+  /// The row that pushes `costs.fuel`.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel & consumption'**
+  String get costsFuelRow;
+
+  /// The row that pushes `trips.list`.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get costsTripsRow;
+
+  /// SPEC.md §12's explanation when `completedMonths` < 1. It carries NO action — there is nothing the user can do but wait, and offering a button would imply otherwise.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back after the end of the month — there isn’t a full month to average yet.'**
+  String get costsNoCompletedMonth;
+
+  /// SPEC.md §12's explanation when the range covers less than 100 km. Paired with **Update odometer**, because that IS the thing the user can do.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough distance logged in this period to work out a cost per kilometre.'**
+  String get costsNotEnoughDistance;
+
+  /// SPEC.md §12's explanation for an estimated cost per distance. `days` is the gap pre-shaped in the locale's numerals — the figure is real and quoted back so the user can judge it.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from odometer readings {days} days apart from the dates shown.'**
+  String costsBoundaryStale(String days);
+
+  /// The sheet's one action → `log.odometer`.
+  ///
+  /// In en, this message translates to:
+  /// **'Update odometer'**
+  String get costsUpdateOdometer;
+
+  /// SPEC.md §12's range chips, which are 3 and 12. The count is a PLACEHOLDER and not baked into the copy: `arb_template_test.dart` refuses a bare digit because a Latin "3" does not shape to Persian, Arabic or Sorani numerals, and the chip would read `3 ماه` on a screen where every other number is `۳`.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} month} other{{nText} months}}'**
+  String costsRangeMonths(int n, String nText);
+
+  /// The line above §12's headline figure: the vehicle and which window the figure covers. Two placeholders rather than one sentence, because the vehicle name is the user's own text and must not be part of anything a translator reorders around it.
+  ///
+  /// In en, this message translates to:
+  /// **'{vehicle} · {range}'**
+  String costsHeadlineCaption(String vehicle, String range);
+
+  /// The range's name in the headline caption, lower-case because it follows the vehicle name mid-phrase. Distinct from the CHIP label, which is a control and capitalised.
+  ///
+  /// In en, this message translates to:
+  /// **'this year so far'**
+  String get costsRangeThisYearSoFar;
+
+  /// The month span beside "Where the money goes" — `January – August`. An EN DASH with spaces, and both ends are pre-formatted month names so the display calendar decides them.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String costsSpanCaption(String from, String to);
+
+  /// SPEC.md §12's cost-per-distance figure, WITH its unit spelled out. `€0.29` alone is ambiguous beside a per-month figure on the same line; the reference writes it in full.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per kilometre'**
+  String costsPerKilometre(String amount);
+
+  /// The same for a miles vehicle. A separate key rather than a placeholder unit, because the preposition and word order differ by locale and a translator must be able to reorder both.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per mile'**
+  String costsPerMile(String amount);
+
+  /// SPEC.md §12's range total: `€2,184 in eight months`. The count is a plural placeholder — a bare digit would render Latin in four locales, and the month word inflects.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{amount} in {nText} month} other{{amount} in {nText} months}}'**
+  String costsInMonths(int n, String nText, String amount);
+
+  /// SPEC.md §12's household toggle, shown only with two or more non-archived vehicles. It changes what tab 3 SHOWS and never the active vehicle — §7's app-wide scope has exactly one exception and it is scoped to this tab.
+  ///
+  /// In en, this message translates to:
+  /// **'All vehicles'**
+  String get costsAllVehicles;
+
+  /// §12's second toggle, OFF by default. A sold car's costs are real history, but a household average that silently included a car nobody drives any more would be wrong in the direction of looking cheap.
+  ///
+  /// In en, this message translates to:
+  /// **'Include sold and archived'**
+  String get costsIncludeInactive;
+
+  /// §12's trailing line when vehicles are excluded. A hidden vehicle the user is not told about is a household total they cannot reconcile against the list above it.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} vehicle hidden} other{{nText} vehicles hidden}}'**
+  String costsHiddenVehicles(int n, String nText);
+
+  /// SPEC.md §12's business split: `Business 62% · 1,391 €`. Both parts are pre-shaped — a bare int renders Latin digits in four locales, and the amount is money.
+  ///
+  /// In en, this message translates to:
+  /// **'Business {share}% · {amount}'**
+  String costsBusinessRow(String share, String amount);
+
+  /// SPEC.md §12's caption under the business row, verbatim in intent. The denominator is LOGGED TRIP distance and not vehicle distance, and this sentence is what stops a user reading the figure as a claim about all their driving — which on a tax form matters.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from the trips you logged, not from all your driving.'**
+  String get costsBusinessCaption;
+
+  /// The status label on a household row for a sold vehicle, so a row is never mistaken for a live car.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get costsVehicleSold;
+
+  /// The same for an archived one.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get costsVehicleArchived;
+
+  /// SPEC.md §12's `costs.fuel` title.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel & consumption'**
+  String get fuelTitle;
+
+  /// Heads §12's consumption chart. PER TANK, not over time: a segment is a discrete measurement between two full fills, at irregular intervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumption per tank'**
+  String get fuelConsumptionPerTank;
+
+  /// §12's empty state for `costs.fuel`.
+  ///
+  /// In en, this message translates to:
+  /// **'No fill-ups yet.'**
+  String get fuelEmptyTitle;
+
+  /// The action beside it — straight to `log.fillup`, because on this screen there is only one kind of record worth adding.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a fill-up'**
+  String get fuelEmptyAction;
+
+  /// SPEC.md §3: "your first figure arrives at your next full fill." Shown where the consumption chart would be with fewer than two full tanks — it explains an absence that would otherwise look like a fault.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first figure arrives at your next full fill.'**
+  String get fuelFirstFigure;
+
+  /// SPEC.md §12's `trips.list` title.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get tripsTitle;
+
+  /// §12's empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips yet.'**
+  String get tripsEmptyTitle;
+
+  /// The sentence under it, verbatim in intent: a trip is worth logging because it tells you what a journey COST, which is the only reason this screen exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Log one to see what a journey costs.'**
+  String get tripsEmptyBody;
+
+  /// Opens `trips.edit`.
+  ///
+  /// In en, this message translates to:
+  /// **'Add trip'**
+  String get tripsAddAction;
+
+  /// The chip on a trip with no `ended_on`. §12 pins an open trip at the top of the list — an unfinished trip is the one thing on this screen that needs an action.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get tripsOpenBadge;
+
+  /// The action on an open trip. `End this trip` and not `Finish`: SPEC.md §12's prose says Finish, the reference draws `End this trip`, and per epics/README.md rule 4 the reference is the authority. §10 spells it the same way, so the two screens agree.
+  ///
+  /// In en, this message translates to:
+  /// **'End this trip'**
+  String get tripsFinishAction;
+
+  /// §10's trip purpose. Kept apart from `commute` deliberately: rolling them together is the easiest way to overstate a deduction, and in most jurisdictions the drive to a regular workplace is not deductible.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get tripsPurposeBusiness;
+
+  /// §10's trip purpose — the drive to a regular workplace, which is NOT business.
+  ///
+  /// In en, this message translates to:
+  /// **'Commute'**
+  String get tripsPurposeCommute;
+
+  /// §10's trip purpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal'**
+  String get tripsPurposePersonal;
+
+  /// §10's trip purpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get tripsPurposeOther;
+
+  /// The distance tile's label. `km logged`, not `km`: §12 insists the figure says `across logged trips`, because trip distance is NOT the car's distance — people log some trips and not all. Without the second word the tile reads as total mileage.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} logged'**
+  String tripsLoggedLabel(String unit);
+
+  /// The business-share tile's label. Lower case: it sits under a figure, not at the head of a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'business'**
+  String get tripsBusinessLabel;
+
+  /// The cost tile's label.
+  ///
+  /// In en, this message translates to:
+  /// **'trip costs'**
+  String get tripsCostsLabel;
+
+  /// The section header over the trips that are not open.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get tripsEarlier;
+
+  /// How many trips are in range — SPEC.md §12's fourth header fact, which the reference draws at the end edge of the Earlier header. `nText` is pre-shaped so Persian, Arabic and Sorani get their own digits; `n` selects the category and is never printed.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{No trips} one{{nText} trip} other{{nText} trips}}'**
+  String tripsCount(int n, String nText);
+
+  /// The open trip's line when its start odometer is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Started {date} · from {odometer}'**
+  String tripsStartedFrom(String date, String odometer);
+
+  /// The same line when it is not. A separate message rather than an empty placeholder: `Started today · from ` is worse than saying less.
+  ///
+  /// In en, this message translates to:
+  /// **'Started {date}'**
+  String tripsStartedOn(String date);
+
+  /// Beside End this trip. Lower case and secondary — it is a statement of fact about the trip, not a warning.
+  ///
+  /// In en, this message translates to:
+  /// **'no end reading yet'**
+  String get tripsNoEndReading;
+
+  /// The business tile's figure. The percent SIGN and its spacing are a translation decision — German and French set a space before it, the Arabic-script three do not — so it lives in the ARB rather than in a Dart `'%'`. `percent` is pre-shaped.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String tripsBusinessValue(String percent);
+
+  /// SPEC.md §10's title in edit mode. The reference draws it; §10's Edit-mode row names it.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trip'**
+  String get tripEditTitle;
+
+  /// The same bar in create mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get tripNewTitle;
+
+  /// The footer button. `Save trip` and not `Save`: the app bar already carries a Save, and two controls a thumb-width apart reading the same word is where a delivery driver loses a trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Save trip'**
+  String get tripSaveAction;
+
+  /// The segmented control's accessible name. It has no visible label in the reference — the four options say what it is — but a screen reader landing on four unlabelled segments does not.
+  ///
+  /// In en, this message translates to:
+  /// **'Purpose'**
+  String get tripPurposeLabel;
+
+  /// Field 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get tripTitleLabel;
+
+  /// Field 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get tripStartsLabel;
+
+  /// Field 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get tripEndsLabel;
+
+  /// Field 5's checkbox. Ticking CLEARS the end date and end odometer, per §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Still going'**
+  String get tripStillGoing;
+
+  /// Field 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Start odometer'**
+  String get tripStartOdometerLabel;
+
+  /// Field 7.
+  ///
+  /// In en, this message translates to:
+  /// **'End odometer'**
+  String get tripEndOdometerLabel;
+
+  /// Field 8, computed with the ƒ badge and editable only when BOTH odometer fields are empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get tripDistanceLabel;
+
+  /// The section header over the live query. Not a draft: §10 says an expense added through Add expense appears without a save.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get tripExpensesLabel;
+
+  /// Opens `log.expense` with `trip_id` prefilled and locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get tripAddExpense;
+
+  /// The section's empty line. `yet` because the expenses arrive after the trip does — a toll is paid on the road, not when the trip is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing charged to this trip yet.'**
+  String get tripNoExpenses;
+
+  /// Edit mode only. The confirm dialog says what SURVIVES, which is the fact the user needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete trip'**
+  String get tripDeleteAction;
+
+  /// Field 3's exact error, verbatim from §10's field table.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick today or a day in the past.'**
+  String get tripStartInFuture;
+
+  /// Field 4's exact error, verbatim from §10.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date is before the start date.'**
+  String get tripEndBeforeStart;
+
+  /// Field 7's exact error, verbatim from §10.
+  ///
+  /// In en, this message translates to:
+  /// **'The end reading is lower than the start reading.'**
+  String get tripEndBelowStart;
+
+  /// Field 8's exact error, verbatim from §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance must be more than zero.'**
+  String get tripDistanceNotPositive;
+
+  /// §10's confirmation after saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip saved'**
+  String get tripSavedToast;
+
+  /// Under Add expense in CREATE mode. §10 draws the affordance there, but an expense carries `trip_id` and there is no trip yet — so the button is disabled and this says why. A greyed-out button that explains nothing is what `CalmButton` asserts against, and dropping the button entirely would hide a control §10 names.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the trip first, then charge expenses to it.'**
+  String get tripSaveFirstToAddExpense;
+
+  /// The estimate sheet's title. SPEC.md §12: tapping any estimated or dashed figure opens one sentence and one action.
+  ///
+  /// In en, this message translates to:
+  /// **'How this was worked out'**
+  String get costsEstimateTitle;
+
+  /// §12's >45-day case, verbatim. `days` is pre-shaped: a bare int renders Latin digits in four locales. Not a plural — the figure is always above 45 by construction, so `one` is unreachable and a plural would be five translations of a form nobody sees.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from odometer readings {days} days apart from the dates shown.'**
+  String costsEstimateStaleBoundary(String days);
+
+  /// §12's under-100 km case, verbatim.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough distance logged in this period to work out a cost per kilometre.'**
+  String get costsEstimateNotEnoughDistance;
+
+  /// §12's `completedMonths < 1` case, verbatim — and the one case with NO action, because updating the odometer does not make the month end sooner.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back after the end of the month — there isn’t a full month to average yet.'**
+  String get costsEstimateNoCompletedMonth;
+
+  /// The fourth case `CostReason` names. §12's table lists three, and the engine has always had a fourth: no reading at all to measure between, which is a new vehicle rather than a stale one. Offering `Update odometer` here is exactly right.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no odometer readings in this period to measure between.'**
+  String get costsEstimateNoReadings;
+
+  /// The sentence under §12's `costs.fuel` empty title. It states the MECHANISM — consumption is measured between two full tanks, so one fill-up is not enough — because a Calm empty state is allowed to explain why the screen is empty rather than only that it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first consumption figure arrives at your second full tank.'**
+  String get fuelEmptyBody;
 }
 
 class _AppLocalizationsDelegate

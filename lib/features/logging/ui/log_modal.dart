@@ -27,6 +27,7 @@ import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/odometer/odometer_entry.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/core/time/date_field.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:odova/data/failures/persist_failure.dart';
@@ -38,7 +39,6 @@ import 'package:odova/features/logging/application/log_modal_notifier.dart';
 import 'package:odova/features/logging/application/log_save_service.dart';
 import 'package:odova/features/logging/application/odometer_log_save.dart';
 import 'package:odova/features/logging/application/service_save.dart';
-import 'package:odova/features/logging/domain/date_field.dart';
 import 'package:odova/features/logging/domain/expense_draft.dart';
 import 'package:odova/features/logging/domain/fillup_draft.dart';
 import 'package:odova/features/logging/domain/mark_done.dart';
@@ -57,6 +57,7 @@ import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/expense_labels.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/persist_failure_message.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -776,25 +777,15 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
     final picked = await showDatePicker(
       context: context,
-      initialDate: _asPickerDate(current),
-      firstDate: _asPickerDate(range.first),
-      lastDate: _asPickerDate(range.last),
+      initialDate: asPickerDate(current),
+      firstDate: asPickerDate(range.first),
+      lastDate: asPickerDate(range.last),
     );
     if (picked == null || !mounted) return;
     final chosen = CivilDate.fromDateTime(picked);
     if (chosen == null) return;
     setState(() => _chosenDate = chosen.toString());
   }
-
-  /// A [CivilDate] as the LOCAL midnight `showDatePicker` compares against.
-  ///
-  /// Local and not UTC on purpose. The picker builds its grid from local
-  /// `DateTime`s, so a UTC midnight handed to `firstDate` lands on the
-  /// previous day west of Greenwich and disables a day the range allows.
-  /// `civil_date.dart`'s header is about exactly this hazard in the other
-  /// direction; the conversion belongs at the boundary, and this is it.
-  DateTime _asPickerDate(CivilDate date) =>
-      DateTime(date.year, date.month, date.day);
 
   /// The modal's title: the form's own name in create mode, the record's in
   /// edit mode.
@@ -910,7 +901,10 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       // previous one was told their phone was out of space — a message that
       // sends them to Settings to delete photos over a number they could have
       // corrected in two taps.
-      snackbars.show(message: _failureMessage(l10n, failure), danger: true);
+      snackbars.show(
+        message: persistFailureMessage(l10n, failure),
+        danger: true,
+      );
       return;
     }
 
@@ -1171,17 +1165,6 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// not what was written. It is set by the steps that did the writing, so a
   /// segment that writes nothing cannot leave a stale Undo behind it.
   Future<Result<void, PersistFailure>> Function()? _undoWritten;
-
-  /// What the snackbar says when the save was refused.
-  ///
-  /// `WriteFailed` keeps the disk-full wording because that is what it usually
-  /// is; the two failures with a different remedy get their own sentence.
-  String _failureMessage(AppLocalizations l10n, PersistFailure failure) =>
-      switch (failure) {
-        OdometerWouldGoBackwards() => l10n.saveRefusedBackwards,
-        StoreReadOnly() => l10n.saveRefusedReadOnly,
-        _ => l10n.saveDiskFullError,
-      };
 
   /// What the snackbar says after a successful save.
   ///

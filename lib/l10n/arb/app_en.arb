@@ -2835,5 +2835,460 @@
   "reportServicesLabel": "services",
   "@reportServicesLabel": {
     "description": "The word after the service count in the plain-text export. Not a plural key: the count beside it is already shaped by `reportServiceCount` on the screen, and the text export writes the bare number."
+  },
+  "costsTitle": "Costs",
+  "@costsTitle": {
+    "description": "SPEC.md §12's tab-3 title."
+  },
+  "costsRangeThisYear": "This year",
+  "@costsRangeThisYear": {
+    "description": "§12's range chip, HIDDEN during January — there is no completed month of this year yet."
+  },
+  "costsRangeAll": "All",
+  "@costsRangeAll": {
+    "description": "§12's range chip: the month of the vehicle's first record onwards."
+  },
+  "costsPerMonth": "per month",
+  "@costsPerMonth": {
+    "description": "The unit under §12's headline figure. A separate key from the figure so the number can be shaped and isolated independently of the word."
+  },
+  "costsWhereMoneyGoes": "Where the money goes",
+  "@costsWhereMoneyGoes": {
+    "description": "Heads §12's category list."
+  },
+  "costsAccrualNote": "Yearly costs like insurance are spread over the months they cover.",
+  "@costsAccrualNote": {
+    "description": "SPEC.md §12: \"One line under the headline says so.\" Costs are accrual and History is cash — without this sentence a yearly premium appears to have vanished from the month it was paid."
+  },
+  "costsThisMonthSoFar": "This month so far: {amount}",
+  "@costsThisMonthSoFar": {
+    "description": "§12 reports the current month SEPARATELY, because it is out of the numerator and the denominator alike: \"an average including a two-day-old month halves itself on the 2nd of every month.\" `amount` is pre-formatted money.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "costsEmptyTitle": "No costs yet.",
+  "@costsEmptyTitle": {
+    "description": "§12's first-run state for tab 3."
+  },
+  "costsEmptyAction": "Log something",
+  "@costsEmptyAction": {
+    "description": "The action beside it. It opens the log sheet rather than a specific form: on first run the app does not know which kind of record the user has."
+  },
+  "costsCategoryFuel": "Fuel",
+  "@costsCategoryFuel": {
+    "description": "§12's category row. Sources: FillUp.total_cost."
+  },
+  "costsCategoryService": "Service & repairs",
+  "@costsCategoryService": {
+    "description": "§12's category row. Sources: ServiceLine.amount."
+  },
+  "costsCategoryInsuranceTax": "Insurance & tax",
+  "@costsCategoryInsuranceTax": {
+    "description": "§12's category row. Sources: the `insurance` and `tax_registration` expense categories."
+  },
+  "costsCategoryFinance": "Finance",
+  "@costsCategoryFinance": {
+    "description": "§12's category row. Source: the `finance` expense category."
+  },
+  "costsCategoryParkingTolls": "Parking & tolls",
+  "@costsCategoryParkingTolls": {
+    "description": "§12's category row. Sources: `parking` and `toll`."
+  },
+  "costsCategoryOther": "Other",
+  "@costsCategoryOther": {
+    "description": "§12's category row. Sources: `fine`, `wash`, `tyre_storage`, `accessories`, `other`. Everything §12 does not give a row of its own."
+  },
+  "costsFuelRow": "Fuel & consumption",
+  "@costsFuelRow": {
+    "description": "The row that pushes `costs.fuel`."
+  },
+  "costsTripsRow": "Trips",
+  "@costsTripsRow": {
+    "description": "The row that pushes `trips.list`."
+  },
+  "costsNoCompletedMonth": "Come back after the end of the month — there isn’t a full month to average yet.",
+  "@costsNoCompletedMonth": {
+    "description": "SPEC.md §12's explanation when `completedMonths` < 1. It carries NO action — there is nothing the user can do but wait, and offering a button would imply otherwise."
+  },
+  "costsNotEnoughDistance": "Not enough distance logged in this period to work out a cost per kilometre.",
+  "@costsNotEnoughDistance": {
+    "description": "SPEC.md §12's explanation when the range covers less than 100 km. Paired with **Update odometer**, because that IS the thing the user can do."
+  },
+  "costsBoundaryStale": "Worked out from odometer readings {days} days apart from the dates shown.",
+  "@costsBoundaryStale": {
+    "description": "SPEC.md §12's explanation for an estimated cost per distance. `days` is the gap pre-shaped in the locale's numerals — the figure is real and quoted back so the user can judge it.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "costsUpdateOdometer": "Update odometer",
+  "@costsUpdateOdometer": {
+    "description": "The sheet's one action → `log.odometer`."
+  },
+  "costsRangeMonths": "{n, plural, one{{nText} month} other{{nText} months}}",
+  "@costsRangeMonths": {
+    "description": "SPEC.md §12's range chips, which are 3 and 12. The count is a PLACEHOLDER and not baked into the copy: `arb_template_test.dart` refuses a bare digit because a Latin \"3\" does not shape to Persian, Arabic or Sorani numerals, and the chip would read `3 ماه` on a screen where every other number is `۳`.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "costsHeadlineCaption": "{vehicle} · {range}",
+  "@costsHeadlineCaption": {
+    "description": "The line above §12's headline figure: the vehicle and which window the figure covers. Two placeholders rather than one sentence, because the vehicle name is the user's own text and must not be part of anything a translator reorders around it.",
+    "placeholders": {
+      "vehicle": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "costsRangeThisYearSoFar": "this year so far",
+  "@costsRangeThisYearSoFar": {
+    "description": "The range's name in the headline caption, lower-case because it follows the vehicle name mid-phrase. Distinct from the CHIP label, which is a control and capitalised."
+  },
+  "costsSpanCaption": "{from} – {to}",
+  "@costsSpanCaption": {
+    "description": "The month span beside \"Where the money goes\" — `January – August`. An EN DASH with spaces, and both ends are pre-formatted month names so the display calendar decides them.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "costsPerKilometre": "{amount} per kilometre",
+  "@costsPerKilometre": {
+    "description": "SPEC.md §12's cost-per-distance figure, WITH its unit spelled out. `€0.29` alone is ambiguous beside a per-month figure on the same line; the reference writes it in full.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "costsPerMile": "{amount} per mile",
+  "@costsPerMile": {
+    "description": "The same for a miles vehicle. A separate key rather than a placeholder unit, because the preposition and word order differ by locale and a translator must be able to reorder both.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "costsInMonths": "{n, plural, one{{amount} in {nText} month} other{{amount} in {nText} months}}",
+  "@costsInMonths": {
+    "description": "SPEC.md §12's range total: `€2,184 in eight months`. The count is a plural placeholder — a bare digit would render Latin in four locales, and the month word inflects.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "costsAllVehicles": "All vehicles",
+  "@costsAllVehicles": {
+    "description": "SPEC.md §12's household toggle, shown only with two or more non-archived vehicles. It changes what tab 3 SHOWS and never the active vehicle — §7's app-wide scope has exactly one exception and it is scoped to this tab."
+  },
+  "costsIncludeInactive": "Include sold and archived",
+  "@costsIncludeInactive": {
+    "description": "§12's second toggle, OFF by default. A sold car's costs are real history, but a household average that silently included a car nobody drives any more would be wrong in the direction of looking cheap."
+  },
+  "costsHiddenVehicles": "{n, plural, one{{nText} vehicle hidden} other{{nText} vehicles hidden}}",
+  "@costsHiddenVehicles": {
+    "description": "§12's trailing line when vehicles are excluded. A hidden vehicle the user is not told about is a household total they cannot reconcile against the list above it.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "costsBusinessRow": "Business {share}% · {amount}",
+  "@costsBusinessRow": {
+    "description": "SPEC.md §12's business split: `Business 62% · 1,391 €`. Both parts are pre-shaped — a bare int renders Latin digits in four locales, and the amount is money.",
+    "placeholders": {
+      "share": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "costsBusinessCaption": "Worked out from the trips you logged, not from all your driving.",
+  "@costsBusinessCaption": {
+    "description": "SPEC.md §12's caption under the business row, verbatim in intent. The denominator is LOGGED TRIP distance and not vehicle distance, and this sentence is what stops a user reading the figure as a claim about all their driving — which on a tax form matters."
+  },
+  "costsVehicleSold": "Sold",
+  "@costsVehicleSold": {
+    "description": "The status label on a household row for a sold vehicle, so a row is never mistaken for a live car."
+  },
+  "costsVehicleArchived": "Archived",
+  "@costsVehicleArchived": {
+    "description": "The same for an archived one."
+  },
+  "fuelTitle": "Fuel & consumption",
+  "@fuelTitle": {
+    "description": "SPEC.md §12's `costs.fuel` title."
+  },
+  "fuelConsumptionPerTank": "Consumption per tank",
+  "@fuelConsumptionPerTank": {
+    "description": "Heads §12's consumption chart. PER TANK, not over time: a segment is a discrete measurement between two full fills, at irregular intervals."
+  },
+  "fuelEmptyTitle": "No fill-ups yet.",
+  "@fuelEmptyTitle": {
+    "description": "§12's empty state for `costs.fuel`."
+  },
+  "fuelEmptyAction": "Log a fill-up",
+  "@fuelEmptyAction": {
+    "description": "The action beside it — straight to `log.fillup`, because on this screen there is only one kind of record worth adding."
+  },
+  "fuelFirstFigure": "Your first figure arrives at your next full fill.",
+  "@fuelFirstFigure": {
+    "description": "SPEC.md §3: \"your first figure arrives at your next full fill.\" Shown where the consumption chart would be with fewer than two full tanks — it explains an absence that would otherwise look like a fault."
+  },
+  "tripsTitle": "Trips",
+  "@tripsTitle": {
+    "description": "SPEC.md §12's `trips.list` title."
+  },
+  "tripsEmptyTitle": "No trips yet.",
+  "@tripsEmptyTitle": {
+    "description": "§12's empty state."
+  },
+  "tripsEmptyBody": "Log one to see what a journey costs.",
+  "@tripsEmptyBody": {
+    "description": "The sentence under it, verbatim in intent: a trip is worth logging because it tells you what a journey COST, which is the only reason this screen exists."
+  },
+  "tripsAddAction": "Add trip",
+  "@tripsAddAction": {
+    "description": "Opens `trips.edit`."
+  },
+  "tripsOpenBadge": "Open",
+  "@tripsOpenBadge": {
+    "description": "The chip on a trip with no `ended_on`. §12 pins an open trip at the top of the list — an unfinished trip is the one thing on this screen that needs an action."
+  },
+  "tripsFinishAction": "End this trip",
+  "@tripsFinishAction": {
+    "description": "The action on an open trip. `End this trip` and not `Finish`: SPEC.md §12's prose says Finish, the reference draws `End this trip`, and per epics/README.md rule 4 the reference is the authority. §10 spells it the same way, so the two screens agree."
+  },
+  "tripsPurposeBusiness": "Business",
+  "@tripsPurposeBusiness": {
+    "description": "§10's trip purpose. Kept apart from `commute` deliberately: rolling them together is the easiest way to overstate a deduction, and in most jurisdictions the drive to a regular workplace is not deductible."
+  },
+  "tripsPurposeCommute": "Commute",
+  "@tripsPurposeCommute": {
+    "description": "§10's trip purpose — the drive to a regular workplace, which is NOT business."
+  },
+  "tripsPurposePersonal": "Personal",
+  "@tripsPurposePersonal": {
+    "description": "§10's trip purpose."
+  },
+  "tripsPurposeOther": "Other",
+  "@tripsPurposeOther": {
+    "description": "§10's trip purpose."
+  },
+  "tripsLoggedLabel": "{unit} logged",
+  "@tripsLoggedLabel": {
+    "description": "The distance tile's label. `km logged`, not `km`: §12 insists the figure says `across logged trips`, because trip distance is NOT the car's distance — people log some trips and not all. Without the second word the tile reads as total mileage.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "tripsBusinessLabel": "business",
+  "@tripsBusinessLabel": {
+    "description": "The business-share tile's label. Lower case: it sits under a figure, not at the head of a sentence."
+  },
+  "tripsCostsLabel": "trip costs",
+  "@tripsCostsLabel": {
+    "description": "The cost tile's label."
+  },
+  "tripsEarlier": "Earlier",
+  "@tripsEarlier": {
+    "description": "The section header over the trips that are not open."
+  },
+  "tripsCount": "{n, plural, =0{No trips} one{{nText} trip} other{{nText} trips}}",
+  "@tripsCount": {
+    "description": "How many trips are in range — SPEC.md §12's fourth header fact, which the reference draws at the end edge of the Earlier header. `nText` is pre-shaped so Persian, Arabic and Sorani get their own digits; `n` selects the category and is never printed.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "14"
+      },
+      "nText": {
+        "type": "String",
+        "example": "14"
+      }
+    }
+  },
+  "tripsStartedFrom": "Started {date} · from {odometer}",
+  "@tripsStartedFrom": {
+    "description": "The open trip's line when its start odometer is known.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "odometer": {
+        "type": "String"
+      }
+    }
+  },
+  "tripsStartedOn": "Started {date}",
+  "@tripsStartedOn": {
+    "description": "The same line when it is not. A separate message rather than an empty placeholder: `Started today · from ` is worse than saying less.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tripsNoEndReading": "no end reading yet",
+  "@tripsNoEndReading": {
+    "description": "Beside End this trip. Lower case and secondary — it is a statement of fact about the trip, not a warning."
+  },
+  "tripsBusinessValue": "{percent}%",
+  "@tripsBusinessValue": {
+    "description": "The business tile's figure. The percent SIGN and its spacing are a translation decision — German and French set a space before it, the Arabic-script three do not — so it lives in the ARB rather than in a Dart `'%'`. `percent` is pre-shaped.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "62"
+      }
+    }
+  },
+  "tripEditTitle": "Edit trip",
+  "@tripEditTitle": {
+    "description": "SPEC.md §10's title in edit mode. The reference draws it; §10's Edit-mode row names it."
+  },
+  "tripNewTitle": "Trip",
+  "@tripNewTitle": {
+    "description": "The same bar in create mode."
+  },
+  "tripSaveAction": "Save trip",
+  "@tripSaveAction": {
+    "description": "The footer button. `Save trip` and not `Save`: the app bar already carries a Save, and two controls a thumb-width apart reading the same word is where a delivery driver loses a trip."
+  },
+  "tripPurposeLabel": "Purpose",
+  "@tripPurposeLabel": {
+    "description": "The segmented control's accessible name. It has no visible label in the reference — the four options say what it is — but a screen reader landing on four unlabelled segments does not."
+  },
+  "tripTitleLabel": "Title",
+  "@tripTitleLabel": {
+    "description": "Field 2."
+  },
+  "tripStartsLabel": "Starts",
+  "@tripStartsLabel": {
+    "description": "Field 3."
+  },
+  "tripEndsLabel": "Ends",
+  "@tripEndsLabel": {
+    "description": "Field 4."
+  },
+  "tripStillGoing": "Still going",
+  "@tripStillGoing": {
+    "description": "Field 5's checkbox. Ticking CLEARS the end date and end odometer, per §10."
+  },
+  "tripStartOdometerLabel": "Start odometer",
+  "@tripStartOdometerLabel": {
+    "description": "Field 6."
+  },
+  "tripEndOdometerLabel": "End odometer",
+  "@tripEndOdometerLabel": {
+    "description": "Field 7."
+  },
+  "tripDistanceLabel": "Distance",
+  "@tripDistanceLabel": {
+    "description": "Field 8, computed with the ƒ badge and editable only when BOTH odometer fields are empty."
+  },
+  "tripExpensesLabel": "Expenses",
+  "@tripExpensesLabel": {
+    "description": "The section header over the live query. Not a draft: §10 says an expense added through Add expense appears without a save."
+  },
+  "tripAddExpense": "Add expense",
+  "@tripAddExpense": {
+    "description": "Opens `log.expense` with `trip_id` prefilled and locked."
+  },
+  "tripNoExpenses": "Nothing charged to this trip yet.",
+  "@tripNoExpenses": {
+    "description": "The section's empty line. `yet` because the expenses arrive after the trip does — a toll is paid on the road, not when the trip is created."
+  },
+  "tripDeleteAction": "Delete trip",
+  "@tripDeleteAction": {
+    "description": "Edit mode only. The confirm dialog says what SURVIVES, which is the fact the user needs."
+  },
+  "tripStartInFuture": "Pick today or a day in the past.",
+  "@tripStartInFuture": {
+    "description": "Field 3's exact error, verbatim from §10's field table."
+  },
+  "tripEndBeforeStart": "The end date is before the start date.",
+  "@tripEndBeforeStart": {
+    "description": "Field 4's exact error, verbatim from §10."
+  },
+  "tripEndBelowStart": "The end reading is lower than the start reading.",
+  "@tripEndBelowStart": {
+    "description": "Field 7's exact error, verbatim from §10."
+  },
+  "tripDistanceNotPositive": "Distance must be more than zero.",
+  "@tripDistanceNotPositive": {
+    "description": "Field 8's exact error, verbatim from §10."
+  },
+  "tripSavedToast": "Trip saved",
+  "@tripSavedToast": {
+    "description": "§10's confirmation after saving."
+  },
+  "tripSaveFirstToAddExpense": "Save the trip first, then charge expenses to it.",
+  "@tripSaveFirstToAddExpense": {
+    "description": "Under Add expense in CREATE mode. §10 draws the affordance there, but an expense carries `trip_id` and there is no trip yet — so the button is disabled and this says why. A greyed-out button that explains nothing is what `CalmButton` asserts against, and dropping the button entirely would hide a control §10 names."
+  },
+  "costsEstimateTitle": "How this was worked out",
+  "@costsEstimateTitle": {
+    "description": "The estimate sheet's title. SPEC.md §12: tapping any estimated or dashed figure opens one sentence and one action."
+  },
+  "costsEstimateStaleBoundary": "Worked out from odometer readings {days} days apart from the dates shown.",
+  "@costsEstimateStaleBoundary": {
+    "description": "§12's >45-day case, verbatim. `days` is pre-shaped: a bare int renders Latin digits in four locales. Not a plural — the figure is always above 45 by construction, so `one` is unreachable and a plural would be five translations of a form nobody sees.",
+    "placeholders": {
+      "days": {
+        "type": "String",
+        "example": "62"
+      }
+    }
+  },
+  "costsEstimateNotEnoughDistance": "Not enough distance logged in this period to work out a cost per kilometre.",
+  "@costsEstimateNotEnoughDistance": {
+    "description": "§12's under-100 km case, verbatim."
+  },
+  "costsEstimateNoCompletedMonth": "Come back after the end of the month — there isn’t a full month to average yet.",
+  "@costsEstimateNoCompletedMonth": {
+    "description": "§12's `completedMonths < 1` case, verbatim — and the one case with NO action, because updating the odometer does not make the month end sooner."
+  },
+  "costsEstimateNoReadings": "There are no odometer readings in this period to measure between.",
+  "@costsEstimateNoReadings": {
+    "description": "The fourth case `CostReason` names. §12's table lists three, and the engine has always had a fourth: no reading at all to measure between, which is a new vehicle rather than a stale one. Offering `Update odometer` here is exactly right."
+  },
+  "fuelEmptyBody": "Your first consumption figure arrives at your second full tank.",
+  "@fuelEmptyBody": {
+    "description": "The sentence under §12's `costs.fuel` empty title. It states the MECHANISM — consumption is measured between two full tanks, so one fill-up is not enough — because a Calm empty state is allowed to explain why the screen is empty rather than only that it is."
   }
 }

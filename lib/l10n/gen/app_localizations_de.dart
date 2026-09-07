@@ -1902,4 +1902,333 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get reportServicesLabel => 'Services';
+
+  @override
+  String get costsTitle => 'Kosten';
+
+  @override
+  String get costsRangeThisYear => 'Dieses Jahr';
+
+  @override
+  String get costsRangeAll => 'Alle';
+
+  @override
+  String get costsPerMonth => 'pro Monat';
+
+  @override
+  String get costsWhereMoneyGoes => 'Wohin das Geld geht';
+
+  @override
+  String get costsAccrualNote =>
+      'Jährliche Kosten wie Versicherung werden auf die abgedeckten Monate verteilt.';
+
+  @override
+  String costsThisMonthSoFar(String amount) {
+    return 'Diesen Monat bisher: $amount';
+  }
+
+  @override
+  String get costsEmptyTitle => 'Noch keine Kosten.';
+
+  @override
+  String get costsEmptyAction => 'Etwas erfassen';
+
+  @override
+  String get costsCategoryFuel => 'Kraftstoff';
+
+  @override
+  String get costsCategoryService => 'Service und Reparaturen';
+
+  @override
+  String get costsCategoryInsuranceTax => 'Versicherung und Steuer';
+
+  @override
+  String get costsCategoryFinance => 'Finanzierung';
+
+  @override
+  String get costsCategoryParkingTolls => 'Parken und Maut';
+
+  @override
+  String get costsCategoryOther => 'Sonstiges';
+
+  @override
+  String get costsFuelRow => 'Kraftstoff und Verbrauch';
+
+  @override
+  String get costsTripsRow => 'Fahrten';
+
+  @override
+  String get costsNoCompletedMonth =>
+      'Komm nach Monatsende wieder — es gibt noch keinen vollen Monat zum Mitteln.';
+
+  @override
+  String get costsNotEnoughDistance =>
+      'In diesem Zeitraum wurde zu wenig Strecke erfasst, um Kosten pro Kilometer zu berechnen.';
+
+  @override
+  String costsBoundaryStale(String days) {
+    return 'Berechnet aus Kilometerständen, die $days Tage von den gezeigten Daten entfernt sind.';
+  }
+
+  @override
+  String get costsUpdateOdometer => 'Kilometerstand aktualisieren';
+
+  @override
+  String costsRangeMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Monate',
+      one: '$nText Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsHeadlineCaption(String vehicle, String range) {
+    return '$vehicle · $range';
+  }
+
+  @override
+  String get costsRangeThisYearSoFar => 'dieses Jahr bisher';
+
+  @override
+  String costsSpanCaption(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String costsPerKilometre(String amount) {
+    return '$amount pro Kilometer';
+  }
+
+  @override
+  String costsPerMile(String amount) {
+    return '$amount pro Meile';
+  }
+
+  @override
+  String costsInMonths(int n, String nText, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$amount in $nText Monaten',
+      one: '$amount in $nText Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get costsAllVehicles => 'Alle Fahrzeuge';
+
+  @override
+  String get costsIncludeInactive => 'Verkaufte und archivierte einbeziehen';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Fahrzeuge ausgeblendet',
+      one: '$nText Fahrzeug ausgeblendet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'Geschäftlich $share% · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'Berechnet aus den erfassten Fahrten, nicht aus allen gefahrenen Kilometern.';
+
+  @override
+  String get costsVehicleSold => 'Verkauft';
+
+  @override
+  String get costsVehicleArchived => 'Archiviert';
+
+  @override
+  String get fuelTitle => 'Kraftstoff und Verbrauch';
+
+  @override
+  String get fuelConsumptionPerTank => 'Verbrauch pro Tankfüllung';
+
+  @override
+  String get fuelEmptyTitle => 'Noch keine Tankfüllungen.';
+
+  @override
+  String get fuelEmptyAction => 'Tankfüllung erfassen';
+
+  @override
+  String get fuelFirstFigure =>
+      'Ihr erster Wert kommt bei der nächsten vollen Tankfüllung.';
+
+  @override
+  String get tripsTitle => 'Fahrten';
+
+  @override
+  String get tripsEmptyTitle => 'Noch keine Fahrten.';
+
+  @override
+  String get tripsEmptyBody =>
+      'Erfassen Sie eine, um zu sehen, was eine Fahrt kostet.';
+
+  @override
+  String get tripsAddAction => 'Fahrt hinzufügen';
+
+  @override
+  String get tripsOpenBadge => 'Offen';
+
+  @override
+  String get tripsFinishAction => 'Fahrt beenden';
+
+  @override
+  String get tripsPurposeBusiness => 'Geschäftlich';
+
+  @override
+  String get tripsPurposeCommute => 'Arbeitsweg';
+
+  @override
+  String get tripsPurposePersonal => 'Privat';
+
+  @override
+  String get tripsPurposeOther => 'Sonstiges';
+
+  @override
+  String tripsLoggedLabel(String unit) {
+    return '$unit erfasst';
+  }
+
+  @override
+  String get tripsBusinessLabel => 'geschäftlich';
+
+  @override
+  String get tripsCostsLabel => 'Fahrtkosten';
+
+  @override
+  String get tripsEarlier => 'Früher';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Fahrten',
+      one: '$nText Fahrt',
+      zero: 'Keine Fahrten',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'Begonnen $date · ab $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'Begonnen $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'noch kein Endstand';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent %';
+  }
+
+  @override
+  String get tripEditTitle => 'Fahrt bearbeiten';
+
+  @override
+  String get tripNewTitle => 'Fahrt';
+
+  @override
+  String get tripSaveAction => 'Fahrt speichern';
+
+  @override
+  String get tripPurposeLabel => 'Zweck';
+
+  @override
+  String get tripTitleLabel => 'Titel';
+
+  @override
+  String get tripStartsLabel => 'Beginn';
+
+  @override
+  String get tripEndsLabel => 'Ende';
+
+  @override
+  String get tripStillGoing => 'Läuft noch';
+
+  @override
+  String get tripStartOdometerLabel => 'Kilometerstand Beginn';
+
+  @override
+  String get tripEndOdometerLabel => 'Kilometerstand Ende';
+
+  @override
+  String get tripDistanceLabel => 'Strecke';
+
+  @override
+  String get tripExpensesLabel => 'Ausgaben';
+
+  @override
+  String get tripAddExpense => 'Ausgabe hinzufügen';
+
+  @override
+  String get tripNoExpenses => 'Dieser Fahrt ist noch nichts zugeordnet.';
+
+  @override
+  String get tripDeleteAction => 'Fahrt löschen';
+
+  @override
+  String get tripStartInFuture =>
+      'Wählen Sie heute oder einen Tag in der Vergangenheit.';
+
+  @override
+  String get tripEndBeforeStart => 'Das Enddatum liegt vor dem Startdatum.';
+
+  @override
+  String get tripEndBelowStart =>
+      'Der Endstand ist niedriger als der Anfangsstand.';
+
+  @override
+  String get tripDistanceNotPositive =>
+      'Die Strecke muss größer als null sein.';
+
+  @override
+  String get tripSavedToast => 'Fahrt gespeichert';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'Speichern Sie die Fahrt zuerst, dann können Sie ihr Ausgaben zuordnen.';
+
+  @override
+  String get costsEstimateTitle => 'So wurde das berechnet';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'Berechnet aus Kilometerständen, die $days Tage von den gezeigten Daten entfernt liegen.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'In diesem Zeitraum wurde zu wenig Strecke erfasst, um Kosten pro Kilometer zu berechnen.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'Schauen Sie nach Monatsende wieder vorbei — es gibt noch keinen vollen Monat zum Mitteln.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'In diesem Zeitraum gibt es keine Kilometerstände, zwischen denen gemessen werden könnte.';
+
+  @override
+  String get fuelEmptyBody =>
+      'Ihr erster Verbrauchswert erscheint bei der zweiten vollen Tankfüllung.';
 }

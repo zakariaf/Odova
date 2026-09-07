@@ -143,7 +143,7 @@ class FillUpRepository {
     _db,
     table: _db.fillUps,
     id: id.toString(),
-    source: OdometerSource.fillUp,
+    sources: {OdometerSource.fillUp},
     deletedAtUtcMs: deletedAtUtcMs,
   );
 
@@ -153,7 +153,7 @@ class FillUpRepository {
         _db,
         table: _db.fillUps,
         id: id.toString(),
-        source: OdometerSource.fillUp,
+        sources: {OdometerSource.fillUp},
         deletedAtUtcMs: null,
       );
 }
@@ -248,7 +248,7 @@ class ExpenseRepository {
     _db,
     table: _db.expenses,
     id: id.toString(),
-    source: OdometerSource.expense,
+    sources: {OdometerSource.expense},
     deletedAtUtcMs: deletedAtUtcMs,
   );
 
@@ -258,7 +258,7 @@ class ExpenseRepository {
         _db,
         table: _db.expenses,
         id: id.toString(),
-        source: OdometerSource.expense,
+        sources: {OdometerSource.expense},
         deletedAtUtcMs: null,
       );
 }
@@ -369,4 +369,33 @@ class TripRepository {
     });
     return Ok(trip);
   });
+
+  /// Soft-deletes one trip and BOTH of its derived readings.
+  ///
+  /// SPEC.md §10: "Deleting a trip does not delete its expenses or fill-ups —
+  /// they lose the trip link and stay in history." Nothing here touches those
+  /// tables: their `trip_id` is `ON DELETE SET NULL`, so the link goes when
+  /// the row is purged and the spending stays either way. Cascading would take
+  /// a week of tolls out of the cost dashboard because somebody tidied up a
+  /// trip, and eight years of spending is the thing this app exists to keep.
+  Future<Result<void, PersistFailure>> delete(
+    TripId id, {
+    required int deletedAtUtcMs,
+  }) => stampLogRowDeleted(
+    _db,
+    table: _db.trips,
+    id: id.toString(),
+    sources: const {OdometerSource.tripStart, OdometerSource.tripEnd},
+    deletedAtUtcMs: deletedAtUtcMs,
+  );
+
+  /// Puts back what [delete] removed.
+  Future<Result<void, PersistFailure>> undelete(TripId id) =>
+      stampLogRowDeleted(
+        _db,
+        table: _db.trips,
+        id: id.toString(),
+        sources: const {OdometerSource.tripStart, OdometerSource.tripEnd},
+        deletedAtUtcMs: null,
+      );
 }

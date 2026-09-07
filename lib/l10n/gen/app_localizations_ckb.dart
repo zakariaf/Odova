@@ -1893,4 +1893,329 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get reportServicesLabel => 'خزمەتگوزاری';
+
+  @override
+  String get costsTitle => 'تێچووەکان';
+
+  @override
+  String get costsRangeThisYear => 'ئەمساڵ';
+
+  @override
+  String get costsRangeAll => 'هەموو';
+
+  @override
+  String get costsPerMonth => 'لە مانگێکدا';
+
+  @override
+  String get costsWhereMoneyGoes => 'پارەکە بۆ کوێ دەڕوات';
+
+  @override
+  String get costsAccrualNote =>
+      'تێچووە ساڵانەکان وەک بیمە بەسەر ئەو مانگانەدا دابەش دەکرێن کە دەیانگرێتەوە.';
+
+  @override
+  String costsThisMonthSoFar(String amount) {
+    return 'ئەم مانگە تا ئێستا: $amount';
+  }
+
+  @override
+  String get costsEmptyTitle => 'هێشتا هیچ تێچوویەک نییە.';
+
+  @override
+  String get costsEmptyAction => 'شتێک تۆمار بکە';
+
+  @override
+  String get costsCategoryFuel => 'سووتەمەنی';
+
+  @override
+  String get costsCategoryService => 'خزمەتگوزاری و چاککردنەوە';
+
+  @override
+  String get costsCategoryInsuranceTax => 'بیمە و باج';
+
+  @override
+  String get costsCategoryFinance => 'دارایی';
+
+  @override
+  String get costsCategoryParkingTolls => 'پارککردن و باج';
+
+  @override
+  String get costsCategoryOther => 'ئەوانی تر';
+
+  @override
+  String get costsFuelRow => 'سووتەمەنی و خەرجکردن';
+
+  @override
+  String get costsTripsRow => 'گەشتەکان';
+
+  @override
+  String get costsNoCompletedMonth =>
+      'دوای کۆتایی مانگ بگەڕێوە — هێشتا مانگێکی تەواو نییە بۆ ناوەند.';
+
+  @override
+  String get costsNotEnoughDistance =>
+      'لەم ماوەیەدا دووری پێویست تۆمار نەکراوە بۆ دەرخستنی تێچوو بۆ هەر کیلۆمەترێک.';
+
+  @override
+  String costsBoundaryStale(String days) {
+    return 'لە پێوانەکانی ئۆدۆمیتەرەوە دەرهێنراوە کە $days ڕۆژ لە بەروارە پیشاندراوەکان دوورن.';
+  }
+
+  @override
+  String get costsUpdateOdometer => 'نوێکردنەوەی کیلۆمەترپێو';
+
+  @override
+  String costsRangeMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مانگ',
+      one: '$nText مانگ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsHeadlineCaption(String vehicle, String range) {
+    return '$vehicle · $range';
+  }
+
+  @override
+  String get costsRangeThisYearSoFar => 'ئەمساڵ تا ئێستا';
+
+  @override
+  String costsSpanCaption(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String costsPerKilometre(String amount) {
+    return '$amount بۆ هەر کیلۆمەترێک';
+  }
+
+  @override
+  String costsPerMile(String amount) {
+    return '$amount بۆ هەر مایلێک';
+  }
+
+  @override
+  String costsInMonths(int n, String nText, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$amount لە $nText مانگدا',
+      one: '$amount لە $nText مانگدا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get costsAllVehicles => 'هەموو ئۆتۆمبێلەکان';
+
+  @override
+  String get costsIncludeInactive => 'فرۆشراوەکان و ئەرشیفکراوەکان لەخۆبگرێت';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ئۆتۆمبێل شاراوەن',
+      one: '$nText ئۆتۆمبێل شاراوەیە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'کاری $share٪ · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'لە گەشتەکانی تۆمارکراوتەوە دەرهێنراوە، نەک لە هەموو لێخوڕینەکەت.';
+
+  @override
+  String get costsVehicleSold => 'فرۆشراو';
+
+  @override
+  String get costsVehicleArchived => 'ئەرشیفکراو';
+
+  @override
+  String get fuelTitle => 'سووتەمەنی و خەرجکردن';
+
+  @override
+  String get fuelConsumptionPerTank => 'خەرجکردن بۆ هەر تانکێک';
+
+  @override
+  String get fuelEmptyTitle => 'هێشتا هیچ سووتەمەنییەک نییە.';
+
+  @override
+  String get fuelEmptyAction => 'سووتەمەنییەک تۆمار بکە';
+
+  @override
+  String get fuelFirstFigure =>
+      'یەکەم ژمارەت لە پڕکردنەوەی تەواوی داهاتوودا دێت.';
+
+  @override
+  String get tripsTitle => 'گەشتەکان';
+
+  @override
+  String get tripsEmptyTitle => 'هێشتا هیچ گەشتێک نییە.';
+
+  @override
+  String get tripsEmptyBody => 'یەکێک تۆمار بکە بۆ بینینی تێچووی گەشتێک.';
+
+  @override
+  String get tripsAddAction => 'زیادکردنی گەشت';
+
+  @override
+  String get tripsOpenBadge => 'کراوە';
+
+  @override
+  String get tripsFinishAction => 'کۆتایی بەم گەشتە';
+
+  @override
+  String get tripsPurposeBusiness => 'کاری';
+
+  @override
+  String get tripsPurposeCommute => 'هاتوچۆ';
+
+  @override
+  String get tripsPurposePersonal => 'کەسی';
+
+  @override
+  String get tripsPurposeOther => 'ئەوانی تر';
+
+  @override
+  String tripsLoggedLabel(String unit) {
+    return '$unit تۆمارکراو';
+  }
+
+  @override
+  String get tripsBusinessLabel => 'کاری';
+
+  @override
+  String get tripsCostsLabel => 'تێچووی گەشتەکان';
+
+  @override
+  String get tripsEarlier => 'پێشتر';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText گەشت',
+      one: '$nText گەشت',
+      zero: 'هیچ گەشتێک',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'دەستیپێکرد $date · لە $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'دەستیپێکرد $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'هێشتا خوێندنەوەی کۆتایی نییە';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get tripEditTitle => 'دەستکاری گەشت';
+
+  @override
+  String get tripNewTitle => 'گەشت';
+
+  @override
+  String get tripSaveAction => 'پاشەکەوتی گەشت';
+
+  @override
+  String get tripPurposeLabel => 'مەبەست';
+
+  @override
+  String get tripTitleLabel => 'ناونیشان';
+
+  @override
+  String get tripStartsLabel => 'دەستپێک';
+
+  @override
+  String get tripEndsLabel => 'کۆتایی';
+
+  @override
+  String get tripStillGoing => 'هێشتا بەردەوامە';
+
+  @override
+  String get tripStartOdometerLabel => 'کیلۆمەترپێوی دەستپێک';
+
+  @override
+  String get tripEndOdometerLabel => 'کیلۆمەترپێوی کۆتایی';
+
+  @override
+  String get tripDistanceLabel => 'دووری';
+
+  @override
+  String get tripExpensesLabel => 'خەرجییەکان';
+
+  @override
+  String get tripAddExpense => 'زیادکردنی خەرجی';
+
+  @override
+  String get tripNoExpenses => 'هێشتا هیچ شتێک بەم گەشتەوە نەبەستراوە.';
+
+  @override
+  String get tripDeleteAction => 'سڕینەوەی گەشت';
+
+  @override
+  String get tripStartInFuture => 'ئەمڕۆ یان ڕۆژێکی ڕابردوو هەڵبژێرە.';
+
+  @override
+  String get tripEndBeforeStart => 'بەرواری کۆتایی پێش بەرواری دەستپێکە.';
+
+  @override
+  String get tripEndBelowStart =>
+      'خوێندنەوەی کۆتایی لە خوێندنەوەی دەستپێک کەمترە.';
+
+  @override
+  String get tripDistanceNotPositive => 'دووری دەبێت لە سفر زیاتر بێت.';
+
+  @override
+  String get tripSavedToast => 'گەشت پاشەکەوت کرا';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'سەرەتا گەشتەکە پاشەکەوت بکە، پاشان خەرجییەکانی پێوە ببەستە.';
+
+  @override
+  String get costsEstimateTitle => 'ئەمە چۆن دەرهێنراوە';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'لە خوێندنەوەی کیلۆمەترپێو دەرهێنراوە کە $days ڕۆژ لە بەروارە پیشاندراوەکان دوورن.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'لەم ماوەیەدا دووری پێویست تۆمار نەکراوە بۆ دەرهێنانی تێچووی هەر کیلۆمەترێک.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'دوای کۆتایی مانگ بگەڕێوە — هێشتا مانگێکی تەواو نییە بۆ ناوەند.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'لەم ماوەیەدا هیچ خوێندنەوەیەکی کیلۆمەترپێو نییە بۆ پێوان.';
+
+  @override
+  String get fuelEmptyBody => 'یەکەم ژمارەی خەرجکردنت لە دووەم تانکی پڕدا دێت.';
 }

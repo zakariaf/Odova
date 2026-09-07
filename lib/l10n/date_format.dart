@@ -138,3 +138,20 @@ String formatRowDate(String iso, String formatsTag) {
   if (parsed == null) return iso;
   return DateFormat.MMMEd(dateFormatLocale(formatsTag)).format(parsed);
 }
+
+/// A bare year — `2026`, `۲۰۲۶` — with no grouping separator.
+///
+/// `formatForDisplay` with `grouped: false` and not a raw `int.toString()`:
+/// the year is a figure on the screen like any other, and four locales draw
+/// their own digits. Grouping is off because `2,026` is not a year.
+String formatYear(String isoOrYear, String formatsTag) {
+  final year = int.tryParse(isoOrYear.split('-').first);
+  if (year == null) return isoOrYear;
+  return formatForDisplay(
+    year,
+    formatsTag,
+    numerals: CalmNumerals.auto,
+    decimalDigits: 0,
+    grouped: false,
+  );
+}

@@ -10,7 +10,7 @@ library;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/l10n/calendar.dart';
-import 'package:odova/features/history/presentation/history_month_title.dart';
+import 'package:odova/l10n/month_title.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -26,9 +26,9 @@ void main() {
       month: 9,
     );
 
-    expect(historyMonthTitle(september, 'en'), 'September 2026');
-    expect(historyMonthTitle(september, 'de'), 'September 2026');
-    expect(historyMonthTitle(september, 'fr'), 'septembre 2026');
+    expect(monthTitle(september, 'en'), 'September 2026');
+    expect(monthTitle(september, 'de'), 'September 2026');
+    expect(monthTitle(september, 'fr'), 'septembre 2026');
   });
 
   test('a Jalali month reads in Persian words and Persian digits', () {
@@ -38,7 +38,7 @@ void main() {
       month: 7,
     );
 
-    final title = historyMonthTitle(mehr, 'fa');
+    final title = monthTitle(mehr, 'fa');
 
     expect(title, contains('مهر'));
     expect(
@@ -56,8 +56,8 @@ void main() {
       month: 1,
     );
 
-    expect(historyMonthTitle(key, 'en'), isNot(contains(',')));
-    expect(historyMonthTitle(key, 'de'), isNot(contains('.')));
+    expect(monthTitle(key, 'en'), isNot(contains(',')));
+    expect(monthTitle(key, 'de'), isNot(contains('.')));
   });
 
   group('the regional month tables are used, not a borrowed locale', () {
@@ -68,7 +68,7 @@ void main() {
       // Measured: "September 2026". `numberFormatLocale` borrows `de` for the
       // Maghreb because intl has no European-separator Arabic — a SYMBOL
       // borrow, handed to a function that returns WORDS.
-      final title = historyMonthTitle(
+      final title = monthTitle(
         const MonthKey(calendar: CalmCalendar.gregorian, year: 2026, month: 9),
         'ar-MA',
       );
@@ -84,7 +84,7 @@ void main() {
     test('Kurdish Gregorian uses the Kurdish name, not the Persian one', () {
       // Measured: "سپتامبر" — Persian. `kurdishGregorianMonthNames` has
       // `ئەیلوول`, and exists precisely so this cannot happen.
-      final title = historyMonthTitle(
+      final title = monthTitle(
         const MonthKey(calendar: CalmCalendar.gregorian, year: 2026, month: 9),
         'ckb-IQ',
       );
@@ -96,7 +96,7 @@ void main() {
     test('Kurdish Jalali uses the Kurdish name, not the Persian one', () {
       // Measured: "شهریور ۱۴۰۵" — Persian words on a Kurdish screen, which is
       // the sentence `kurdishJalaliMonthNames`' own doc comment uses.
-      final title = historyMonthTitle(
+      final title = monthTitle(
         const MonthKey(calendar: CalmCalendar.persian, year: 1405, month: 6),
         'ckb-IR',
       );
@@ -110,7 +110,7 @@ void main() {
       () {
         // The header said "سبتمبر" (Gulf) while `formatLongDate` on the same
         // screen said "أيلول" (Levantine) — one month, two names, one screen.
-        final title = historyMonthTitle(
+        final title = monthTitle(
           const MonthKey(
             calendar: CalmCalendar.gregorian,
             year: 2026,

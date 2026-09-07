@@ -1890,4 +1890,330 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportServicesLabel => 'services';
+
+  @override
+  String get costsTitle => 'Costs';
+
+  @override
+  String get costsRangeThisYear => 'This year';
+
+  @override
+  String get costsRangeAll => 'All';
+
+  @override
+  String get costsPerMonth => 'per month';
+
+  @override
+  String get costsWhereMoneyGoes => 'Where the money goes';
+
+  @override
+  String get costsAccrualNote =>
+      'Yearly costs like insurance are spread over the months they cover.';
+
+  @override
+  String costsThisMonthSoFar(String amount) {
+    return 'This month so far: $amount';
+  }
+
+  @override
+  String get costsEmptyTitle => 'No costs yet.';
+
+  @override
+  String get costsEmptyAction => 'Log something';
+
+  @override
+  String get costsCategoryFuel => 'Fuel';
+
+  @override
+  String get costsCategoryService => 'Service & repairs';
+
+  @override
+  String get costsCategoryInsuranceTax => 'Insurance & tax';
+
+  @override
+  String get costsCategoryFinance => 'Finance';
+
+  @override
+  String get costsCategoryParkingTolls => 'Parking & tolls';
+
+  @override
+  String get costsCategoryOther => 'Other';
+
+  @override
+  String get costsFuelRow => 'Fuel & consumption';
+
+  @override
+  String get costsTripsRow => 'Trips';
+
+  @override
+  String get costsNoCompletedMonth =>
+      'Come back after the end of the month — there isn’t a full month to average yet.';
+
+  @override
+  String get costsNotEnoughDistance =>
+      'Not enough distance logged in this period to work out a cost per kilometre.';
+
+  @override
+  String costsBoundaryStale(String days) {
+    return 'Worked out from odometer readings $days days apart from the dates shown.';
+  }
+
+  @override
+  String get costsUpdateOdometer => 'Update odometer';
+
+  @override
+  String costsRangeMonths(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText months',
+      one: '$nText month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsHeadlineCaption(String vehicle, String range) {
+    return '$vehicle · $range';
+  }
+
+  @override
+  String get costsRangeThisYearSoFar => 'this year so far';
+
+  @override
+  String costsSpanCaption(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String costsPerKilometre(String amount) {
+    return '$amount per kilometre';
+  }
+
+  @override
+  String costsPerMile(String amount) {
+    return '$amount per mile';
+  }
+
+  @override
+  String costsInMonths(int n, String nText, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$amount in $nText months',
+      one: '$amount in $nText month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get costsAllVehicles => 'All vehicles';
+
+  @override
+  String get costsIncludeInactive => 'Include sold and archived';
+
+  @override
+  String costsHiddenVehicles(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText vehicles hidden',
+      one: '$nText vehicle hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String costsBusinessRow(String share, String amount) {
+    return 'Business $share% · $amount';
+  }
+
+  @override
+  String get costsBusinessCaption =>
+      'Worked out from the trips you logged, not from all your driving.';
+
+  @override
+  String get costsVehicleSold => 'Sold';
+
+  @override
+  String get costsVehicleArchived => 'Archived';
+
+  @override
+  String get fuelTitle => 'Fuel & consumption';
+
+  @override
+  String get fuelConsumptionPerTank => 'Consumption per tank';
+
+  @override
+  String get fuelEmptyTitle => 'No fill-ups yet.';
+
+  @override
+  String get fuelEmptyAction => 'Log a fill-up';
+
+  @override
+  String get fuelFirstFigure =>
+      'Your first figure arrives at your next full fill.';
+
+  @override
+  String get tripsTitle => 'Trips';
+
+  @override
+  String get tripsEmptyTitle => 'No trips yet.';
+
+  @override
+  String get tripsEmptyBody => 'Log one to see what a journey costs.';
+
+  @override
+  String get tripsAddAction => 'Add trip';
+
+  @override
+  String get tripsOpenBadge => 'Open';
+
+  @override
+  String get tripsFinishAction => 'End this trip';
+
+  @override
+  String get tripsPurposeBusiness => 'Business';
+
+  @override
+  String get tripsPurposeCommute => 'Commute';
+
+  @override
+  String get tripsPurposePersonal => 'Personal';
+
+  @override
+  String get tripsPurposeOther => 'Other';
+
+  @override
+  String tripsLoggedLabel(String unit) {
+    return '$unit logged';
+  }
+
+  @override
+  String get tripsBusinessLabel => 'business';
+
+  @override
+  String get tripsCostsLabel => 'trip costs';
+
+  @override
+  String get tripsEarlier => 'Earlier';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText trips',
+      one: '$nText trip',
+      zero: 'No trips',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'Started $date · from $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'Started $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'no end reading yet';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get tripEditTitle => 'Edit trip';
+
+  @override
+  String get tripNewTitle => 'Trip';
+
+  @override
+  String get tripSaveAction => 'Save trip';
+
+  @override
+  String get tripPurposeLabel => 'Purpose';
+
+  @override
+  String get tripTitleLabel => 'Title';
+
+  @override
+  String get tripStartsLabel => 'Starts';
+
+  @override
+  String get tripEndsLabel => 'Ends';
+
+  @override
+  String get tripStillGoing => 'Still going';
+
+  @override
+  String get tripStartOdometerLabel => 'Start odometer';
+
+  @override
+  String get tripEndOdometerLabel => 'End odometer';
+
+  @override
+  String get tripDistanceLabel => 'Distance';
+
+  @override
+  String get tripExpensesLabel => 'Expenses';
+
+  @override
+  String get tripAddExpense => 'Add expense';
+
+  @override
+  String get tripNoExpenses => 'Nothing charged to this trip yet.';
+
+  @override
+  String get tripDeleteAction => 'Delete trip';
+
+  @override
+  String get tripStartInFuture => 'Pick today or a day in the past.';
+
+  @override
+  String get tripEndBeforeStart => 'The end date is before the start date.';
+
+  @override
+  String get tripEndBelowStart =>
+      'The end reading is lower than the start reading.';
+
+  @override
+  String get tripDistanceNotPositive => 'Distance must be more than zero.';
+
+  @override
+  String get tripSavedToast => 'Trip saved';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'Save the trip first, then charge expenses to it.';
+
+  @override
+  String get costsEstimateTitle => 'How this was worked out';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'Worked out from odometer readings $days days apart from the dates shown.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'Not enough distance logged in this period to work out a cost per kilometre.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'Come back after the end of the month — there isn’t a full month to average yet.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'There are no odometer readings in this period to measure between.';
+
+  @override
+  String get fuelEmptyBody =>
+      'Your first consumption figure arrives at your second full tank.';
 }

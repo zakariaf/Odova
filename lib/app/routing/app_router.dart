@@ -19,14 +19,18 @@ import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/features/costs/presentation/costs_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
+import 'package:odova/features/fuel/presentation/fuel_screen.dart';
 import 'package:odova/features/history/presentation/history_screen.dart';
 import 'package:odova/features/home/ui/home_screen.dart';
 import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/features/reminders/ui/reminders_edit_screen.dart';
 import 'package:odova/features/reminders/ui/reminders_list_screen.dart';
 import 'package:odova/features/report/presentation/report_service_screen.dart';
+import 'package:odova/features/trips/presentation/trips_edit_screen.dart';
+import 'package:odova/features/trips/presentation/trips_list_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_switcher_sheet.dart';
 import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
@@ -241,7 +245,7 @@ final List<StatefulShellBranch> _branches = [
         pageBuilder: (context, state) => PageKind.push.page(
           context,
           state,
-          const PlaceholderScreen(screenId: 'costs'),
+          const CostsScreen(),
         ),
         routes: [
           GoRoute(
@@ -249,7 +253,7 @@ final List<StatefulShellBranch> _branches = [
             pageBuilder: (context, state) => PageKind.push.page(
               context,
               state,
-              const PlaceholderScreen(screenId: 'costs.fuel'),
+              const FuelScreen(),
             ),
           ),
           GoRoute(
@@ -257,7 +261,7 @@ final List<StatefulShellBranch> _branches = [
             pageBuilder: (context, state) => PageKind.push.page(
               context,
               state,
-              const PlaceholderScreen(screenId: 'trips.list'),
+              const TripsListScreen(),
             ),
             routes: [
               GoRoute(
@@ -266,9 +270,8 @@ final List<StatefulShellBranch> _branches = [
                 pageBuilder: (context, state) => PageKind.modal.page(
                   context,
                   state,
-                  PlaceholderScreen(
-                    screenId: 'trips.edit',
-                    detail: state.pathParameters['tripId'],
+                  TripsEditScreen(
+                    tripId: state.pathParameters['tripId'] ?? kNewRecordId,
                   ),
                 ),
               ),

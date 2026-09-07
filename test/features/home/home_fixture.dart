@@ -74,11 +74,13 @@ Vehicle homeVehicle(
   String? soldOn,
   String? purchaseDate,
   Distance? purchaseOdometer,
+  bool isBusiness = false,
 }) => Vehicle(
   id: id,
   name: name,
   vehicleType: VehicleType.car,
   fuelKindDefault: FuelKind.diesel,
+  isBusiness: isBusiness,
   status: status,
   soldOn: soldOn,
   purchaseDate: purchaseDate,

@@ -32,12 +32,12 @@ import 'package:odova/features/history/application/history_notifier.dart';
 import 'package:odova/features/history/presentation/history_empty_states.dart';
 import 'package:odova/features/history/presentation/history_filter_chips.dart';
 import 'package:odova/features/history/presentation/history_month_header.dart';
-import 'package:odova/features/history/presentation/history_month_title.dart';
 import 'package:odova/features/history/presentation/history_row_content.dart';
 import 'package:odova/features/history/presentation/history_row_tile.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/money_format.dart';
+import 'package:odova/l10n/month_title.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
@@ -243,7 +243,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     return [
       for (final month in byMonth.keys) ...[
         HistoryMonthHeader(
-          title: historyMonthTitle(month, formatsTag),
+          title: monthTitle(month, formatsTag),
           entry:
               index[month] ??
               // The index is the authority on counts and totals, but a page can

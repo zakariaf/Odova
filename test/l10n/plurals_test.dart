@@ -54,6 +54,7 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'homeMoreDue' => l10n.homeMoreDue(n, nText),
       'homeUnknownMore' => l10n.homeUnknownMore(n, nText),
       'remindersSeeAll' => l10n.remindersSeeAll(n, nText),
+      'tripsCount' => l10n.tripsCount(n, nText),
       // The other-vehicles row. The NAME is pinned and the count varies, for
       // the same reason `vehicleStatusDueInDays` pins its item: the axis a
       // `few`/`many` mistake shows up against is the number.
@@ -93,6 +94,12 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'deleteTripKeepsCosts' => l10n.deleteTripKeepsCosts(n, nText),
       // §12's header count. Nothing else in the message varies.
       'reportServiceCount' => l10n.reportServiceCount(n, nText),
+      // §12's range chips. The count is the whole message.
+      'costsRangeMonths' => l10n.costsRangeMonths(n, nText),
+      // §12's range total. The AMOUNT is pinned and the count varies.
+      'costsInMonths' => l10n.costsInMonths(n, nText, '2,184'),
+      // §12's household trailing line. The count is the whole message.
+      'costsHiddenVehicles' => l10n.costsHiddenVehicles(n, nText),
       'confirmDeleteTitle' => l10n.confirmDeleteTitle('The Golf', n, nText),
       'confirmDeleteBody' => l10n.confirmDeleteBody(
         n,
