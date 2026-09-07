@@ -3085,4 +3085,110 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get importTitle => 'استعادة';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'أُنشئ في $date الساعة $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'ما الذي يتغير';
+
+  @override
+  String get importNow => 'الآن';
+
+  @override
+  String get importAfter => 'بعد ذلك';
+
+  @override
+  String get importReplacesEverything =>
+      'سيُستبدل كل ما في Odova الآن بهذا الملف.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'تُحفظ نسخة من بياناتك الحالية أولاً. يمكنك التراجع خلال $days يومًا.';
+  }
+
+  @override
+  String get importNothingToReplace => 'Odova فارغ، لذا لن يُستبدل شيء.';
+
+  @override
+  String get importAlreadyRestored =>
+      'هذه هي النسخة التي استعدتها بالفعل. لن يتغير شيء على هذا الهاتف.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'بياناتك قبل $date، $time';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText إدخال لا يمكن قراءته وسيُترك.',
+      many: '$nText إدخالًا لا يمكن قراءتها وستُترك.',
+      few: '$nText إدخالات لا يمكن قراءتها وستُترك.',
+      two: 'إدخالان لا يمكن قراءتهما وسيُتركان.',
+      one: 'إدخال واحد لا يمكن قراءته وسيُترك.',
+      zero: '$nText إدخال لا يمكن قراءته وسيُترك.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'أيها';
+
+  @override
+  String get importReplaceMyData => 'استبدل بياناتي';
+
+  @override
+  String get importImport => 'استيراد';
+
+  @override
+  String get importReplaceAnyway => 'استبدل على أي حال';
+
+  @override
+  String get importRestoring => 'يجري استعادة بياناتك…';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'تمت الاستعادة. $vehicles و$entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'لم تكتمل عملية الاستعادة الأخيرة. لم يتغير شيء.';
+
+  @override
+  String get importKindVehicles => 'المركبات';
+
+  @override
+  String get importKindFillups => 'تعبئات الوقود';
+
+  @override
+  String get importKindServices => 'الصيانات';
+
+  @override
+  String get importKindExpenses => 'المصروفات';
+
+  @override
+  String get importKindTrips => 'الرحلات';
+
+  @override
+  String get importKindReminders => 'التذكيرات';
+
+  @override
+  String get importKindReadings => 'قراءات العدّاد';
+
+  @override
+  String get commonDone => 'تم';
 }

@@ -4259,6 +4259,167 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, one{{nText} entry} other{{nText} entries}}'**
   String backupEntryCount(int n, String nText);
+
+  /// §13's `settings.import` title. “Restore”, not “Import a file”: the user is not filing something, they are getting their life back.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get importTitle;
+
+  /// §4.3's header line: the export date in the user's own calendar and numerals, plus what is in the file. The FILENAME sits above it, forced LTR.
+  ///
+  /// In en, this message translates to:
+  /// **'Made on {date} at {time} · {vehicles} · {entries}'**
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  );
+
+  /// §4.3's comparison header.
+  ///
+  /// In en, this message translates to:
+  /// **'What changes'**
+  String get importWhatChanges;
+
+  /// The NOW column.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get importNow;
+
+  /// The AFTER column.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get importAfter;
+
+  /// One of the two most heavily reviewed strings in the app (§13). A single ICU message, never concatenated, never softened. It is the sentence a future PR will try to make gentler, and the test asserts it verbatim for that reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything now in Odova will be replaced by this file.'**
+  String get importReplacesEverything;
+
+  /// §4.3's one line of reassurance, and it is TRUE — the test asserts the copy is actually written on confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'A copy of what you have now is saved first. You can undo this for {days} days.'**
+  String importCopySavedFirst(String days);
+
+  /// §4.3's empty-device sentence. The replacement sentence is true on an empty phone and would be frightening for no reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova is empty, so nothing will be replaced.'**
+  String get importNothingToReplace;
+
+  /// §4.3's already-restored case, and the answer to the question the user is actually asking.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the backup you already restored. Nothing on this phone will change.'**
+  String get importAlreadyRestored;
+
+  /// §4.4's undo header. A moment, not a filename: the user is looking for a time.
+  ///
+  /// In en, this message translates to:
+  /// **'The data you had before {date}, {time}'**
+  String importUndoHeader(String date, String time);
+
+  /// §4.3's warning row. All six Arabic categories, and NO `=0` — a preview with nothing skipped does not draw the row at all, so a zero form would be copy nobody can reach.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry can’t be read and will be left out.} other{{nText} entries can’t be read and will be left out.}}'**
+  String importSkippedCount(int n, String nText);
+
+  /// The disclosure that opens the skipped list. §4.3: a user who knows exactly what was lost can retype three rows.
+  ///
+  /// In en, this message translates to:
+  /// **'See which'**
+  String get importSeeWhich;
+
+  /// §4.3's primary. “Replace my data”, because that is what it does — and the preview IS the confirmation, so there is no second dialog behind it.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace my data'**
+  String get importReplaceMyData;
+
+  /// §4.3's primary on an empty device, where nothing is being replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importImport;
+
+  /// The text button beneath Done in the already-restored variant. Beneath, and quiet: the user asked a question and the answer was no, but it is still their data.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace anyway'**
+  String get importReplaceAnyway;
+
+  /// The progress state. Non-cancellable, and it says why it cannot be stopped by saying what it is doing.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring your data…'**
+  String get importRestoring;
+
+  /// §4.3's success line.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored. {vehicles} and {entries}.'**
+  String importRestored(String vehicles, String entries);
+
+  /// The snackbar on the launch after a crash mid-import. It says the one thing the user needs: nothing was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last restore didn’t finish. Nothing was changed.'**
+  String get importDidNotFinish;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles'**
+  String get importKindVehicles;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-ups'**
+  String get importKindFillups;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get importKindServices;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get importKindExpenses;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get importKindTrips;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get importKindReminders;
+
+  /// One row label in §4.3's comparison. A record TYPE in the user's words — never “rows”, “entities” or a table name.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer readings'**
+  String get importKindReadings;
+
+  /// The acknowledging action. Used where there is nothing to confirm and nothing to undo — §6 §4.3's already-restored preview, and the import result the user has to tap past because a snackbar cannot carry a list.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get commonDone;
 }
 
 class _AppLocalizationsDelegate

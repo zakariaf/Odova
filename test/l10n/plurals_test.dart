@@ -142,6 +142,9 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       // their own language rather than one being glued to the other.
       'backupVehicleCount' => l10n.backupVehicleCount(n, nText),
       'backupEntryCount' => l10n.backupEntryCount(n, nText),
+      // §4.3's warning row. NO `=0` — a preview with nothing skipped does not
+      // draw the row, so a zero form would be copy nobody can reach.
+      'importSkippedCount' => l10n.importSkippedCount(n, nText),
       _ => throw StateError(
         'plural key "$key" is in the ARB but not in this matrix — add it',
       ),

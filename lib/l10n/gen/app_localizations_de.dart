@@ -2881,4 +2881,108 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get importTitle => 'Wiederherstellen';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'Erstellt am $date um $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'Was sich ändert';
+
+  @override
+  String get importNow => 'Jetzt';
+
+  @override
+  String get importAfter => 'Danach';
+
+  @override
+  String get importReplacesEverything =>
+      'Alles, was jetzt in Odova ist, wird durch diese Datei ersetzt.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'Eine Kopie Ihrer jetzigen Daten wird zuerst gespeichert. Sie können das $days Tage lang rückgängig machen.';
+  }
+
+  @override
+  String get importNothingToReplace =>
+      'Odova ist leer, es wird also nichts ersetzt.';
+
+  @override
+  String get importAlreadyRestored =>
+      'Das ist die Sicherung, die Sie bereits wiederhergestellt haben. Auf diesem Telefon ändert sich nichts.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'Ihre Daten von vor dem $date, $time';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          '$nText Einträge können nicht gelesen werden und werden ausgelassen.',
+      one: '$nText Eintrag kann nicht gelesen werden und wird ausgelassen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'Welche?';
+
+  @override
+  String get importReplaceMyData => 'Meine Daten ersetzen';
+
+  @override
+  String get importImport => 'Importieren';
+
+  @override
+  String get importReplaceAnyway => 'Trotzdem ersetzen';
+
+  @override
+  String get importRestoring => 'Ihre Daten werden wiederhergestellt …';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'Wiederhergestellt. $vehicles und $entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'Ihre letzte Wiederherstellung wurde nicht abgeschlossen. Es wurde nichts geändert.';
+
+  @override
+  String get importKindVehicles => 'Fahrzeuge';
+
+  @override
+  String get importKindFillups => 'Tankfüllungen';
+
+  @override
+  String get importKindServices => 'Services';
+
+  @override
+  String get importKindExpenses => 'Ausgaben';
+
+  @override
+  String get importKindTrips => 'Fahrten';
+
+  @override
+  String get importKindReminders => 'Erinnerungen';
+
+  @override
+  String get importKindReadings => 'Kilometerstände';
+
+  @override
+  String get commonDone => 'Fertig';
 }

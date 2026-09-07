@@ -2864,4 +2864,107 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get importTitle => 'Restore';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'Made on $date at $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'What changes';
+
+  @override
+  String get importNow => 'Now';
+
+  @override
+  String get importAfter => 'After';
+
+  @override
+  String get importReplacesEverything =>
+      'Everything now in Odova will be replaced by this file.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'A copy of what you have now is saved first. You can undo this for $days days.';
+  }
+
+  @override
+  String get importNothingToReplace =>
+      'Odova is empty, so nothing will be replaced.';
+
+  @override
+  String get importAlreadyRestored =>
+      'This is the backup you already restored. Nothing on this phone will change.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'The data you had before $date, $time';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries can’t be read and will be left out.',
+      one: '$nText entry can’t be read and will be left out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'See which';
+
+  @override
+  String get importReplaceMyData => 'Replace my data';
+
+  @override
+  String get importImport => 'Import';
+
+  @override
+  String get importReplaceAnyway => 'Replace anyway';
+
+  @override
+  String get importRestoring => 'Restoring your data…';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'Restored. $vehicles and $entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'Your last restore didn’t finish. Nothing was changed.';
+
+  @override
+  String get importKindVehicles => 'Vehicles';
+
+  @override
+  String get importKindFillups => 'Fill-ups';
+
+  @override
+  String get importKindServices => 'Services';
+
+  @override
+  String get importKindExpenses => 'Expenses';
+
+  @override
+  String get importKindTrips => 'Trips';
+
+  @override
+  String get importKindReminders => 'Reminders';
+
+  @override
+  String get importKindReadings => 'Odometer readings';
+
+  @override
+  String get commonDone => 'Done';
 }

@@ -2944,4 +2944,108 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get importTitle => 'Restaurer';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'Créé le $date à $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'Ce qui change';
+
+  @override
+  String get importNow => 'Maintenant';
+
+  @override
+  String get importAfter => 'Après';
+
+  @override
+  String get importReplacesEverything =>
+      'Tout ce qui se trouve actuellement dans Odova sera remplacé par ce fichier.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'Une copie de vos données actuelles est enregistrée d’abord. Vous pouvez annuler pendant $days jours.';
+  }
+
+  @override
+  String get importNothingToReplace =>
+      'Odova est vide, rien ne sera donc remplacé.';
+
+  @override
+  String get importAlreadyRestored =>
+      'C’est la sauvegarde que vous avez déjà restaurée. Rien ne changera sur ce téléphone.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'Vos données d’avant le $date, $time';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entrées ne peuvent pas être lues et seront ignorées.',
+      many: '$nText entrées ne peuvent pas être lues et seront ignorées.',
+      one: '$nText entrée ne peut pas être lue et sera ignorée.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'Lesquelles';
+
+  @override
+  String get importReplaceMyData => 'Remplacer mes données';
+
+  @override
+  String get importImport => 'Importer';
+
+  @override
+  String get importReplaceAnyway => 'Remplacer quand même';
+
+  @override
+  String get importRestoring => 'Restauration de vos données…';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'Restauré. $vehicles et $entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'Votre dernière restauration ne s’est pas terminée. Rien n’a été modifié.';
+
+  @override
+  String get importKindVehicles => 'Véhicules';
+
+  @override
+  String get importKindFillups => 'Pleins';
+
+  @override
+  String get importKindServices => 'Entretiens';
+
+  @override
+  String get importKindExpenses => 'Dépenses';
+
+  @override
+  String get importKindTrips => 'Trajets';
+
+  @override
+  String get importKindReminders => 'Rappels';
+
+  @override
+  String get importKindReadings => 'Relevés de compteur';
+
+  @override
+  String get commonDone => 'Terminé';
 }

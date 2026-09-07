@@ -2867,4 +2867,106 @@ class AppLocalizationsCkb extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get importTitle => 'گەڕاندنەوە';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'دروستکراوە لە $date کاتژمێر $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'چی دەگۆڕێت';
+
+  @override
+  String get importNow => 'ئێستا';
+
+  @override
+  String get importAfter => 'دواتر';
+
+  @override
+  String get importReplacesEverything =>
+      'هەموو ئەوەی ئێستا لە Odova هەیە بەم فایلە دەگۆڕدرێت.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'سەرەتا لێبیک لە داتای ئێستات پاشەکەوت دەکرێت. تا $days ڕۆژ دەتوانیت بیگەڕێنیتەوە.';
+  }
+
+  @override
+  String get importNothingToReplace => 'Odova بەتاڵە، بۆیە هیچ شتێک ناگۆڕدرێت.';
+
+  @override
+  String get importAlreadyRestored =>
+      'ئەمە هەمان پاڵپشتەیە کە پێشتر گەڕاندووتەتەوە. هیچ شتێک لەسەر ئەم مۆبایلە ناگۆڕێت.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'ئەو داتایەی پێش $date، $time هەتبوو';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText تۆمار ناخوێنرێنەوە و بەجێدەهێڵدرێن.',
+      one: '$nText تۆمار ناخوێنرێتەوە و بەجێدەهێڵدرێت.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'کامەکان';
+
+  @override
+  String get importReplaceMyData => 'داتاکانم بگۆڕە';
+
+  @override
+  String get importImport => 'بهێنە ژوورەوە';
+
+  @override
+  String get importReplaceAnyway => 'بەهەرحاڵ بیگۆڕە';
+
+  @override
+  String get importRestoring => 'داتاکانت دەگەڕێنرێنەوە…';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'گەڕێندرایەوە. $vehicles و $entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'گەڕاندنەوەی پێشووت تەواو نەبوو. هیچ شتێک نەگۆڕا.';
+
+  @override
+  String get importKindVehicles => 'ئۆتۆمبێلەکان';
+
+  @override
+  String get importKindFillups => 'پڕکردنەوەکان';
+
+  @override
+  String get importKindServices => 'خزمەتگوزارییەکان';
+
+  @override
+  String get importKindExpenses => 'خەرجییەکان';
+
+  @override
+  String get importKindTrips => 'گەشتەکان';
+
+  @override
+  String get importKindReminders => 'بیرخەرەوەکان';
+
+  @override
+  String get importKindReadings => 'خوێندنەوەکانی ژمێرەر';
+
+  @override
+  String get commonDone => 'تەواو';
 }

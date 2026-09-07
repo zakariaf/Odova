@@ -2858,4 +2858,107 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get importTitle => 'بازیابی';
+
+  @override
+  String importFileMade(
+    String date,
+    String time,
+    String vehicles,
+    String entries,
+  ) {
+    return 'ساخته‌شده در $date ساعت $time · $vehicles · $entries';
+  }
+
+  @override
+  String get importWhatChanges => 'چه چیزی تغییر می‌کند';
+
+  @override
+  String get importNow => 'اکنون';
+
+  @override
+  String get importAfter => 'پس از آن';
+
+  @override
+  String get importReplacesEverything =>
+      'هر چیزی که اکنون در ادووا هست با این فایل جایگزین می‌شود.';
+
+  @override
+  String importCopySavedFirst(String days) {
+    return 'ابتدا یک نسخه از داده‌های فعلی شما ذخیره می‌شود. تا $days روز می‌توانید این کار را واگردانید.';
+  }
+
+  @override
+  String get importNothingToReplace =>
+      'ادووا خالی است، پس چیزی جایگزین نمی‌شود.';
+
+  @override
+  String get importAlreadyRestored =>
+      'این همان پشتیبانی است که قبلاً بازیابی کردید. هیچ چیزی روی این گوشی تغییر نمی‌کند.';
+
+  @override
+  String importUndoHeader(String date, String time) {
+    return 'داده‌هایی که پیش از $date، $time داشتید';
+  }
+
+  @override
+  String importSkippedCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد خوانده نمی‌شوند و کنار گذاشته می‌شوند.',
+      one: '$nText مورد خوانده نمی‌شود و کنار گذاشته می‌شود.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSeeWhich => 'کدام‌ها';
+
+  @override
+  String get importReplaceMyData => 'داده‌هایم را جایگزین کن';
+
+  @override
+  String get importImport => 'وارد کن';
+
+  @override
+  String get importReplaceAnyway => 'با این حال جایگزین کن';
+
+  @override
+  String get importRestoring => 'در حال بازیابی داده‌های شما…';
+
+  @override
+  String importRestored(String vehicles, String entries) {
+    return 'بازیابی شد. $vehicles و $entries.';
+  }
+
+  @override
+  String get importDidNotFinish =>
+      'بازیابی قبلی شما تمام نشد. هیچ چیزی تغییر نکرد.';
+
+  @override
+  String get importKindVehicles => 'خودروها';
+
+  @override
+  String get importKindFillups => 'سوخت‌گیری‌ها';
+
+  @override
+  String get importKindServices => 'سرویس‌ها';
+
+  @override
+  String get importKindExpenses => 'هزینه‌ها';
+
+  @override
+  String get importKindTrips => 'سفرها';
+
+  @override
+  String get importKindReminders => 'یادآورها';
+
+  @override
+  String get importKindReadings => 'ثبت‌های کیلومترشمار';
+
+  @override
+  String get commonDone => 'تمام';
 }

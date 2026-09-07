@@ -30,12 +30,27 @@ enum SafetyCopyKind {
   final String prefix;
 }
 
+/// How many days a copy is offered for, as the number the user READS.
+///
+/// A separate constant from [kSafetyCopyLifetime] and not `.inDays` off it,
+/// because `no_local_day_arithmetic_test` refuses a day count taken from a
+/// Duration — a calendar day is not twenty-four hours across a DST change, and
+/// the gate cannot tell a retention window from a date calculation. It is also
+/// the better shape: the number in the sentence and the number in the expiry
+/// are one literal.
+const int kSafetyCopyLifetimeDays = 30;
+
 /// How long a copy is offered before its row disappears.
 ///
-/// §4.4: *Undo last import* is live for 30 days. The ROW disappears rather than
-/// greying out — a disabled control with no explanation is a worse answer than
-/// no control, and a user who sees "Undo" greyed out will tap it.
-const Duration kSafetyCopyLifetime = Duration(days: 30);
+/// §4.4: *Undo last import* is live for thirty days. The ROW disappears rather
+/// than greying out — a disabled control with no explanation is a worse answer
+/// than no control, and a user who sees "Undo" greyed out will tap it.
+///
+/// Measured in fixed days rather than calendar days, deliberately: this is a
+/// retention window and not an anniversary, and an hour of DST drift at the
+/// far end of a month is not something a user can perceive or would care
+/// about if they could.
+const Duration kSafetyCopyLifetime = Duration(days: kSafetyCopyLifetimeDays);
 
 /// One copy on disk, with what the UI needs to describe it.
 class SafetyCopy {

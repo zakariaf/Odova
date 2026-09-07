@@ -15,11 +15,11 @@ import 'package:go_router/go_router.dart';
 import 'package:odova/app/routing/app_shell.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/routing/page_kinds.dart';
-import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/features/backup/presentation/backup_screen.dart';
+import 'package:odova/features/backup/presentation/import_screen.dart';
 import 'package:odova/features/costs/presentation/costs_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
@@ -374,7 +374,7 @@ final List<StatefulShellBranch> _branches = [
                 pageBuilder: (context, state) => PageKind.modal.page(
                   context,
                   state,
-                  const PlaceholderScreen(screenId: 'settings.import'),
+                  const ImportScreen(),
                 ),
               ),
             ],
