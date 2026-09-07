@@ -107,8 +107,23 @@ List<String> _allLabels(WidgetTester tester) {
     });
   }
 
-  final root =
-      tester.binding.rootPipelineOwner.semanticsOwner?.rootSemanticsNode;
+  // `ensureSemantics` FIRST. Without a live handle the semantics tree is not
+  // built at all, so a walk finds nothing and the test reports "announces
+  // nothing" for a widget that announces perfectly well. A harness that fails
+  // for its own reasons is worse than one that does not run.
+  final handle = tester.ensureSemantics();
+  // `pipelineOwner`, not `rootPipelineOwner`. The newer one's `semanticsOwner`
+  // is NULL in a widget test even with a live handle, so a walk from it finds
+  // nothing and reports "this widget announces nothing" for one that announces
+  // perfectly well. That false negative is worse than no sweep: it sends
+  // somebody to fix a screen that was already correct, and it would have
+  // reported every screen in the app as broken.
+  //
+  // Deprecated in favour of interacting with SemanticsBinding, which has no
+  // equivalent whole-tree read. Revisit when it does.
+  // ignore: deprecated_member_use
+  final root = tester.binding.pipelineOwner.semanticsOwner?.rootSemanticsNode;
   if (root != null) walk(root);
+  handle.dispose();
   return out;
 }

@@ -122,3 +122,33 @@ the six languages do not share English word order and three are right-to-left.
 **Still to do in 17.3:** due-card, all-clear and vehicle-surface semantics, and
 the "no state announced through colour" sweep. The helper and the strip are the
 part where the rule was actually being broken.
+
+## Task 17.3 (rest) — the due card, and a harness that swept an empty tree
+
+The due card announces its item, state and anchor correctly, and every
+`DueState` reaches the announcement in words. **I nearly reported the opposite.**
+
+The sweep read `tester.binding.rootPipelineOwner.semanticsOwner`, which is
+**null in a widget test even with a live semantics handle**. So the walk found
+nothing, and the first run of the due-card test reported that the app's most
+important surface "announced nothing at all". It announces perfectly well.
+
+That false negative is worse than no sweep. It sends somebody to fix a screen
+that was already right, and it would have reported every screen in the app as
+broken — which is the fastest way to get an accessibility gate deleted.
+
+**Worse, it meant half of `expectEverythingLabelled` had never run.** Its
+semantics pass was sweeping an empty tree and passing everything; the widget
+pass, which walks `Icon` widgets directly, was carrying every assertion in the
+self-test on its own. Both halves looked green.
+
+The self-test now has a case only the semantics pass can catch — a tappable node
+with no label and no `Icon` in it — so the two halves cannot cover for each
+other again. The correct root is the deprecated `pipelineOwner`; the replacement
+`SemanticsBinding` has no whole-tree read, and that is written next to the
+ignore.
+
+**The lesson worth keeping:** a green harness self-test proved the harness
+worked. It proved one of its two passes worked and said nothing about the other,
+because every case exercised both and either could satisfy it. A self-test needs
+a case that ONLY the mechanism under test can pass.

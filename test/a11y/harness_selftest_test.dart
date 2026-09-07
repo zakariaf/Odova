@@ -117,6 +117,49 @@ void main() {
       );
     });
 
+    testWidgets('an unlabelled BUTTON fails — the semantics pass really runs', (
+      tester,
+    ) async {
+      // This case exists because the semantics half was sweeping an EMPTY tree
+      // and passing everything: it read `rootPipelineOwner.semanticsOwner`,
+      // which is null in a widget test even with a live handle. The icon pass
+      // — which walks the WIDGET tree — was carrying every assertion on its
+      // own, so the self-test was green and half the sweep did nothing.
+      //
+      // A button carries no `Icon`, so only the semantics pass can catch it.
+      await pumpA11y(
+        tester,
+        const A11yCase(),
+        GestureDetector(
+          onTap: () {},
+          child: const SizedBox(width: 48, height: 48),
+        ),
+      );
+
+      expect(
+        () => expectEverythingLabelled(tester),
+        throwsA(isA<TestFailure>()),
+        reason: 'a tappable node with no label is announced as nothing',
+      );
+    });
+
+    testWidgets('a labelled button passes', (tester) async {
+      await pumpA11y(
+        tester,
+        const A11yCase(),
+        Semantics(
+          label: 'Update odometer',
+          button: true,
+          child: GestureDetector(
+            onTap: () {},
+            child: const SizedBox(width: 48, height: 48),
+          ),
+        ),
+      );
+
+      expect(() => expectEverythingLabelled(tester), returnsNormally);
+    });
+
     testWidgets('a labelled icon passes', (tester) async {
       await pumpA11y(
         tester,

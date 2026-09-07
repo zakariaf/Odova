@@ -155,8 +155,13 @@ void expectEverythingLabelled(WidgetTester tester) {
   }
 
   final handle = tester.ensureSemantics();
-  final root =
-      tester.binding.rootPipelineOwner.semanticsOwner?.rootSemanticsNode;
+  // `pipelineOwner`, not `rootPipelineOwner` — the newer one's `semanticsOwner`
+  // is null in a widget test even with a live handle, so this swept an empty
+  // tree and passed everything. The icon pass below was carrying these
+  // assertions on its own.
+  //
+  // ignore: deprecated_member_use
+  final root = tester.binding.pipelineOwner.semanticsOwner?.rootSemanticsNode;
   if (root != null) walk(root, 'root');
 
   for (final icon in tester.widgetList<Icon>(find.byType(Icon))) {
