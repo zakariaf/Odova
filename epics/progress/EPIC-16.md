@@ -669,3 +669,20 @@ file, so the loop never breaks: read-only forever, no path out but reinstall.
 - **Undo can resurrect a reading the user deleted** (`deletion.dart`, missing a
   `deleted_at IS NULL` guard on the second UPDATE). Pre-existing, not this
   branch, and a real data defect — filed rather than fixed mid-review.
+
+## CI caught what nothing local did — the APK would not assemble
+
+`flutter_local_notifications` **requires core library desugaring**, declared in
+its AAR metadata, and `flutter build apk` fails outright without it rather than
+degrading. The plugin uses `java.time` on a minSdk of 26 and desugaring
+backfills the parts of it that are not on every API 26 device.
+
+Both Dart lanes were green — 4,845 tests, analyzer clean, every gate — and the
+app simply would not build for Android. That is the whole argument for compiling
+for a real target on every PR, and it is the same argument the new `ios build`
+lane was added on: **this run, iOS passed and Android failed.** Neither lane
+would have caught the other's break.
+
+`desugar_jdk_libs` is pinned at 2.1.4, the plugin's stated floor, like every
+other version in this repo — a range here would let a Gradle resolution move the
+toolchain with no diff to review.
