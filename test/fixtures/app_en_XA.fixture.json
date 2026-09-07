@@ -499,11 +499,18 @@
   "tripsEmptyBody": "[Ŀǿḡ ǿǹḗ ţǿ ŝḗḗ ẇħáţ á ĵǿǔřǹḗẏ çǿŝţŝ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "tripsAddAction": "[Áḍḍ ţřīƥ ǃǃǃǃ]",
   "tripsOpenBadge": "[Ǿƥḗǹ ǃǃ]",
-  "tripsFinishAction": "[Ƒīǹīŝħ ǃǃǃ]",
+  "tripsFinishAction": "[Ḗǹḍ ţħīŝ ţřīƥ ǃǃǃǃǃǃ]",
   "tripsPurposeBusiness": "[Ḅǔŝīǹḗŝŝ ǃǃǃǃ]",
   "tripsPurposeCommute": "[Çǿḿḿǔţḗ ǃǃǃ]",
   "tripsPurposePersonal": "[Ƥḗřŝǿǹáŀ ǃǃǃǃ]",
   "tripsPurposeOther": "[Ǿţħḗř ǃǃ]",
-  "tripsAcrossLogged": "[{distance} áçřǿŝŝ ŀǿḡḡḗḍ ţřīƥŝ ǃǃǃǃǃǃǃǃ]",
-  "tripsBusinessPercent": "[{percent}% ḅǔŝīǹḗŝŝ ǃǃǃǃ]"
+  "tripsLoggedLabel": "[{unit} ŀǿḡḡḗḍ ǃǃǃ]",
+  "tripsBusinessLabel": "[ḅǔŝīǹḗŝŝ ǃǃǃǃ]",
+  "tripsCostsLabel": "[ţřīƥ çǿŝţŝ ǃǃǃǃ]",
+  "tripsEarlier": "[Ḗářŀīḗř ǃǃǃ]",
+  "tripsCount": "[{n, plural, =0{Ǹǿ ţřīƥŝ} one{{nText} ţřīƥ} other{{nText} ţřīƥŝ}} ǃǃǃǃǃǃǃǃ]",
+  "tripsStartedFrom": "[Ŝţářţḗḍ {date} · ƒřǿḿ {odometer} ǃǃǃǃǃǃǃ]",
+  "tripsStartedOn": "[Ŝţářţḗḍ {date} ǃǃǃǃ]",
+  "tripsNoEndReading": "[ǹǿ ḗǹḍ řḗáḍīǹḡ ẏḗţ ǃǃǃǃǃǃǃǃ]",
+  "tripsBusinessValue": "[{percent}% ǃ]"
 }

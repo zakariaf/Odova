@@ -2070,7 +2070,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsOpenBadge => 'Open';
 
   @override
-  String get tripsFinishAction => 'Finish';
+  String get tripsFinishAction => 'End this trip';
 
   @override
   String get tripsPurposeBusiness => 'Business';
@@ -2085,12 +2085,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsPurposeOther => 'Other';
 
   @override
-  String tripsAcrossLogged(String distance) {
-    return '$distance across logged trips';
+  String tripsLoggedLabel(String unit) {
+    return '$unit logged';
   }
 
   @override
-  String tripsBusinessPercent(String percent) {
-    return '$percent% business';
+  String get tripsBusinessLabel => 'business';
+
+  @override
+  String get tripsCostsLabel => 'trip costs';
+
+  @override
+  String get tripsEarlier => 'Earlier';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText trips',
+      one: '$nText trip',
+      zero: 'No trips',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'Started $date · from $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'Started $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'no end reading yet';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent%';
   }
 }

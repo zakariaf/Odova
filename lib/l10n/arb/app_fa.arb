@@ -499,11 +499,18 @@
   "tripsEmptyBody": "یکی ثبت کنید تا ببینید یک سفر چقدر هزینه دارد.",
   "tripsAddAction": "افزودن سفر",
   "tripsOpenBadge": "باز",
-  "tripsFinishAction": "پایان",
+  "tripsFinishAction": "پایان این سفر",
   "tripsPurposeBusiness": "کاری",
   "tripsPurposeCommute": "رفت‌وآمد",
   "tripsPurposePersonal": "شخصی",
   "tripsPurposeOther": "سایر",
-  "tripsAcrossLogged": "{distance} در سفرهای ثبت‌شده",
-  "tripsBusinessPercent": "{percent}٪ کاری"
+  "tripsLoggedLabel": "{unit} ثبت‌شده",
+  "tripsBusinessLabel": "کاری",
+  "tripsCostsLabel": "هزینهٔ سفرها",
+  "tripsEarlier": "پیش‌تر",
+  "tripsCount": "{n, plural, =0{بدون سفر} one{{nText} سفر} other{{nText} سفر}}",
+  "tripsStartedFrom": "آغاز {date} · از {odometer}",
+  "tripsStartedOn": "آغاز {date}",
+  "tripsNoEndReading": "کیلومتر پایان ثبت نشده",
+  "tripsBusinessValue": "{percent}%"
 }

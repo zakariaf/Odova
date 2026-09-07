@@ -54,6 +54,7 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'homeMoreDue' => l10n.homeMoreDue(n, nText),
       'homeUnknownMore' => l10n.homeUnknownMore(n, nText),
       'remindersSeeAll' => l10n.remindersSeeAll(n, nText),
+      'tripsCount' => l10n.tripsCount(n, nText),
       // The other-vehicles row. The NAME is pinned and the count varies, for
       // the same reason `vehicleStatusDueInDays` pins its item: the axis a
       // `few`/`many` mistake shows up against is the number.

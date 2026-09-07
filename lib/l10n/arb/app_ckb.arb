@@ -499,11 +499,18 @@
   "tripsEmptyBody": "یەکێک تۆمار بکە بۆ بینینی تێچووی گەشتێک.",
   "tripsAddAction": "زیادکردنی گەشت",
   "tripsOpenBadge": "کراوە",
-  "tripsFinishAction": "کۆتایی",
+  "tripsFinishAction": "کۆتایی بەم گەشتە",
   "tripsPurposeBusiness": "کاری",
   "tripsPurposeCommute": "هاتوچۆ",
   "tripsPurposePersonal": "کەسی",
   "tripsPurposeOther": "ئەوانی تر",
-  "tripsAcrossLogged": "{distance} بەسەر گەشتە تۆمارکراوەکاندا",
-  "tripsBusinessPercent": "{percent}٪ کاری"
+  "tripsLoggedLabel": "{unit} تۆمارکراو",
+  "tripsBusinessLabel": "کاری",
+  "tripsCostsLabel": "تێچووی گەشتەکان",
+  "tripsEarlier": "پێشتر",
+  "tripsCount": "{n, plural, =0{هیچ گەشتێک} one{{nText} گەشت} other{{nText} گەشت}}",
+  "tripsStartedFrom": "دەستیپێکرد {date} · لە {odometer}",
+  "tripsStartedOn": "دەستیپێکرد {date}",
+  "tripsNoEndReading": "هێشتا خوێندنەوەی کۆتایی نییە",
+  "tripsBusinessValue": "{percent}%"
 }

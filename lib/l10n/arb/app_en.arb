@@ -3087,9 +3087,9 @@
   "@tripsOpenBadge": {
     "description": "The chip on a trip with no `ended_on`. §12 pins an open trip at the top of the list — an unfinished trip is the one thing on this screen that needs an action."
   },
-  "tripsFinishAction": "Finish",
+  "tripsFinishAction": "End this trip",
   "@tripsFinishAction": {
-    "description": "The action on an open trip."
+    "description": "The action on an open trip. `End this trip` and not `Finish`: SPEC.md §12's prose says Finish, the reference draws `End this trip`, and per epics/README.md rule 4 the reference is the authority. §10 spells it the same way, so the two screens agree."
   },
   "tripsPurposeBusiness": "Business",
   "@tripsPurposeBusiness": {
@@ -3107,21 +3107,73 @@
   "@tripsPurposeOther": {
     "description": "§10's trip purpose."
   },
-  "tripsAcrossLogged": "{distance} across logged trips",
-  "@tripsAcrossLogged": {
-    "description": "SPEC.md §12's header strip says `3,120 km across logged trips` rather than a bare distance, and the wording is the point: trip distances are never summed into vehicle distance because people log some trips and not all. Without those two words the figure reads as the car's total mileage.",
+  "tripsLoggedLabel": "{unit} logged",
+  "@tripsLoggedLabel": {
+    "description": "The distance tile's label. `km logged`, not `km`: §12 insists the figure says `across logged trips`, because trip distance is NOT the car's distance — people log some trips and not all. Without the second word the tile reads as total mileage.",
     "placeholders": {
-      "distance": {
+      "unit": {
         "type": "String"
       }
     }
   },
-  "tripsBusinessPercent": "{percent}% business",
-  "@tripsBusinessPercent": {
-    "description": "§12's business share in the header strip. Pre-shaped — a bare int renders Latin digits in four locales.",
+  "tripsBusinessLabel": "business",
+  "@tripsBusinessLabel": {
+    "description": "The business-share tile's label. Lower case: it sits under a figure, not at the head of a sentence."
+  },
+  "tripsCostsLabel": "trip costs",
+  "@tripsCostsLabel": {
+    "description": "The cost tile's label."
+  },
+  "tripsEarlier": "Earlier",
+  "@tripsEarlier": {
+    "description": "The section header over the trips that are not open."
+  },
+  "tripsCount": "{n, plural, =0{No trips} one{{nText} trip} other{{nText} trips}}",
+  "@tripsCount": {
+    "description": "How many trips are in range — SPEC.md §12's fourth header fact, which the reference draws at the end edge of the Earlier header. `nText` is pre-shaped so Persian, Arabic and Sorani get their own digits; `n` selects the category and is never printed.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "14"
+      },
+      "nText": {
+        "type": "String",
+        "example": "14"
+      }
+    }
+  },
+  "tripsStartedFrom": "Started {date} · from {odometer}",
+  "@tripsStartedFrom": {
+    "description": "The open trip's line when its start odometer is known.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "odometer": {
+        "type": "String"
+      }
+    }
+  },
+  "tripsStartedOn": "Started {date}",
+  "@tripsStartedOn": {
+    "description": "The same line when it is not. A separate message rather than an empty placeholder: `Started today · from ` is worse than saying less.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tripsNoEndReading": "no end reading yet",
+  "@tripsNoEndReading": {
+    "description": "Beside End this trip. Lower case and secondary — it is a statement of fact about the trip, not a warning."
+  },
+  "tripsBusinessValue": "{percent}%",
+  "@tripsBusinessValue": {
+    "description": "The business tile's figure. The percent SIGN and its spacing are a translation decision — German and French set a space before it, the Arabic-script three do not — so it lives in the ARB rather than in a Dart `'%'`. `percent` is pre-shaped.",
     "placeholders": {
       "percent": {
-        "type": "String"
+        "type": "String",
+        "example": "62"
       }
     }
   }

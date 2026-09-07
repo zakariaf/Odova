@@ -16,6 +16,7 @@ import 'package:odova/features/costs/application/costs_notifier.dart';
 import 'package:odova/features/costs/presentation/costs_category_rows.dart';
 import 'package:odova/features/costs/presentation/costs_headline.dart';
 import 'package:odova/features/costs/presentation/costs_screen.dart';
+import 'package:odova/features/trips/presentation/trips_list_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_chip.dart';
 
@@ -183,5 +184,17 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(CostsCategoryRows), findsOneWidget);
+  });
+
+  testWidgets('the two nav rows push, and are not dead taps', (tester) async {
+    // Both shipped as `onTap: () {}`. A row that looks navigable and does
+    // nothing is the failure this asserts against, and it is invisible to
+    // every test that only checks the row is drawn.
+    await _pump(tester);
+
+    final l10n = _l10n(tester);
+    await tester.tap(find.text(l10n.costsTripsRow));
+    await tester.pumpAndSettle();
+    expect(find.byType(TripsListScreen), findsOneWidget);
   });
 }

@@ -499,11 +499,18 @@
   "tripsEmptyBody": "Erfassen Sie eine, um zu sehen, was eine Fahrt kostet.",
   "tripsAddAction": "Fahrt hinzufügen",
   "tripsOpenBadge": "Offen",
-  "tripsFinishAction": "Beenden",
+  "tripsFinishAction": "Fahrt beenden",
   "tripsPurposeBusiness": "Geschäftlich",
   "tripsPurposeCommute": "Arbeitsweg",
   "tripsPurposePersonal": "Privat",
   "tripsPurposeOther": "Sonstiges",
-  "tripsAcrossLogged": "{distance} über erfasste Fahrten",
-  "tripsBusinessPercent": "{percent}% geschäftlich"
+  "tripsLoggedLabel": "{unit} erfasst",
+  "tripsBusinessLabel": "geschäftlich",
+  "tripsCostsLabel": "Fahrtkosten",
+  "tripsEarlier": "Früher",
+  "tripsCount": "{n, plural, =0{Keine Fahrten} one{{nText} Fahrt} other{{nText} Fahrten}}",
+  "tripsStartedFrom": "Begonnen {date} · ab {odometer}",
+  "tripsStartedOn": "Begonnen {date}",
+  "tripsNoEndReading": "noch kein Endstand",
+  "tripsBusinessValue": "{percent} %"
 }

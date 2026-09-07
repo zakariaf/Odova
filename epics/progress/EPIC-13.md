@@ -127,3 +127,53 @@
   the direction applied in exactly one place — the painter's x mapping.
   **Parity capture deferred to EPIC-18 per CLAUDE.md §6a**, along with the
   fuel-kind selector, price chart, data-quality row and per-tank tooltip.
+
+## Task 13.8 — `trips.list`
+
+Built `lib/core/trips/trip_aggregates.dart`,
+`lib/features/trips/application/trips_list_model.dart`, and
+`lib/features/trips/presentation/trips_list_screen.dart` + `trip_labels.dart`.
+Route wired: `TripsListScreen` replaces the `trips.list` placeholder, and the
+`costs` screen's two nav rows — **both of which shipped as `onTap: () {}`** —
+now push `costs.fuel` and `trips.list`. A regression test taps the Trips row
+and asserts the screen arrives, because every test up to now only checked the
+row was drawn.
+
+Three deliberate divergences from §12's prose, all because epics/README.md
+rule 4 makes the reference the authority:
+
+1. **Purpose is a word in the meta line, not a chip.** §12 says chips and
+   then worries about German ones wrapping; the reference draws
+   `1–2 Aug · 145 km · business`, which carries the same information and has
+   no wrapping problem to solve. The German case is still tested, on
+   `Device.compact`.
+2. **The trip count sits at the end edge of the `Earlier` header**, which is
+   where the reference puts it (`See all 14`). It is a LABEL and not a link:
+   this screen already lists every trip, and §7 forbids a third push in this
+   tab for a link to lead to.
+3. **`End this trip`, not `Finish`.** The reference and §10 both spell it that
+   way; only §12's prose says Finish.
+
+The date range is two short dates joined by an en dash (`Aug 1 – Aug 2`)
+rather than the reference's `1–2 Aug` elision. Collapsing a same-month range
+needs to know whether the day precedes the month, which `intl` will answer for
+a whole date and not for half of one — the elision is right in English and
+wrong in four of the six locales.
+
+`tripsListProvider` is a derived `Provider.autoDispose.family`, not a
+Notifier: every figure is a pure function of streams Riverpod already keeps
+live, and a Notifier would add a load flag, a microtask seam and a second copy
+of the data that then needs invalidating by hand on every write.
+
+**Deferred.** The parity capture, per §6a. The Trips and Fuel nav-row
+SUBTITLES (`14 trips · 3,120 km · 62% business`, `6.4 L/100 km · €1.734/L`) —
+the costs feature cannot import the trips or fuel feature, `structure_test.dart`
+enforces that, and the shared seam is a 13.10 decision rather than a fourth
+thing to get wrong here.
+
+**Still outstanding for 13.10, and worse than it looks.** Both
+`costsRepositoryProvider` and `fuelRepositoryProvider` still throw
+`UnimplementedError` in the real app — `costs` and `costs.fuel` are wired to
+routes that crash on open outside a test. `trips.list` reads the real stream
+providers and does not have this problem. Wiring those two is 13.10's first
+job, before any of its own scope.

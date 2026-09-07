@@ -499,11 +499,18 @@
   "tripsEmptyBody": "Enregistrez-en un pour voir ce que coûte un trajet.",
   "tripsAddAction": "Ajouter un trajet",
   "tripsOpenBadge": "En cours",
-  "tripsFinishAction": "Terminer",
+  "tripsFinishAction": "Terminer ce trajet",
   "tripsPurposeBusiness": "Professionnel",
   "tripsPurposeCommute": "Domicile-travail",
   "tripsPurposePersonal": "Personnel",
   "tripsPurposeOther": "Autre",
-  "tripsAcrossLogged": "{distance} sur les trajets enregistrés",
-  "tripsBusinessPercent": "{percent}% professionnel"
+  "tripsLoggedLabel": "{unit} enregistrés",
+  "tripsBusinessLabel": "professionnel",
+  "tripsCostsLabel": "coûts des trajets",
+  "tripsEarlier": "Plus tôt",
+  "tripsCount": "{n, plural, =0{Aucun trajet} one{{nText} trajet} many{{nText} trajets} other{{nText} trajets}}",
+  "tripsStartedFrom": "Commencé {date} · depuis {odometer}",
+  "tripsStartedOn": "Commencé {date}",
+  "tripsNoEndReading": "pas encore de relevé de fin",
+  "tripsBusinessValue": "{percent} %"
 }

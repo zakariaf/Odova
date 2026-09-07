@@ -3120,10 +3120,10 @@ abstract class AppLocalizations {
   /// **'Open'**
   String get tripsOpenBadge;
 
-  /// The action on an open trip.
+  /// The action on an open trip. `End this trip` and not `Finish`: SPEC.md §12's prose says Finish, the reference draws `End this trip`, and per epics/README.md rule 4 the reference is the authority. §10 spells it the same way, so the two screens agree.
   ///
   /// In en, this message translates to:
-  /// **'Finish'**
+  /// **'End this trip'**
   String get tripsFinishAction;
 
   /// §10's trip purpose. Kept apart from `commute` deliberately: rolling them together is the easiest way to overstate a deduction, and in most jurisdictions the drive to a regular workplace is not deductible.
@@ -3150,17 +3150,59 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get tripsPurposeOther;
 
-  /// SPEC.md §12's header strip says `3,120 km across logged trips` rather than a bare distance, and the wording is the point: trip distances are never summed into vehicle distance because people log some trips and not all. Without those two words the figure reads as the car's total mileage.
+  /// The distance tile's label. `km logged`, not `km`: §12 insists the figure says `across logged trips`, because trip distance is NOT the car's distance — people log some trips and not all. Without the second word the tile reads as total mileage.
   ///
   /// In en, this message translates to:
-  /// **'{distance} across logged trips'**
-  String tripsAcrossLogged(String distance);
+  /// **'{unit} logged'**
+  String tripsLoggedLabel(String unit);
 
-  /// §12's business share in the header strip. Pre-shaped — a bare int renders Latin digits in four locales.
+  /// The business-share tile's label. Lower case: it sits under a figure, not at the head of a sentence.
   ///
   /// In en, this message translates to:
-  /// **'{percent}% business'**
-  String tripsBusinessPercent(String percent);
+  /// **'business'**
+  String get tripsBusinessLabel;
+
+  /// The cost tile's label.
+  ///
+  /// In en, this message translates to:
+  /// **'trip costs'**
+  String get tripsCostsLabel;
+
+  /// The section header over the trips that are not open.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get tripsEarlier;
+
+  /// How many trips are in range — SPEC.md §12's fourth header fact, which the reference draws at the end edge of the Earlier header. `nText` is pre-shaped so Persian, Arabic and Sorani get their own digits; `n` selects the category and is never printed.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{No trips} one{{nText} trip} other{{nText} trips}}'**
+  String tripsCount(int n, String nText);
+
+  /// The open trip's line when its start odometer is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Started {date} · from {odometer}'**
+  String tripsStartedFrom(String date, String odometer);
+
+  /// The same line when it is not. A separate message rather than an empty placeholder: `Started today · from ` is worse than saying less.
+  ///
+  /// In en, this message translates to:
+  /// **'Started {date}'**
+  String tripsStartedOn(String date);
+
+  /// Beside End this trip. Lower case and secondary — it is a statement of fact about the trip, not a warning.
+  ///
+  /// In en, this message translates to:
+  /// **'no end reading yet'**
+  String get tripsNoEndReading;
+
+  /// The business tile's figure. The percent SIGN and its spacing are a translation decision — German and French set a space before it, the Arabic-script three do not — so it lives in the ARB rather than in a Dart `'%'`. `percent` is pre-shaped.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String tripsBusinessValue(String percent);
 }
 
 class _AppLocalizationsDelegate

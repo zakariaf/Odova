@@ -13,7 +13,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/active_vehicle.dart';
+import 'package:odova/app/routing/routes.dart';
 import 'package:odova/app/today.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/money.dart';
@@ -184,6 +186,9 @@ class _CostsEmpty extends StatelessWidget {
 }
 
 /// The two rows the reference closes with.
+///
+/// Both push into THIS tab's stack, per SPEC.md §7 — the app never switches
+/// tabs under the user's finger, and both destinations are cost views.
 class _CostsNavRows extends StatelessWidget {
   const _CostsNavRows();
 
@@ -196,12 +201,14 @@ class _CostsNavRows extends StatelessWidget {
         CalmListRow(
           title: l10n.costsFuelRow,
           lead: const Icon(Icons.local_gas_station),
-          onTap: () {},
+          showChevron: true,
+          onTap: () => unawaited(context.push(Routes.costsFuel)),
         ),
         CalmListRow(
           title: l10n.costsTripsRow,
           lead: const Icon(Icons.route),
-          onTap: () {},
+          showChevron: true,
+          onTap: () => unawaited(context.push(Routes.trips)),
         ),
       ],
     );

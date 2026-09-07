@@ -4,7 +4,6 @@
 //                     ?? t.manual_distance_m
 //   tripCost(t)     = Σ FillUp.total_cost + Σ Expense.amount  where trip_id = t
 //   businessShare   = Σ tripDistance(business) / Σ tripDistance(all)
-import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
@@ -12,6 +11,7 @@ import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/trips/trip_aggregates.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:test/test.dart';
 
 /// `trp_` plus a 26-character ULID body, which is what `TripId` will parse.
 String _id(String suffix) => 'trp_${suffix.toUpperCase().padLeft(26, '0')}';

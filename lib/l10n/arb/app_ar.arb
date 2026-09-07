@@ -499,11 +499,18 @@
   "tripsEmptyBody": "سجّل واحدة لترى كم تكلف الرحلة.",
   "tripsAddAction": "إضافة رحلة",
   "tripsOpenBadge": "مفتوحة",
-  "tripsFinishAction": "إنهاء",
+  "tripsFinishAction": "إنهاء هذه الرحلة",
   "tripsPurposeBusiness": "عمل",
   "tripsPurposeCommute": "تنقل",
   "tripsPurposePersonal": "شخصي",
   "tripsPurposeOther": "أخرى",
-  "tripsAcrossLogged": "{distance} عبر الرحلات المسجلة",
-  "tripsBusinessPercent": "{percent}٪ عمل"
+  "tripsLoggedLabel": "{unit} مسجلة",
+  "tripsBusinessLabel": "عمل",
+  "tripsCostsLabel": "تكاليف الرحلات",
+  "tripsEarlier": "سابقًا",
+  "tripsCount": "{n, plural, zero{لا رحلات} one{رحلة واحدة} two{رحلتان} few{{nText} رحلات} many{{nText} رحلةً} other{{nText} رحلة}}",
+  "tripsStartedFrom": "بدأت {date} · من {odometer}",
+  "tripsStartedOn": "بدأت {date}",
+  "tripsNoEndReading": "لا قراءة نهاية بعد",
+  "tripsBusinessValue": "{percent}%"
 }

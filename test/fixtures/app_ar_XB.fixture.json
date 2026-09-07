@@ -499,11 +499,18 @@
   "tripsEmptyBody": "‏.stsoc yenruoj a tahw ees ot eno goL",
   "tripsAddAction": "‏pirt ddA",
   "tripsOpenBadge": "‏nepO",
-  "tripsFinishAction": "‏hsiniF",
+  "tripsFinishAction": "‏pirt siht dnE",
   "tripsPurposeBusiness": "‏ssenisuB",
   "tripsPurposeCommute": "‏etummoC",
   "tripsPurposePersonal": "‏lanosreP",
   "tripsPurposeOther": "‏rehtO",
-  "tripsAcrossLogged": "‏{distance}spirt deggol ssorca ",
-  "tripsBusinessPercent": "‏{percent}ssenisub %"
+  "tripsLoggedLabel": "‏{unit}deggol ",
+  "tripsBusinessLabel": "‏ssenisub",
+  "tripsCostsLabel": "‏stsoc pirt",
+  "tripsEarlier": "‏reilraE",
+  "tripsCount": "‏{n, plural, =0{spirt oN} one{{nText}pirt } other{{nText}spirt }}",
+  "tripsStartedFrom": "‏ detratS{date} morf · {odometer}",
+  "tripsStartedOn": "‏ detratS{date}",
+  "tripsNoEndReading": "‏tey gnidaer dne on",
+  "tripsBusinessValue": "‏{percent}%"
 }

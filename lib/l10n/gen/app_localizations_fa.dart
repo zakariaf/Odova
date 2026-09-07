@@ -2066,7 +2066,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get tripsOpenBadge => 'باز';
 
   @override
-  String get tripsFinishAction => 'پایان';
+  String get tripsFinishAction => 'پایان این سفر';
 
   @override
   String get tripsPurposeBusiness => 'کاری';
@@ -2081,12 +2081,46 @@ class AppLocalizationsFa extends AppLocalizations {
   String get tripsPurposeOther => 'سایر';
 
   @override
-  String tripsAcrossLogged(String distance) {
-    return '$distance در سفرهای ثبت‌شده';
+  String tripsLoggedLabel(String unit) {
+    return '$unit ثبت‌شده';
   }
 
   @override
-  String tripsBusinessPercent(String percent) {
-    return '$percent٪ کاری';
+  String get tripsBusinessLabel => 'کاری';
+
+  @override
+  String get tripsCostsLabel => 'هزینهٔ سفرها';
+
+  @override
+  String get tripsEarlier => 'پیش‌تر';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText سفر',
+      one: '$nText سفر',
+      zero: 'بدون سفر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'آغاز $date · از $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'آغاز $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'کیلومتر پایان ثبت نشده';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent%';
   }
 }

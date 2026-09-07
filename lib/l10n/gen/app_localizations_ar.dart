@@ -2200,7 +2200,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tripsOpenBadge => 'مفتوحة';
 
   @override
-  String get tripsFinishAction => 'إنهاء';
+  String get tripsFinishAction => 'إنهاء هذه الرحلة';
 
   @override
   String get tripsPurposeBusiness => 'عمل';
@@ -2215,12 +2215,49 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tripsPurposeOther => 'أخرى';
 
   @override
-  String tripsAcrossLogged(String distance) {
-    return '$distance عبر الرحلات المسجلة';
+  String tripsLoggedLabel(String unit) {
+    return '$unit مسجلة';
   }
 
   @override
-  String tripsBusinessPercent(String percent) {
-    return '$percent٪ عمل';
+  String get tripsBusinessLabel => 'عمل';
+
+  @override
+  String get tripsCostsLabel => 'تكاليف الرحلات';
+
+  @override
+  String get tripsEarlier => 'سابقًا';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText رحلة',
+      many: '$nText رحلةً',
+      few: '$nText رحلات',
+      two: 'رحلتان',
+      one: 'رحلة واحدة',
+      zero: 'لا رحلات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'بدأت $date · من $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'بدأت $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'لا قراءة نهاية بعد';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent%';
   }
 }

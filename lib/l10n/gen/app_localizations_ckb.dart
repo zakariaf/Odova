@@ -2073,7 +2073,7 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get tripsOpenBadge => 'کراوە';
 
   @override
-  String get tripsFinishAction => 'کۆتایی';
+  String get tripsFinishAction => 'کۆتایی بەم گەشتە';
 
   @override
   String get tripsPurposeBusiness => 'کاری';
@@ -2088,12 +2088,46 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get tripsPurposeOther => 'ئەوانی تر';
 
   @override
-  String tripsAcrossLogged(String distance) {
-    return '$distance بەسەر گەشتە تۆمارکراوەکاندا';
+  String tripsLoggedLabel(String unit) {
+    return '$unit تۆمارکراو';
   }
 
   @override
-  String tripsBusinessPercent(String percent) {
-    return '$percent٪ کاری';
+  String get tripsBusinessLabel => 'کاری';
+
+  @override
+  String get tripsCostsLabel => 'تێچووی گەشتەکان';
+
+  @override
+  String get tripsEarlier => 'پێشتر';
+
+  @override
+  String tripsCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText گەشت',
+      one: '$nText گەشت',
+      zero: 'هیچ گەشتێک',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsStartedFrom(String date, String odometer) {
+    return 'دەستیپێکرد $date · لە $odometer';
+  }
+
+  @override
+  String tripsStartedOn(String date) {
+    return 'دەستیپێکرد $date';
+  }
+
+  @override
+  String get tripsNoEndReading => 'هێشتا خوێندنەوەی کۆتایی نییە';
+
+  @override
+  String tripsBusinessValue(String percent) {
+    return '$percent%';
   }
 }
