@@ -2195,6 +2195,7 @@
         "constraints": [
           "CHECK (state IN ('pending', 'fired', 'dropped', 'cancelled'))",
           "CHECK (stage IN ('early', 'due', 'overdue1', 'overdue2', 'nudge'))",
+          "CHECK (fire_at_local GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]')",
           "CHECK (os_id >= 0 AND os_id < 2147483648)",
           "CHECK (length(fire_at_local) = 16)"
         ],
@@ -2301,7 +2302,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"scheduled_notifications\" (\"key\" TEXT NOT NULL, \"os_id\" INTEGER NOT NULL, \"vehicle_id\" TEXT NOT NULL, \"reminder_id\" TEXT NULL, \"stage\" TEXT NOT NULL, \"fire_at_local\" TEXT NOT NULL, \"body_hash\" TEXT NOT NULL, \"state\" TEXT NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, PRIMARY KEY (\"key\"), CHECK (state IN ('pending', 'fired', 'dropped', 'cancelled')), CHECK (stage IN ('early', 'due', 'overdue1', 'overdue2', 'nudge')), CHECK (os_id >= 0 AND os_id < 2147483648), CHECK (length(fire_at_local) = 16)) STRICT;"
+          "sql": "CREATE TABLE IF NOT EXISTS \"scheduled_notifications\" (\"key\" TEXT NOT NULL, \"os_id\" INTEGER NOT NULL, \"vehicle_id\" TEXT NOT NULL, \"reminder_id\" TEXT NULL, \"stage\" TEXT NOT NULL, \"fire_at_local\" TEXT NOT NULL, \"body_hash\" TEXT NOT NULL, \"state\" TEXT NOT NULL, \"updated_at_utc_ms\" INTEGER NOT NULL, PRIMARY KEY (\"key\"), CHECK (state IN ('pending', 'fired', 'dropped', 'cancelled')), CHECK (stage IN ('early', 'due', 'overdue1', 'overdue2', 'nudge')), CHECK (fire_at_local GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]'), CHECK (os_id >= 0 AND os_id < 2147483648), CHECK (length(fire_at_local) = 16)) STRICT;"
         }
       ]
     }

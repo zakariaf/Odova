@@ -197,7 +197,11 @@ abstract final class ReminderScheduler {
     // three away, which is how a household with two cars goes silent.
     final byWantedDate = <String, List<ReminderCandidate>>{};
     for (final candidate in eligible) {
-      final wanted = resolveSlot(date: candidate.stageDate, prefs: prefs);
+      final wanted = resolveSlot(
+        date: candidate.stageDate,
+        prefs: prefs,
+        notBefore: today,
+      );
       (byWantedDate[wanted.date] ??= []).add(candidate);
     }
 
@@ -227,6 +231,7 @@ abstract final class ReminderScheduler {
       var slot = resolveSlot(
         date: CivilDate.tryParse(wantedDate)!,
         prefs: prefs,
+        notBefore: today,
       );
       var deferred = 0;
 
@@ -236,6 +241,7 @@ abstract final class ReminderScheduler {
         slot = resolveSlot(
           date: CivilDate.tryParse(slot.date)!.addDays(1),
           prefs: prefs,
+          notBefore: today,
         );
         deferred = group.first.stageDate.daysUntil(
           CivilDate.tryParse(slot.date)!,
@@ -353,12 +359,23 @@ abstract final class ReminderScheduler {
     // effect today is to leave up to two slots of the next four weeks unused,
     // which makes the app quieter and never louder.
     if (!candidate.stage.claimsReservedSlot) {
-      final withinReserve = today.daysUntil(day) <= kReserveWindowDays;
+      // `>= 0` as well as `<= 28`. Without the lower bound every PAST date is
+      // "within the next four weeks", so stale slots consumed the reserve and
+      // the mechanism written to stop `early` starving urgent items let stale
+      // items starve everything. Unreachable now that no slot resolves into
+      // the past, and kept because the arithmetic should be right on its own
+      // terms rather than only because of a guarantee made in another file.
+      final elapsed = today.daysUntil(day);
+      final withinReserve = elapsed >= 0 && elapsed <= kReserveWindowDays;
       if (withinReserve) {
         final usedInWindow = taken
             .map(CivilDate.tryParse)
             .whereType<CivilDate>()
-            .where((x) => today.daysUntil(x) <= kReserveWindowDays)
+            .where(
+              (x) =>
+                  today.daysUntil(x) >= 0 &&
+                  today.daysUntil(x) <= kReserveWindowDays,
+            )
             .length;
         // Four weeks holds at most eight slots at two a week; two of them are
         // not for this candidate.

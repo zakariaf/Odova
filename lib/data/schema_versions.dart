@@ -333,6 +333,7 @@ final class Schema2 extends i0.VersionedSchema {
         'PRIMARY KEY("key")',
         'CHECK(state IN (\'pending\', \'fired\', \'dropped\', \'cancelled\'))',
         'CHECK(stage IN (\'early\', \'due\', \'overdue1\', \'overdue2\', \'nudge\'))',
+        'CHECK(fire_at_local GLOB \'[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]\')',
         'CHECK(os_id >= 0 AND os_id < 2147483648)',
         'CHECK(length(fire_at_local) = 16)',
       ],

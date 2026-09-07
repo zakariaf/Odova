@@ -75,6 +75,28 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <!-- THE receiver every scheduled alarm is broadcast to.
+             flutter_local_notifications builds each alarm as an explicit
+             broadcast to this class, and the plugin's own manifest contributes
+             NO receivers — it is app-side setup, and without it zonedSchedule
+             succeeds, pendingNotificationRequests reports the notification
+             pending, AlarmManager fires at the right minute, and the broadcast
+             lands on an unregistered component. Nothing is posted, ever, on
+             every Android device. The boot re-arm below would faithfully
+             re-arm alarms that could never have delivered. -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+
+        <!-- The Done and Snooze buttons of §4.7, which are handled without
+             launching the app. No `actions:` are passed yet — that is task
+             16.10's UI half — but the receiver is declared with them because
+             the two belong together and a missing receiver is the silent half
+             of the pair. -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
+
         <!-- SPEC.md §6.2: Android drops every scheduled alarm on reboot, so
              the queue is rebuilt after the device unlocks. Without this a
              phone that restarts overnight never notifies again and nothing

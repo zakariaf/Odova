@@ -48,8 +48,27 @@ if [ ! -f "$manifest" ]; then
 fi
 
 fail=0
+
+# Comments stripped ONCE, for both directions. `require` read them and `forbid`
+# did not, which is the worst possible split: a manifest with every declaration
+# COMMENTED OUT passed green on all four requires. Someone comments the receiver
+# out to test something, forgets, and the gate certifies the
+# silent-after-reboot bug this file's header is about.
+#
+# A real XML-comment pass, not `grep -v` on lines starting with `<!--`: a
+# comment that WRAPS — which every explanation in the live manifest does — left
+# its later lines visible, so writing `android.permission.SCHEDULE_EXACT_ALARM`
+# into the paragraph explaining why it is absent turned the gate red on correct
+# code.
+# TWO passes, and the order matters. `sed '/<!--/,/-->/d'` alone is a RANGE:
+# a comment that opens and closes on ONE line starts a range that looks for
+# `-->` on a LATER line, finds none, and deletes the rest of the file — so a
+# manifest with a one-line comment reported every declaration missing. The
+# first pass removes single-line comments; the second removes what wraps.
+code="$(sed 's/<!--.*-->//g' "$manifest" | sed '/<!--/,/-->/d')"
+
 require() {
-  if grep -q "$1" "$manifest"; then
+  if printf '%s' "$code" | grep -q "$1"; then
     printf 'ok    %s declared\n' "$1"
   else
     printf 'FAIL  %s is NOT declared — %s\n' "$1" "$2"
@@ -57,9 +76,7 @@ require() {
   fi
 }
 forbid() {
-  # Matched outside a comment, so the paragraph in the manifest EXPLAINING why
-  # these are absent does not trip the gate that keeps them absent.
-  if grep -v '^\s*[<!-]*--' "$manifest" | grep -q "$1"; then
+  if printf '%s' "$code" | grep -q "$1"; then
     printf 'FAIL  %s must not be declared — %s\n' "$1" "$2"
     fail=1
   else
@@ -73,6 +90,12 @@ require "android.permission.RECEIVE_BOOT_COMPLETED" \
   "SPEC.md §6.2: the queue must be rebuilt after a reboot"
 require "ScheduledNotificationBootReceiver" \
   "the permission alone re-arms nothing"
+# The one whose absence makes delivery impossible rather than merely unreliable.
+# flutter_local_notifications broadcasts every scheduled alarm to this class and
+# ships no receiver of its own; without it the alarm fires into nothing, on
+# every device, forever — and every other check in this file passes.
+require "ScheduledNotificationReceiver" \
+  "FLN broadcasts every scheduled alarm to it; without it nothing is ever posted"
 
 forbid "android.permission.USE_EXACT_ALARM" \
   "Play policy restricts it to alarm/timer/calendar apps"

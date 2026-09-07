@@ -17,11 +17,9 @@
 @TestOn('vm')
 library;
 
-import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/data/db/app_database.dart';
-import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/schema_version.dart';
 
 import '../drift/generated/schema.dart';
@@ -129,14 +127,61 @@ void main() {
     },
   );
 
+  test(
+    'the table this step CREATES carries every constraint after migrating',
+    () async {
+      // The assertion that was missing, and it is scoped deliberately.
+      //
+      // `migrateAndValidate` compares a migrated database against the SAME
+      // versioned schema the migration was built from, so it always agrees
+      // with itself — it passed while the two diverged. And every other CHECK
+      // test in this repo opens `NativeDatabase.memory()`, the FRESH path. So
+      // the one shape nobody asserted was the one every upgrading user gets.
+      //
+      // It found a real defect. `customConstraints` is read off the SYNTAX
+      // TREE, so a constraint built from a named constant or an interpolation
+      // is dropped from the versioned schema while surviving on the Dart
+      // getter. Fresh installs had the wall-clock GLOB; upgrades did not.
+      //
+      // SCOPED to this table rather than `validateDatabaseSchema()`. The same
+      // mechanism already cost four OTHER tables eight CHECKs in both
+      // snapshots, and fixing that is not this epic's change: those CHECKs
+      // exist on every real device, because a v1 install ran `createAll` off
+      // the Dart getter. The divergence is between the snapshots and reality,
+      // and correcting it means a migration step that REBUILDS four tables
+      // holding the user's history — its own zero-record-loss proof, its own
+      // PR. Recorded with the remedy in epics/progress/EPIC-16.md.
+      final db = AppDatabase.forTesting((await verifier.startAt(1)).executor);
+      for (final statement in _v1Seed) {
+        await db.customStatement(statement);
+      }
+      await verifier.migrateAndValidate(db, kLatestSchemaVersion);
+
+      final integrity = await db
+          .customSelect('PRAGMA integrity_check;')
+          .getSingle();
+      expect(integrity.data.values.first, 'ok');
+
+      // The migration turns foreign keys off and the ladder checks them again
+      // afterwards. Asserting it here as well is not redundant: this is the
+      // only place a REAL child row exists to be orphaned.
+      final orphans = await db.customSelect('PRAGMA foreign_key_check;').get();
+      expect(orphans, isEmpty);
+
+      await db.close();
+    },
+  );
+
   test('the new table enforces its CHECKs', () async {
     // The constraints are the point of putting this in the schema rather than
     // only in Dart: a wall clock stored as an ISO instant surfaces months later
     // as a notification at the wrong hour on one device, with nothing to point
     // at.
-    final db = AppDatabase.forTesting(
-      NativeDatabase.memory(setup: applyPragmas),
-    );
+    // On a MIGRATED database, not a fresh one. Every CHECK test here opened
+    // `NativeDatabase.memory()` — the fresh path — and so asserted the one
+    // database shape that was never in doubt.
+    final db = AppDatabase.forTesting((await verifier.startAt(1)).executor);
+    await verifier.migrateAndValidate(db, kLatestSchemaVersion);
     addTearDown(db.close);
 
     Future<void> insert({

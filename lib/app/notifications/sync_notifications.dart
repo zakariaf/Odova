@@ -110,6 +110,15 @@ Future<List<KnownNotification>> syncNotifications({
   for (final want in diff.toSchedule) {
     final plan = byKey[want.key];
     if (plan == null) continue;
+
+    // Refused HERE rather than four months later at the tap. `encodePayload`
+    // omits a `reminderId` it was not given, so a `due`-stage plan carrying a
+    // null id encodes into a payload that looks fine, is frozen into the OS,
+    // and is rejected by `decodePayload` when the user taps it — landing on
+    // plain Home for no reason they could work out. §4.4.2 makes the id
+    // REQUIRED on the two kinds that name one, and the honest place to notice
+    // is the moment before it becomes unfixable.
+    if (plan.payloadKind.carriesReminder && plan.reminderId == null) continue;
     try {
       await gateway.schedule(
         ScheduledNotification(
@@ -177,12 +186,25 @@ Future<List<KnownNotification>> syncNotifications({
 
 /// `<vehicle_id>:<reminder_id>:<stage>` — SPEC.md §4.2.2 rule 1.
 ///
-/// A grouped notification has no single reminder, so its key carries the empty
-/// middle segment. That is correct rather than sloppy: a slot holds one grouped
-/// notification, so the vehicle and the stage identify it.
+/// A GROUPED plan has no single reminder, and the empty middle segment is not
+/// enough to tell two of them apart: one vehicle can easily have two grouped
+/// notifications whose leading stage is the same — four items due, two in
+/// October and two in November — and both produced `veh_1::due`.
+///
+/// That is not a cosmetic collision. `scheduled_notifications.key` is the
+/// PRIMARY KEY, so the caller's write keeps one of the two rows; `byKey` keeps
+/// the LAST plan, so the first notification was built with the second's title
+/// and payload; and every subsequent reconcile cancelled one and scheduled the
+/// other, forever, so a rebuild was never the no-op §4.2.2 promises and one of
+/// the user's two reminders was never in the OS at all.
+///
+/// A grouped key therefore carries its DATE. It is the thing that distinguishes
+/// two groups on one vehicle, and it is stable across reconciles for as long as
+/// the group stays in its slot — which is what the hysteresis is for.
 String _keyFor(PlannedNotification plan) {
   final first = plan.candidates.first;
-  return '${plan.vehicleId}:${plan.reminderId ?? ''}:${first.stage.name}';
+  final middle = plan.reminderId ?? 'group@${plan.slot.date}';
+  return '${plan.vehicleId}:$middle:${first.stage.name}';
 }
 
 NotificationChannelId _channelFor(PlannedNotification plan) =>

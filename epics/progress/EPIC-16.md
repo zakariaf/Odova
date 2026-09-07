@@ -574,3 +574,98 @@ version rather than assuming 1.
 
 Which is the same bug as the migration guard's, in the file whose entire job is
 to prove that gates fail.
+
+## `/code-review` — four agents, and the app could never have notified anyone
+
+Two findings would have shipped an epic that does nothing, and both were proven
+by execution rather than argued.
+
+**Android would never have delivered a single notification.**
+`ScheduledNotificationReceiver` was missing from the manifest.
+flutter_local_notifications builds every scheduled alarm as an explicit
+broadcast to that class and ships **no receivers of its own** — it is app-side
+setup. So `zonedSchedule` succeeded, `pendingNotificationRequests` reported it
+pending, AlarmManager fired at the right minute, and the broadcast landed on an
+unregistered component. Nothing posted, ever, on every Android device. My
+manifest gate passed the whole time because it required the BOOT receiver and
+not this one. Both are declared now, plus `ActionBroadcastReceiver` for §4.7's
+Done and Snooze, and the gate requires all three.
+
+**The wall-clock CHECK did not exist on any upgraded device.** I introduced a
+named constant for the GLOB *specifically so its quoting could not get tidied* —
+and that is what broke it: `drift_dev` reads `customConstraints` off the SYNTAX
+TREE and cannot fold an interpolation, so it silently dropped that one element
+while keeping the four plain literals. A fresh install resolves constraints
+through the Dart getter and had the check; an upgrade resolves them through the
+generated versioned table and did not, leaving only `length = 16`, which a UTC
+instant and any 16-character garbage both satisfy. Inlined, regenerated, and
+now asserted against a MIGRATED database.
+
+**A killed process during the upgrade bricked the app into permanent read-only.**
+`CREATE INDEX` had no `IF NOT EXISTS`. Drift writes `PRAGMA user_version = 2`
+*after* the transaction commits, so a kill in that window leaves table and index
+on disk at v1 — and every later launch migrates again, throws "index already
+exists", rolls back, and comes up degraded. The safety copy restores the same
+file, so the loop never breaks: read-only forever, no path out but reinstall.
+
+### The rest, in the order they would have hurt
+
+- **`_keyFor` collided for grouped notifications.** No date in the key, so two
+  groups on one vehicle with the same leading stage were one identity — a
+  primary-key conflict, permanent cancel/reschedule churn on every rebuild, and
+  one of the user's two reminders never in the OS at all.
+- **`fired` and `dropped` rows did not survive a sync.** The final loop kept only
+  `pending` rows, so the caller wrote back a list with the fired row missing and
+  the next run scheduled the stage AGAIN — §4.2.2 rule 4 broken across a
+  persistence round trip, which is the user marking the oil change done and being
+  told again that it is due. It also erased the evidence §6.4's OEM card is
+  computed from.
+- **A delivery-time change never reached the OS.** `shouldReschedule` compared
+  only the DATE, so 09:00 → 14:00 was a zero-day move and the reconcile skipped
+  it — while `deterministicId` dutifully computed the new id and threw it away.
+  That is precisely the bug its own doc claims to prevent, defeated one layer up.
+- **Past-dated stages were scheduled in the past.** §4.2.2 rule 3 was implemented
+  nowhere, while `withinHorizon`'s comment asserted it was handled elsewhere.
+  Android delivers a past-dated alarm immediately; iOS discards it and the row
+  claims `pending` forever, which then accuses an innocent OEM.
+- **Stale slots ate the four-week reserve** — `daysUntil(day) <= 28` is true of
+  every date in history, so the mechanism written to stop `early` starving urgent
+  items let STALE items starve everything.
+- **A failed schedule left the old row claiming `pending`** on an id that had
+  just been cancelled.
+- **Quiet hours were applied once and the 09:00 fallback never re-checked**, so a
+  user with a 08:00–12:00 window was scheduled inside it.
+- **`encodePayload` silently omitted a required `reminderId`**, producing a
+  payload its own decoder rejects — a tap four months later landing on plain Home.
+
+### And four gates that could not fail
+
+- `check_notification_manifest`'s `require()` read comments while `forbid()`
+  stripped them, so a manifest with **every declaration commented out** passed
+  green. Two of its five assertions had never been seen to fail; they have arms
+  now.
+- `check_stream_notify` missed `INSERT OR REPLACE`, a verb wrapped in a heredoc,
+  and `UPDATE "quoted"`. Its central claim was also false: **`updates:` is
+  optional on `customUpdate`**, so "the API that cannot be forgotten" can be.
+  The gate now checks that too.
+- Both gates' comment-strippers were `sed` ranges, which delete to end-of-file
+  when a comment opens and closes on one line. Both had false positives on
+  correct code.
+
+### Answered, not applied
+
+- **Eight CHECKs are missing from four other tables in BOTH snapshots**, by the
+  same syntax-tree mechanism. Not fixed here: those CHECKs exist on every real
+  device, because a v1 install ran `createAll` off the Dart getter, so the
+  divergence is between the snapshots and reality — and correcting it means a
+  migration step that REBUILDS four tables holding the user's history. That
+  needs its own zero-record-loss proof and its own PR. **Remedy: inline the four
+  tables' `customConstraints` and add a v3 step with `TableMigration` for each.**
+- **`absoluteTime` is inert on every device this app supports** (FLN's own
+  dartdoc scopes it to iOS < 10; the plugin's floor is 12). Left in place with
+  the misleading justification corrected — and the Berlin → Tehran promise it
+  was defending genuinely depends on a reschedule at the zone change, which is
+  task 16.9's trigger and is deferred.
+- **Undo can resurrect a reading the user deleted** (`deletion.dart`, missing a
+  `deleted_at IS NULL` guard on the second UPDATE). Pre-existing, not this
+  branch, and a real data defect — filed rather than fixed mid-review.

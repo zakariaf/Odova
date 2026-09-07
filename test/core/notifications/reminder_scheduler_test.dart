@@ -180,6 +180,96 @@ void main() {
     });
   });
 
+  group('SPEC.md §4.2.2 rule 3 — no retroactive firing', () {
+    // The rule `withinHorizon`'s comment SAID was kept elsewhere and that was
+    // kept nowhere. An overdue2 six months old resolved to a fire time six
+    // months in the past: Android delivers a past-dated alarm immediately —
+    // the "waking a phone the instant the user logs a fill-up" failure the
+    // rule exists to prevent — and iOS discards it silently, so the row says
+    // `pending` for something that never arrives, which feeds §6.4's
+    // three-strikes counter and blames an innocent phone.
+    test(
+      'a stage months in the past goes to the next slot, not to the past',
+      () {
+        final plan = ReminderScheduler.compute(
+          candidates: [
+            item(
+              vehicle: 'v1',
+              reminder: 'r1',
+              stage: NotificationStage.overdue2,
+              stageDate: '2026-02-24',
+            ),
+          ],
+          today: today,
+          prefs: const SchedulePreferences(),
+        );
+
+        expect(plan, hasLength(1));
+        expect(
+          d(plan.single.slot.date) >= today,
+          isTrue,
+          reason: 'resolved to ${plan.single.slot.date}, before today',
+        );
+      },
+    );
+
+    test('every slot in the hostile household is today or later', () {
+      // The property, over the whole 240-candidate fixture rather than one
+      // case — a returning user has a stage in the past for every item they
+      // own, not one.
+      final plan = ReminderScheduler.compute(
+        candidates: [
+          ...theHostileHousehold(),
+          for (var i = 0; i < 6; i++)
+            item(
+              vehicle: 'old$i',
+              reminder: 'r$i',
+              stage: NotificationStage.overdue2,
+              stageDate: today.addDays(-200 - i * 30).toString(),
+            ),
+        ],
+        today: today,
+        prefs: const SchedulePreferences(),
+      );
+
+      for (final p in plan) {
+        expect(d(p.slot.date) >= today, isTrue, reason: p.slot.date);
+      }
+    });
+
+    test('stale stages do not starve the next four weeks', () {
+      // The reserve window read `daysUntil(day) <= 28`, which is true of every
+      // date in history — so six stale items consumed the reserve and the
+      // mechanism written to stop `early` starving urgent items let STALE
+      // items starve everything.
+      final plan = ReminderScheduler.compute(
+        candidates: [
+          for (var i = 0; i < 6; i++)
+            item(
+              vehicle: 'old$i',
+              reminder: 'stale$i',
+              stage: NotificationStage.overdue2,
+              stageDate: '2025-0${i + 1}-10',
+            ),
+          item(
+            vehicle: 'vx',
+            reminder: 'early',
+            stage: NotificationStage.early,
+            stageDate: today.addDays(10).toString(),
+          ),
+        ],
+        today: today,
+        prefs: const SchedulePreferences(),
+      );
+
+      final scheduled = plan
+          .expand((p) => p.candidates)
+          .map((c) => c.reminderId)
+          .toSet();
+      expect(scheduled, contains('early'));
+    });
+  });
+
   group('coalescing', () {
     test('two items in one slot become one grouped notification', () {
       final plan = ReminderScheduler.compute(

@@ -150,8 +150,27 @@ class DeliverySlot with ValueEquality implements Comparable<DeliverySlot> {
 DeliverySlot resolveSlot({
   required CivilDate date,
   required SchedulePreferences prefs,
+  CivilDate? notBefore,
 }) {
+  // SPEC.md §4.2.2 rule 3 — NO RETROACTIVE FIRING. "A pending notification
+  // whose recomputed time is in the past goes to the NEXT delivery slot, never
+  // to 'now'. Waking a phone the instant the user logs a fill-up is how an app
+  // gets uninstalled."
+  //
+  // This is the rule `withinHorizon`'s doc comment claimed was kept elsewhere,
+  // and it was kept nowhere: an `overdue2` stage six months old resolved to a
+  // fire time six months in the past. Android delivers a past-dated alarm
+  // IMMEDIATELY, which is exactly the failure above; iOS discards it silently,
+  // so `scheduled_notifications` records `pending` for something that will
+  // never arrive — and that unconfirmed delivery then feeds §6.4's
+  // three-strikes counter and raises the OEM battery-optimisation card at a
+  // user whose phone did nothing wrong.
+  //
+  // The returning user is not an edge case. §6.2's away digest exists for
+  // somebody who has not opened the app in months, and every one of their
+  // overdue stages arrives here dated in the past.
   var day = date;
+  if (notBefore != null && day < notBefore) day = notBefore;
   var minutes = prefs.deliveryMinutes;
 
   // Quiet hours WRAP midnight, which is where this arithmetic is usually
@@ -166,6 +185,22 @@ DeliverySlot resolveSlot({
     // 08:00, which is what clamping would do.
     if (minutes >= prefs.quietFromMinutes) day = day.addDays(1);
     minutes = kDefaultNotificationMinutes;
+
+    // And 09:00 may ITSELF be quiet. A user can set a non-wrapping window like
+    // 08:00-12:00, and the first version moved the day and then scheduled
+    // inside the window anyway — §4.5 says anything that would fire inside
+    // quiet hours moves OUT of them, not along by a day.
+    //
+    // Bounded by the day: a window covering every minute has no answer, and
+    // the honest response is to deliver at the default hour rather than to
+    // loop. That case cannot be reached through the settings screen, which is
+    // why it is a fallback and not a failure.
+    var probe = 0;
+    while (prefs.isQuiet(minutes) && probe < 24) {
+      minutes = (minutes + 60) % (24 * 60);
+      probe++;
+    }
+    if (prefs.isQuiet(minutes)) minutes = kDefaultNotificationMinutes;
   }
 
   if (prefs.weekdaysOnly && prefs.weekend.isNotEmpty) {

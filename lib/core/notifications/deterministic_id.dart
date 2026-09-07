@@ -64,10 +64,31 @@ int deterministicId({
 /// leaving it pending is how a notification fires carrying a body from four
 /// months ago.
 bool shouldReschedule({required String from, required String to}) {
+  // A changed TIME OF DAY always reschedules, whatever the date did.
+  //
+  // The hysteresis exists for a PROJECTION that wanders — §4.2.2 rule 2's
+  // "a projection wandering +/-2 days never reaches the threshold". A delivery
+  // time moving 09:00 -> 14:00 is not wander, it is the user editing a setting,
+  // and comparing only the date made that edit unreachable: `reconcile` saw a
+  // 0-day move, skipped it, and every pending notification kept firing at 09:00
+  // forever — while `deterministicId` above dutifully computed a new id that
+  // was then thrown away. That is precisely the bug its own doc comment claims
+  // to prevent, defeated one layer up.
+  //
+  // A delivery-time change is not one of §6.2's full-rebuild triggers, so there
+  // is no other path that would have caught it.
+  if (_timeOf(from) != _timeOf(to)) return true;
+
   final a = _dayOf(from);
   final b = _dayOf(to);
   if (a == null || b == null) return true;
   return a.daysUntil(b).abs() >= kHysteresisDays;
+}
+
+/// The `HH:MM` half, or the whole string when there is no `T`.
+String _timeOf(String wallClock) {
+  final t = wallClock.indexOf('T');
+  return t == -1 ? '' : wallClock.substring(t + 1);
 }
 
 CivilDate? _dayOf(String wallClock) {

@@ -53,9 +53,21 @@ const schemaIndexes = <String>[
 /// then rebuild". Without the index that is a full scan of the table on a
 /// path the user is watching, and with five cars and a full queue it is the
 /// difference between a delete that feels instant and one that does not.
+/// `IF NOT EXISTS`, and it is not defensive noise.
+///
+/// Drift writes `PRAGMA user_version = 2` AFTER the migration transaction
+/// commits. A process killed in that window leaves the table and this index on
+/// disk with the file still at v1 — so the next launch migrates again, this
+/// statement throws "index already exists", the migration rolls back, and
+/// `openMigratedDatabase` hands back a degraded read-only database. The
+/// snapshot restores the same file, so the loop never breaks: read-only
+/// forever, on every launch, with no path forward but export and reinstall.
+///
+/// `migrator.create` already emits `CREATE TABLE IF NOT EXISTS`, so the table
+/// half was idempotent and only this line was not.
 const _scheduledByVehicle =
-    'CREATE INDEX idx_scheduled_vehicle ON scheduled_notifications '
-    '(vehicle_id)';
+    'CREATE INDEX IF NOT EXISTS idx_scheduled_vehicle ON '
+    'scheduled_notifications (vehicle_id)';
 
 /// History pagination and the cumulative fold, which reads every reading for
 /// one vehicle in `(occurred_on, created_at)` order — the exact order

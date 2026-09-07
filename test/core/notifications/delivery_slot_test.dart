@@ -26,6 +26,23 @@ const _default = SchedulePreferences();
 
 void main() {
   group('CivilDate.weekday', () {
+    test('holds before 1970, where the epoch day is NEGATIVE', () {
+      // `((_epochDay + 3) % 7) + 1` leans on Dart's `%` returning a
+      // non-negative result for a positive divisor — which it does, and C's
+      // does not. The formula is one language-semantics assumption away from
+      // being wrong for every date before 1970, and nothing else in the suite
+      // exercises one: a 1967 purchase date is an ordinary thing for a
+      // classic-car owner to enter.
+      for (final iso in [
+        '1969-12-31',
+        '1969-01-01',
+        '1900-01-01',
+        '1867-03-04',
+      ]) {
+        expect(d(iso).weekday, DateTime.parse(iso).weekday, reason: iso);
+      }
+    });
+
     test('agrees with DateTime on a spread of dates', () {
       for (final iso in [
         '1970-01-01', // the epoch, a Thursday — the anchor the maths uses

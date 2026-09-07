@@ -974,6 +974,55 @@ DART
 assert 0 "check_stream_notify ignores a comment naming the ban" \
   bash "$NOTIFY" --root .selftest/repos
 
+# Four raw writes the FIRST version of this gate could not see, each found by
+# the review pass rather than by the arms below — which is why they are arms now.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> upsert(db) async {
+  await db.customStatement('INSERT OR REPLACE INTO readings (id) VALUES (?);');
+}
+DART
+assert 1 "check_stream_notify is red on INSERT OR REPLACE" \
+  bash "$NOTIFY" --root .selftest/repos
+
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> erase(db) async {
+  await db.customStatement(r'''
+    DELETE
+      FROM vehicles WHERE id = ?;
+  ''');
+}
+DART
+assert 1 "check_stream_notify is red on a verb wrapped in a heredoc" \
+  bash "$NOTIFY" --root .selftest/repos
+
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> touch(db) async {
+  await db.customStatement('UPDATE "vehicles" SET name = ?;');
+}
+DART
+assert 1 "check_stream_notify is red on a quoted table name" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# The one that falsified the gate's own premise: `updates:` is OPTIONAL on
+# customUpdate, so the right API announces nothing when it is omitted.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> erase(db) async {
+  await db.customUpdate('DELETE FROM vehicles WHERE id = ?;');
+}
+DART
+assert 1 "check_stream_notify is red on customUpdate with no updates:" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# A block comment holding a historical note turned the gate red on correct code.
+write_scratch .selftest/repos/probe.dart <<'DART'
+/* This used to be a raw DELETE FROM vehicles. It is not any more. */
+Future<void> read(db) async {
+  await db.customStatement('SELECT id FROM vehicles;');
+}
+DART
+assert 0 "check_stream_notify ignores a block comment naming the ban" \
+  bash "$NOTIFY" --root .selftest/repos
+
 # A raw READ needs no announcement, and a gate that fired on one would be
 # deleted by the third person who hit it.
 write_scratch .selftest/repos/probe.dart <<'DART'
@@ -1002,6 +1051,7 @@ write_scratch .selftest/manifest.xml <<'XML'
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
     </application>
 </manifest>
@@ -1017,6 +1067,7 @@ write_scratch .selftest/manifest.xml <<'XML'
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
     </application>
 </manifest>
@@ -1030,6 +1081,7 @@ write_scratch .selftest/manifest.xml <<'XML'
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
     </application>
 </manifest>
@@ -1057,6 +1109,7 @@ write_scratch .selftest/manifest.xml <<'XML'
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
     </application>
 </manifest>

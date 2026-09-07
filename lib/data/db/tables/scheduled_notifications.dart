@@ -20,15 +20,6 @@
 // into the export projection, which is exactly the mistake worth designing out.
 import 'package:drift/drift.dart';
 
-/// `YYYY-MM-DDTHH:MM`, as a SQLite GLOB.
-///
-/// A named constant rather than a literal inside the constraint list, because
-/// the quoting of a GLOB inside a CHECK inside a Dart string is exactly the
-/// kind of thing that gets "tidied" into something that no longer matches — and
-/// a CHECK that matches nothing is a constraint that silently is not there.
-const _wallClockGlob =
-    "'[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]'";
-
 /// One notification the app has handed to the OS.
 class ScheduledNotifications extends Table {
   /// `<vehicle_id>:<reminder_id>:<stage>` — SPEC.md §4.2.2 rule 1.
@@ -103,7 +94,25 @@ class ScheduledNotifications extends Table {
     // A row that reaches here as an ISO instant is a bug that would otherwise
     // surface as a notification at the wrong hour on one user's device, months
     // later, with nothing to point at.
-    'CHECK (fire_at_local GLOB $_wallClockGlob)',
+    // INLINE, and it must stay inline. This was a named constant interpolated
+    // into the string — introduced so the GLOB's quoting could not get
+    // "tidied" — and that is exactly what broke it: drift_dev reads
+    // `customConstraints` off the SYNTAX TREE and cannot constant-fold an
+    // interpolation, so it silently dropped this one element from the
+    // versioned schema while keeping the four plain literals.
+    //
+    // The consequence was invisible and one-sided. A FRESH install resolves
+    // constraints through this Dart getter and got the check; an UPGRADE
+    // resolves them through the generated `VersionedTable` and did not — so
+    // every user with history worth protecting had no wall-clock check at all,
+    // leaving only `length = 16`, which a UTC instant and any 16-character
+    // garbage both satisfy.
+    // A CHECK too long for one line. It cannot be a named constant: drift_dev
+    // reads this list off the syntax tree and silently drops anything it
+    // cannot fold, which is how these two vanished from the schema snapshots.
+    // ignore: no_adjacent_strings_in_list, missing_whitespace_between_adjacent_strings
+    "CHECK (fire_at_local GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]"
+        "T[0-9][0-9]:[0-9][0-9]')",
     'CHECK (os_id >= 0 AND os_id < 2147483648)',
     // Length as SQL, not as `withLength`. `withLength` is a Dart-side
     // validator that emits nothing, so a row written by a raw statement — which

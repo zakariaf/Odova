@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
-# Contract: no repository writes through customStatement. Writes go through
-# customUpdate, which takes the tables it touched as an ARGUMENT.
+# Contract: no repository writes through customStatement, AND every customUpdate
+# names the tables it touched.
+#
+# The second half is not decoration. `customUpdate`'s `updates:` parameter is
+# OPTIONAL and nullable in drift — `db.customUpdate('DELETE FROM vehicles ...')`
+# compiles, writes the row, and dispatches nothing, which is byte-for-byte the
+# original defect. This gate's first version rested on "the API that cannot be
+# forgotten"; the API can be forgotten, so the contract has to say so.
 #
 # The failure this gate exists for is completely silent, and it shipped.
 # `customStatement` hands SQLite a raw string; drift cannot parse it to learn
@@ -69,18 +75,42 @@ while IFS= read -r file; do
   # each file explaining why `customStatement` is not used — the same trap
   # tools/check_notification_manifest.sh has, and the reason both strip. A gate
   # that refuses its own explanation is a gate somebody deletes.
-  code="$(sed 's|//.*||' "$file")"
+  # BOTH comment syntaxes. `sed 's|//.*||'` stripped line comments only, so a
+  # `/* */` block carrying a historical note about `DELETE FROM vehicles` — the
+  # one syntax people use for a multi-line explanation — turned the gate red on
+  # correct code.
+  code="$(sed 's|//.*||' "$file" |
+    sed 's|/\*.*\*/||g' |
+    sed '/\/\*/,/\*\//d')"
 
   # A raw WRITE is the offence; a raw read is fine and always was. The verb may
   # sit lines below the call — `customStatement('''` opens a heredoc — so the
   # window is the whole call, which at this scale is the whole file.
-  printf '%s' "$code" | grep -q 'customStatement' || continue
-  printf '%s' "$code" | grep -Eqi "(INSERT[[:space:]]+INTO|UPDATE[[:space:]]+[a-z_]+[[:space:]]+SET|DELETE[[:space:]]+FROM)" || continue
-  printf 'FAIL  %s writes through customStatement — use customUpdate(..., updates: {...})\n' "$file"
-  fail=1
+  # The verb regex is deliberately LOOSE. The first version demanded
+  # `INSERT` + whitespace + `INTO`, an unquoted lowercase table name after
+  # `UPDATE`, and the verb on one line — so `INSERT OR REPLACE INTO`, a heredoc
+  # with the verb wrapped onto its own line, and `UPDATE "vehicles" SET` all
+  # slipped through. A raw write is a raw write; matching the verb alone,
+  # across the whole file with newlines squashed, has no false negatives worth
+  # the precision.
+  flat="$(printf '%s' "$code" | tr '\n' ' ')"
+  if printf '%s' "$code" | grep -q 'customStatement' &&
+     printf '%s' "$flat" | grep -Eqi '(INSERT|UPDATE|DELETE|REPLACE|CREATE|DROP|ALTER)[[:space:]]'; then
+    printf 'FAIL  %s writes through customStatement — use customUpdate(..., updates: {...})\n' "$file"
+    fail=1
+  fi
+
+  # And a customUpdate that names no tables is the same defect wearing the
+  # right API.
+  if printf '%s' "$flat" | grep -Eq 'customUpdate\(' &&
+     ! printf '%s' "$flat" | grep -q 'updates:'; then
+    printf 'FAIL  %s calls customUpdate without updates: — it announces nothing\n' "$file"
+    fail=1
+  fi
 done < <(find "$root" -name '*.dart' -type f | sort)
 
 if [ "$fail" -eq 0 ]; then
-  printf 'ok    no raw writer under %s; writes go through customUpdate\n' "$root"
+  printf 'ok    no raw writer under %s; every customUpdate names its tables\n' \
+    "$root"
 fi
 exit "$fail"
