@@ -21,6 +21,7 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
@@ -256,9 +257,20 @@ String? isoDate(Object? value, RestoreLog log) {
 
 /// An optional ISO date, absent when absent and null when unreadable.
 String? optionalIsoDate(Object? value) =>
-    value is String && RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)
-    ? value
-    : null;
+    _isIsoDate(value) ? value! as String : null;
+
+/// Whether [value] is a `YYYY-MM-DD` string naming a real day.
+///
+/// `CivilDate.tryParse` and not a regex plus `DateTime.tryParse`. It is the
+/// codebase's validated date reader and it rejects what the pair accepts —
+/// `2026-02-30`, `+026-01-03`, ` 026-01-03` — which on this path is the
+/// difference between refusing a record and importing a February the
+/// thirtieth that every due calculation downstream then has to cope with.
+///
+/// It also ends the per-call `RegExp` the first version built: a 12,000-record
+/// import reads twenty thousand dates.
+bool _isIsoDate(Object? value) =>
+    value is String && CivilDate.tryParse(value) != null;
 
 /// An RFC 3339 timestamp back to UTC milliseconds, or [fallback].
 int timestampOr(Object? value, int fallback) {
@@ -280,6 +292,67 @@ int wallClockOr(Object? value, int fallback) {
   final minutes = int.parse(match.group(2)!);
   if (hours > 23 || minutes > 59) return fallback;
   return hours * 60 + minutes;
+}
+
+/// A string that must be one of [allowed], or [fallback].
+///
+/// Five settings columns carry a `CHECK ... IN (...)` and are read here as
+/// free strings. A file saying `calendar: "jalali"` — a plausible hand edit,
+/// and the name most people would reach for — passed every rung of §5's ladder
+/// and then failed the staging INSERT, which the importer reports as
+/// `StagingFailed`. The user sees "the import could not finish" for a file
+/// that was ninety-nine per cent importable.
+///
+/// §5's rule for a value it does not recognise is to COERCE and warn, not to
+/// abort. This is that rule applied where the database, rather than an enum,
+/// is what defines the vocabulary.
+String settingIn(
+  Object? value,
+  Set<String> allowed,
+  String fallback,
+  RestoreLog log,
+) {
+  if (value is String && allowed.contains(value)) return value;
+  if (value != null) log.coercedEnums++;
+  return fallback;
+}
+
+/// The values each constrained settings column accepts.
+///
+/// Copied from the schema's `CHECK` clauses on purpose rather than derived
+/// from an enum: the CHECK is what the database enforces, and an enum that
+/// drifted from it would let this function approve a value the INSERT then
+/// refuses. `test/data/db/tables/enum_checks_test.dart` keeps the enums and
+/// the CHECKs in step; this keeps the importer in step with the CHECKs.
+abstract final class SettingsVocabulary {
+  /// `settings.language`.
+  static const Set<String> language = {
+    'system',
+    'en',
+    'de',
+    'fr',
+    'fa',
+    'ar',
+    'ckb',
+  };
+
+  /// `settings.calendar`. `persian` and NOT `jalali` — the same calendar under
+  /// the name the schema uses.
+  static const Set<String> calendar = {'gregorian', 'persian'};
+
+  /// `settings.numerals`.
+  static const Set<String> numerals = {
+    'auto',
+    'latin',
+    'arabic_indic',
+    'extended_arabic_indic',
+  };
+
+  /// `settings.theme`.
+  static const Set<String> theme = {'system', 'light', 'dark'};
+
+  /// `settings.currency_display`.
+  static const Set<String> currencyDisplay = {'none', 'toman'};
 }
 
 /// The vehicle the file was last looking at, for the importer to select.
@@ -308,14 +381,40 @@ AppSettings settingsFromBackup(
         (code is String ? Currency.tryParse(code) : null) ?? fallbackCurrency,
     createdAtUtcMs: nowUtcMs,
     updatedAtUtcMs: nowUtcMs,
-    language: optionalString(json['language']) ?? 'system',
-    calendar: optionalString(json['calendar']) ?? 'gregorian',
-    numerals: optionalString(json['numerals']) ?? 'auto',
+    language: settingIn(
+      json['language'],
+      SettingsVocabulary.language,
+      'system',
+      log,
+    ),
+    calendar: settingIn(
+      json['calendar'],
+      SettingsVocabulary.calendar,
+      'gregorian',
+      log,
+    ),
+    numerals: settingIn(
+      json['numerals'],
+      SettingsVocabulary.numerals,
+      'auto',
+      log,
+    ),
+    // Clamped rather than coerced: the CHECK is a RANGE, and a file saying
+    // `9` means Tuesday to nobody — but it is closer to a typo than to a
+    // value from another vocabulary.
     firstDayOfWeek: json['first_day_of_week'] is int
-        ? json['first_day_of_week']! as int
+        ? (json['first_day_of_week']! as int).clamp(
+            DateTime.monday,
+            DateTime.sunday,
+          )
         : DateTime.monday,
-    theme: optionalString(json['theme']) ?? 'system',
-    currencyDisplay: optionalString(json['currency_display']) ?? 'none',
+    theme: settingIn(json['theme'], SettingsVocabulary.theme, 'system', log),
+    currencyDisplay: settingIn(
+      json['currency_display'],
+      SettingsVocabulary.currencyDisplay,
+      'none',
+      log,
+    ),
     distanceUnit: enumOr(
       json['distance_unit'],
       DistanceUnit.values,

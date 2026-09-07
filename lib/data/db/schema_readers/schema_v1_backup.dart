@@ -15,6 +15,7 @@
 // It also imports nothing from `lib/features` and nothing from the current
 // mappers, for the same reason: a copy taken through the code that is about to
 // migrate is a copy taken through the crash.
+import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
 
 /// v1's own value for the envelope's `format_version`. Never a constant that
@@ -23,16 +24,14 @@ const int kSchemaV1FormatVersion = 1;
 
 /// [raw] — a [SchemaReader] result for v1 — as §6's backup document.
 ///
-/// [nowUtcMs] stamps the envelope. It is passed in rather than read, because
-/// this runs during a migration and a function that reads the clock is a
-/// function a test cannot pin.
+/// [stamp] fills the envelope. Passed in rather than read, because this runs
+/// during a migration and a function that reads the clock is a function a test
+/// cannot pin — and because four loose parameters with defaults is how the
+/// production caller ended up stamping every real copy with 1970.
 Map<String, Object?> schemaV1BackupDocument(
-  Map<String, Object?> raw, {
-  required int nowUtcMs,
-  required String appVersion,
-  required String appBuild,
-  required String platform,
-}) {
+  Map<String, Object?> raw,
+  ExportStamp stamp,
+) {
   final tables = raw['tables'] is Map<String, Object?>
       ? raw['tables']! as Map<String, Object?>
       : const <String, Object?>{};
@@ -52,11 +51,11 @@ Map<String, Object?> schemaV1BackupDocument(
   final document = <String, Object?>{
     'format': 'odova.backup',
     'format_version': kSchemaV1FormatVersion,
-    'app_version': appVersion,
-    'app_build': appBuild,
-    'platform': platform,
-    'exported_at': _rfc3339(nowUtcMs),
-    'exported_at_local': _rfc3339(nowUtcMs),
+    'app_version': stamp.appVersion,
+    'app_build': stamp.appBuild,
+    'platform': stamp.platform,
+    'exported_at': _rfc3339(stamp.nowUtcMs),
+    'exported_at_local': _rfc3339(stamp.nowUtcMs),
     'units': const {
       'distance': 'm',
       'volume': 'ml',

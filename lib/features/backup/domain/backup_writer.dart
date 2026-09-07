@@ -103,6 +103,21 @@ class BackupWriter {
   }
 
   Future<_Receipt> _write(IOSink sink, StoreSnapshot store) async {
+    // Projected ONCE. The first version built `record_counts` by calling
+    // `_rows` for all eight arrays to read their lengths, and then called it
+    // again to write them — so every record's projection map was built twice,
+    // every array was sorted twice, and `newestCompletingByItem` walked every
+    // service line twice. At 12,000 records that is twelve thousand throwaway
+    // maps and a second O(services × lines) pass, for nothing.
+    //
+    // The cost is that all eight arrays are now live at once rather than one
+    // at a time. That is the projections, not the file: the JSON is still
+    // encoded and pushed a record at a time, which is what the streaming
+    // promise is about.
+    final rows = <String, List<Map<String, Object?>>>{
+      for (final array in kBackupArrays) array: _rows(array, store),
+    };
+
     // The digest is fed the same bytes the sink is, in the same order. Two
     // encodes of the same text would be a chance for them to disagree, so
     // every write goes through `emit`.
@@ -128,7 +143,7 @@ class BackupWriter {
         continue;
       }
       emit(
-        '  ${json.encode(key)}: ${_encode(_envelopeValue(key, store))},\n',
+        '  ${json.encode(key)}: ${_encode(_envelopeValue(key, rows))},\n',
       );
     }
 
@@ -138,13 +153,13 @@ class BackupWriter {
     );
 
     for (var i = 0; i < kBackupArrays.length; i++) {
-      final rows = _rows(kBackupArrays[i], store);
+      final array = rows[kBackupArrays[i]]!;
       emit('  ${json.encode(kBackupArrays[i])}: [');
-      for (var r = 0; r < rows.length; r++) {
+      for (var r = 0; r < array.length; r++) {
         emit(r == 0 ? '\n    ' : ',\n    ');
-        emit(_encode(rows[r]));
+        emit(_encode(array[r]));
       }
-      emit(rows.isEmpty ? ']' : '\n  ]');
+      emit(array.isEmpty ? ']' : '\n  ]');
       emit(i == kBackupArrays.length - 1 ? '\n' : ',\n');
     }
     emit('}\n');
@@ -154,7 +169,10 @@ class BackupWriter {
     return _Receipt(digest.value!, hashOffset);
   }
 
-  Object? _envelopeValue(String key, StoreSnapshot store) => switch (key) {
+  Object? _envelopeValue(
+    String key,
+    Map<String, List<Map<String, Object?>>> rows,
+  ) => switch (key) {
     'format' => kBackupFormat,
     'format_version' => kSupportedFormatVersion,
     'app_version' => appVersion,
@@ -164,16 +182,16 @@ class BackupWriter {
     'exported_at_local' => rfc3339Local(nowUtcMs, localOffset),
     'units' => kBackupUnits,
     'derived_fields' => kDerivedFields,
-    'record_counts' => _counts(store),
+    'record_counts' => _counts(rows),
     // Not reachable: `kEnvelopeKeys` is asserted against SPEC.md §6 §2.5 by
     // `spec_key_order_test`, so a key arriving here that this switch does not
     // name means the spec grew a field and nobody taught the writer about it.
     _ => throw StateError('no envelope value for "$key"'),
   };
 
-  Map<String, int> _counts(StoreSnapshot store) {
+  Map<String, int> _counts(Map<String, List<Map<String, Object?>>> rows) {
     final counts = <String, int>{
-      for (final array in kBackupArrays) array: _rows(array, store).length,
+      for (final array in kBackupArrays) array: rows[array]!.length,
     };
     // Settings is one row and not a record, so it is outside the total. A
     // reader comparing `total` against what it parsed would otherwise be off
@@ -250,8 +268,15 @@ class BackupWriter {
 /// file, and a property the writer enforces cannot be lost by a caller that
 /// passed a set, a map's values, or the result of a query whose `ORDER BY`
 /// someone dropped.
-List<T> _sorted<T>(List<T> items, String Function(T) id) =>
-    [...items]..sort((a, b) => id(a).compareTo(id(b)));
+List<T> _sorted<T>(List<T> items, String Function(T) id) {
+  // Decorate, sort, undecorate. `RecordId.toString()` builds a fresh String
+  // every call, so a comparator that called it saw ~2 × n × log n allocations
+  // — 340,000 throwaway strings for a 12,000-record array, to sort 12,000
+  // items.
+  final keyed = [for (final item in items) (id(item), item)]
+    ..sort((a, b) => a.$1.compareTo(b.$1));
+  return [for (final pair in keyed) pair.$2];
+}
 
 /// JSON for [value], with every string stripped of bidi controls.
 String _encode(Object? value) => json.encode(sanitiseForBackup(value));

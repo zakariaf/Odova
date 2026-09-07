@@ -66,11 +66,14 @@ List<List<String>> fillUpCsvRows({
   required Map<String, int> cumulativeMetres,
   required CsvUnits units,
 }) {
-  final ordered = [...fillUps]
+  // Decorated, so `id.toString()` runs once per fill rather than twice per
+  // comparison — it builds a fresh String every call.
+  final keyed = [for (final fill in fillUps) (fill.id.toString(), fill)]
     ..sort((a, b) {
-      final byDate = a.occurredOn.compareTo(b.occurredOn);
-      return byDate != 0 ? byDate : a.id.toString().compareTo(b.id.toString());
+      final byDate = a.$2.occurredOn.compareTo(b.$2.occurredOn);
+      return byDate != 0 ? byDate : a.$1.compareTo(b.$1);
     });
+  final ordered = [for (final pair in keyed) pair.$2];
 
   final segments = buildFuelSegments([
     for (final fill in ordered)

@@ -329,15 +329,16 @@ class BackupReader {
           ? document['exported_at']! as String
           : '',
     );
+    // An `Iterable`, not a list. The first version built a 12,000-element
+    // list purely so one `for` could walk it once.
     final outOfRange = _outOfRangeDates(
       exportedAt: exportedAt,
-      dates: [
-        ...readings.map((r) => r.occurredOn),
-        ...fillUps.map((f) => f.occurredOn),
-        ...services.map((s) => s.occurredOn),
-        ...expenses.map((e) => e.occurredOn),
-        ...trips.map((t) => t.startedOn),
-      ],
+      dates: readings
+          .map((r) => r.occurredOn)
+          .followedBy(fillUps.map((f) => f.occurredOn))
+          .followedBy(services.map((s) => s.occurredOn))
+          .followedBy(expenses.map((e) => e.occurredOn))
+          .followedBy(trips.map((t) => t.startedOn)),
     );
 
     if (skipped.isNotEmpty) warnings.add(SkippedRecords(skipped));
@@ -417,7 +418,7 @@ final VehicleId kRecoveredRecordsVehicleId = VehicleId.tryParse(
 
 int _outOfRangeDates({
   required DateTime? exportedAt,
-  required List<String> dates,
+  required Iterable<String> dates,
 }) {
   final ceiling = (exportedAt ?? DateTime.utc(9999)).add(
     const Duration(days: 365 * kLatestPlausibleYearsAhead),

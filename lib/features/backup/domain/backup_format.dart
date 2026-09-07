@@ -19,6 +19,14 @@
 // conversation nobody can resolve.
 export 'package:odova/app/app_version.dart' show kSupportedFormatVersion;
 
+/// The three bytes a UTF-8 byte-order mark is.
+///
+/// Written by the CSV exports because Excel needs it to detect UTF-8, and
+/// STRIPPED by the reader because a text editor may have added one to a
+/// backup. Two opposite uses of one fact, which is why it is here rather than
+/// in either of them.
+const List<int> kUtf8Bom = [0xEF, 0xBB, 0xBF];
+
 /// The `format` field's only legal value.
 ///
 /// A NAMESPACE, not "backup": the share sheet hands `.json` files to anything,

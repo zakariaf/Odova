@@ -18,6 +18,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/data/backup/migration_safety_copy.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/connection.dart';
@@ -121,6 +122,7 @@ final class MigrationRolledBack extends OpenOutcome {
 Future<OpenOutcome> openMigratedDatabase(
   File dbFile, {
   required Directory safetyDirectory,
+  required ExportStamp stamp,
   AppDatabase Function(QueryExecutor)? openDatabase,
 }) async {
   final build = openDatabase ?? AppDatabase.forTesting;
@@ -148,6 +150,7 @@ Future<OpenOutcome> openMigratedDatabase(
     dbFile,
     fromVersion,
     safetyDirectory,
+    stamp,
   );
   if (copyFailure != null) {
     return MigrationRefused(
@@ -223,6 +226,7 @@ Future<(File?, SafetyCopyFailure?)> _writeSafetyCopy(
   File dbFile,
   int fromVersion,
   Directory directory,
+  ExportStamp stamp,
 ) async {
   final database = sqlite3.open(dbFile.path);
   try {
@@ -230,6 +234,7 @@ Future<(File?, SafetyCopyFailure?)> _writeSafetyCopy(
       database: database,
       fromVersion: fromVersion,
       directory: directory,
+      stamp: stamp,
     );
   } finally {
     database.dispose();

@@ -19,6 +19,8 @@ import 'package:odova/data/db/app_database_opener.dart';
 import 'package:odova/data/db/connection.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import '../support/export_stamp.dart';
+
 /// A migration that throws before it changes anything.
 ///
 /// Injected rather than produced by a real schema bump: a bump would need its
@@ -125,7 +127,11 @@ void main() {
     'a database already at the current version opens with no copy',
     () async {
       await seedV1();
-      final outcome = await openMigratedDatabase(dbFile, safetyDirectory: dir);
+      final outcome = await openMigratedDatabase(
+        dbFile,
+        safetyDirectory: dir,
+        stamp: kTestExportStamp,
+      );
 
       expect(outcome, isA<OpenedCleanly>());
       await (outcome as OpenedCleanly).database.close();
@@ -152,6 +158,7 @@ void main() {
     final outcome = await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _ThrowingDatabase.new,
     );
 
@@ -174,6 +181,7 @@ void main() {
     final outcome = await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -201,6 +209,7 @@ void main() {
       final outcome = await openMigratedDatabase(
         dbFile,
         safetyDirectory: dir,
+        stamp: kTestExportStamp,
         openDatabase: _ThrowingDatabase.new,
       );
 
@@ -244,6 +253,7 @@ void main() {
       final outcome = await openMigratedDatabase(
         dbFile,
         safetyDirectory: dir,
+        stamp: kTestExportStamp,
         openDatabase: _CommittingThenThrowingDatabase.new,
       );
 
@@ -270,6 +280,7 @@ void main() {
     final outcome = await openMigratedDatabase(
       dbFile,
       safetyDirectory: unwritable,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -291,6 +302,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -303,6 +315,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -324,6 +337,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _ThrowingDatabase.new,
     );
 
@@ -337,6 +351,7 @@ void main() {
       await openMigratedDatabase(
         dbFile,
         safetyDirectory: dir,
+        stamp: kTestExportStamp,
         openDatabase: _ThrowingDatabase.new,
       );
     }
@@ -388,6 +403,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -424,6 +440,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
@@ -447,6 +464,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _ThrowingDatabase.new,
     );
 
@@ -464,6 +482,7 @@ void main() {
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
+      stamp: kTestExportStamp,
       openDatabase: _ThrowingDatabase.new,
     );
 
@@ -486,7 +505,11 @@ void main() {
   });
 
   test('a missing database file opens cleanly with no copy', () async {
-    final outcome = await openMigratedDatabase(dbFile, safetyDirectory: dir);
+    final outcome = await openMigratedDatabase(
+      dbFile,
+      safetyDirectory: dir,
+      stamp: kTestExportStamp,
+    );
     expect(outcome, isA<OpenedCleanly>());
     await (outcome as OpenedCleanly).database.close();
     expect(outcome.safetyCopy, isNull);

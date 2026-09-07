@@ -3,6 +3,7 @@
 // SPEC.md §6 §2.4 is a MAPPING, never a second model: each projection is a
 // pure function from the domain type, so there is no chance for the backup's
 // idea of a vehicle and the app's to drift apart.
+import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/units/distance.dart';
 
@@ -35,7 +36,15 @@ int? metresOrNull(Distance? distance) => distance?.metres;
 String rfc3339(int utcMs) => DateTime.fromMillisecondsSinceEpoch(
   utcMs,
   isUtc: true,
-).toIso8601String().replaceFirst(RegExp(r'\.\d+Z$'), 'Z');
+).toIso8601String().replaceFirst(_fractionalSeconds, 'Z');
+
+/// Dart writes `.000Z` on every UTC instant and §6's timestamps carry no
+/// fraction.
+///
+/// Hoisted, not built per call. This runs twice per record, so a 12,000-record
+/// export compiled the same pattern 24,000 times — the same mistake
+/// `_bidiControls` below already avoids.
+final RegExp _fractionalSeconds = RegExp(r'\.\d+Z$');
 
 /// The same, or null.
 String? rfc3339OrNull(int? utcMs) => utcMs == null ? null : rfc3339(utcMs);
@@ -49,33 +58,13 @@ String rfc3339Local(int utcMs, Duration offset) {
   final local = DateTime.fromMillisecondsSinceEpoch(
     utcMs + offset.inMilliseconds,
     isUtc: true,
-  ).toIso8601String().replaceFirst(RegExp(r'\.\d+Z$'), '');
+  ).toIso8601String().replaceFirst(_fractionalSeconds, '');
   final sign = offset.isNegative ? '-' : '+';
   final total = offset.inMinutes.abs();
   return '$local$sign${_pad(total ~/ 60)}:${_pad(total % 60)}';
 }
 
 String _pad(int n) => n.toString().padLeft(2, '0');
-
-/// Every bidi control character Unicode defines, as one class.
-///
-/// U+200E/200F (LRM/RLM), U+061C (Arabic letter mark), U+202A–U+202E (the
-/// deprecated embeddings and the override), and U+2066–U+2069 (the isolates the
-/// app's own formatters add around a number).
-final RegExp _bidiControls = RegExp(
-  '[\u200e\u200f\u061c\u202a-\u202e'
-  '\u2066-\u2069]',
-);
-
-/// [text] with every bidi control removed.
-///
-/// SPEC.md §6: no bidi control reaches the file. They are a DISPLAY device — a
-/// note copied out of the app carries the isolates the formatter put around a
-/// number — and in a stored document they break search, they break sorting, and
-/// they break the read-it-in-a-text-editor property that is the whole reason
-/// the backup is plain JSON. Nothing is lost by removing them: the underlying
-/// characters keep their own directionality.
-String stripBidiControls(String text) => text.replaceAll(_bidiControls, '');
 
 /// [value] with every string in it stripped of bidi controls.
 ///
@@ -90,7 +79,12 @@ String stripBidiControls(String text) => text.replaceAll(_bidiControls, '');
 /// numbers the WRITER emits, and those are JSON integers, which have no other
 /// form.
 Object? sanitiseForBackup(Object? value) => switch (value) {
-  final String text => stripBidiControls(text),
+  // `stripBidi`, not a second definition of what a bidi control is.
+  // `lib/core/l10n/bidi.dart` names this exact caller in its own doc — "used
+  // on the way OUT of the render layer: into a semantics label, INTO AN
+  // EXPORT, into a filename" — and a private regex here would be a second
+  // list to keep in step, silently narrower the day somebody adds to one.
+  final String text => stripBidi(text),
   final Map<String, Object?> map => {
     for (final entry in map.entries) entry.key: sanitiseForBackup(entry.value),
   },

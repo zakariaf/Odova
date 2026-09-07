@@ -48,6 +48,12 @@ List<List<String>> costCsvRows({
   required List<Expense> expenses,
   required CsvUnits Function(Vehicle) unitsFor,
 }) {
+  // Resolved once per VEHICLE, not once per row. A 12,000-row export over a
+  // two-vehicle household resolved the same units 11,998 times.
+  final units = <String, CsvUnits>{
+    for (final entry in vehiclesById.entries) entry.key: unitsFor(entry.value),
+  };
+
   final rows = <(String, String, List<String>)>[];
 
   for (final fill in fillUps) {
@@ -71,7 +77,7 @@ List<List<String>> costCsvRows({
         currency: fill.totalCost.currency.code,
         exponent: fill.totalCost.currency.exponent,
         notes: fill.notes ?? '',
-        units: unitsFor(vehicle),
+        units: units[vehicle.id.toString()]!,
       ),
     ));
   }
@@ -106,7 +112,7 @@ List<List<String>> costCsvRows({
         currency: single?.currency.code ?? '',
         exponent: single?.currency.exponent ?? 2,
         notes: service.notes ?? '',
-        units: unitsFor(vehicle),
+        units: units[vehicle.id.toString()]!,
       ),
     ));
   }
@@ -129,7 +135,7 @@ List<List<String>> costCsvRows({
         currency: expense.amount.currency.code,
         exponent: expense.amount.currency.exponent,
         notes: expense.notes ?? '',
-        units: unitsFor(vehicle),
+        units: units[vehicle.id.toString()]!,
       ),
     ));
   }

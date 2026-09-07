@@ -14,6 +14,8 @@ import 'package:odova/data/db/schema_readers/schema_v1_backup.dart';
 import 'package:sqlite3/common.dart' show CommonDatabase;
 import 'package:sqlite3/sqlite3.dart';
 
+import '../../support/export_stamp.dart';
+
 void main() {
   late Directory dir;
   late CommonDatabase database;
@@ -47,6 +49,7 @@ void main() {
       database: database,
       fromVersion: 1,
       directory: dir,
+      stamp: kTestExportStamp,
     );
 
     expect(failure, isNull);
@@ -63,6 +66,7 @@ void main() {
         database: database,
         fromVersion: 1,
         directory: dir,
+        stamp: kTestExportStamp,
       );
     }
 
@@ -82,6 +86,7 @@ void main() {
       database: database,
       fromVersion: 99,
       directory: dir,
+      stamp: kTestExportStamp,
     );
 
     expect(file, isNull);
@@ -99,6 +104,7 @@ void main() {
       database: database,
       fromVersion: 1,
       directory: dir,
+      stamp: kTestExportStamp,
     );
 
     final content =
@@ -123,6 +129,7 @@ void main() {
         database: database,
         fromVersion: 1,
         directory: dir,
+        stamp: kTestExportStamp,
       );
 
       final content =

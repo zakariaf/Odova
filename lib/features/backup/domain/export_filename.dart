@@ -10,6 +10,8 @@
 // car"; they do not recognise the same moment written in UTC, and the file list
 // they are scrolling is the only index this app has.
 import 'package:meta/meta.dart';
+import 'package:odova/core/history/search_normalise.dart';
+import 'package:odova/core/time/civil_date.dart';
 
 /// `odova-backup-YYYY-MM-DD-HHmm.json`, from local time.
 ///
@@ -22,8 +24,8 @@ String backupFileName(DateTime local) =>
 
 /// `odova-<what>-<vehicle>-YYYY-MM-DD.<extension>`.
 ///
-/// [vehicleSlug] is already transliterated — [vehicleFileSlug] does that, and
-/// takes the list position it needs for the fallback.
+/// The vehicle slug is already transliterated — `vehicleFileSlug` does that,
+/// and takes the list position it needs for the fallback.
 String exportFileName({
   required String what,
   required String vehicleSlug,
@@ -46,59 +48,50 @@ String vehicleFileSlug(String name, {required int position}) {
   return slug.isEmpty ? 'vehicle-$position' : slug;
 }
 
-/// [name] with the accents Latin scripts add folded away.
+/// A name with the accents Latin scripts add folded away.
 ///
-/// `VW Käfer` → `vw kafer`. Not a general Unicode normaliser: the job is a
-/// FILENAME, and the honest answer for a script with no ASCII equivalent is
-/// the numbered fallback rather than a transliteration nobody asked for.
+/// `VW Käfer` → `vw kafer`. Built ON TOP of `searchLatinFolds`, which is public
+/// precisely so a second table does not drift from it — the first version of
+/// this was a forty-entry copy that had drifted from it already.
+///
+/// The extra entries are the ones a FILENAME needs and a search fold does not.
+/// Two kinds:
+///
+/// The LIGATURES, where a filename wants both letters. `ß` folds to `s` for
+/// search — because somebody typing `strasse` should find `Straße` — and to
+/// `ss` here, because a filename is read rather than matched. The two answers
+/// are both right for their own job, and having them in one table would mean
+/// one of them was wrong.
+///
+/// The CENTRAL-EUROPEAN letters, which a search fold has no reason to carry
+/// (nothing in this app searches Czech) but a `[a-z0-9-]` filename does: a
+/// `Škoda Octavia` that slugged to `koda-octavia` would be a file the user
+/// cannot find by name.
+///
+/// Not a general Unicode normaliser: the honest answer for a script with no
+/// ASCII equivalent is the numbered fallback rather than a transliteration
+/// nobody asked for.
+const Map<String, String> _filenameFolds = {
+  'æ': 'ae',
+  'œ': 'oe',
+  'ß': 'ss',
+  'đ': 'd',
+  'ð': 'd',
+  'þ': 'th',
+  'ł': 'l',
+  'š': 's',
+  'ž': 'z',
+  'č': 'c',
+  'ř': 'r',
+  'ě': 'e',
+  'ů': 'u',
+};
+
 String _foldToAscii(String name) {
-  const folds = {
-    'á': 'a',
-    'à': 'a',
-    'â': 'a',
-    'ä': 'a',
-    'ã': 'a',
-    'å': 'a',
-    'æ': 'ae',
-    'ç': 'c',
-    'é': 'e',
-    'è': 'e',
-    'ê': 'e',
-    'ë': 'e',
-    'í': 'i',
-    'ì': 'i',
-    'î': 'i',
-    'ï': 'i',
-    'ñ': 'n',
-    'ó': 'o',
-    'ò': 'o',
-    'ô': 'o',
-    'ö': 'o',
-    'õ': 'o',
-    'ø': 'o',
-    'œ': 'oe',
-    'ú': 'u',
-    'ù': 'u',
-    'û': 'u',
-    'ü': 'u',
-    'ý': 'y',
-    'ÿ': 'y',
-    'ß': 'ss',
-    'đ': 'd',
-    'ð': 'd',
-    'þ': 'th',
-    'ł': 'l',
-    'š': 's',
-    'ž': 'z',
-    'č': 'c',
-    'ř': 'r',
-    'ě': 'e',
-    'ů': 'u',
-  };
   final out = StringBuffer();
   for (final rune in name.runes) {
     final char = String.fromCharCode(rune);
-    out.write(folds[char] ?? char);
+    out.write(_filenameFolds[char] ?? searchLatinFolds[char] ?? char);
   }
   return out.toString();
 }
@@ -120,8 +113,11 @@ String withoutCollision(String name, Set<String> taken) {
   throw StateError('a thousand files called $name is not a collision');
 }
 
-String _date(DateTime local) =>
-    '${local.year}-${_two(local.month)}-${_two(local.day)}';
+/// `YYYY-MM-DD` for [local].
+///
+/// `CivilDate.isoDateOf` and not a sixth hand-rolled `padLeft`: that method's
+/// own doc records five previous copies, three of them from one epic.
+String _date(DateTime local) => CivilDate.isoDateOf(local);
 
 String _two(int n) => n.toString().padLeft(2, '0');
 

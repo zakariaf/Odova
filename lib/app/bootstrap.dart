@@ -1,15 +1,21 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:clock/clock.dart';
+import 'package:drift/native.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:odova/app/app_version.dart';
 import 'package:odova/app/error_handlers.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/startup_purge.dart';
 import 'package:odova/app/today.dart';
+import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/data/db/app_database.dart';
+import 'package:odova/data/db/app_database_opener.dart';
+import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/settings_repository.dart';
 import 'package:odova/data/ui_state/ui_state_provider.dart';
@@ -53,8 +59,45 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
   // synchronous main-isolate CPU that builds ICU's symbol tables. Sequenced the
   // other way they add up; overlapped they cost whichever is slower, and the
   // 2.0s cold-launch budget in SPEC.md §17 is the reason to care.
-  final database = AppDatabase();
-  final facts = readLaunchFacts(database);
+  // Through `openMigratedDatabase`, not `AppDatabase()`.
+  //
+  // EPIC-05 built the migration guard — the pre-migration safety copy, the
+  // refusal when it cannot be written, the roll-back and the read-only
+  // degraded mode — and nothing ever called it. `bootstrap()` opened the
+  // database directly, so §6.3.3's escape route and §6.4.4's "no exceptions"
+  // were true of a function with no production caller. EPIC-15 task 15.3 then
+  // made that copy importable, which is only worth anything if it exists.
+  //
+  // Found by the review pass over this epic, and it is the third time this
+  // project has shipped a seam satisfied only in tests.
+  final supportDirectory = await getApplicationSupportDirectory();
+  final outcome = await openMigratedDatabase(
+    File('${supportDirectory.path}/$databaseFileName'),
+    safetyDirectory: supportDirectory,
+    stamp: ExportStamp(
+      nowUtcMs: DateTime.now().toUtc().millisecondsSinceEpoch,
+      appVersion: kAppVersion,
+      appBuild: kAppBuild,
+      platform: Platform.isIOS ? 'ios' : 'android',
+    ),
+  );
+
+  final database = switch (outcome) {
+    OpenedCleanly(:final database) => database,
+    // Both failure outcomes come up READ-ONLY on the old schema rather than
+    // refusing to launch. §14: the user must be able to open the app and get
+    // their data out; a crash loop leaves uninstalling as the only remedy, and
+    // uninstalling deletes it.
+    MigrationRefused() || MigrationRolledBack() => AppDatabase.forTesting(
+      NativeDatabase(
+        File('${supportDirectory.path}/$databaseFileName'),
+        setup: applyPragmas,
+      ),
+    ),
+  };
+  final migrationFailed = outcome is! OpenedCleanly;
+
+  final facts = readLaunchFacts(database, migrationFailed: migrationFailed);
   // Beside the database, in the application SUPPORT directory, and started with
   // it: SPEC.md §9's dismissal keys are read on the FIRST build of Home, so a
   // store that opened later would draw a strip the user already dismissed and
@@ -137,7 +180,10 @@ Future<UiStateStore> _openUiState() async =>
 /// The vehicle count excludes tombstones, like every other count in the app: a
 /// user who deleted their last car has zero vehicles, and SPEC.md §7 sends them
 /// to the vehicle step rather than to Home.
-Future<LaunchFacts> readLaunchFacts(AppDatabase database) async {
+Future<LaunchFacts> readLaunchFacts(
+  AppDatabase database, {
+  bool migrationFailed = false,
+}) async {
   final settings = await SettingsRepository(database).read();
   final vehicles = await database
       .customSelect(
@@ -148,8 +194,9 @@ Future<LaunchFacts> readLaunchFacts(AppDatabase database) async {
   return LaunchFacts(
     onboardingDone: settings.valueOrNull?.onboardingDone ?? false,
     liveVehicleCount: vehicles?.read<int>('n') ?? 0,
-    // Set by `DegradedModeController` when a migration fails; false here
-    // because nothing has had the chance to record one yet.
-    migrationFailed: false,
+    // From the OPEN, which is the only place that knows. It decides whether
+    // the app launches on `settings.backup` instead of `home` — §7's one
+    // exception to opening on Home — so it cannot be defaulted here.
+    migrationFailed: migrationFailed,
   );
 }

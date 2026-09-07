@@ -23,6 +23,8 @@ import 'package:odova/data/db/connection.dart';
 import 'package:odova/features/backup/domain/backup_reader.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import '../../support/export_stamp.dart';
+
 void main() {
   late Directory dir;
   late File dbFile;
@@ -75,9 +77,7 @@ void main() {
       database: raw,
       fromVersion: 1,
       directory: dir,
-      appVersion: '1.0.0',
-      appBuild: '42',
-      platform: 'android',
+      stamp: kTestExportStamp,
     );
     raw.dispose();
     expect(failure, isNull);
@@ -141,6 +141,7 @@ void main() {
         database: raw,
         fromVersion: 1,
         directory: dir,
+        stamp: kTestExportStamp,
       );
       raw.dispose();
 

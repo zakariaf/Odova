@@ -18,8 +18,7 @@
 // reads text.
 import 'dart:convert';
 
-/// The bytes Excel looks for to decide a file is UTF-8.
-const List<int> kUtf8Bom = [0xEF, 0xBB, 0xBF];
+import 'package:odova/features/backup/domain/backup_format.dart';
 
 /// RFC 4180's line ending. CRLF, not LF.
 const String kCsvLineEnding = '\r\n';

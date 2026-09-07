@@ -7,6 +7,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
 import 'package:odova/data/db/schema_readers/schema_v1_backup.dart';
 import 'package:sqlite3/common.dart';
@@ -48,19 +49,10 @@ enum SafetyCopyFailure {
 /// losing it because a projection was forgotten would be the worse failure.
 Map<String, Object?> backupDocumentForVersion(
   int version,
-  Map<String, Object?> raw, {
-  required int nowUtcMs,
-  required String appVersion,
-  required String appBuild,
-  required String platform,
-}) => switch (version) {
-  1 => schemaV1BackupDocument(
-    raw,
-    nowUtcMs: nowUtcMs,
-    appVersion: appVersion,
-    appBuild: appBuild,
-    platform: platform,
-  ),
+  Map<String, Object?> raw,
+  ExportStamp stamp,
+) => switch (version) {
+  1 => schemaV1BackupDocument(raw, stamp),
   _ => raw,
 };
 
@@ -83,10 +75,7 @@ Future<(File?, SafetyCopyFailure?)> writeMigrationSafetyCopy({
   required CommonDatabase database,
   required int fromVersion,
   required Directory directory,
-  int nowUtcMs = 0,
-  String appVersion = '',
-  String appBuild = '',
-  String platform = '',
+  required ExportStamp stamp,
 }) async {
   final reader = readerForVersion(fromVersion);
   if (reader == null) return (null, SafetyCopyFailure.unknownSchemaVersion);
@@ -94,14 +83,7 @@ Future<(File?, SafetyCopyFailure?)> writeMigrationSafetyCopy({
   final String encoded;
   try {
     encoded = const JsonEncoder.withIndent('  ').convert(
-      backupDocumentForVersion(
-        fromVersion,
-        reader.read(database),
-        nowUtcMs: nowUtcMs,
-        appVersion: appVersion,
-        appBuild: appBuild,
-        platform: platform,
-      ),
+      backupDocumentForVersion(fromVersion, reader.read(database), stamp),
     );
   } on Object {
     // `on Object`, not `on FileSystemException`. `SELECT *` throws
