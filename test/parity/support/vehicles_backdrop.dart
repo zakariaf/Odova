@@ -100,10 +100,32 @@ VehicleDueSnapshot _snapshot({
   ),
 );
 
+/// The `veh_` id the artboard's active car carries.
+///
+/// Public because `settings` names the same garage in its Vehicles row and
+/// `settingsBackdrop` marks this one active. Two ids would be two cars.
+VehicleId get artboardGolfId => _id(_golf);
+
 /// The artboard's garage, in the artboard's order.
 ///
 /// The SOLD one is handed over FIRST, so the capture proves the screen sinks it
 /// rather than proving the fixture was already sorted.
+///
+/// Public for the same reason [artboardGolfId] is: the `settings` row prints
+/// "Golf, Transit, CB500X" off this list, and a second copy would let the row
+/// and the screen it opens disagree while both captures passed.
+///
+/// [includeSold] is false for `settings`, and the two artboards genuinely
+/// differ: `vehicles-light-ltr.png` draws four cars with the sold Yamaha sunk
+/// to the bottom, and `settings-light-ltr.png` names three — "Golf, Transit,
+/// CB500X" — which is the household without it. Reproducing one garage on both
+/// would make one of the two captures disagree with its own reference, and the
+/// reference is the authority.
+List<Vehicle> artboardGarage({required bool rtl, bool includeSold = true}) =>
+    _garage(
+      rtl: rtl,
+    ).where((v) => includeSold || v.status != VehicleStatus.sold).toList();
+
 List<Vehicle> _garage({required bool rtl}) => [
   _vehicle(
     _yamaha,
