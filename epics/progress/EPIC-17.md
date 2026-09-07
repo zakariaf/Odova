@@ -89,3 +89,36 @@ for body text. Closing it means lightening tertiary text past the point where it
 reads as tertiary — a further design judgement nobody has been asked for, and
 not the WCAG failure §17 makes a release blocker. Pinned at the measured value
 so the next palette change re-opens it.
+
+## Task 17.3 (partial) — the estimated value, and a warning no blind user got
+
+**The uncertainty rule reached every sighted user and no screen-reader user at
+all.** §1.4 puts a `~` in front of every projected figure so somebody can tell
+at a glance which numbers the app knows and which it guessed. The odometer strip
+built a `Semantics` label for that — `commonEstimatedA11y`, translated in all
+six locales since EPIC-04 — and nested it on the figure, where **the label never
+reached the semantics tree**. The strip merges into one button node and the
+inner label was dropped on the way, so a reader announced "last entered
+September 7, 2026" and nothing about the number being a guess.
+
+Two things had to be true for that to hide: the ARB key existed and was called,
+so a grep found it wired; and no test had ever read the strip's semantics.
+
+The announcement is now built at the strip's root, as one sentence —
+"estimated, about 187,400 km, last entered September 7, 2026". One node is also
+what a reader wants: three nodes are three stops on a swipe path through one
+row.
+
+**And the label passed the figure WITH its mark**, so even where it did work it
+would have said "estimated, about ~187,400 km" — reading the tilde aloud inside
+the sentence that exists to replace it. The announcement now takes the plain
+body.
+
+`lib/ui/calm/estimated_value_semantics.dart` is the shared form for the next
+screen that needs it, with the same rule: the value goes in without its mark,
+and the sentence comes from ARB rather than being concatenated in Dart — five of
+the six languages do not share English word order and three are right-to-left.
+
+**Still to do in 17.3:** due-card, all-clear and vehicle-surface semantics, and
+the "no state announced through colour" sweep. The helper and the strip are the
+part where the rule was actually being broken.

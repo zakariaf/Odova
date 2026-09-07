@@ -147,73 +147,119 @@ class OdometerStrip extends StatelessWidget {
       formatsTag: formatsTag,
       style: type.title,
     );
+    // The figure WITHOUT its mark, for the announcement. `estimated: false`
+    // here is not a claim that the value is entered — it asks for the plain
+    // body, because the label says "estimated" in words a few lines below and
+    // reading the `~` as well would say it twice, once unintelligibly.
+    final figureText = formatDistanceFigure(
+      l10n,
+      formatsTag,
+      estimate.projection == OdometerProjection.projected
+          ? roundEstimateForDisplay(Distance(estimate.metres), unit)
+          : Distance(estimate.metres),
+      unit,
+      estimated: false,
+    );
 
-    return CalmPressable(
+    // The WHOLE strip announces one sentence, built here rather than left to a
+    // nested `Semantics` on the figure.
+    //
+    // It was nested, and the label never reached the semantics tree at all: the
+    // strip merges into a single button node and the inner label was dropped on
+    // the way, so a screen reader announced "last entered September 7, 2026"
+    // and NOTHING about the number being a guess. §9's whole uncertainty rule
+    // reached every sighted user through the `~` and no blind user at all.
+    //
+    // One node is also what a reader wants: "estimated, about 187,400 km, last
+    // entered September 7, 2026" is one utterance, where three nodes are three
+    // stops on a swipe path through one row.
+    return Semantics(
+      container: true,
+      button: true,
+      label: _announcement(l10n, figureText),
+      excludeSemantics: true,
       onTap: onTap,
-      borderRadius: shapes.radiusLg,
-      // The floor is OUTSIDE the surface, so the 72 is the strip's height and
-      // not its content's. Inside the padding it added 32 to a box that was
-      // already 72, and the strip photographed at 104 — which on the 375 x 667
-      // floor screen is 25pt off the bottom due card, in the one place §9 makes
-      // a promise about.
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: kOdometerStripHeight),
-        child: CalmSurface(
-          color: colors.surface2,
-          radius: shapes.radiusXl,
-          // `.odostrip` declares no shadow, so it carries no sheen either: the
-          // highlight is a light source on a raised edge and there is no edge.
-          sheen: false,
-          padding: EdgeInsetsDirectional.symmetric(
-            horizontal: space.s5,
-            vertical: space.s4,
-          ),
-          child: Row(
-            spacing: space.s4,
-            children: [
-              const CalmIconTile(icon: Icons.speed_outlined, brand: true),
-              // STACKED, not side by side. The artboard puts the reading on
-              // one line and its freshness under it in `.odostrip__main`,
-              // and the one-line version overflowed by 17pt on the 375pt
-              // floor screen in English before anybody had translated it.
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // The value is its own tap target when it is an
-                    // estimate, and only then: §9 says "tapping an estimated
-                    // value or a `—` opens a transient popover", and a plain
-                    // reading has nothing to explain.
-                    // ONE construction, wrapped or not. Written out in both
-                    // arms, the four arguments were stated twice and the
-                    // non-projected arm is the one that gets forgotten —
-                    // the popover path is what the tests exercise.
-                    if (estimated)
-                      CalmPressable(
-                        onTap: onTapValue,
-                        borderRadius: shapes.radiusSm,
-                        child: figure,
-                      )
-                    else
-                      figure,
-                    Text(
-                      _freshness(l10n),
-                      style: type.caption.copyWith(color: colors.ink3),
-                    ),
-                  ],
+      child: CalmPressable(
+        onTap: onTap,
+        borderRadius: shapes.radiusLg,
+        // The floor is OUTSIDE the surface, so the 72 is the strip's height
+        // and not its content's. Inside the padding it added 32 to a box that
+        // was already 72, and the strip photographed at 104 — which on the
+        // 375 x 667 floor screen is 25pt off the bottom due card, in the one
+        // place §9 makes a promise about.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: kOdometerStripHeight),
+          child: CalmSurface(
+            color: colors.surface2,
+            radius: shapes.radiusXl,
+            // `.odostrip` declares no shadow, so it carries no sheen either:
+            // the highlight is a light source on a raised edge and there is
+            // no edge.
+            sheen: false,
+            padding: EdgeInsetsDirectional.symmetric(
+              horizontal: space.s5,
+              vertical: space.s4,
+            ),
+            child: Row(
+              spacing: space.s4,
+              children: [
+                const CalmIconTile(icon: Icons.speed_outlined, brand: true),
+                // STACKED, not side by side. The artboard puts the reading on
+                // one line and its freshness under it in `.odostrip__main`,
+                // and the one-line version overflowed by 17pt on the 375pt
+                // floor screen in English before anybody had translated it.
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // The value is its own tap target when it is an
+                      // estimate, and only then: §9 says "tapping an estimated
+                      // value or a `—` opens a transient popover", and a plain
+                      // reading has nothing to explain.
+                      // ONE construction, wrapped or not. Written out in both
+                      // arms, the four arguments were stated twice and the
+                      // non-projected arm is the one that gets forgotten —
+                      // the popover path is what the tests exercise.
+                      if (estimated)
+                        CalmPressable(
+                          onTap: onTapValue,
+                          borderRadius: shapes.radiusSm,
+                          child: figure,
+                        )
+                      else
+                        figure,
+                      Text(
+                        _freshness(l10n),
+                        style: type.caption.copyWith(color: colors.ink3),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              CalmDirectionalIcon(
-                Icons.chevron_right,
-                size: space.iconSm,
-                color: colors.ink3,
-              ),
-            ],
+                CalmDirectionalIcon(
+                  Icons.chevron_right,
+                  size: space.iconSm,
+                  color: colors.ink3,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  /// What a screen reader says for the whole strip.
+  ///
+  /// The figure WITHOUT its `~`: the mark is visual, and §17 requires the
+  /// distinction to survive a reader that announces the glyph as nothing or as
+  /// the word "tilde". `commonEstimatedA11y` says it in words, from ARB, in all
+  /// six locales.
+  String _announcement(AppLocalizations l10n, String plainFigure) {
+    final value = estimate.projection == OdometerProjection.entered
+        ? plainFigure
+        : l10n.commonEstimatedA11y(plainFigure);
+    return '$value, ${_freshness(l10n)}';
   }
 
   /// `entered 12 Sept` for a reading, `last entered 12 Sept` for anything the
