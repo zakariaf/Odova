@@ -26,9 +26,12 @@ const String kAppBuild = '1';
 
 /// The backup format this build reads and writes.
 ///
-/// Declared here because `settings.about` needs it and EPIC-15 has not landed.
-/// **EPIC-15 Task 15.1 takes ownership of this constant** and this screen goes
-/// on reading it — two copies is how the number on the About screen and the
-/// number in the file drift apart, which is a support conversation nobody can
-/// resolve.
+/// ONE declaration, here, and `lib/features/backup/domain/backup_format.dart`
+/// re-exports it. EPIC-14 left it here with a note saying task 15.1 would take
+/// ownership; 15.1 found the better answer to be that `settings.about` and
+/// `settings.backup` are different features, `structure_test` refuses one
+/// importing the other, and a constant two features need belongs to the app.
+///
+/// Two copies is how the number on the About screen and the number in the file
+/// drift apart, which is a support conversation nobody can resolve.
 const int kSupportedFormatVersion = 1;

@@ -18,8 +18,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:odova/core/result.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// The one channel. Named here so a test can mock it by the same constant the
 /// implementation uses — a string typed twice is a mock that silently stops
@@ -163,3 +165,18 @@ class PlatformShareService implements ShareService {
     }
   }
 }
+
+/// The share port, overridden in tests.
+///
+/// Moved here from `report_notifier.dart` when the backup export became its
+/// second caller: `structure_test` refuses one feature importing another, and
+/// two features needing the same port is exactly what "it belongs to the app,
+/// not to a feature" looks like.
+///
+/// A temp directory, never a place the app chooses to keep — §12's file is
+/// written, offered, and forgotten. On Android the manifest's FileProvider
+/// exposes `cache/` and nothing else, which is why the app asks for no storage
+/// permission at all.
+final Provider<ShareService> shareServiceProvider = Provider<ShareService>(
+  (ref) => PlatformShareService(directory: getTemporaryDirectory),
+);

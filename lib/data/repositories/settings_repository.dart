@@ -314,4 +314,30 @@ class SettingsRepository {
     SettingsTableCompanion(notifyBackup: Value(notify)),
     updatedAtUtcMs: updatedAtUtcMs,
   );
+
+  /// Stamps when the user last handed a backup to the OS.
+  ///
+  /// SPEC.md §6 §6: on the HAND-OFF, not on a confirmed save. The OS never
+  /// tells the app what the user did with the file, and waiting for a
+  /// confirmation that cannot arrive would leave the Settings line amber for
+  /// ever on a phone whose user backs up every week.
+  Future<Result<void, PersistFailure>> setLastBackupAt({
+    required int atUtcMs,
+    required int updatedAtUtcMs,
+  }) => _write(
+    SettingsTableCompanion(lastBackupAtUtcMs: Value(atUtcMs)),
+    updatedAtUtcMs: updatedAtUtcMs,
+  );
+
+  /// Stamps when the app last nudged about a backup.
+  ///
+  /// §6 §7 keeps this out of the file: it is device-local nagging state, so a
+  /// restored phone starts its ninety-day clock fresh.
+  Future<Result<void, PersistFailure>> setLastBackupReminderAt({
+    required int atUtcMs,
+    required int updatedAtUtcMs,
+  }) => _write(
+    SettingsTableCompanion(lastBackupReminderAtUtcMs: Value(atUtcMs)),
+    updatedAtUtcMs: updatedAtUtcMs,
+  );
 }

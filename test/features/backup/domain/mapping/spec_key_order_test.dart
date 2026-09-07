@@ -44,6 +44,30 @@ final VehicleId _veh = VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD')!;
 final Currency _eur = Currency.tryParse('EUR')!;
 
 void main() {
+  test('the format version is declared exactly once in the whole tree', () {
+    // Two copies is how the number on the About screen and the number inside
+    // the file drift apart, which is a support conversation nobody can
+    // resolve. `settings.about` shows it and `settings.backup` writes it —
+    // two different features — so it lives in `lib/app` and the backup
+    // feature re-exports it.
+    final declarations = <String>[];
+    for (final file
+        in Directory('lib')
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.dart'))) {
+      if (file.path.contains('/gen/')) continue;
+      if (RegExp(
+        r'^\s*const int kSupportedFormatVersion',
+        multiLine: true,
+      ).hasMatch(file.readAsStringSync())) {
+        declarations.add(file.path);
+      }
+    }
+
+    expect(declarations, ['lib/app/app_version.dart']);
+  });
+
   test("the envelope keys are the spec's, in order", () {
     // The envelope is what lets a reader refuse a wrong-format or
     // wrong-version file before parsing a single record, which is what makes

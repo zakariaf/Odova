@@ -14,6 +14,8 @@ import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/repositories/settings_repository.dart';
 import 'package:odova/data/ui_state/ui_state_provider.dart';
 import 'package:odova/data/ui_state/ui_state_store.dart';
+import 'package:odova/features/backup/application/backup_notifier.dart';
+import 'package:odova/features/backup/data/backup_wiring.dart';
 import 'package:odova/theme/calm/font_licences.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -106,6 +108,13 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     // over one still pending — so the default is inert and this is where it is
     // switched on.
     todayTicksProvider.overrideWithValue(true),
+    // EPIC-15. The screen was built against a no-op port so a widget test
+    // pumps without a database; this is where the real one is installed. A
+    // port with a named no-op and no production wiring is the defect EPIC-13
+    // and EPIC-14 each shipped once — `bootstrap_wires_ports_test` reads both
+    // out of a bare container so it cannot recur silently.
+    backupDirectoryProvider.overrideWithValue(getApplicationSupportDirectory),
+    backupActionsProvider.overrideWith(WiredBackupActions.new),
   ];
 }
 

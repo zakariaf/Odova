@@ -6,6 +6,18 @@
 // standing in a phone shop with a dead handset; the file has to be readable by
 // them, by a text editor, and by a version of this app they have not installed
 // yet.
+//
+// The format VERSION is `kSupportedFormatVersion`, declared in
+// `lib/app/app_version.dart` and re-exported below so every caller in this
+// feature reads it without a second import.
+//
+// ONE declaration, and it is in `lib/app` rather than here because
+// `settings.about` shows it and `settings.backup` writes it — two different
+// features, and `structure_test` refuses one importing the other. A constant
+// two features need belongs to the app. Two copies is how the number on the
+// About screen and the number inside the file drift apart, which is a support
+// conversation nobody can resolve.
+export 'package:odova/app/app_version.dart' show kSupportedFormatVersion;
 
 /// The `format` field's only legal value.
 ///
@@ -13,15 +25,6 @@
 /// and a reader that accepts any JSON document with the right-looking keys
 /// will one day be handed a different app's export.
 const String kBackupFormat = 'odova.backup';
-
-/// The format version this build reads and writes.
-///
-/// EPIC-15 owns it; `settings.about` reads it. It was declared in
-/// `lib/app/app_version.dart` while this epic was pending, and that
-/// declaration now points here — two copies is how the number on the About
-/// screen and the number inside the file drift apart, which is a support
-/// conversation nobody can resolve.
-const int kSupportedFormatVersion = 1;
 
 /// The units every figure in the file is in.
 ///
