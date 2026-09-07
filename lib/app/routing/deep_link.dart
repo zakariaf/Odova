@@ -15,86 +15,17 @@
 
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/ids/record_id.dart';
+import 'package:odova/core/notifications/notification_payload.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/core/value_equality.dart';
 
-/// The six notifications this app sends.
-///
-/// SPEC.md §7 lists these as the `kind` field's values. No `unknown` member:
-/// an unrecognised wire string does not become a kind, it becomes an
-/// [UnknownDeepLinkKind] at the boundary — a default member is how a payload
-/// from a future build gets silently routed somewhere plausible.
-enum DeepLinkKind {
-  /// A service item is due.
-  reminderDue('reminder.due'),
-
-  /// A service item is overdue.
-  reminderOverdue('reminder.overdue'),
-
-  /// Several items at once.
-  reminderGrouped('reminder.grouped'),
-
-  /// "We have not seen a reading in a while."
-  odometerNudge('odometer.nudge'),
-
-  /// The long-quiet reminder that the app is still keeping the record.
-  keeper('keeper'),
-
-  /// "Your backup is old."
-  backupNudge('backup.nudge');
-
-  const DeepLinkKind(this.wire);
-
-  /// The value in the payload.
-  final String wire;
-
-  /// [wire] back to a member, or null for a kind this build does not know.
-  static DeepLinkKind? tryParse(String wire) {
-    for (final kind in values) {
-      if (kind.wire == wire) return kind;
-    }
-    return null;
-  }
-
-  /// Whether this kind names a single reminder.
-  ///
-  /// SPEC.md §7: `reminderId` is "absent for every kind except `reminder.due`
-  /// and `reminder.overdue`". `reminder.grouped` is deliberately not here — it
-  /// names several and pins none.
-  bool get carriesReminder => this == reminderDue || this == reminderOverdue;
-
-  /// Whether this kind's payload scopes the app to a vehicle.
-  ///
-  /// `keeper` and `backup.nudge` do not: §7 says both leave the active vehicle
-  /// unchanged, because neither is about a particular car.
-  bool get scopesVehicle => this != keeper && this != backupNudge;
-}
-
-/// A tapped notification, as the router needs it.
-class DeepLinkRequest with ValueEquality {
-  /// Creates the request.
-  const DeepLinkRequest({
-    required this.kind,
-    required this.vehicleId,
-    this.reminderId,
-  });
-
-  /// Which notification.
-  final DeepLinkKind kind;
-
-  /// The vehicle it was about.
-  ///
-  /// Present on every payload, including the two kinds that do not switch to
-  /// it — a `keeper` still knows which car it was queued for, and EPIC-16's
-  /// scheduler needs that even though routing does not.
-  final String vehicleId;
-
-  /// The reminder, on the two kinds that name one.
-  final String? reminderId;
-
-  @override
-  List<Object?> get props => [kind, vehicleId, reminderId];
-}
+// `DeepLinkKind` and `DeepLinkRequest` moved to lib/core/notifications/ so the
+// SCHEDULER can build a payload without importing the router. They are exported
+// from here because every existing caller reads them from this file, and the
+// two names are still routing's vocabulary — the move is about which layer may
+// depend on which, not about who the types belong to.
+export 'package:odova/core/notifications/notification_payload.dart'
+    show DeepLinkKind, DeepLinkRequest, decodePayload, encodePayload;
 
 /// What still exists.
 ///

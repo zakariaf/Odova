@@ -31,8 +31,8 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/due/daily_distance.dart';
 import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/ids/record_id.dart';
-import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/result.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/repositories/log_repositories.dart';
@@ -76,7 +76,10 @@ void main() {
       'rate', () async {
     // Two manual readings 20 days and 800 km apart: a measurable slope of
     // 40 km/day, which is the number the assertion is really about.
-    for (final (n, day, km) in [(1, '2026-08-01', 116_000), (2, '2026-08-21', 116_800)]) {
+    for (final (n, day, km) in [
+      (1, '2026-08-01', 116_000),
+      (2, '2026-08-21', 116_800),
+    ]) {
       await odometer.saveReading(
         OdometerReading(
           id: OdometerReadingId.tryParse('odo_${_body.substring(0, 25)}$n')!,

@@ -71,3 +71,36 @@ It is in `test/data/repositories/` instead.
   be building the thing that file refuses.
 - The epic also names `DueConfidence`; the type is `RateConfidence` and it
   already exists. Not renamed.
+
+## Task 16.3 — the payload, and one type instead of two
+
+EPIC-08 had already built the routing half: all six kinds, `locationFor`, the
+back-stack synthesis, the vehicle-before-route ordering and both "the thing is
+gone" rows. What did not exist anywhere in `lib/` was the **codec** — nothing
+encoded or decoded a payload, so the format the OS would hold for four months
+was unwritten.
+
+**One type, not two.** The task specifies a sealed `NotificationPayload` with six
+subtypes. `DeepLinkRequest` already carries exactly §4.4.2's three fields, and
+the six kinds differ only in whether `reminderId` is present — which
+`DeepLinkKind.carriesReminder` already says. Six classes holding identical
+fields would be a second name for one thing that the router maps straight back,
+and the validation the hierarchy existed to enforce is enforced at the boundary
+instead, which is the only place an invalid payload can enter.
+
+**`DeepLinkKind` and `DeepLinkRequest` moved to `lib/core/notifications/`.** The
+codec cannot live in `lib/app/` because the SCHEDULER writes payloads and would
+then import the router to build a string; it cannot import from `lib/app/`
+either. The types moved down, `deep_link.dart` re-exports them so every existing
+caller is untouched, and `core_is_pure_test` gained the subject with its reason.
+
+**Refusal, never a default,** in all four directions: an unknown kind (the
+app-update case), a `reminder.due` with no `reminderId`, one of the other four
+kinds carrying one, and a missing or empty id. `reminderId` is OMITTED rather
+than nulled on the kinds that do not name one, because §4.4.2 says "absent" and
+a null is a value a future reader has to make a decision about.
+
+**A mutation check found a hole in my own tests.** Accepting an empty
+`vehicleId` passed all twelve. The guard was there and untested, which is the
+same as not being there; `""` is what a serialiser writes for a null id.
+Thirteen now, and the mutation is red.
