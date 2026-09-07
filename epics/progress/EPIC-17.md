@@ -358,3 +358,150 @@ Three decisions the mutations pin:
 
 **Still not wired:** the two chart widgets do not call it. That is a change on
 the screens EPIC-18 owns, and the gate test records it with the gap named.
+
+---
+
+## `/simplify` and `/code-review`, applied or answered
+
+Both passes ran before the PR. Eight simplify findings and nine review findings;
+three of the review's were real defects and are fixed with a test each. What
+follows is every finding and its disposition.
+
+### The three real defects
+
+**1 — the placeholder fix never reached the widget.** `calm_field.dart` passed
+`colors.ink4` to `hintStyle`: 4.23:1 in light, 4.14:1 in dark, on a field filled
+with `surface-2`. Task 17.2 had moved `--color-ink-3` in `odova.css`, in
+`calm_palette.dart` and across 116 re-shot reference PNGs, and
+`ACCESSIBILITY-FINDING.md` said in as many words that placeholders now point at
+the corrected token. Three artefacts agreed and the one that draws the pixel did
+not.
+
+`calm_contrast_test.dart` structurally could not catch it. It measures declared
+PAIRS, `ink4` is deliberately excluded from `_inks` because its text uses are
+SC 1.4.3-exempt disabled states, and at the 3:1 graphic floor where it *is*
+declared, 4.23 passes. The palette was right; the widget was wrong; nothing
+looked at the widget.
+
+Fixed, and `test/a11y/rendered_text_contrast_test.dart` now reads the colour off
+the `RenderParagraph` in both themes. It was seen to fail at exactly 4.23 and
+4.14 before the fix. The four `field-*` goldens are re-baselined — the reference
+set already rendered the darker placeholder, so the golden was catching up with
+the design rather than changing it.
+
+**2 — the one-utterance wrapper deleted §9's popover.** Task 17.3 put
+`excludeSemantics: true` on `OdometerStrip`'s root so a reader hears one
+sentence instead of three stops. It also collapsed away the inner
+`CalmPressable` that opens the estimate popover, leaving a single node with a
+single tap action: a TalkBack user who double-tapped the strip got the odometer
+ENTRY modal, and §9's "tapping an estimated value opens a transient popover" —
+the explanation for the guess — existed for sighted users only.
+
+Restored as a `customSemanticsActions` entry, which keeps the one-utterance win
+a second node would undo. `homeExplainEstimateA11y` lands in all six ARBs. Two
+tests: the action opens the popover and not the entry modal, and an entered
+reading offers no action at all.
+
+**3 — an `unknown` row on `reminders.list` carried nothing but a dot.** Found by
+the fix to review finding 5 rather than by the review itself.
+`colour_independence_test.dart` hand-wrote six status lines and then asserted
+they were distinct — it asserted its own fixture, so the 1.4.1 collision it
+exists to catch could not reach it. Rewritten to source every line from
+`due_copy.dart`, it went red: `dueStatusLine` returns `''` for `unknown`,
+correctly, because Home collapses that state into its own card and never asks —
+but `reminders.list` does render it, through `remindersStatusLine`. That row
+announced its title and a coloured dot.
+
+`remindersStatusLine` now gives `unknown` the same QUESTION `_endText` already
+gives a row with no assessment at all: §9's drawing says a tracked item the app
+cannot date gets the question rather than a blank. Seen to fail before the fix.
+
+### Two gates that were themselves wrong
+
+**`expectEverythingLabelled` fired on correct code.** Its icon pass searched for
+an `ExcludeSemantics` ancestor by widget type, and `Semantics(excludeSemantics:
+true)` is a FLAG on `RenderSemanticsAnnotations` — no such widget is inserted.
+Run against the real `OdometerStrip` it reported a chevron that contributes no
+semantics node at all. Nothing was red today only because no screen with that
+shape is in the sweep yet; EPIC-18 adding `home` is when it would have gone red
+on correct code, and the two cheapest ways out are both wrong — label a
+decorative chevron so a reader says "chevron right" on every row, or delete the
+pass. Both ancestor forms now count, with a self-test.
+
+**`expectTapTargets` has a blind spot, now asserted rather than described.**
+Flutter's guideline measures the semantics rect of nodes carrying
+`SemanticsAction.tap`. A `Semantics(excludeSemantics: true)` wrapper that does
+NOT declare its own `onTap` deletes the undersized node and leaves nothing with
+a tap action to measure, so a 12x12 control inside one passes. Both widgets in
+this epic with that shape — `ChartAlternative` and `OdometerStrip` — do pass
+`onTap`, so their rects are measured and nothing is hidden today. The gate still
+cannot see the class of defect it exists for. A real fix needs a hit-test-region
+walk and is EPIC-18's; the current behaviour is pinned by a test that will go
+red the day that lands, so its removal is the record that the gap closed. The
+harness doc claim that "only the framework's matcher knows the difference"
+between a semantics rect and a hit-test region was wrong and is corrected.
+
+### Applied without argument
+
+- `ChartSummary.trend` is a getter, not a constructor argument. A stored
+  direction is a second place it can be set, and a summary built by hand with
+  `up` on a falling series announces the opposite of what the chart draws, to
+  the one user who cannot check. Same rule as §2's "derived values are never
+  persisted", one layer up.
+- `ChartDataTable` asserts on a ragged row instead of clamping the loop to
+  `columnHeaders.length`, which silently dropped cells — data missing from the
+  only representation a screen-reader user has, with nothing to notice. In
+  release, where the assert is compiled out, an unmatched header reads `?`
+  rather than vanishing.
+- `bark48` and `amber51` measure 49.3 and 52.3 in OKLCH. The file's premise is
+  that a primitive's name is "a fact about the pixel, so the name cannot lie",
+  and these were the only two of 96 more than 1.0 out. Renamed `bark49` and
+  `amber52`.
+- Four duplicated semantics walkers hoisted into `walkSemantics`,
+  `spokenLabels` and `focusableLabels`; `performCustomAction` joins them, so the
+  one deprecated `pipelineOwner` lookup stays in one place instead of a screen
+  test growing its own ignore.
+- `tap_target_selftest_test.dart` merged into `harness_selftest_test.dart` —
+  one file for "does the harness work", not two.
+- Three stale `gate_coverage_test.dart` rows corrected, and the
+  fully-covered floor is now `kFullyCoveredRows` rather than a literal three
+  lines into a test body.
+- Stale prose in `calm_contrast_test.dart` (a chevron described as failing when
+  it now passes; a hex that no longer exists), the stray `///.` above `amber52`,
+  and `ACCESSIBILITY-FINDING.md`'s placeholder claim.
+- `.claude/skills/calm-tokens/` documented the replaced palette. The seven
+  `calm-*` skills are written for this repo, so this one was answering "what is
+  Calm's value for this colour" with the values that failed WCAG. Regenerated
+  from `calm_palette.dart`. `contrast-audit.md` keeps its findings verbatim —
+  they are the reasoning the new values rest on — with a dated header saying
+  which are closed and that no hex should be read out of it.
+
+### Answered, not applied
+
+**"Promote the a11y CI step to its own job or delete it."** Kept, as a
+duplicated run. `test/a11y/` and `test/policy/` do run again inside the full
+`flutter test` later in the same job — that is about two seconds, and it buys
+"the §17 accessibility gate" appearing in the checks list as its own red X.
+§17 calls this a release blocker, and a release blocker buried inside a
+4,900-test run is one nobody reads the name of. The CI comment now says this
+rather than leaving the duplication to look accidental.
+
+**"The six due states should all be announced distinctly."** The original test
+asserted this and it is not true of the app, deliberately. `ok` and `dueSoon`
+share their wording because §9 puts `reminders.list` in "the same
+dot/colour/wording vocabulary" as Home "so no legend is needed"; what separates
+them there is the figure, not the phrase. The rewritten test asserts that every
+state ships WORDS and that the one pair §2 names — `unknown` versus
+`needsOdometer` — never collapses. A six-way distinctness check would pin a
+fixture that made them differ and would fail the day the app matched the spec.
+
+**"`ChartAlternative` has no production caller."** True, and it stays true.
+Wiring it is a change to `costs` and `costs.fuel`, which are EPIC-18's screens.
+The gate row now says so in the words the reviewer used, so §17's chart row is
+recorded as satisfied by a component and not by a screen.
+
+**"`traversal_order_test.dart` only pumps a synthetic form."** True. It pins
+framework behaviour rather than any Odova screen, and the gate row now says
+that instead of the older and wronger claim that traversal order is untested.
+Pumping a real screen needs the repository fakes that keep 25 screens out of
+the sweep, which is the same EPIC-18 dependency.
