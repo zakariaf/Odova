@@ -1,0 +1,8 @@
+{
+  "why": "SPEC.md §6 §2.5's own worked example, copied verbatim at build time. It is in the corpus because the document is the format: if the app cannot import the file the spec prints, the spec is describing a different app.",
+  "outcome": "ok",
+  "records": 7,
+  "warnings": [
+    "content_hash_mismatch"
+  ]
+}

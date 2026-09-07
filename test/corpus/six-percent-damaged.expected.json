@@ -1,0 +1,5 @@
+{
+  "why": "Rung 13's blast radius, just over the 5% line. Refused rather than partly imported: §2 makes import a REPLACE, so a partial import is most of a history standing where all of it used to be.",
+  "outcome": "refused",
+  "failure": "too_damaged"
+}

@@ -1,0 +1,8 @@
+{
+  "why": "The first copy wins. A file whose tail was appended twice is the common shape, and the first copy is the one the document's links point at. The count here is what the FILE holds — twenty-three rows — of which twenty-two are imported.",
+  "outcome": "ok",
+  "records": 23,
+  "warnings": [
+    "duplicate_ids"
+  ]
+}

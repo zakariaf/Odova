@@ -17,7 +17,6 @@ import 'package:odova/data/backup/migration_safety_copy.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/app_database_opener.dart';
 import 'package:odova/data/db/connection.dart';
-import 'package:odova/data/db/schema_readers/schema_reader.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 /// A migration that throws before it changes anything.
@@ -212,12 +211,13 @@ void main() {
 
       final content =
           jsonDecode(await copy.readAsString()) as Map<String, Object?>;
-      expect(content['schema_version'], 1);
+      // SPEC §6's document, so the escape route is a file the app can
+      // actually import — changed in EPIC-15 task 15.3, where the writer that
+      // produces this shape was finally built.
+      expect(content['format'], 'odova.backup');
+      expect(content['format_version'], 1);
 
-      final tables = content['tables']! as Map<String, Object?>;
-      // Every table the v1 reader lists, and the vehicle's real values.
-      expect(tables.keys, containsAll(const SchemaReaderV1().tables));
-      final vehicles = tables['vehicles']! as List<Object?>;
+      final vehicles = content['vehicles']! as List<Object?>;
       expect(vehicles, hasLength(1));
       expect((vehicles.single! as Map)['name'], 'The Golf');
     },

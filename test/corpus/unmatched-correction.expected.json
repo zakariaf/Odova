@@ -1,0 +1,9 @@
+{
+  "why": "The ONE link failure that must not be repaired by guessing: applying it to an arbitrary reading rewrites a mileage history that looked fine, and the user could never tell which number the app invented.",
+  "outcome": "ok",
+  "records": 42,
+  "warnings": [
+    "skipped_records",
+    "unmatched_corrections"
+  ]
+}

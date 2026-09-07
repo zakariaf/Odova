@@ -365,6 +365,21 @@ jobs:
       - name: a migration loses no record
         run: flutter test test/migration/
 
+      # Contract: SPEC.md §6 §3.1 rule 3 — every file in the backup corpus
+      # imports and does what its sidecar says. THE CORPUS ONLY GROWS: a
+      # migration ships with a file from the previous version in it, and the
+      # directory is walked rather than enumerated, so adding a file adds a
+      # case.
+      #
+      # Its own step because a red corpus is a RELEASE BLOCKER and not a flaky
+      # test. It is the only place the reader meets a whole file — the spec's
+      # own worked example, three vans over ten years, a truncated download, a
+      # flipped hash byte, orphans, duplicates and a hostile-text file — rather
+      # than a fixture built to exercise one branch. Buried inside the general
+      # `flutter test` run its failure would read as one more red line.
+      - name: the backup corpus imports
+        run: flutter test test/corpus/
+
       # Contract: lib/core/ really does run with no widget binding. The
       # structure test proves it imports no Flutter; this proves the tests
       # EXECUTE without one, which is what makes EPIC-06's fuel maths and

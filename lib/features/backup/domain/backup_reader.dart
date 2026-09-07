@@ -28,6 +28,8 @@ import 'package:odova/features/backup/domain/import_failure.dart';
 import 'package:odova/features/backup/domain/import_plan.dart';
 import 'package:odova/features/backup/domain/import_warning.dart';
 import 'package:odova/features/backup/domain/mapping/record_restore.dart';
+import 'package:odova/features/backup/domain/migrations/migrations.dart';
+import 'package:odova/features/backup/domain/migrations/v0_defaults.dart';
 
 /// §9's ceiling. A ten-year backup is around 4 MB.
 const int kMaxBackupBytes = 64 * 1024 * 1024;
@@ -144,12 +146,18 @@ class BackupReader {
     }
 
     // ---- Rung 6: migrate. ------------------------------------------------
-    // Identity at version 1, and the only version there is. EPIC-15 task 15.3
-    // owns the chain; this is the seam it plugs into, named so the rung is
-    // visibly present rather than visibly missing.
-    final migrated = document;
+    // Pure `json → json`, in memory, before anything touches the database.
+    // §6 §3.1's fill-in table runs here too, and unconditionally rather than
+    // only for old files: the table is about ABSENT fields, and a field can be
+    // absent from a current-version file that was hand-edited.
+    final droppedRules = countDroppedRules(document);
+    final migrated = migrateForImport(document);
 
     final warnings = <ImportWarning>[];
+    // The one retired value that changes behaviour: an item that warned at
+    // whichever came LAST now warns at whichever comes first, so the user is
+    // told rather than left to notice.
+    if (droppedRules > 0) warnings.add(DroppedRules(droppedRules));
     if (log.truncatedStrings > 0) {
       warnings.add(TruncatedStrings(log.truncatedStrings));
     }

@@ -1,0 +1,9 @@
+{
+  "why": "The envelope claims more than the arrays hold. A warning carrying BOTH numbers, because \"it lists 1,204 and 1,180 were found\" is a fact the user can act on.",
+  "outcome": "ok",
+  "records": 2,
+  "warnings": [
+    "content_hash_mismatch",
+    "record_count_mismatch"
+  ]
+}

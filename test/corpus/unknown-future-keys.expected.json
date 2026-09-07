@@ -1,0 +1,6 @@
+{
+  "why": "A v1.4 file must open in a v1.2 reader with nothing worse than a missing column. Unknown keys are ignored and not preserved, and ignoring them is not a warning either.",
+  "outcome": "ok",
+  "records": 2,
+  "warnings": []
+}
