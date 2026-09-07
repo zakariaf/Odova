@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/notifications/notification_permission_port.dart';
+import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/units/distance.dart';
@@ -125,7 +126,8 @@ class NotificationsSettingsScreen extends ConsumerWidget {
             CalmListRow(
               title: l10n.notifRowTimeOfDay,
               value: formatMinutesOfDay(
-                settings?.notificationTimeMinutes ?? 9 * 60,
+                settings?.notificationTimeMinutes ??
+                    kDefaultNotificationMinutes,
                 tag,
               ),
               showChevron: true,
@@ -133,7 +135,9 @@ class NotificationsSettingsScreen extends ConsumerWidget {
                 _pickTime(
                   context,
                   ref,
-                  current: settings?.notificationTimeMinutes ?? 9 * 60,
+                  current:
+                      settings?.notificationTimeMinutes ??
+                      kDefaultNotificationMinutes,
                 ),
               ),
             ),
@@ -142,11 +146,21 @@ class NotificationsSettingsScreen extends ConsumerWidget {
               value: quietHoursLabel(
                 l10n,
                 tag,
-                from: settings?.quietHoursFromMinutes ?? 21 * 60,
-                to: settings?.quietHoursToMinutes ?? 8 * 60,
+                from:
+                    settings?.quietHoursFromMinutes ?? kDefaultQuietFromMinutes,
+                to: settings?.quietHoursToMinutes ?? kDefaultQuietToMinutes,
               ),
               showChevron: true,
-              onTap: () {},
+              onTap: () => unawaited(
+                _pickQuietHours(
+                  context,
+                  ref,
+                  from:
+                      settings?.quietHoursFromMinutes ??
+                      kDefaultQuietFromMinutes,
+                  to: settings?.quietHoursToMinutes ?? kDefaultQuietToMinutes,
+                ),
+              ),
             ),
           ],
         ),
@@ -238,6 +252,45 @@ class NotificationsSettingsScreen extends ConsumerWidget {
     await ref
         .read(settingsWriterProvider)
         .setNotificationTime(picked.hour * 60 + picked.minute);
+  }
+
+  /// Both ends of §13's quiet-hours window, in one flow.
+  ///
+  /// The row shipped as `onTap: () {}` — drawn, chevroned, and dead — with the
+  /// write path already written and tested underneath it. That is the exact
+  /// shape of defect this project keeps finding, and it is invisible to every
+  /// test that asserts the row is DRAWN.
+  ///
+  /// Two pickers rather than a range control: a range widget for two times is
+  /// a component nobody else needs, and cancelling the second one leaves the
+  /// window unchanged rather than half-set.
+  Future<void> _pickQuietHours(
+    BuildContext context,
+    WidgetRef ref, {
+    required int from,
+    required int to,
+  }) async {
+    final start = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: from ~/ 60, minute: from % 60),
+    );
+    if (start == null || !context.mounted) return;
+
+    final end = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: to ~/ 60, minute: to % 60),
+    );
+    if (end == null) return;
+
+    // BOTH ends in one write. They are one window and one decision, and two
+    // writes would leave a frame in which the window is inverted — the shape
+    // that silences a whole day rather than a night.
+    await ref
+        .read(settingsWriterProvider)
+        .setQuietHours(
+          from: start.hour * 60 + start.minute,
+          to: end.hour * 60 + end.minute,
+        );
   }
 
   Future<void> _pickNoticeDistance(

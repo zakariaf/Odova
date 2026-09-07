@@ -611,5 +611,8 @@
   "aboutBackupWarning": "تۆمارەکانت تەنها لەسەر ئەم مۆبایلەن. ئەگەر بەبێ پاڵپشت لەدەستت بدەیت، لەناودەچن.",
   "aboutVersion": "وەشانی {version} ({build})",
   "aboutBackupFormat": "شێوازی پاڵپشت {format}",
-  "aboutLicencesRow": "مۆڵەتی سەرچاوەکراوە"
+  "aboutLicencesRow": "مۆڵەتی سەرچاوەکراوە",
+  "unitConsumptionMpgUs": "مایل/گالۆنی ئەمریکی",
+  "unitConsumptionMpgUk": "مایل/گالۆنی بریتانی",
+  "commonListSeparator": "، "
 }

@@ -103,9 +103,11 @@ void main() {
     expect(rebuilder.calls, 0);
   });
 
-  group('the eight text-affecting keys each reschedule exactly once', () {
-    // §13's rule-2 list, one case each. A missing one is a locale change that
-    // leaves German text arriving on a Persian phone for four months.
+  group('every text-affecting key reschedules exactly once', () {
+    // §13's rule-2 list plus §14's "any channel switch", one case each. A
+    // missing one is a locale change that leaves German text arriving on a
+    // Persian phone for four months, or a category the user turned off that
+    // keeps arriving.
     final cases =
         <
           String,
@@ -131,22 +133,18 @@ void main() {
     }
   });
 
-  test('the rebuild port throws until the composition root wires one', () {
-    // A settings write in an app with no scheduler must be a LOUD failure at
-    // startup, not a silent no-op that leaves the OS holding stale text.
+  test('the rebuild port resolves without an override', () {
+    // It threw until overridden, and `bootstrap()` never overrode it — so
+    // every text-affecting write here committed and then threw out of an
+    // `unawaited()` tap handler in the real app while every test passed
+    // against its own fake. The default is the honest implementation of
+    // "EPIC-16 has not landed, so nothing is scheduled".
     final bare = ProviderContainer();
     addTearDown(bare.dispose);
 
-    // Riverpod 3 wraps a provider's throw, so the assertion is on the fact
-    // that it throws at all rather than on the type — and on the message,
-    // which is what a developer meeting this at startup actually reads.
     expect(
-      () => bare.read(scheduleRebuilderProvider),
-      throwsA(
-        predicate<Object>(
-          (e) => e.toString().contains('scheduleRebuilderProvider'),
-        ),
-      ),
+      bare.read(scheduleRebuilderProvider),
+      isA<NoScheduledNotifications>(),
     );
   });
 

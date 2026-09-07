@@ -3,6 +3,7 @@
 // The options are defined PER UNIT SYSTEM and never converted. 500 km is a
 // round number a driver recognises; 311 miles is the same distance and is
 // not. §5's rule about units applies to a menu as much as to a figure.
+import 'package:odova/core/due/notice_window.dart';
 import 'package:odova/core/units/distance.dart';
 
 /// The distance options a kilometre user is offered.
@@ -15,10 +16,23 @@ const List<int> kNoticeKilometres = [500, 1000, 2000];
 const List<int> kNoticeMiles = [300, 600, 1200];
 
 /// The date options, in days.
-const List<int> kNoticeDays = [7, 14, 30];
+///
+/// The two ends are §3's own floor and ceiling, so the menu cannot offer a
+/// window the engine would clamp away. The middle value is the only number
+/// this file chooses.
+const List<int> kNoticeDays = [
+  kNoticeDaysFloor,
+  14,
+  kNoticeDaysCeiling,
+];
 
 /// What Automatic means, as a percentage of the item's own interval.
-const int kAutomaticNoticePercent = 10;
+///
+/// DERIVED from `kNoticeFraction`, which is the value the due engine actually
+/// applies. A second copy is a footer that states a percentage the engine does
+/// not use — and it would state it confidently, in six languages, the day
+/// somebody tunes §3's fraction.
+int get kAutomaticNoticePercent => (kNoticeFraction * 100).round();
 
 /// The distance options for [unit], as canonical distances.
 ///

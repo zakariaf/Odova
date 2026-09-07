@@ -3646,5 +3646,17 @@
   "aboutLicencesRow": "Open source licences",
   "@aboutLicencesRow": {
     "description": "Pushes an OFFLINE text view from a bundled asset. §2 forbids a network call, so there is nothing to link out to."
+  },
+  "unitConsumptionMpgUs": "mpg (US)",
+  "@unitConsumptionMpgUs": {
+    "description": "Miles per US gallon. NAMED apart from the imperial one because they are different units: a US gallon is 3.785 L and an imperial one 4.546 L, so one figure is 17% off the other and a bare `mpg` makes the two unpickable."
+  },
+  "unitConsumptionMpgUk": "mpg (imp)",
+  "@unitConsumptionMpgUk": {
+    "description": "Miles per imperial gallon."
+  },
+  "commonListSeparator": ", ",
+  "@commonListSeparator": {
+    "description": "The mark between items in a short list of names. Arabic-script locales use U+060C, not a Latin comma — a Dart `', '` here puts a Western comma into a Persian list, which is the small wrongness a reader notices without being able to name."
   }
 }

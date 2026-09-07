@@ -611,5 +611,8 @@
   "aboutBackupWarning": "سوابق شما فقط روی همین گوشی است. اگر آن را بدون پشتیبان از دست بدهید، از بین می‌روند.",
   "aboutVersion": "نسخهٔ {version} ({build})",
   "aboutBackupFormat": "قالب پشتیبان {format}",
-  "aboutLicencesRow": "پروانه‌های متن‌باز"
+  "aboutLicencesRow": "پروانه‌های متن‌باز",
+  "unitConsumptionMpgUs": "مایل بر گالن آمریکایی",
+  "unitConsumptionMpgUk": "مایل بر گالن بریتانیایی",
+  "commonListSeparator": "، "
 }

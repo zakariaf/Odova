@@ -5,28 +5,18 @@
 // the screen renders rather than makes, and keeping them here means they can
 // be tested without a widget harness.
 import 'package:odova/core/domain/enums.dart';
-import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/l10n/numerals.dart';
 
-/// SPEC.md §13's distance options.
-const List<DistanceUnit> kDistanceOptions = DistanceUnit.values;
-
-/// Its volume options.
-///
-/// Both gallons, because they are different UNITS and not variants: a US
-/// gallon is 3.785 L and an imperial one 4.546 L, and offering "gal" alone
-/// would make a British user's consumption wrong by 17%.
-const List<VolumeUnit> kVolumeOptions = VolumeUnit.values;
-
-/// Its consumption options.
-const List<ConsumptionUnit> kConsumptionOptions = ConsumptionUnit.values;
-
-/// Its calendar options — exactly two.
-///
-/// §5 ships one alternative calendar, not a catalogue: Jalali, for the users
-/// whose dates genuinely are counted that way. A list of twelve would be a
-/// list eleven of which nobody has checked a single date against.
-const List<CalmCalendar> kCalendarOptions = CalmCalendar.values;
+// The distance, volume, consumption and calendar rows offer every value of
+// their enum, so the screen passes `.values` directly rather than through a
+// const alias that filters nothing. Four aliases here documented curation the
+// code did not do — and the doc on the volume one described a decision that
+// lives in the ENUM: both gallons are there because they are different units
+// and not variants, a US gallon being 3.785 L and an imperial one 4.546 L, so
+// offering "gal" alone makes a British user's consumption wrong by 17%.
+//
+// `numeralOptionsFor` below is the one that really does subset, and it is a
+// function for that reason.
 
 /// The numeral rows §13 offers, over FOUR stored values.
 ///
@@ -56,6 +46,24 @@ List<CalmNumerals> numeralOptionsFor(String formatsTag, {String? stringsTag}) {
       if (local != CalmNumerals.latin) local,
   ];
 }
+
+/// The consumption units some pairing implies.
+///
+/// Membership is how the app tells a DEFAULT from a CHOICE without a stored
+/// flag. `km/L`, `kWh/100 km` and `mi/kWh` are in nobody's pairing, so a user
+/// showing one of them picked it — and must keep it.
+///
+/// The rule this replaced compared against what the PREVIOUS pairing implied,
+/// which is path-dependent and loses the choice: pick `km/L` on km and litres,
+/// switch volume to US gallons (nothing happens, correctly — km with gallons
+/// implies nothing), then switch distance to miles, and the previous pairing
+/// implied null, so the app read that as "not chosen" and overwrote `km/L`
+/// with mpg. §13: never override an explicit choice again.
+const Set<ConsumptionUnit> kSuggestibleConsumptionUnits = {
+  ConsumptionUnit.lPer100km,
+  ConsumptionUnit.mpgUs,
+  ConsumptionUnit.mpgUk,
+};
 
 /// The consumption unit that goes with [distance] and [volume].
 ///

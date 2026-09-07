@@ -42,13 +42,15 @@ const List<String> kCurrencyChoices = [
   'EGP', 'MAD', 'TND', 'DZD', 'LYD', 'AFN', 'PKR',
 ];
 
-/// The codes the sheet lists, in the order it lists them.
-List<String> currencyCodes() => kCurrencyChoices;
-
-/// A currency's row value — `Euro (EUR)`.
+/// A currency's row value.
 ///
-/// The CODE stays Latin and inside its own isolate: it is an identifier, and
-/// three Latin letters loose in a right-to-left line drift to the wrong end.
+/// The CODE, isolated. It is an identifier, and three Latin letters loose in a
+/// right-to-left line drift to the wrong end.
+///
+/// Just the code, not `Euro (EUR)`: a currency NAME needs a name table in six
+/// languages, and 35 invented translations is worse than the code every bank
+/// statement already uses. Recorded as deferred rather than left as a doc
+/// promising something the body does not do.
 String currencyRowLabel(Currency currency) => isolate(currency.code);
 
 /// Opens §13's currency sheet.
@@ -94,7 +96,7 @@ class _CurrencySheetState extends State<_CurrencySheet> {
     // rather than against whatever their keyboard produced.
     final query = _query.trim().toLowerCase();
     final matches = [
-      for (final code in currencyCodes())
+      for (final code in kCurrencyChoices)
         if (query.isEmpty || code.toLowerCase().contains(query)) code,
     ];
 
@@ -113,7 +115,7 @@ class _CurrencySheetState extends State<_CurrencySheet> {
           rows: [
             for (final code in matches)
               CalmListRow(
-                title: isolate(code),
+                title: currencyRowLabel(Currency.tryParse(code)!),
                 selected: code == widget.current.code,
                 end: code == widget.current.code
                     ? Icon(

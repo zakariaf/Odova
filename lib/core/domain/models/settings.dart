@@ -9,6 +9,19 @@ import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/value_equality.dart';
 
+/// When §14 delivers, in minutes past local midnight.
+///
+/// Named rather than spelled `9 * 60` at five call sites — four of which were
+/// fallbacks re-declaring a default this class already owns, which is how a
+/// default moves in one place and stays put in four.
+const int kDefaultNotificationMinutes = 9 * 60;
+
+/// When quiet hours begin.
+const int kDefaultQuietFromMinutes = 21 * 60;
+
+/// And end.
+const int kDefaultQuietToMinutes = 8 * 60;
+
 /// The application settings.
 class AppSettings with ValueEquality {
   /// Creates settings.
@@ -28,9 +41,9 @@ class AppSettings with ValueEquality {
     this.consumptionUnit = ConsumptionUnit.lPer100km,
     this.noticeDistance,
     this.noticeDays,
-    this.notificationTimeMinutes = 9 * 60,
-    this.quietHoursFromMinutes = 21 * 60,
-    this.quietHoursToMinutes = 8 * 60,
+    this.notificationTimeMinutes = kDefaultNotificationMinutes,
+    this.quietHoursFromMinutes = kDefaultQuietFromMinutes,
+    this.quietHoursToMinutes = kDefaultQuietToMinutes,
     this.weekdaysOnly = false,
     this.notifyService = true,
     this.notifyOdometer = true,

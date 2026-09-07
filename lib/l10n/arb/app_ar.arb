@@ -611,5 +611,8 @@
   "aboutBackupWarning": "سجلاتك موجودة على هذا الهاتف فقط. إن فقدته دون نسخة احتياطية، فقدتها معه.",
   "aboutVersion": "الإصدار {version} ({build})",
   "aboutBackupFormat": "تنسيق النسخ الاحتياطي {format}",
-  "aboutLicencesRow": "تراخيص المصادر المفتوحة"
+  "aboutLicencesRow": "تراخيص المصادر المفتوحة",
+  "unitConsumptionMpgUs": "ميل/جالون أمريكي",
+  "unitConsumptionMpgUk": "ميل/جالون إمبراطوري",
+  "commonListSeparator": "، "
 }

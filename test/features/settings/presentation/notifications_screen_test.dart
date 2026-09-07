@@ -19,6 +19,7 @@ import 'package:odova/data/repositories/vehicle_repository.dart';
 import 'package:odova/features/settings/presentation/notifications_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_switch.dart';
 
 import '../../../app/routing/shell_harness.dart';
@@ -214,5 +215,21 @@ void main() {
       TextDirection.rtl,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the quiet-hours row is not a dead tap', (tester) async {
+    // It shipped as `onTap: () {}` with the write path already written and
+    // tested underneath it — invisible to every test that asserts the row is
+    // drawn.
+    await _pump(tester);
+    final l10n = _l10n(tester);
+
+    final row = tester.widget<CalmListRow>(
+      find.ancestor(
+        of: find.text(l10n.notifRowQuietHours),
+        matching: find.byType(CalmListRow),
+      ),
+    );
+    expect(row.onTap, isNotNull);
   });
 }

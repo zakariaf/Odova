@@ -2459,4 +2459,13 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get aboutLicencesRow => 'پروانه‌های متن‌باز';
+
+  @override
+  String get unitConsumptionMpgUs => 'مایل بر گالن آمریکایی';
+
+  @override
+  String get unitConsumptionMpgUk => 'مایل بر گالن بریتانیایی';
+
+  @override
+  String get commonListSeparator => '، ';
 }

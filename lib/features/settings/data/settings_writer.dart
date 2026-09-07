@@ -101,7 +101,15 @@ const Set<SettingsKey> kTextAffectingKeys = {
   SettingsKey.notificationTime,
   SettingsKey.quietHours,
   SettingsKey.weekdaysOnly,
+  // All THREE categories, not just the service one. §14 rule 2 says "any
+  // channel switch" forces a rebuild and §13's Interactions say turning one
+  // off cancels that channel's pending notifications — and with only
+  // `notifyService` in the set, the three switches behaved differently from
+  // one another with nothing on screen saying so. Odometer nudges already
+  // scheduled kept arriving after the user turned them off.
   SettingsKey.notifyService,
+  SettingsKey.notifyOdometer,
+  SettingsKey.notifyBackup,
 };
 
 /// Every settings write in the app.

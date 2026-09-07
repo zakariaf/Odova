@@ -25,16 +25,34 @@ abstract interface class ScheduleRebuilder {
   Future<void> rebuildAll();
 }
 
-/// The port. Throws until the composition root supplies an implementation.
+/// The rebuilder that does nothing, because there is nothing to rebuild yet.
 ///
-/// Throwing rather than defaulting to a no-op: a settings write in an app with
-/// no scheduler wired must be a loud failure the first time it happens, not a
-/// silence that leaves the OS holding text in a language the user has just
-/// stopped reading.
+/// EPIC-16 owns the scheduler. Until it lands there are no scheduled
+/// notifications, so a settings write has nothing to cancel and nothing to
+/// re-bake — and this is the honest implementation of that, not a stub hiding
+/// a gap.
+///
+/// It exists because the alternative was worse in a way that showed up only in
+/// the app. The provider threw `UnimplementedError` until overridden and
+/// `bootstrap()` never overrode it, so every text-affecting write — language,
+/// calendar, numerals, distance unit, delivery time — committed to the
+/// database and then threw out of an `unawaited()` tap handler. All 4,300
+/// tests passed, because every test supplied its own fake. A port that throws
+/// is only safe when something in production actually satisfies it.
+class NoScheduledNotifications implements ScheduleRebuilder {
+  /// Creates the no-op.
+  const NoScheduledNotifications();
+
+  @override
+  Future<void> rebuildAll() async {}
+}
+
+/// The port.
+///
+/// Defaults to [NoScheduledNotifications], which is TRUE today rather than a
+/// silence: EPIC-16 has not landed, so nothing is scheduled. When it does, it
+/// overrides this in `bootstrap()` and §13's rule 2 starts having an effect —
+/// and the day that override is forgotten, `bootstrap_wires_ports_test.dart`
+/// goes red rather than a user's notifications going stale.
 final Provider<ScheduleRebuilder> scheduleRebuilderProvider =
-    Provider<ScheduleRebuilder>(
-      (ref) => throw UnimplementedError(
-        'scheduleRebuilderProvider must be overridden — EPIC-16 supplies the '
-        'implementation, and until it lands the composition root wires a fake.',
-      ),
-    );
+    Provider<ScheduleRebuilder>((ref) => const NoScheduledNotifications());

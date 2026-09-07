@@ -2464,4 +2464,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutLicencesRow => 'Open source licences';
+
+  @override
+  String get unitConsumptionMpgUs => 'mpg (US)';
+
+  @override
+  String get unitConsumptionMpgUk => 'mpg (imp)';
+
+  @override
+  String get commonListSeparator => ', ';
 }

@@ -3797,6 +3797,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open source licences'**
   String get aboutLicencesRow;
+
+  /// Miles per US gallon. NAMED apart from the imperial one because they are different units: a US gallon is 3.785 L and an imperial one 4.546 L, so one figure is 17% off the other and a bare `mpg` makes the two unpickable.
+  ///
+  /// In en, this message translates to:
+  /// **'mpg (US)'**
+  String get unitConsumptionMpgUs;
+
+  /// Miles per imperial gallon.
+  ///
+  /// In en, this message translates to:
+  /// **'mpg (imp)'**
+  String get unitConsumptionMpgUk;
+
+  /// The mark between items in a short list of names. Arabic-script locales use U+060C, not a Latin comma — a Dart `', '` here puts a Western comma into a Persian list, which is the small wrongness a reader notices without being able to name.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get commonListSeparator;
 }
 
 class _AppLocalizationsDelegate

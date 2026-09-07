@@ -2599,4 +2599,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutLicencesRow => 'تراخيص المصادر المفتوحة';
+
+  @override
+  String get unitConsumptionMpgUs => 'ميل/جالون أمريكي';
+
+  @override
+  String get unitConsumptionMpgUk => 'ميل/جالون إمبراطوري';
+
+  @override
+  String get commonListSeparator => '، ';
 }

@@ -6,12 +6,15 @@
 // sentence forbids.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
+import 'package:odova/app/notifications/notification_permission_port.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/today.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/features/settings/presentation/notifications_screen.dart';
 
 /// How the backup row reads, and in which colour.
 ///
@@ -46,8 +49,9 @@ class SettingsRootState {
     required this.theme,
     this.today,
     this.lastBackupAtUtcMs,
-    this.notificationTimeMinutes = 9 * 60,
-    this.notifyService = true,
+    this.notificationTimeMinutes = kDefaultNotificationMinutes,
+    this.permission = NotificationPermission.granted,
+    this.anyCategoryOn = true,
     this.distanceUnit = DistanceUnit.km,
     this.volumeUnit = VolumeUnit.l,
     this.currencyCode = 'EUR',
@@ -72,8 +76,24 @@ class SettingsRootState {
   /// The daily delivery time, for the Notifications row's value.
   final int notificationTimeMinutes;
 
-  /// Whether any category is on — §13's "On / Off" word.
-  final bool notifyService;
+  /// What the OS says about the permission.
+  final NotificationPermission permission;
+
+  /// Whether the Notifications row reads `On`.
+  ///
+  /// The OS permission AND at least one category: either alone is a half
+  /// answer. A granted permission with every category off sends nothing, and
+  /// three categories on under a denied permission sends nothing either.
+  bool get notificationsOn =>
+      permission == NotificationPermission.granted && anyCategoryOn;
+
+  /// Whether ANY category is on.
+  ///
+  /// All three, not just the service one. The root row read `notifyService`
+  /// alone while its own doc said "any category", so a user with services off
+  /// and odometer nudges on saw `Off` beside a phone that was about to nudge
+  /// them.
+  final bool anyCategoryOn;
 
   /// For the Units row's `km · L · €` summary.
   final DistanceUnit distanceUnit;
@@ -144,8 +164,19 @@ final Provider<SettingsRootState> settingsRootProvider =
         vehicles: vehicles,
         theme: settings?.theme ?? 'system',
         lastBackupAtUtcMs: settings?.lastBackupAtUtcMs,
-        notificationTimeMinutes: settings?.notificationTimeMinutes ?? 9 * 60,
-        notifyService: settings?.notifyService ?? true,
+        notificationTimeMinutes:
+            settings?.notificationTimeMinutes ?? kDefaultNotificationMinutes,
+        anyCategoryOn:
+            (settings?.notifyService ?? true) ||
+            (settings?.notifyOdometer ?? true) ||
+            (settings?.notifyBackup ?? true),
+        // §13's Data-in for `settings` says the On/Off word comes from the OS
+        // PERMISSION. Reading a category instead meant the row read `On ·
+        // 09:00` on a phone where notifications were turned off for Odova
+        // entirely — the one state where the word matters most.
+        permission:
+            ref.watch(notificationPermissionState).value ??
+            NotificationPermission.granted,
         distanceUnit: settings?.distanceUnit ?? DistanceUnit.km,
         volumeUnit: settings?.volumeUnit ?? VolumeUnit.l,
         currencyCode: settings?.currencyDefault.code ?? 'EUR',

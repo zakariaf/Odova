@@ -19,7 +19,9 @@ import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/units/consumption.dart';
 import 'package:odova/core/units/distance.dart';
+import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/money_format.dart';
@@ -125,8 +127,15 @@ class FormatSample {
   /// Its price, in the default currency's minor units.
   final int amount;
 
-  /// Its consumption, in the chosen unit.
-  final double consumption;
+  /// Its consumption, as a `FuelSegment` so the preview can CONVERT it.
+  ///
+  /// A bare `6.4` was the bug: the distance and the volume beside it both went
+  /// through `inUnit`, and this did not — so choosing miles and US gallons
+  /// gave `11.3 gal · €74.20 · 6.4 mpg` over `116,452 mi`, three figures of
+  /// which one was in a unit nobody had selected. 6.4 L/100 km is about 36.8
+  /// mpg US, and this is the one card on the screen whose entire job is
+  /// showing what the settings produce.
+  final Consumption consumption;
 }
 
 /// The reference's fixed sample: 2 September 2026, 187,412 km, 42.8 L, 74.20,
@@ -140,15 +149,22 @@ const FormatSample kFormatSample = FormatSample(
   distance: Distance(187_412_000),
   volume: Volume(42_800),
   amount: 7420,
-  consumption: 6.4,
+  // 42.8 L over 669 km is 6.4 L/100 km — the reference's figure, expressed as
+  // the QUANTITY and DISTANCE it came from so every unit can be derived from
+  // it rather than restated.
+  consumption: Consumption(
+    quantity: LiquidVolume(Volume(42_800)),
+    distance: Distance(669_000),
+  ),
 );
 
 /// The three preview lines for [formats].
 ///
-/// Every interpolated value is isolate-wrapped and every number carries its
-/// unit inside the SAME isolate: §5 says a figure and its unit are one atomic
-/// run, and splitting them is what puts `km` on the far side of a Persian
-/// line from `۱۴۲٬۳۸۰`.
+/// Every value goes through `formatWithUnit`, which is the app's ONE answer to
+/// "a number and its unit": §5 says the two are one atomic run, and splitting
+/// them is what puts `km` on the far side of a Persian line from `۱۸۷٬۴۱۲`.
+/// Three hand-rolled `isolate(withUnitUnisolated(...))` calls here were three
+/// chances to get that wrong independently.
 ///
 /// The separator comes from [labels] rather than from a `' · '` here, because
 /// which mark joins two facts is a translation decision — and because a Dart
@@ -168,28 +184,24 @@ FormatPreview buildFormatPreview({
     numerals: formats.numerals,
   );
 
-  final distance = isolate(
-    withUnitUnisolated(
-      sample.distance.inUnit(formats.distanceUnit),
-      labels.distance,
-      formatsTag,
-      numerals: formats.numerals,
-      decimalDigits: 0,
-    ),
+  final distance = formatWithUnit(
+    sample.distance.inUnit(formats.distanceUnit),
+    labels.distance,
+    formatsTag,
+    numerals: formats.numerals,
+    decimalDigits: 0,
   );
 
-  final volume = isolate(
-    withUnitUnisolated(
-      sample.volume.inUnit(formats.volumeUnit),
-      labels.volume,
-      formatsTag,
-      numerals: formats.numerals,
-      // ONE decimal, as the reference draws it — `42.8 L`, not `42.80 L`.
-      // §5's decimals table allows two on a stored quantity; the preview is
-      // showing what a FORMAT looks like, and a trailing zero there is a digit
-      // that teaches the reader nothing about their settings.
-      decimalDigits: 1,
-    ),
+  final volume = formatWithUnit(
+    sample.volume.inUnit(formats.volumeUnit),
+    labels.volume,
+    formatsTag,
+    numerals: formats.numerals,
+    // ONE decimal, as the reference draws it — `42.8 L`, not `42.80 L`. §5's
+    // decimals table allows two on a stored quantity; the preview shows what a
+    // FORMAT looks like, and a trailing zero there teaches the reader nothing
+    // about their settings.
+    decimalDigits: 1,
   );
 
   final money = formatMoney(
@@ -201,17 +213,16 @@ FormatPreview buildFormatPreview({
         : CalmCurrencyDisplay.iso,
   );
 
-  final consumption = isolate(
-    withUnitUnisolated(
-      sample.consumption,
-      labels.consumption,
-      formatsTag,
-      numerals: formats.numerals,
-      // ONE decimal. §12: the measurement is not good enough for two, and a
-      // second invites the reader to compare 6.42 with 6.47 as though the
-      // difference meant something.
-      decimalDigits: 1,
-    ),
+  final consumption = formatWithUnit(
+    // CONVERTED, like the two figures beside it.
+    sample.consumption.asUnit(formats.consumptionUnit) ?? 0,
+    labels.consumption,
+    formatsTag,
+    numerals: formats.numerals,
+    // ONE decimal. §12: the measurement is not good enough for two, and a
+    // second invites the reader to compare 6.42 with 6.47 as though the
+    // difference meant something.
+    decimalDigits: 1,
   );
 
   return FormatPreview(

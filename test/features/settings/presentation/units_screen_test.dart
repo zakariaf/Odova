@@ -18,7 +18,9 @@ import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/settings_repository.dart';
 import 'package:odova/data/repositories/vehicle_repository.dart';
+import 'package:odova/features/settings/presentation/units_labels.dart';
 import 'package:odova/features/settings/presentation/units_screen.dart';
+import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
@@ -178,17 +180,25 @@ void main() {
     expect(await _storedConsumption(), ConsumptionUnit.mpgUs);
   });
 
-  testWidgets('an explicit consumption choice survives a volume change', (
+  testWidgets('an explicit choice survives, whatever route gets there', (
     tester,
   ) async {
     // A rideshare driver in the US who prefers `km/L` picked it on purpose.
+    // And the ROUTE matters: switching volume first leaves a pairing that
+    // implies nothing, which the previous rule read as "not chosen" and used
+    // to overwrite the choice on the very next tap.
     await _pump(tester);
     final l10n = _l10n(tester);
 
-    await _choose(tester, l10n.unitsRowConsumption, l10n.unitConsumptionMpg);
+    await _choose(
+      tester,
+      l10n.unitsRowConsumption,
+      l10n.unitConsumptionKmPerLitre,
+    );
     await _choose(tester, l10n.unitsRowVolume, l10n.unitsVolumeGalUs);
+    await _choose(tester, l10n.unitsRowDistance, l10n.unitsDistanceMi);
 
-    expect(await _storedConsumption(), isNot(ConsumptionUnit.lPer100km));
+    expect(await _storedConsumption(), ConsumptionUnit.kmPerL);
   });
 
   testWidgets(
@@ -231,5 +241,61 @@ void main() {
       TextDirection.rtl,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a suggested unit says it was suggested', (tester) async {
+    // `unitsConsumptionSuggested` was translated into all six ARB files and
+    // rendered by nothing, while the row changed under the user's hand. Its
+    // own ARB description names the failure: "a value that changed without
+    // being touched reads as a bug".
+    await _pump(tester);
+    final l10n = _l10n(tester);
+
+    await _choose(tester, l10n.unitsRowDistance, l10n.unitsDistanceMi);
+    await _choose(tester, l10n.unitsRowVolume, l10n.unitsVolumeGalUs);
+
+    expect(
+      find.text(
+        l10n.unitsConsumptionSuggested(
+          l10n.unitsDistanceMi,
+          l10n.unitsVolumeGalUs,
+        ),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('each consumption unit has its own name', (tester) async {
+    // Four of the six rendered `mpg`, so a user who picked `km/L` read
+    // `6.4 mpg` here and `6.4 km/L` on Home for one stored value — off by the
+    // 2.35 between them — and US versus imperial gallons, a 17% difference,
+    // was unpickable.
+    await _pump(tester);
+    final l10n = _l10n(tester);
+
+    await tester.tap(find.text(l10n.unitsRowConsumption));
+    await tester.pumpAndSettle();
+
+    final labels = {
+      for (final unit in ConsumptionUnit.values)
+        consumptionOptionLabel(l10n, unit, '100'),
+    };
+    expect(labels, hasLength(ConsumptionUnit.values.length));
+  });
+
+  testWidgets('the first day of week offers Saturday', (tester) async {
+    // `calendar.dart` seeds Saturday for twelve regions and §5's table gives
+    // it for `fa`, `ar` and `ckb`. With Monday and Sunday alone, an Iranian
+    // user opened a row reading `شنبه`, found neither option ticked, and
+    // could not set it back whatever they tapped.
+    await _pump(tester);
+    final l10n = _l10n(tester);
+
+    await tester.tap(find.text(l10n.unitsRowFirstDay));
+    await tester.pumpAndSettle();
+
+    expect(find.text(weekdayName('en-GB', DateTime.saturday)), findsOneWidget);
+    expect(find.text(weekdayName('en-GB', DateTime.sunday)), findsOneWidget);
+    expect(find.text(weekdayName('en-GB', DateTime.monday)), findsWidgets);
   });
 }

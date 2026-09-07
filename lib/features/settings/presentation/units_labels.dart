@@ -36,6 +36,12 @@ String volumeUnitLabel(AppLocalizations l10n, VolumeUnit unit) =>
 /// The hundred is a PLACEHOLDER, never a baked literal: `arb_template_test`
 /// refuses a digit in copy because a baked one cannot be shaped, and a Latin
 /// `100` inside an Arabic-Indic line is the mixed render §5 forbids.
+/// The SAME mapping `glance_tiles.dart` uses, and it has to be: four units
+/// collapsed onto `mpg` here meant a user who picked `km/L` read `6.4 mpg` on
+/// this screen and `6.4 km/L` on Home for one stored value — a figure under
+/// the wrong unit, off by the 2.35 between them. It also made US and imperial
+/// gallons unpickable, which is the 17% difference `units_catalogue.dart`
+/// names by name.
 String consumptionOptionLabel(
   AppLocalizations l10n,
   ConsumptionUnit unit,
@@ -43,10 +49,10 @@ String consumptionOptionLabel(
 ) => switch (unit) {
   ConsumptionUnit.lPer100km => l10n.unitConsumptionPerDistance(hundred),
   ConsumptionUnit.kwhPer100km => l10n.unitConsumptionKwhPerDistance(hundred),
-  ConsumptionUnit.kmPerL ||
-  ConsumptionUnit.mpgUs ||
-  ConsumptionUnit.mpgUk ||
-  ConsumptionUnit.miPerKwh => l10n.unitConsumptionMpg,
+  ConsumptionUnit.kmPerL => l10n.unitConsumptionKmPerLitre,
+  ConsumptionUnit.mpgUs => l10n.unitConsumptionMpgUs,
+  ConsumptionUnit.mpgUk => l10n.unitConsumptionMpgUk,
+  ConsumptionUnit.miPerKwh => l10n.unitConsumptionMiPerKwh,
 };
 
 /// A calendar's row value.

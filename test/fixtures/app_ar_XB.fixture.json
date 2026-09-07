@@ -611,5 +611,8 @@
   "aboutBackupWarning": "‏.enog era yeht ,pukcab a tuohtiw ti esol uoy fI .ylno enohp siht no evil sdrocer ruoY",
   "aboutVersion": "‏ noisreV{version}( {build})",
   "aboutBackupFormat": "‏ tamrof pukcaB{format}",
-  "aboutLicencesRow": "‏secnecil ecruos nepO"
+  "aboutLicencesRow": "‏secnecil ecruos nepO",
+  "unitConsumptionMpgUs": "‏)SU( gpm",
+  "unitConsumptionMpgUk": "‏)pmi( gpm",
+  "commonListSeparator": "‏ ,"
 }

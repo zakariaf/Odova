@@ -611,5 +611,8 @@
   "aboutBackupWarning": "Ihre Einträge liegen nur auf diesem Telefon. Geht es ohne Sicherung verloren, sind sie weg.",
   "aboutVersion": "Version {version} ({build})",
   "aboutBackupFormat": "Sicherungsformat {format}",
-  "aboutLicencesRow": "Open-Source-Lizenzen"
+  "aboutLicencesRow": "Open-Source-Lizenzen",
+  "unitConsumptionMpgUs": "mpg (US)",
+  "unitConsumptionMpgUk": "mpg (imp.)",
+  "commonListSeparator": ", "
 }

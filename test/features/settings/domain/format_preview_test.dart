@@ -14,6 +14,7 @@ import 'package:odova/features/settings/domain/units_catalogue.dart';
 import 'package:test/test.dart';
 
 final Currency _eur = Currency.tryParse('EUR')!;
+final Currency _usd = Currency.tryParse('USD')!;
 final Currency _irr = Currency.tryParse('IRR')!;
 
 /// The consumption label's `100` is a PLACEHOLDER, shaped like every other
@@ -310,6 +311,34 @@ void main() {
   test('exactly two calendars are offered', () {
     // §5 ships one alternative, not a catalogue: a list of twelve would be a
     // list eleven of which nobody has checked a single date against.
-    expect(kCalendarOptions, hasLength(2));
+    expect(CalmCalendar.values, hasLength(2));
+  });
+
+  test('the consumption figure converts with the unit beside it', () {
+    // A bare `6.4` was the bug: the distance and the volume both went through
+    // `inUnit` and this did not, so choosing miles and US gallons gave
+    // `11.3 gal · €74.20 · 6.4 mpg` over `116,452 mi` — three figures of which
+    // one was in a unit nobody had selected. This is the one card on the
+    // screen whose entire job is showing what the settings produce.
+    final metric = buildFormatPreview(
+      formats: SettingsFormats(currency: _eur),
+      formatsTag: 'en-GB',
+      labels: _en,
+    );
+    final imperial = buildFormatPreview(
+      formats: SettingsFormats(
+        currency: _usd,
+        distanceUnit: DistanceUnit.mi,
+        volumeUnit: VolumeUnit.galUs,
+        consumptionUnit: ConsumptionUnit.mpgUs,
+      ),
+      formatsTag: 'en-US',
+      labels: _en,
+    );
+
+    expect(metric.quantities, contains('6.4'));
+    // 6.4 L/100 km is about 36.8 mpg US.
+    expect(imperial.quantities, contains('36.8'));
+    expect(imperial.quantities, isNot(contains('6.4')));
   });
 }

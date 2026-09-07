@@ -611,5 +611,8 @@
   "aboutBackupWarning": "[Ẏǿǔř řḗçǿřḍŝ ŀīṽḗ ǿǹ ţħīŝ ƥħǿǹḗ ǿǹŀẏ. Īƒ ẏǿǔ ŀǿŝḗ īţ ẇīţħǿǔţ á ḅáçķǔƥ, ţħḗẏ ářḗ ḡǿǹḗ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "aboutVersion": "[Ṽḗřŝīǿǹ {version} ({build}) ǃǃǃǃǃ]",
   "aboutBackupFormat": "[Ḅáçķǔƥ ƒǿřḿáţ {format} ǃǃǃǃǃǃ]",
-  "aboutLicencesRow": "[Ǿƥḗǹ ŝǿǔřçḗ ŀīçḗǹçḗŝ ǃǃǃǃǃǃǃǃ]"
+  "aboutLicencesRow": "[Ǿƥḗǹ ŝǿǔřçḗ ŀīçḗǹçḗŝ ǃǃǃǃǃǃǃǃ]",
+  "unitConsumptionMpgUs": "[ḿƥḡ (ǓŜ) ǃǃǃǃ]",
+  "unitConsumptionMpgUk": "[ḿƥḡ (īḿƥ) ǃǃǃǃ]",
+  "commonListSeparator": "[,  ǃ]"
 }

@@ -178,20 +178,23 @@ String formatYear(String isoOrYear, String formatsTag) {
 
 /// A time of day from minutes past midnight — `09:00`, `۹:۰۰`.
 ///
-/// Through ICU's `Hm` skeleton, so whether the clock is 12- or 24-hour is the
-/// LOCALE's decision and not this file's: `09:00` in de-DE, `9:00 AM` in
-/// en-US, and a hand-rolled `'$h:$m'` would have shipped 24-hour time to every
-/// American user of a screen whose whole job is telling them when a
-/// notification arrives.
+/// Through ICU's `jm` skeleton, which is the LOCALE-PREFERRED one: `09:00` in
+/// de-DE, `9:00 AM` in en-US. `Hm` is the fixed 24-hour skeleton, and this
+/// documented locale-awareness while using it — so an American user opened a
+/// time picker offering "9:00 PM" and read `21:00` back on the row beside it.
 ///
 /// The digits are shaped afterwards, because `DateFormat` renders Latin ones
 /// and §5 keeps one numbering system active app-wide.
-String formatMinutesOfDay(int minutes, String formatsTag) {
+String formatMinutesOfDay(
+  int minutes,
+  String formatsTag, {
+  CalmNumerals numerals = CalmNumerals.auto,
+}) {
   final clamped = minutes.clamp(0, 24 * 60 - 1);
   final at = DateTime.utc(2000, 1, 2, clamped ~/ 60, clamped % 60);
   return shapeDigits(
-    DateFormat.Hm(dateFormatLocale(formatsTag)).format(at),
-    resolveNumerals(CalmNumerals.auto, formatsTag),
+    foldDigitsToAscii(DateFormat.jm(dateFormatLocale(formatsTag)).format(at)),
+    resolveNumerals(numerals, formatsTag),
   );
 }
 

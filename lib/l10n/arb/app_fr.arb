@@ -611,5 +611,8 @@
   "aboutBackupWarning": "Vos données ne sont que sur ce téléphone. Si vous le perdez sans sauvegarde, elles sont perdues.",
   "aboutVersion": "Version {version} ({build})",
   "aboutBackupFormat": "Format de sauvegarde {format}",
-  "aboutLicencesRow": "Licences open source"
+  "aboutLicencesRow": "Licences open source",
+  "unitConsumptionMpgUs": "mpg (US)",
+  "unitConsumptionMpgUk": "mpg (imp.)",
+  "commonListSeparator": ", "
 }

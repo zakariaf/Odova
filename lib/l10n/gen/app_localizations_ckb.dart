@@ -2467,4 +2467,13 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get aboutLicencesRow => 'مۆڵەتی سەرچاوەکراوە';
+
+  @override
+  String get unitConsumptionMpgUs => 'مایل/گالۆنی ئەمریکی';
+
+  @override
+  String get unitConsumptionMpgUk => 'مایل/گالۆنی بریتانی';
+
+  @override
+  String get commonListSeparator => '، ';
 }

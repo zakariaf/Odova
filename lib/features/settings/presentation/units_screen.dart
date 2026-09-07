@@ -36,6 +36,14 @@ import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
 
+/// The pairing the app last filled the consumption row in from, or null.
+///
+/// A `ValueNotifier` rather than screen state, because the write that triggers
+/// it is `async` and the rebuild that follows comes from the settings stream —
+/// a `setState` in between would be a second source of truth for one row.
+final ValueNotifier<({DistanceUnit distance, VolumeUnit volume})?>
+_suggestionShown = ValueNotifier(null);
+
 /// §13's units and formats screen.
 class UnitsScreen extends ConsumerWidget {
   /// Creates the screen.
@@ -55,16 +63,8 @@ class UnitsScreen extends ConsumerWidget {
     final volume = settings?.volumeUnit ?? VolumeUnit.l;
     final consumption = settings?.consumptionUnit ?? ConsumptionUnit.lPer100km;
     final currency = settings?.currencyDefault ?? Currency.tryParse('EUR')!;
-    final calendar =
-        CalmCalendar.values
-            .where((c) => c.wire == settings?.calendar)
-            .firstOrNull ??
-        CalmCalendar.gregorian;
-    final numerals =
-        CalmNumerals.values
-            .where((n) => n.wire == settings?.numerals)
-            .firstOrNull ??
-        CalmNumerals.auto;
+    final calendar = CalmCalendar.fromWire(settings?.calendar);
+    final numerals = CalmNumerals.fromWire(settings?.numerals);
 
     final hundred = shapeDigits('100', resolveNumerals(numerals, tag));
     final preview = buildFormatPreview(
@@ -101,31 +101,29 @@ class UnitsScreen extends ConsumerWidget {
       final nextVolume = now?.volumeUnit ?? volume;
       final current = now?.consumptionUnit ?? consumption;
 
-      // What the PREVIOUS pairing implied, or null where it implied nothing.
-      // The null case matters: miles with litres has no conventional unit, so
-      // passing through it must not look like a deliberate choice. The first
-      // version compared `current != null` there and concluded the user had
-      // picked — so switching to miles and then to gallons left `L/100 km`
-      // sitting under both, which is the exact state §13 fills the row in to
-      // avoid.
-      final implied = suggestConsumptionUnit(
-        distance: distance,
-        volume: volume,
-        chosen: false,
-      );
-
       final suggested = suggestConsumptionUnit(
         distance: nextDistance,
         volume: nextVolume,
-        // Never overridden once chosen. There is no stored "the user picked
-        // this" flag, so the app suggests only while the current value is
-        // still the one the previous pairing implied — the same question,
-        // without a column. A user who picked `km/L` under km and litres has
-        // a value that pairing did not imply, and keeps it.
-        chosen: implied != null && current != implied,
+        // A value NO pairing implies is one the user picked, and it survives.
+        // The rule this replaced compared against what the previous pairing
+        // implied, which is path-dependent: pick `km/L` on km and litres,
+        // switch volume to gallons (nothing happens, correctly), then switch
+        // distance to miles — the previous pairing implied null, the app read
+        // that as "not chosen", and overwrote the choice. §13: never override
+        // an explicit choice again.
+        chosen: !kSuggestibleConsumptionUnits.contains(current),
       );
+
       if (suggested != null && suggested != current) {
         await writer.setConsumptionUnit(suggested);
+        // And SAY so. `unitsConsumptionSuggested` was translated into all six
+        // ARB files and rendered by nothing, while the row changed under the
+        // user's hand — which its own ARB description names as the failure:
+        // "a value that changed without being touched reads as a bug".
+        _suggestionShown.value = (
+          distance: nextDistance,
+          volume: nextVolume,
+        );
       }
     }
 
@@ -154,23 +152,38 @@ class UnitsScreen extends ConsumerWidget {
             _OptionRow<DistanceUnit>(
               title: l10n.unitsRowDistance,
               current: distance,
-              options: kDistanceOptions,
+              options: DistanceUnit.values,
               labelFor: (u) => distanceOptionLabel(l10n, u),
               onChanged: (u) => unawaited(setDistance(u)),
             ),
             _OptionRow<VolumeUnit>(
               title: l10n.unitsRowVolume,
               current: volume,
-              options: kVolumeOptions,
+              options: VolumeUnit.values,
               labelFor: (u) => volumeOptionLabel(l10n, u),
               onChanged: (u) => unawaited(setVolume(u)),
             ),
             _OptionRow<ConsumptionUnit>(
               title: l10n.unitsRowConsumption,
               current: consumption,
-              options: kConsumptionOptions,
+              options: ConsumptionUnit.values,
               labelFor: (u) => consumptionOptionLabel(l10n, u, hundred),
-              onChanged: (u) => unawaited(writer.setConsumptionUnit(u)),
+              // A DELIBERATE choice clears the note: the row no longer changed
+              // by itself, so the sentence explaining that it did would be
+              // explaining something that did not happen.
+              onChanged: (u) {
+                _suggestionShown.value = null;
+                unawaited(writer.setConsumptionUnit(u));
+              },
+              subtitle: _suggestionShown.value == null
+                  ? null
+                  : l10n.unitsConsumptionSuggested(
+                      distanceOptionLabel(
+                        l10n,
+                        _suggestionShown.value!.distance,
+                      ),
+                      volumeOptionLabel(l10n, _suggestionShown.value!.volume),
+                    ),
             ),
             CalmListRow(
               title: l10n.unitsRowCurrency,
@@ -202,7 +215,7 @@ class UnitsScreen extends ConsumerWidget {
             _OptionRow<CalmCalendar>(
               title: l10n.unitsRowCalendar,
               current: calendar,
-              options: kCalendarOptions,
+              options: CalmCalendar.values,
               labelFor: (c) => calendarOptionLabel(l10n, c),
               onChanged: (c) => unawaited(writer.setCalendar(c.wire)),
             ),
@@ -219,7 +232,18 @@ class UnitsScreen extends ConsumerWidget {
             _OptionRow<int>(
               title: l10n.unitsRowFirstDay,
               current: settings?.firstDayOfWeek ?? DateTime.monday,
-              options: const [DateTime.monday, DateTime.sunday],
+              // SATURDAY too, and it is not a nicety: `calendar.dart` seeds
+              // Saturday for IR, IQ, EG, AE, KW, QA, BH, OM, JO, SY, YE and
+              // PS, and §5's table gives it for `fa`, `ar` and `ckb`. With
+              // Monday and Sunday alone, an Iranian user opened a row reading
+              // `شنبه`, found neither option ticked, and could not set it back
+              // whatever they tapped — the whole RTL audience locked out of a
+              // row by its own default.
+              options: const [
+                DateTime.saturday,
+                DateTime.sunday,
+                DateTime.monday,
+              ],
               labelFor: (d) => weekdayName(tag, d),
               onChanged: (d) => unawaited(writer.setFirstDayOfWeek(d)),
             ),
@@ -293,6 +317,7 @@ class _OptionRow<T> extends StatelessWidget {
     required this.options,
     required this.labelFor,
     required this.onChanged,
+    this.subtitle,
   });
 
   final String title;
@@ -301,9 +326,13 @@ class _OptionRow<T> extends StatelessWidget {
   final String Function(T) labelFor;
   final ValueChanged<T> onChanged;
 
+  /// Why this row's value changed without being touched, where it did.
+  final String? subtitle;
+
   @override
   Widget build(BuildContext context) => CalmListRow(
     title: title,
+    subtitle: subtitle,
     value: labelFor(current),
     showChevron: true,
     onTap: () => unawaited(

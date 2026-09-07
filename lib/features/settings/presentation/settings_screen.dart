@@ -13,7 +13,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/app_version.dart';
 import 'package:odova/app/routing/routes.dart';
-import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
@@ -21,6 +20,7 @@ import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/features/settings/application/settings_root_model.dart';
 import 'package:odova/features/settings/data/settings_writer.dart';
+import 'package:odova/features/settings/presentation/units_labels.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
@@ -60,6 +60,10 @@ class SettingsScreen extends ConsumerWidget {
     final colors = CalmColors.of(context);
     final tag = ref.watch(resolvedLocaleTagsProvider).formats;
     final state = ref.watch(settingsRootProvider);
+    // Once. Asked twice, the second call needed a `!` to undo the nullability
+    // the first one tolerated — which is the shape that survives until the
+    // day the two disagree.
+    final backupDue = _backupDue(state);
 
     void push(String location) => unawaited(context.push(location));
 
@@ -74,12 +78,12 @@ class SettingsScreen extends ConsumerWidget {
             CalmListRow(
               title: l10n.settingsBackupRow,
               subtitle: _backupSubtitle(l10n, tag, state),
-              detailState: _backupDue(state),
+              detailState: backupDue,
               lead: const Icon(Icons.ios_share),
-              end: state.backup == BackupState.recent
+              end: backupDue == null
                   ? null
                   : CalmStatusDot(
-                      style: CalmStatusStyle.of(context, _backupDue(state)!),
+                      style: CalmStatusStyle.of(context, backupDue),
                     ),
               showChevron: true,
               onTap: () => push(Routes.settingsBackup),
@@ -131,7 +135,10 @@ class SettingsScreen extends ConsumerWidget {
             CalmListRow(
               title: l10n.settingsNotificationsRow,
               value: l10n.settingsNotificationsValue(
-                state.notifyService
+                // The OS permission AND at least one category. Reading one
+                // category alone said `On · 09:00` on a phone where
+                // notifications were turned off for Odova entirely.
+                state.notificationsOn
                     ? l10n.settingsNotificationsOn
                     : l10n.settingsNotificationsOff,
                 formatMinutesOfDay(state.notificationTimeMinutes, tag),
@@ -257,15 +264,17 @@ String vehiclesSubtitle(
 ///
 /// Isolate-wrapped as one run: split, the currency symbol drags to the wrong
 /// end of a Persian line, which is §5's whole reason for the isolate.
-String unitsSummary(AppLocalizations l10n, SettingsRootState state) {
-  final volume = state.volumeUnit == VolumeUnit.l
-      ? l10n.unitVolumeLitre
-      : l10n.unitVolumeGallon;
-  return isolate(
-    [
-      distanceUnitLabel(l10n, state.distanceUnit),
-      volume,
-      state.currencyCode,
-    ].join(' · '),
-  );
-}
+String unitsSummary(AppLocalizations l10n, SettingsRootState state) => isolate(
+  [
+    distanceUnitLabel(l10n, state.distanceUnit),
+    // Through `volumeUnitLabel`, the same lookup `settings.units` uses. Two
+    // copies is `L` here and `gal` there for the same stored value.
+    volumeUnitLabel(l10n, state.volumeUnit),
+    state.currencyCode,
+  ].join(
+    // From the ARB, not a `' · '` here. `formatLabelsFor` next door argues
+    // exactly this — which mark joins two facts is a translation decision —
+    // and one of the two was wrong.
+    l10n.commonSeparator,
+  ),
+);

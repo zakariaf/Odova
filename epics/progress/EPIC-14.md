@@ -367,3 +367,91 @@ policy, terms, restore purchases, debug — are asserted absent in ONE test, so
 nobody adds one back without deleting a named assertion.
 
 **Deferred.** The parity captures for both screens, per §6a.
+
+## `/simplify` and `/code-review` — 24 findings, 21 applied
+
+**The one that mattered most was a crash in production that every test hid.**
+`scheduleRebuilderProvider` threw `UnimplementedError` until overridden, and
+`bootstrap()` never overrode it. So every text-affecting settings write —
+language, calendar, numerals, distance unit, delivery time, a category switch —
+committed to the database and then threw out of an `unawaited()` tap handler in
+the real app, while all 4,300 tests passed because every test supplied its own
+fake. **A port that throws is only safe when something in production satisfies
+it**; the default is now `NoScheduledNotifications`, which is TRUE today rather
+than a stub — EPIC-16 has not landed, so nothing is scheduled — and
+`bootstrap_wires_ports_test.dart` reads it from a bare container so the next
+declared port cannot repeat this.
+
+**Five more that produced wrong output:**
+
+1. **Four consumption units all rendered `mpg`.** A user who picked `km/L` read
+   `6.4 mpg` on this screen and `6.4 km/L` on Home for one stored value — off
+   by the 2.35 between them — and US versus imperial gallons, the 17%
+   difference `units_catalogue.dart` names by name, was unpickable. The correct
+   mapping was one file away in `glance_tiles.dart`.
+2. **The preview's consumption figure was never converted** while the distance
+   and volume beside it were, so miles and US gallons gave `11.3 gal · €74.20 ·
+   6.4 mpg` over `116,452 mi` — on the one card whose entire job is showing
+   what the settings produce. The sample is a `Consumption` now, so every unit
+   derives from the same pair.
+3. **First day of week offered only Monday and Sunday.** `calendar.dart` seeds
+   Saturday for twelve regions and §5's table gives it for `fa`, `ar` and
+   `ckb` — so an Iranian user opened a row reading `شنبه`, found neither
+   option ticked, and could not set it back whatever they tapped. The whole
+   RTL audience locked out of a row by its own default.
+4. **Only `notifyService` was in the reschedule set.** §14 rule 2 says "any
+   channel switch"; odometer nudges already scheduled kept arriving after the
+   user turned them off, and the three switches behaved differently from one
+   another with nothing on screen saying so.
+5. **`formatMinutesOfDay` documented locale-aware 12/24-hour and used ICU's
+   fixed 24-hour skeleton.** An American user set a time in a picker offering
+   "9:00 PM" and read `21:00` back on the row beside it.
+
+**Two dead controls, the pattern this project keeps finding:** the quiet-hours
+row was `onTap: () {}` with its write path already written and tested
+underneath, and `unitsConsumptionSuggested` was translated into all six ARB
+files and rendered by nothing while the row changed under the user's hand.
+
+**Two rules that were subtly wrong:** the Settings root's `On`/`Off` word read
+one category rather than the OS permission, so it said `On · 09:00` on a phone
+where notifications were turned off for Odova entirely; and the pairing rule
+inferred "the user chose this" from what the PREVIOUS pairing implied, which is
+path-dependent — pick `km/L`, switch volume, then distance, and the app
+overwrote the choice. It now asks whether the current value is one ANY pairing
+implies.
+
+**Reuse:** the preview goes through `formatWithUnit` (three hand-rolled
+`isolate(withUnitUnisolated(...))` calls were three chances to break §5's
+atomic-run rule independently); `CalmCalendar.fromWire`/`tryFromWire` and
+`CalmNumerals.fromWire` replace four hand-written wire lookups;
+`kAutomaticNoticePercent` derives from the engine's `kNoticeFraction` rather
+than restating 10, so the footer cannot state a percentage the engine does not
+use; the notification-time and quiet-hours defaults are named constants on
+`AppSettings` rather than `9 * 60` at five call sites; and both remaining Dart
+separator literals became ARB keys — Arabic's list separator is U+060C, not a
+Latin comma.
+
+### Answered, not applied
+
+**The Numerals row is stored and read by one card.** 82 call sites across the
+app pass `CalmNumerals.auto` literally, so a Persian user who chooses
+`Latin (0–9)` sees the preview change and the odometer, costs, history and
+notification-time rows keep rendering `۱۸۷٬۴۱۲` — which is also a mixed-digit
+render on `settings.units` itself, the thing §5 forbids.
+
+This is **pre-existing and app-wide**: every screen passed `auto` before this
+epic, and this epic is what ships the control that promises otherwise. The fix
+is one of two shapes and neither belongs in a Settings PR: an
+`effectiveNumeralsProvider` threaded through all 82 sites, or the formats tag
+carrying a `-u-nu-` extension that `resolveNumerals` reads — the second is five
+lines but needs `intl`'s tolerance of the extension proved first, because
+`dateFormatLocale` asks `DateFormat.localeExists`. **Recorded for EPIC-17**,
+which sweeps all 28 screens and is the right place to change how every one of
+them formats a number.
+
+Three smaller ones left as they are: the three near-identical option sheets
+(`units_screen`, `currency_sheet`, `notifications_screen`) genuinely differ in
+what they show and extracting one is a component decision for EPIC-18; the
+currency sheet's search matches the code only, with the name table already
+deferred; and `_lastBackupLine` recomputing the day difference is two cheap
+lines rather than two more fields on the state.
