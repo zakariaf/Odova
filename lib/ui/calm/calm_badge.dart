@@ -159,24 +159,30 @@ class CalmBadge extends StatelessWidget {
           // Both factors, not just widthFactor: a Center with an unbounded
           // height factor expands to the full 600pt of a loose parent, and a
           // badge that fills the column reads as a background.
-          // The icon-less form keeps its exact old subtree. Wrapping the
-          // Text in a Row moved the label by a fraction of a pixel and broke
-          // the committed golden by 495px — on a badge that had not changed.
-          // A new affordance must not re-baseline the specimens of every
-          // badge that does not use it.
+          // ONE layout, for both forms. The first version branched — keeping
+          // the old subtree when there was no icon — so that the committed
+          // golden would not move by the fraction of a pixel a `Row` wrapper
+          // costs. That bought an unchanged baseline for the path nothing had
+          // changed and left the NEW path in no golden at all: `specimens.dart`
+          // iterates `CalmBadgeKind.values` and never passed an icon.
+          //
+          // A widget with two layout paths and a golden over one of them is a
+          // widget whose next padding change is checked on the wrong one. The
+          // baseline moved instead, through `run-goldens-rebaseline`, and the
+          // specimen sheet gained an icon badge.
           child: Center(
             widthFactor: 1,
             heightFactor: 1,
-            child: icon == null
-                ? _label(type, foreground)
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(icon, size: space.iconSm, color: foreground),
-                      SizedBox(width: space.s1),
-                      _label(type, foreground),
-                    ],
-                  ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon case final glyph?) ...[
+                  Icon(glyph, size: space.iconSm, color: foreground),
+                  SizedBox(width: space.s1),
+                ],
+                _label(type, foreground),
+              ],
+            ),
           ),
         ),
       ),
