@@ -404,3 +404,94 @@ shut, the same class of bug the dialog already guards for an empty vehicle name.
   on-disk size, the safety-copy listing and `migrationFailed` all need reading.
 - **The CSV and PDF rows call actions that do nothing.** Tasks 15.8 and 15.9.
 - **Parity captures**, per the §6a velocity decision.
+
+## Task 15.7 — `settings.import`
+
+Three preview variants over a sealed type, plus the progress and result states.
+Nothing writes to reach the preview — asserted with a spy that counts calls, so
+it is a fact about a counter rather than a hope about a widget.
+
+**The replacement sentence is asserted verbatim**, and the test says why: it is
+one of the two most heavily reviewed strings in the app and it is the one a
+future PR will try to soften.
+
+The already-restored variant needs both halves to be honest. A matching
+`content_hash` alone would tell somebody who restored yesterday and logged four
+fill-ups today that nothing will change, while four entries are about to
+disappear. `writesSinceLastImport` is the clause that makes it true.
+
+`PlaceholderScreen` left the router with this task — EPIC-15 was the last screen
+epic and `settings.import` was the last placeholder. All 28 screens are real.
+
+## Wiring — closing 15.6's largest open item
+
+`backup_wiring_test` reads the export action out of a **bare
+`ProviderContainer`** and runs it against a real seeded database, asserting the
+vehicle name that was actually stored appears in the JSON on disk. That is the
+assertion EPIC-13's and EPIC-14's shipped port defects would have failed, and
+`bootstrap_wires_ports_test` now also asserts `bootstrap()` installs the wired
+actions rather than the no-op.
+
+Three things moved because a rule pointed at a better shape:
+`shareServiceProvider` from the report feature to `lib/app/share/`; the
+last-backup stamp straight to `SettingsRepository` rather than through
+`SettingsWriter` (whose only added behaviour is a reschedule no notification
+needs); and `kSupportedFormatVersion` to one declaration in `lib/app`, gated by
+a test that walks `lib/`.
+
+**Still unwired, and named in the code:** the document picker's NATIVE halves.
+The Dart port exists, the share channel has Kotlin and Swift behind it, this one
+does not. Restore, Undo and Delete all data are no-ops with a comment pointing
+at the gap. **This is platform work, not Dart work**, and it is the last thing
+between `settings.import` and a user reaching it.
+
+## Task 15.8 — the two CSV exports
+
+Both headers are §6 §8.1's, field for field, asserted as literal lists — a
+header derived from the writer agrees with the writer by construction and with
+the spec by luck.
+
+**Formula injection** is the escape RFC 4180 has no opinion about. A cell
+beginning `=`, `+`, `-`, `@`, tab or CR is executed by Excel, Google Sheets and
+LibreOffice. The cell is PREFIXED with an apostrophe rather than altered: the
+original is recoverable character for character, and dropping the character
+would silently edit what the user typed.
+
+**`package:csv` was added as a DEV dependency** for the assertions. Round-tripping
+through the code that wrote the file proves the two halves agree with each other
+and nothing about whether either is right. `tools/audit_deps.sh` is clean.
+
+Four mutations, each seen red: the formula guard removed (3), the BOM dropped
+(2), LF instead of CRLF (6), a two-currency service picking one (1).
+
+**Both row builders compute locals and then write a flat literal.**
+`prefer_if_elements_to_conditional_expressions` wanted `if` elements, and a
+column built that way disappears when its condition is false — shifting every
+cell after it into the wrong header for that one row, which a CSV cannot notice.
+`writeCsvFile` throws on a length mismatch for the same reason.
+
+## Task 15.9 — the picker, and one renderer
+
+The picker asks once and only when there is more than one answer. "All vehicles"
+is the costs CSV's alone. The choice carries the vehicle's one-based position,
+because the filename falls back to `vehicle-2` for a name that transliterates to
+nothing.
+
+`one_renderer_test` walks `lib/` and asserts exactly one file calls
+`canvas.beginPage`, and that it is in `lib/core/report/` rather than the report
+feature — which is what makes it callable from here at all.
+
+**The PDF row is DEFERRED, and it is the epic's own blocking note one level in.**
+§6 §8.2 defers the document to §12's `report.service`. The RENDERER exists; what
+does not is `reportRepositoryProvider`, whose own doc says "there is no default
+implementation yet — the whole-vehicle read spans five tables and belongs with
+the other repositories". Building that read here would be a second query to keep
+in step with EPIC-12's. **To close this: implement EPIC-12's whole-vehicle read
+in `lib/data/repositories/`, then point both the report screen and this row at
+it.** The row stays visible, so the screen still matches its reference image.
+
+**Also deferred:** the CSV rows are built and tested but not yet reachable from
+the screen — `WiredBackupActions` returns without doing anything for all three
+"also export" rows. The picker, the projections and the file writer all exist;
+what is missing is the three lines that join them, and they belong with the
+picker's `BuildContext`, which an action object does not have.
