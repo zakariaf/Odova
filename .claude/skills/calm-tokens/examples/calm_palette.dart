@@ -32,10 +32,10 @@ abstract final class CalmPalette {
   static const bark27 = Color(0xFF2C241E); // l:surface-inverse, l:ink
   static const bark32 = Color(0xFF3A3028); // d:divider, d:chart-grid
   static const bark43 = Color(0xFF5C4E43); // l:ink-2
-  static const bark54 = Color(0xFF7B6C5C); // d:ink-4
-  static const bark59 = Color(0xFF8B7B6C); // l:ink-3, l:chart-axis-ink
-  static const bark65 = Color(0xFF9C8B79); // d:ink-3, d:chart-axis-ink
-  static const bark70 = Color(0xFFAC9C8B); // l:ink-4
+  static const bark63 = Color(0xFF968776); // d:ink-4
+  static const bark49 = Color(0xFF6B5F53); // l:ink-3, l:chart-axis-ink
+  static const bark71 = Color(0xFFB0A18F); // d:ink-3, d:chart-axis-ink
+  static const bark55 = Color(0xFF7D6C5A); // l:ink-4
   static const bark78 = Color(0xFFC6B6A4); // d:ink-2
   static const bark88 = Color(0xFFE4D7C4); // l:chart-grid
   static const bark89 = Color(0xFFE6D9C6); // l:divider
@@ -135,7 +135,7 @@ abstract final class CalmPalette {
   static const ember92 = Color(0xFFF7DED6); // l:danger-tint
 
   // amber — focus ring
-  static const amber61 = Color(0xFFA8794F); // l:focus
+  static const amber52 = Color(0xFF8A5F3A); // l:focus
   static const amber76 = Color(0xFFD6A874); // d:focus
 
   // Shadow tints. Not roles — these are the rgba() bases inside --elev-1..4,

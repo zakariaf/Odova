@@ -357,8 +357,17 @@ class _CalmFieldState extends State<CalmField> {
                         contentPadding: EdgeInsets.zero,
                         counterText: '',
                         hintText: widget.placeholder,
+                        // ink3, NOT ink4. A placeholder is text, and SC 1.4.3
+                        // does not exempt it — `.input::placeholder` moved to
+                        // `--color-ink-3` in EPIC-17 task 17.2 for that
+                        // reason. This line stayed on ink4 for a day and shows
+                        // what a token change misses: the CSS, the palette and
+                        // the reference PNGs all agreed, and the one widget
+                        // that draws the pixel did not. ink4 measures 4.23:1
+                        // on `surface-2`, which is the 1.4.3 failure §17 calls
+                        // a release blocker.
                         hintStyle: textStyle.copyWith(
-                          color: colors.ink4,
+                          color: colors.ink3,
                           fontWeight: type.regular,
                         ),
                       ),

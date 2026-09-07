@@ -28,8 +28,8 @@ const calmColorsLight = CalmColors(
   divider: CalmPalette.bark89,
   ink: CalmPalette.bark27,
   ink2: CalmPalette.bark43,
-  ink3: CalmPalette.bark59,
-  ink4: CalmPalette.bark70,
+  ink3: CalmPalette.bark49,
+  ink4: CalmPalette.bark55,
   inkInverse: CalmPalette.bark99,
   brand: CalmPalette.clay48,
   brandStrong: CalmPalette.clay40,
@@ -38,7 +38,7 @@ const calmColorsLight = CalmColors(
   onBrand: CalmPalette.clay98,
   danger: CalmPalette.ember51,
   dangerTint: CalmPalette.ember92,
-  focus: CalmPalette.amber61,
+  focus: CalmPalette.amber52,
   scrim: Color.fromRGBO(44, 34, 26, 0.44), // --scrim
   sheen: Color.fromRGBO(
     255,
@@ -52,7 +52,7 @@ const calmColorsLight = CalmColors(
   chart4: CalmPalette.slate57,
   chart5: CalmPalette.plum52,
   chartGrid: CalmPalette.bark88,
-  chartAxisInk: CalmPalette.bark59,
+  chartAxisInk: CalmPalette.bark49,
   chartPlot: CalmPalette.sand99,
   overdue: CalmRamp(
     base: CalmPalette.terracotta57,
@@ -111,8 +111,8 @@ const calmColorsDark = CalmColors(
   divider: CalmPalette.bark32,
   ink: CalmPalette.bark94,
   ink2: CalmPalette.bark78,
-  ink3: CalmPalette.bark65,
-  ink4: CalmPalette.bark54,
+  ink3: CalmPalette.bark71,
+  ink4: CalmPalette.bark63,
   inkInverse: CalmPalette.bark24,
   brand: CalmPalette.clay75,
   brandStrong: CalmPalette.clay83,
@@ -135,7 +135,7 @@ const calmColorsDark = CalmColors(
   chart4: CalmPalette.slate75,
   chart5: CalmPalette.plum75,
   chartGrid: CalmPalette.bark32,
-  chartAxisInk: CalmPalette.bark65,
+  chartAxisInk: CalmPalette.bark71,
   chartPlot: CalmPalette.sand25,
   overdue: CalmRamp(
     base: CalmPalette.terracotta73,

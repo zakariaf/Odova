@@ -1,4 +1,15 @@
-# Calm: two WCAG failures in the light theme
+# Calm: two WCAG failures in the light theme — CLOSED 2026-09-07
+
+> **RESOLVED. See `## Resolution — 2026-09-07` at the foot of this file.**
+> Everything above that section describes the state BEFORE the fix and is kept
+> as the record of what was found and why. The ratios in the tables below are
+> the OLD ones; they no longer describe the palette.
+>
+> It was also worse than this document says. Two of the failures it calls
+> light-theme-only fail in DARK as well, and a fourth failure — the focus ring
+> — is not mentioned here at all. Both were found by
+> `test/theme/calm/calm_contrast_test.dart` in EPIC-02 and are closed by the
+> same change.
 
 Found by reading the system closely while writing the skills, and confirmed by
 independent contrast computation. Both are **light-theme only**; dark is fine.
@@ -106,3 +117,72 @@ That test does three things a note in a document cannot:
 
 The curve is steep and it points at deciding early. Filed as `SPEC.md` §18
 question 25.
+
+
+---
+
+## Resolution — 2026-09-07
+
+**Taken by:** the repository owner, asked directly during EPIC-17 task 17.2 and
+answered with the option below. The 2026-09-03 decision handed this judgement
+forward on the grounds that "nobody building the token layer is in a position
+to trade Calm's softness for contrast on the designer's behalf". That is still
+true, so it was put to the person who is.
+
+**The decision: fix the tokens, and re-shoot the reference set in the same PR.**
+
+Seven values moved. Four of them are failures this document does not describe.
+
+| token | theme | from | to | worst ratio | needs |
+|---|---|---|---|---|---|
+| `--color-ink-3` | light | `#8B7B6C` | `#6B5F53` | 3.02 → **4.59** | 4.5 (text) |
+| `--color-ink-3` | dark | `#9C8B79` | `#B0A18F` | 3.84 → **5.02** | 4.5 (text) |
+| `--color-ink-4` | light | `#AC9C8B` | `#7D6C5A` | 1.97 → **3.73** | 3.0 (graphic) |
+| `--color-ink-4` | dark | `#7B6C5C` | `#968776` | 2.49 → **3.63** | 3.0 (graphic) |
+| `--color-focus` | light | `#A8794F` | `#8A5F3A` | 2.82 → **4.11** | 3.0 (SC 1.4.11) |
+| `--chart-axis-ink` | light | `#8B7B6C` | `#6B5F53` | follows ink-3 | 4.5 (13px text) |
+| `--chart-axis-ink` | dark | `#9C8B79` | `#B0A18F` | follows ink-3 | 4.5 (13px text) |
+
+`--color-focus` in dark (`#D6A874`, worst 5.85) already cleared and did not move.
+Placeholders now point at the corrected `--color-ink-3`, per §2 above — in the
+CSS **and** in `CalmField`. That sentence was true of the stylesheet alone for a
+day: `odova.css`, `calm_palette.dart` and 116 re-shot reference PNGs all agreed,
+and the widget that draws the pixel went on passing `colors.ink4` to `hintStyle`
+at 4.23:1 light and 4.14:1 dark. No token test could see it, because the token
+was right. `test/a11y/rendered_text_contrast_test.dart` reads the colour off the
+`RenderParagraph` instead, so the claim above is now measured where it is drawn.
+
+### What this document did not say
+
+- **`--color-ink-3` fails in DARK too**, at 4.39:1 on `--color-surface-2` and
+  3.84:1 on `--color-surface-3`. This file calls the finding "light-theme only;
+  dark is fine". It is not.
+- **`--color-ink-4` fails in dark** as a graphic, at 2.85 and 2.49.
+- **`--color-focus` fails SC 1.4.11 in light**, at 2.82:1 on `--color-surface-3`
+  — a control inside a warm container had a focus ring the user could not see.
+  This document does not mention the focus ring at all.
+
+All three were found by `test/theme/calm/calm_contrast_test.dart`, which EPIC-02
+wrote to hold the failures as dated exceptions that assert they **still fail**.
+That is what made this closure mechanical: fixing the values turned eleven
+exceptions red at once and forced their removal. The exception list is now
+empty and is meant to stay that way.
+
+### What is NOT closed
+
+Dark `--color-ink-3` now measures **50.2 Lc** under APCA, up from 39.1. That
+clears APCA's 45 non-text floor and WCAG AA comfortably, and is still under the
+60 APCA asks for body text. Closing that gap means lightening tertiary text
+past the point where it reads as tertiary — a further design judgement nobody
+has been asked for, and not the WCAG failure §17 makes a release blocker. It is
+pinned at the measured value in `calm_contrast_test.dart` so the next palette
+change re-opens the question.
+
+### What moved with it
+
+`design/calm/odova.css`, `design/calm/screens.html`, `lib/theme/calm/` (the
+ramp entries are renamed as well as revalued, because the names track lightness
+and a name that lies is worse than none), the 38 component goldens under
+`test/ui/calm/goldens/`, and all 112 images of `design/reference/calm/` —
+`calm-visual-parity` rule 7: a reference set that lags the design is worse than
+having none.

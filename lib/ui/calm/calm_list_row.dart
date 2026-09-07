@@ -461,10 +461,17 @@ class _CalmRowBody extends StatelessWidget {
                 if (end != null) ...[SizedBox(width: space.s2), end!],
                 if (showChevron) ...[
                   SizedBox(width: space.s2),
-                  CalmDirectionalIcon(
-                    Icons.chevron_right,
-                    size: space.iconSm,
-                    color: colors.ink4,
+                  // EXCLUDED. A disclosure chevron says "this row opens
+                  // something", which the row's own tap action already says to
+                  // a screen reader. Labelling it adds a second announcement of
+                  // the same fact; leaving it bare makes a reader announce a
+                  // node with no name at all.
+                  ExcludeSemantics(
+                    child: CalmDirectionalIcon(
+                      Icons.chevron_right,
+                      size: space.iconSm,
+                      color: colors.ink4,
+                    ),
                   ),
                 ],
               ],

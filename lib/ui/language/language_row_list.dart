@@ -62,7 +62,17 @@ class LanguageRowList extends ConsumerWidget {
                 // `.row__check`. Not a CalmDirectionalIcon — a tick is not one
                 // of the six glyphs that mirror; it moves to the end edge
                 // because the ROW mirrors, and keeps its own shape.
-                ? Icon(Icons.check, size: space.iconMd, color: colors.brand)
+                // EXCLUDED, not labelled. The row already announces
+                // `selected: true`, so a label here would make a reader say
+                // "selected" and then "tick" — the same fact twice, once as
+                // furniture.
+                ? ExcludeSemantics(
+                    child: Icon(
+                      Icons.check,
+                      size: space.iconMd,
+                      color: colors.brand,
+                    ),
+                  )
                 : null,
             onTap: () => onSelect(value),
           ),

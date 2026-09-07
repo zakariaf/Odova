@@ -115,14 +115,14 @@ Run `scripts/check_raw_values.sh` and `scripts/check_extension_fields.sh` before
 // <family><L>, L = measured OKLCH lightness x 100. The comment records the roles.
 abstract final class CalmPalette {
   static const sand96 = Color(0xFFF8F2E9);        // l:bg
-  static const bark59 = Color(0xFF8B7B6C);        // l:ink-3, l:chart-axis-ink
+  static const bark49 = Color(0xFF6B5F53);        // l:ink-3, l:chart-axis-ink
   static const clay48 = Color(0xFF7A5340);        // l:brand, l:chart-1
   static const terracotta57 = Color(0xFFB4573E);  // l:overdue
 }
 ```
 
 Calm has no synonym problem to solve — most hexes serve exactly one role — so the tier looks
-redundant until dark: `ink3` is `bark59` in light and `bark65` in dark, and only the slot name is
+redundant until dark: `ink3` is `bark49` in light and `bark71` in dark, and only the slot name is
 stable across both. Full file: `examples/calm_palette.dart` (98 constants: the 96 distinct
 hexes across all 56 roles × 2 themes, plus the two `--elev-*` shadow tints).
 

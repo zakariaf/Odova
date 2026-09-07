@@ -34,8 +34,8 @@ these seven families directly — they go through `CalmStatusStyle` (`calm-due-s
 |---|---|---|---|---|
 | `--color-ink` | `ink` | `#2C241E` | `#F3EADE` | `bark27` / `bark94` |
 | `--color-ink-2` | `ink2` | `#5C4E43` | `#C6B6A4` | `bark43` / `bark78` |
-| `--color-ink-3` | `ink3` | `#8B7B6C` | `#9C8B79` | `bark59` / `bark65` |
-| `--color-ink-4` | `ink4` | `#AC9C8B` | `#7B6C5C` | `bark70` / `bark54` |
+| `--color-ink-3` | `ink3` | `#6B5F53` | `#B0A18F` | `bark49` / `bark71` |
+| `--color-ink-4` | `ink4` | `#7D6C5A` | `#968776` | `bark55` / `bark63` |
 | `--color-ink-inverse` | `inkInverse` | `#FFFBF4` | `#241D17` | `bark99` / `bark24` |
 
 ### Brand
@@ -117,7 +117,7 @@ these seven families directly — they go through `CalmStatusStyle` (`calm-due-s
 |---|---|---|---|---|
 | `--color-danger` | `danger` | `#A5402B` | `#E68C72` | `ember51` / `ember73` |
 | `--color-danger-tint` | `dangerTint` | `#F7DED6` | `#422520` | `ember92` / `ember30` |
-| `--color-focus` | `focus` | `#A8794F` | `#D6A874` | `amber61` / `amber76` |
+| `--color-focus` | `focus` | `#8A5F3A` | `#D6A874` | `amber52` / `amber76` |
 
 ### Chart
 
@@ -129,7 +129,7 @@ these seven families directly — they go through `CalmStatusStyle` (`calm-due-s
 | `--chart-4` | `chart4` | `#5B7C8A` | `#93B6C3` | `(alias)` / `(alias)` |
 | `--chart-5` | `chart5` | `#7C5E74` | `#C6A2C0` | `(alias)` / `(alias)` |
 | `--chart-grid` | `chartGrid` | `#E4D7C4` | `#3A3028` | `bark88` / `bark32` |
-| `--chart-axis-ink` | `chartAxisInk` | `#8B7B6C` | `#9C8B79` | `bark59` / `bark65` |
+| `--chart-axis-ink` | `chartAxisInk` | `#6B5F53` | `#B0A18F` | `bark49` / `bark71` |
 | `--chart-plot` | `chartPlot` | `#FFFCF7` | `#272019` | `sand99` / `sand25` |
 `chart1`–`chart5` are exact aliases of `brand` / `ok` / `due` / `dueSoon` / `business` in both
 themes — the series palette *is* the semantic palette, which is why a chart legend and a status

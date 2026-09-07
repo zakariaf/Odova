@@ -67,17 +67,25 @@ abstract final class CalmPalette {
   /// Light `--color-ink-2`.
   static const bark43 = Color(0xFF5C4E43);
 
-  /// Dark `--color-ink-4`.
-  static const bark54 = Color(0xFF7B6C5C);
+  /// Dark `--color-ink-4`. Lightened from `#7B6C5C` in EPIC-17 task 17.2:
+  /// the chevron it draws was 2.85:1 on `surface-2` and 2.49:1 on `surface-3`,
+  /// under SC 1.4.11's 3:1 for a graphical object.
+  static const bark63 = Color(0xFF968776);
 
-  /// Light `--color-ink-3`, `--chart-axis-ink`.
-  static const bark59 = Color(0xFF8B7B6C);
+  /// Light `--color-ink-3`, `--chart-axis-ink`. Darkened from `#8B7B6C` in
+  /// EPIC-17 task 17.2 — it was `color:` in 47 CSS rules at 3.02–3.99:1,
+  /// the single biggest accessibility defect in the palette.
+  static const bark49 = Color(0xFF6B5F53);
 
-  /// Dark `--color-ink-3`, `--chart-axis-ink`.
-  static const bark65 = Color(0xFF9C8B79);
+  /// Dark `--color-ink-3`, `--chart-axis-ink`. Lightened from `#9C8B79` in
+  /// EPIC-17 task 17.2. The finding document reports ink-3 as a light-theme
+  /// problem; EPIC-02's contrast test found it fails in DARK too, at 4.39:1
+  /// on `surface-2` and 3.84:1 on `surface-3`.
+  static const bark71 = Color(0xFFB0A18F);
 
-  /// Light `--color-ink-4`.
-  static const bark70 = Color(0xFFAC9C8B);
+  /// Light `--color-ink-4`. Darkened from `#AC9C8B` in EPIC-17 task 17.2:
+  /// 1.97:1 on `surface-3` was the worst pair in the palette.
+  static const bark55 = Color(0xFF7D6C5A);
 
   /// Dark `--color-ink-2`.
   static const bark78 = Color(0xFFC6B6A4);
@@ -319,8 +327,10 @@ abstract final class CalmPalette {
   static const ember92 = Color(0xFFF7DED6);
 
   // amber — focus ring
-  /// Light `--color-focus`.
-  static const amber61 = Color(0xFFA8794F);
+  /// Light `--color-focus`. Darkened from `#A8794F` in EPIC-17 task 17.2:
+  /// 2.82:1 on `surface-3` is under SC 1.4.11's 3:1 for a focus indicator, so
+  /// a control inside a warm container got a ring the user could not see.
+  static const amber52 = Color(0xFF8A5F3A);
 
   /// Dark `--color-focus`.
   static const amber76 = Color(0xFFD6A874);
