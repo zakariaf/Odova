@@ -2991,4 +2991,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupAllVehicles => 'Alle Fahrzeuge';
+
+  @override
+  String get importKindCorrections => 'Kilometerstand-Korrekturen';
 }

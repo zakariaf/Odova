@@ -37,8 +37,15 @@ const Set<String> kFormulaLeaders = {'=', '+', '-', '@', '\t', '\r'};
 /// else is written as it stands: quoting a field that does not need it is
 /// legal and makes the file harder for a human to read, and a human reading it
 /// is most of why this format exists.
-String csvField(String value) {
-  final guarded = _neutraliseFormula(value);
+///
+/// [userText] says whether the value came from the USER. Only user text gets
+/// the formula guard, and the distinction is load-bearing: `-` is a formula
+/// leader, an expense may be NEGATIVE (SPEC.md §10's refund switch), and the
+/// first version apostrophised every refund into a text cell — in the one file
+/// §8.1 says exists so somebody can build a pivot table. Special-casing the
+/// minus sign instead would reopen the hole for a note beginning `-cmd`.
+String csvField(String value, {bool userText = true}) {
+  final guarded = userText ? _neutraliseFormula(value) : value;
   final needsQuotes =
       guarded.contains(',') ||
       guarded.contains('"') ||
@@ -59,8 +66,16 @@ String _neutraliseFormula(String value) =>
     value.isNotEmpty && kFormulaLeaders.contains(value[0]) ? "'$value" : value;
 
 /// One CSV row, terminated.
-String csvRow(List<String> fields) =>
-    '${fields.map(csvField).join(',')}$kCsvLineEnding';
+///
+/// Every cell is user text unless [numericColumns] says otherwise. That
+/// default is the safe one: a column added without thinking gets the guard,
+/// and the columns that must not have it are the ones somebody chose.
+String csvRow(List<String> fields, {Set<int> numericColumns = const {}}) =>
+    [
+      for (var i = 0; i < fields.length; i++)
+        csvField(fields[i], userText: !numericColumns.contains(i)),
+    ].join(',') +
+    kCsvLineEnding;
 
 /// The header row, with the BOM in front of it.
 ///

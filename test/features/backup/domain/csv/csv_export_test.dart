@@ -17,6 +17,7 @@ import 'package:odova/core/units/volume.dart';
 import 'package:odova/features/backup/domain/backup_format.dart';
 import 'package:odova/features/backup/domain/csv/costs_csv.dart';
 import 'package:odova/features/backup/domain/csv/csv_file.dart';
+import 'package:odova/features/backup/domain/csv/csv_writer.dart';
 import 'package:odova/features/backup/domain/csv/fillups_csv.dart';
 import 'package:test/test.dart';
 
@@ -342,6 +343,56 @@ void main() {
     expect(rows.single[9], '');
   });
 
+  test('a negative amount stays a NUMBER in the costs CSV', () {
+    // §10's refund switch makes an expense the one money field in this app
+    // that may be negative, and `-` is a formula leader — so the first version
+    // exported every refund as the text `'-25.00`, in the one file §8.1 says
+    // exists so somebody can add up the amount column.
+    final rows = costCsvRows(
+      vehiclesById: {_veh.toString(): _vehicle()},
+      fillUps: const [],
+      services: const [],
+      expenses: [
+        Expense(
+          id: ExpenseId.tryParse('exp_01K1R9T6Y2W5Q8Z3E7B0N4MJDF')!,
+          vehicleId: _veh,
+          occurredOn: '2026-01-01',
+          category: ExpenseCategory.insurance,
+          amount: Money(-2500, _eur),
+          odometerUnit: DistanceUnit.km,
+          createdAtUtcMs: 0,
+          updatedAtUtcMs: 0,
+        ),
+      ],
+      unitsFor: (_) => _metric,
+    );
+
+    expect(rows.single[8], '-25.00');
+    // Through the writer, and through a real parser.
+    final parsed = _parse(
+      csvRow(rows.single, numericColumns: kCostsCsvNumericColumns),
+    );
+    expect(parsed.single[8], '-25.00');
+    expect(parsed.single[8], isNot(startsWith("'")));
+  });
+
+  test('a vehicle named like a formula is still guarded', () {
+    // The guard is off for the NUMBER columns only. A user who named their
+    // car `=cmd()` is still in the text column, and still text.
+    final rows = costCsvRows(
+      vehiclesById: {_veh.toString(): _vehicle(name: '=cmd()')},
+      fillUps: [_fill(index: 0, occurredOn: '2026-01-01')],
+      services: const [],
+      expenses: const [],
+      unitsFor: (_) => _metric,
+    );
+
+    final parsed = _parse(
+      csvRow(rows.single, numericColumns: kCostsCsvNumericColumns),
+    );
+    expect(parsed.single[1], "'=cmd()");
+  });
+
   group('the file itself', () {
     late Directory dir;
 
@@ -364,7 +415,12 @@ void main() {
         units: _metric,
       );
 
-      await writeCsvFile(file, kFillUpsCsvHeader, rows);
+      await writeCsvFile(
+        file,
+        kFillUpsCsvHeader,
+        rows,
+        numericColumns: kFillUpsCsvNumericColumns,
+      );
 
       final bytes = file.readAsBytesSync();
       expect(bytes.take(3), kUtf8Bom);

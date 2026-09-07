@@ -716,5 +716,6 @@
   "importKindReadings": "قراءات العدّاد",
   "commonDone": "تم",
   "backupPickVehicle": "أي مركبة؟",
-  "backupAllVehicles": "كل المركبات"
+  "backupAllVehicles": "كل المركبات",
+  "importKindCorrections": "تصحيحات العدّاد"
 }

@@ -192,27 +192,41 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
   bool get _matches =>
       _foldedSubject.isNotEmpty && foldedName(_typed.text) == _foldedSubject;
 
-  /// The five counts, and the caller's extra line under them.
-  String _body(
+  /// The body, whichever sentence it is, with the caller's note under it.
+  ///
+  /// The note is appended HERE and not inside the generated branch. The first
+  /// version put `widget.body ?? _body(...)` at the call site, so a caller
+  /// that supplied both a body and a note silently lost the note — and the
+  /// delete-all flow is exactly that caller. The sentence it lost was the one
+  /// telling the user their safety copy is kept for thirty days, on the dialog
+  /// that destroys everything.
+  String _bodyWithNote(
     AppLocalizations l10n,
     DeleteCounts counts,
     String Function(int) format,
   ) {
-    final sentence = l10n.confirmDeleteBody(
-      counts.fillUps,
-      format(counts.fillUps),
-      counts.services,
-      format(counts.services),
-      counts.costs,
-      format(counts.costs),
-      counts.trips,
-      format(counts.trips),
-      counts.reminders,
-      format(counts.reminders),
-    );
+    final sentence = widget.body ?? _generatedBody(l10n, counts, format);
     final note = widget.note;
     return note == null ? sentence : '$sentence\n\n$note';
   }
+
+  /// The five counts.
+  String _generatedBody(
+    AppLocalizations l10n,
+    DeleteCounts counts,
+    String Function(int) format,
+  ) => l10n.confirmDeleteBody(
+    counts.fillUps,
+    format(counts.fillUps),
+    counts.services,
+    format(counts.services),
+    counts.costs,
+    format(counts.costs),
+    counts.trips,
+    format(counts.trips),
+    counts.reminders,
+    format(counts.reminders),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +253,7 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
             counts.entries,
             format(counts.entries),
           ),
-      body: widget.body ?? _body(l10n, counts, format),
+      body: _bodyWithNote(l10n, counts, format),
       actions: [
         // The safe alternative first, where there is one. The reference orders
         // it that way and §7's "no dialog is ever dismissed into a destructive

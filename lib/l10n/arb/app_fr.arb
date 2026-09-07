@@ -716,5 +716,6 @@
   "importKindReadings": "Relevés de compteur",
   "commonDone": "Terminé",
   "backupPickVehicle": "Quel véhicule ?",
-  "backupAllVehicles": "Tous les véhicules"
+  "backupAllVehicles": "Tous les véhicules",
+  "importKindCorrections": "Corrections de compteur"
 }

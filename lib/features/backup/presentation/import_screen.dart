@@ -457,14 +457,27 @@ String _skippedLine(BuildContext context, SkippedEntry entry, String tag) {
       : skippedEntryLine(l10n, entry, date: formatLongDate(date, tag));
 }
 
+/// The label for one record type.
+///
+/// EVERY array named, and the fallback says so rather than picking one. The
+/// first version ended `_ => l10n.importKindReadings`, so `odometer_
+/// corrections` rendered as "Odometer readings" — two different record types
+/// under one name, on the screen whose whole job is telling the user what is
+/// about to change. A catch-all that returns a real label is a catch-all that
+/// lies; `backupArrayLabels` is asserted complete against `kBackupArrays`.
 String _kindLabel(AppLocalizations l10n, String kind) => switch (kind) {
   'vehicles' => l10n.importKindVehicles,
+  'reminders' => l10n.importKindReminders,
+  'odometer_readings' => l10n.importKindReadings,
+  'odometer_corrections' => l10n.importKindCorrections,
   'fillups' => l10n.importKindFillups,
   'services' => l10n.importKindServices,
   'expenses' => l10n.importKindExpenses,
   'trips' => l10n.importKindTrips,
-  'reminders' => l10n.importKindReminders,
-  _ => l10n.importKindReadings,
+  // Not reachable: `import_message_completeness_test` asserts every entry of
+  // `kBackupArrays` is named above. A wrong label is worse than a visibly
+  // missing one, so this says nothing rather than guessing.
+  _ => kind,
 };
 
 String _isoOf(int utcMs) => DateTime.fromMillisecondsSinceEpoch(

@@ -2973,4 +2973,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupAllVehicles => 'All vehicles';
+
+  @override
+  String get importKindCorrections => 'Odometer corrections';
 }

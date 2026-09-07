@@ -16,6 +16,7 @@ import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/store_snapshot.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/features/backup/application/import_notifier.dart';
+import 'package:odova/features/backup/domain/backup_format.dart';
 import 'package:odova/features/backup/domain/import_plan.dart';
 import 'package:odova/features/backup/domain/import_preview.dart';
 import 'package:odova/features/backup/domain/import_warning.dart';
@@ -139,6 +140,53 @@ void main() {
     // 412 → 388 is the row that loses.
     expect(find.text('412'), findsOneWidget);
     expect(find.text('388'), findsOneWidget);
+  });
+
+  testWidgets('every record type in the comparison has its own name', (
+    tester,
+  ) async {
+    // The first version's `_kindLabel` ended `_ => importKindReadings`, so
+    // `odometer_corrections` rendered as "Odometer readings" — two different
+    // record types under one name, on the screen whose whole job is telling
+    // the user what is about to change. A catch-all that returns a real label
+    // compiles and renders something plausible.
+    await _pump(
+      tester,
+      state: ImportPreviewState(
+        variant: const ReplaceVariant(),
+        fileName: 'odova-backup-2026-04-11-0930.json',
+        exportedAtUtcMs: _exportedAt,
+        comparison: buildComparison(
+          now: const {},
+          after: const {},
+          kinds: kBackupArrays,
+        ),
+        plan: _plan(),
+      ),
+    );
+    final l10n = await _l10n();
+
+    final labels = <String>{};
+    for (final label in [
+      l10n.importKindVehicles,
+      l10n.importKindReminders,
+      l10n.importKindReadings,
+      l10n.importKindCorrections,
+      l10n.importKindFillups,
+      l10n.importKindServices,
+      l10n.importKindExpenses,
+      l10n.importKindTrips,
+    ]) {
+      await _reveal(tester, find.text(label));
+      expect(find.text(label), findsOneWidget, reason: label);
+      labels.add(label);
+    }
+    // Eight arrays, eight distinct labels.
+    expect(labels, hasLength(kBackupArrays.length));
+    // And no raw array name reached the screen.
+    for (final array in kBackupArrays) {
+      expect(find.text(array), findsNothing, reason: array);
+    }
   });
 
   testWidgets('the replacement sentence is present and unsoftened', (

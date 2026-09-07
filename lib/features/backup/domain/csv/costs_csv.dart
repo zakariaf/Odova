@@ -29,6 +29,14 @@ const List<String> kCostsCsvHeader = [
   'notes',
 ];
 
+/// Which columns of [kCostsCsvHeader] hold numbers this code produced.
+///
+/// `amount` is the one that matters: §10's refund switch makes an expense the
+/// one money field in the app that may be negative, and `-` is a formula
+/// leader — so without this every refund row exported as the text `'-25.00`
+/// and the column stopped adding up.
+const Set<int> kCostsCsvNumericColumns = {6, 8};
+
 /// The three values `type` can take.
 ///
 /// Not the expense CATEGORY enum: a fuel row's type is `fuel` whatever the

@@ -4432,6 +4432,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All vehicles'**
   String get backupAllVehicles;
+
+  /// One row label in §6 §4.3's comparison. It was missing, so the switch's catch-all rendered odometer CORRECTIONS as 'Odometer readings' — two different record types under one name, on the screen whose whole job is showing the user what is about to change.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer corrections'**
+  String get importKindCorrections;
 }
 
 class _AppLocalizationsDelegate

@@ -108,7 +108,12 @@ String _typeWord(AppLocalizations l10n, String array) => switch (array) {
   'fillups' => l10n.importTypeFillup,
   'services' => l10n.importTypeService,
   'expenses' => l10n.importTypeExpense,
-  _ => l10n.importTypeTrip,
+  'trips' => l10n.importTypeTrip,
+  // Not reachable — `import_message_completeness_test` asserts every entry of
+  // `kBackupArrays` is named above. It returns the raw name rather than a real
+  // label, because a wrong type word in a skipped-entry list is a user
+  // hunting for a record they never lost.
+  _ => array,
 };
 
 String _reasonPhrase(AppLocalizations l10n, String reason) => switch (reason) {
@@ -117,5 +122,8 @@ String _reasonPhrase(AppLocalizations l10n, String reason) => switch (reason) {
   SkipReason.money => l10n.importSkipMoney,
   SkipReason.currency => l10n.importSkipCurrency,
   SkipReason.correction => l10n.importSkipCorrection,
+  // `incomplete` and anything a future rung adds. This one CAN fall through
+  // honestly: the six reasons are a closed vocabulary the restorers choose
+  // from, and "part of it was missing" is true of any of them.
   _ => l10n.importSkipIncomplete,
 };

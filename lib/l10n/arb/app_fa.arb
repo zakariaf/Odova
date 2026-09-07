@@ -716,5 +716,6 @@
   "importKindReadings": "ثبت‌های کیلومترشمار",
   "commonDone": "تمام",
   "backupPickVehicle": "کدام خودرو؟",
-  "backupAllVehicles": "همه‌ی خودروها"
+  "backupAllVehicles": "همه‌ی خودروها",
+  "importKindCorrections": "اصلاح‌های کیلومترشمار"
 }

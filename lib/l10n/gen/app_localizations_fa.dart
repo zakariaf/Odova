@@ -2967,4 +2967,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get backupAllVehicles => 'همه‌ی خودروها';
+
+  @override
+  String get importKindCorrections => 'اصلاح‌های کیلومترشمار';
 }

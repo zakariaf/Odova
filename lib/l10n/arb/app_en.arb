@@ -4308,5 +4308,9 @@
   "backupAllVehicles": "All vehicles",
   "@backupAllVehicles": {
     "description": "The extra answer only the all-costs CSV offers. §6 §8.1 calls that file the one somebody opens to build a pivot table, and a pivot over a household is what a household wants."
+  },
+  "importKindCorrections": "Odometer corrections",
+  "@importKindCorrections": {
+    "description": "One row label in §6 §4.3's comparison. It was missing, so the switch's catch-all rendered odometer CORRECTIONS as 'Odometer readings' — two different record types under one name, on the screen whose whole job is showing the user what is about to change."
   }
 }

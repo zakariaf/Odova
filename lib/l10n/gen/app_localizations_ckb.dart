@@ -2975,4 +2975,7 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get backupAllVehicles => 'هەموو ئۆتۆمبێلەکان';
+
+  @override
+  String get importKindCorrections => 'ڕاستکردنەوەکانی ژمێرەر';
 }

@@ -99,6 +99,26 @@ void main() {
     });
   }
 
+  testWidgets('the safety-copy note renders beside the custom body', (
+    tester,
+  ) async {
+    // It did not. `widget.body ?? _body(...)` replaced the whole composed
+    // string, and `_body` is what appends the note — so the delete-all dialog,
+    // which passes BOTH, lost the sentence telling the user their copy is kept
+    // for thirty days. On the dialog that destroys everything.
+    await _pumpDialog(tester, 'en');
+    final l10n = await _l10n('en');
+
+    expect(find.textContaining(l10n.backupDeleteAllTitle), findsOneWidget);
+    expect(
+      find.textContaining('A copy is saved on this phone'),
+      findsOneWidget,
+    );
+    // And the body it was GIVEN, not the generated five-count sentence.
+    expect(find.textContaining('3 vehicles'), findsOneWidget);
+    expect(find.textContaining('fill-up'), findsNothing);
+  });
+
   testWidgets('the match is case-insensitive where the script has case', (
     tester,
   ) async {

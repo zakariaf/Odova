@@ -17,11 +17,17 @@ import 'package:odova/features/backup/domain/csv/csv_writer.dart';
 ///
 /// [rows] is an `Iterable` and not a `List` on purpose: the caller can build
 /// rows lazily and this will never hold more than one of them.
+///
+/// [numericColumns] are the indices whose cells are numbers this code
+/// produced, not text the user typed. They skip the formula guard, because a
+/// negative amount is a number and `'-25.00` is a string — and §8.1's costs
+/// file exists so somebody can add up the amount column.
 Future<void> writeCsvFile(
   File file,
   List<String> header,
-  Iterable<List<String>> rows,
-) async {
+  Iterable<List<String>> rows, {
+  Set<int> numericColumns = const {},
+}) async {
   final pending = File('${file.path}.writing');
   final sink = pending.openWrite();
   try {
@@ -37,7 +43,7 @@ Future<void> writeCsvFile(
           'wrong column',
         );
       }
-      sink.add(utf8.encode(csvRow(row)));
+      sink.add(utf8.encode(csvRow(row, numericColumns: numericColumns)));
     }
     await sink.flush();
   } finally {

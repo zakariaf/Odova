@@ -3054,4 +3054,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get backupAllVehicles => 'Tous les véhicules';
+
+  @override
+  String get importKindCorrections => 'Corrections de compteur';
 }

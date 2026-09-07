@@ -3197,4 +3197,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get backupAllVehicles => 'كل المركبات';
+
+  @override
+  String get importKindCorrections => 'تصحيحات العدّاد';
 }

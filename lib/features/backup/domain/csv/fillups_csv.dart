@@ -41,6 +41,12 @@ const List<String> kFillUpsCsvHeader = [
   'notes',
 ];
 
+/// Which columns of [kFillUpsCsvHeader] hold numbers this code produced.
+///
+/// They skip the formula guard: a cell this code formatted cannot be an
+/// injection, and `-` leads a negative one.
+const Set<int> kFillUpsCsvNumericColumns = {2, 4, 6, 7, 12, 13};
+
 /// The units a row is written in.
 ///
 /// The USER's, resolved per vehicle before this is called — a household that
