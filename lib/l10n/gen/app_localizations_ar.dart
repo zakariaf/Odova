@@ -3191,4 +3191,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonDone => 'تم';
+
+  @override
+  String get backupPickVehicle => 'أي مركبة؟';
+
+  @override
+  String get backupAllVehicles => 'كل المركبات';
 }

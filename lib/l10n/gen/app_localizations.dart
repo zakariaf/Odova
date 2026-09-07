@@ -4420,6 +4420,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get commonDone;
+
+  /// The vehicle picker's title — §13's export flow. Asked once, and only when there is more than one answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Which vehicle?'**
+  String get backupPickVehicle;
+
+  /// The extra answer only the all-costs CSV offers. §6 §8.1 calls that file the one somebody opens to build a pivot table, and a pivot over a household is what a household wants.
+  ///
+  /// In en, this message translates to:
+  /// **'All vehicles'**
+  String get backupAllVehicles;
 }
 
 class _AppLocalizationsDelegate

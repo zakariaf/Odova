@@ -2985,4 +2985,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get commonDone => 'Fertig';
+
+  @override
+  String get backupPickVehicle => 'Welches Fahrzeug?';
+
+  @override
+  String get backupAllVehicles => 'Alle Fahrzeuge';
 }

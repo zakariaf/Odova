@@ -714,5 +714,7 @@
   "importKindTrips": "گەشتەکان",
   "importKindReminders": "بیرخەرەوەکان",
   "importKindReadings": "خوێندنەوەکانی ژمێرەر",
-  "commonDone": "تەواو"
+  "commonDone": "تەواو",
+  "backupPickVehicle": "کام ئۆتۆمبێل؟",
+  "backupAllVehicles": "هەموو ئۆتۆمبێلەکان"
 }

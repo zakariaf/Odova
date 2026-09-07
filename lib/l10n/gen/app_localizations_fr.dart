@@ -3048,4 +3048,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonDone => 'Terminé';
+
+  @override
+  String get backupPickVehicle => 'Quel véhicule ?';
+
+  @override
+  String get backupAllVehicles => 'Tous les véhicules';
 }

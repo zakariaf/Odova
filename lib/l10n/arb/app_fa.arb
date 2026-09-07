@@ -714,5 +714,7 @@
   "importKindTrips": "سفرها",
   "importKindReminders": "یادآورها",
   "importKindReadings": "ثبت‌های کیلومترشمار",
-  "commonDone": "تمام"
+  "commonDone": "تمام",
+  "backupPickVehicle": "کدام خودرو؟",
+  "backupAllVehicles": "همه‌ی خودروها"
 }

@@ -2969,4 +2969,10 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get commonDone => 'تەواو';
+
+  @override
+  String get backupPickVehicle => 'کام ئۆتۆمبێل؟';
+
+  @override
+  String get backupAllVehicles => 'هەموو ئۆتۆمبێلەکان';
 }

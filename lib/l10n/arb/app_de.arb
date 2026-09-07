@@ -714,5 +714,7 @@
   "importKindTrips": "Fahrten",
   "importKindReminders": "Erinnerungen",
   "importKindReadings": "Kilometerstände",
-  "commonDone": "Fertig"
+  "commonDone": "Fertig",
+  "backupPickVehicle": "Welches Fahrzeug?",
+  "backupAllVehicles": "Alle Fahrzeuge"
 }

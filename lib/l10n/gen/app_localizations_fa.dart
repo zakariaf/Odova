@@ -2961,4 +2961,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get commonDone => 'تمام';
+
+  @override
+  String get backupPickVehicle => 'کدام خودرو؟';
+
+  @override
+  String get backupAllVehicles => 'همه‌ی خودروها';
 }

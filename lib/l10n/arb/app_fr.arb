@@ -714,5 +714,7 @@
   "importKindTrips": "Trajets",
   "importKindReminders": "Rappels",
   "importKindReadings": "Relevés de compteur",
-  "commonDone": "Terminé"
+  "commonDone": "Terminé",
+  "backupPickVehicle": "Quel véhicule ?",
+  "backupAllVehicles": "Tous les véhicules"
 }

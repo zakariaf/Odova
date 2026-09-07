@@ -714,5 +714,7 @@
   "importKindTrips": "الرحلات",
   "importKindReminders": "التذكيرات",
   "importKindReadings": "قراءات العدّاد",
-  "commonDone": "تم"
+  "commonDone": "تم",
+  "backupPickVehicle": "أي مركبة؟",
+  "backupAllVehicles": "كل المركبات"
 }

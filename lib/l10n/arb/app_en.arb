@@ -4300,5 +4300,13 @@
   "commonDone": "Done",
   "@commonDone": {
     "description": "The acknowledging action. Used where there is nothing to confirm and nothing to undo — §6 §4.3's already-restored preview, and the import result the user has to tap past because a snackbar cannot carry a list."
+  },
+  "backupPickVehicle": "Which vehicle?",
+  "@backupPickVehicle": {
+    "description": "The vehicle picker's title — §13's export flow. Asked once, and only when there is more than one answer."
+  },
+  "backupAllVehicles": "All vehicles",
+  "@backupAllVehicles": {
+    "description": "The extra answer only the all-costs CSV offers. §6 §8.1 calls that file the one somebody opens to build a pivot table, and a pivot over a household is what a household wants."
   }
 }
