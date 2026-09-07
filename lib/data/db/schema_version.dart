@@ -27,4 +27,4 @@
 // migration that copied every row from one that copied none.
 
 /// The current schema version.
-const kLatestSchemaVersion = 1;
+const kLatestSchemaVersion = 2;

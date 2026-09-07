@@ -45,6 +45,21 @@ abstract class SchemaReader {
     ExportStamp stamp,
   );
 
+  /// The BACKUP FORMAT version this reader's document is written in.
+  ///
+  /// Not [version]. They were the same number until EPIC-16 and that was a
+  /// coincidence of there being one of each: the schema version describes the
+  /// DATABASE and the format version describes the FILE. v2 added
+  /// `scheduled_notifications`, which the backup deliberately does not carry
+  /// (SPEC.md §6 §7), so the file shape did not change and its version must
+  /// not either — bumping it would make every v2 build write files that older
+  /// builds refuse with `TooNew`, over a table that is not in them.
+  ///
+  /// Declared per reader as a literal rather than read from a constant, so a
+  /// future build that supports format 3 still stamps 1 on a document it
+  /// projected with the v1 shape.
+  int get backupFormatVersion;
+
   /// Reads the whole database.
   ///
   /// `SELECT *` per table rather than a typed query: the reader must not
@@ -55,6 +70,7 @@ abstract class SchemaReader {
   /// because this runs BEFORE drift has opened anything. Going through drift
   /// would mean opening the database with the code that is about to migrate
   /// it, which is the one thing this reader exists to avoid.
+
   Map<String, Object?> read(CommonDatabase database) {
     final content = <String, Object?>{};
     for (final table in tables) {
@@ -77,6 +93,9 @@ class SchemaReaderV1 extends SchemaReader {
   int get version => 1;
 
   @override
+  int get backupFormatVersion => 1;
+
+  @override
   Map<String, Object?> toBackupDocument(
     Map<String, Object?> raw,
     ExportStamp stamp,
@@ -97,12 +116,52 @@ class SchemaReaderV1 extends SchemaReader {
   ];
 }
 
+/// The reader for schema v2.
+///
+/// v2 added `scheduled_notifications` and changed nothing else, so the tables
+/// this reads and the document it projects are IDENTICAL to v1's.
+///
+/// The new table is deliberately absent from [tables]. It is device bookkeeping
+/// — SPEC.md §6 §7 keeps OS notification state out of the backup entirely, and
+/// §6.2 rebuilds the queue from scratch after an import anyway. Copying it into
+/// a safety copy would put ids belonging to one app install into a file that
+/// may be restored onto another phone, where cancelling them cancels whatever
+/// happens to hold those ids now.
+///
+/// It exists as its own class rather than as `1: SchemaReaderV1(), 2:
+/// SchemaReaderV1()` because `version` is read back out of the copy and has to
+/// be the version that was actually read.
+class SchemaReaderV2 extends SchemaReader {
+  /// Creates the v2 reader.
+  const SchemaReaderV2();
+
+  @override
+  int get version => 2;
+
+  /// Still 1. The v2 schema projects the v1 DOCUMENT — see
+  /// [SchemaReader.backupFormatVersion].
+  @override
+  int get backupFormatVersion => 1;
+
+  @override
+  Map<String, Object?> toBackupDocument(
+    Map<String, Object?> raw,
+    ExportStamp stamp,
+  ) => schemaV1BackupDocument(raw, stamp);
+
+  @override
+  List<String> get tables => const SchemaReaderV1().tables;
+}
+
 /// Every reader this build still carries, by version.
 ///
 /// Adding a version adds an entry and never removes one. A gap here is a user
 /// whose safety copy cannot be written at all, which is the one case this
 /// whole file exists to prevent.
-const schemaReaders = <int, SchemaReader>{1: SchemaReaderV1()};
+const schemaReaders = <int, SchemaReader>{
+  1: SchemaReaderV1(),
+  2: SchemaReaderV2(),
+};
 
 /// The reader for [version], or null if this build has none.
 ///

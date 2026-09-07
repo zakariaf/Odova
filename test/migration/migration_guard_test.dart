@@ -17,6 +17,7 @@ import 'package:odova/data/backup/migration_safety_copy.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/app_database_opener.dart';
 import 'package:odova/data/db/connection.dart';
+import 'package:odova/data/db/schema_version.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../support/export_stamp.dart';
@@ -26,11 +27,17 @@ import '../support/export_stamp.dart';
 /// Injected rather than produced by a real schema bump: a bump would need its
 /// own committed snapshot and would make this test the thing that breaks every
 /// time the ladder grows.
+///
+/// `kLatestSchemaVersion + 1`, not a literal. It WAS a literal 2, and EPIC-16's
+/// bump to v2 turned these fakes into no-ops — the seeded file was already at
+/// the version they claimed, so no upgrade ran and every guard reported
+/// `OpenedCleanly`. Four tests about DATA LOSS went green by not running. The
+/// comment above predicted exactly this and the literal was written anyway.
 class _ThrowingDatabase extends AppDatabase {
   _ThrowingDatabase(super.e) : super.forTesting();
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => kLatestSchemaVersion + 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -56,7 +63,7 @@ class _CommittingThenThrowingDatabase extends AppDatabase {
   _CommittingThenThrowingDatabase(super.e) : super.forTesting();
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => kLatestSchemaVersion + 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -81,8 +88,11 @@ void main() {
     if (dir.existsSync()) await dir.delete(recursive: true);
   });
 
-  /// Creates a v1 database holding one vehicle.
-  Future<void> seedV1() async {
+  /// Creates a database at `kLatestSchemaVersion` holding one vehicle.
+  ///
+  /// Named for the CONSTANT and not for a version number: it built at v1 when
+  /// this file was written, and the literal in its name outlived the fact.
+  Future<void> seedAtLatest() async {
     final db = AppDatabase.forTesting(
       NativeDatabase(dbFile, setup: applyPragmas),
     );
@@ -134,7 +144,7 @@ void main() {
       // The old tests could not see it: they asserted the FILE was intact
       // when `openMigratedDatabase` returned, and never queried what it
       // returned.
-      await seedV1();
+      await seedAtLatest();
       final before = dbFile.readAsBytesSync();
 
       final outcome = await openMigratedDatabase(
@@ -165,7 +175,7 @@ void main() {
   test(
     'a database already at the current version opens with no copy',
     () async {
-      await seedV1();
+      await seedAtLatest();
       final outcome = await openMigratedDatabase(
         dbFile,
         safetyDirectory: dir,
@@ -191,7 +201,7 @@ void main() {
     // SQLite and not by the snapshot. Asserted anyway, because it is the
     // common case and because the NEXT test only means something in contrast
     // to it.
-    await seedV1();
+    await seedAtLatest();
     final before = readVehicles();
 
     final outcome = await openMigratedDatabase(
@@ -203,7 +213,7 @@ void main() {
 
     expect(outcome, isA<MigrationRolledBack>());
     expect(readVehicles(), before);
-    expect(userVersion(), 1);
+    expect(userVersion(), kLatestSchemaVersion);
   });
 
   test('a throw AFTER the commit is undone by the snapshot', () async {
@@ -212,7 +222,7 @@ void main() {
     // where `PRAGMA foreign_key_check` runs after the transaction. Without the
     // restore the user's garage is gone and the app comes up empty and
     // healthy-looking.
-    await seedV1();
+    await seedAtLatest();
     final before = readVehicles();
     expect(before, hasLength(1));
     final beforeBytes = await dbFile.readAsBytes();
@@ -226,14 +236,14 @@ void main() {
 
     expect(outcome, isA<MigrationRolledBack>());
     final rolled = outcome as MigrationRolledBack;
-    expect(rolled.atVersion, 1);
-    expect(rolled.expectedVersion, 2);
+    expect(rolled.atVersion, kLatestSchemaVersion);
+    expect(rolled.expectedVersion, kLatestSchemaVersion + 1);
     expect(rolled.error, isA<StateError>());
 
     // Byte for byte, and row for row.
     expect(await dbFile.readAsBytes(), beforeBytes);
     expect(readVehicles(), before);
-    expect(userVersion(), 1);
+    expect(userVersion(), kLatestSchemaVersion);
   });
 
   test(
@@ -243,7 +253,7 @@ void main() {
       // through the crash: if the new mapper misreads a column, the copy
       // carries the same misreading and the escape route is as broken as the
       // thing it was escaping.
-      await seedV1();
+      await seedAtLatest();
 
       final outcome = await openMigratedDatabase(
         dbFile,
@@ -254,8 +264,14 @@ void main() {
 
       final copy = (outcome as MigrationRolledBack).safetyCopy;
       expect(copy, isNotNull);
-      expect(copy!.path, endsWith(migrationSafetyCopyName(1)));
-      expect(copy.path, endsWith('odova-safety-migration-1.json'));
+      expect(
+        copy!.path,
+        endsWith(migrationSafetyCopyName(kLatestSchemaVersion)),
+      );
+      expect(
+        copy.path,
+        endsWith('odova-safety-migration-$kLatestSchemaVersion.json'),
+      );
 
       final content =
           jsonDecode(await copy.readAsString()) as Map<String, Object?>;
@@ -284,7 +300,7 @@ void main() {
       //
       // A database with `user_version = 1` and a missing table — a process
       // killed during first-run schema creation — reaches it on every launch.
-      await seedV1();
+      await seedAtLatest();
       sqlite3.open(dbFile.path)
         ..execute('DROP TABLE settings;')
         ..dispose();
@@ -313,7 +329,7 @@ void main() {
     // migration that runs without an escape route is how a
     // semantically-wrong-but-successful one becomes unrecoverable, because the
     // byte snapshot is deleted on the way out.
-    await seedV1();
+    await seedAtLatest();
     final unwritable = Directory('${dir.path}/gone');
 
     final outcome = await openMigratedDatabase(
@@ -337,7 +353,7 @@ void main() {
     // replacement — and a disk that filled partway left a truncated file under
     // the canonical name that is not valid JSON and no longer holds the user's
     // history. The good copy was destroyed by the attempt to refresh it.
-    await seedV1();
+    await seedAtLatest();
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
@@ -345,7 +361,9 @@ void main() {
       openDatabase: _CommittingThenThrowingDatabase.new,
     );
 
-    final copy = File('${dir.path}/${migrationSafetyCopyName(1)}');
+    final copy = File(
+      '${dir.path}/${migrationSafetyCopyName(kLatestSchemaVersion)}',
+    );
     final first = await copy.readAsString();
     expect(jsonDecode(first), isA<Map<String, Object?>>());
 
@@ -372,7 +390,7 @@ void main() {
     final wipeCopy = File('${dir.path}/odova-safety-wipe-456.json')
       ..writeAsStringSync('{"kept": true}');
 
-    await seedV1();
+    await seedAtLatest();
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
@@ -385,7 +403,7 @@ void main() {
   });
 
   test('a second failed attempt overwrites only the migration copy', () async {
-    await seedV1();
+    await seedAtLatest();
     for (var attempt = 0; attempt < 2; attempt++) {
       await openMigratedDatabase(
         dbFile,
@@ -404,7 +422,7 @@ void main() {
 
     // Named for the VERSION, not a timestamp: a user who has updated four
     // times has one file, not four.
-    expect(copies, ['odova-safety-migration-1.json']);
+    expect(copies, ['odova-safety-migration-$kLatestSchemaVersion.json']);
   });
 
   test('the restore leaves no sidecar holding the failed attempt', () async {
@@ -438,7 +456,7 @@ void main() {
     //
     // What is proven is the result: after a rolled-back migration the file is
     // the old one, and nothing beside it holds the new one.
-    await seedV1();
+    await seedAtLatest();
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
@@ -473,7 +491,7 @@ void main() {
     // Asserted as an invariant over the end state, because ENOSPC cannot be
     // produced here: after ANY outcome, the database exists and holds the
     // user's rows.
-    await seedV1();
+    await seedAtLatest();
     final before = readVehicles();
 
     await openMigratedDatabase(
@@ -499,7 +517,7 @@ void main() {
   test('the snapshot leaves no .premigration files behind', () async {
     // They are the size of the whole database. A failed migration that leaks
     // one doubles the app's storage until the next uninstall.
-    await seedV1();
+    await seedAtLatest();
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,
@@ -517,7 +535,7 @@ void main() {
     // The point of restoring rather than crashing. If the restored file cannot
     // be written to, the user cannot export their data either — and the only
     // remedy left is uninstalling, which deletes it.
-    await seedV1();
+    await seedAtLatest();
     await openMigratedDatabase(
       dbFile,
       safetyDirectory: dir,

@@ -348,6 +348,56 @@ void main() {
     expect(anchor.odometerMetres, const Distance.fromKm(112000).metres);
   });
 
+  group("SPEC.md §4.7.4's rollover, with its own numbers", () {
+    // EPIC-16 task 16.10 wrote a SECOND implementation of this — a
+    // `rollover.dart` with `nextDistanceThreshold` and `nextDueDate` — before
+    // `/simplify` pointed out that `resolveAnchor` plus `_distanceAxis`
+    // already do it. That copy was the naive reading of §3 that `_anchorDate`
+    // above documents CORRECTING, so the two disagreed on exactly the class of
+    // item where being wrong is a legal deadline. It was deleted; these are
+    // the assertions it was worth having, against the real one.
+
+    test(
+      'rolls from ACTUAL: due at 115,000, done at 118,400, next 128,400',
+      () {
+        // The worked example. Rolling from the DUE value gives 125,000 and
+        // leaves the user permanently 3,400 km behind — every later reminder
+        // fires while the oil is still fresh, and the figure on screen looks
+        // entirely plausible.
+        final anchor = resolveAnchor(
+          item(baselineKm: 105000),
+          [record('A', '2026-07-14', 118400)],
+          vehicle(),
+          seriesOf(const []),
+        );
+
+        expect(anchor.odometerMetres, const Distance.fromKm(118400).metres);
+        expect(
+          anchor.odometerMetres! + const Distance.fromKm(10000).metres,
+          const Distance.fromKm(128400).metres,
+        );
+        expect(
+          anchor.odometerMetres! + const Distance.fromKm(10000).metres,
+          isNot(const Distance.fromKm(125000).metres),
+          reason: 'rolling from the due value is the permanent-debt bug',
+        );
+      },
+    );
+
+    test('done EARLY also rolls from actual', () {
+      // §4.7.4: "Roll from actual regardless." Oil changed at 5,000 km on a
+      // 10,000 interval moves the next one to 15,000.
+      final anchor = resolveAnchor(
+        item(baselineKm: 105000),
+        [record('A', '2026-07-14', 110000)],
+        vehicle(),
+        seriesOf(const []),
+      );
+
+      expect(anchor.odometerMetres, const Distance.fromKm(110000).metres);
+    });
+  });
+
   group('the rung that won is reported', () {
     // EPIC-10 needs it. SPEC.md §9: "Home renders any item anchored on the
     // `purchase` or `first_reading` rung as `unknown`, whatever the due engine

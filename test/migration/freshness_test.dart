@@ -38,6 +38,16 @@ List<int> committedSnapshotVersions() {
     ..sort();
 }
 
+/// The from -> to pairs that have a real, row-counting verification.
+///
+/// A pair listed here must have a test that seeds rows in the OLD shape,
+/// migrates, and counts them again. Listing one without writing that test is
+/// the only way to defeat this gate, and it is a deliberate act rather than an
+/// omission — which is the most a gate in the same repo can ask for.
+const _verified = <(int, int)>{
+  (1, 2), // test/migration/v1_to_v2_test.dart
+};
+
 void main() {
   test('the committed snapshots run 1..kLatestSchemaVersion with no gaps', () {
     // A gap means a user two versions behind has no path forward: the ladder
@@ -102,10 +112,11 @@ void main() {
     }
 
     expect(
-      pairs,
+      pairs.where((p) => !_verified.contains(p)).toList(),
       isEmpty,
       reason:
-          'v${pairs.firstOrNull?.$1} -> v${pairs.firstOrNull?.$2} has no '
+          'a from -> to pair has no verification yet. Add it to _verified '
+          'above AND write the test. '
           'verification yet. Add it here with the era-correct fixtures from '
           'test/drift/generated/, and assert row counts either side — a shape '
           'test reads zero rows, so it cannot tell a step that copied '

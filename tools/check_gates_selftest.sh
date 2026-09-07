@@ -24,6 +24,25 @@ move_aside() { # move_aside <file> — the file must be ABSENT for the arm
 }
 scratch=()
 write_scratch() { # write_scratch <file> <<'EOF' ... EOF
+  # REFUSES to clobber a file this run did not create. `scratch` deletes
+  # everything it registered, so pointing it at a real committed file destroys
+  # that file — which is what happened to drift_schema_v2.json the first time
+  # this ran after EPIC-16 added a v2 snapshot. The arm planting a "snapshot
+  # with no bump" had hardcoded v2, a safe name right up until it was not.
+  #
+  # Rewriting a probe this run already created is fine and several arms do it:
+  # the check is "already in `scratch`", not "already on disk".
+  local already=0
+  local existing
+  for existing in "${scratch[@]:-}"; do
+    [ "$existing" = "$1" ] && already=1 && break
+  done
+  if [ -e "$1" ] && [ "$already" -eq 0 ]; then
+    printf 'FAIL  write_scratch would clobber %s, which it did not create\n' \
+      "$1" >&2
+    rc=1
+    return 1
+  fi
   mkdir -p "$(dirname "$1")"
   cat >"$1"
   scratch+=("$1")
@@ -867,8 +886,15 @@ assert 0 "check_schema_freshness is green on the real tree" bash "$FRESH"
 # `stepByStep` throws "Unknown migration from 1" on the device of every user who
 # had the old version.
 plant lib/data/db/schema_version.dart
-perl -0pi -e 's/kLatestSchemaVersion = 1/kLatestSchemaVersion = 2/' \
-  lib/data/db/schema_version.dart
+# Version-INDEPENDENT: reads the current number and plants the next one. It was
+# `s/= 1/= 2/`, and EPIC-16's bump to v2 turned both arms below into no-ops —
+# the substitution matched nothing, the gate stayed green, and two arms about
+# data loss passed by not running. The same literal-outlives-the-fact bug the
+# migration guard test had, in the file whose whole job is to prove gates fail.
+current="$(perl -ne 'print $1 if /kLatestSchemaVersion = (\d+)/' \
+  lib/data/db/schema_version.dart)"
+perl -0pi -e "s/kLatestSchemaVersion = $current/kLatestSchemaVersion = \
+$((current + 1))/" lib/data/db/schema_version.dart
 assert 1 "check_schema_freshness is red on a bump with no snapshot" \
   bash "$FRESH"
 restore_all
@@ -876,12 +902,222 @@ restore_all
 # The other direction, which is just as silent: a snapshot exported and the
 # constant left alone, so the migration never runs and the app reads columns
 # that are not there.
-write_scratch drift_schemas/odova/drift_schema_v2.json <<'JSON'
+write_scratch "drift_schemas/odova/drift_schema_v$((current + 1)).json" <<'JSON'
 {"_meta": {"description": "selftest plant"}, "options": {}, "entities": []}
 JSON
 assert 1 "check_schema_freshness is red on a snapshot with no bump" \
   bash "$FRESH"
 restore_all
 assert 0 "check_schema_freshness is green again" bash "$FRESH"
+
+echo "== check_stream_notify =="
+NOTIFY=tools/check_stream_notify.sh
+assert 0 "check_stream_notify is green on the real tree" bash "$NOTIFY"
+
+# Both real violations, planted as they actually shipped. `--root` keeps the
+# plant out of lib/, so a failed run cannot leave a probe behind in the tree
+# the app compiles from.
+# The probe lives outside lib/ so a failed run cannot leave it where the app
+# compiles from. `rm -rf` below is the cleanup rather than `scratch`, which
+# unlinks files and would report "is a directory" on this one.
+mkdir -p .selftest/repos
+
+write_scratch .selftest/repos/probe.dart <<'DART'
+// The fan-out's shape: a raw INSERT and no announcement.
+Future<void> sync(db) async {
+  await db.customStatement('''
+    INSERT INTO odometer_readings (id, vehicle_id) VALUES (?, ?)
+    ON CONFLICT DO NOTHING;
+  ''', [1, 2]);
+}
+DART
+assert 1 "check_stream_notify is red on a raw INSERT" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# The DELETE arm, which is the one that emptied six tables through a cascade.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> erase(db) async {
+  await db.customStatement('DELETE FROM vehicles WHERE id = ?;', [1]);
+}
+DART
+assert 1 "check_stream_notify is red on a raw DELETE" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# Green once the write goes through the API that carries its own announcement.
+# The FIRST version of this gate accepted a raw write plus a follow-up
+# `notifyUpdates` anywhere in the file — which could not see a file with two
+# raw writes and one announcement, and that is exactly the file it was written
+# for. The contract now is the API, not the workaround.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> erase(db) async {
+  await db.customUpdate(
+    'DELETE FROM vehicles WHERE id = ?;',
+    variables: [Variable.withInt(1)],
+    updates: {db.vehicles},
+  );
+}
+DART
+assert 0 "check_stream_notify is green on customUpdate" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# And a comment naming the banned call must not trip the gate that bans it.
+write_scratch .selftest/repos/probe.dart <<'DART'
+// Never use customStatement for an INSERT INTO — it announces nothing.
+Future<void> erase(db) async {
+  await db.customUpdate(
+    'DELETE FROM vehicles WHERE id = ?;',
+    variables: [Variable.withInt(1)],
+    updates: {db.vehicles},
+  );
+}
+DART
+assert 0 "check_stream_notify ignores a comment naming the ban" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# Four raw writes the FIRST version of this gate could not see, each found by
+# the review pass rather than by the arms below — which is why they are arms now.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> upsert(db) async {
+  await db.customStatement('INSERT OR REPLACE INTO readings (id) VALUES (?);');
+}
+DART
+assert 1 "check_stream_notify is red on INSERT OR REPLACE" \
+  bash "$NOTIFY" --root .selftest/repos
+
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> erase(db) async {
+  await db.customStatement(r'''
+    DELETE
+      FROM vehicles WHERE id = ?;
+  ''');
+}
+DART
+assert 1 "check_stream_notify is red on a verb wrapped in a heredoc" \
+  bash "$NOTIFY" --root .selftest/repos
+
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> touch(db) async {
+  await db.customStatement('UPDATE "vehicles" SET name = ?;');
+}
+DART
+assert 1 "check_stream_notify is red on a quoted table name" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# The one that falsified the gate's own premise: `updates:` is OPTIONAL on
+# customUpdate, so the right API announces nothing when it is omitted.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> erase(db) async {
+  await db.customUpdate('DELETE FROM vehicles WHERE id = ?;');
+}
+DART
+assert 1 "check_stream_notify is red on customUpdate with no updates:" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# A block comment holding a historical note turned the gate red on correct code.
+write_scratch .selftest/repos/probe.dart <<'DART'
+/* This used to be a raw DELETE FROM vehicles. It is not any more. */
+Future<void> read(db) async {
+  await db.customStatement('SELECT id FROM vehicles;');
+}
+DART
+assert 0 "check_stream_notify ignores a block comment naming the ban" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# A raw READ needs no announcement, and a gate that fired on one would be
+# deleted by the third person who hit it.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> read(db) async {
+  await db.customStatement('SELECT id FROM vehicles;');
+}
+DART
+assert 0 "check_stream_notify ignores a raw SELECT" \
+  bash "$NOTIFY" --root .selftest/repos
+restore_all
+rm -rf .selftest
+assert 0 "check_stream_notify is green again" bash "$NOTIFY"
+
+echo "== check_notification_manifest =="
+NOTIF=tools/check_notification_manifest.sh
+assert 0 "check_notification_manifest is green on the real manifest" bash "$NOTIF"
+
+# A manifest that does not exist is a FAILURE and not a skip. The skill's
+# version exits 0 here, which turns a typo'd path into a passing gate.
+assert 1 "check_notification_manifest is red on a missing manifest" \
+  bash "$NOTIF" --manifest .selftest/nope.xml
+
+mkdir -p .selftest
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
+    </application>
+</manifest>
+XML
+assert 0 "check_notification_manifest is green on a minimal correct manifest" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+
+# The two refusals, planted separately: one is a Play-policy rejection risk and
+# the other is a permission dialog SPEC.md §4.6.3 declines to spend.
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
+    </application>
+</manifest>
+XML
+assert 1 "check_notification_manifest is red on USE_EXACT_ALARM" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
+    </application>
+</manifest>
+XML
+assert 1 "check_notification_manifest is red on SCHEDULE_EXACT_ALARM" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+
+# The boot receiver, whose absence is the silent one: the app keeps working and
+# simply never notifies again after a restart.
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <application />
+</manifest>
+XML
+assert 1 "check_notification_manifest is red with no boot receiver" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+
+# And the comment paragraph in the real manifest EXPLAINING why the exact-alarm
+# permissions are absent must not itself trip the gate that keeps them absent.
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <!-- Never declare android.permission.USE_EXACT_ALARM: Play policy. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
+    </application>
+</manifest>
+XML
+assert 0 "check_notification_manifest ignores a comment naming the ban" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+restore_all
+rm -rf .selftest
+assert 0 "check_notification_manifest is green again" bash "$NOTIF"
 
 exit "$rc"

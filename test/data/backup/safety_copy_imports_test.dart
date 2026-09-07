@@ -57,9 +57,22 @@ void main() {
       );
 
       expect(document['format'], 'odova.backup', reason: 'v${entry.key}');
-      // Its OWN version, never a constant that moves: a v5 binary writing a
-      // v1 database must stamp 1.
-      expect(document['format_version'], entry.key, reason: 'v${entry.key}');
+      // Its own declared FORMAT version, never a constant that moves: a v5
+      // binary writing a v1 document must stamp 1.
+      //
+      // `backupFormatVersion` and not `version`. They were the same number
+      // until EPIC-16, which is a coincidence of there having been one of
+      // each — the schema version describes the DATABASE and the format
+      // version describes the FILE. Schema v2 added a table the backup
+      // deliberately does not carry (SPEC.md §6 §7), so the document shape is
+      // unchanged and its version must be too: bumping it would make every v2
+      // build write files that older builds refuse as `TooNew`, over a table
+      // that is not in them.
+      expect(
+        document['format_version'],
+        entry.value.backupFormatVersion,
+        reason: 'v${entry.key}',
+      );
     }
   });
 

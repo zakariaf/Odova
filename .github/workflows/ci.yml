@@ -41,6 +41,7 @@ jobs:
     timeout-minutes: 10
     outputs:
       has_app: ${{ steps.detect.outputs.has_app }}
+      ios_touched: ${{ steps.detect.outputs.ios_touched }}
       flutter_version: ${{ steps.toolchain.outputs.version }}
     steps:
       # Contract: the gates below can see the whole of history.
@@ -95,6 +96,35 @@ jobs:
       - name: the schema version and its snapshots agree
         run: bash tools/check_schema_freshness.sh
 
+      # Contract: a repository writing through customStatement also calls
+      # notifyUpdates. Drift is handed a raw string and cannot learn which
+      # tables it touched, so it dispatches no update and every open .watch()
+      # keeps serving its cached result — the row is written and the screen
+      # never hears. Two writers shipped this: the derived-reading fan-out, so
+      # a fill-up's reading never reached vehicleReadingsProvider, and the
+      # vehicle hard-delete, which cascades through six tables. A suite of
+      # 4,600 tests could not see it, because a test that reads .first after
+      # the write opens a NEW subscription; only a subscriber that was already
+      # listening — which is what a screen is — can tell.
+      - name: raw writers announce their tables
+        run: bash tools/check_stream_notify.sh
+
+      # Contract: the Android manifest declares what SPEC.md §4 needs and
+      # NEITHER exact-alarm permission. USE_EXACT_ALARM is Play-policy
+      # restricted to alarm/timer/calendar apps and risks store rejection;
+      # SCHEDULE_EXACT_ALARM would work and is refused by §4.6.3 anyway,
+      # because it spends a permission dialog on an hour of precision that
+      # §4.2's absolute-anchor bodies were written to make irrelevant. It also
+      # REQUIRES the boot re-arm, whose absence is the silent one — Android
+      # drops every alarm on reboot, so without it a phone that restarts
+      # overnight stops notifying forever and nothing in the app can tell.
+      #
+      # Odova's own gate rather than the local-notifications-scheduler skill's,
+      # which requires SCHEDULE_EXACT_ALARM. CLAUDE.md §3: the skill is a
+      # general default, the spec is this product's decision.
+      - name: the notification manifest asks for no exact alarms
+        run: bash tools/check_notification_manifest.sh
+
       # Contract: the pub ecosystem block in .github/dependabot.yml is live
       # and grouped. It shipped commented out because Dependabot aborts on a
       # missing pubspec.yaml; pubspec.yaml exists now, and this is what stops
@@ -133,6 +163,35 @@ jobs:
           else
             echo "has_app=false" >> "$GITHUB_OUTPUT"
             echo "::notice::No pubspec.yaml yet. The Flutter lane is skipped."
+          fi
+
+          # Whether anything that can break the iOS COMPILE moved. The ios job
+          # is 20-30 minutes against the Android lane's two, so it runs when
+          # there is a reason rather than on every push.
+          #
+          # pubspec.yaml is in the list because that is how the last break
+          # arrived: adding a plugin regenerates GeneratedPluginRegistrant and
+          # changes what the Swift host links against. The Dart sources are
+          # NOT — `flutter analyze` and the test lane already compile every
+          # line of those, on every PR.
+          #
+          # checkout above is fetch-depth: 0, so the base commit is present and
+          # this diff is real rather than a guess.
+          base="${{ github.event.pull_request.base.sha }}"
+          if [ -n "$base" ] && git rev-parse --verify -q "$base" >/dev/null; then
+            if git diff --name-only "$base"...HEAD \
+                 | grep -qE '^(ios/|pubspec\.(yaml|lock)$|\.github/workflows/ci\.yml$)'; then
+              echo "ios_touched=true" >> "$GITHUB_OUTPUT"
+              echo "iOS host code, the dependency set or this workflow moved — the ios lane will run."
+            else
+              echo "ios_touched=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::Nothing under ios/ or in the dependency set changed. The ios build is skipped."
+            fi
+          else
+            # No base to diff against — a push to main, or a shallow clone that
+            # should not happen here. RUN IT. A gate that cannot tell whether it
+            # is needed and therefore skips is a gate that is off.
+            echo "ios_touched=true" >> "$GITHUB_OUTPUT"
           fi
 
   # ------------------------------------------------------- armed by pubspec.yaml
@@ -261,6 +320,17 @@ jobs:
       # sits, so the compiler cannot see this one.
       - name: Drift stays inside the data layer
         run: bash tools/check_drift_confinement.sh
+
+      # Contract: exactly one file imports flutter_local_notifications, the
+      # scheduling math stays pure, and no feature calls the gateway directly.
+      # SPEC.md §4.6.1. The rule is what keeps §4's hardest promises testable:
+      # "never more than two in a rolling seven days" is a claim about a SET,
+      # which no on-device test can check.
+      - name: the notification plugin stays behind its port
+        run: |
+          bash .claude/skills/local-notifications-scheduler/scripts/check-single-fln-import.sh
+          bash .claude/skills/local-notifications-scheduler/scripts/check-scheduler-purity.sh
+          bash .claude/skills/local-notifications-scheduler/scripts/check-adhoc-schedule-calls.sh
 
       # Contract: the committed .g.dart IS the schema. A stale generated file
       # compiles and runs against yesterday's tables, and for a migration
@@ -500,3 +570,50 @@ jobs:
       # Contract: the app still compiles for a real target. Unsigned on purpose —
       # no signing secret in this job means there is nothing here to leak.
       - run: flutter build apk --debug
+
+  ios:
+    name: ios build
+    needs: [repo, app]
+    # Contract: the app compiles for the OTHER real target. It did not, for
+    # three epics, and nothing said so — `android build` was the only compile
+    # lane, so `ios/Runner/AppDelegate.swift` named a property the Flutter
+    # engine protocol does not have and every CI run stayed green. It was found
+    # by running the app on a simulator by hand.
+    #
+    # Not on every PR. A cold iOS build is 20-30 minutes against the Android
+    # lane's two, and the Swift host code changes about once an epic — so this
+    # runs when something that can actually break it moved: the iOS host
+    # sources, the podfile, or the dependency set that generates the plugin
+    # registrant. A plugin added to pubspec.yaml is exactly how the last one
+    # broke.
+    #
+    # macos-15 is free here because the repo is public; on a private repo this
+    # would bill at ten times the Linux rate and the trade would be worth
+    # re-reading.
+    if: |
+      needs.repo.outputs.has_app == 'true' &&
+      (github.event_name != 'pull_request' ||
+       contains(github.event.pull_request.labels.*.name, 'ios') ||
+       needs.repo.outputs.ios_touched == 'true')
+    runs-on: macos-15
+    # Longer than the other jobs on purpose: a cold pod install plus a full
+    # Xcode build does not fit in 25.
+    timeout-minutes: 40
+    steps:
+      # Contract: this job compiles the same commit the tests ran against.
+      - uses: actions/checkout@v7
+      # Contract: the same pinned toolchain the app job used.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ needs.repo.outputs.flutter_version }}
+          cache: true
+      # Contract: the same resolved version set the app job tested. The plugin
+      # list is what generates the Swift registrant this job is here to compile.
+      - run: flutter pub get --enforce-lockfile
+      # Contract: every line of Swift in ios/Runner/ compiles. Simulator,
+      # debug, unsigned — signing material never enters CI, which is why
+      # tools/check_release_hygiene.sh walks git log --all, so a device build
+      # could not be produced here anyway. A simulator build still type-checks
+      # the whole host, which is all that was missing.
+      - run: flutter build ios --simulator --debug

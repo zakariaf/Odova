@@ -10,7 +10,7 @@
 //   3. After the window, the row is PURGED. A settled database has
 //      `deleted_at IS NULL` on every row that exists: no bin, no tombstones,
 //      nothing deleted in the export.
-import 'package:drift/drift.dart' show Table, TableInfo, Variable;
+import 'package:drift/drift.dart' show Table, TableInfo, UpdateKind, Variable;
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
@@ -205,9 +205,25 @@ Future<Result<void, PersistFailure>> eraseVehiclePermanently(
   VehicleId vehicleId,
 ) => guardPersist(() async {
   await db.transaction(() async {
-    await db.customStatement('DELETE FROM vehicles WHERE id = ?;', [
-      vehicleId.toString(),
-    ]);
+    // `customUpdate` with `updates:`, the same idiom `softDeleteVehicle` above
+    // uses and for the same reason: `customStatement` is handed a raw string
+    // and drift cannot know what it touched, so it dispatches no update and
+    // every open `.watch()` keeps serving what it had. One untraced statement
+    // here empties six tables through ON DELETE CASCADE — the vehicle gone
+    // from the database and still on screen with all of its history.
+    //
+    // EVERY table, not the six this cascade names. The cascade is declared in
+    // the schema, so a future table hanging off `vehicles` inherits it
+    // silently and a hand-kept list would be right until the next migration.
+    // This is the one hard delete in the app and it happens once in a
+    // vehicle's life; over-notifying costs a few queries re-running on a
+    // screen that is about to be popped.
+    await db.customUpdate(
+      'DELETE FROM vehicles WHERE id = ?;',
+      variables: [Variable.withString(vehicleId.toString())],
+      updates: db.allTables.toSet(),
+      updateKind: UpdateKind.delete,
+    );
   });
   return const Ok(null);
 });

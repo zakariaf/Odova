@@ -218,6 +218,19 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
     );
   }
 
+  /// The ISO weekday, Monday = 1 through Sunday = 7.
+  ///
+  /// Same numbering as `DateTime.weekday`, so the `Weekday` constants in
+  /// `core/l10n/calendar.dart` — which are `DateTime.friday` and friends —
+  /// compare directly against it.
+  ///
+  /// Computed from the epoch rather than by building a `DateTime`: 1970-01-01
+  /// was a Thursday, so `epochDay 0` is 4. A `DateTime` would carry a zone and
+  /// a `CivilDate` deliberately does not — SPEC.md §5 stores wall-clock, and a
+  /// weekday that depends on the device's zone is a weekday that changes when
+  /// somebody flies.
+  int get weekday => ((_epochDay + 3) % 7) + 1;
+
   /// Days since 1970-01-01.
   ///
   /// Through `lib/core/time/julian_day.dart`, which `lib/core/l10n/jalali.dart`

@@ -11338,6 +11338,634 @@ class OdometerCorrectionsCompanion
   }
 }
 
+class $ScheduledNotificationsTable extends ScheduledNotifications
+    with TableInfo<$ScheduledNotificationsTable, ScheduledNotification> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ScheduledNotificationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _osIdMeta = const VerificationMeta('osId');
+  @override
+  late final GeneratedColumn<int> osId = GeneratedColumn<int>(
+    'os_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _vehicleIdMeta = const VerificationMeta(
+    'vehicleId',
+  );
+  @override
+  late final GeneratedColumn<String> vehicleId = GeneratedColumn<String>(
+    'vehicle_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reminderIdMeta = const VerificationMeta(
+    'reminderId',
+  );
+  @override
+  late final GeneratedColumn<String> reminderId = GeneratedColumn<String>(
+    'reminder_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stageMeta = const VerificationMeta('stage');
+  @override
+  late final GeneratedColumn<String> stage = GeneratedColumn<String>(
+    'stage',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fireAtLocalMeta = const VerificationMeta(
+    'fireAtLocal',
+  );
+  @override
+  late final GeneratedColumn<String> fireAtLocal = GeneratedColumn<String>(
+    'fire_at_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bodyHashMeta = const VerificationMeta(
+    'bodyHash',
+  );
+  @override
+  late final GeneratedColumn<String> bodyHash = GeneratedColumn<String>(
+    'body_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _stateMeta = const VerificationMeta('state');
+  @override
+  late final GeneratedColumn<String> state = GeneratedColumn<String>(
+    'state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtUtcMsMeta = const VerificationMeta(
+    'updatedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtUtcMs = GeneratedColumn<int>(
+    'updated_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    key,
+    osId,
+    vehicleId,
+    reminderId,
+    stage,
+    fireAtLocal,
+    bodyHash,
+    state,
+    updatedAtUtcMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'scheduled_notifications';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ScheduledNotification> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('os_id')) {
+      context.handle(
+        _osIdMeta,
+        osId.isAcceptableOrUnknown(data['os_id']!, _osIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_osIdMeta);
+    }
+    if (data.containsKey('vehicle_id')) {
+      context.handle(
+        _vehicleIdMeta,
+        vehicleId.isAcceptableOrUnknown(data['vehicle_id']!, _vehicleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vehicleIdMeta);
+    }
+    if (data.containsKey('reminder_id')) {
+      context.handle(
+        _reminderIdMeta,
+        reminderId.isAcceptableOrUnknown(data['reminder_id']!, _reminderIdMeta),
+      );
+    }
+    if (data.containsKey('stage')) {
+      context.handle(
+        _stageMeta,
+        stage.isAcceptableOrUnknown(data['stage']!, _stageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_stageMeta);
+    }
+    if (data.containsKey('fire_at_local')) {
+      context.handle(
+        _fireAtLocalMeta,
+        fireAtLocal.isAcceptableOrUnknown(
+          data['fire_at_local']!,
+          _fireAtLocalMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fireAtLocalMeta);
+    }
+    if (data.containsKey('body_hash')) {
+      context.handle(
+        _bodyHashMeta,
+        bodyHash.isAcceptableOrUnknown(data['body_hash']!, _bodyHashMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyHashMeta);
+    }
+    if (data.containsKey('state')) {
+      context.handle(
+        _stateMeta,
+        state.isAcceptableOrUnknown(data['state']!, _stateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_stateMeta);
+    }
+    if (data.containsKey('updated_at_utc_ms')) {
+      context.handle(
+        _updatedAtUtcMsMeta,
+        updatedAtUtcMs.isAcceptableOrUnknown(
+          data['updated_at_utc_ms']!,
+          _updatedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtUtcMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  ScheduledNotification map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ScheduledNotification(
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      osId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}os_id'],
+      )!,
+      vehicleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vehicle_id'],
+      )!,
+      reminderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_id'],
+      ),
+      stage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stage'],
+      )!,
+      fireAtLocal: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fire_at_local'],
+      )!,
+      bodyHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body_hash'],
+      )!,
+      state: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}state'],
+      )!,
+      updatedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_utc_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $ScheduledNotificationsTable createAlias(String alias) {
+    return $ScheduledNotificationsTable(attachedDatabase, alias);
+  }
+
+  @override
+  bool get isStrict => true;
+}
+
+class ScheduledNotification extends DataClass
+    implements Insertable<ScheduledNotification> {
+  /// `<vehicle_id>:<reminder_id>:<stage>` — SPEC.md §4.2.2 rule 1.
+  ///
+  /// THE identity, and the primary key. Rescheduling is cancel-then-add on the
+  /// same key, which is what stops the OS accumulating duplicates: without a
+  /// stable key, every reprojection adds a notification and cancels nothing,
+  /// and a user who logs fuel weekly ends the month with thirty copies of the
+  /// same reminder.
+  ///
+  /// `reminder_id` is absent from the key for a nudge, giving `veh_…::nudge`.
+  /// That is correct rather than sloppy — a vehicle has one nudge.
+  final String key;
+
+  /// The 31-bit int the OS actually knows it by.
+  ///
+  /// Not the key: Android's API takes an int. The mapping is persisted here
+  /// because `deterministicId` linear-probes on collision, so the id for a key
+  /// is not always a pure function of it — and cancelling requires the id we
+  /// really used, not the one we would compute today.
+  final int osId;
+
+  /// The vehicle, for cancelling a car's keys on archive or delete.
+  ///
+  /// No foreign key. The row is a record of what the OS was told, and it has to
+  /// outlive the vehicle by exactly long enough to cancel it — a cascade would
+  /// delete the row that says which id still needs cancelling, leaving a
+  /// notification about a car the user deleted, with no way to find it.
+  final String vehicleId;
+
+  /// The item, or null for a nudge, a keeper or a backup nudge.
+  final String? reminderId;
+
+  /// `early | due | overdue1 | overdue2 | nudge` — SPEC.md §4.4.1.
+  final String stage;
+
+  /// `YYYY-MM-DDTHH:MM`, WALL CLOCK.
+  ///
+  /// Never a UTC instant, and the CHECK enforces the shape. SPEC.md §4.5: a
+  /// notification is stored as `(local_date, delivery_time)` and resolved in
+  /// the current zone at schedule time, so a user who flies Berlin → Tehran
+  /// still gets 09:00 in Tehran. An instant here would be an hour wrong after
+  /// every DST transition and four and a half hours wrong after that flight —
+  /// both invisible until somebody's phone buzzes at 04:30.
+  final String fireAtLocal;
+
+  /// A hash of the body that was baked into the OS.
+  ///
+  /// The body itself is not stored. §4.2.2 rule 6 re-bakes it on reschedule, so
+  /// what is needed is "did it change", not "what did it say" — and keeping the
+  /// sentence would put six languages of user-visible text in a table that
+  /// never leaves the device and can never be re-rendered.
+  final String bodyHash;
+
+  /// `pending | fired | dropped | cancelled`.
+  ///
+  /// `dropped` is not `cancelled` and that distinction is §6.1's point: we
+  /// cancelled the second one and something else lost the first.
+  final String state;
+
+  /// When this row was last written. UTC epoch milliseconds.
+  final int updatedAtUtcMs;
+  const ScheduledNotification({
+    required this.key,
+    required this.osId,
+    required this.vehicleId,
+    this.reminderId,
+    required this.stage,
+    required this.fireAtLocal,
+    required this.bodyHash,
+    required this.state,
+    required this.updatedAtUtcMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['os_id'] = Variable<int>(osId);
+    map['vehicle_id'] = Variable<String>(vehicleId);
+    if (!nullToAbsent || reminderId != null) {
+      map['reminder_id'] = Variable<String>(reminderId);
+    }
+    map['stage'] = Variable<String>(stage);
+    map['fire_at_local'] = Variable<String>(fireAtLocal);
+    map['body_hash'] = Variable<String>(bodyHash);
+    map['state'] = Variable<String>(state);
+    map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs);
+    return map;
+  }
+
+  ScheduledNotificationsCompanion toCompanion(bool nullToAbsent) {
+    return ScheduledNotificationsCompanion(
+      key: Value(key),
+      osId: Value(osId),
+      vehicleId: Value(vehicleId),
+      reminderId: reminderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderId),
+      stage: Value(stage),
+      fireAtLocal: Value(fireAtLocal),
+      bodyHash: Value(bodyHash),
+      state: Value(state),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    );
+  }
+
+  factory ScheduledNotification.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ScheduledNotification(
+      key: serializer.fromJson<String>(json['key']),
+      osId: serializer.fromJson<int>(json['osId']),
+      vehicleId: serializer.fromJson<String>(json['vehicleId']),
+      reminderId: serializer.fromJson<String?>(json['reminderId']),
+      stage: serializer.fromJson<String>(json['stage']),
+      fireAtLocal: serializer.fromJson<String>(json['fireAtLocal']),
+      bodyHash: serializer.fromJson<String>(json['bodyHash']),
+      state: serializer.fromJson<String>(json['state']),
+      updatedAtUtcMs: serializer.fromJson<int>(json['updatedAtUtcMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'osId': serializer.toJson<int>(osId),
+      'vehicleId': serializer.toJson<String>(vehicleId),
+      'reminderId': serializer.toJson<String?>(reminderId),
+      'stage': serializer.toJson<String>(stage),
+      'fireAtLocal': serializer.toJson<String>(fireAtLocal),
+      'bodyHash': serializer.toJson<String>(bodyHash),
+      'state': serializer.toJson<String>(state),
+      'updatedAtUtcMs': serializer.toJson<int>(updatedAtUtcMs),
+    };
+  }
+
+  ScheduledNotification copyWith({
+    String? key,
+    int? osId,
+    String? vehicleId,
+    Value<String?> reminderId = const Value.absent(),
+    String? stage,
+    String? fireAtLocal,
+    String? bodyHash,
+    String? state,
+    int? updatedAtUtcMs,
+  }) => ScheduledNotification(
+    key: key ?? this.key,
+    osId: osId ?? this.osId,
+    vehicleId: vehicleId ?? this.vehicleId,
+    reminderId: reminderId.present ? reminderId.value : this.reminderId,
+    stage: stage ?? this.stage,
+    fireAtLocal: fireAtLocal ?? this.fireAtLocal,
+    bodyHash: bodyHash ?? this.bodyHash,
+    state: state ?? this.state,
+    updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+  );
+  ScheduledNotification copyWithCompanion(
+    ScheduledNotificationsCompanion data,
+  ) {
+    return ScheduledNotification(
+      key: data.key.present ? data.key.value : this.key,
+      osId: data.osId.present ? data.osId.value : this.osId,
+      vehicleId: data.vehicleId.present ? data.vehicleId.value : this.vehicleId,
+      reminderId: data.reminderId.present
+          ? data.reminderId.value
+          : this.reminderId,
+      stage: data.stage.present ? data.stage.value : this.stage,
+      fireAtLocal: data.fireAtLocal.present
+          ? data.fireAtLocal.value
+          : this.fireAtLocal,
+      bodyHash: data.bodyHash.present ? data.bodyHash.value : this.bodyHash,
+      state: data.state.present ? data.state.value : this.state,
+      updatedAtUtcMs: data.updatedAtUtcMs.present
+          ? data.updatedAtUtcMs.value
+          : this.updatedAtUtcMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ScheduledNotification(')
+          ..write('key: $key, ')
+          ..write('osId: $osId, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('reminderId: $reminderId, ')
+          ..write('stage: $stage, ')
+          ..write('fireAtLocal: $fireAtLocal, ')
+          ..write('bodyHash: $bodyHash, ')
+          ..write('state: $state, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    key,
+    osId,
+    vehicleId,
+    reminderId,
+    stage,
+    fireAtLocal,
+    bodyHash,
+    state,
+    updatedAtUtcMs,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ScheduledNotification &&
+          other.key == this.key &&
+          other.osId == this.osId &&
+          other.vehicleId == this.vehicleId &&
+          other.reminderId == this.reminderId &&
+          other.stage == this.stage &&
+          other.fireAtLocal == this.fireAtLocal &&
+          other.bodyHash == this.bodyHash &&
+          other.state == this.state &&
+          other.updatedAtUtcMs == this.updatedAtUtcMs);
+}
+
+class ScheduledNotificationsCompanion
+    extends UpdateCompanion<ScheduledNotification> {
+  final Value<String> key;
+  final Value<int> osId;
+  final Value<String> vehicleId;
+  final Value<String?> reminderId;
+  final Value<String> stage;
+  final Value<String> fireAtLocal;
+  final Value<String> bodyHash;
+  final Value<String> state;
+  final Value<int> updatedAtUtcMs;
+  final Value<int> rowid;
+  const ScheduledNotificationsCompanion({
+    this.key = const Value.absent(),
+    this.osId = const Value.absent(),
+    this.vehicleId = const Value.absent(),
+    this.reminderId = const Value.absent(),
+    this.stage = const Value.absent(),
+    this.fireAtLocal = const Value.absent(),
+    this.bodyHash = const Value.absent(),
+    this.state = const Value.absent(),
+    this.updatedAtUtcMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ScheduledNotificationsCompanion.insert({
+    required String key,
+    required int osId,
+    required String vehicleId,
+    this.reminderId = const Value.absent(),
+    required String stage,
+    required String fireAtLocal,
+    required String bodyHash,
+    required String state,
+    required int updatedAtUtcMs,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       osId = Value(osId),
+       vehicleId = Value(vehicleId),
+       stage = Value(stage),
+       fireAtLocal = Value(fireAtLocal),
+       bodyHash = Value(bodyHash),
+       state = Value(state),
+       updatedAtUtcMs = Value(updatedAtUtcMs);
+  static Insertable<ScheduledNotification> custom({
+    Expression<String>? key,
+    Expression<int>? osId,
+    Expression<String>? vehicleId,
+    Expression<String>? reminderId,
+    Expression<String>? stage,
+    Expression<String>? fireAtLocal,
+    Expression<String>? bodyHash,
+    Expression<String>? state,
+    Expression<int>? updatedAtUtcMs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (osId != null) 'os_id': osId,
+      if (vehicleId != null) 'vehicle_id': vehicleId,
+      if (reminderId != null) 'reminder_id': reminderId,
+      if (stage != null) 'stage': stage,
+      if (fireAtLocal != null) 'fire_at_local': fireAtLocal,
+      if (bodyHash != null) 'body_hash': bodyHash,
+      if (state != null) 'state': state,
+      if (updatedAtUtcMs != null) 'updated_at_utc_ms': updatedAtUtcMs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ScheduledNotificationsCompanion copyWith({
+    Value<String>? key,
+    Value<int>? osId,
+    Value<String>? vehicleId,
+    Value<String?>? reminderId,
+    Value<String>? stage,
+    Value<String>? fireAtLocal,
+    Value<String>? bodyHash,
+    Value<String>? state,
+    Value<int>? updatedAtUtcMs,
+    Value<int>? rowid,
+  }) {
+    return ScheduledNotificationsCompanion(
+      key: key ?? this.key,
+      osId: osId ?? this.osId,
+      vehicleId: vehicleId ?? this.vehicleId,
+      reminderId: reminderId ?? this.reminderId,
+      stage: stage ?? this.stage,
+      fireAtLocal: fireAtLocal ?? this.fireAtLocal,
+      bodyHash: bodyHash ?? this.bodyHash,
+      state: state ?? this.state,
+      updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (osId.present) {
+      map['os_id'] = Variable<int>(osId.value);
+    }
+    if (vehicleId.present) {
+      map['vehicle_id'] = Variable<String>(vehicleId.value);
+    }
+    if (reminderId.present) {
+      map['reminder_id'] = Variable<String>(reminderId.value);
+    }
+    if (stage.present) {
+      map['stage'] = Variable<String>(stage.value);
+    }
+    if (fireAtLocal.present) {
+      map['fire_at_local'] = Variable<String>(fireAtLocal.value);
+    }
+    if (bodyHash.present) {
+      map['body_hash'] = Variable<String>(bodyHash.value);
+    }
+    if (state.present) {
+      map['state'] = Variable<String>(state.value);
+    }
+    if (updatedAtUtcMs.present) {
+      map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ScheduledNotificationsCompanion(')
+          ..write('key: $key, ')
+          ..write('osId: $osId, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('reminderId: $reminderId, ')
+          ..write('stage: $stage, ')
+          ..write('fireAtLocal: $fireAtLocal, ')
+          ..write('bodyHash: $bodyHash, ')
+          ..write('state: $state, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -11354,6 +11982,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $OdometerCorrectionsTable odometerCorrections =
       $OdometerCorrectionsTable(this);
+  late final $ScheduledNotificationsTable scheduledNotifications =
+      $ScheduledNotificationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -11369,6 +11999,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     expenses,
     odometerReadings,
     odometerCorrections,
+    scheduledNotifications,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -16359,6 +16990,307 @@ typedef $$OdometerCorrectionsTableProcessedTableManager =
       OdometerCorrectionRow,
       PrefetchHooks Function()
     >;
+typedef $$ScheduledNotificationsTableCreateCompanionBuilder =
+    ScheduledNotificationsCompanion Function({
+      required String key,
+      required int osId,
+      required String vehicleId,
+      Value<String?> reminderId,
+      required String stage,
+      required String fireAtLocal,
+      required String bodyHash,
+      required String state,
+      required int updatedAtUtcMs,
+      Value<int> rowid,
+    });
+typedef $$ScheduledNotificationsTableUpdateCompanionBuilder =
+    ScheduledNotificationsCompanion Function({
+      Value<String> key,
+      Value<int> osId,
+      Value<String> vehicleId,
+      Value<String?> reminderId,
+      Value<String> stage,
+      Value<String> fireAtLocal,
+      Value<String> bodyHash,
+      Value<String> state,
+      Value<int> updatedAtUtcMs,
+      Value<int> rowid,
+    });
+
+class $$ScheduledNotificationsTableFilterComposer
+    extends Composer<_$AppDatabase, $ScheduledNotificationsTable> {
+  $$ScheduledNotificationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get osId => $composableBuilder(
+    column: $table.osId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vehicleId => $composableBuilder(
+    column: $table.vehicleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get stage => $composableBuilder(
+    column: $table.stage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fireAtLocal => $composableBuilder(
+    column: $table.fireAtLocal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bodyHash => $composableBuilder(
+    column: $table.bodyHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ScheduledNotificationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ScheduledNotificationsTable> {
+  $$ScheduledNotificationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get osId => $composableBuilder(
+    column: $table.osId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vehicleId => $composableBuilder(
+    column: $table.vehicleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get stage => $composableBuilder(
+    column: $table.stage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fireAtLocal => $composableBuilder(
+    column: $table.fireAtLocal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bodyHash => $composableBuilder(
+    column: $table.bodyHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ScheduledNotificationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ScheduledNotificationsTable> {
+  $$ScheduledNotificationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<int> get osId =>
+      $composableBuilder(column: $table.osId, builder: (column) => column);
+
+  GeneratedColumn<String> get vehicleId =>
+      $composableBuilder(column: $table.vehicleId, builder: (column) => column);
+
+  GeneratedColumn<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get stage =>
+      $composableBuilder(column: $table.stage, builder: (column) => column);
+
+  GeneratedColumn<String> get fireAtLocal => $composableBuilder(
+    column: $table.fireAtLocal,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get bodyHash =>
+      $composableBuilder(column: $table.bodyHash, builder: (column) => column);
+
+  GeneratedColumn<String> get state =>
+      $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAtUtcMs => $composableBuilder(
+    column: $table.updatedAtUtcMs,
+    builder: (column) => column,
+  );
+}
+
+class $$ScheduledNotificationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ScheduledNotificationsTable,
+          ScheduledNotification,
+          $$ScheduledNotificationsTableFilterComposer,
+          $$ScheduledNotificationsTableOrderingComposer,
+          $$ScheduledNotificationsTableAnnotationComposer,
+          $$ScheduledNotificationsTableCreateCompanionBuilder,
+          $$ScheduledNotificationsTableUpdateCompanionBuilder,
+          (
+            ScheduledNotification,
+            BaseReferences<
+              _$AppDatabase,
+              $ScheduledNotificationsTable,
+              ScheduledNotification
+            >,
+          ),
+          ScheduledNotification,
+          PrefetchHooks Function()
+        > {
+  $$ScheduledNotificationsTableTableManager(
+    _$AppDatabase db,
+    $ScheduledNotificationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ScheduledNotificationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ScheduledNotificationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ScheduledNotificationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> key = const Value.absent(),
+                Value<int> osId = const Value.absent(),
+                Value<String> vehicleId = const Value.absent(),
+                Value<String?> reminderId = const Value.absent(),
+                Value<String> stage = const Value.absent(),
+                Value<String> fireAtLocal = const Value.absent(),
+                Value<String> bodyHash = const Value.absent(),
+                Value<String> state = const Value.absent(),
+                Value<int> updatedAtUtcMs = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ScheduledNotificationsCompanion(
+                key: key,
+                osId: osId,
+                vehicleId: vehicleId,
+                reminderId: reminderId,
+                stage: stage,
+                fireAtLocal: fireAtLocal,
+                bodyHash: bodyHash,
+                state: state,
+                updatedAtUtcMs: updatedAtUtcMs,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String key,
+                required int osId,
+                required String vehicleId,
+                Value<String?> reminderId = const Value.absent(),
+                required String stage,
+                required String fireAtLocal,
+                required String bodyHash,
+                required String state,
+                required int updatedAtUtcMs,
+                Value<int> rowid = const Value.absent(),
+              }) => ScheduledNotificationsCompanion.insert(
+                key: key,
+                osId: osId,
+                vehicleId: vehicleId,
+                reminderId: reminderId,
+                stage: stage,
+                fireAtLocal: fireAtLocal,
+                bodyHash: bodyHash,
+                state: state,
+                updatedAtUtcMs: updatedAtUtcMs,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ScheduledNotificationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ScheduledNotificationsTable,
+      ScheduledNotification,
+      $$ScheduledNotificationsTableFilterComposer,
+      $$ScheduledNotificationsTableOrderingComposer,
+      $$ScheduledNotificationsTableAnnotationComposer,
+      $$ScheduledNotificationsTableCreateCompanionBuilder,
+      $$ScheduledNotificationsTableUpdateCompanionBuilder,
+      (
+        ScheduledNotification,
+        BaseReferences<
+          _$AppDatabase,
+          $ScheduledNotificationsTable,
+          ScheduledNotification
+        >,
+      ),
+      ScheduledNotification,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -16383,4 +17315,9 @@ class $AppDatabaseManager {
       $$OdometerReadingsTableTableManager(_db, _db.odometerReadings);
   $$OdometerCorrectionsTableTableManager get odometerCorrections =>
       $$OdometerCorrectionsTableTableManager(_db, _db.odometerCorrections);
+  $$ScheduledNotificationsTableTableManager get scheduledNotifications =>
+      $$ScheduledNotificationsTableTableManager(
+        _db,
+        _db.scheduledNotifications,
+      );
 }

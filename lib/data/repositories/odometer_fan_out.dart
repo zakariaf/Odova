@@ -64,10 +64,22 @@ Future<void> syncDerivedReading(
     // purge that eventually removes it is the same one that removes the
     // correction — together, after the Undo window, rather than silently on an
     // edit.
-    await db.customStatement(
+    // `customUpdate` with `updates:`, NOT `customStatement`. Drift's own doc
+    // for `customStatement` says "This method does not update stream queries
+    // on this drift database" — it is handed a raw string and cannot know what
+    // the string touched. `deletion.dart` already learned this twice; this file
+    // was the third and fourth place, and it fixed it with a follow-up
+    // `notifyUpdates` call, which is the API that lets you forget over the API
+    // that does not.
+    await db.customUpdate(
       'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
       'WHERE source_id = ? AND source = ? AND deleted_at_utc_ms IS NULL;',
-      [nowUtcMs, parentId, source.wire],
+      variables: [
+        Variable.withInt(nowUtcMs),
+        Variable.withString(parentId),
+        Variable.withString(source.wire),
+      ],
+      updates: {db.odometerReadings},
     );
     return;
   }
@@ -89,7 +101,7 @@ Future<void> syncDerivedReading(
   // The id is minted unconditionally and discarded on the update path. That is
   // one ULID and costs nothing; reading the row first to find out whether it
   // was needed is what cost something.
-  await db.customStatement(
+  await db.customUpdate(
     '''
       INSERT INTO odometer_readings (
         id, vehicle_id, occurred_on, odometer_m, odometer_unit, source,
@@ -112,17 +124,18 @@ Future<void> syncDerivedReading(
         updated_at_utc_ms = excluded.updated_at_utc_ms,
         deleted_at_utc_ms = NULL;
     ''',
-    [
-      OdometerReadingId.mint(ids).toString(),
-      vehicleId.toString(),
-      occurredOn,
-      odometerM,
-      odometerUnit.wire,
-      source.wire,
-      parentId,
-      nowUtcMs,
-      nowUtcMs,
+    variables: [
+      Variable.withString(OdometerReadingId.mint(ids).toString()),
+      Variable.withString(vehicleId.toString()),
+      Variable.withString(occurredOn),
+      Variable.withInt(odometerM),
+      Variable.withString(odometerUnit.wire),
+      Variable.withString(source.wire),
+      Variable.withString(parentId),
+      Variable.withInt(nowUtcMs),
+      Variable.withInt(nowUtcMs),
     ],
+    updates: {db.odometerReadings},
   );
 }
 

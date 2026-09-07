@@ -68,6 +68,12 @@ void main() {
       'ids', // ULIDs and the typed record ids
       'l10n', // locale resolution, numerals, dates — no formatting
       'money', // Money, Currency, allocate, MoneyTotal
+      // What a notification carries and which kinds carry what. In core
+      // because BOTH ends need it and they are in different layers: the
+      // scheduler bakes a payload into the OS at schedule time, and the router
+      // reads it back on a tap months later. Putting it in lib/app/ would mean
+      // the scheduler importing the router to build a string.
+      'notifications',
       'odometer', // the cumulative fold and the monotonicity rules
       'costs', // ranges and the accrual allocator, in minor units
       // Who wrote a file and when. In core because BOTH the backup writer and

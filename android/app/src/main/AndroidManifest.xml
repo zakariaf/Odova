@@ -1,4 +1,31 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- SPEC.md §4. Three permissions, and the two that are ABSENT matter more
+         than the three that are here.
+
+         POST_NOTIFICATIONS is Android 13+'s runtime permission, asked once,
+         behind §4.4.5's pre-prompt. RECEIVE_BOOT_COMPLETED and the receiver
+         below are §6.2's boot re-arm: Android drops every alarm on reboot, so
+         without them a phone that restarts overnight goes silent forever.
+         VIBRATE is what the notification itself needs.
+
+         NOT declared, and never to be: USE_EXACT_ALARM and
+         SCHEDULE_EXACT_ALARM. SPEC.md §4.6.3 — "Do not request exact-alarm
+         privileges. Nothing here needs minute precision, and asking is a
+         review risk and a trust cost." USE_EXACT_ALARM is restricted by Play
+         policy to alarm, timer and calendar apps and would risk rejection;
+         SCHEDULE_EXACT_ALARM is grantable but is a permission dialog spent on
+         an hour of precision this app has no use for. §4.2's bodies are
+         absolute anchors ("due around 12 October") precisely so that about an
+         hour of drift costs nothing.
+
+         The `local-notifications-scheduler` skill's own manifest gate REQUIRES
+         SCHEDULE_EXACT_ALARM. It is a general default and this is the
+         product's decision; CLAUDE.md §3 says the spec wins. Odova therefore
+         runs tools/check_notification_manifest.sh instead, which forbids
+         both. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:label="Odova"
         android:name="${applicationName}"
@@ -48,6 +75,42 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <!-- THE receiver every scheduled alarm is broadcast to.
+             flutter_local_notifications builds each alarm as an explicit
+             broadcast to this class, and the plugin's own manifest contributes
+             NO receivers — it is app-side setup, and without it zonedSchedule
+             succeeds, pendingNotificationRequests reports the notification
+             pending, AlarmManager fires at the right minute, and the broadcast
+             lands on an unregistered component. Nothing is posted, ever, on
+             every Android device. The boot re-arm below would faithfully
+             re-arm alarms that could never have delivered. -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+
+        <!-- The Done and Snooze buttons of §4.7, which are handled without
+             launching the app. No `actions:` are passed yet — that is task
+             16.10's UI half — but the receiver is declared with them because
+             the two belong together and a missing receiver is the silent half
+             of the pair. -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
+
+        <!-- SPEC.md §6.2: Android drops every scheduled alarm on reboot, so
+             the queue is rebuilt after the device unlocks. Without this a
+             phone that restarts overnight never notifies again and nothing
+             says so. -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

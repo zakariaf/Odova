@@ -12,6 +12,17 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // flutter_local_notifications REQUIRES this — its AAR metadata declares
+        // it, and `flutter build apk` fails outright without it rather than
+        // degrading. The plugin uses java.time on a minSdk of 26, and
+        // desugaring is what backfills the parts of it that are not on every
+        // API 26 device.
+        //
+        // Found by CI, not by a test: the `flutter` and `goldens` lanes were
+        // both green and the app simply would not assemble. That is what the
+        // android lane is for, and it is the reason this repo compiles for a
+        // real target on every PR.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -33,6 +44,13 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
+
+dependencies {
+    // Pinned, like every other version in this repo. The plugin's README names
+    // 2.1.4 as its floor; a caret here would let a Gradle resolution move the
+    // toolchain with no diff to review.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 kotlin {

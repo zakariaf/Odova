@@ -22,6 +22,25 @@ const int kDefaultQuietFromMinutes = 21 * 60;
 /// And end.
 const int kDefaultQuietToMinutes = 8 * 60;
 
+/// Whether [minutes] falls inside the window `[fromMinutes, toMinutes)`.
+///
+/// Handles a window that WRAPS midnight, which the default 21:00-08:00 does.
+/// Written as `from <= m && m < to` it is false for every minute of the day, so
+/// 03:00 sails through and the phone buzzes at three in the morning.
+///
+/// A free function rather than only a method on [AppSettings], because the
+/// scheduler asks the same question about the same two numbers and had grown
+/// its own copy — one that handled the wrapping case and not the other, which
+/// is correct for the defaults and silently wrong for the 13:00-14:00 window a
+/// user can set.
+bool isQuietWindow({
+  required int minutes,
+  required int fromMinutes,
+  required int toMinutes,
+}) => fromMinutes <= toMinutes
+    ? minutes >= fromMinutes && minutes < toMinutes
+    : minutes >= fromMinutes || minutes < toMinutes;
+
 /// The application settings.
 class AppSettings with ValueEquality {
   /// Creates settings.
@@ -144,9 +163,11 @@ class AppSettings with ValueEquality {
   /// Handles the window that WRAPS midnight, which is the normal case: 21:00
   /// to 08:00 is quiet from 1260 to 1439 and again from 0 to 479, and treating
   /// it as a simple `from <= x < to` makes the whole night loud.
-  bool isQuiet(int minutes) => quietHoursFromMinutes <= quietHoursToMinutes
-      ? minutes >= quietHoursFromMinutes && minutes < quietHoursToMinutes
-      : minutes >= quietHoursFromMinutes || minutes < quietHoursToMinutes;
+  bool isQuiet(int minutes) => isQuietWindow(
+    minutes: minutes,
+    fromMinutes: quietHoursFromMinutes,
+    toMinutes: quietHoursToMinutes,
+  );
 
   @override
   List<Object?> get props => [
