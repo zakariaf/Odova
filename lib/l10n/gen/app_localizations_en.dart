@@ -2829,4 +2829,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get backupExportNoShare =>
       'This phone won’t let Odova hand the file to another app. Your data is safe — try again after restarting your phone.';
+
+  @override
+  String get backupDeleteAllTitle => 'Delete everything?';
+
+  @override
+  String backupDeleteAllBody(String vehicles, String entries, String since) {
+    return 'This removes $vehicles and $entries, going back to $since.';
+  }
+
+  @override
+  String backupDeleteAllNote(String days) {
+    return 'A copy is saved on this phone for $days days, so you can undo this. It is removed if you uninstall Odova.';
+  }
+
+  @override
+  String backupVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText vehicles',
+      one: '$nText vehicle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries',
+      one: '$nText entry',
+    );
+    return '$_temp0';
+  }
 }

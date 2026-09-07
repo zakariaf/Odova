@@ -2832,4 +2832,39 @@ class AppLocalizationsCkb extends AppLocalizations {
   @override
   String get backupExportNoShare =>
       'ئەم مۆبایلە ڕێگە نادات Odova فایلەکە بداتە بەرنامەیەکی تر. داتاکانت پارێزراون — مۆبایلەکە بکەرەوە و دووبارە هەوڵ بدەرەوە.';
+
+  @override
+  String get backupDeleteAllTitle => 'هەموو شتێک بسڕدرێتەوە؟';
+
+  @override
+  String backupDeleteAllBody(String vehicles, String entries, String since) {
+    return 'ئەمە $vehicles و $entries دەسڕێتەوە، تا $since.';
+  }
+
+  @override
+  String backupDeleteAllNote(String days) {
+    return 'لێبیک بۆ ماوەی $days ڕۆژ لەسەر ئەم مۆبایلە دەمێنێتەوە تا بتوانیت بیگەڕێنیتەوە. دەسڕێتەوە ئەگەر Odova لاببەیت.';
+  }
+
+  @override
+  String backupVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ئۆتۆمبێل',
+      one: '$nText ئۆتۆمبێل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText تۆمار',
+      one: '$nText تۆمار',
+    );
+    return '$_temp0';
+  }
 }

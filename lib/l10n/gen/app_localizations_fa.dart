@@ -2823,4 +2823,39 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get backupExportNoShare =>
       'این گوشی اجازه نمی‌دهد ادووا فایل را به برنامه‌ی دیگری بدهد. داده‌های شما سالم است — گوشی را دوباره روشن کنید و امتحان کنید.';
+
+  @override
+  String get backupDeleteAllTitle => 'همه‌چیز حذف شود؟';
+
+  @override
+  String backupDeleteAllBody(String vehicles, String entries, String since) {
+    return 'این کار $vehicles و $entries را حذف می‌کند، تا $since.';
+  }
+
+  @override
+  String backupDeleteAllNote(String days) {
+    return 'یک نسخه $days روز روی این گوشی می‌ماند تا بتوانید این کار را واگردانید. اگر ادووا را حذف کنید آن هم پاک می‌شود.';
+  }
+
+  @override
+  String backupVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خودرو',
+      one: '$nText خودرو',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntryCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد',
+      one: '$nText مورد',
+    );
+    return '$_temp0';
+  }
 }

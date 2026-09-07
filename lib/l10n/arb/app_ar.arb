@@ -683,5 +683,10 @@
   "backupMigrationBanner": "لم يتمكن Odova من إكمال التحديث وعاد إلى بياناتك السابقة. لا يمكنك إضافة إدخالات جديدة حتى يُحل هذا — أنشئ نسخة احتياطية الآن.",
   "backupExportNoSpace": "لا توجد مساحة كافية لإنشاء نسخة احتياطية. تلزم نحو {size}. فرّغ بعض المساحة ثم حاول مجددًا.",
   "backupExportWriteFailed": "لم يتمكن Odova من إكمال النسخة الاحتياطية. لم يتغير شيء على هذا الهاتف. حاول بعد قليل.",
-  "backupExportNoShare": "لا يسمح هذا الهاتف لـ Odova بتسليم الملف إلى تطبيق آخر. بياناتك بأمان — أعد تشغيل الهاتف ثم حاول مجددًا."
+  "backupExportNoShare": "لا يسمح هذا الهاتف لـ Odova بتسليم الملف إلى تطبيق آخر. بياناتك بأمان — أعد تشغيل الهاتف ثم حاول مجددًا.",
+  "backupDeleteAllTitle": "حذف كل شيء؟",
+  "backupDeleteAllBody": "يؤدي هذا إلى حذف {vehicles} و{entries}، رجوعًا إلى {since}.",
+  "backupDeleteAllNote": "تُحفظ نسخة على هذا الهاتف لمدة {days} يومًا حتى تتمكن من التراجع. تُحذف إذا أزلت Odova.",
+  "backupVehicleCount": "{n, plural, zero{{nText} مركبة} one{مركبة واحدة} two{مركبتان} few{{nText} مركبات} many{{nText} مركبةً} other{{nText} مركبة}}",
+  "backupEntryCount": "{n, plural, zero{{nText} إدخال} one{إدخال واحد} two{إدخالان} few{{nText} إدخالات} many{{nText} إدخالًا} other{{nText} إدخال}}"
 }

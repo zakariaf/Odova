@@ -683,5 +683,10 @@
   "backupMigrationBanner": "Odova n’a pas pu terminer la mise à jour et est revenu à vos données précédentes. Vous ne pouvez rien ajouter tant que ce n’est pas réglé — sauvegardez maintenant.",
   "backupExportNoSpace": "Il n’y a pas assez d’espace libre pour sauvegarder. Il faut environ {size}. Libérez de l’espace et réessayez.",
   "backupExportWriteFailed": "Odova n’a pas pu terminer la sauvegarde. Rien n’a changé sur ce téléphone. Réessayez dans un instant.",
-  "backupExportNoShare": "Ce téléphone ne laisse pas Odova transmettre le fichier à une autre application. Vos données sont intactes — réessayez après avoir redémarré le téléphone."
+  "backupExportNoShare": "Ce téléphone ne laisse pas Odova transmettre le fichier à une autre application. Vos données sont intactes — réessayez après avoir redémarré le téléphone.",
+  "backupDeleteAllTitle": "Tout supprimer ?",
+  "backupDeleteAllBody": "Cela supprime {vehicles} et {entries}, remontant à {since}.",
+  "backupDeleteAllNote": "Une copie est conservée {days} jours sur ce téléphone, pour que vous puissiez annuler. Elle est supprimée si vous désinstallez Odova.",
+  "backupVehicleCount": "{n, plural, one{{nText} véhicule} many{{nText} véhicules} other{{nText} véhicules}}",
+  "backupEntryCount": "{n, plural, one{{nText} entrée} many{{nText} entrées} other{{nText} entrées}}"
 }

@@ -50,6 +50,13 @@ enum ConfirmDeleteChoice {
 /// could reach the database. That is the claim the tests assert — over the
 /// SIGNATURE, not over a double, because a double the function never receives
 /// can only ever come back untouched.
+///
+/// [title] and [body] override the generated sentences. EPIC-15 task 15.6's
+/// *Delete all data* needs them: its subject is the word the user TYPES —
+/// `DELETE`, `LÖSCHEN`, `سڕینەوە` — and "Delete DELETE and 3,006 entries?" is
+/// not a sentence. The typing lock, the isolation, the action order and the
+/// disabled-until-it-matches behaviour are all the same, which is why this is
+/// two optional parameters rather than a second dialog.
 Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
   BuildContext context, {
   required String subject,
@@ -57,6 +64,8 @@ Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
   required String Function(int) formatCount,
   String? safeAlternativeLabel,
   String? note,
+  String? title,
+  String? body,
 }) async {
   final choice = await CalmDialog.show<ConfirmDeleteChoice>(
     context,
@@ -66,6 +75,8 @@ Future<ConfirmDeleteChoice> showConfirmDeleteDialog(
       formatCount: formatCount,
       safeAlternativeLabel: safeAlternativeLabel,
       note: note,
+      title: title,
+      body: body,
       onChoice: (choice) => Navigator.of(context).pop(choice),
     ),
   );
@@ -87,10 +98,18 @@ class ConfirmDeleteDialogBody extends StatefulWidget {
     super.key,
     this.safeAlternativeLabel,
     this.note,
+    this.title,
+    this.body,
   });
 
   /// What is being deleted.
   final String subject;
+
+  /// Replaces the generated title. See [showConfirmDeleteDialog].
+  final String? title;
+
+  /// Replaces the generated body.
+  final String? body;
 
   /// What goes with it.
   final DeleteCounts counts;
@@ -213,12 +232,14 @@ class _ConfirmDeleteDialogBodyState extends State<ConfirmDeleteDialogBody> {
       // around it — SPEC.md §2's bidi rule, and a title is where it breaks
       // first because it is the one line that mixes a user's own words with
       // ours.
-      title: l10n.confirmDeleteTitle(
-        _isolatedSubject,
-        counts.entries,
-        format(counts.entries),
-      ),
-      body: _body(l10n, counts, format),
+      title:
+          widget.title ??
+          l10n.confirmDeleteTitle(
+            _isolatedSubject,
+            counts.entries,
+            format(counts.entries),
+          ),
+      body: widget.body ?? _body(l10n, counts, format),
       actions: [
         // The safe alternative first, where there is one. The reference orders
         // it that way and §7's "no dialog is ever dismissed into a destructive

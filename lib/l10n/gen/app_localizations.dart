@@ -4229,6 +4229,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This phone won’t let Odova hand the file to another app. Your data is safe — try again after restarting your phone.'**
   String get backupExportNoShare;
+
+  /// §13's delete-all dialog title. Not the generated “Delete {subject}?”, because the subject here is the word the user TYPES.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything?'**
+  String get backupDeleteAllTitle;
+
+  /// §13's body. The three numbers are what make it real — “3 vehicles and 3,006 entries, going back to March 2018” is a history, where “all your data” is an abstraction nobody weighs.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes {vehicles} and {entries}, going back to {since}.'**
+  String backupDeleteAllBody(String vehicles, String entries, String since);
+
+  /// §13's reassurance, and it is true: the copy is written BEFORE the dialog opens. It also says where the copy goes, because uninstalling deletes it and the user should know that before they rely on it. The thirty is a PLACEHOLDER, not baked copy: SPEC.md §5 allows one numbering system per screen, and a Latin 30 beside Persian-shaped digits is the shape that rule exists to prevent.
+  ///
+  /// In en, this message translates to:
+  /// **'A copy is saved on this phone for {days} days, so you can undo this. It is removed if you uninstall Odova.'**
+  String backupDeleteAllNote(String days);
+
+  /// The vehicle half of the delete-all sentence, so both halves pluralise in their own language.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} vehicle} other{{nText} vehicles}}'**
+  String backupVehicleCount(int n, String nText);
+
+  /// The entry half.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry} other{{nText} entries}}'**
+  String backupEntryCount(int n, String nText);
 }
 
 class _AppLocalizationsDelegate

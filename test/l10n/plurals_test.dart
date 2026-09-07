@@ -138,6 +138,10 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       // since" makes no sense when there is no since.
       'backupEntriesSince' => l10n.backupEntriesSince(n, nText),
       'backupEntriesOnlyHere' => l10n.backupEntriesOnlyHere(n, nText),
+      // The two halves of §13's delete-all sentence, so both pluralise in
+      // their own language rather than one being glued to the other.
+      'backupVehicleCount' => l10n.backupVehicleCount(n, nText),
+      'backupEntryCount' => l10n.backupEntryCount(n, nText),
       _ => throw StateError(
         'plural key "$key" is in the ARB but not in this matrix — add it',
       ),

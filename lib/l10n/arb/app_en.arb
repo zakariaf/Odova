@@ -4101,5 +4101,57 @@
   "backupExportNoShare": "This phone won’t let Odova hand the file to another app. Your data is safe — try again after restarting your phone.",
   "@backupExportNoShare": {
     "description": "§13's third. The remedy is odd and it is the one that works."
+  },
+  "backupDeleteAllTitle": "Delete everything?",
+  "@backupDeleteAllTitle": {
+    "description": "§13's delete-all dialog title. Not the generated “Delete {subject}?”, because the subject here is the word the user TYPES."
+  },
+  "backupDeleteAllBody": "This removes {vehicles} and {entries}, going back to {since}.",
+  "@backupDeleteAllBody": {
+    "description": "§13's body. The three numbers are what make it real — “3 vehicles and 3,006 entries, going back to March 2018” is a history, where “all your data” is an abstraction nobody weighs.",
+    "placeholders": {
+      "vehicles": {
+        "type": "String"
+      },
+      "entries": {
+        "type": "String"
+      },
+      "since": {
+        "type": "String"
+      }
+    }
+  },
+  "backupDeleteAllNote": "A copy is saved on this phone for {days} days, so you can undo this. It is removed if you uninstall Odova.",
+  "@backupDeleteAllNote": {
+    "description": "§13's reassurance, and it is true: the copy is written BEFORE the dialog opens. It also says where the copy goes, because uninstalling deletes it and the user should know that before they rely on it. The thirty is a PLACEHOLDER, not baked copy: SPEC.md §5 allows one numbering system per screen, and a Latin 30 beside Persian-shaped digits is the shape that rule exists to prevent.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "backupVehicleCount": "{n, plural, one{{nText} vehicle} other{{nText} vehicles}}",
+  "@backupVehicleCount": {
+    "description": "The vehicle half of the delete-all sentence, so both halves pluralise in their own language.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "backupEntryCount": "{n, plural, one{{nText} entry} other{{nText} entries}}",
+  "@backupEntryCount": {
+    "description": "The entry half.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -683,5 +683,10 @@
   "backupMigrationBanner": "‏.won pu kcab — dexif si siht litnu seirtne wen dda t’nac uoY .atad suoiverp ruoy ot kcab enog sah dna gnitadpu hsinif t’ndluoc avodO",
   "backupExportNoSpace": "‏ tuoba sdeen tI .pukcab a ekam ot ecaps eerf hguone t’nsi erehT{size}.niaga yrt dna ecaps emos pu eerF .",
   "backupExportWriteFailed": "‏.tnemom a ni niaga yrT .degnahc sah enohp siht no gnihtoN .pukcab eht hsinif t’ndluoc avodO",
-  "backupExportNoShare": "‏.enohp ruoy gnitratser retfa niaga yrt — efas si atad ruoY .ppa rehtona ot elif eht dnah avodO tel t’now enohp sihT"
+  "backupExportNoShare": "‏.enohp ruoy gnitratser retfa niaga yrt — efas si atad ruoY .ppa rehtona ot elif eht dnah avodO tel t’now enohp sihT",
+  "backupDeleteAllTitle": "‏?gnihtyreve eteleD",
+  "backupDeleteAllBody": "‏ sevomer sihT{vehicles} dna {entries} ot kcab gniog ,{since}.",
+  "backupDeleteAllNote": "‏ rof enohp siht no devas si ypoc A{days}.avodO llatsninu uoy fi devomer si tI .siht odnu nac uoy os ,syad ",
+  "backupVehicleCount": "‏{n, plural, one{{nText}elcihev } other{{nText}selcihev }}",
+  "backupEntryCount": "‏{n, plural, one{{nText}yrtne } other{{nText}seirtne }}"
 }
