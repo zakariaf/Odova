@@ -417,3 +417,39 @@ Three mutations reported "the `from` text was not found" because I wrote the
 two-field deletion form with a trailing ` ::`, which the harness reads as part
 of the `from`. That is the harness being right and the input being wrong — and
 it is now written in the harness's own usage note rather than rediscovered.
+
+## Task 16.9 — the rebuild triggers
+
+Rebuilding is cheap and §6.2's advice is "when in doubt, rebuild", so the
+decisions worth testing are the ones that say **no**:
+
+- **A DST transition rebuilds nothing.** The zone comparison is by NAME, never
+  by offset — DST changes the offset and not the name, and wall-clock storage
+  already handles it. Comparing offsets would cancel and re-add the entire queue
+  twice a year for no change at all.
+- **A forward clock jump is not suspicious.** Time passing is the normal case;
+  `.abs()` on the difference would rebuild on every launch.
+- **A backwards jump under an hour is NTP, not a person.** A drifting phone
+  clock is corrected by seconds several times a day.
+- **The OEM card does not appear if the app was never foregrounded since.**
+  Otherwise it fires for a phone that was simply switched off, which is not a
+  battery-optimisation problem and has no fix in any settings screen.
+- **And it is asked once, ever.** A card that returns weekly about a setting the
+  user declined to change is what gets an app uninstalled.
+
+`RebuildTrigger.forcesFullRebuild` returns true for every member and is spelled
+out rather than assumed: the enum is the list of things that DO, a DST
+transition is deliberately not a member, and the day somebody adds one this
+getter is where they have to answer for it.
+
+**Deferred, and named so the next reader does not assume otherwise:** the
+platform halves. The Android `WorkManager` job, the `BOOT_COMPLETED` receiver's
+re-arm and the iOS `BGAppRefreshTask` are wiring rather than decisions — the
+manifest already declares the receiver and the permission (task 16.4), and what
+is missing is the Dart side that responds to them.
+
+**Also outstanding and not testable here:** §6.4's 7-day background-delivery
+soak on a real Xiaomi or Huawei device. An emulator run is not evidence and none
+was taken.
+
+Twelve mutations, twelve caught, first pass.
