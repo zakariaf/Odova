@@ -493,5 +493,17 @@
   "fuelConsumptionPerTank": "مصرف در هر باک",
   "fuelEmptyTitle": "هنوز سوخت‌گیری‌ای نیست.",
   "fuelEmptyAction": "ثبت سوخت‌گیری",
-  "fuelFirstFigure": "اولین عدد شما در سوخت‌گیری کامل بعدی می‌آید."
+  "fuelFirstFigure": "اولین عدد شما در سوخت‌گیری کامل بعدی می‌آید.",
+  "tripsTitle": "سفرها",
+  "tripsEmptyTitle": "هنوز سفری نیست.",
+  "tripsEmptyBody": "یکی ثبت کنید تا ببینید یک سفر چقدر هزینه دارد.",
+  "tripsAddAction": "افزودن سفر",
+  "tripsOpenBadge": "باز",
+  "tripsFinishAction": "پایان",
+  "tripsPurposeBusiness": "کاری",
+  "tripsPurposeCommute": "رفت‌وآمد",
+  "tripsPurposePersonal": "شخصی",
+  "tripsPurposeOther": "سایر",
+  "tripsAcrossLogged": "{distance} در سفرهای ثبت‌شده",
+  "tripsBusinessPercent": "{percent}٪ کاری"
 }

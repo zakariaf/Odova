@@ -2049,4 +2049,44 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get fuelFirstFigure => 'اولین عدد شما در سوخت‌گیری کامل بعدی می‌آید.';
+
+  @override
+  String get tripsTitle => 'سفرها';
+
+  @override
+  String get tripsEmptyTitle => 'هنوز سفری نیست.';
+
+  @override
+  String get tripsEmptyBody => 'یکی ثبت کنید تا ببینید یک سفر چقدر هزینه دارد.';
+
+  @override
+  String get tripsAddAction => 'افزودن سفر';
+
+  @override
+  String get tripsOpenBadge => 'باز';
+
+  @override
+  String get tripsFinishAction => 'پایان';
+
+  @override
+  String get tripsPurposeBusiness => 'کاری';
+
+  @override
+  String get tripsPurposeCommute => 'رفت‌وآمد';
+
+  @override
+  String get tripsPurposePersonal => 'شخصی';
+
+  @override
+  String get tripsPurposeOther => 'سایر';
+
+  @override
+  String tripsAcrossLogged(String distance) {
+    return '$distance در سفرهای ثبت‌شده';
+  }
+
+  @override
+  String tripsBusinessPercent(String percent) {
+    return '$percent٪ کاری';
+  }
 }

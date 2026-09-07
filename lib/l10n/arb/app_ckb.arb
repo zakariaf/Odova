@@ -493,5 +493,17 @@
   "fuelConsumptionPerTank": "خەرجکردن بۆ هەر تانکێک",
   "fuelEmptyTitle": "هێشتا هیچ سووتەمەنییەک نییە.",
   "fuelEmptyAction": "سووتەمەنییەک تۆمار بکە",
-  "fuelFirstFigure": "یەکەم ژمارەت لە پڕکردنەوەی تەواوی داهاتوودا دێت."
+  "fuelFirstFigure": "یەکەم ژمارەت لە پڕکردنەوەی تەواوی داهاتوودا دێت.",
+  "tripsTitle": "گەشتەکان",
+  "tripsEmptyTitle": "هێشتا هیچ گەشتێک نییە.",
+  "tripsEmptyBody": "یەکێک تۆمار بکە بۆ بینینی تێچووی گەشتێک.",
+  "tripsAddAction": "زیادکردنی گەشت",
+  "tripsOpenBadge": "کراوە",
+  "tripsFinishAction": "کۆتایی",
+  "tripsPurposeBusiness": "کاری",
+  "tripsPurposeCommute": "هاتوچۆ",
+  "tripsPurposePersonal": "کەسی",
+  "tripsPurposeOther": "ئەوانی تر",
+  "tripsAcrossLogged": "{distance} بەسەر گەشتە تۆمارکراوەکاندا",
+  "tripsBusinessPercent": "{percent}٪ کاری"
 }

@@ -2065,4 +2065,45 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get fuelFirstFigure =>
       'Ihr erster Wert kommt bei der nächsten vollen Tankfüllung.';
+
+  @override
+  String get tripsTitle => 'Fahrten';
+
+  @override
+  String get tripsEmptyTitle => 'Noch keine Fahrten.';
+
+  @override
+  String get tripsEmptyBody =>
+      'Erfassen Sie eine, um zu sehen, was eine Fahrt kostet.';
+
+  @override
+  String get tripsAddAction => 'Fahrt hinzufügen';
+
+  @override
+  String get tripsOpenBadge => 'Offen';
+
+  @override
+  String get tripsFinishAction => 'Beenden';
+
+  @override
+  String get tripsPurposeBusiness => 'Geschäftlich';
+
+  @override
+  String get tripsPurposeCommute => 'Arbeitsweg';
+
+  @override
+  String get tripsPurposePersonal => 'Privat';
+
+  @override
+  String get tripsPurposeOther => 'Sonstiges';
+
+  @override
+  String tripsAcrossLogged(String distance) {
+    return '$distance über erfasste Fahrten';
+  }
+
+  @override
+  String tripsBusinessPercent(String percent) {
+    return '$percent% geschäftlich';
+  }
 }

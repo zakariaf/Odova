@@ -2056,4 +2056,44 @@ class AppLocalizationsCkb extends AppLocalizations {
   @override
   String get fuelFirstFigure =>
       'یەکەم ژمارەت لە پڕکردنەوەی تەواوی داهاتوودا دێت.';
+
+  @override
+  String get tripsTitle => 'گەشتەکان';
+
+  @override
+  String get tripsEmptyTitle => 'هێشتا هیچ گەشتێک نییە.';
+
+  @override
+  String get tripsEmptyBody => 'یەکێک تۆمار بکە بۆ بینینی تێچووی گەشتێک.';
+
+  @override
+  String get tripsAddAction => 'زیادکردنی گەشت';
+
+  @override
+  String get tripsOpenBadge => 'کراوە';
+
+  @override
+  String get tripsFinishAction => 'کۆتایی';
+
+  @override
+  String get tripsPurposeBusiness => 'کاری';
+
+  @override
+  String get tripsPurposeCommute => 'هاتوچۆ';
+
+  @override
+  String get tripsPurposePersonal => 'کەسی';
+
+  @override
+  String get tripsPurposeOther => 'ئەوانی تر';
+
+  @override
+  String tripsAcrossLogged(String distance) {
+    return '$distance بەسەر گەشتە تۆمارکراوەکاندا';
+  }
+
+  @override
+  String tripsBusinessPercent(String percent) {
+    return '$percent٪ کاری';
+  }
 }

@@ -493,5 +493,17 @@
   "fuelConsumptionPerTank": "Verbrauch pro Tankfüllung",
   "fuelEmptyTitle": "Noch keine Tankfüllungen.",
   "fuelEmptyAction": "Tankfüllung erfassen",
-  "fuelFirstFigure": "Ihr erster Wert kommt bei der nächsten vollen Tankfüllung."
+  "fuelFirstFigure": "Ihr erster Wert kommt bei der nächsten vollen Tankfüllung.",
+  "tripsTitle": "Fahrten",
+  "tripsEmptyTitle": "Noch keine Fahrten.",
+  "tripsEmptyBody": "Erfassen Sie eine, um zu sehen, was eine Fahrt kostet.",
+  "tripsAddAction": "Fahrt hinzufügen",
+  "tripsOpenBadge": "Offen",
+  "tripsFinishAction": "Beenden",
+  "tripsPurposeBusiness": "Geschäftlich",
+  "tripsPurposeCommute": "Arbeitsweg",
+  "tripsPurposePersonal": "Privat",
+  "tripsPurposeOther": "Sonstiges",
+  "tripsAcrossLogged": "{distance} über erfasste Fahrten",
+  "tripsBusinessPercent": "{percent}% geschäftlich"
 }

@@ -2106,4 +2106,45 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get fuelFirstFigure =>
       'Votre premier chiffre arrivera au prochain plein complet.';
+
+  @override
+  String get tripsTitle => 'Trajets';
+
+  @override
+  String get tripsEmptyTitle => 'Aucun trajet pour l’instant.';
+
+  @override
+  String get tripsEmptyBody =>
+      'Enregistrez-en un pour voir ce que coûte un trajet.';
+
+  @override
+  String get tripsAddAction => 'Ajouter un trajet';
+
+  @override
+  String get tripsOpenBadge => 'En cours';
+
+  @override
+  String get tripsFinishAction => 'Terminer';
+
+  @override
+  String get tripsPurposeBusiness => 'Professionnel';
+
+  @override
+  String get tripsPurposeCommute => 'Domicile-travail';
+
+  @override
+  String get tripsPurposePersonal => 'Personnel';
+
+  @override
+  String get tripsPurposeOther => 'Autre';
+
+  @override
+  String tripsAcrossLogged(String distance) {
+    return '$distance sur les trajets enregistrés';
+  }
+
+  @override
+  String tripsBusinessPercent(String percent) {
+    return '$percent% professionnel';
+  }
 }

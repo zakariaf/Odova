@@ -493,5 +493,17 @@
   "fuelConsumptionPerTank": "‏knat rep noitpmusnoC",
   "fuelEmptyTitle": "‏.tey spu-llif oN",
   "fuelEmptyAction": "‏pu-llif a goL",
-  "fuelFirstFigure": "‏.llif lluf txen ruoy ta sevirra erugif tsrif ruoY"
+  "fuelFirstFigure": "‏.llif lluf txen ruoy ta sevirra erugif tsrif ruoY",
+  "tripsTitle": "‏spirT",
+  "tripsEmptyTitle": "‏.tey spirt oN",
+  "tripsEmptyBody": "‏.stsoc yenruoj a tahw ees ot eno goL",
+  "tripsAddAction": "‏pirt ddA",
+  "tripsOpenBadge": "‏nepO",
+  "tripsFinishAction": "‏hsiniF",
+  "tripsPurposeBusiness": "‏ssenisuB",
+  "tripsPurposeCommute": "‏etummoC",
+  "tripsPurposePersonal": "‏lanosreP",
+  "tripsPurposeOther": "‏rehtO",
+  "tripsAcrossLogged": "‏{distance}spirt deggol ssorca ",
+  "tripsBusinessPercent": "‏{percent}ssenisub %"
 }

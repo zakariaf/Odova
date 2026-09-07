@@ -3089,6 +3089,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your first figure arrives at your next full fill.'**
   String get fuelFirstFigure;
+
+  /// SPEC.md §12's `trips.list` title.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get tripsTitle;
+
+  /// §12's empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips yet.'**
+  String get tripsEmptyTitle;
+
+  /// The sentence under it, verbatim in intent: a trip is worth logging because it tells you what a journey COST, which is the only reason this screen exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Log one to see what a journey costs.'**
+  String get tripsEmptyBody;
+
+  /// Opens `trips.edit`.
+  ///
+  /// In en, this message translates to:
+  /// **'Add trip'**
+  String get tripsAddAction;
+
+  /// The chip on a trip with no `ended_on`. §12 pins an open trip at the top of the list — an unfinished trip is the one thing on this screen that needs an action.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get tripsOpenBadge;
+
+  /// The action on an open trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get tripsFinishAction;
+
+  /// §10's trip purpose. Kept apart from `commute` deliberately: rolling them together is the easiest way to overstate a deduction, and in most jurisdictions the drive to a regular workplace is not deductible.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get tripsPurposeBusiness;
+
+  /// §10's trip purpose — the drive to a regular workplace, which is NOT business.
+  ///
+  /// In en, this message translates to:
+  /// **'Commute'**
+  String get tripsPurposeCommute;
+
+  /// §10's trip purpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal'**
+  String get tripsPurposePersonal;
+
+  /// §10's trip purpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get tripsPurposeOther;
+
+  /// SPEC.md §12's header strip says `3,120 km across logged trips` rather than a bare distance, and the wording is the point: trip distances are never summed into vehicle distance because people log some trips and not all. Without those two words the figure reads as the car's total mileage.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} across logged trips'**
+  String tripsAcrossLogged(String distance);
+
+  /// §12's business share in the header strip. Pre-shaped — a bare int renders Latin digits in four locales.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% business'**
+  String tripsBusinessPercent(String percent);
 }
 
 class _AppLocalizationsDelegate

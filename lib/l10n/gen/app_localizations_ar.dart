@@ -2183,4 +2183,44 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fuelFirstFigure => 'سيظهر أول رقم لك عند التعبئة الكاملة القادمة.';
+
+  @override
+  String get tripsTitle => 'الرحلات';
+
+  @override
+  String get tripsEmptyTitle => 'لا توجد رحلات بعد.';
+
+  @override
+  String get tripsEmptyBody => 'سجّل واحدة لترى كم تكلف الرحلة.';
+
+  @override
+  String get tripsAddAction => 'إضافة رحلة';
+
+  @override
+  String get tripsOpenBadge => 'مفتوحة';
+
+  @override
+  String get tripsFinishAction => 'إنهاء';
+
+  @override
+  String get tripsPurposeBusiness => 'عمل';
+
+  @override
+  String get tripsPurposeCommute => 'تنقل';
+
+  @override
+  String get tripsPurposePersonal => 'شخصي';
+
+  @override
+  String get tripsPurposeOther => 'أخرى';
+
+  @override
+  String tripsAcrossLogged(String distance) {
+    return '$distance عبر الرحلات المسجلة';
+  }
+
+  @override
+  String tripsBusinessPercent(String percent) {
+    return '$percent٪ عمل';
+  }
 }

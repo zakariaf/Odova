@@ -493,5 +493,17 @@
   "fuelConsumptionPerTank": "الاستهلاك لكل خزان",
   "fuelEmptyTitle": "لا توجد عمليات تعبئة بعد.",
   "fuelEmptyAction": "سجّل تعبئة",
-  "fuelFirstFigure": "سيظهر أول رقم لك عند التعبئة الكاملة القادمة."
+  "fuelFirstFigure": "سيظهر أول رقم لك عند التعبئة الكاملة القادمة.",
+  "tripsTitle": "الرحلات",
+  "tripsEmptyTitle": "لا توجد رحلات بعد.",
+  "tripsEmptyBody": "سجّل واحدة لترى كم تكلف الرحلة.",
+  "tripsAddAction": "إضافة رحلة",
+  "tripsOpenBadge": "مفتوحة",
+  "tripsFinishAction": "إنهاء",
+  "tripsPurposeBusiness": "عمل",
+  "tripsPurposeCommute": "تنقل",
+  "tripsPurposePersonal": "شخصي",
+  "tripsPurposeOther": "أخرى",
+  "tripsAcrossLogged": "{distance} عبر الرحلات المسجلة",
+  "tripsBusinessPercent": "{percent}٪ عمل"
 }

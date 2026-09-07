@@ -2053,4 +2053,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fuelFirstFigure =>
       'Your first figure arrives at your next full fill.';
+
+  @override
+  String get tripsTitle => 'Trips';
+
+  @override
+  String get tripsEmptyTitle => 'No trips yet.';
+
+  @override
+  String get tripsEmptyBody => 'Log one to see what a journey costs.';
+
+  @override
+  String get tripsAddAction => 'Add trip';
+
+  @override
+  String get tripsOpenBadge => 'Open';
+
+  @override
+  String get tripsFinishAction => 'Finish';
+
+  @override
+  String get tripsPurposeBusiness => 'Business';
+
+  @override
+  String get tripsPurposeCommute => 'Commute';
+
+  @override
+  String get tripsPurposePersonal => 'Personal';
+
+  @override
+  String get tripsPurposeOther => 'Other';
+
+  @override
+  String tripsAcrossLogged(String distance) {
+    return '$distance across logged trips';
+  }
+
+  @override
+  String tripsBusinessPercent(String percent) {
+    return '$percent% business';
+  }
 }

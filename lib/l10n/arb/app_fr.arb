@@ -493,5 +493,17 @@
   "fuelConsumptionPerTank": "Consommation par plein",
   "fuelEmptyTitle": "Aucun plein pour l’instant.",
   "fuelEmptyAction": "Enregistrer un plein",
-  "fuelFirstFigure": "Votre premier chiffre arrivera au prochain plein complet."
+  "fuelFirstFigure": "Votre premier chiffre arrivera au prochain plein complet.",
+  "tripsTitle": "Trajets",
+  "tripsEmptyTitle": "Aucun trajet pour l’instant.",
+  "tripsEmptyBody": "Enregistrez-en un pour voir ce que coûte un trajet.",
+  "tripsAddAction": "Ajouter un trajet",
+  "tripsOpenBadge": "En cours",
+  "tripsFinishAction": "Terminer",
+  "tripsPurposeBusiness": "Professionnel",
+  "tripsPurposeCommute": "Domicile-travail",
+  "tripsPurposePersonal": "Personnel",
+  "tripsPurposeOther": "Autre",
+  "tripsAcrossLogged": "{distance} sur les trajets enregistrés",
+  "tripsBusinessPercent": "{percent}% professionnel"
 }

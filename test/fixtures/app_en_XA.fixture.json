@@ -493,5 +493,17 @@
   "fuelConsumptionPerTank": "[Çǿǹŝǔḿƥţīǿǹ ƥḗř ţáǹķ ǃǃǃǃǃǃǃǃ]",
   "fuelEmptyTitle": "[Ǹǿ ƒīŀŀ-ǔƥŝ ẏḗţ. ǃǃǃǃǃǃǃ]",
   "fuelEmptyAction": "[Ŀǿḡ á ƒīŀŀ-ǔƥ ǃǃǃǃǃǃ]",
-  "fuelFirstFigure": "[Ẏǿǔř ƒīřŝţ ƒīḡǔřḗ ářřīṽḗŝ áţ ẏǿǔř ǹḗẋţ ƒǔŀŀ ƒīŀŀ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]"
+  "fuelFirstFigure": "[Ẏǿǔř ƒīřŝţ ƒīḡǔřḗ ářřīṽḗŝ áţ ẏǿǔř ǹḗẋţ ƒǔŀŀ ƒīŀŀ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "tripsTitle": "[Ţřīƥŝ ǃǃ]",
+  "tripsEmptyTitle": "[Ǹǿ ţřīƥŝ ẏḗţ. ǃǃǃǃǃǃ]",
+  "tripsEmptyBody": "[Ŀǿḡ ǿǹḗ ţǿ ŝḗḗ ẇħáţ á ĵǿǔřǹḗẏ çǿŝţŝ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
+  "tripsAddAction": "[Áḍḍ ţřīƥ ǃǃǃǃ]",
+  "tripsOpenBadge": "[Ǿƥḗǹ ǃǃ]",
+  "tripsFinishAction": "[Ƒīǹīŝħ ǃǃǃ]",
+  "tripsPurposeBusiness": "[Ḅǔŝīǹḗŝŝ ǃǃǃǃ]",
+  "tripsPurposeCommute": "[Çǿḿḿǔţḗ ǃǃǃ]",
+  "tripsPurposePersonal": "[Ƥḗřŝǿǹáŀ ǃǃǃǃ]",
+  "tripsPurposeOther": "[Ǿţħḗř ǃǃ]",
+  "tripsAcrossLogged": "[{distance} áçřǿŝŝ ŀǿḡḡḗḍ ţřīƥŝ ǃǃǃǃǃǃǃǃ]",
+  "tripsBusinessPercent": "[{percent}% ḅǔŝīǹḗŝŝ ǃǃǃǃ]"
 }
