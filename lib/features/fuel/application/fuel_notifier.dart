@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:odova/core/fuel/fuel_insights.dart';
 import 'package:odova/core/money/currency.dart';
+import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/features/fuel/data/fuel_source.dart';
 
 /// What `costs.fuel` renders.
 @immutable
@@ -66,8 +68,8 @@ final NotifierProvider<FuelNotifier, FuelState> fuelProvider =
 /// The store it reads through. Overridden in tests.
 final Provider<FuelRepository> fuelRepositoryProvider =
     Provider<FuelRepository>(
-      (ref) => throw UnimplementedError(
-        'fuelRepositoryProvider must be overridden until EPIC-13 wires the '
-        'fill read.',
+      (ref) => FuelSource(
+        ref.watch(fillUpRepositoryProvider),
+        ref.watch(odometerRepositoryProvider),
       ),
     );

@@ -13,10 +13,14 @@ import 'package:odova/core/costs/cost_aggregates.dart';
 import 'package:odova/core/costs/cost_by_category.dart';
 import 'package:odova/core/costs/cost_range.dart';
 import 'package:odova/core/costs/monthly_chart_model.dart';
+import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/money/money_total.dart';
 import 'package:odova/core/odometer/cumulative.dart';
 import 'package:odova/core/time/civil_date.dart';
+import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/features/costs/data/costs_source.dart';
+import 'package:odova/l10n/locale_controller.dart';
 
 /// Which of §12's four ranges is selected.
 enum CostsRangeChoice {
@@ -312,8 +316,21 @@ final NotifierProvider<CostsNotifier, CostsState> costsProvider =
 /// The store tab 3 reads through. Overridden in tests.
 final Provider<CostsRepository> costsRepositoryProvider =
     Provider<CostsRepository>(
-      (ref) => throw UnimplementedError(
-        'costsRepositoryProvider must be overridden until EPIC-13 wires the '
-        'per-range read.',
+      (ref) => CostsSource(
+        ref.watch(fillUpRepositoryProvider),
+        ref.watch(expenseRepositoryProvider),
+        ref.watch(serviceRepositoryProvider),
+        ref.watch(odometerRepositoryProvider),
+        // The SETTING, falling back to what the locale implies —
+        // `resolveCalendar` is the one place that decision lives, and §18 has
+        // an open question about whether `ckb-IR` should default to Jalali.
+        resolveCalendar(
+          CalmCalendar.values
+              .where(
+                (c) => c.wire == ref.watch(settingsProvider).value?.calendar,
+              )
+              .firstOrNull,
+          ref.watch(resolvedLocaleTagsProvider).formats,
+        ),
       ),
     );
