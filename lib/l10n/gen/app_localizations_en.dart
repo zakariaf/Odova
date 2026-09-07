@@ -2724,4 +2724,109 @@ class AppLocalizationsEn extends AppLocalizations {
   String importSkipEntryNoDate(String type, String reason) {
     return '$type — $reason';
   }
+
+  @override
+  String get backupTitle => 'Backup & restore';
+
+  @override
+  String get backupLastLabel => 'Last backup';
+
+  @override
+  String get backupNever => 'You’ve never made a backup.';
+
+  @override
+  String backupEntriesSince(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries since',
+      one: '$nText entry since',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntriesOnlyHere(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entries are only on this phone.',
+      one: '$nText entry is only on this phone.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get backupNothingToBackUp => 'Nothing to back up yet.';
+
+  @override
+  String get backupPreparing => 'Preparing your backup…';
+
+  @override
+  String get backupNotEncrypted =>
+      'Your backup file is not password-protected. Anyone who opens it can read everything in it.';
+
+  @override
+  String get backupAlsoExport => 'Also export';
+
+  @override
+  String get backupFillUpsCsv => 'Fill-ups (CSV)';
+
+  @override
+  String get backupAllCostsCsv => 'All costs (CSV)';
+
+  @override
+  String get backupServiceHistoryPdf => 'Service history (PDF)';
+
+  @override
+  String get backupRestoreHeader => 'Restore';
+
+  @override
+  String get backupRestoreRow => 'Restore from a backup';
+
+  @override
+  String get backupUndoImport => 'Undo last import';
+
+  @override
+  String get backupUndoWipe => 'Undo delete all data';
+
+  @override
+  String backupUndoUntil(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String get backupCopiesGoOnUninstall =>
+      'These copies are removed if you uninstall Odova.';
+
+  @override
+  String backupOnDiskSize(String size) {
+    return 'Odova is using $size on this phone.';
+  }
+
+  @override
+  String get backupDeleteAll => 'Delete all data';
+
+  @override
+  String get backupDeleteWord => 'DELETE';
+
+  @override
+  String get backupMigrationBanner =>
+      'Odova couldn’t finish updating and has gone back to your previous data. You can’t add new entries until this is fixed — back up now.';
+
+  @override
+  String backupExportNoSpace(String size) {
+    return 'There isn’t enough free space to make a backup. It needs about $size. Free up some space and try again.';
+  }
+
+  @override
+  String get backupExportWriteFailed =>
+      'Odova couldn’t finish the backup. Nothing on this phone has changed. Try again in a moment.';
+
+  @override
+  String get backupExportNoShare =>
+      'This phone won’t let Odova hand the file to another app. Your data is safe — try again after restarting your phone.';
 }

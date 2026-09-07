@@ -2718,4 +2718,109 @@ class AppLocalizationsFa extends AppLocalizations {
   String importSkipEntryNoDate(String type, String reason) {
     return '$type — $reason';
   }
+
+  @override
+  String get backupTitle => 'پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get backupLastLabel => 'آخرین پشتیبان';
+
+  @override
+  String get backupNever => 'هرگز پشتیبانی نگرفته‌اید.';
+
+  @override
+  String backupEntriesSince(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد از آن زمان',
+      one: '$nText مورد از آن زمان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntriesOnlyHere(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مورد فقط روی همین گوشی هستند.',
+      one: '$nText مورد فقط روی همین گوشی است.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupNow => 'اکنون پشتیبان بگیر';
+
+  @override
+  String get backupNothingToBackUp => 'هنوز چیزی برای پشتیبان‌گیری نیست.';
+
+  @override
+  String get backupPreparing => 'در حال آماده‌سازی پشتیبان…';
+
+  @override
+  String get backupNotEncrypted =>
+      'فایل پشتیبان شما رمز ندارد. هر کسی آن را باز کند می‌تواند همه‌چیز داخلش را بخواند.';
+
+  @override
+  String get backupAlsoExport => 'خروجی‌های دیگر';
+
+  @override
+  String get backupFillUpsCsv => 'سوخت‌گیری‌ها (CSV)';
+
+  @override
+  String get backupAllCostsCsv => 'همه‌ی هزینه‌ها (CSV)';
+
+  @override
+  String get backupServiceHistoryPdf => 'تاریخچه‌ی سرویس (PDF)';
+
+  @override
+  String get backupRestoreHeader => 'بازیابی';
+
+  @override
+  String get backupRestoreRow => 'بازیابی از یک پشتیبان';
+
+  @override
+  String get backupUndoImport => 'واگردانی آخرین ورود اطلاعات';
+
+  @override
+  String get backupUndoWipe => 'واگردانی حذف همه‌ی داده‌ها';
+
+  @override
+  String backupUndoUntil(String date) {
+    return 'تا $date';
+  }
+
+  @override
+  String get backupCopiesGoOnUninstall =>
+      'اگر ادووا را حذف کنید این نسخه‌ها هم پاک می‌شوند.';
+
+  @override
+  String backupOnDiskSize(String size) {
+    return 'ادووا $size از این گوشی را استفاده می‌کند.';
+  }
+
+  @override
+  String get backupDeleteAll => 'حذف همه‌ی داده‌ها';
+
+  @override
+  String get backupDeleteWord => 'حذف';
+
+  @override
+  String get backupMigrationBanner =>
+      'ادووا نتوانست به‌روزرسانی را تمام کند و به داده‌های قبلی شما برگشت. تا وقتی این درست نشود نمی‌توانید مورد تازه‌ای اضافه کنید — همین حالا پشتیبان بگیرید.';
+
+  @override
+  String backupExportNoSpace(String size) {
+    return 'فضای کافی برای پشتیبان‌گیری نیست. حدود $size لازم است. کمی فضا آزاد کنید و دوباره امتحان کنید.';
+  }
+
+  @override
+  String get backupExportWriteFailed =>
+      'ادووا نتوانست پشتیبان‌گیری را تمام کند. هیچ چیزی روی این گوشی تغییر نکرده است. کمی بعد دوباره امتحان کنید.';
+
+  @override
+  String get backupExportNoShare =>
+      'این گوشی اجازه نمی‌دهد ادووا فایل را به برنامه‌ی دیگری بدهد. داده‌های شما سالم است — گوشی را دوباره روشن کنید و امتحان کنید.';
 }

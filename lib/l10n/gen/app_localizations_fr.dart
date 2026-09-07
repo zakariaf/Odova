@@ -2800,4 +2800,111 @@ class AppLocalizationsFr extends AppLocalizations {
   String importSkipEntryNoDate(String type, String reason) {
     return '$type — $reason';
   }
+
+  @override
+  String get backupTitle => 'Sauvegarde et restauration';
+
+  @override
+  String get backupLastLabel => 'Dernière sauvegarde';
+
+  @override
+  String get backupNever => 'Vous n’avez jamais fait de sauvegarde.';
+
+  @override
+  String backupEntriesSince(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entrées depuis',
+      many: '$nText entrées depuis',
+      one: '$nText entrée depuis',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntriesOnlyHere(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText entrées n’existent que sur ce téléphone.',
+      many: '$nText entrées n’existent que sur ce téléphone.',
+      one: '$nText entrée n’existe que sur ce téléphone.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupNow => 'Sauvegarder maintenant';
+
+  @override
+  String get backupNothingToBackUp => 'Rien à sauvegarder pour l’instant.';
+
+  @override
+  String get backupPreparing => 'Préparation de votre sauvegarde…';
+
+  @override
+  String get backupNotEncrypted =>
+      'Votre fichier de sauvegarde n’est pas protégé par mot de passe. Quiconque l’ouvre peut tout y lire.';
+
+  @override
+  String get backupAlsoExport => 'Exporter aussi';
+
+  @override
+  String get backupFillUpsCsv => 'Pleins (CSV)';
+
+  @override
+  String get backupAllCostsCsv => 'Tous les coûts (CSV)';
+
+  @override
+  String get backupServiceHistoryPdf => 'Historique d’entretien (PDF)';
+
+  @override
+  String get backupRestoreHeader => 'Restaurer';
+
+  @override
+  String get backupRestoreRow => 'Restaurer depuis une sauvegarde';
+
+  @override
+  String get backupUndoImport => 'Annuler le dernier import';
+
+  @override
+  String get backupUndoWipe => 'Annuler la suppression de toutes les données';
+
+  @override
+  String backupUndoUntil(String date) {
+    return 'Jusqu’au $date';
+  }
+
+  @override
+  String get backupCopiesGoOnUninstall =>
+      'Ces copies sont supprimées si vous désinstallez Odova.';
+
+  @override
+  String backupOnDiskSize(String size) {
+    return 'Odova utilise $size sur ce téléphone.';
+  }
+
+  @override
+  String get backupDeleteAll => 'Supprimer toutes les données';
+
+  @override
+  String get backupDeleteWord => 'SUPPRIMER';
+
+  @override
+  String get backupMigrationBanner =>
+      'Odova n’a pas pu terminer la mise à jour et est revenu à vos données précédentes. Vous ne pouvez rien ajouter tant que ce n’est pas réglé — sauvegardez maintenant.';
+
+  @override
+  String backupExportNoSpace(String size) {
+    return 'Il n’y a pas assez d’espace libre pour sauvegarder. Il faut environ $size. Libérez de l’espace et réessayez.';
+  }
+
+  @override
+  String get backupExportWriteFailed =>
+      'Odova n’a pas pu terminer la sauvegarde. Rien n’a changé sur ce téléphone. Réessayez dans un instant.';
+
+  @override
+  String get backupExportNoShare =>
+      'Ce téléphone ne laisse pas Odova transmettre le fichier à une autre application. Vos données sont intactes — réessayez après avoir redémarré le téléphone.';
 }

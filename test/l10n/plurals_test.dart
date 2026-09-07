@@ -134,6 +134,10 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'importWarnDuplicateIds' => l10n.importWarnDuplicateIds(n, nText),
       'importWarnTruncatedStrings' => l10n.importWarnTruncatedStrings(n, nText),
       'importRecordCount' => l10n.importRecordCount(n, nText),
+      // §13's `settings.backup` count lines. Two of them, because "68 entries
+      // since" makes no sense when there is no since.
+      'backupEntriesSince' => l10n.backupEntriesSince(n, nText),
+      'backupEntriesOnlyHere' => l10n.backupEntriesOnlyHere(n, nText),
       _ => throw StateError(
         'plural key "$key" is in the ARB but not in this matrix — add it',
       ),

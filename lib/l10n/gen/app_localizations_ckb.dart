@@ -2727,4 +2727,109 @@ class AppLocalizationsCkb extends AppLocalizations {
   String importSkipEntryNoDate(String type, String reason) {
     return '$type — $reason';
   }
+
+  @override
+  String get backupTitle => 'پاڵپشت و گەڕاندنەوە';
+
+  @override
+  String get backupLastLabel => 'دوایین پاڵپشت';
+
+  @override
+  String get backupNever => 'هەرگیز پاڵپشتت نەکردووە.';
+
+  @override
+  String backupEntriesSince(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText تۆمار لەو کاتەوە',
+      one: '$nText تۆمار لەو کاتەوە',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntriesOnlyHere(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText تۆمار تەنیا لەسەر ئەم مۆبایلەن.',
+      one: '$nText تۆمار تەنیا لەسەر ئەم مۆبایلەیە.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupNow => 'ئێستا پاڵپشت بکە';
+
+  @override
+  String get backupNothingToBackUp => 'هێشتا هیچ شتێک بۆ پاڵپشتکردن نییە.';
+
+  @override
+  String get backupPreparing => 'پاڵپشتەکەت ئامادە دەکرێت…';
+
+  @override
+  String get backupNotEncrypted =>
+      'فایلی پاڵپشتەکەت بە وشەی نهێنی پارێزراو نییە. هەر کەسێک بیکاتەوە دەتوانێت هەموو ناوەڕۆکەکەی بخوێنێتەوە.';
+
+  @override
+  String get backupAlsoExport => 'هەروەها ناردنەدەرەوە';
+
+  @override
+  String get backupFillUpsCsv => 'پڕکردنەوەکان (CSV)';
+
+  @override
+  String get backupAllCostsCsv => 'هەموو خەرجییەکان (CSV)';
+
+  @override
+  String get backupServiceHistoryPdf => 'مێژووی خزمەتگوزاری (PDF)';
+
+  @override
+  String get backupRestoreHeader => 'گەڕاندنەوە';
+
+  @override
+  String get backupRestoreRow => 'گەڕاندنەوە لە پاڵپشتێکەوە';
+
+  @override
+  String get backupUndoImport => 'گەڕاندنەوەی دوایین هێنان';
+
+  @override
+  String get backupUndoWipe => 'گەڕاندنەوەی سڕینەوەی هەموو داتاکان';
+
+  @override
+  String backupUndoUntil(String date) {
+    return 'تا $date';
+  }
+
+  @override
+  String get backupCopiesGoOnUninstall =>
+      'ئەم لێبانە دەسڕێنەوە ئەگەر Odova لاببەیت.';
+
+  @override
+  String backupOnDiskSize(String size) {
+    return 'Odova $size لەم مۆبایلە بەکاردەهێنێت.';
+  }
+
+  @override
+  String get backupDeleteAll => 'سڕینەوەی هەموو داتاکان';
+
+  @override
+  String get backupDeleteWord => 'سڕینەوە';
+
+  @override
+  String get backupMigrationBanner =>
+      'Odova نەیتوانی نوێکردنەوەکە تەواو بکات و گەڕایەوە بۆ داتا پێشووەکانت. تا ئەمە چارەسەر نەبێت ناتوانیت تۆماری نوێ زیاد بکەیت — ئێستا پاڵپشت بکە.';
+
+  @override
+  String backupExportNoSpace(String size) {
+    return 'بواری بەتاڵی پێویست نییە بۆ پاڵپشتکردن. نزیکەی $size پێویستە. کەمێک بوار بەتاڵ بکەرەوە و دووبارە هەوڵ بدەرەوە.';
+  }
+
+  @override
+  String get backupExportWriteFailed =>
+      'Odova نەیتوانی پاڵپشتەکە تەواو بکات. هیچ شتێک لەسەر ئەم مۆبایلە نەگۆڕا. دوای کەمێک دووبارە هەوڵ بدەرەوە.';
+
+  @override
+  String get backupExportNoShare =>
+      'ئەم مۆبایلە ڕێگە نادات Odova فایلەکە بداتە بەرنامەیەکی تر. داتاکانت پارێزراون — مۆبایلەکە بکەرەوە و دووبارە هەوڵ بدەرەوە.';
 }

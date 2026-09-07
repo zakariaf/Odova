@@ -4073,6 +4073,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{type} — {reason}'**
   String importSkipEntryNoDate(String type, String reason);
+
+  /// SPEC.md §13's `settings.backup` title. “Sicherung & Wiederherstellung” is the two-line German one, and it is what sets the width of the whole screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & restore'**
+  String get backupTitle;
+
+  /// The quiet label above the date.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup'**
+  String get backupLastLabel;
+
+  /// §13's never-exported state. Amber, with the count line always shown beneath it.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve never made a backup.'**
+  String get backupNever;
+
+  /// §13's count line. It exists to make “three months ago” concrete, which is why it is hidden on a recent backup with little written since.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry since} other{{nText} entries since}}'**
+  String backupEntriesSince(int n, String nText);
+
+  /// The never-backed-up count. A different sentence from the one above, because “68 entries since” makes no sense when there is no since.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} entry is only on this phone.} other{{nText} entries are only on this phone.}}'**
+  String backupEntriesOnlyHere(int n, String nText);
+
+  /// §13: the ONLY filled button on the screen. Calm allows one primary element, and two primaries means the screen has failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNow;
+
+  /// §13's empty state, as the button's subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to back up yet.'**
+  String get backupNothingToBackUp;
+
+  /// The inline progress state that REPLACES the button — §13. A spinner beside a live button invites a second tap, and a second export writes a second copy of the whole history.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your backup…'**
+  String get backupPreparing;
+
+  /// One of the two most heavily reviewed strings in the app (§13). A single ICU message, never concatenated, and it sits DIRECTLY beneath the button — not in a footnote, not behind an info icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Your backup file is not password-protected. Anyone who opens it can read everything in it.'**
+  String get backupNotEncrypted;
+
+  /// §13's group header over the CSV and PDF rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Also export'**
+  String get backupAlsoExport;
+
+  /// §13's fill-ups CSV row.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill-ups (CSV)'**
+  String get backupFillUpsCsv;
+
+  /// §13's costs CSV row.
+  ///
+  /// In en, this message translates to:
+  /// **'All costs (CSV)'**
+  String get backupAllCostsCsv;
+
+  /// §13's PDF row.
+  ///
+  /// In en, this message translates to:
+  /// **'Service history (PDF)'**
+  String get backupServiceHistoryPdf;
+
+  /// §13's group header over Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get backupRestoreHeader;
+
+  /// §13's restore row. It opens the OS document picker, and a cancelled picker changes nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup'**
+  String get backupRestoreRow;
+
+  /// §6 §4.4's Undo last import.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo last import'**
+  String get backupUndoImport;
+
+  /// §6 §4.4's Undo delete all data, which sits beside the import one when both copies exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo delete all data'**
+  String get backupUndoWipe;
+
+  /// Each Undo row's expiry, on its own line. The row disappears at thirty days rather than greying out.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {date}'**
+  String backupUndoUntil(String date);
+
+  /// §13's one line of small print, next to the buttons. A seatbelt, not a vault — the user's own exported file remains the real backup.
+  ///
+  /// In en, this message translates to:
+  /// **'These copies are removed if you uninstall Odova.'**
+  String get backupCopiesGoOnUninstall;
+
+  /// §13's storage line. Digit-shaped per `numerals`, like every other number on the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova is using {size} on this phone.'**
+  String backupOnDiskSize(String size);
+
+  /// §13's last row, separated, in the destructive colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data'**
+  String get backupDeleteAll;
+
+  /// The word the user types to confirm — the localised IMPERATIVE, shown verbatim in the sentence above the field and matched case-insensitively after Unicode normalisation. Uppercase where the script has case; the three RTL scripts have none.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get backupDeleteWord;
+
+  /// §6 §3.3's banner, verbatim. It is the reason the app may open on this screen instead of home.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t finish updating and has gone back to your previous data. You can’t add new entries until this is fixed — back up now.'**
+  String get backupMigrationBanner;
+
+  /// §13's first export error. The FIGURE is what makes it actionable.
+  ///
+  /// In en, this message translates to:
+  /// **'There isn’t enough free space to make a backup. It needs about {size}. Free up some space and try again.'**
+  String backupExportNoSpace(String size);
+
+  /// §13's second export error. It says nothing changed, because nothing did.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t finish the backup. Nothing on this phone has changed. Try again in a moment.'**
+  String get backupExportWriteFailed;
+
+  /// §13's third. The remedy is odd and it is the one that works.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone won’t let Odova hand the file to another app. Your data is safe — try again after restarting your phone.'**
+  String get backupExportNoShare;
 }
 
 class _AppLocalizationsDelegate

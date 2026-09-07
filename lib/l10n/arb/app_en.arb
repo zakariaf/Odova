@@ -3966,5 +3966,140 @@
         "type": "String"
       }
     }
+  },
+  "backupTitle": "Backup & restore",
+  "@backupTitle": {
+    "description": "SPEC.md §13's `settings.backup` title. “Sicherung & Wiederherstellung” is the two-line German one, and it is what sets the width of the whole screen."
+  },
+  "backupLastLabel": "Last backup",
+  "@backupLastLabel": {
+    "description": "The quiet label above the date."
+  },
+  "backupNever": "You’ve never made a backup.",
+  "@backupNever": {
+    "description": "§13's never-exported state. Amber, with the count line always shown beneath it."
+  },
+  "backupEntriesSince": "{n, plural, one{{nText} entry since} other{{nText} entries since}}",
+  "@backupEntriesSince": {
+    "description": "§13's count line. It exists to make “three months ago” concrete, which is why it is hidden on a recent backup with little written since.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "backupEntriesOnlyHere": "{n, plural, one{{nText} entry is only on this phone.} other{{nText} entries are only on this phone.}}",
+  "@backupEntriesOnlyHere": {
+    "description": "The never-backed-up count. A different sentence from the one above, because “68 entries since” makes no sense when there is no since.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
+  },
+  "backupNow": "Back up now",
+  "@backupNow": {
+    "description": "§13: the ONLY filled button on the screen. Calm allows one primary element, and two primaries means the screen has failed."
+  },
+  "backupNothingToBackUp": "Nothing to back up yet.",
+  "@backupNothingToBackUp": {
+    "description": "§13's empty state, as the button's subtitle."
+  },
+  "backupPreparing": "Preparing your backup…",
+  "@backupPreparing": {
+    "description": "The inline progress state that REPLACES the button — §13. A spinner beside a live button invites a second tap, and a second export writes a second copy of the whole history."
+  },
+  "backupNotEncrypted": "Your backup file is not password-protected. Anyone who opens it can read everything in it.",
+  "@backupNotEncrypted": {
+    "description": "One of the two most heavily reviewed strings in the app (§13). A single ICU message, never concatenated, and it sits DIRECTLY beneath the button — not in a footnote, not behind an info icon."
+  },
+  "backupAlsoExport": "Also export",
+  "@backupAlsoExport": {
+    "description": "§13's group header over the CSV and PDF rows."
+  },
+  "backupFillUpsCsv": "Fill-ups (CSV)",
+  "@backupFillUpsCsv": {
+    "description": "§13's fill-ups CSV row."
+  },
+  "backupAllCostsCsv": "All costs (CSV)",
+  "@backupAllCostsCsv": {
+    "description": "§13's costs CSV row."
+  },
+  "backupServiceHistoryPdf": "Service history (PDF)",
+  "@backupServiceHistoryPdf": {
+    "description": "§13's PDF row."
+  },
+  "backupRestoreHeader": "Restore",
+  "@backupRestoreHeader": {
+    "description": "§13's group header over Restore."
+  },
+  "backupRestoreRow": "Restore from a backup",
+  "@backupRestoreRow": {
+    "description": "§13's restore row. It opens the OS document picker, and a cancelled picker changes nothing."
+  },
+  "backupUndoImport": "Undo last import",
+  "@backupUndoImport": {
+    "description": "§6 §4.4's Undo last import."
+  },
+  "backupUndoWipe": "Undo delete all data",
+  "@backupUndoWipe": {
+    "description": "§6 §4.4's Undo delete all data, which sits beside the import one when both copies exist."
+  },
+  "backupUndoUntil": "Until {date}",
+  "@backupUndoUntil": {
+    "description": "Each Undo row's expiry, on its own line. The row disappears at thirty days rather than greying out.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "backupCopiesGoOnUninstall": "These copies are removed if you uninstall Odova.",
+  "@backupCopiesGoOnUninstall": {
+    "description": "§13's one line of small print, next to the buttons. A seatbelt, not a vault — the user's own exported file remains the real backup."
+  },
+  "backupOnDiskSize": "Odova is using {size} on this phone.",
+  "@backupOnDiskSize": {
+    "description": "§13's storage line. Digit-shaped per `numerals`, like every other number on the screen.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "backupDeleteAll": "Delete all data",
+  "@backupDeleteAll": {
+    "description": "§13's last row, separated, in the destructive colour."
+  },
+  "backupDeleteWord": "DELETE",
+  "@backupDeleteWord": {
+    "description": "The word the user types to confirm — the localised IMPERATIVE, shown verbatim in the sentence above the field and matched case-insensitively after Unicode normalisation. Uppercase where the script has case; the three RTL scripts have none."
+  },
+  "backupMigrationBanner": "Odova couldn’t finish updating and has gone back to your previous data. You can’t add new entries until this is fixed — back up now.",
+  "@backupMigrationBanner": {
+    "description": "§6 §3.3's banner, verbatim. It is the reason the app may open on this screen instead of home."
+  },
+  "backupExportNoSpace": "There isn’t enough free space to make a backup. It needs about {size}. Free up some space and try again.",
+  "@backupExportNoSpace": {
+    "description": "§13's first export error. The FIGURE is what makes it actionable.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "backupExportWriteFailed": "Odova couldn’t finish the backup. Nothing on this phone has changed. Try again in a moment.",
+  "@backupExportWriteFailed": {
+    "description": "§13's second export error. It says nothing changed, because nothing did."
+  },
+  "backupExportNoShare": "This phone won’t let Odova hand the file to another app. Your data is safe — try again after restarting your phone.",
+  "@backupExportNoShare": {
+    "description": "§13's third. The remedy is odd and it is the one that works."
   }
 }

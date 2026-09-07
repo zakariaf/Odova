@@ -28,6 +28,7 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/degraded_mode.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/features/backup/presentation/backup_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
 import 'package:odova/features/home/ui/home_screen.dart';
@@ -340,6 +341,13 @@ void main() {
       // placeholder. Every screen this helper knows about is one that has been
       // built; the fall-through is for the ones that have not.
       if (find.byType(HomeScreen).evaluate().isNotEmpty) return 'home';
+      // EPIC-15 task 15.6 made Backup & restore real, for the same reason —
+      // and it is the one screen the app may open on INSTEAD of home, so it
+      // has to be recognised here or the migration-failure launch row has no
+      // way to assert where it landed.
+      if (find.byType(BackupScreen).evaluate().isNotEmpty) {
+        return 'settings.backup';
+      }
       return tester
           .widget<PlaceholderScreen>(find.byType(PlaceholderScreen))
           .screenId;

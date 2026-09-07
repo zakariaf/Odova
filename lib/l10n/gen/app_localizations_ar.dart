@@ -2930,4 +2930,116 @@ class AppLocalizationsAr extends AppLocalizations {
   String importSkipEntryNoDate(String type, String reason) {
     return '$type — $reason';
   }
+
+  @override
+  String get backupTitle => 'النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get backupLastLabel => 'آخر نسخة احتياطية';
+
+  @override
+  String get backupNever => 'لم تُنشئ نسخة احتياطية من قبل.';
+
+  @override
+  String backupEntriesSince(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText إدخال منذ ذلك الحين',
+      many: '$nText إدخالًا منذ ذلك الحين',
+      few: '$nText إدخالات منذ ذلك الحين',
+      two: 'إدخالان منذ ذلك الحين',
+      one: 'إدخال واحد منذ ذلك الحين',
+      zero: '$nText إدخال منذ ذلك الحين',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupEntriesOnlyHere(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText إدخال موجود على هذا الهاتف فقط.',
+      many: '$nText إدخالًا موجودة على هذا الهاتف فقط.',
+      few: '$nText إدخالات موجودة على هذا الهاتف فقط.',
+      two: 'إدخالان موجودان على هذا الهاتف فقط.',
+      one: 'إدخال واحد موجود على هذا الهاتف فقط.',
+      zero: '$nText إدخال موجود على هذا الهاتف فقط.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupNow => 'أنشئ نسخة الآن';
+
+  @override
+  String get backupNothingToBackUp => 'لا شيء لحفظه بعد.';
+
+  @override
+  String get backupPreparing => 'يجري تجهيز نسختك…';
+
+  @override
+  String get backupNotEncrypted =>
+      'ملف نسختك الاحتياطية غير محمي بكلمة مرور. أي شخص يفتحه يستطيع قراءة كل ما فيه.';
+
+  @override
+  String get backupAlsoExport => 'تصدير أيضًا';
+
+  @override
+  String get backupFillUpsCsv => 'تعبئات الوقود (CSV)';
+
+  @override
+  String get backupAllCostsCsv => 'كل التكاليف (CSV)';
+
+  @override
+  String get backupServiceHistoryPdf => 'سجل الصيانة (PDF)';
+
+  @override
+  String get backupRestoreHeader => 'استعادة';
+
+  @override
+  String get backupRestoreRow => 'الاستعادة من نسخة احتياطية';
+
+  @override
+  String get backupUndoImport => 'التراجع عن آخر استيراد';
+
+  @override
+  String get backupUndoWipe => 'التراجع عن حذف كل البيانات';
+
+  @override
+  String backupUndoUntil(String date) {
+    return 'حتى $date';
+  }
+
+  @override
+  String get backupCopiesGoOnUninstall => 'تُحذف هذه النسخ إذا أزلت Odova.';
+
+  @override
+  String backupOnDiskSize(String size) {
+    return 'يستخدم Odova $size على هذا الهاتف.';
+  }
+
+  @override
+  String get backupDeleteAll => 'حذف كل البيانات';
+
+  @override
+  String get backupDeleteWord => 'حذف';
+
+  @override
+  String get backupMigrationBanner =>
+      'لم يتمكن Odova من إكمال التحديث وعاد إلى بياناتك السابقة. لا يمكنك إضافة إدخالات جديدة حتى يُحل هذا — أنشئ نسخة احتياطية الآن.';
+
+  @override
+  String backupExportNoSpace(String size) {
+    return 'لا توجد مساحة كافية لإنشاء نسخة احتياطية. تلزم نحو $size. فرّغ بعض المساحة ثم حاول مجددًا.';
+  }
+
+  @override
+  String get backupExportWriteFailed =>
+      'لم يتمكن Odova من إكمال النسخة الاحتياطية. لم يتغير شيء على هذا الهاتف. حاول بعد قليل.';
+
+  @override
+  String get backupExportNoShare =>
+      'لا يسمح هذا الهاتف لـ Odova بتسليم الملف إلى تطبيق آخر. بياناتك بأمان — أعد تشغيل الهاتف ثم حاول مجددًا.';
 }
