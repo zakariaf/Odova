@@ -198,3 +198,43 @@ The sweep covers the screens that pump with the app's own defaults —
 repository fakes, and a sweep that pumps a screen through eight fakes is a sweep
 that tests the fakes. **Not done: the remaining 25 screens.** That is the bulk
 of 17.4 and 17.6 and it is named here rather than left to look finished.
+
+## Task 17.10 — the gate, and what it refuses to claim
+
+**`test/a11y/gate_coverage_test.dart` tests the SUITE, not the app.** Every rule
+of §17's gate is declared with the test that covers it, so a rule nobody wrote a
+test for fails — and, more usefully, a rule whose test was *deleted* fails too,
+because the file paths are checked to exist.
+
+**It corrected me while I wrote it.** I claimed four of nine rules fully covered;
+the count assertion said three. That is exactly why it counts rather than
+trusting the prose above it. Three are covered — contrast, the estimated-value
+announcement, and the no-confidence-figure rule — and the other six each name
+what is missing and which task closes it.
+
+A gate claiming nine of nine while covering three is worse than one claiming
+three, because the first stops anybody looking.
+
+**Two assertions exist to stop this epic rotting:**
+
+- The accessibility finding must carry a dated `## Resolution` or `## Decision`.
+  A finding carried forward silently fails the build.
+- The contrast exception list must be **empty**. EPIC-02 held the WCAG failures
+  there as dated exceptions; EPIC-17 emptied it. This is what stops a future
+  failure being parked there instead of fixed.
+
+**The `a11y` job is wired into the flutter lane** and its CI comment says what it
+cannot prove, at length: a widget test has no screen reader, no real focus ring,
+no real device and no native reader — it proves a string arrived, not that it is
+grammatical.
+
+**Seen to fail**, per the epic's requirement, by planting both real exclusions:
+removing `ExcludeSemantics` from the language row's tick and from
+`CalmListRow`'s chevron each turns the sweep red.
+
+**`design/calm/A11Y-SIGNOFF.md` exists and is NOT signed.** Eight human passes
+are listed and every one says "not done" — TalkBack, VoiceOver, Switch Access,
+three native RTL reads, colour-vision simulation, and 200% on a real device. It
+is written now so the work is scheduled rather than discovered, and so a reader
+can tell "checked and fine" from "never looked at". `ckb` is named as the
+largest single risk, with EPIC-15's 103 unreviewed Sorani strings behind it.

@@ -321,6 +321,22 @@ jobs:
       - name: Drift stays inside the data layer
         run: bash tools/check_drift_confinement.sh
 
+      # Contract: SPEC.md §17's accessibility gate, which that section calls
+      # "a release blocker, not a polish item". Contrast in both themes with an
+      # EMPTY exception list, estimated values announced as words in six
+      # locales, no confidence figure in any announcement, no overflow at 200%
+      # with bold text, tap targets against Flutter's own platform guidelines,
+      # and no suppression helper anywhere in the tree.
+      #
+      # What it CANNOT prove, and design/calm/A11Y-SIGNOFF.md says at length: a
+      # widget test has no screen reader, no real focus ring, no real device and
+      # no native reader. It proves a string arrived, not that it is
+      # grammatical. TalkBack, VoiceOver, Switch Access, the three native RTL
+      # reads and the colour-vision simulation are human work, and none of them
+      # has been done.
+      - name: the §17 accessibility gate
+        run: flutter test test/a11y/ test/policy/
+
       # Contract: exactly one file imports flutter_local_notifications, the
       # scheduling math stays pure, and no feature calls the gateway directly.
       # SPEC.md §4.6.1. The rule is what keeps §4's hardest promises testable:
