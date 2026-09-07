@@ -3365,6 +3365,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your first consumption figure arrives at your second full tank.'**
   String get fuelEmptyBody;
+
+  /// SPEC.md §13's tab-4 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// §13's FIRST row, in its own group, above Vehicles — because the person who needs Export is standing in a phone shop with a dead handset in their pocket. German is the width constraint for the whole screen and this is the string that sets it.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & restore'**
+  String get settingsBackupRow;
+
+  /// §13's never-exported state. Amber text with an amber dot: the only row in the app that changes colour.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve never made a backup.'**
+  String get settingsBackupNever;
+
+  /// The exported state. Both the DATE and the age, as the reference draws it — §13's table shows only the age, and the date is what a user checks against their own memory of when they last did it.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup {date} — {ago}'**
+  String settingsBackupLast(String date, String ago);
+
+  /// §13's migration-failed state. Red, and the app opened on `settings.backup`.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t finish updating.'**
+  String get settingsBackupMigrationFailed;
+
+  /// Pushes the garage.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles'**
+  String get settingsVehiclesRow;
+
+  /// The Vehicles subtitle beyond three, where the reference's list of names stops fitting. `nText` is pre-shaped; a bare int renders Latin digits in four locales.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} vehicle} other{{nText} vehicles}}'**
+  String settingsVehicleCount(int n, String nText);
+
+  /// §13's units screen. `Einheiten & Formate` is the second-longest label and wraps rather than truncating.
+  ///
+  /// In en, this message translates to:
+  /// **'Units & formats'**
+  String get settingsUnitsRow;
+
+  /// §13's notifications screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotificationsRow;
+
+  /// The row's value — `On · 09:00`. Two facts joined, so the ORDER is a translation decision rather than a Dart concatenation.
+  ///
+  /// In en, this message translates to:
+  /// **'{state} · {time}'**
+  String settingsNotificationsValue(String state, String time);
+
+  /// The OS permission state, in a word.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingsNotificationsOn;
+
+  /// The same, denied or off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsNotificationsOff;
+
+  /// The section label over the inline three-valued control. §13 keeps it inline because it is one setting with an instantly visible result.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
+
+  /// Follows the OS.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsThemeSystem;
+
+  /// Always light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// Always dark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
+  /// Pushes the about screen, with the version as its value.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAboutRow;
+
+  /// §13's language row. Its VALUE is the language's own name, never translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguageRow;
 }
 
 class _AppLocalizationsDelegate

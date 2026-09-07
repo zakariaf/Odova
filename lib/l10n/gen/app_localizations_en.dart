@@ -2216,4 +2216,70 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fuelEmptyBody =>
       'Your first consumption figure arrives at your second full tank.';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsBackupRow => 'Backup & restore';
+
+  @override
+  String get settingsBackupNever => 'You’ve never made a backup.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'Last backup $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed => 'Odova couldn’t finish updating.';
+
+  @override
+  String get settingsVehiclesRow => 'Vehicles';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText vehicles',
+      one: '$nText vehicle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'Units & formats';
+
+  @override
+  String get settingsNotificationsRow => 'Notifications';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'On';
+
+  @override
+  String get settingsNotificationsOff => 'Off';
+
+  @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get settingsThemeSystem => 'System';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsAboutRow => 'About';
+
+  @override
+  String get settingsLanguageRow => 'Language';
 }

@@ -2231,4 +2231,72 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get fuelEmptyBody =>
       'Ihr erster Verbrauchswert erscheint bei der zweiten vollen Tankfüllung.';
+
+  @override
+  String get settingsTitle => 'Einstellungen';
+
+  @override
+  String get settingsBackupRow => 'Sicherung & Wiederherstellung';
+
+  @override
+  String get settingsBackupNever =>
+      'Sie haben noch nie eine Sicherung erstellt.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'Letzte Sicherung $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed =>
+      'Odova konnte die Aktualisierung nicht abschließen.';
+
+  @override
+  String get settingsVehiclesRow => 'Fahrzeuge';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText Fahrzeuge',
+      one: '$nText Fahrzeug',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'Einheiten & Formate';
+
+  @override
+  String get settingsNotificationsRow => 'Benachrichtigungen';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'An';
+
+  @override
+  String get settingsNotificationsOff => 'Aus';
+
+  @override
+  String get settingsAppearance => 'Darstellung';
+
+  @override
+  String get settingsThemeSystem => 'System';
+
+  @override
+  String get settingsThemeLight => 'Hell';
+
+  @override
+  String get settingsThemeDark => 'Dunkel';
+
+  @override
+  String get settingsAboutRow => 'Über';
+
+  @override
+  String get settingsLanguageRow => 'Sprache';
 }

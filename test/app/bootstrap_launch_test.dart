@@ -11,6 +11,7 @@
 // not run its timers, and the symptom is a test that hangs for ten minutes
 // rather than one that fails. What the app DOES with the facts is a widget
 // question and is asked with the facts injected.
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart' show Variable;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -292,6 +293,14 @@ void main() {
         retry: noProviderRetry,
         overrides: [
           launchFactsProvider.overrideWith((ref) => ref.watch(provider)),
+          // The clock, because the destination this test paints is now a real
+          // screen rather than a placeholder — `settings` reads what day it is
+          // to say how old the last backup is. `bootstrap()` supplies it in
+          // production; a test that pumps `OdovaApp` supplies its own, which
+          // is what `clockProvider`'s refusal to default exists to force.
+          clockProvider.overrideWithValue(
+            Clock.fixed(DateTime.utc(2026, 9, 7, 12)),
+          ),
         ],
       );
       addTearDown(container.dispose);

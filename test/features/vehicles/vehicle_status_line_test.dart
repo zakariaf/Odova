@@ -28,6 +28,7 @@ import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/vehicles/garage_status.dart';
 import 'package:odova/features/vehicles/vehicle_status_line.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/relative_past_text.dart';
 
 Vehicle _vehicle({DistanceUnit? unit}) => Vehicle(
   id: VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA')!,

@@ -3290,5 +3290,103 @@
   "fuelEmptyBody": "Your first consumption figure arrives at your second full tank.",
   "@fuelEmptyBody": {
     "description": "The sentence under §12's `costs.fuel` empty title. It states the MECHANISM — consumption is measured between two full tanks, so one fill-up is not enough — because a Calm empty state is allowed to explain why the screen is empty rather than only that it is."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "SPEC.md §13's tab-4 title."
+  },
+  "settingsBackupRow": "Backup & restore",
+  "@settingsBackupRow": {
+    "description": "§13's FIRST row, in its own group, above Vehicles — because the person who needs Export is standing in a phone shop with a dead handset in their pocket. German is the width constraint for the whole screen and this is the string that sets it."
+  },
+  "settingsBackupNever": "You’ve never made a backup.",
+  "@settingsBackupNever": {
+    "description": "§13's never-exported state. Amber text with an amber dot: the only row in the app that changes colour."
+  },
+  "settingsBackupLast": "Last backup {date} — {ago}",
+  "@settingsBackupLast": {
+    "description": "The exported state. Both the DATE and the age, as the reference draws it — §13's table shows only the age, and the date is what a user checks against their own memory of when they last did it.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsBackupMigrationFailed": "Odova couldn’t finish updating.",
+  "@settingsBackupMigrationFailed": {
+    "description": "§13's migration-failed state. Red, and the app opened on `settings.backup`."
+  },
+  "settingsVehiclesRow": "Vehicles",
+  "@settingsVehiclesRow": {
+    "description": "Pushes the garage."
+  },
+  "settingsVehicleCount": "{n, plural, one{{nText} vehicle} other{{nText} vehicles}}",
+  "@settingsVehicleCount": {
+    "description": "The Vehicles subtitle beyond three, where the reference's list of names stops fitting. `nText` is pre-shaped; a bare int renders Latin digits in four locales.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      },
+      "nText": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "settingsUnitsRow": "Units & formats",
+  "@settingsUnitsRow": {
+    "description": "§13's units screen. `Einheiten & Formate` is the second-longest label and wraps rather than truncating."
+  },
+  "settingsNotificationsRow": "Notifications",
+  "@settingsNotificationsRow": {
+    "description": "§13's notifications screen."
+  },
+  "settingsNotificationsValue": "{state} · {time}",
+  "@settingsNotificationsValue": {
+    "description": "The row's value — `On · 09:00`. Two facts joined, so the ORDER is a translation decision rather than a Dart concatenation.",
+    "placeholders": {
+      "state": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsNotificationsOn": "On",
+  "@settingsNotificationsOn": {
+    "description": "The OS permission state, in a word."
+  },
+  "settingsNotificationsOff": "Off",
+  "@settingsNotificationsOff": {
+    "description": "The same, denied or off."
+  },
+  "settingsAppearance": "Appearance",
+  "@settingsAppearance": {
+    "description": "The section label over the inline three-valued control. §13 keeps it inline because it is one setting with an instantly visible result."
+  },
+  "settingsThemeSystem": "System",
+  "@settingsThemeSystem": {
+    "description": "Follows the OS."
+  },
+  "settingsThemeLight": "Light",
+  "@settingsThemeLight": {
+    "description": "Always light."
+  },
+  "settingsThemeDark": "Dark",
+  "@settingsThemeDark": {
+    "description": "Always dark."
+  },
+  "settingsAboutRow": "About",
+  "@settingsAboutRow": {
+    "description": "Pushes the about screen, with the version as its value."
+  },
+  "settingsLanguageRow": "Language",
+  "@settingsLanguageRow": {
+    "description": "§13's language row. Its VALUE is the language's own name, never translated."
   }
 }

@@ -72,3 +72,58 @@ enums have drifted, which is a bug that must crash in debug rather than become
 instead: the settings row deleted, so the targeted UPDATE matches zero rows
 and reports `NotFound`. It asserts on `setLanguage`, which is text-affecting —
 the one arm where the gate could fire for a write that did not happen.
+
+## Task 14.2 — the `settings` tab root
+
+Built `lib/features/settings/application/settings_root_model.dart` and
+`presentation/settings_screen.dart`, plus `lib/app/app_version.dart`. The
+route now renders the real screen; tab 4's root was EPIC-08's placeholder.
+
+Backup & restore is the first row and **alone in its group**, and the test
+asserts the first `CalmRowGroup` holds exactly one row — that is the assertion
+that stops the next epic appending a preference above it. §13 gives the reason
+and it is the shape of the whole screen: the person who needs Export is
+standing in a phone shop with a dead handset in their pocket.
+
+**Three lifts, all for the same reason** — `structure_test.dart` refuses one
+feature importing another, and each helper now has a second caller:
+
+- `formatDaysAgo` → `lib/l10n/relative_past_text.dart` (the garage,
+  `vehicle.edit`, and now the backup row). The first duplicate of it forced
+  `'en'` with Latin numerals, so one reading read `۴ ماه پیش` in the garage
+  and `4 months ago` one tap away.
+- `formatMinutesOfDay` added to `date_format.dart`, through ICU's `Hm`
+  skeleton so 12- vs 24-hour is the LOCALE's decision. A hand-rolled
+  `'$h:$m'` would have shipped 24-hour time to every American user of a screen
+  whose job is telling them when a notification arrives.
+- `kAppVersion` as a constant with a test against `pubspec.yaml`, rather than
+  `package_info_plus` — a plugin with a native side on both platforms, for one
+  string this repo already knows at build time.
+
+**A shared-component change, and the two narrower fixes the tests rejected.**
+`CalmListRow`'s value had no width bound. That is fine while every value is
+`1.4.0` or `On · 09:00` and is not fine in Persian: the screen overflowed by
+26 pixels the first time it drew `اعلان‌ها` beside `روشن · ۹:۰۰`. A `Flexible`
+on the end block makes it a flex sibling of the title and moves where text
+wraps on EVERY row in the app — eleven vehicle tests and two row goldens went
+red. A ceiling on the whole end block starves `end` and the chevron, which are
+fixed-size and were never the problem. What landed is a ceiling on the value
+alone: short values keep their natural size, the long one wraps, and §13's
+"never truncate" holds. All 95 goldens still pass.
+
+**Two divergences from §13's prose, both to the reference:**
+
+1. The Vehicles subtitle NAMES the vehicles (`Golf, Transit, CB500X`) rather
+   than counting them. §13's plural survives for a garage of four or more,
+   where the line stops fitting on the narrowest phone.
+2. The backup line carries the date AND the age — §13's table shows only the
+   age, and the two answer different questions: one is checked against memory,
+   the other against urgency.
+
+`clockProvider` refuses to default, so `bootstrap_launch_test.dart` now
+supplies one: the failed-migration path paints a real screen that asks what
+day it is, where it used to paint a placeholder that asked nothing.
+
+**Deferred.** The parity capture, per §6a. The app bar's bell glyph in the
+reference — §7's edge table is the authority for navigation and it declares no
+destination for it, so an undeclared edge is worse than an unexplained glyph.

@@ -2218,4 +2218,71 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get fuelEmptyBody => 'یەکەم ژمارەی خەرجکردنت لە دووەم تانکی پڕدا دێت.';
+
+  @override
+  String get settingsTitle => 'ڕێکخستنەکان';
+
+  @override
+  String get settingsBackupRow => 'پاڵپشت و گەڕاندنەوە';
+
+  @override
+  String get settingsBackupNever => 'هەرگیز پاڵپشتێکت دروست نەکردووە.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'دوایین پاڵپشت $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed =>
+      'ئۆدۆڤا نەیتوانی نوێکردنەوە تەواو بکات.';
+
+  @override
+  String get settingsVehiclesRow => 'ئۆتۆمبێلەکان';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ئۆتۆمبێل',
+      one: '$nText ئۆتۆمبێل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'یەکە و شێوازەکان';
+
+  @override
+  String get settingsNotificationsRow => 'ئاگادارکردنەوەکان';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'کارا';
+
+  @override
+  String get settingsNotificationsOff => 'ناکارا';
+
+  @override
+  String get settingsAppearance => 'ڕوخسار';
+
+  @override
+  String get settingsThemeSystem => 'سیستەم';
+
+  @override
+  String get settingsThemeLight => 'ڕووناک';
+
+  @override
+  String get settingsThemeDark => 'تاریک';
+
+  @override
+  String get settingsAboutRow => 'دەربارە';
+
+  @override
+  String get settingsLanguageRow => 'زمان';
 }

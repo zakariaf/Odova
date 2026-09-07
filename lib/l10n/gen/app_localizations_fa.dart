@@ -2211,4 +2211,71 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get fuelEmptyBody =>
       'نخستین عدد مصرف شما در دومین باک پر به دست می‌آید.';
+
+  @override
+  String get settingsTitle => 'تنظیمات';
+
+  @override
+  String get settingsBackupRow => 'پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get settingsBackupNever => 'هرگز پشتیبانی نگرفته‌اید.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'آخرین پشتیبان $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed =>
+      'اودووا نتوانست به‌روزرسانی را کامل کند.';
+
+  @override
+  String get settingsVehiclesRow => 'خودروها';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خودرو',
+      one: '$nText خودرو',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'یکاها و قالب‌ها';
+
+  @override
+  String get settingsNotificationsRow => 'اعلان‌ها';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'روشن';
+
+  @override
+  String get settingsNotificationsOff => 'خاموش';
+
+  @override
+  String get settingsAppearance => 'ظاهر';
+
+  @override
+  String get settingsThemeSystem => 'سیستم';
+
+  @override
+  String get settingsThemeLight => 'روشن';
+
+  @override
+  String get settingsThemeDark => 'تیره';
+
+  @override
+  String get settingsAboutRow => 'درباره';
+
+  @override
+  String get settingsLanguageRow => 'زبان';
 }

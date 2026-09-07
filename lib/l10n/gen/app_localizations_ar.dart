@@ -2347,4 +2347,75 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fuelEmptyBody => 'يظهر أول رقم استهلاك عند ثاني خزان ممتلئ.';
+
+  @override
+  String get settingsTitle => 'الإعدادات';
+
+  @override
+  String get settingsBackupRow => 'النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get settingsBackupNever => 'لم تنشئ نسخة احتياطية قط.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'آخر نسخة احتياطية $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed =>
+      'لم تتمكن أودوفا من إكمال التحديث.';
+
+  @override
+  String get settingsVehiclesRow => 'المركبات';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مركبةٍ',
+      many: '$nText مركبةً',
+      few: '$nText مركبات',
+      two: 'مركبتان',
+      one: 'مركبة واحدة',
+      zero: '$nText مركبةٍ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'الوحدات والتنسيقات';
+
+  @override
+  String get settingsNotificationsRow => 'الإشعارات';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'مفعّل';
+
+  @override
+  String get settingsNotificationsOff => 'معطّل';
+
+  @override
+  String get settingsAppearance => 'المظهر';
+
+  @override
+  String get settingsThemeSystem => 'النظام';
+
+  @override
+  String get settingsThemeLight => 'فاتح';
+
+  @override
+  String get settingsThemeDark => 'داكن';
+
+  @override
+  String get settingsAboutRow => 'حول';
+
+  @override
+  String get settingsLanguageRow => 'اللغة';
 }
