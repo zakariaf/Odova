@@ -27,7 +27,7 @@ Future<void> captureVehicles(WidgetTester tester, ParityCase config) async {
     // bar's ten icons and labels as edges that are simply absent.
     tab: 3,
     child: vehiclesBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
   );

@@ -6,7 +6,10 @@
 //
 // Bottom chrome comes from MediaQuery.paddingOf, never from `--homebar-h`:
 // that token is specimen-sheet chrome and is 0 on most Android hardware.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -306,7 +309,8 @@ class CalmAppBar extends StatelessWidget {
        startIcon = null,
        onStart = null,
        endLabel = null,
-       onEnd = null;
+       onEnd = null,
+       _pushed = false;
 
   /// The standard bar with `.appbar__lead` — a pushed screen's way back.
   ///
@@ -316,23 +320,33 @@ class CalmAppBar extends StatelessWidget {
   /// Each of those screens passed its own parity test, because a missing
   /// element is a band edge nobody was comparing against anything.
   ///
-  /// [startLabel] is required and not defaulted. A bare glyph announced as
-  /// "button" is the only way off a screen, unnamed — the same reason
-  /// [CalmAppBar.modal]'s ✕ carries `commonClose` — and a default here would
-  /// be an English word in five languages that do not share it.
+  /// It takes no label and no callback. Both were parameters first, and all
+  /// eleven call sites passed `l10n.commonBack` and
+  /// `Navigator.of(context).maybePop()` — one decision spelled out eleven
+  /// times, in a widget that has a `BuildContext` and can make it once. The
+  /// twelfth pushed screen could have passed `commonClose`, or a `pop()` that
+  /// throws on the last route where the other ten call `maybePop()`.
+  ///
+  /// The lead is still OPT-IN, and deliberately not derived from
+  /// `Navigator.canPop()`. The question it answers is "does this screen draw
+  /// `.appbar__lead`", which is a fact about `screens.html` and not about the
+  /// navigator: a modal is poppable and draws ✕ rather than ←, a first-run step
+  /// may be poppable and must offer no way back, and the four tab roots are
+  /// non-poppable only because of how the shell nests its navigators today.
   const CalmAppBar.pushed({
     required this.title,
-    required String this.startLabel,
-    required VoidCallback this.onStart,
     super.key,
     this.actions = const [],
   }) : shape = CalmAppBarShape.standard,
        subtitle = null,
        titleWidget = null,
        onTapVehicle = null,
+       startLabel = null,
        startIcon = null,
+       onStart = null,
        endLabel = null,
-       onEnd = null;
+       onEnd = null,
+       _pushed = true;
 
   /// The two-line bar: `type.titleLg` over an optional caption.
   const CalmAppBar.large({
@@ -347,7 +361,8 @@ class CalmAppBar extends StatelessWidget {
        startIcon = null,
        onStart = null,
        endLabel = null,
-       onEnd = null;
+       onEnd = null,
+       _pushed = false;
 
   /// The vehicle bar. The chevron exists only because this constructor was
   /// chosen — SPEC.md §9: with one vehicle the name is plain text.
@@ -363,7 +378,8 @@ class CalmAppBar extends StatelessWidget {
        startIcon = null,
        onStart = null,
        endLabel = null,
-       onEnd = null;
+       onEnd = null,
+       _pushed = false;
 
   /// The modal head: Cancel, title, Save (SPEC.md §10).
   ///
@@ -382,7 +398,14 @@ class CalmAppBar extends StatelessWidget {
        titleWidget = null,
        onTapVehicle = null,
        subtitle = null,
-       actions = const [];
+       actions = const [],
+       _pushed = false;
+
+  /// Whether this bar draws `.appbar__lead` — a pushed screen's way back.
+  ///
+  /// A flag rather than a callback, because the callback was the same at every
+  /// call site. See [CalmAppBar.pushed].
+  final bool _pushed;
 
   /// The screen's name, already localised.
   final String title;
@@ -559,10 +582,13 @@ class CalmAppBar extends StatelessWidget {
             // gives the four tab roots nothing behind them, so a bar that grew
             // an arrow unconditionally would put a dead control on `home`,
             // `history`, `costs` and `settings`.
-            if (onStart case final onStart?)
+            if (_pushed)
               CalmAppBarAction(
-                label: startLabel!,
-                onTap: onStart,
+                // LABELLED. A bare glyph announced as "button" is the only way
+                // off a screen, unnamed — the same reason [CalmAppBar.modal]'s
+                // ✕ carries `commonClose`.
+                label: AppLocalizations.of(context).commonBack,
+                onTap: () => unawaited(Navigator.of(context).maybePop()),
                 icon: Icons.arrow_back,
                 directional: true,
               ),

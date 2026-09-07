@@ -165,11 +165,19 @@ class DecimalFieldFormatter extends TextInputFormatter {
 /// §10: "On blur the field re-renders canonically in the active numbering
 /// system." Unchanged when it cannot be read, because replacing what the user
 /// typed with the app's guess about it is how a mis-parse becomes permanent.
+///
+/// GROUPED, which is `formatForDisplay`'s default. This shipped with
+/// `grouped: false` and a comment arguing that a separator appearing while you
+/// type moves the caret out from under your thumb — true, and describing a
+/// state this function is never in: a figure being typed never passes through
+/// here, because the field shows the controller's raw text and
+/// `DecimalFieldFormatter` guards the keystrokes. "Canonical display" and "on
+/// blur" are the same event in §10, and `log.fillup`'s artboard reads
+/// `187,412`.
 String canonicalDisplay(
   String raw,
   String formatsTag, {
   required int decimals,
-  bool grouped = false,
 }) {
   final read = parseDecimal(
     raw,
@@ -181,11 +189,5 @@ String canonicalDisplay(
     formatsTag,
     numerals: CalmNumerals.auto,
     decimalDigits: decimals,
-    // A figure being EDITED is not grouped: a separator that appears while you
-    // type moves the caret out from under your thumb. That reason is about the
-    // CARET, and on blur there is no caret — which is why [grouped] exists and
-    // why the one caller §10 sanctions, the odometer field's blur, passes true.
-    // `log.fillup`'s artboard reads `187,412`, and it is right to.
-    grouped: grouped,
   );
 }

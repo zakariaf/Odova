@@ -21,7 +21,7 @@ Future<void> captureSettingsLanguage(
     config: config,
     tab: 3,
     child: settingsBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
       child: const SettingsLanguageScreen(),
     ),

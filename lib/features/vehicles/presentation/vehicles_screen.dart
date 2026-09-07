@@ -65,8 +65,6 @@ class VehiclesScreen extends ConsumerWidget {
 
     return CalmScaffold(
       appBar: CalmAppBar.pushed(
-        startLabel: l10n.commonBack,
-        onStart: () => Navigator.of(context).maybePop(),
         title: l10n.vehiclesTitle,
         actions: [
           // §8: "**+** in the app bar → `vehicle.edit`, create mode. On Save

@@ -19,7 +19,7 @@ Future<void> captureLogOdometer(WidgetTester tester, ParityCase config) async {
     config: config,
     child: logBackdrop(
       type: LogType.odometer,
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
     // Tapped, not typed: this screen has no `TextField` at all — §10 gives

@@ -54,8 +54,6 @@ class BackupScreen extends ConsumerWidget {
     return CalmScaffold(
       appBar: CalmAppBar.pushed(
         title: l10n.backupTitle,
-        startLabel: l10n.commonBack,
-        onStart: () => Navigator.of(context).maybePop(),
       ),
       children: [
         // Above everything, because §6 §3.3 says the app may have opened HERE

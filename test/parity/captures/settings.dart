@@ -19,7 +19,7 @@ Future<void> captureSettings(WidgetTester tester, ParityCase config) async {
     config: config,
     tab: 3,
     child: settingsBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
       child: const SettingsScreen(),
     ),

@@ -24,7 +24,7 @@ Future<void> captureDialogConfirmdelete(
     // ten labels' worth of band edges the check could never find.
     tab: 3,
     child: vehiclesBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
     overlay: const ConfirmDeleteOverlay(),

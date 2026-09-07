@@ -6,7 +6,6 @@
 // colour that is actually drawn.
 
 import 'package:clock/clock.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -115,7 +114,7 @@ Future<void> captureRemindersList(
   WidgetTester tester,
   ParityCase config,
 ) async {
-  final rtl = config.dir == 'rtl';
+  final rtl = isRtl(config);
   final catalogue = _catalogue(rtl: rtl);
 
   await captureParity(
@@ -150,12 +149,9 @@ Future<void> captureRemindersList(
         clockProvider.overrideWithValue(
           Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
         ),
-        deviceLocalesProvider.overrideWithValue([
-          Locale(
-            config.locale.languageCode,
-            config.locale.languageCode == 'en' ? 'GB' : 'DE',
-          ),
-        ]),
+        deviceLocalesProvider.overrideWithValue(
+          artboardDeviceLocales(config.locale),
+        ),
       ],
       child: const RemindersListScreen(),
     ),

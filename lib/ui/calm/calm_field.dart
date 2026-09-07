@@ -73,6 +73,7 @@ class CalmField extends StatefulWidget {
     this.inputFormatters,
     this.onChanged,
     this.onSubmitted,
+    this.onBlur,
   });
 
   /// Sits ABOVE the field, not beside it: German `Kraftstoffart` and Sorani
@@ -160,6 +161,16 @@ class CalmField extends StatefulWidget {
   /// Passed straight through.
   final ValueChanged<String>? onSubmitted;
 
+  /// Called when the field LOSES focus.
+  ///
+  /// SPEC.md §10: "on blur the field re-renders canonically in the active
+  /// numbering system." That is a rule about every numeric field on every log
+  /// form — the odometer, the litres, the money — so the seam belongs here,
+  /// where the focus node already lives, rather than in one screen's widget.
+  /// `OdometerField` grew its own node and its own listener first, which meant
+  /// a second `FocusNode` observing the one this widget already owns.
+  final VoidCallback? onBlur;
+
   @override
   State<CalmField> createState() => _CalmFieldState();
 }
@@ -204,7 +215,11 @@ class _CalmFieldState extends State<CalmField> {
   }
 
   void _handleFocusChange() {
-    if (_focused != _node.hasFocus) setState(() => _focused = _node.hasFocus);
+    if (_focused == _node.hasFocus) return;
+    setState(() => _focused = _node.hasFocus);
+    // AFTER the state is settled, so a callback that rewrites the controller
+    // is writing into a field that already knows it is unfocused.
+    if (!_focused) widget.onBlur?.call();
   }
 
   @override

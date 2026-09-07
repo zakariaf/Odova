@@ -21,7 +21,7 @@ Future<void> captureTripsEdit(WidgetTester tester, ParityCase config) async {
     screen: 'trips.edit',
     config: config,
     child: tripsBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
       child: TripsEditScreen(tripId: artboardOpenTripId),
     ),

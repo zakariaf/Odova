@@ -45,8 +45,6 @@ class SettingsLanguageScreen extends ConsumerWidget {
     return CalmScaffold(
       appBar: CalmAppBar.pushed(
         title: l10n.settingsLanguageRow,
-        startLabel: l10n.commonBack,
-        onStart: () => Navigator.of(context).maybePop(),
       ),
       children: [
         LanguageRowList(

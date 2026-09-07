@@ -26,6 +26,7 @@ import 'package:odova/features/home/ui/home_screen.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
 import '../../features/home/home_fixture.dart';
+import 'parity_capture.dart';
 
 /// The four items the artboard draws, in the order it draws them.
 ///
@@ -126,12 +127,9 @@ Widget homeBackdrop({
     // "2 September" and the numbers group with commas, which is `en-GB`.
     // The non-Latin cases take a continental region for the same reason
     // `vehicles`' capture does.
-    deviceLocalesProvider.overrideWithValue([
-      Locale(
-        locale.languageCode,
-        locale.languageCode == 'en' ? 'GB' : 'DE',
-      ),
-    ]),
+    deviceLocalesProvider.overrideWithValue(
+      artboardDeviceLocales(locale),
+    ),
   ],
   child: const HomeScreen(),
 );

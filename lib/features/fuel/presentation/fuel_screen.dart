@@ -59,8 +59,6 @@ class FuelScreen extends ConsumerWidget {
     return CalmScaffold(
       appBar: CalmAppBar.pushed(
         title: l10n.fuelTitle,
-        startLabel: l10n.commonBack,
-        onStart: () => Navigator.of(context).maybePop(),
       ),
       children: [
         if (state.isEmpty || insights == null)

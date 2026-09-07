@@ -24,7 +24,7 @@ Future<void> captureHome(WidgetTester tester, ParityCase config) async {
     config: config,
     tab: 0,
     child: homeBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
   );

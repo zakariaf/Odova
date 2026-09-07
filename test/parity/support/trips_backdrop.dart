@@ -11,25 +11,17 @@
 /// it is the user's own words — but a capture has to compare like with like.
 library;
 
-import 'package:clock/clock.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:odova/app/active_vehicle.dart';
-import 'package:odova/app/providers.dart';
-import 'package:odova/app/today.dart';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/money/money_total.dart';
-import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/trips/trip_aggregates.dart';
 import 'package:odova/core/units/distance.dart';
-import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/trips/application/trips_list_model.dart';
-import 'package:odova/l10n/locale_controller.dart';
 
 import 'settings_backdrop.dart';
 import 'vehicles_backdrop.dart';
@@ -123,34 +115,19 @@ TripsListModel artboardTrips({required bool rtl}) => TripsListModel(
 String get artboardOpenTripId => 'trp_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 
 /// [child] under the artboard's trips, ready to be a capture's `child`.
+///
+/// Through [settingsBackdrop], for the reason `fuelBackdrop` gives: one
+/// household, one garage, one capture day, in one place.
 Widget tripsBackdrop({
   required bool rtl,
   required Locale locale,
   required Widget child,
-}) => ProviderScope(
-  overrides: <Override>[
-    tripsListProvider.overrideWith(
-      (ref, vehicleId) => artboardTrips(rtl: rtl),
-    ),
-    settingsProvider.overrideWith(
-      (ref) => Stream.value(settingsFixture(language: locale.languageCode)),
-    ),
-    vehiclesProvider.overrideWith(
-      (ref) => Stream.value(artboardGarage(rtl: rtl, includeSold: false)),
-    ),
+}) => settingsBackdrop(
+  rtl: rtl,
+  locale: locale,
+  extra: [
+    tripsListProvider.overrideWith((ref, vehicleId) => artboardTrips(rtl: rtl)),
     activeVehicleIdProvider.overrideWithValue(artboardGolfId),
-    clockProvider.overrideWithValue(Clock.fixed(kSettingsCaptureDay)),
-    todayProvider.overrideWith(_CaptureToday.new),
-    deviceLocalesProvider.overrideWithValue([
-      Locale(locale.languageCode, locale.languageCode == 'en' ? 'GB' : 'DE'),
-    ]),
   ],
   child: child,
 );
-
-/// `trips.edit` dates its form from today, and `todayProvider` is null until
-/// something sets it — which draws a form with no date at all.
-class _CaptureToday extends Today {
-  @override
-  CivilDate? build() => CivilDate.fromDateTime(kSettingsCaptureDay);
-}

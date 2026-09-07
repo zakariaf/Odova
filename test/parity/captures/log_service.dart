@@ -18,7 +18,7 @@ Future<void> captureLogService(WidgetTester tester, ParityCase config) async {
     config: config,
     child: logBackdrop(
       type: LogType.service,
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
     // The odometer the artboard shows, TYPED. §10 is explicit that this

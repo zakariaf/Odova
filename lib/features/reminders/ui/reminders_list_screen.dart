@@ -54,8 +54,6 @@ class RemindersListScreen extends ConsumerWidget {
       return CalmScaffold(
         appBar: CalmAppBar.pushed(
           title: l10n.remindersTitle,
-          startLabel: l10n.commonBack,
-          onStart: () => Navigator.of(context).maybePop(),
         ),
         children: const [],
       );
@@ -69,8 +67,6 @@ class RemindersListScreen extends ConsumerWidget {
 
     return CalmScaffold(
       appBar: CalmAppBar.pushed(
-        startLabel: l10n.commonBack,
-        onStart: () => Navigator.of(context).maybePop(),
         title: l10n.remindersTitle,
         actions: [
           CalmAppBarAction(

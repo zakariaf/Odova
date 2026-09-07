@@ -73,7 +73,7 @@ String odometerDeltaLine(
 );
 
 /// The shared odometer field.
-class OdometerField extends StatefulWidget {
+class OdometerField extends StatelessWidget {
   /// Creates the field.
   const OdometerField({
     required this.controller,
@@ -132,67 +132,6 @@ class OdometerField extends StatefulWidget {
   final ValueChanged<DistanceUnit> onUnitChanged;
 
   @override
-  State<OdometerField> createState() => _OdometerFieldState();
-}
-
-/// §10: "On blur the field re-renders canonically in the active numbering
-/// system." That sentence had a function — `canonicalDisplay` — with tests and
-/// ZERO callers, until EPIC-18's sweep put `log.fillup` beside its reference
-/// and the app read `187412` where the artboard reads `187,412`.
-///
-/// It is the field §10 makes mandatory on every form, typed one-handed at a
-/// pump in the rain, and an ungrouped six-digit number is where a mistyped
-/// digit is easiest to make and hardest to see. The grouping is what makes it
-/// visible.
-///
-/// Stateful because a blur is a lifecycle: the focus node has to be created,
-/// listened to and disposed. The controller stays the screen's; this only
-/// rewrites what is already in it.
-class _OdometerFieldState extends State<OdometerField> {
-  final FocusNode _focus = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _focus.addListener(_onFocusChanged);
-  }
-
-  @override
-  void dispose() {
-    _focus
-      ..removeListener(_onFocusChanged)
-      ..dispose();
-    super.dispose();
-  }
-
-  void _onFocusChanged() {
-    if (_focus.hasFocus) return;
-
-    final raw = widget.controller.text;
-    // Unchanged when the parser cannot read it. Replacing what somebody typed
-    // with the app's guess about it is how a mis-parse becomes permanent, and
-    // §10 says exactly that in one line.
-    final shaped = canonicalDisplay(
-      raw,
-      widget.formatsTag,
-      decimals: 0,
-      // GROUPED, which is the whole point. Six ungrouped digits is where a
-      // mistyped one is hardest to see, and the caret this function's default
-      // protects is gone by the time a blur runs.
-      grouped: true,
-    );
-    if (shaped == raw) return;
-
-    widget.controller.value = TextEditingValue(
-      text: shaped,
-      selection: TextSelection.collapsed(offset: shaped.length),
-    );
-    // The screen holds the typed string too, and a re-render it was not told
-    // about is a draft that disagrees with the field showing it.
-    widget.onChanged(shaped);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final space = CalmSpace.of(context);
@@ -202,17 +141,17 @@ class _OdometerFieldState extends State<OdometerField> {
     // and `_lastBefore` filters and sorts the whole reading history. Between
     // them they ran up to six times per frame, on every keystroke, for one
     // answer that cannot change within a build.
-    final separator = groupingSeparatorFor(widget.formatsTag);
+    final separator = groupingSeparatorFor(formatsTag);
     final last = _lastBefore();
     final entered = _entered(separator);
     final check = entered == null
         ? null
         : checkOdometerField(
             entered: entered,
-            occurredOn: widget.occurredOn,
-            existing: widget.existing,
-            corrections: widget.corrections,
-            vehicleUnit: widget.unit,
+            occurredOn: occurredOn,
+            existing: existing,
+            corrections: corrections,
+            vehicleUnit: unit,
           );
 
     return Column(
@@ -222,11 +161,7 @@ class _OdometerFieldState extends State<OdometerField> {
       children: [
         CalmField(
           label: l10n.logOdometerLabel,
-          controller: widget.controller,
-          // The node whose blur re-renders the figure. Handed in rather than
-          // left to `CalmField`'s own: the state has to listen to it, and a
-          // node the field creates for itself is one nothing outside can hear.
-          focusNode: _focus,
+          controller: controller,
           numeric: true,
           keyboardType: TextInputType.number,
           // No decimal, per §10's Field kit: a dash reads whole units, and a
@@ -238,17 +173,33 @@ class _OdometerFieldState extends State<OdometerField> {
             ),
           ],
           affix: _UnitChip(
-            unit: widget.unit,
-            label: distanceUnitLabel(l10n, widget.unit),
+            unit: unit,
+            label: distanceUnitLabel(l10n, unit),
             semanticLabel: l10n.logOdometerUnitChipLabel,
-            onTap: () => widget.onUnitChanged(
-              widget.unit == DistanceUnit.km
-                  ? DistanceUnit.mi
-                  : DistanceUnit.km,
+            onTap: () => onUnitChanged(
+              unit == DistanceUnit.km ? DistanceUnit.mi : DistanceUnit.km,
             ),
           ),
           errorText: _message(l10n, check, last, separator),
-          onChanged: widget.onChanged,
+          onChanged: onChanged,
+          // SPEC.md §10: "On blur the field re-renders canonically in the
+          // active numbering system." That sentence had a function —
+          // `canonicalDisplay` — with its own tests and ZERO callers, until
+          // EPIC-18's sweep put `log.fillup` beside its reference and the app
+          // read `187412` where the artboard reads `187,412`.
+          //
+          // It is the field §10 makes mandatory on every form, typed
+          // one-handed at a pump in the rain, and an ungrouped six-digit
+          // number is where a mistyped digit is easiest to make and hardest to
+          // see. The grouping is what makes it visible.
+          //
+          // Through `CalmField.onBlur` and NOT a `FocusNode` of this widget's
+          // own. The field already creates, listens to and disposes one; a
+          // second node observing the first is two objects for one event, and
+          // it made this widget stateful for nothing. §10 applies the same
+          // rule to litres, price and money, and those fields can now reach it
+          // without repeating any of this.
+          onBlur: _reRenderCanonically,
         ),
         // ONE ROW: the two helper lines on the start side, the estimate chip on
         // the end. The artboard draws them that way and the first version
@@ -263,10 +214,10 @@ class _OdometerFieldState extends State<OdometerField> {
             ),
             if (_offersEstimate)
               _EstimateChip(
-                estimate: widget.estimate!,
-                unit: widget.unit,
-                formatsTag: widget.formatsTag,
-                onTap: () => _fill(widget.estimate!),
+                estimate: estimate!,
+                unit: unit,
+                formatsTag: formatsTag,
+                onTap: () => _fill(estimate!),
               ),
           ],
         ),
@@ -278,8 +229,7 @@ class _OdometerFieldState extends State<OdometerField> {
 
   /// §10 withdraws the chip past 60 days rather than offering a stale guess.
   bool get _offersEstimate =>
-      widget.estimate != null &&
-      widget.estimateStaleDays <= kOdometerEstimateMaxStaleDays;
+      estimate != null && estimateStaleDays <= kOdometerEstimateMaxStaleDays;
 
   /// The typed value as a distance, or null when it is not one yet.
   ///
@@ -292,11 +242,30 @@ class _OdometerFieldState extends State<OdometerField> {
   /// the largest number the user has ever typed as the vehicle's earliest
   /// reading. `DecimalFieldFormatter(decimals: 0)` accepts arbitrarily many
   /// digits, so the field is reachable.
+  /// Rewrites the controller in the locale's own digits, grouped.
+  ///
+  /// Unchanged when the parser cannot read it: replacing what somebody typed
+  /// with the app's guess about it is how a mis-parse becomes permanent, and
+  /// §10 says exactly that in one line.
+  void _reRenderCanonically() {
+    final raw = controller.text;
+    final shaped = canonicalDisplay(raw, formatsTag, decimals: 0);
+    if (shaped == raw) return;
+
+    controller.value = TextEditingValue(
+      text: shaped,
+      selection: TextSelection.collapsed(offset: shaped.length),
+    );
+    // The screen holds the typed string too, and a re-render it was not told
+    // about is a draft that disagrees with the field showing it.
+    onChanged(shaped);
+  }
+
   Distance? _entered(String separator) {
     final metres = OdometerEntry(
-      unit: widget.unit,
+      unit: unit,
       groupingSeparator: separator,
-      text: widget.controller.text,
+      text: controller.text,
     ).metres;
     return metres == null ? null : Distance(metres);
   }
@@ -305,8 +274,8 @@ class _OdometerFieldState extends State<OdometerField> {
     // The value in the FIELD's unit, ungrouped and unmarked. Once it is in the
     // field it is a number the user has accepted; the `~` belonged to the
     // offer, not to the answer.
-    widget.controller.text = '${value.inUnit(widget.unit).round()}';
-    widget.onChanged(widget.controller.text);
+    controller.text = '${value.inUnit(unit).round()}';
+    onChanged(controller.text);
   }
 
   /// The helper block: what was last entered, and how far this entry is above
@@ -340,16 +309,16 @@ class _OdometerFieldState extends State<OdometerField> {
     ReadingPoint? last,
   ) {
     if (last == null) return null;
-    final date = formatDayMonth(last.occurredOn, widget.formatsTag);
+    final date = formatDayMonth(last.occurredOn, formatsTag);
     final since = check is OdometerFieldOk ? check.sinceLast : null;
     if (since == null) return date;
     return l10n.logOdometerSince(
       date,
       isolate(
         withUnitUnisolated(
-          since.inUnit(widget.unit),
-          distanceUnitLabel(l10n, widget.unit),
-          widget.formatsTag,
+          since.inUnit(unit),
+          distanceUnitLabel(l10n, unit),
+          formatsTag,
           numerals: CalmNumerals.auto,
           decimalDigits: 0,
         ),
@@ -362,22 +331,22 @@ class _OdometerFieldState extends State<OdometerField> {
     if (last == null) return null;
 
     final distance = formatWithUnit(
-      last.odometer.inUnit(widget.unit),
-      distanceUnitLabel(l10n, widget.unit),
-      widget.formatsTag,
+      last.odometer.inUnit(unit),
+      distanceUnitLabel(l10n, unit),
+      formatsTag,
       numerals: CalmNumerals.auto,
       decimalDigits: 0,
     );
-    final date = formatLongDate(last.occurredOn, widget.formatsTag);
+    final date = formatLongDate(last.occurredOn, formatsTag);
 
-    if (widget.estimateStaleDays > kOdometerEstimateMaxStaleDays) {
+    if (estimateStaleDays > kOdometerEstimateMaxStaleDays) {
       return l10n.logOdometerLastEnteredStale(
-        widget.estimateStaleDays,
+        estimateStaleDays,
         distance,
         date,
         formatForDisplay(
-          widget.estimateStaleDays,
-          widget.formatsTag,
+          estimateStaleDays,
+          formatsTag,
           numerals: CalmNumerals.auto,
           decimalDigits: 0,
         ),
@@ -390,8 +359,8 @@ class _OdometerFieldState extends State<OdometerField> {
 
   /// The reading immediately before this entry's date, if there is one.
   ReadingPoint? _lastBefore() {
-    final earlier = widget.existing
-        .where((r) => r.occurredOn.compareTo(widget.occurredOn) <= 0)
+    final earlier = existing
+        .where((r) => r.occurredOn.compareTo(occurredOn) <= 0)
         .toList();
     if (earlier.isEmpty) return null;
     earlier.sort(compareReadings);
@@ -409,23 +378,20 @@ class _OdometerFieldState extends State<OdometerField> {
     ReadingPoint? last,
     String separator,
   ) {
-    if (widget.controller.text.trim().isEmpty) return widget.emptyMessage;
+    if (controller.text.trim().isEmpty) return emptyMessage;
     if (check is! OdometerFieldOk) return null;
     if (check.warnings.isEmpty) return null;
 
     return switch (check.warnings.first) {
       OdometerWarning.impliedRateHigh => l10n.logOdometerRateWarning(
         _ratePerDay(l10n, check, last),
-        formatLongDate(
-          last?.occurredOn ?? widget.occurredOn,
-          widget.formatsTag,
-        ),
+        formatLongDate(last?.occurredOn ?? occurredOn, formatsTag),
       ),
       OdometerWarning.jumpVeryLarge => l10n.logOdometerJumpWarning(
         withUnitUnisolated(
-          (check.sinceLast ?? Distance.zero).inUnit(widget.unit),
-          distanceUnitLabel(l10n, widget.unit),
-          widget.formatsTag,
+          (check.sinceLast ?? Distance.zero).inUnit(unit),
+          distanceUnitLabel(l10n, unit),
+          formatsTag,
           numerals: CalmNumerals.auto,
           decimalDigits: 0,
         ),
@@ -434,7 +400,7 @@ class _OdometerFieldState extends State<OdometerField> {
         formatWithUnit(
           (_entered(separator) ?? Distance.zero).inUnit(DistanceUnit.mi),
           distanceUnitLabel(l10n, DistanceUnit.mi),
-          widget.formatsTag,
+          formatsTag,
           numerals: CalmNumerals.auto,
           decimalDigits: 0,
         ),
@@ -449,11 +415,11 @@ class _OdometerFieldState extends State<OdometerField> {
   ) {
     final since = check.sinceLast;
     if (last == null || since == null) return '';
-    final days = _daysBetween(last.occurredOn, widget.occurredOn);
+    final days = _daysBetween(last.occurredOn, occurredOn);
     return formatWithUnit(
-      since.inUnit(widget.unit) / (days == 0 ? 1 : days),
-      distanceUnitLabel(l10n, widget.unit),
-      widget.formatsTag,
+      since.inUnit(unit) / (days == 0 ? 1 : days),
+      distanceUnitLabel(l10n, unit),
+      formatsTag,
       numerals: CalmNumerals.auto,
       decimalDigits: 0,
     );

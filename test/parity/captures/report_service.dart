@@ -18,7 +18,7 @@ Future<void> captureReportService(
     screen: 'report.service',
     config: config,
     child: reportBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
   );

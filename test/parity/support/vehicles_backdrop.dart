@@ -36,6 +36,7 @@ import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
 import '../../support/due_case.dart';
+import 'parity_capture.dart';
 
 const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 const _transit = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVB';
@@ -221,12 +222,9 @@ Widget vehiclesBackdrop({required bool rtl, required Locale locale}) =>
         // would draw "March 12, 2024" and be equally correct for somebody
         // else. The non-Latin cases take a continental region for the same
         // reason `vehicle.edit`'s capture does.
-        deviceLocalesProvider.overrideWithValue([
-          Locale(
-            locale.languageCode,
-            locale.languageCode == 'en' ? 'GB' : 'DE',
-          ),
-        ]),
+        deviceLocalesProvider.overrideWithValue(
+          artboardDeviceLocales(locale),
+        ),
         // SUPPLIED, never computed. The due engine reads six drift streams
         // and none of them delivers inside a widget test's fake async —
         // the capture would shoot four rows saying "Couldn't work out

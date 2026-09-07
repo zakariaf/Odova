@@ -18,7 +18,7 @@ Future<void> captureLogFillup(WidgetTester tester, ParityCase config) async {
     config: config,
     child: logBackdrop(
       type: LogType.fillUp,
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
     // The artboard's own numbers, typed the way a user types them. The

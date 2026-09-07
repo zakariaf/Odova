@@ -18,7 +18,7 @@ Future<void> captureTripsList(WidgetTester tester, ParityCase config) async {
     config: config,
     tab: 2,
     child: tripsBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
       child: const TripsListScreen(),
     ),

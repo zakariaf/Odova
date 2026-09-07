@@ -12,22 +12,16 @@
 /// a chart is for.
 library;
 
-import 'package:clock/clock.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:odova/app/active_vehicle.dart';
-import 'package:odova/app/providers.dart';
 import 'package:odova/core/fuel/fuel_insights.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/units/volume.dart';
-import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/fuel/application/fuel_notifier.dart';
 import 'package:odova/features/fuel/presentation/fuel_screen.dart';
-import 'package:odova/l10n/locale_controller.dart';
 
 import 'settings_backdrop.dart';
 import 'vehicles_backdrop.dart';
@@ -138,24 +132,20 @@ class _ArtboardFuel implements FuelRepository {
 }
 
 /// `costs.fuel` over the artboard's fills, ready to be a capture's `child`.
+///
+/// Through [settingsBackdrop] rather than repeating its overrides: the settings
+/// fixture already owns the household, the garage, the capture day and the
+/// device region, and a second copy is a second phone. The day
+/// `kSettingsCaptureDay` or `includeSold` moves, `settings` and `costs.fuel`
+/// would have photographed two different cars and both captures would still
+/// have passed.
 Widget fuelBackdrop({required bool rtl, required Locale locale}) =>
-    ProviderScope(
-      overrides: <Override>[
+    settingsBackdrop(
+      rtl: rtl,
+      locale: locale,
+      extra: [
         fuelRepositoryProvider.overrideWithValue(_ArtboardFuel()),
-        settingsProvider.overrideWith(
-          (ref) => Stream.value(settingsFixture(language: locale.languageCode)),
-        ),
-        vehiclesProvider.overrideWith(
-          (ref) => Stream.value(artboardGarage(rtl: rtl, includeSold: false)),
-        ),
         activeVehicleIdProvider.overrideWithValue(artboardGolfId),
-        clockProvider.overrideWithValue(Clock.fixed(kSettingsCaptureDay)),
-        deviceLocalesProvider.overrideWithValue([
-          Locale(
-            locale.languageCode,
-            locale.languageCode == 'en' ? 'GB' : 'DE',
-          ),
-        ]),
       ],
       child: const FuelScreen(),
     );

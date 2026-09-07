@@ -27,6 +27,7 @@ import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
+import 'parity_capture.dart';
 import 'vehicles_backdrop.dart';
 
 /// The day every settings capture is taken on.
@@ -88,7 +89,7 @@ Widget settingsBackdrop({
     // the Backup row's age line is the one thing on this screen that is not a
     // constant. Null renders the row with no age at all, which is a real state
     // — the first frame of a cold launch — and not the one the reference draws.
-    todayProvider.overrideWith(_FixedToday.new),
+    todayProvider.overrideWith(ArtboardToday.new),
     // What `bootstrap()` supplies in production; the app has no default and
     // reading it throws. `migrationFailed: false`, so the Backup row is the
     // ordinary one rather than §13's failed-migration variant.
@@ -99,16 +100,19 @@ Widget settingsBackdrop({
         migrationFailed: false,
       ),
     ),
-    deviceLocalesProvider.overrideWithValue([
-      Locale(locale.languageCode, locale.languageCode == 'en' ? 'GB' : 'DE'),
-    ]),
+    deviceLocalesProvider.overrideWithValue(
+      artboardDeviceLocales(locale),
+    ),
     ...extra,
   ],
   child: child,
 );
 
 /// A `todayProvider` that is already the capture day.
-class _FixedToday extends Today {
+///
+/// Public because `trips.edit` dates its form from today too, and a second
+/// copy is a second day the captures could disagree about.
+class ArtboardToday extends Today {
   @override
   CivilDate? build() => CivilDate.fromDateTime(kSettingsCaptureDay);
 }

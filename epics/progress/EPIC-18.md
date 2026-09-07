@@ -292,3 +292,77 @@ It is that there is now one command that photographs all 28, one table with a
 verdict per comparison, and a written record of what is wrong with names on it.
 The five defects it found had each passed a per-screen parity test for four
 epics, which is the case for the sweep existing at all.
+## `/simplify` — seventeen findings, and one that corrected the epic's own fix
+
+Four agents. The reuse and simplification passes found real duplication; the
+altitude pass found that **Task 18.5's fix was at the wrong level and had made
+the gate measurably looser**, which is the finding worth recording at length.
+
+**The phone chrome was drawn where it should have been masked.** The artboards
+draw a status bar and a home indicator; a Flutter capture draws neither, because
+on a real phone the OS paints them. Task 18.5 answered that by DRAWING them in
+the harness. `missRatio` divides by the reference's edge count — so painting a
+matching clock converts three permanently-unmatched edges into three
+permanently-matched ones. **That is a constant discount against the threshold,
+worth six points of median across the sweep, from edges that can never fail.**
+The comment I wrote — "drawing it is not a widened tolerance" — was true of
+`--band-tolerance` and false of the ratio the threshold is applied to.
+
+Excluding those rows from the scan takes them out of the numerator AND the
+denominator, so the ratio stays a statement about the screen. The median is now
+56% rather than 53%, which is the honest number and three points worse than the
+one I reported an hour earlier. It also deleted ~120 lines of simulated iOS
+chrome that had already drifted from `.statusbar`'s own typography and had cost
+two bugs of its own.
+
+**`settings.import` was shot over a `SizedBox.shrink()`.** The file's doc said
+it stacked the sheet over `settings.backup`; the code put an empty box in
+`child:` and the whole screen in `overlay:`. The `#000000` that capture reported
+— which I had graded as finding F-8, an app defect — was the void behind the
+sheet. Fixed; that comparison's colour check now passes, and F-8 is corrected in
+`findings.md` to the near-black that is actually there.
+
+**`CalmField` already owned the blur.** `OdometerField` grew a `FocusNode`, a
+listener and a `StatefulWidget` conversion — 60 lines of `widget.` churn — to
+observe an event the field it wraps already publishes. `CalmField.onBlur` is
+three lines inside a `_handleFocusChange` that already ran on exactly this
+event; `OdometerField` is stateless again and the net diff on that file is now
+negative. §10 applies the same rule to litres, price and money, and those fields
+can now reach it without repeating any of it.
+
+**`canonicalDisplay`'s `grouped` flag was defending a state that does not
+exist.** I added it defaulting to the old `false` so the documented reason —
+"a separator that appears while you type moves the caret out from under your
+thumb" — would survive. It is a true sentence about a state this function is
+never in: a figure being typed never passes through it, because the field shows
+the controller's raw text and `DecimalFieldFormatter` guards the keystrokes. The
+flag is gone and it always groups.
+
+**`CalmAppBar.pushed` took two parameters that all eleven call sites filled
+identically** with `l10n.commonBack` and `Navigator.of(context).maybePop()` — one
+decision spelled out eleven times in a widget that has a `BuildContext`. Now
+neither is a parameter. The opt-in stays, and stays a named constructor rather
+than `Navigator.canPop()`: the question is "does this screen draw
+`.appbar__lead`", a fact about `screens.html` and not about the navigator.
+
+Also applied: the scrim is composited over the five GROUND tokens instead of
+over all of them (forty more accepted colours is forty more places a wrong
+surface could hide); `blockOf` so the CSS selector literal appears once instead
+of four times; `census` keyed by a packed integer rather than a hex string —
+481 ms to 35 ms measured, and it runs 112 times per sweep now; the 56-role table
+and hex formatter hoisted into `calm_role_slots.dart` so
+`calm_token_source_test.dart` extends the check that existed instead of copying
+it at 15 roles with a worse parser; `artboardDeviceLocales` and `isRtl` replacing
+thirteen and fifteen copies; `fuelBackdrop` and `tripsBackdrop` wrapping
+`settingsBackdrop` instead of restating its five overrides; `NoBackupActions`
+instead of a second copy of that interface; and one `ArtboardToday` instead of
+two identical private ones.
+
+**Answered, not applied:** the simplification pass proposed collapsing the 28
+capture files into factories for the two clusters that are near-identical
+(`settings*` and `log_expense`/`log_service`). Skipped: each file's doc comment
+is the part that earns its existence — what state the artboard draws and why —
+and a factory would either lose those or take them as a string parameter. The
+eleven that genuinely differ are staying either way, so the saving is six short
+files against a uniform shape a reader can scan.
+

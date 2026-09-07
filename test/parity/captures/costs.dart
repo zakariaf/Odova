@@ -15,7 +15,7 @@ Future<void> captureCosts(WidgetTester tester, ParityCase config) async {
     config: config,
     tab: 2,
     child: costsBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
   );

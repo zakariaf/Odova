@@ -140,8 +140,6 @@ class UnitsScreen extends ConsumerWidget {
     return CalmScaffold(
       appBar: CalmAppBar.pushed(
         title: l10n.settingsUnitsRow,
-        startLabel: l10n.commonBack,
-        onStart: () => Navigator.of(context).maybePop(),
       ),
       children: [
         _PreviewCard(preview: preview, label: l10n.unitsPreviewLabel),

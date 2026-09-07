@@ -15,7 +15,7 @@ Future<void> captureHistory(WidgetTester tester, ParityCase config) async {
     config: config,
     tab: 1,
     child: historyBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
   );

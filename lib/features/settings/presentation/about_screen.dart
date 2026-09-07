@@ -36,8 +36,6 @@ class AboutScreen extends ConsumerWidget {
     return CalmScaffold(
       appBar: CalmAppBar.pushed(
         title: l10n.settingsAboutRow,
-        startLabel: l10n.commonBack,
-        onStart: () => Navigator.of(context).maybePop(),
       ),
       children: [
         Text(l10n.appTitle, style: type.display),

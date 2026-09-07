@@ -10,14 +10,15 @@
 // and a capture that reached this state by importing a fixture would be
 // photographing the state after the write it exists to precede.
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/store_snapshot.dart';
 import 'package:odova/core/money/currency.dart';
+import 'package:odova/features/backup/application/backup_notifier.dart';
 import 'package:odova/features/backup/application/import_notifier.dart';
 import 'package:odova/features/backup/domain/import_plan.dart';
 import 'package:odova/features/backup/domain/import_preview.dart';
+import 'package:odova/features/backup/presentation/backup_screen.dart';
 import 'package:odova/features/backup/presentation/import_screen.dart';
 
 import '../support/parity_capture.dart';
@@ -52,6 +53,16 @@ ImportPreviewState _preview() => ImportPreviewState(
   ),
 );
 
+/// The backdrop's own figures, the same ones `settings.backup` is shot with.
+BackupScreenState _backupState() => BackupScreenState(
+  nowUtcMs: kSettingsCaptureDay.millisecondsSinceEpoch,
+  entryCount: 431,
+  entriesSinceBackup: 68,
+  onDiskKilobytes: 4200,
+  safetyCopies: const [],
+  lastBackupAtUtcMs: kArtboardLastBackupMs,
+);
+
 /// Captures `settings.import` in one combination.
 Future<void> captureSettingsImport(
   WidgetTester tester,
@@ -62,9 +73,18 @@ Future<void> captureSettingsImport(
     screen: 'settings.import',
     config: config,
     tab: 3,
-    child: const SizedBox.shrink(),
+    // The sheet over `settings.backup`, which is the screen §4.3 opens it
+    // from. It was over a `SizedBox.shrink()` first — the file's own doc said
+    // it stacked the two and the code did the opposite, so the sheet was shot
+    // on an empty ground with the tab bar under nothing.
+    child: settingsBackdrop(
+      rtl: isRtl(config),
+      locale: config.locale,
+      extra: [backupInitialStateProvider.overrideWithValue(_backupState())],
+      child: const BackupScreen(),
+    ),
     overlay: settingsBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
       extra: [importInitialStateProvider.overrideWithValue(_preview())],
       child: const ImportScreen(),

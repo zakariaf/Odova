@@ -5,16 +5,14 @@
 // and every one of them comes from a database this capture does not have. The
 // numbers are the artboard's.
 //
-// `backupActionsProvider` is overridden with a fake that answers nothing. It is
-// never called — a capture takes a frame and presses no buttons — but the real
-// one reaches a share sheet, and a provider that could open one during a test
-// run is a provider that should not be reachable from here.
+// `backupActionsProvider` is NOT overridden. Its own default is
+// `const NoBackupActions()` — seven no-ops declared beside it in
+// `backup_notifier.dart` — so an override here would have restored the default
+// through a second copy of the same interface, which goes stale silently the
+// day `BackupActions` gains a method.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:odova/core/result.dart';
 import 'package:odova/features/backup/application/backup_notifier.dart';
-import 'package:odova/features/backup/domain/backup_export_service.dart';
-import 'package:odova/features/backup/domain/safety_copy_store.dart';
 import 'package:odova/features/backup/presentation/backup_screen.dart';
 
 import '../support/parity_capture.dart';
@@ -31,10 +29,9 @@ Future<void> captureSettingsBackup(
     config: config,
     tab: 3,
     child: settingsBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
       extra: [
-        backupActionsProvider.overrideWithValue(_NoActions()),
         backupInitialStateProvider.overrideWithValue(
           BackupScreenState(
             nowUtcMs: kSettingsCaptureDay.millisecondsSinceEpoch,
@@ -49,29 +46,4 @@ Future<void> captureSettingsBackup(
       child: const BackupScreen(),
     ),
   );
-}
-
-/// Answers nothing, and is never asked.
-class _NoActions implements BackupActions {
-  @override
-  Future<Result<int, ExportFailure>> backUpNow() async =>
-      const Err(ExportShareRefused('not in a capture'));
-
-  @override
-  Future<void> exportFillUpsCsv() async {}
-
-  @override
-  Future<void> exportCostsCsv() async {}
-
-  @override
-  Future<void> exportServiceHistoryPdf() async {}
-
-  @override
-  Future<void> pickFileToRestore() async {}
-
-  @override
-  Future<void> undo(SafetyCopyKind kind) async {}
-
-  @override
-  Future<void> beginDeleteAll() async {}
 }

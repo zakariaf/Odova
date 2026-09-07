@@ -23,8 +23,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/routing/app_shell.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/supported_locales.dart';
-import 'package:odova/theme/calm/calm_colors.dart';
-import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_theme.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
@@ -60,6 +58,29 @@ typedef ParityCase = ({
   Locale locale,
   ThemeMode mode,
 });
+
+/// Whether [config] is one of the two right-to-left combinations.
+///
+/// Derived rather than carried, and read through this rather than compared at
+/// the call site: `config.dir == 'rtl'` was written out at fifteen of them, and
+/// one `'RTL'` among them yields LTR fixtures filed under an RTL filename —
+/// which is precisely the "passes for the wrong reason" failure the RTL
+/// captures exist to catch.
+bool isRtl(ParityCase config) => config.dir == 'rtl';
+
+/// The device region the artboards were drawn on.
+///
+/// `en-GB` for the Latin captures and a continental region for the rest: the
+/// reference's dates read "12 March 2024" and its numbers group with commas,
+/// which is `en-GB` — `en-US` would draw "March 12, 2024" and be equally
+/// correct for somebody else. SPEC.md §5 puts both under the region.
+///
+/// One helper because the expression was written out at thirteen call sites,
+/// and now all 28 screens run in one command: a single screen shot in `en-US`
+/// groups its numbers differently from the other 27 and both captures pass.
+List<Locale> artboardDeviceLocales(Locale locale) => [
+  Locale(locale.languageCode, locale.languageCode == 'en' ? 'GB' : 'DE'),
+];
 
 /// The four combinations every referenced screen is shot in.
 ///
@@ -180,21 +201,11 @@ Future<void> captureParity(
           // never been painted never completes. Inside `runAsync` that is not a
           // test timeout; it is a hang with no output at all.
           key: _boundaryKey,
-          child: _PhoneChrome(
-            locale: config.locale,
-            child: _framed(child, overlay: overlay, tab: tab),
-          ),
+          child: _framed(child, overlay: overlay, tab: tab),
         ),
       ),
     ),
   );
-  // TWICE. Animations are collapsed, so the first pump settles the layout —
-  // but a provider overridden with a `Stream.value` delivers on a microtask,
-  // and a capture taken after one pump photographs the pre-data frame. That is
-  // a real state and not the one the reference draws: `log.fillup` came out
-  // with no helper line and no estimate chip because its reading history had
-  // not arrived yet, and the band profile could not match a reference that has
-  // both rows.
   // THREE times. Animations are collapsed, so the first pump settles the
   // layout — but a provider overridden with a `Stream.value` delivers on a
   // microtask, and each dependent provider downstream of it needs another
@@ -340,123 +351,4 @@ Widget _withTabBar(Widget body, int tab) {
       );
     },
   );
-}
-
-/// The `.statusbar` and `.homebar` every artboard draws.
-///
-/// The harness reserved 54pt and 34pt for these from the start and painted
-/// nothing in them, and that showed up in the sweep as three band edges — y=66,
-/// 84 and 88 — absent from ALL 112 comparisons. A capture is meant to be
-/// comparable to its reference, and the reference depicts a phone: the OS draws
-/// this chrome on a real device, `screens.html` draws it in the artboard, and
-/// only the capture was leaving a blank strip where both have content.
-///
-/// Drawing it is not a widened tolerance. `--band-tolerance` is untouched, no
-/// reference moved, and a screen whose own bands are wrong still fails — this
-/// removes an artefact of the harness from the comparison, which is the
-/// opposite of hiding a difference in the screen.
-class _PhoneChrome extends StatelessWidget {
-  const _PhoneChrome({required this.locale, required this.child});
-
-  final Locale locale;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = CalmColors.of(context);
-    final space = CalmSpace.of(context);
-    final type = CalmType.of(context);
-
-    return Stack(
-      children: [
-        Positioned.fill(child: child),
-        // `.statusbar`: `align-items: flex-end` with `padding-block-end: 6px`,
-        // so the time sits on the BOTTOM of the 54pt strip and not the middle.
-        // Centring it moves the only band edge in the strip by about 14px,
-        // which is three times the check's tolerance.
-        PositionedDirectional(
-          top: 0,
-          start: 0,
-          end: 0,
-          child: IgnorePointer(
-            // TRANSPARENT Material, the same reason the tab bar needs one and
-            // found the same way: without a `Material` ancestor a `Text`
-            // renders in Flutter's missing-style treatment — a filled box with
-            // a yellow underline — and the first capture with this chrome drew
-            // a black bar where `9:41` belongs. On device the route's own
-            // `MaterialPage` supplies one; this strip sits above every route.
-            //
-            // The height is OUTSIDE the padding. Inside it, the strip measured
-            // 54 + 6 and the time sat six logical pixels low — which the band
-            // check reads as the status bar's one edge being 12 physical pixels
-            // out, three times its tolerance, on all 112 comparisons.
-            child: Material(
-              type: MaterialType.transparency,
-              child: SizedBox(
-                height: kReferenceStatusBarHeight,
-                child: Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    start: space.s7,
-                    end: space.s6,
-                    bottom: 6,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        // The artboard's `data-fa` for the Persian captures. A
-                        // Latin "9:41" inside an RTL frame is a run of Latin
-                        // digits where the reference has extended Arabic-Indic
-                        // ones, at a different width.
-                        locale.languageCode == 'fa' ? '۹:۴۱' : '9:41',
-                        style: type.caption.copyWith(color: colors.ink),
-                      ),
-                      Row(
-                        spacing: 6,
-                        children: [
-                          Icon(
-                            Icons.notifications_none,
-                            size: space.iconSm,
-                            color: colors.ink,
-                          ),
-                          Icon(
-                            Icons.battery_std,
-                            size: space.iconSm,
-                            color: colors.ink,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        // `.homebar::after`: a 138x5 pill at 24% ink, centred in the 34pt
-        // strip.
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: IgnorePointer(
-            child: SizedBox(
-              height: kReferenceHomeBarHeight,
-              child: Center(
-                child: Container(
-                  width: 138,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: colors.ink.withValues(alpha: 0.24),
-                    borderRadius: BorderRadius.circular(2.5),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }

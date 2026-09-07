@@ -99,11 +99,17 @@ as a navigation row rather than an expander.
 ### F-7 · `settings` prints the currency CODE where the design prints the symbol
 Reference and SPEC.md §13 both read `km · L · €`; the app reads `km · L · EUR`.
 
-### F-8 · Dark modal screens paint pure black under the scrim
-`#000000` over 0.6–3.2% of the frame on the dark `dialog.*`, `settings.import`
-and `vehicle.switcher` captures, where the scrim composited over the darkest
-surface is `#0F0C0A`. The `scrim` slot is correct in both themes, so something
-beneath it is painting black. Eleven comparisons.
+### F-8 · Dark modal screens paint near-black under the scrim
+`#040302`–`#050403` on the dark `dialog.*` and `vehicle.switcher` captures,
+where the dark scrim composited over `bg-sunk` is `#0F0C0A` — Δ25 to Δ28,
+just over the Δ24 line. The `scrim` slot is correct in both themes, so
+something beneath it is darker than the CSS predicts. Eleven comparisons.
+
+**Part of this finding was mine, not the app's.** `settings.import` reported a
+pure `#000000` over 3.2% of its frame, and that was the void behind a sheet
+shot on a `SizedBox.shrink()` instead of over `settings.backup` — the capture
+was wrong, not the screen. Fixed; that screen's colour check now passes. What
+is left is the near-black above, which is a real difference and is not chased.
 
 ### F-9 · `costs.fuel` is missing most of its reference content
 The screen draws a headline figure and a chart. The reference additionally has:

@@ -13,52 +13,73 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 
 import '../../support/pump_app.dart';
 
-void main() {
-  testWidgets('a pushed bar draws a labelled back lead', (tester) async {
-    var popped = 0;
-    await pumpApp(
-      tester,
-      CalmScaffold(
-        appBar: CalmAppBar.pushed(
-          title: 'Vehicles',
-          startLabel: 'Back',
-          onStart: () => popped++,
+/// Pumps [bar] on a route that has something behind it to pop back to.
+Future<void> pumpBar(
+  WidgetTester tester,
+  CalmAppBar bar, {
+  Locale locale = const Locale('en'),
+  VoidCallback? onPopped,
+}) => pumpApp(
+  tester,
+  Navigator(
+    onGenerateRoute: (_) => MaterialPageRoute<void>(
+      builder: (context) => Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => CalmScaffold(appBar: bar, children: const []),
+              ),
+            ),
+            child: const Text('open'),
+          ),
         ),
-        children: const [],
       ),
-    );
+    ),
+  ),
+  locale: locale,
+);
+
+void main() {
+  testWidgets('a pushed bar draws a labelled back lead that pops', (
+    tester,
+  ) async {
+    await pumpBar(tester, const CalmAppBar.pushed(title: 'Vehicles'));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
 
     // LABELLED. A bare glyph announced as "button" is the only way out of a
     // screen, unnamed — the same reason `CalmAppBar.modal`'s ✕ carries
-    // `commonClose`.
-    expect(find.bySemanticsLabel('Back'), findsOneWidget);
-    await tester.tap(find.bySemanticsLabel('Back'));
-    expect(popped, 1);
+    // `commonClose`. The word comes from ARB rather than from a call site,
+    // which is what stops the twelfth pushed screen inventing its own.
+    final l10n = AppLocalizations.of(tester.element(find.byType(CalmAppBar)));
+    expect(find.bySemanticsLabel(l10n.commonBack), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel(l10n.commonBack));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CalmAppBar), findsNothing, reason: 'it did not pop');
   });
 
   testWidgets('and it mirrors, because a back arrow points at the start', (
     tester,
   ) async {
-    // `CalmDirectionalIcon`, not `Icons.arrow_back`. Under `fa` the arrow has
-    // to point the other way, and a screen whose only way out points into the
+    // `CalmDirectionalIcon`, not a bare `Icon`. Under `fa` the arrow has to
+    // point the other way, and a screen whose only way out points into the
     // page is worse than one with no arrow at all.
-    await pumpApp(
+    await pumpBar(
       tester,
-      CalmScaffold(
-        appBar: CalmAppBar.pushed(
-          title: 'خودروها',
-          startLabel: 'بازگشت',
-          onStart: () {},
-        ),
-        children: const [],
-      ),
+      const CalmAppBar.pushed(title: 'خودروها'),
       locale: const Locale('fa'),
     );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
 
     expect(
       find.descendant(
@@ -69,10 +90,10 @@ void main() {
     );
   });
 
-  testWidgets('a standard bar with no onStart draws no lead', (tester) async {
-    // The tab roots. §7 gives `home`, `history`, `costs` and `settings` no
-    // back arrow, because there is nothing behind them — and a bar that grew
-    // one unconditionally would put a dead control on four screens.
+  testWidgets('a standard bar draws no lead', (tester) async {
+    // The tab roots. §7 gives `home`, `history`, `costs` and `settings`
+    // nothing behind them, so a bar that grew an arrow unconditionally would
+    // put a dead control on four screens.
     await pumpApp(
       tester,
       const CalmScaffold(

@@ -109,7 +109,7 @@ Future<void> captureVehicleSwitcher(
   WidgetTester tester,
   ParityCase config,
 ) async {
-  final rtl = config.dir == 'rtl';
+  final rtl = isRtl(config);
   // The artboard's own three vehicles, translated the way the artboard
   // translates them. The app never renames a user's car; the capture has to
   // compare like with like.
@@ -136,7 +136,7 @@ Future<void> captureVehicleSwitcher(
     config: config,
     tab: 0,
     child: homeBackdrop(
-      rtl: config.dir == 'rtl',
+      rtl: isRtl(config),
       locale: config.locale,
     ),
     overlay: ProviderScope(
@@ -144,12 +144,9 @@ Future<void> captureVehicleSwitcher(
         clockProvider.overrideWithValue(
           Clock.fixed(DateTime.utc(2026, 9, 3)),
         ),
-        deviceLocalesProvider.overrideWithValue([
-          Locale(
-            config.locale.languageCode,
-            config.locale.languageCode == 'en' ? 'GB' : 'DE',
-          ),
-        ]),
+        deviceLocalesProvider.overrideWithValue(
+          artboardDeviceLocales(config.locale),
+        ),
         vehiclesProvider.overrideWith((ref) => Stream.value(garage)),
         settingsProvider.overrideWith(
           (ref) => Stream.value(

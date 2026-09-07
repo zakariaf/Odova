@@ -89,7 +89,7 @@ void main() {
     for (final config in kParityCases) {
       expect(
         config.locale.languageCode,
-        config.dir == 'rtl' ? 'fa' : 'en',
+        isRtl(config) ? 'fa' : 'en',
         reason: '${config.dir} is shot in ${config.locale}',
       );
     }

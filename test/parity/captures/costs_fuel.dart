@@ -16,6 +16,6 @@ Future<void> captureCostsFuel(WidgetTester tester, ParityCase config) async {
     screen: 'costs.fuel',
     config: config,
     tab: 2,
-    child: fuelBackdrop(rtl: config.dir == 'rtl', locale: config.locale),
+    child: fuelBackdrop(rtl: isRtl(config), locale: config.locale),
   );
 }

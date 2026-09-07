@@ -74,10 +74,20 @@ const cssText = await readFile(join(ROOT, 'design', system, 'odova.css'), 'utf8'
 
 const hex = (r, g, b) => [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('').toUpperCase();
 
-function tokensOf(selector) {
+// One place that decides what "the light block" means. `tokensOf` and
+// `scrimOf` each sliced it themselves, which put the selector literal — newline
+// and all — in four places; if two of them ever drifted, `scrimOf` would return
+// null, `withScrim` would become a silent no-op, and the 17 comparisons it
+// exists to fix would fail again with no error saying why.
+const SEL_LIGHT = ':root,\n.theme-light {';
+const SEL_DARK = ':root[data-theme="dark"],\n.theme-dark {';
+
+function blockOf(selector) {
   const i = cssText.indexOf(selector);
-  if (i === -1) return new Map();
-  const body = cssText.slice(i, cssText.indexOf('}', i));
+  return i === -1 ? '' : cssText.slice(i, cssText.indexOf('}', i));
+}
+
+function tokensOf(body) {
   const m = new Map();
   for (const [, name, val] of body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {
     for (const [, h] of val.matchAll(/#([0-9A-Fa-f]{6})\b/g)) {
@@ -100,19 +110,30 @@ function tokensOf(selector) {
 // join the map. This is not a widened tolerance — `--token-tolerance` is
 // untouched and a genuinely wrong colour still fails by the same margin. It is
 // the check learning what the design system actually paints.
-function scrimOf(selector) {
-  const i = cssText.indexOf(selector);
-  if (i === -1) return null;
-  const body = cssText.slice(i, cssText.indexOf('}', i));
+function scrimOf(body) {
   const m = body.match(/--scrim\s*:\s*rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)/);
   return m ? { r: +m[1], g: +m[2], b: +m[3], a: +m[4] } : null;
 }
+
+// Composited over the GROUNDS and SURFACES only, not over every token.
+// A scrim is painted over a screen's background; it is never painted over the
+// brand, a due-state ramp or the focus ring, and adding those composites would
+// put ~40 more Δ24 balls into colour space for a genuinely wrong surface to
+// land in. The five slots below are the ones a screen's ground can be.
+const GROUNDS = new Set([
+  '--color-bg',
+  '--color-bg-sunk',
+  '--color-surface',
+  '--color-surface-2',
+  '--color-surface-3',
+]);
 
 function withScrim(map, scrim) {
   if (!scrim) return map;
   const out = new Map(map);
   const over = (c, s) => Math.round(scrim.a * s + (1 - scrim.a) * c);
   for (const [h, name] of map) {
+    if (!GROUNDS.has(name)) continue;
     const r = over(parseInt(h.slice(0, 2), 16), scrim.r);
     const g = over(parseInt(h.slice(2, 4), 16), scrim.g);
     const b = over(parseInt(h.slice(4, 6), 16), scrim.b);
@@ -122,10 +143,10 @@ function withScrim(map, scrim) {
   return out;
 }
 
-const lightBase = tokensOf(':root,\n.theme-light {');
-const darkBase = tokensOf(':root[data-theme="dark"],\n.theme-dark {');
-const lightTokens = withScrim(lightBase, scrimOf(':root,\n.theme-light {'));
-const darkTokens = withScrim(darkBase, scrimOf(':root[data-theme="dark"],\n.theme-dark {'));
+const lightBlock = blockOf(SEL_LIGHT);
+const darkBlock = blockOf(SEL_DARK);
+const lightTokens = withScrim(tokensOf(lightBlock), scrimOf(lightBlock));
+const darkTokens = withScrim(tokensOf(darkBlock), scrimOf(darkBlock));
 // Scale, radius and motion tokens are declared once, in the light block; a colour
 // that appears in both blocks is theme-neutral and never decides the theme.
 const themeTokens = theme === 'dark' ? darkTokens : lightTokens;
@@ -133,13 +154,51 @@ const otherTokens = theme === 'dark' ? lightTokens : darkTokens;
 const tokens = new Map([...lightTokens, ...darkTokens]);
 
 // ---- colour census: what does each image actually paint, and is it a token?
+//
+// Keyed by a PACKED INTEGER and converted to hex only for the handful of
+// entries that get printed. The string key cost three `toString(16)`, three
+// `padStart`, a `join` and a `toUpperCase` for every one of 1.3 million pixels,
+// twice per invocation — 481ms against 35ms measured on this machine, and this
+// runs 112 times in one sweep now that all 28 screens go in one command.
 function census(raw) {
   const counts = new Map();
   for (let i = 0; i < raw.length; i += 4) {
-    const k = hex(raw[i], raw[i + 1], raw[i + 2]);
+    const k = (raw[i] << 16) | (raw[i + 1] << 8) | raw[i + 2];
     counts.set(k, (counts.get(k) || 0) + 1);
   }
-  return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, n]) => [hex(k >> 16, (k >> 8) & 0xff, k & 0xff), n]);
+}
+
+// The strips the OS owns, in physical pixels — `--statusbar-h` and
+// `--homebar-h` from the stylesheet, scaled by the reference dpr.
+//
+// The artboards draw a clock and three icons up there and a home indicator at
+// the bottom; a Flutter capture draws the ground and nothing else, because on a
+// real phone the OS paints that chrome over the app. So the reference has three
+// band edges in the top strip that no capture can ever produce, on all 112
+// comparisons.
+//
+// They are MASKED rather than simulated. The harness drew them for a day, and
+// that was the wrong altitude: `missRatio` divides by the reference's edge
+// count, so painting a matching clock converts three permanently-unmatched
+// edges into three permanently-matched ones — a constant discount against the
+// threshold, worth six points of median across the sweep, from edges that can
+// never fail. Excluding the rows takes them out of the numerator AND the
+// denominator, so the ratio stays a statement about the screen. It also keeps a
+// copy of `.statusbar`'s typography out of the test harness, where it drifted
+// from the stylesheet within an hour of being written.
+// Scaled by the image's own height against the 844pt reference device, so a
+// re-shoot at a different dpr needs no edit here.
+const chromeScale = H / 844;
+const chromeTop = Number(cssNumber(lightBlock, '--statusbar-h') ?? 54) * chromeScale;
+const chromeBottom =
+  H - Number(cssNumber(lightBlock, '--homebar-h') ?? 34) * chromeScale;
+
+function cssNumber(block, name) {
+  const m = block.match(new RegExp(`${name}\\s*:\\s*([\\d.]+)px`));
+  return m ? m[1] : null;
 }
 
 // ---- band profile: mean luminance per row, then the rows where it steps
@@ -154,7 +213,10 @@ function bands(raw) {
     rows[y] = s / W;
   }
   const edges = [];
-  for (let y = 1; y < H; y++) if (Math.abs(rows[y] - rows[y - 1]) > 2.0) edges.push(y);
+  for (let y = 1; y < H; y++) {
+    if (y < chromeTop || y > chromeBottom) continue;
+    if (Math.abs(rows[y] - rows[y - 1]) > 2.0) edges.push(y);
+  }
   // collapse runs
   const out = [];
   for (const e of edges) if (!out.length || e - out[out.length - 1] > 3) out.push(e);
