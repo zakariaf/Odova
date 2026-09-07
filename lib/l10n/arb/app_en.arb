@@ -3610,5 +3610,41 @@
   "notifRowCalendar": "Add reminders to my calendar",
   "@notifRowCalendar": {
     "description": "The `.ics` export. Moves ABOVE the delivery group when notifications are blocked — it is then the only thing on the screen that still delivers anything."
+  },
+  "aboutPrivacy": "No account. No sign-up. No server. Nothing is uploaded. No tracking, no analytics, no ads.",
+  "@aboutPrivacy": {
+    "description": "§13's privacy promise, in plain words and one block. A PROMISE, not a legal notice: it is the sentence the store listing claims and §2 makes true by construction, and breaking it into bullets would make it read like terms nobody reads."
+  },
+  "aboutBackupWarning": "Your records live on this phone only. If you lose it without a backup, they are gone.",
+  "@aboutBackupWarning": {
+    "description": "The sentence a future PR will quietly delete, which is why the test asserts it by name. §1: the user's history is worth money and no server holds a copy — and the honest consequence of that has to be said out loud somewhere."
+  },
+  "aboutVersion": "Version {version} ({build})",
+  "@aboutVersion": {
+    "description": "Both numbers, and both stay LATIN digits: §13 says a version string is an identifier a support conversation quotes back, not a number.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.4.0"
+      },
+      "build": {
+        "type": "String",
+        "example": "312"
+      }
+    }
+  },
+  "aboutBackupFormat": "Backup format {format}",
+  "@aboutBackupFormat": {
+    "description": "From `kSupportedFormatVersion` — the same constant the backup writer writes — so the two can never disagree. The internal `schema_version` is deliberately never shown: a user cannot act on it.",
+    "placeholders": {
+      "format": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "aboutLicencesRow": "Open source licences",
+  "@aboutLicencesRow": {
+    "description": "Pushes an OFFLINE text view from a bundled asset. §2 forbids a network call, so there is nothing to link out to."
   }
 }

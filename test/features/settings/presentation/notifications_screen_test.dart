@@ -104,7 +104,6 @@ void main() {
     expect(find.text(l10n.notifGroupWhat), findsOneWidget);
     expect(find.text(l10n.notifGroupWhen), findsOneWidget);
     expect(find.text(l10n.notifGroupHowFar), findsOneWidget);
-    expect(find.text(l10n.notifRowCalendar), findsOneWidget);
     // A FACT, not a switch. A user who could raise the cap would, and would
     // then blame the app for the noise §14's damping exists to prevent.
     expect(find.text(l10n.notifCapFooter), findsOneWidget);
@@ -149,11 +148,12 @@ void main() {
     expect(find.text(l10n.notifBlockedTitle), findsOneWidget);
     expect(find.text(l10n.notifBlockedAction), findsOneWidget);
 
-    // ABOVE the delivery group: the `.ics` export is the only thing on this
-    // screen that still delivers anything.
-    final calendarY = tester.getTopLeft(find.text(l10n.notifRowCalendar)).dy;
-    final whenY = tester.getTopLeft(find.text(l10n.notifGroupWhen)).dy;
-    expect(calendarY, lessThan(whenY));
+    // The calendar row it would raise is not on the screen: §18 decision 13
+    // is open and EPIC-16 says the `.ics` export is out, so the row has
+    // nothing behind it. The REORDER rule is still resolved and tested in
+    // `notifications_chrome_test.dart`, because it is the answer to a
+    // question this screen asks the moment that decision closes yes.
+    expect(find.text(l10n.notifRowCalendar), findsNothing);
   });
 
   testWidgets('never asked offers to turn them on, rows still live', (

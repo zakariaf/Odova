@@ -309,3 +309,61 @@ a header slot `CalmRowGroup` has not got; it is a component change and belongs
 with EPIC-18's sweep rather than in a screen commit. The weekdays-only row and
 its CLDR weekend naming, and the per-channel cancel — both need EPIC-16's
 scheduler to have anything to act on.
+
+## Task 14.8 — NOT BUILT. §18 decision 13 is still open.
+
+The epic's own instruction: *"Do not start this task until §18 decision 13 is
+closed."* It is not, and three documents disagree — §6 §8's table says the
+`.ics` ships ("Yes — offered on `settings.notifications`"), §13 specifies the
+row and its subtitle, §18.13 lists it as open, and **EPIC-16 says in writing
+that it is out**.
+
+**Decision taken, and it is a deferral rather than a guess.** The row is not on
+the screen and the writer is not built. A row wired to nothing is worse than no
+row, and building an export against an open decision is building something that
+may be deleted — the epic says as much itself.
+
+Two pieces of evidence beyond the documents, both worth having when the
+question is answered:
+
+1. **The reference screenshot for `settings.notifications` has no calendar
+   row.** It shows the three groups and the delivery-cap footer, and nothing
+   else. That is the granted state, so it does not disprove a row that only
+   appears when blocked — but the design set was produced from the design
+   system, and it did not draw one.
+2. **`NotificationsChrome.calendarFirst` is resolved and tested but not
+   rendered.** The blocked-state reorder rule is the answer to a question the
+   screen asks the moment the decision closes yes, so it is kept and pinned
+   rather than deleted and rewritten.
+
+**This needs one sentence from the owner.** If the answer is yes, task 14.8
+builds the writer and the row returns. If it is no, §6 §8's table and §13's
+paragraph both need editing — and `design/reference/calm/settings.notifications-*`
+does not, because it never drew the row.
+
+## Task 14.9 — `settings.about` and the offline licences
+
+Built `about_screen.dart`, `licences_screen.dart`, and the `kAppBuild` and
+`kSupportedFormatVersion` constants beside `kAppVersion`.
+
+`kSupportedFormatVersion` is declared here because EPIC-15 has not landed.
+**EPIC-15 Task 15.1 takes ownership of it and this screen goes on reading it**
+— two copies is how the number on the About screen and the number in the file
+drift apart, which is a support conversation nobody can resolve.
+
+The licences come from Flutter's own `LicenseRegistry` rather than a bundled
+text file. Every package registers into it at build time, including
+Vazirmatn's OFL entry; a hand-maintained copy is a file that goes stale the
+first time a dependency is bumped. The text is rendered verbatim and never
+localised — a translated licence is a different licence.
+
+`settings.about/licences` is three levels below the tab root, which §7's
+two-push rule would normally refuse. It is allowed deliberately and the route
+says why: the rule is about a user getting lost, and this is a leaf they reach
+by deliberately asking for licence text and leave with one back tap.
+
+The seven things this screen must not have — rate, share, support, privacy
+policy, terms, restore purchases, debug — are asserted absent in ONE test, so
+nobody adds one back without deleting a named assertion.
+
+**Deferred.** The parity captures for both screens, per §6a.

@@ -2438,4 +2438,25 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get notifRowCalendar => 'افزودن یادآورها به تقویم من';
+
+  @override
+  String get aboutPrivacy =>
+      'بدون حساب کاربری. بدون ثبت‌نام. بدون سرور. هیچ چیزی آپلود نمی‌شود. بدون ردیابی، بدون تحلیل، بدون تبلیغات.';
+
+  @override
+  String get aboutBackupWarning =>
+      'سوابق شما فقط روی همین گوشی است. اگر آن را بدون پشتیبان از دست بدهید، از بین می‌روند.';
+
+  @override
+  String aboutVersion(String version, String build) {
+    return 'نسخهٔ $version ($build)';
+  }
+
+  @override
+  String aboutBackupFormat(String format) {
+    return 'قالب پشتیبان $format';
+  }
+
+  @override
+  String get aboutLicencesRow => 'پروانه‌های متن‌باز';
 }

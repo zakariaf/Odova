@@ -2443,4 +2443,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifRowCalendar => 'Add reminders to my calendar';
+
+  @override
+  String get aboutPrivacy =>
+      'No account. No sign-up. No server. Nothing is uploaded. No tracking, no analytics, no ads.';
+
+  @override
+  String get aboutBackupWarning =>
+      'Your records live on this phone only. If you lose it without a backup, they are gone.';
+
+  @override
+  String aboutVersion(String version, String build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String aboutBackupFormat(String format) {
+    return 'Backup format $format';
+  }
+
+  @override
+  String get aboutLicencesRow => 'Open source licences';
 }

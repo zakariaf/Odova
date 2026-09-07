@@ -606,5 +606,10 @@
   "notifBlockedAction": "فتح إعدادات الهاتف",
   "notifBackgroundTitle": "قد يمنع هاتفك تذكيرات أودوفا.",
   "notifSilentFooter": "لن ترسل لك أودوفا شيئًا. ما هو مستحق يظل ظاهرًا على الشاشة الرئيسية.",
-  "notifRowCalendar": "إضافة التذكيرات إلى تقويمي"
+  "notifRowCalendar": "إضافة التذكيرات إلى تقويمي",
+  "aboutPrivacy": "بلا حساب. بلا تسجيل. بلا خادم. لا يُرفع شيء. بلا تتبّع، بلا تحليلات، بلا إعلانات.",
+  "aboutBackupWarning": "سجلاتك موجودة على هذا الهاتف فقط. إن فقدته دون نسخة احتياطية، فقدتها معه.",
+  "aboutVersion": "الإصدار {version} ({build})",
+  "aboutBackupFormat": "تنسيق النسخ الاحتياطي {format}",
+  "aboutLicencesRow": "تراخيص المصادر المفتوحة"
 }

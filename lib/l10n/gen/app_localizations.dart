@@ -3767,6 +3767,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add reminders to my calendar'**
   String get notifRowCalendar;
+
+  /// §13's privacy promise, in plain words and one block. A PROMISE, not a legal notice: it is the sentence the store listing claims and §2 makes true by construction, and breaking it into bullets would make it read like terms nobody reads.
+  ///
+  /// In en, this message translates to:
+  /// **'No account. No sign-up. No server. Nothing is uploaded. No tracking, no analytics, no ads.'**
+  String get aboutPrivacy;
+
+  /// The sentence a future PR will quietly delete, which is why the test asserts it by name. §1: the user's history is worth money and no server holds a copy — and the honest consequence of that has to be said out loud somewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Your records live on this phone only. If you lose it without a backup, they are gone.'**
+  String get aboutBackupWarning;
+
+  /// Both numbers, and both stay LATIN digits: §13 says a version string is an identifier a support conversation quotes back, not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} ({build})'**
+  String aboutVersion(String version, String build);
+
+  /// From `kSupportedFormatVersion` — the same constant the backup writer writes — so the two can never disagree. The internal `schema_version` is deliberately never shown: a user cannot act on it.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup format {format}'**
+  String aboutBackupFormat(String format);
+
+  /// Pushes an OFFLINE text view from a bundled asset. §2 forbids a network call, so there is nothing to link out to.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source licences'**
+  String get aboutLicencesRow;
 }
 
 class _AppLocalizationsDelegate

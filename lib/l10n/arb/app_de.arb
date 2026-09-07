@@ -606,5 +606,10 @@
   "notifBlockedAction": "Telefoneinstellungen öffnen",
   "notifBackgroundTitle": "Ihr Telefon blockiert möglicherweise Odovas Erinnerungen.",
   "notifSilentFooter": "Odova sendet Ihnen nichts. Was fällig ist, steht weiterhin auf dem Startbildschirm.",
-  "notifRowCalendar": "Erinnerungen zu meinem Kalender hinzufügen"
+  "notifRowCalendar": "Erinnerungen zu meinem Kalender hinzufügen",
+  "aboutPrivacy": "Kein Konto. Keine Anmeldung. Kein Server. Nichts wird hochgeladen. Kein Tracking, keine Analyse, keine Werbung.",
+  "aboutBackupWarning": "Ihre Einträge liegen nur auf diesem Telefon. Geht es ohne Sicherung verloren, sind sie weg.",
+  "aboutVersion": "Version {version} ({build})",
+  "aboutBackupFormat": "Sicherungsformat {format}",
+  "aboutLicencesRow": "Open-Source-Lizenzen"
 }

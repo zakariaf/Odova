@@ -73,6 +73,12 @@ class NotificationsChrome {
   /// the only thing on the screen that still delivers anything, and leaving it
   /// under four rows of controls that cannot work is hiding the one door that
   /// is open.
+  ///
+  /// **Resolved but not yet rendered.** SPEC.md §18 decision 13 — whether the
+  /// `.ics` export ships in v1 — is open, and EPIC-16 says in writing that it
+  /// is out, so the row it reorders does not exist. The rule is kept here
+  /// rather than deleted because it is the answer to a question the screen
+  /// will ask the moment that decision closes yes, and it is tested.
   final bool calendarFirst;
 
   /// Whether §13's "Odova won't send you anything" footer shows.

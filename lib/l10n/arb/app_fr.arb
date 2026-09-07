@@ -606,5 +606,10 @@
   "notifBlockedAction": "Ouvrir les réglages du téléphone",
   "notifBackgroundTitle": "Votre téléphone empêche peut-être les rappels d’Odova.",
   "notifSilentFooter": "Odova ne vous enverra rien. Ce qui est dû reste affiché sur l’écran d’accueil.",
-  "notifRowCalendar": "Ajouter les rappels à mon calendrier"
+  "notifRowCalendar": "Ajouter les rappels à mon calendrier",
+  "aboutPrivacy": "Pas de compte. Pas d’inscription. Pas de serveur. Rien n’est envoyé. Pas de suivi, pas d’analyse, pas de publicité.",
+  "aboutBackupWarning": "Vos données ne sont que sur ce téléphone. Si vous le perdez sans sauvegarde, elles sont perdues.",
+  "aboutVersion": "Version {version} ({build})",
+  "aboutBackupFormat": "Format de sauvegarde {format}",
+  "aboutLicencesRow": "Licences open source"
 }

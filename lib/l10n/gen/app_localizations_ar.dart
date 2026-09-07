@@ -2578,4 +2578,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notifRowCalendar => 'إضافة التذكيرات إلى تقويمي';
+
+  @override
+  String get aboutPrivacy =>
+      'بلا حساب. بلا تسجيل. بلا خادم. لا يُرفع شيء. بلا تتبّع، بلا تحليلات، بلا إعلانات.';
+
+  @override
+  String get aboutBackupWarning =>
+      'سجلاتك موجودة على هذا الهاتف فقط. إن فقدته دون نسخة احتياطية، فقدتها معه.';
+
+  @override
+  String aboutVersion(String version, String build) {
+    return 'الإصدار $version ($build)';
+  }
+
+  @override
+  String aboutBackupFormat(String format) {
+    return 'تنسيق النسخ الاحتياطي $format';
+  }
+
+  @override
+  String get aboutLicencesRow => 'تراخيص المصادر المفتوحة';
 }

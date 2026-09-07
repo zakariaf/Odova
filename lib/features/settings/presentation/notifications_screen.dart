@@ -72,18 +72,6 @@ class NotificationsSettingsScreen extends ConsumerWidget {
       allCategoriesOff: !notifyService && !notifyOdometer && !notifyBackup,
     );
 
-    final calendarRow = CalmRowGroup(
-      rows: [
-        CalmListRow(
-          title: l10n.notifRowCalendar,
-          showChevron: true,
-          // EPIC-14 task 14.8 builds the `.ics` writer; the row is here so
-          // the blocked state has something to raise.
-          onTap: () {},
-        ),
-      ],
-    );
-
     return CalmScaffold(
       appBar: CalmAppBar(title: l10n.settingsNotificationsRow),
       children: [
@@ -91,11 +79,14 @@ class NotificationsSettingsScreen extends ConsumerWidget {
           _PermissionCard(card: card),
           SizedBox(height: space.s5),
         ],
-        // ABOVE the delivery group when notifications are blocked: the `.ics`
-        // export is then the only thing on this screen that still delivers
-        // anything, and leaving it under four rows of dead controls hides the
-        // one door that is open.
-        if (chrome.calendarFirst) ...[calendarRow, SizedBox(height: space.s5)],
+        // §13's "Add reminders to my calendar" row is NOT here, and its
+        // absence is a decision rather than an omission. SPEC.md §18 decision
+        // 13 — "does the `.ics` calendar export ship in v1?" — is open, §6 §8
+        // says yes, §13 specifies the row, and EPIC-16 says in writing that it
+        // is out. A row wired to nothing is worse than no row, and building
+        // the writer against an open decision is building something that may
+        // be deleted. Recorded in `epics/progress/EPIC-14.md`; it returns with
+        // the writer if the answer is yes.
         Text(
           l10n.notifGroupWhat,
           style: type.label.copyWith(color: colors.ink2),
@@ -210,10 +201,6 @@ class NotificationsSettingsScreen extends ConsumerWidget {
             ),
           ],
         ),
-        if (!chrome.calendarFirst) ...[
-          SizedBox(height: space.s5),
-          calendarRow,
-        ],
         SizedBox(height: space.s4),
         // A FACT, not a switch. A user who could raise the cap would, and
         // would then blame the app for the noise §14's damping exists to

@@ -2446,4 +2446,25 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get notifRowCalendar => 'زیادکردنی بیرخەرەوەکان بۆ ڕۆژژمێرەکەم';
+
+  @override
+  String get aboutPrivacy =>
+      'بێ هەژمار. بێ تۆمارکردن. بێ ڕاژە. هیچ شتێک بار ناکرێت. بێ شوێنپێهەڵگرتن، بێ شیکاری، بێ ڕیکلام.';
+
+  @override
+  String get aboutBackupWarning =>
+      'تۆمارەکانت تەنها لەسەر ئەم مۆبایلەن. ئەگەر بەبێ پاڵپشت لەدەستت بدەیت، لەناودەچن.';
+
+  @override
+  String aboutVersion(String version, String build) {
+    return 'وەشانی $version ($build)';
+  }
+
+  @override
+  String aboutBackupFormat(String format) {
+    return 'شێوازی پاڵپشت $format';
+  }
+
+  @override
+  String get aboutLicencesRow => 'مۆڵەتی سەرچاوەکراوە';
 }

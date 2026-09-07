@@ -19,4 +19,13 @@ void main() {
 
     expect(kAppVersion, declared);
   });
+
+  test('kAppBuild is the build half of pubspec.yaml version', () {
+    final line = File(
+      'pubspec.yaml',
+    ).readAsLinesSync().firstWhere((l) => l.startsWith('version:'));
+    final declared = line.split(':')[1].trim().split('+').last;
+
+    expect(kAppBuild, declared);
+  });
 }

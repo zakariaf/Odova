@@ -606,5 +606,10 @@
   "notifBlockedAction": "‏sgnittes enohp nepO",
   "notifBackgroundTitle": "‏.srednimer s’avodO gnippots eb yam enohp ruoY",
   "notifSilentFooter": "‏.neercs emoh eht no swohs llits eud s’tahW .gnihtyna uoy dnes t’now avodO",
-  "notifRowCalendar": "‏radnelac ym ot srednimer ddA"
+  "notifRowCalendar": "‏radnelac ym ot srednimer ddA",
+  "aboutPrivacy": "‏.sda on ,scitylana on ,gnikcart oN .dedaolpu si gnihtoN .revres oN .pu-ngis oN .tnuocca oN",
+  "aboutBackupWarning": "‏.enog era yeht ,pukcab a tuohtiw ti esol uoy fI .ylno enohp siht no evil sdrocer ruoY",
+  "aboutVersion": "‏ noisreV{version}( {build})",
+  "aboutBackupFormat": "‏ tamrof pukcaB{format}",
+  "aboutLicencesRow": "‏secnecil ecruos nepO"
 }

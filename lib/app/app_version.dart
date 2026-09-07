@@ -17,3 +17,18 @@
 /// string, not a number." It is an identifier a support conversation quotes
 /// back, and Eastern Arabic-Indic digits in a bug report help nobody.
 const String kAppVersion = '0.1.0';
+
+/// The build number — the `+312` half of `pubspec.yaml`'s version.
+///
+/// Shown beside the marketing version because they answer different
+/// questions: a user quotes `1.4.0` and a store rejection quotes `312`.
+const String kAppBuild = '1';
+
+/// The backup format this build reads and writes.
+///
+/// Declared here because `settings.about` needs it and EPIC-15 has not landed.
+/// **EPIC-15 Task 15.1 takes ownership of this constant** and this screen goes
+/// on reading it — two copies is how the number on the About screen and the
+/// number in the file drift apart, which is a support conversation nobody can
+/// resolve.
+const int kSupportedFormatVersion = 1;

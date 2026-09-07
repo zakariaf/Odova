@@ -29,6 +29,8 @@ import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/features/reminders/ui/reminders_edit_screen.dart';
 import 'package:odova/features/reminders/ui/reminders_list_screen.dart';
 import 'package:odova/features/report/presentation/report_service_screen.dart';
+import 'package:odova/features/settings/presentation/about_screen.dart';
+import 'package:odova/features/settings/presentation/licences_screen.dart';
 import 'package:odova/features/settings/presentation/notifications_screen.dart';
 import 'package:odova/features/settings/presentation/settings_language_screen.dart';
 import 'package:odova/features/settings/presentation/settings_screen.dart';
@@ -381,8 +383,18 @@ final List<StatefulShellBranch> _branches = [
             pageBuilder: (context, state) => PageKind.push.page(
               context,
               state,
-              const PlaceholderScreen(screenId: 'settings.about'),
+              const AboutScreen(),
             ),
+            routes: [
+              GoRoute(
+                path: 'licences',
+                pageBuilder: (context, state) => PageKind.push.page(
+                  context,
+                  state,
+                  const LicencesScreen(),
+                ),
+              ),
+            ],
           ),
         ],
       ),
