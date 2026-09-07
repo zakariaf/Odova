@@ -256,3 +256,53 @@ line covered.
 **Not done in 15.3:** the epic's "assert against a fake filesystem that records
 zero opens" was replaced by the import check described above, which is stronger
 and cannot be fooled by a migration that opens a file through a different API.
+
+## Task 15.4 — the safety copies and the atomic-swap importer
+
+`importStore` is §6 §4.1's pipeline: safety copy → stage beside → verify counts
+→ close every handle → one rename. Nothing is destructive until the rename, so
+every failure path leaves the live database byte-identical — which the test
+asserts by **reading the bytes**, at each stage in turn.
+
+That test found two real defects on its first run: a throw from any stage past
+`staging` escaped the function instead of returning a typed failure (§14's crash
+loop, in the one place a user cannot afford one), and a count mismatch left the
+`.importing` file behind for the next attempt to trip over.
+
+Four mutations, all seen red: publishing without the count check, the safety
+copy taken after staging, staging left behind on failure, cancellation ignored.
+
+**Both gates that fired were right, and both changed the design.**
+`value_equality_completeness_test` refused a `File` inside `RestoreReport`'s
+props — a live handle with identity equality in a value type. And
+`active_vehicle_id is written in exactly one place` fired for the **second time
+in this epic**: `settleImportedSettings` now returns the snapshot and the chosen
+vehicle separately, so the importer applies it through `setActiveVehicle` and
+the tab stack resets. After an import that reset is not optional, because the
+stack holds routes for a car that may no longer exist.
+
+Twice in one epic is a pattern worth naming: **anything that sets the active
+vehicle outside `setActiveVehicle` will be refused**, and the right move is to
+return the choice rather than to write it.
+
+**Not done in 15.4, and each needs a caller that does not exist yet:**
+
+- **`SafetyCopyStore` is the filenames, the instant parsing and the 30-day
+  expiry — not a directory scanner.** Listing copies, applying the
+  re-import suppression rule (`content_hash` + `record_counts` match), and
+  *Undo last import* all need `settings.backup`, which is task 15.6. The
+  suppression rule is the one to be careful with: it exists because importing
+  the same file twice would replace the user's real data with the file's own
+  contents, and the three months they were trying to get back are gone.
+- **The delete-all and undo copies have no writer.** *Delete all data* is
+  EPIC-14's screen and does not take a copy today; §4.4 says "no exceptions".
+  Recorded as a defect to close in 15.6, not as a decision.
+- **The `5,000 records under 8 s / 4 s` floor is not asserted.** The importer's
+  tests use small stores; the corpus covers 11,883 records through the READER.
+  The write side needs a bench and belongs with the real wiring.
+
+**The importer takes a `StoreSnapshot`, not an `ImportPlan`**, because
+`ImportPlan` is in the backup feature and `lib/data` importing a feature would
+invert the layering. `lib/data/repositories/store_writer.dart` is the new
+whole-store write path — one batch per table, parents before children,
+corrections last because each names a reading.
