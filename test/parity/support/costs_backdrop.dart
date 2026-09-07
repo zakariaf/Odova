@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/costs/cost_by_category.dart';
 import 'package:odova/core/costs/cost_range.dart';
+import 'package:odova/core/costs/household_costs.dart';
 import 'package:odova/core/costs/monthly_chart_model.dart';
 import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/l10n/calendar.dart';
@@ -152,4 +153,21 @@ class _ArtboardCostsRepository implements CostsRepository {
       ],
     );
   }
+
+  @override
+  Future<List<HouseholdVehicle>> readHousehold(
+    List<HouseholdVehicleFacts> vehicles, {
+    required CivilDate today,
+    required CostsRangeChoice choice,
+  }) async => [
+    for (final (i, v) in vehicles.indexed)
+      HouseholdVehicle(
+        vehicleId: v.id,
+        name: v.name,
+        // Descending, so the sort in `buildHousehold` has something to do.
+        perMonth: Money(20000 - i * 5000, Currency.tryParse('EUR')!),
+        isArchived: v.isArchived,
+        isSold: v.isSold,
+      ),
+  ];
 }

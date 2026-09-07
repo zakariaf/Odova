@@ -162,7 +162,7 @@ void main() {
       final before = container.read(activeVehicleIdProvider);
       final notifier = await _loaded(container);
 
-      notifier.toggleAllVehicles(includeInactive: true);
+      notifier.setIncludeInactive(include: true);
       await Future<void>.delayed(Duration.zero);
 
       expect(
@@ -185,7 +185,7 @@ void main() {
         today: _today,
       );
 
-      notifier.toggleAllVehicles(includeInactive: true);
+      notifier.setIncludeInactive(include: true);
       await Future<void>.delayed(Duration.zero);
 
       expect(
@@ -193,5 +193,41 @@ void main() {
         CostsRangeChoice.threeMonths,
       );
     });
+  });
+
+  test('switching the vehicle reloads; the same vehicle does not', () async {
+    // `_loading` was set true on the first call and never reset, so
+    // `ensureLoaded` ran exactly ONCE for the app's lifetime — and switching
+    // the active vehicle left tab 3 showing the first car's costs under the
+    // second car's name. A plausible wrong number is worse than none.
+    final repository = FakeCostsRepository();
+    final container = _container(repository: repository);
+    final notifier = await _loaded(container);
+    final afterFirst = repository.reads;
+
+    notifier.ensureLoaded('veh_1', today: _today);
+    await Future<void>.delayed(Duration.zero);
+    expect(repository.reads, afterFirst, reason: 'same vehicle, no reload');
+
+    notifier.ensureLoaded('veh_2', today: _today);
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      repository.reads,
+      greaterThan(afterFirst),
+      reason: 'a different vehicle must reload',
+    );
+  });
+
+  test('a load reads the record set once, not twice', () async {
+    // The first version read with a null range to learn `firstRecordOn`, then
+    // again with the range that came out of it — two whole-history queries
+    // fetching identical rows, and a write landing between them would have
+    // been counted by one and not the other.
+    final repository = FakeCostsRepository();
+    final container = _container(repository: repository);
+    await _loaded(container);
+
+    expect(repository.reads, 1);
   });
 }

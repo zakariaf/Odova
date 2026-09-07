@@ -18,6 +18,7 @@
 // by luck.
 import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/l10n/calendar.dart';
+import 'package:odova/core/money/allocate.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/time/civil_date.dart';
 
@@ -61,49 +62,28 @@ Money monthlyShare({
 
 /// Splits [amount] across [weights] so the parts sum to the whole EXACTLY.
 ///
-/// Largest remainder: floor every share, then give the leftover units to the
-/// largest fractional parts, one each. The alternative — rounding each share
-/// independently — is what turns 1,200.00 into 1,199.99, and it does so more
-/// often the more slices there are.
+/// Through [allocate], which is `lib/core/money/`'s largest-remainder split
+/// and was already written, already tested and — until this call — had no
+/// caller in `lib/` at all. This function had its own copy of the algorithm
+/// for one day, and the copy differed in two ways that matter:
 ///
-/// Ties break toward the EARLIER index, so the allocation is deterministic:
-/// two months with identical remainders must not swap between runs, or a
-/// golden over a report becomes a flake.
+///   * It truncated toward zero on a NEGATIVE amount, so a refund spread over
+///     a coverage window came back summing to LESS than the refund. `allocate`
+///     carries the sign explicitly, and §10 makes `Expense.amount` the one
+///     money field in this app allowed to be negative — so that case is
+///     reachable from the form.
+///   * It had no tie-break documented as load-bearing; `allocate`'s is.
+///
+/// What stays here is the only genuine difference: `allocate` THROWS on
+/// weights that are all zero, because splitting a whole into no parts is a
+/// programming error at its call sites. Here it is data — a coverage window
+/// that overlaps none of the months asked about — and zero is the answer.
 List<Money> allocateByWeight(Money amount, List<int> weights) {
   final total = weights.fold<int>(0, (sum, w) => sum + w);
   if (total <= 0) {
     return [for (final _ in weights) Money(0, amount.currency)];
   }
-
-  final units = amount.amountMinor;
-  final floors = <int>[];
-  final remainders = <(int index, int remainder)>[];
-
-  for (final (i, w) in weights.indexed) {
-    // Integer arithmetic throughout. `units * w` before the division, so the
-    // quotient and the remainder are both exact.
-    final product = units * w;
-    floors.add(product ~/ total);
-    remainders.add((i, product % total));
-  }
-
-  var leftover = units - floors.fold<int>(0, (sum, f) => sum + f);
-
-  // Descending remainder, then ascending index — the second key is what makes
-  // a tie deterministic rather than dependent on the sort's stability.
-  final ordered = [...remainders]
-    ..sort((a, b) {
-      final byRemainder = b.$2.compareTo(a.$2);
-      return byRemainder != 0 ? byRemainder : a.$1.compareTo(b.$1);
-    });
-
-  for (final entry in ordered) {
-    if (leftover <= 0) break;
-    floors[entry.$1] += 1;
-    leftover--;
-  }
-
-  return [for (final f in floors) Money(f, amount.currency)];
+  return allocate(amount, weights);
 }
 
 /// Every month [from]..[to] touches, in order.

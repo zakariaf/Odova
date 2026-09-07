@@ -2344,4 +2344,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get costsEstimateNoReadings =>
       'لا توجد قراءات عداد في هذه الفترة للقياس بينها.';
+
+  @override
+  String get fuelEmptyBody => 'يظهر أول رقم استهلاك عند ثاني خزان ممتلئ.';
 }

@@ -141,7 +141,14 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
           onChanged: (next) => _edit(draft.withPurpose(next)),
         ),
         SizedBox(height: space.s5),
-        CalmField(label: l10n.tripTitleLabel, controller: _title),
+        // `onChanged`, which the first version left off: the field held what
+        // the user typed and the draft never saw it, so every trip saved with
+        // no title while its name sat on screen.
+        CalmField(
+          label: l10n.tripTitleLabel,
+          controller: _title,
+          onChanged: (v) => _edit(draft.withTitle(v)),
+        ),
         SizedBox(height: space.s4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,6 +332,14 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
 
   void _edit(TripDraft next) => setState(() => _draft = next);
 
+  /// The draft's title, for the test that pins §10's field 2.
+  ///
+  /// The field is what the user types into and the DRAFT is what gets saved;
+  /// asserting on the controller would pass against the bug this exists to
+  /// catch, which was a `CalmField` with no `onChanged`.
+  @visibleForTesting
+  String? get debugDraftTitle => _draft?.title;
+
   /// §10's date range: thirty years back, no future at all.
   ///
   /// The picker STOPS at today rather than offering tomorrow and refusing it
@@ -342,9 +357,9 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
 
     final picked = await showDatePicker(
       context: context,
-      initialDate: _asPickerDate(current),
-      firstDate: _asPickerDate(range.first),
-      lastDate: _asPickerDate(range.last),
+      initialDate: asPickerDate(current),
+      firstDate: asPickerDate(range.first),
+      lastDate: asPickerDate(range.last),
     );
     if (picked == null || !mounted) return;
     final chosen = CivilDate.fromDateTime(picked);
@@ -355,10 +370,6 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
           : draft.withStartedOn(chosen.toString()),
     );
   }
-
-  /// Local midnight, which is what `showDatePicker` builds its grid from.
-  DateTime _asPickerDate(CivilDate date) =>
-      DateTime(date.year, date.month, date.day);
 
   Future<void> _save(Vehicle? vehicle) async {
     final draft = _draft;
@@ -504,13 +515,19 @@ class _DistanceField extends StatelessWidget {
     // exactly the "looks like fact" this rule names.
     final metres = from != null && to != null && to >= from ? to - from : null;
 
+    // The controller the state class already owns, written into rather than a
+    // fresh one per frame. `build` runs on every keystroke of every other
+    // field, and a `TextEditingController` constructed here is a
+    // `ChangeNotifier` allocated and orphaned each time — never disposed, and
+    // forcing the field to detach and reattach its listeners to display text
+    // that cannot be edited.
+    controller.text = metres == null
+        ? ''
+        : tripDistanceLabel(l10n, formatsTag, Distance(metres), unit);
+
     return CalmField(
       label: l10n.tripDistanceLabel,
-      controller: TextEditingController(
-        text: metres == null
-            ? ''
-            : tripDistanceLabel(l10n, formatsTag, Distance(metres), unit),
-      ),
+      controller: controller,
       // The `ƒ` badge, and the field goes read-only with it: §10 makes it
       // editable ONLY when both odometer fields are empty.
       computed: true,
@@ -542,12 +559,7 @@ class _ExpensesSection extends ConsumerWidget {
     final space = CalmSpace.of(context);
     final type = CalmType.of(context);
 
-    final row = tripId == null
-        ? null
-        : [
-            ...model.open,
-            ...model.earlier,
-          ].where((r) => r.trip.id.toString() == tripId).firstOrNull;
+    final row = tripId == null ? null : model.rowFor(tripId!);
     // Grouped per currency and never summed: §10 draws "612.00 € · 80.00 £"
     // and applies no rate, because there is no rate in this app to apply.
     final total = row == null ? null : tripCostLabel(row.cost, formatsTag);

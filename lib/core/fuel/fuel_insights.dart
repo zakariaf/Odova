@@ -138,9 +138,15 @@ class FuelInsights {
 
     final newest = set.segments.last;
     final ranked = [...set.segments]
-      ..sort(
-        (a, b) => _perHundred(a).compareTo(_perHundred(b)),
-      );
+      ..sort((a, b) {
+        final byFigure = _perHundred(a).compareTo(_perHundred(b));
+        // A tie-break on the id, because Dart's `sort` is not documented as
+        // stable: two tanks with identical consumption could otherwise swap
+        // between runs, and best/worst is a figure the screen NAMES a date
+        // for. `consumption_stats.dart`'s `_rank` states the same rule for
+        // the same reason.
+        return byFigure != 0 ? byFigure : a.toFillUpId.compareTo(b.toFillUpId);
+      });
 
     final bestId = ranked.first.toFillUpId;
     final worstId = ranked.last.toFillUpId;
@@ -149,17 +155,18 @@ class FuelInsights {
       costedFillIds: costedIds,
       mixedCurrencySegments: mixed,
       chartPoints: [
-        for (final s in set.segments)
-          (
-            value: _perHundred(s),
-            isBest: s.toFillUpId == bestId,
-            isWorst: s.toFillUpId == worstId,
-          ),
+        if (_isLiquid(set))
+          for (final s in set.segments)
+            (
+              value: _perHundred(s),
+              isBest: s.toFillUpId == bestId,
+              isWorst: s.toFillUpId == worstId,
+            ),
       ],
-      averageLitresPer100Km: totalMetres == 0
+      averageLitresPer100Km: totalMetres == 0 || !_isLiquid(set)
           ? null
           : totalAmount / 1000 / (totalMetres / 1000) * 100,
-      lastLitresPer100Km: _perHundred(newest),
+      lastLitresPer100Km: _isLiquid(set) ? _perHundred(newest) : null,
       // The CLOSING fill's date. The day a user recognises is the one they
       // were at the pump, and that is the fill that ended the tank.
       bestOccurredOn: byId[ranked.first.toFillUpId]?.occurredOn,
@@ -229,7 +236,26 @@ class FuelInsights {
   /// painter's x mapping.
   final List<({double value, bool isBest, bool isWorst})> chartPoints;
 
+  /// The segment's consumption in the unit its QUANTITY is measured in.
+  ///
+  /// `quantity.amount` is millilitres for a liquid and watt-hours for an
+  /// electric charge, so `amount / 1000` is litres or kilowatt-hours and the
+  /// arithmetic is right for both. What is NOT right for both is the name:
+  /// every field this feeds is called `…LitresPer100Km` and the screen renders
+  /// "L/100 km" beside it, so an electric car is shown kWh labelled as litres.
+  ///
+  /// SPEC.md §1 forbids guessing in a way that looks like fact, and a figure
+  /// under the wrong unit is exactly that — so `_isLiquid` gates the fields
+  /// rather than this function returning a wrong one. The proper fix is a
+  /// unit-carrying figure through `Consumption.asUnit`, and it belongs with
+  /// the fuel-kind selector this epic deferred: that control is where a
+  /// bi-fuel or electric car chooses its unit in the first place.
   static double _perHundred(FuelSegment segment) => segment.distance.metres == 0
       ? 0
       : segment.quantity.amount / 1000 / (segment.distance.metres / 1000) * 100;
+
+  /// Whether these figures are litres, and may therefore wear the L/100 km
+  /// label the screen draws.
+  static bool _isLiquid(FuelSegmentSet set) =>
+      set.segments.every((s) => s.quantity is LiquidVolume);
 }

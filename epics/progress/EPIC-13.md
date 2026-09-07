@@ -266,3 +266,82 @@ filtered `history` in-stack, `costs.fuel` → `log.fillup` in edit mode and →
 filtered history) — the history filter API exists but the category rows have
 no `onTap` yet, and the stack-reset-on-vehicle-switch rule already has a test
 in `stack_reset_test.dart`.
+
+## `/simplify` — four agents, 30 findings, what was done with each
+
+**Applied.** Fifteen, and four of them were live defects the pass surfaced
+while looking for duplication:
+
+1. **`TripSave` used `vehicle.distanceUnit ?? km`, not `effectiveDistanceUnit`.**
+   A user on global miles with no per-vehicle override had the FORM label the
+   field `mi` while the writer parsed it as kilometres. The write path and the
+   read path disagreed about one field, and what lands in the database is a
+   wrong `Distance` — unrecoverable history.
+2. **`ensureLoaded` ran exactly once for the app's lifetime.** `_loading` was
+   set true on the first call and never reset, so switching the active vehicle
+   left tab 3 showing the first car's costs under the second car's name. Now
+   keyed on the vehicle, with a test.
+3. **The trip title field had no `onChanged`.** Every trip saved with no title
+   while its name sat on screen. Nothing about the form looked wrong.
+4. **`allocateByWeight` was a second largest-remainder allocator**, and it
+   differed from `lib/core/money/allocate.dart` in a way that mattered: it
+   truncated toward zero on a negative amount, so a refund spread over a
+   coverage window came back summing to LESS than the refund. §10 makes
+   `Expense.amount` the one money field allowed to be negative and puts the
+   refund switch on the form, so that was reachable. Now delegates, with a
+   regression test that fails against the old body.
+
+Also applied: `_thisMonth` now goes through the accrual allocator (it took
+each amount whole, so an annual premium read at full value under a chart
+column showing one twelfth — two numbers on one screen disagreeing under a
+caption promising the opposite); the costs load reads the record set ONCE and
+narrows in memory; `monthTitle` lifted from the history feature to
+`lib/l10n/` so the cost chart stops re-encoding a `MonthKey` as an ISO string
+and handing a Persian key to a Gregorian parser; `asPickerDate` lifted to
+`core/time/` (the trip picker was a character-identical copy of the log
+modal's, minus the paragraph explaining the timezone hazard); one
+`monthlyChartColour` instead of two identical switches; `CostsState.copyWith`;
+`_columnsFor`'s unread `bucketed` parameter; `TripsListModel.rowFor`; the
+throwaway `TextEditingController` per frame in `_DistanceField`;
+`tripDateRange` computed once per row instead of twice; three `Paint`s hoisted
+out of the chart's paint loops; three hand-rolled empty states replaced with
+`CalmEmptyState` — **and the two `onPressed: () {}` inside them wired**, which
+were the only button on an empty screen doing nothing.
+
+**Built rather than deferred.** `AllVehiclesPanel`, `buildHousehold` and
+`CostsState.includeInactive` were written, tested, and mounted by nothing —
+350 lines of §12 that no user could reach, reporting green coverage. Both DoD
+lines name the toggle, so it is now wired: `CostsRepository.readHousehold`,
+the app-bar toggle (drawn only with ≥2 vehicles, per §12), and a test that
+fails if the panel stops mounting.
+
+**Answered, not applied:**
+
+- **`fuel_insights` re-derives EPIC-06's `consumption_stats` engine.** True,
+  and the reuse would have prevented the EV bug below. Swapping it is a larger
+  change than this pass, and it belongs with the fuel-kind selector this epic
+  deferred. What was fixed is the consequence: `_perHundred` treated
+  `quantity.amount` as litres, so an electric car was shown kilowatt-hours
+  labelled `L/100 km`. The litre-named fields are now null for a non-liquid
+  quantity — §1 forbids a figure under the wrong unit — with a test. The
+  segment ranking also gained the id tie-break `consumption_stats` documents,
+  because Dart's `sort` is not stable and best/worst names a date.
+- **`trips.list` materialises every row eagerly.** Real: `CalmScaffold` takes
+  a `List<Widget>`, so `ListView.separated` cannot virtualise what it is
+  handed. The fix is a builder API on the scaffold — a change to shared
+  infrastructure that every screen would inherit, and it belongs in its own
+  commit rather than smuggled into an epic close. Recorded for EPIC-17.
+- **`CostRange` vs `core/time/completed_months.dart`.** Two encodings of one
+  product rule, and `completed_months.dart` was already dead on `main`.
+  Deleting it is a change to code this epic did not touch; recorded for
+  EPIC-14, which is the next epic to open `core/time/`.
+- **`CostsInputs.thisMonthSoFar` and `CostRange.thisMonthSoFar`.** The latter
+  still has no production caller. Left, because the API is the one §12 names
+  and the screen will want it when the "this month so far" line gets its own
+  range; recorded so it is a decision rather than an oversight.
+- **`TripDraft.isDirty` and `TripRepository.undelete` have no callers.** Both
+  pair with work this epic deferred — the discard guard and the save Undo —
+  and deleting them now means writing them again in EPIC-14. Recorded.
+- **`TripDraft.groupingSeparator` is always `','`.** The value object is right
+  to carry it; what is missing is the screen passing the locale's. Recorded
+  with the discard guard, since both are `trips.edit` polish.

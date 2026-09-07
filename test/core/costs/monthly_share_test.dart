@@ -272,4 +272,18 @@ void main() {
       isA<int>(),
     );
   });
+
+  test('a refund spread over its window still sums to the refund', () {
+    // The copy of the algorithm this replaced truncated toward zero on a
+    // negative amount and then never handed the leftover out, so a refund
+    // came back summing to LESS than the refund. SPEC.md §10 makes
+    // `Expense.amount` the one money field allowed to be negative and the
+    // refund switch reachable from the form, so this is not a hypothetical.
+    final shares = allocateByWeight(Money(-1000, eur), const [3, 3, 3]);
+
+    expect(
+      shares.fold<int>(0, (sum, m) => sum + m.amountMinor),
+      -1000,
+    );
+  });
 }

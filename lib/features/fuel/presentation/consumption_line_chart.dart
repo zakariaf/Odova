@@ -149,22 +149,28 @@ class ConsumptionLinePainter extends CustomPainter {
     // The dashed average. Unchanged by direction — a horizontal line has no
     // direction to mirror, and §12 says so explicitly.
     final avgY = y(average);
+    // Hoisted. A `Paint` inside the dash loop is ~45 allocations per repaint
+    // at phone width, and `custom-canvas-and-gestures` asks `paint()` to
+    // allocate nothing.
+    final avgPaint = Paint()
+      ..color = averageLine
+      ..strokeWidth = 1;
     for (var dx = 0.0; dx < size.width; dx += 8) {
       canvas.drawLine(
         Offset(dx, avgY),
         Offset((dx + 4).clamp(0, size.width), avgY),
-        Paint()
-          ..color = averageLine
-          ..strokeWidth = 1,
+        avgPaint,
       );
     }
 
+    final bestPaint = Paint()..color = best;
+    final worstPaint = Paint()..color = worst;
     for (final (i, p) in points.indexed) {
       if (!p.isBest && !p.isWorst) continue;
       canvas.drawCircle(
         Offset(x(i), y(p.value)),
         4,
-        Paint()..color = p.isBest ? best : worst,
+        p.isBest ? bestPaint : worstPaint,
       );
     }
   }

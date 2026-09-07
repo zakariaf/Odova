@@ -18,15 +18,19 @@
 // reads every public signature under `lib/data/repositories` — and both are
 // right that this is not that layer.
 
+import 'package:odova/core/costs/cost_aggregates.dart';
 import 'package:odova/core/costs/cost_by_category.dart';
 import 'package:odova/core/costs/cost_range.dart';
+import 'package:odova/core/costs/household_costs.dart';
 import 'package:odova/core/costs/monthly_chart_model.dart';
 import 'package:odova/core/costs/monthly_share.dart';
+import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/due/reading_series.dart';
 import 'package:odova/core/history/month_index.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/money/money_total.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/log_repositories.dart';
 import 'package:odova/data/repositories/odometer_repository.dart';
@@ -120,16 +124,20 @@ class CostsSource implements CostsRepository {
     ];
 
     final first = _earliest(lines);
-    final months = range == null ? const <MonthKey>[] : _monthsIn(range);
 
-    return CostsInputs(
-      amountsByRow: _byRow(lines, range),
+    // ONE assembly, and a closure that narrows it. The notifier needs
+    // `firstRecordOn` before it can build the `All` range, and needed a second
+    // whole-history read to get it; `narrowTo` closes over the lines this read
+    // produced, so the narrowing cannot see different data from the load.
+    CostsInputs forRange(CostRange? forRange) => CostsInputs(
+      amountsByRow: _byRow(lines, forRange),
       readings: readings.map(asReadingPoint).toList(),
       corrections: corrections.map(asCorrectionPoint).toList(),
       firstRecordOn: first,
-      thisMonthAmounts: _thisMonth(lines, range),
+      thisMonthAmounts: _thisMonth(lines, forRange),
       monthlyPoints: [
-        for (final month in months)
+        for (final month
+            in forRange == null ? const <MonthKey>[] : _monthsIn(forRange))
           MonthlyCostPoint(
             month: month,
             // Through `monthlyShare`, which is the ONE allocator: an insurance
@@ -138,8 +146,76 @@ class CostsSource implements CostsRepository {
             amounts: _amountsFor(lines, month),
           ),
       ],
+      narrowTo: (next) => _narrow(lines, readings, corrections, first, next),
     );
+
+    return forRange(range);
   }
+
+  @override
+  Future<List<HouseholdVehicle>> readHousehold(
+    List<HouseholdVehicleFacts> vehicles, {
+    required CivilDate today,
+    required CostsRangeChoice choice,
+  }) async {
+    final rows = <HouseholdVehicle>[];
+    for (final vehicle in vehicles) {
+      final inputs = await read(vehicle.id, range: null);
+      final range = costsRangeFor(choice, inputs, today);
+      if (range == null) continue;
+
+      final narrowed = inputs.narrow(range);
+      final total = MoneyTotal([
+        for (final list in narrowed.amountsByRow.values) ...list,
+      ]);
+      final dominant = total.dominantCurrency;
+      if (dominant == null) continue;
+
+      // Per COMPLETED month, like the headline: §12 is emphatic that a range
+      // including a two-day-old month halves its own average on the 2nd, and
+      // a household list that used a different divisor from the figure above
+      // it would be two answers to one question on one screen.
+      final perMonth = costPerMonth(
+        total: Money(total.byCurrency[dominant] ?? 0, dominant),
+        range: range,
+      );
+      // Only an EXACT figure joins the household list. §12's list is sorted by
+      // cost per month, and a vehicle whose figure is estimated or absent has
+      // no place in that ordering — it would sort against a number the app has
+      // said it cannot support.
+      if (perMonth is! CostExact || perMonth.minorPerMonth == null) continue;
+
+      rows.add(
+        HouseholdVehicle(
+          vehicleId: vehicle.id,
+          name: vehicle.name,
+          perMonth: Money(perMonth.minorPerMonth!, dominant),
+          isArchived: vehicle.isArchived,
+          isSold: vehicle.isSold,
+        ),
+      );
+    }
+    return rows;
+  }
+
+  CostsInputs _narrow(
+    List<_CostLine> lines,
+    List<OdometerReading> readings,
+    List<OdometerCorrection> corrections,
+    CivilDate? first,
+    CostRange? range,
+  ) => CostsInputs(
+    amountsByRow: _byRow(lines, range),
+    readings: readings.map(asReadingPoint).toList(),
+    corrections: corrections.map(asCorrectionPoint).toList(),
+    firstRecordOn: first,
+    thisMonthAmounts: _thisMonth(lines, range),
+    monthlyPoints: [
+      for (final month in range == null ? const <MonthKey>[] : _monthsIn(range))
+        MonthlyCostPoint(month: month, amounts: _amountsFor(lines, month)),
+    ],
+    narrowTo: (next) => _narrow(lines, readings, corrections, first, next),
+  );
 
   Map<CostCategoryRow, List<Money>> _byRow(
     List<_CostLine> lines,
@@ -153,14 +229,25 @@ class CostsSource implements CostsRepository {
     return byRow;
   }
 
+  /// §12's separately-reported current month.
+  ///
+  /// Through `_amountsFor`, which is `monthlyShare` — the SAME allocator the
+  /// chart column for this month uses. The first version filtered by month and
+  /// took each amount whole, so an annual insurance premium paid this month
+  /// landed in "this month so far" at full value while the chart column
+  /// directly above it showed one twelfth of the same premium. Two numbers on
+  /// one screen disagreeing, under a caption promising the opposite.
+  ///
+  /// It also compared `MonthKey`s built from the calendar alone, so a row from
+  /// the same month of ANY year counted. `monthlyShare` takes the month as a
+  /// key with its year in it, so that cannot happen here.
   List<Money> _thisMonth(List<_CostLine> lines, CostRange? range) {
     final today = range?.today;
     if (today == null) return const [];
-    final month = monthKeyOf(today.toString(), _calendar);
-    return [
-      for (final line in lines)
-        if (monthKeyOf(line.occurredOn, _calendar) == month) line.amount,
-    ];
+    return _amountsFor(
+      lines,
+      monthKeyOf(today.toString(), _calendar),
+    ).values.toList();
   }
 
   Map<CostCategoryRow, Money> _amountsFor(

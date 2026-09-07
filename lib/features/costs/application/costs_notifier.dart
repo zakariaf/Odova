@@ -12,6 +12,7 @@ import 'package:meta/meta.dart';
 import 'package:odova/core/costs/cost_aggregates.dart';
 import 'package:odova/core/costs/cost_by_category.dart';
 import 'package:odova/core/costs/cost_range.dart';
+import 'package:odova/core/costs/household_costs.dart';
 import 'package:odova/core/costs/monthly_chart_model.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/money/money.dart';
@@ -37,7 +38,27 @@ enum CostsRangeChoice {
   all,
 }
 
+/// What the household read needs to know about one vehicle.
+///
+/// The costs feature cannot import the vehicles feature, and does not need to:
+/// four facts is the whole of what a household line is made of.
+typedef HouseholdVehicleFacts = ({
+  String id,
+  String name,
+  bool isArchived,
+  bool isSold,
+});
+
 /// Everything tab 3 reads for one vehicle.
+///
+/// Read ONCE per load, for the whole history, and narrowed to a range in
+/// memory by [narrow]. The first version took the range as a query parameter,
+/// which meant the notifier read twice — once with a null range to learn
+/// `firstRecordOn`, which is the only thing the `All` chip's range can be
+/// derived from, and again with the range that came out of it. Both reads
+/// fetched byte-identical rows, because the source never filtered at the query
+/// level, and a write landing between them would have been counted by one and
+/// not the other.
 @immutable
 class CostsInputs {
   /// Creates the inputs.
@@ -50,7 +71,20 @@ class CostsInputs {
     this.soldOn,
     this.thisMonthAmounts = const [],
     this.monthlyPoints = const [],
+    this.narrowTo,
   });
+
+  /// Narrows every figure to the range this is called with.
+  ///
+  /// Supplied by the source, which is the only thing that knows the lines
+  /// behind the figures and the calendar the months are counted in. A closure
+  /// rather than a second read, so the narrowing cannot see different data
+  /// from the load it narrows.
+  final CostsInputs Function(CostRange? range)? narrowTo;
+
+  /// This, narrowed to [range]. Identity when the source supplied no narrower.
+  CostsInputs narrow(CostRange? range) =>
+      narrowTo == null ? this : narrowTo!(range);
 
   /// Every amount in range, already grouped into §12's six rows.
   final Map<CostCategoryRow, List<Money>> amountsByRow;
@@ -96,6 +130,8 @@ class CostsState {
     this.thisMonthSoFar,
     this.chart,
     this.includeInactive = false,
+    this.showsHousehold = false,
+    this.household,
     this.isLoaded = false,
   });
 
@@ -131,6 +167,19 @@ class CostsState {
   /// wrong in the direction of looking cheap.
   final bool includeInactive;
 
+  /// Whether §12's All-vehicles panel is showing.
+  ///
+  /// Separate from [includeInactive], which is the switch INSIDE the panel.
+  /// One flag for both would make "show the household" and "count the sold
+  /// ones in it" the same decision, and §12 makes them two.
+  final bool showsHousehold;
+
+  /// §12's household list, once the toggle has been turned on.
+  ///
+  /// Null until then. Loading it eagerly would read every vehicle's whole
+  /// history on a screen most users open for one car.
+  final HouseholdCosts? household;
+
   /// Whether the first read has landed.
   final bool isLoaded;
 
@@ -139,6 +188,32 @@ class CostsState {
   /// Loaded AND empty — before the read lands, an empty screen would flash
   /// "No costs yet" at a user who has eight years of them.
   bool get isEmpty => isLoaded && (total?.byCurrency.isEmpty ?? true);
+
+  /// A copy with the named fields replaced.
+  ///
+  /// `choose` and `toggleAllVehicles` each hand-listed all ten fields to
+  /// change one. An eleventh field then means editing three constructor calls,
+  /// and omitting it from one silently resets that field on the next chip
+  /// tap — a defect nothing in this file would catch.
+  CostsState copyWith({
+    CostsRangeChoice? choice,
+    bool? includeInactive,
+    bool? showsHousehold,
+    HouseholdCosts? household,
+  }) => CostsState(
+    choice: choice ?? this.choice,
+    range: range,
+    total: total,
+    categories: categories,
+    perMonth: perMonth,
+    perDistance: perDistance,
+    thisMonthSoFar: thisMonthSoFar,
+    chart: chart,
+    includeInactive: includeInactive ?? this.includeInactive,
+    showsHousehold: showsHousehold ?? this.showsHousehold,
+    household: household ?? this.household,
+    isLoaded: isLoaded,
+  );
 }
 
 /// Reads one vehicle's costs.
@@ -146,10 +221,22 @@ class CostsState {
 /// An interface rather than a function type, for the reason
 /// is: it is a PORT, its fake carries its own fixture, and a typedef makes
 /// every override an inline closure with no name in a stack trace.
-// ignore: one_member_abstracts
 abstract interface class CostsRepository {
   /// Everything §12's tab 3 is computed from, for [range].
   Future<CostsInputs> read(String vehicleId, {required CostRange? range});
+
+  /// One line per vehicle for §12's All-vehicles panel.
+  ///
+  /// A different QUESTION from [read] — "what does the household cost per
+  /// month" rather than "where does this car's money go" — and the only read
+  /// in tab 3 that touches more than one vehicle. §7's active vehicle is not
+  /// consulted and not written: §12 makes this toggle the one exception to the
+  /// app-wide vehicle scope, and it stays scoped by never reaching for it.
+  Future<List<HouseholdVehicle>> readHousehold(
+    List<HouseholdVehicleFacts> vehicles, {
+    required CivilDate today,
+    required CostsRangeChoice choice,
+  });
 }
 
 /// Tab 3's state.
@@ -157,13 +244,25 @@ class CostsNotifier extends Notifier<CostsState> {
   CostsInputs? _inputs;
   var _loading = false;
 
+  /// Which vehicle the current state describes.
+  ///
+  /// Held and compared, because `_loading` was set true on the first call and
+  /// never reset: `ensureLoaded` therefore ran exactly ONCE for the app's
+  /// lifetime, and switching the active vehicle left tab 3 showing the first
+  /// car's costs under the second car's name. That is worse than showing
+  /// nothing, because it is a plausible number.
+  String? _vehicleId;
+
   @override
   CostsState build() => const CostsState();
 
-  /// Loads once, and recomputes when the chip changes.
+  /// Loads for [vehicleId], and reloads when that becomes a different one.
   void ensureLoaded(String vehicleId, {required CivilDate today}) {
-    if (_loading || state.isLoaded) return;
+    if (_loading) return;
+    if (state.isLoaded && _vehicleId == vehicleId) return;
     _loading = true;
+    _vehicleId = vehicleId;
+    _inputs = null;
     unawaited(_reload(vehicleId, today: today));
   }
 
@@ -173,31 +272,18 @@ class CostsNotifier extends Notifier<CostsState> {
     String vehicleId, {
     required CivilDate today,
   }) async {
-    state = CostsState(
-      choice: choice,
-      range: state.range,
-      total: state.total,
-      categories: state.categories,
-      perMonth: state.perMonth,
-      perDistance: state.perDistance,
-      thisMonthSoFar: state.thisMonthSoFar,
-      chart: state.chart,
-      includeInactive: state.includeInactive,
-      isLoaded: state.isLoaded,
-    );
+    state = state.copyWith(choice: choice);
     await _reload(vehicleId, today: today);
   }
 
   Future<void> _reload(String vehicleId, {required CivilDate today}) async {
+    // ONE read, then a pure narrowing. See `CostsInputs`.
     final inputs = _inputs ??= await ref
         .read(costsRepositoryProvider)
         .read(vehicleId, range: null);
 
     final range = _rangeFor(state.choice, inputs, today);
-    final loaded = range == null
-        ? null
-        : await ref.read(costsRepositoryProvider).read(vehicleId, range: range);
-    final data = loaded ?? inputs;
+    final data = inputs.narrow(range);
 
     final amounts = [
       for (final list in data.amountsByRow.values) ...list,
@@ -245,7 +331,32 @@ class CostsNotifier extends Notifier<CostsState> {
               currency: dominant,
             ),
       includeInactive: state.includeInactive,
+      showsHousehold: state.showsHousehold,
+      household: state.household,
       isLoaded: true,
+    );
+    _loading = false;
+  }
+
+  /// Loads §12's household list.
+  ///
+  /// Called when the All-vehicles toggle is turned on, and again when the
+  /// Include-sold-and-archived switch moves — the aggregation changes, and
+  /// §12 keeps the RANGE across both, because a household comparison that
+  /// silently answered a different question from the one on screen a moment
+  /// ago is a comparison nobody can trust.
+  Future<void> loadHousehold(
+    List<HouseholdVehicleFacts> vehicles, {
+    required CivilDate today,
+  }) async {
+    final rows = await ref
+        .read(costsRepositoryProvider)
+        .readHousehold(vehicles, today: today, choice: state.choice);
+    state = state.copyWith(
+      household: buildHousehold(
+        vehicles: rows,
+        includeInactive: state.includeInactive,
+      ),
     );
   }
 
@@ -260,54 +371,59 @@ class CostsNotifier extends Notifier<CostsState> {
   /// toggle, because a household comparison that silently answered a different
   /// question from the one on screen a moment ago is a comparison nobody can
   /// trust.
-  void toggleAllVehicles({required bool includeInactive}) {
-    state = CostsState(
-      choice: state.choice,
-      range: state.range,
-      total: state.total,
-      categories: state.categories,
-      perMonth: state.perMonth,
-      perDistance: state.perDistance,
-      thisMonthSoFar: state.thisMonthSoFar,
-      chart: state.chart,
-      includeInactive: includeInactive,
-      isLoaded: state.isLoaded,
-    );
+  void toggleAllVehicles({required bool includeAllVehicles}) {
+    state = state.copyWith(showsHousehold: includeAllVehicles);
+  }
+
+  /// Sets §12's sold-and-archived switch, inside the panel.
+  void setIncludeInactive({required bool include}) {
+    state = state.copyWith(includeInactive: include);
   }
 
   static CostRange? _rangeFor(
     CostsRangeChoice choice,
     CostsInputs inputs,
     CivilDate today,
-  ) => switch (choice) {
-    CostsRangeChoice.threeMonths => CostRange.months(
-      3,
-      today: today,
-      purchasedOn: inputs.purchasedOn,
-      soldOn: inputs.soldOn,
-    ),
-    CostsRangeChoice.twelveMonths => CostRange.months(
-      12,
-      today: today,
-      purchasedOn: inputs.purchasedOn,
-      soldOn: inputs.soldOn,
-    ),
-    CostsRangeChoice.thisYear => CostRange.thisYear(
-      today: today,
-      purchasedOn: inputs.purchasedOn,
-      soldOn: inputs.soldOn,
-    ),
-    CostsRangeChoice.all =>
-      inputs.firstRecordOn == null
-          ? null
-          : CostRange.all(
-              firstRecordOn: inputs.firstRecordOn!,
-              today: today,
-              purchasedOn: inputs.purchasedOn,
-              soldOn: inputs.soldOn,
-            ),
-  };
+  ) => costsRangeFor(choice, inputs, today);
 }
+
+/// The window [choice] resolves to for [inputs].
+///
+/// Top-level, because the household read needs the same mapping for every
+/// vehicle in the garage and a second copy of it is a second answer to which
+/// months a chip means.
+CostRange? costsRangeFor(
+  CostsRangeChoice choice,
+  CostsInputs inputs,
+  CivilDate today,
+) => switch (choice) {
+  CostsRangeChoice.threeMonths => CostRange.months(
+    3,
+    today: today,
+    purchasedOn: inputs.purchasedOn,
+    soldOn: inputs.soldOn,
+  ),
+  CostsRangeChoice.twelveMonths => CostRange.months(
+    12,
+    today: today,
+    purchasedOn: inputs.purchasedOn,
+    soldOn: inputs.soldOn,
+  ),
+  CostsRangeChoice.thisYear => CostRange.thisYear(
+    today: today,
+    purchasedOn: inputs.purchasedOn,
+    soldOn: inputs.soldOn,
+  ),
+  CostsRangeChoice.all =>
+    inputs.firstRecordOn == null
+        ? null
+        : CostRange.all(
+            firstRecordOn: inputs.firstRecordOn!,
+            today: today,
+            purchasedOn: inputs.purchasedOn,
+            soldOn: inputs.soldOn,
+          ),
+};
 
 /// Tab 3's provider.
 final NotifierProvider<CostsNotifier, CostsState> costsProvider =

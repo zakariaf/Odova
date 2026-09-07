@@ -35,6 +35,7 @@ import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/ui/calm/calm_all_clear.dart';
 import 'package:odova/ui/calm/calm_badge.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_card.dart';
@@ -334,8 +335,16 @@ class _EarlierRows extends StatelessWidget {
       previousYear = year;
 
       final distance = row.distance;
+      // Once. It was computed twice per row with identical arguments, and
+      // each call builds one or two `intl` `DateFormat`s — a pattern parse
+      // and a symbol lookup apiece.
+      final dates = tripDateRange(
+        row.trip.startedOn,
+        row.trip.endedOn,
+        formatsTag,
+      );
       final meta = [
-        tripDateRange(row.trip.startedOn, row.trip.endedOn, formatsTag),
+        dates,
         if (distance != null)
           tripDistanceLabel(l10n, formatsTag, distance, unit),
         tripPurposeLabel(l10n, row.trip.purpose),
@@ -343,9 +352,7 @@ class _EarlierRows extends StatelessWidget {
 
       widgets.add(
         CalmListRow(
-          title:
-              row.trip.title ??
-              tripDateRange(row.trip.startedOn, row.trip.endedOn, formatsTag),
+          title: row.trip.title ?? dates,
           subtitle: meta,
           value: tripCostLabel(row.cost, formatsTag),
           showChevron: true,
@@ -387,6 +394,11 @@ class _YearSeparator extends StatelessWidget {
 }
 
 /// §12's empty state.
+///
+/// `CalmEmptyState` and not a hand-rolled Column: the component supplies the
+/// `Semantics(header: true)`, the centred body width and the neutral art, and
+/// three screens rolling their own is three quiet divergences from the design
+/// system that no gate catches.
 class _TripsEmpty extends StatelessWidget {
   const _TripsEmpty({required this.l10n, required this.onAdd});
 
@@ -394,27 +406,10 @@ class _TripsEmpty extends StatelessWidget {
   final VoidCallback onAdd;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = CalmColors.of(context);
-    final space = CalmSpace.of(context);
-    final type = CalmType.of(context);
-
-    return Padding(
-      padding: EdgeInsetsDirectional.symmetric(vertical: space.s7),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(l10n.tripsEmptyTitle, style: type.headline),
-          SizedBox(height: space.s3),
-          Text(
-            l10n.tripsEmptyBody,
-            style: type.body.copyWith(color: colors.ink3),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: space.s5),
-          CalmButton(label: l10n.tripsAddAction, onPressed: onAdd),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CalmEmptyState(
+    icon: Icons.route,
+    title: l10n.tripsEmptyTitle,
+    body: l10n.tripsEmptyBody,
+    action: CalmButton(label: l10n.tripsAddAction, onPressed: onAdd),
+  );
 }

@@ -101,3 +101,18 @@ int? dateFieldFarFutureDays({
   final days = floor.daysUntil(chosen);
   return days > 1 ? days : null;
 }
+
+/// A [CivilDate] as the LOCAL midnight a Material date picker compares against.
+///
+/// Local and not UTC on purpose. The picker builds its grid from local
+/// `DateTime`s, so a UTC midnight handed to `firstDate` lands on the previous
+/// day west of Greenwich and disables a day the range allows.
+/// `civil_date.dart`'s header is about exactly this hazard in the other
+/// direction; the conversion belongs at the boundary, and this is it.
+///
+/// Here rather than beside the picker because there are two pickers now — the
+/// log modal's and `trips.edit`'s — and the second one was a character-
+/// identical copy of the first WITHOUT this paragraph. A boundary conversion
+/// with two homes has one home that explains the hazard and one that does not.
+DateTime asPickerDate(CivilDate date) =>
+    DateTime(date.year, date.month, date.day);

@@ -6,9 +6,13 @@
 // renders to ONE decimal throughout — §12 says the measurement is not good
 // enough for two, and a second decimal invites the user to read a difference
 // that is noise.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:odova/app/active_vehicle.dart';
+import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/fuel/fuel_insights.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/core/money/currency.dart';
@@ -21,6 +25,7 @@ import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
+import 'package:odova/ui/calm/calm_all_clear.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_card.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
@@ -167,26 +172,24 @@ class _ChartCard extends StatelessWidget {
   }
 }
 
+/// §12's `costs.fuel` empty state.
 class _FuelEmpty extends StatelessWidget {
   const _FuelEmpty({required this.l10n});
 
   final AppLocalizations l10n;
 
   @override
-  Widget build(BuildContext context) {
-    final type = CalmType.of(context);
-    final space = CalmSpace.of(context);
-
-    return Padding(
-      padding: EdgeInsetsDirectional.symmetric(vertical: space.s7),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(l10n.fuelEmptyTitle, style: type.headline),
-          SizedBox(height: space.s5),
-          CalmButton(label: l10n.fuelEmptyAction, onPressed: () {}),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CalmEmptyState(
+    icon: Icons.local_gas_station,
+    title: l10n.fuelEmptyTitle,
+    // It states the MECHANISM, which is what a Calm empty state is for:
+    // consumption is measured BETWEEN two full tanks, so one fill-up cannot
+    // produce a figure and the screen is not broken.
+    body: l10n.fuelEmptyBody,
+    // Also shipped as `onPressed: () {}`.
+    action: CalmButton(
+      label: l10n.fuelEmptyAction,
+      onPressed: () => unawaited(context.push(Routes.log(LogType.fillUp))),
+    ),
+  );
 }

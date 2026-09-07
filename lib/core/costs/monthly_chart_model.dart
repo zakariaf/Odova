@@ -143,7 +143,7 @@ MonthlyChart buildMonthlyChart({
   if (points.length < kMonthlyChartMinimumColumns) {
     return MonthlyChart(
       shape: MonthlyChartShape.rows,
-      columns: _columnsFor(points, currency, bucketed: false, labelEvery: 1),
+      columns: _columnsFor(points, currency, labelEvery: 1),
       isBucketedByYear: false,
       hasOtherCurrencies: hasOther,
     );
@@ -157,7 +157,6 @@ MonthlyChart buildMonthlyChart({
     columns: _columnsFor(
       grouped,
       currency,
-      bucketed: bucketed,
       // A bucketed chart is a handful of columns, and a year with no label is
       // a column nobody can place. Beyond twelve months, every third — §12's
       // rule, and thirty-six labels on a phone overlap into a grey band.
@@ -210,7 +209,6 @@ List<MonthlyCostPoint> _byYear(
 List<MonthlyChartColumn> _columnsFor(
   List<MonthlyCostPoint> points,
   Currency currency, {
-  required bool bucketed,
   required int labelEvery,
 }) {
   final totals = [

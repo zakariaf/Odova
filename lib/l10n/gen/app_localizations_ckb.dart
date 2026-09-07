@@ -2215,4 +2215,7 @@ class AppLocalizationsCkb extends AppLocalizations {
   @override
   String get costsEstimateNoReadings =>
       'لەم ماوەیەدا هیچ خوێندنەوەیەکی کیلۆمەترپێو نییە بۆ پێوان.';
+
+  @override
+  String get fuelEmptyBody => 'یەکەم ژمارەی خەرجکردنت لە دووەم تانکی پڕدا دێت.';
 }

@@ -1,4 +1,12 @@
-// A month header's words: `September 2026`, `septembre 2026`, `مهر ۱۴۰۴`.
+// A month's words: `September 2026`, `septembre 2026`, `مهر ۱۴۰۴`.
+//
+// In `lib/l10n/` and not in the history feature, because §12's cost chart
+// labels a month too and `structure_test.dart` refuses one feature importing
+// another — correctly. The costs screen was re-encoding a `MonthKey` as the
+// ISO string `"1405-07-01"` and handing it to a Gregorian parser to get around
+// that, which threw away the calendar the key was deliberately built to carry:
+// `MonthKey` makes the calendar part of the KEY precisely so Mehr 1405 and
+// month 7 of a Gregorian year cannot be confused.
 //
 // SPEC.md §11 fixes the format as `LLLL y` in the active locale, and §5 fixes
 // the calendar it counts in. The two are separate decisions and both matter:
@@ -18,7 +26,7 @@ import 'package:odova/l10n/date_locale.dart';
 import 'package:odova/l10n/number_format.dart';
 
 /// [key] as a month header reads it.
-String historyMonthTitle(MonthKey key, String formatsTag) {
+String monthTitle(MonthKey key, String formatsTag) {
   final year = formatForDisplay(
     key.year,
     formatsTag,

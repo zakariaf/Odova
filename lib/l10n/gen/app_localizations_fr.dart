@@ -2268,4 +2268,8 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get costsEstimateNoReadings =>
       'Aucun relevé de compteur sur cette période pour mesurer un écart.';
+
+  @override
+  String get fuelEmptyBody =>
+      'Votre première consommation apparaîtra au deuxième plein.';
 }

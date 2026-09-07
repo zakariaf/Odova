@@ -86,6 +86,22 @@ class TripsListModel {
   /// Whether the first read has landed.
   final bool isLoaded;
 
+  /// The row for [tripId], or null.
+  ///
+  /// On the model, because the partition into [open] and [earlier] is the
+  /// model's own decision and a caller that spells out
+  /// `[...open, ...earlier].where(...)` has to stay in step with it. It was
+  /// spelled out twice on one screen.
+  TripsListRow? rowFor(String tripId) {
+    for (final row in open) {
+      if (row.trip.id.toString() == tripId) return row;
+    }
+    for (final row in earlier) {
+      if (row.trip.id.toString() == tripId) return row;
+    }
+    return null;
+  }
+
   /// Whether §12's empty state applies.
   ///
   /// Loaded AND nothing. An eager empty would flash "No trips yet" at somebody

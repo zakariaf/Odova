@@ -538,5 +538,6 @@
   "costsEstimateStaleBoundary": "Berechnet aus Kilometerständen, die {days} Tage von den gezeigten Daten entfernt liegen.",
   "costsEstimateNotEnoughDistance": "In diesem Zeitraum wurde zu wenig Strecke erfasst, um Kosten pro Kilometer zu berechnen.",
   "costsEstimateNoCompletedMonth": "Schauen Sie nach Monatsende wieder vorbei — es gibt noch keinen vollen Monat zum Mitteln.",
-  "costsEstimateNoReadings": "In diesem Zeitraum gibt es keine Kilometerstände, zwischen denen gemessen werden könnte."
+  "costsEstimateNoReadings": "In diesem Zeitraum gibt es keine Kilometerstände, zwischen denen gemessen werden könnte.",
+  "fuelEmptyBody": "Ihr erster Verbrauchswert erscheint bei der zweiten vollen Tankfüllung."
 }

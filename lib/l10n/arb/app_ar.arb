@@ -538,5 +538,6 @@
   "costsEstimateStaleBoundary": "حُسب من قراءات عداد تبعد {days} يومًا عن التواريخ المعروضة.",
   "costsEstimateNotEnoughDistance": "لم تُسجَّل مسافة كافية في هذه الفترة لحساب التكلفة لكل كيلومتر.",
   "costsEstimateNoCompletedMonth": "عد بعد نهاية الشهر — لا يوجد شهر كامل للمتوسط بعد.",
-  "costsEstimateNoReadings": "لا توجد قراءات عداد في هذه الفترة للقياس بينها."
+  "costsEstimateNoReadings": "لا توجد قراءات عداد في هذه الفترة للقياس بينها.",
+  "fuelEmptyBody": "يظهر أول رقم استهلاك عند ثاني خزان ممتلئ."
 }

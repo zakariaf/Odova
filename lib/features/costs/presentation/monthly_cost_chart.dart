@@ -156,6 +156,20 @@ class _Column extends StatelessWidget {
 /// Read through `CalmColors.of(context)` — every one of them a token. A raw
 /// hex here would fail the parity colour gate later, on a screen whose author
 /// has moved on and cannot explain it.
+///
+/// ONE switch, and the category list reads it too. Each row gets its own hue
+/// because six bars in one colour is a length comparison with nothing to
+/// anchor each length to — and the correspondence between the bar under a row
+/// and the segment in the chart above it is the only legend the chart has. A
+/// second copy of this switch is a seventh category, or a palette change,
+/// applied in one place and not the other: silent, and visible only to a
+/// human looking at both at once.
+///
+/// The design system gives five chart colours and §12 gives six rows, so the
+/// catch-all takes the neutral axis ink rather than a sixth hue. It reads as
+/// "everything else", which is what the row is — and `ink4` is not available
+/// for this: it is the WCAG-failing placeholder colour, and
+/// `calm_contrast_test.dart` confines it to the four files that need it.
 Color monthlyChartColour(BuildContext context, CostCategoryRow row) {
   final colors = CalmColors.of(context);
   return switch (row) {

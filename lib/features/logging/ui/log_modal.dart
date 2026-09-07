@@ -776,25 +776,15 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
     final picked = await showDatePicker(
       context: context,
-      initialDate: _asPickerDate(current),
-      firstDate: _asPickerDate(range.first),
-      lastDate: _asPickerDate(range.last),
+      initialDate: asPickerDate(current),
+      firstDate: asPickerDate(range.first),
+      lastDate: asPickerDate(range.last),
     );
     if (picked == null || !mounted) return;
     final chosen = CivilDate.fromDateTime(picked);
     if (chosen == null) return;
     setState(() => _chosenDate = chosen.toString());
   }
-
-  /// A [CivilDate] as the LOCAL midnight `showDatePicker` compares against.
-  ///
-  /// Local and not UTC on purpose. The picker builds its grid from local
-  /// `DateTime`s, so a UTC midnight handed to `firstDate` lands on the
-  /// previous day west of Greenwich and disables a day the range allows.
-  /// `civil_date.dart`'s header is about exactly this hazard in the other
-  /// direction; the conversion belongs at the boundary, and this is it.
-  DateTime _asPickerDate(CivilDate date) =>
-      DateTime(date.year, date.month, date.day);
 
   /// The modal's title: the form's own name in create mode, the record's in
   /// edit mode.

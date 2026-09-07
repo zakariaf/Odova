@@ -17,6 +17,7 @@ import 'package:odova/core/trips/trip_draft.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
+import 'package:odova/l10n/vehicle_labels.dart';
 
 /// What came of a trip save.
 @immutable
@@ -55,7 +56,17 @@ class TripSave extends Notifier<void> {
     Trip? existing,
   }) async {
     final now = ref.read(clockProvider).now().millisecondsSinceEpoch;
-    final unit = vehicle.distanceUnit ?? DistanceUnit.km;
+    // `effectiveDistanceUnit` and NOT `vehicle.distanceUnit ?? km`. The
+    // difference is the app-wide setting, which the second form skips: a user
+    // on global miles with no per-vehicle override would have the FORM label
+    // the field `mi` while this parsed it as kilometres. The write path and
+    // the read path would then disagree about the same field, and what lands
+    // in the database is a wrong `Distance` — unrecoverable history, which is
+    // the worst bug this app can have.
+    final unit = effectiveDistanceUnit(
+      vehicle,
+      ref.read(settingsProvider).value,
+    );
 
     Distance? distance(int? metres) => metres == null ? null : Distance(metres);
 

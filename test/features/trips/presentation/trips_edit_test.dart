@@ -248,4 +248,27 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('typing a title reaches the draft', (tester) async {
+    // The `CalmField` had no `onChanged`, so the field held what the user
+    // typed and the draft never saw it — every trip saved with no title while
+    // its name sat on screen. Nothing about the form looked wrong.
+    await _pump(tester);
+    final l10n = _l10n(tester);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, '').first,
+      'Munich run',
+    );
+    await tester.pump();
+
+    // Read through what the SCREEN would save: the title is on the draft, not
+    // only in the controller.
+    final state = tester.state(find.byType(TripsEditScreen));
+    expect(
+      (state as dynamic).debugDraftTitle,
+      'Munich run',
+      reason: l10n.tripTitleLabel,
+    );
+  });
 }

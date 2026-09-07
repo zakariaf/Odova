@@ -3359,6 +3359,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There are no odometer readings in this period to measure between.'**
   String get costsEstimateNoReadings;
+
+  /// The sentence under §12's `costs.fuel` empty title. It states the MECHANISM — consumption is measured between two full tanks, so one fill-up is not enough — because a Calm empty state is allowed to explain why the screen is empty rather than only that it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first consumption figure arrives at your second full tank.'**
+  String get fuelEmptyBody;
 }
 
 class _AppLocalizationsDelegate

@@ -16,6 +16,7 @@ library;
 import 'package:odova/core/fuel/fuel_insights.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:test/test.dart';
@@ -234,5 +235,35 @@ void main() {
     ], currency: eur);
 
     expect(insights.averageLitresPer100Km, isNull);
+  });
+
+  test('an electric charge yields no L/100 km figure', () {
+    // `quantity.amount` is watt-hours for a charge and millilitres for a
+    // liquid, so the arithmetic gave a plausible NUMBER either way — and
+    // every field it feeds is called `…LitresPer100Km`, with the screen
+    // drawing "L/100 km" beside it. An EV owner was therefore shown kilowatt-
+    // hours labelled as litres, which is §1's "guessing in a way that looks
+    // like fact" with no guess even involved.
+    InsightFill charge(String id, {required int km, required int kwh}) => (
+      id: id,
+      occurredOn: '2026-01-0${id.length}',
+      createdAtUtcMs: 0,
+      fuelKind: 'electric',
+      cumulativeM: km * 1000,
+      quantity: ElectricEnergy(Energy(kwh * 1000)),
+      isFullTank: true,
+      chainBroken: false,
+      tankCapacityMl: null,
+      cost: Money(1000, eur),
+    );
+
+    final insights = FuelInsights.byFuelKind([
+      charge('a', km: 100_000, kwh: 50),
+      charge('bb', km: 100_400, kwh: 60),
+    ], currency: eur)['electric']!;
+
+    expect(insights.averageLitresPer100Km, isNull);
+    expect(insights.lastLitresPer100Km, isNull);
+    expect(insights.chartPoints, isEmpty);
   });
 }

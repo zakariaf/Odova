@@ -178,4 +178,42 @@ void main() {
       expect(fills.single.cost, Money(7420, _eur));
     },
   );
+
+  test(
+    'this month is spread by the allocator, like the chart column',
+    () async {
+      // An annual premium paid this month. The first version of `_thisMonth`
+      // filtered by month and took the amount WHOLE, so it read €1,200 while
+      // the chart column for the same month showed one twelfth — two numbers on
+      // one screen disagreeing, under a caption promising the opposite.
+      await ExpenseRepository(db, testIds()).save(
+        Expense(
+          id: ExpenseId.tryParse('exp_01JQ8ZK3M7F0R6XN2E9TB4HCVE')!,
+          vehicleId: _vehicleId,
+          occurredOn: '2026-09-01',
+          category: ExpenseCategory.insurance,
+          amount: Money(120_000, _eur),
+          coversFrom: '2026-09-01',
+          coversTo: '2027-08-31',
+          odometerUnit: DistanceUnit.km,
+          createdAtUtcMs: 1000,
+          updatedAtUtcMs: 1000,
+        ),
+      );
+
+      final inputs = await source().read(
+        _vehicleId.toString(),
+        range: CostRange.months(6, today: CivilDate.tryParse('2026-09-07')!),
+      );
+
+      final thisMonth = inputs.thisMonthAmounts.fold<int>(
+        0,
+        (sum, m) => sum + m.amountMinor,
+      );
+      // Roughly a twelfth of €1,200 — 30 days of a 365-day window — and
+      // emphatically not €1,200.
+      expect(thisMonth, lessThan(15_000));
+      expect(thisMonth, greaterThan(5000));
+    },
+  );
 }

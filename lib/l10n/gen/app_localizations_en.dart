@@ -2212,4 +2212,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get costsEstimateNoReadings =>
       'There are no odometer readings in this period to measure between.';
+
+  @override
+  String get fuelEmptyBody =>
+      'Your first consumption figure arrives at your second full tank.';
 }

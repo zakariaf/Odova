@@ -2207,4 +2207,8 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get costsEstimateNoReadings =>
       'در این بازه هیچ کیلومترشماری برای اندازه‌گیری وجود ندارد.';
+
+  @override
+  String get fuelEmptyBody =>
+      'نخستین عدد مصرف شما در دومین باک پر به دست می‌آید.';
 }

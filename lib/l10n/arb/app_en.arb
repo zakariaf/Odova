@@ -3286,5 +3286,9 @@
   "costsEstimateNoReadings": "There are no odometer readings in this period to measure between.",
   "@costsEstimateNoReadings": {
     "description": "The fourth case `CostReason` names. §12's table lists three, and the engine has always had a fourth: no reading at all to measure between, which is a new vehicle rather than a stale one. Offering `Update odometer` here is exactly right."
+  },
+  "fuelEmptyBody": "Your first consumption figure arrives at your second full tank.",
+  "@fuelEmptyBody": {
+    "description": "The sentence under §12's `costs.fuel` empty title. It states the MECHANISM — consumption is measured between two full tanks, so one fill-up is not enough — because a Calm empty state is allowed to explain why the screen is empty rather than only that it is."
   }
 }

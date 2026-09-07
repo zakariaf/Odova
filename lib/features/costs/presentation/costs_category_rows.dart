@@ -13,6 +13,7 @@ import 'package:odova/core/costs/cost_by_category.dart';
 import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/features/costs/application/costs_notifier.dart';
 import 'package:odova/features/costs/presentation/costs_screen.dart';
+import 'package:odova/features/costs/presentation/monthly_cost_chart.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
@@ -136,30 +137,10 @@ class _CategoryRow extends StatelessWidget {
         _ShareBar(
           percent: line.sharePercent,
           radius: shapes.radiusPill,
-          colour: _colourFor(context, line.row),
+          colour: monthlyChartColour(context, line.row),
         ),
       ],
     );
-  }
-
-  /// The reference gives each row its own bar colour, drawn from the CHART
-  /// ramp rather than from the brand — six bars in one colour would be a
-  /// length comparison with nothing to anchor each length to.
-  static Color _colourFor(BuildContext context, CostCategoryRow row) {
-    final colors = CalmColors.of(context);
-    return switch (row) {
-      CostCategoryRow.fuel => colors.chart1,
-      CostCategoryRow.service => colors.chart2,
-      CostCategoryRow.insuranceAndTax => colors.chart3,
-      CostCategoryRow.finance => colors.chart4,
-      CostCategoryRow.parkingAndTolls => colors.chart5,
-      // The design system gives five chart colours and §12 gives six rows, so
-      // the catch-all takes the neutral axis ink rather than a sixth hue. It
-      // reads as "everything else", which is what the row is — and `ink4` is
-      // not available for this: it is the WCAG-failing placeholder colour, and
-      // `calm_contrast_test.dart` confines it to the four files that need it.
-      CostCategoryRow.other => colors.chartAxisInk,
-    };
   }
 
   static String _label(AppLocalizations l10n, CostCategoryRow row) =>

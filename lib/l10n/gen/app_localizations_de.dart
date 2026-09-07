@@ -2227,4 +2227,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get costsEstimateNoReadings =>
       'In diesem Zeitraum gibt es keine Kilometerstände, zwischen denen gemessen werden könnte.';
+
+  @override
+  String get fuelEmptyBody =>
+      'Ihr erster Verbrauchswert erscheint bei der zweiten vollen Tankfüllung.';
 }
