@@ -219,3 +219,76 @@ card starts 16px lower than the reference's and every band below inherits the
 offset. Establishing the cause is the side-by-side read Task 18.8 is, and that
 task is not done. It is carried into the sign-off rather than closed quietly.
 
+## Tasks 18.8, 18.9, 18.10 — the human half, and what it did not get
+
+**18.8 was done for four sheets, not 112.** `settings-light-ltr`,
+`home-light-ltr`, `log.fillup-light-ltr` and `vehicles-light-rtl`. Those four
+produced two BLOCKERs, nine FIXes and five NOTEs, all in
+`design/review/findings.md`, and **not one of them came from the three automated
+checks.** That ratio — sixteen findings from four sheets — is the argument for
+reading the other 108, and it is why the sign-off says NOT SIGNED rather than
+"mostly fine".
+
+**18.9 was not run at all.** `design-review-workflow`'s structured pass wants a
+release build on a device, including the aeroplane-mode walk, and this epic had
+neither. `design/review/shots/` therefore does not exist. It is deliberately not
+an empty directory and deliberately not the debug parity captures relabelled: a
+review matrix shot on the wrong build is worse than a missing one, because the
+missing one is legible.
+
+**18.10 was one round and it took both BLOCKERs.**
+
+`home` never drew the `● 1 overdue` pill. `HomeStack.overdueCount` counts over
+the WHOLE stack rather than the three cards on screen — the cap at three is
+exactly the condition under which a short count would go unnoticed, and both
+mutations (count the cards; count everything due) are caught.
+
+The odometer field read `187412` where the reference reads `187,412`, and the
+cause is the shape this repo has now met eight times: §10's "on blur the field
+re-renders canonically in the active numbering system" had a function,
+`canonicalDisplay`, with its own tests and **zero production callers**. Wiring
+it needed one real decision: that function's `grouped: false` was documented as
+"a separator that appears while you type moves the caret out from under your
+thumb", which is true and is about the CARET — and on blur there is no caret. It
+gained a `grouped` flag rather than having its default flipped, so the reason
+the default exists survives in the code.
+
+Adding `homeOverdueCount` cost three plural corrections the l10n gates caught
+and I did not anticipate: French needs a `many` category, the plural matrix test
+requires every new key registered by hand, and Arabic's `zero` must render as
+`other` unless the message declares an explicit `=0`. All three are gates doing
+their job.
+
+## Definition of done, honestly
+
+Checked:
+
+- All 28 screens are in the registry, and a screen that is not fails a test.
+- One run produces 112 captures at the reference size.
+- `parity-sweep.md` has a verdict for every one of the 112.
+- The contrast finding is closed in writing (EPIC-17), with the CSS, the palette
+  and all 112 references moved in one change.
+- No tolerance was widened. `--token-tolerance` and `--band-tolerance` are
+  untouched, and no reference was regenerated in this epic at all.
+- Exactly one fix round.
+- `SIGNOFF-2026-09-08.md` exists and is tracked.
+- Analyzer clean, 5,012 tests green.
+
+**Not checked, and each one is in the sign-off:**
+
+- `check_parity.sh` is NOT green: 6 of 112 pass, 106 fail the band profile at a
+  median 53%. The cause is real vertical rhythm and is not established.
+- 108 of 112 sheets have not been looked at by anybody, and none of the RTL ones
+  by somebody who reads the script.
+- The `design-review-workflow` release-build pass did not run.
+- Nine FIXes are open, including `costs.fuel`, which is missing its unit label,
+  its tank-count line, its This-tank/Best/Worst figures, its range chip, both
+  axis labels, its legend and its whole price trio. The widget has no code for
+  any of them; it is an unfinished screen rather than a drift.
+- The sign-off reads NOT SIGNED, which is the point of writing it.
+
+**For EPIC-19:** this epic's value is not that the screens match — they do not.
+It is that there is now one command that photographs all 28, one table with a
+verdict per comparison, and a written record of what is wrong with names on it.
+The five defects it found had each passed a per-screen parity test for four
+epics, which is the case for the sweep existing at all.
