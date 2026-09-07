@@ -884,6 +884,17 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String homeOverdueCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText دواکەوتوو',
+      one: '$nText دواکەوتوو',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homeMoreDue(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,

@@ -879,6 +879,17 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String homeOverdueCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText عقب‌افتاده',
+      one: '$nText عقب‌افتاده',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homeMoreDue(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,

@@ -201,6 +201,7 @@
   "homeUnknownTitle": "Wann wurde das zuletzt gemacht?",
   "homeUnknownHint": "Sagen Sie es mir, und daraus werden Erinnerungen.",
   "homeUnknownMore": "{n, plural, =0{Alle anzeigen} one{+ {nText} weiteres} other{+ {nText} weitere}}",
+  "homeOverdueCount": "{n, plural, one{{nText} überfällig} other{{nText} überfällig}}",
   "homeMoreDue": "{n, plural, =0{Alle Erinnerungen} one{Alle anzeigen — {nText} weiteres fällig oder überfällig} other{Alle anzeigen — {nText} weitere fällig oder überfällig}}",
   "homeSnoozedUntil": "Zurückgestellt bis {date}",
   "remindersSeeAll": "{n, plural, =0{Alle Erinnerungen} one{Alle Erinnerungen ({nText})} other{Alle Erinnerungen ({nText})}}",

@@ -201,6 +201,7 @@
   "homeUnknownTitle": "Quand cela a-t-il été fait ?",
   "homeUnknownHint": "Dites-le-moi et cela devient des rappels.",
   "homeUnknownMore": "{n, plural, =0{Tout voir} one{+ {nText} autre} many{+ {nText} autres} other{+ {nText} autres}}",
+  "homeOverdueCount": "{n, plural, one{{nText} en retard} many{{nText} en retard} other{{nText} en retard}}",
   "homeMoreDue": "{n, plural, =0{Tous les rappels} one{Tout voir — {nText} autre à faire ou en retard} many{Tout voir — {nText} autres à faire ou en retard} other{Tout voir — {nText} autres à faire ou en retard}}",
   "homeSnoozedUntil": "Reporté jusqu’au {date}",
   "remindersSeeAll": "{n, plural, =0{Tous les rappels} one{Tous les rappels ({nText})} many{Tous les rappels ({nText})} other{Tous les rappels ({nText})}}",

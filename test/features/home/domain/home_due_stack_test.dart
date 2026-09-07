@@ -122,6 +122,29 @@ void main() {
 
     expect(stack.cards, hasLength(3));
     expect(stack.moreDueCount, 6);
+
+    // The app-bar pill counts the WHOLE stack, not the three cards it shows.
+    // Nine overdue items reported as "3 overdue" is a smaller number than the
+    // truth on the one element §9 puts in the header to answer the screen's
+    // question before anybody reads a card — and the cap is exactly the
+    // condition under which nobody would notice.
+    expect(stack.overdueCount, 9);
+  });
+
+  test('the overdue count counts only overdue, not everything due', () {
+    // §9 gives `due` and `overdue` different words and different colours, and
+    // a pill that lumped them would tell somebody a service booked for this
+    // week is already late.
+    final stack = _stack(
+      items: [
+        _assessed('1', state: DueState.overdue, projected: '2026-08-01'),
+        _assessed('2', state: DueState.due, projected: '2026-09-02'),
+        _assessed('3', state: DueState.dueSoon, projected: '2026-09-20'),
+      ],
+      today: _day('2026-09-02'),
+    );
+
+    expect(stack.overdueCount, 1);
   });
 
   test('downgrades a purchase-anchored item to unknown', () {

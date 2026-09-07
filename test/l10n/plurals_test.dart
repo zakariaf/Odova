@@ -52,6 +52,7 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       'homeDurationWeeks' => l10n.homeDurationWeeks(n, nText),
       'homeDurationMonths' => l10n.homeDurationMonths(n, nText),
       'homeMoreDue' => l10n.homeMoreDue(n, nText),
+      'homeOverdueCount' => l10n.homeOverdueCount(n, nText),
       'homeUnknownMore' => l10n.homeUnknownMore(n, nText),
       'remindersSeeAll' => l10n.remindersSeeAll(n, nText),
       'tripsCount' => l10n.tripsCount(n, nText),

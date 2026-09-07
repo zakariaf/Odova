@@ -169,6 +169,7 @@ String canonicalDisplay(
   String raw,
   String formatsTag, {
   required int decimals,
+  bool grouped = false,
 }) {
   final read = parseDecimal(
     raw,
@@ -181,7 +182,10 @@ String canonicalDisplay(
     numerals: CalmNumerals.auto,
     decimalDigits: decimals,
     // A figure being EDITED is not grouped: a separator that appears while you
-    // type moves the caret out from under your thumb.
-    grouped: false,
+    // type moves the caret out from under your thumb. That reason is about the
+    // CARET, and on blur there is no caret — which is why [grouped] exists and
+    // why the one caller §10 sanctions, the odometer field's blur, passes true.
+    // `log.fillup`'s artboard reads `187,412`, and it is right to.
+    grouped: grouped,
   );
 }

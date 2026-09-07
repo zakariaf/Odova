@@ -201,6 +201,7 @@
   "homeUnknownTitle": "متى جرى هذا آخر مرّة؟",
   "homeUnknownHint": "أخبِرني لتتحوّل إلى تذكيرات.",
   "homeUnknownMore": "{n, plural, zero{عرض الكل} one{+ عنصر واحد آخر} two{+ عنصران آخران} few{+ {nText} عناصر أخرى} many{+ {nText} عنصرًا آخر} other{+ {nText} عنصر آخر}}",
+  "homeOverdueCount": "{n, plural, zero{{nText} عنصر متأخر} one{عنصر واحد متأخر} two{عنصران متأخران} few{{nText} عناصر متأخرة} many{{nText} عنصرًا متأخرًا} other{{nText} عنصر متأخر}}",
   "homeMoreDue": "{n, plural, zero{كل التذكيرات} one{عرض الكل — عنصر واحد آخر مستحقّ أو متأخّر} two{عرض الكل — عنصران آخران مستحقّان أو متأخّران} few{عرض الكل — {nText} عناصر أخرى مستحقّة أو متأخّرة} many{عرض الكل — {nText} عنصرًا مستحقًّا أو متأخّرًا} other{عرض الكل — {nText} عنصر مستحقّ أو متأخّر}}",
   "homeSnoozedUntil": "مؤجَّل حتى {date}",
   "remindersSeeAll": "{n, plural, zero{كل التذكيرات} one{كل التذكيرات (تذكير واحد)} two{كل التذكيرات (تذكيران)} few{كل التذكيرات ({nText} تذكيرات)} many{كل التذكيرات ({nText} تذكيرًا)} other{كل التذكيرات ({nText} تذكير)}}",

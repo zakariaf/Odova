@@ -201,6 +201,7 @@
   "homeUnknownTitle": "[Ẇħḗǹ ẇḗřḗ ţħḗŝḗ ŀáŝţ ḍǿǹḗ? ǃǃǃǃǃǃǃǃǃǃǃ]",
   "homeUnknownHint": "[Ţḗŀŀīǹḡ ḿḗ ţǔřǹŝ ţħḗḿ īǹţǿ řḗḿīǹḍḗřŝ. ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "homeUnknownMore": "[{n, plural, =0{Ŝḗḗ áŀŀ} one{+ {nText} ḿǿřḗ} other{+ {nText} ḿǿřḗ}} ǃǃǃǃǃǃǃǃǃ]",
+  "homeOverdueCount": "[{n, plural, one{{nText} ǿṽḗřḍǔḗ} other{{nText} ǿṽḗřḍǔḗ}} ǃǃǃǃǃǃǃ]",
   "homeMoreDue": "[{n, plural, =0{Ŝḗḗ áŀŀ řḗḿīǹḍḗřŝ} one{Ŝḗḗ áŀŀ — {nText} ḿǿřḗ ḍǔḗ ǿř ǿṽḗřḍǔḗ} other{Ŝḗḗ áŀŀ — {nText} ḿǿřḗ ḍǔḗ ǿř ǿṽḗřḍǔḗ}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",
   "homeSnoozedUntil": "[Ŝǹǿǿżḗḍ ǔǹţīŀ {date} ǃǃǃǃǃǃ]",
   "remindersSeeAll": "[{n, plural, =0{Ŝḗḗ áŀŀ řḗḿīǹḍḗřŝ} one{Ŝḗḗ áŀŀ řḗḿīǹḍḗřŝ ({nText})} other{Ŝḗḗ áŀŀ řḗḿīǹḍḗřŝ ({nText})}} ǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃǃ]",

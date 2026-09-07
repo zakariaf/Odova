@@ -65,13 +65,13 @@ FAIL  history-light-ltr
 FAIL  history-light-rtl
         FAIL  54% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  home-dark-ltr
-        FAIL  34% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  32% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  home-dark-rtl
-        FAIL  41% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  39% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  home-light-ltr
-        FAIL  34% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  33% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  home-light-rtl
-        FAIL  37% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  35% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  log.expense-dark-ltr
         FAIL  51% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  log.expense-dark-rtl

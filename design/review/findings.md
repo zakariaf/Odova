@@ -25,6 +25,9 @@ three automated checks, which is the point §7 makes about what they cannot see.
 
 ## BLOCKER
 
+Both are **FIXED** in Task 18.10's one scoped fix round. The finding text is
+kept as written, with what was done under each.
+
 ### B-1 · `home` does not draw the overdue count pill
 `home-light-ltr`. The artboard puts `● 1 overdue` beside the vehicle name in the
 app bar; the app draws nothing there.
@@ -35,6 +38,13 @@ element on the screen that answers it before the user reads a card. A phone that
 knows one item is overdue and says so nowhere in its header is the failure the
 whole app exists to prevent.
 
+**Fixed.** `HomeStack.overdueCount` and a `CalmBadge` in the app bar, with
+`homeOverdueCount` in all six ARB files and Arabic's six CLDR categories. The
+count is over the WHOLE stack rather than the three cards it shows: the stack
+caps at three, so a garage with five overdue items would have read "3 overdue"
+— a smaller number than the truth, and the cap is exactly the condition under
+which nobody would notice. Both mutations caught.
+
 ### B-2 · The odometer field does not group its digits while typing
 `log.fillup-light-ltr`. The reference reads `187,412`; the app reads `187412`.
 
@@ -43,6 +53,15 @@ number is typed at a pump, one-handed, in the rain. An ungrouped six-digit
 number is the one field in the app where a mistyped digit is both easiest to
 make and hardest to see, and the grouping is what makes it visible. It is also
 the field §10 makes mandatory on every form.
+
+**Fixed, and the cause was a familiar one.** §10's sentence — "on blur the field
+re-renders canonically in the active numbering system" — had a function,
+`canonicalDisplay`, with its own tests and **zero production callers**. The
+seam was shipped satisfied only by its own tests; this repo has now met that
+shape eight times. `OdometerField` became stateful, owns a `FocusNode` and
+re-renders on blur. `canonicalDisplay` gained a `grouped` flag: its default of
+`false` was written to protect a caret that a separator would move, and on blur
+there is no caret.
 
 ---
 
