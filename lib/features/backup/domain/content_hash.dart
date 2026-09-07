@@ -52,8 +52,12 @@ String withContentHash(String document) {
 /// Recomputed by putting the placeholder BACK, which is the only way to hash
 /// the same bytes the writer hashed.
 bool contentHashMatches(String document) {
+  // The whitespace is optional because it is not part of the format: a file
+  // written compactly and one written with a space between key and value are
+  // the same document, and a reader that only accepted one of them would
+  // refuse to verify a file some other tool re-serialised.
   final match = RegExp(
-    '"content_hash": "(sha256:[0-9a-f]{64})"',
+    r'"content_hash":\s*"(sha256:[0-9a-f]{64})"',
   ).firstMatch(document);
   if (match == null) return false;
 

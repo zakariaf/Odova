@@ -8,6 +8,7 @@
 // The key ORDER in each object is the spec's, and it is load-bearing: §6 §2.6
 // makes a streaming reader's one-pass reference resolution depend on it.
 import 'package:odova/core/domain/models/records.dart';
+import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/features/backup/domain/mapping/backup_values.dart';
 
 /// One reminder — §3's `ServiceItem`.
@@ -99,13 +100,23 @@ Map<String, Object?> odometerCorrectionBackupJson(
 };
 
 /// One fill-up.
+///
+/// EXACTLY ONE of `quantity_ml`, `quantity_g` and `energy_wh` is written,
+/// chosen by the quantity's own form and named for what it counts — SPEC.md
+/// §6 §2.5 and the §5 validation rule that blocks a file carrying two of them.
+///
+/// The first version of this wrote `fill.quantity?.amount` into `quantity_ml`
+/// whatever the fuel was, because `amount` is the canonical integer for all
+/// three forms. That is a silent unit swap of the worst kind: an EV's 41,500
+/// watt-hours would come back as 41.5 litres, and nothing in the file or on
+/// the screen would say so.
 Map<String, Object?> fillUpBackupJson(FillUp fill) => {
   'id': fill.id.toString(),
   'vehicle_id': fill.vehicleId.toString(),
   'occurred_on': fill.occurredOn,
   'odometer_m': metresOrNull(fill.odometer),
   'odometer_unit': fill.odometerUnit.wire,
-  'quantity_ml': fill.quantity?.amount,
+  ...quantityJson(fill.quantity),
   'quantity_unit': fill.quantityUnit.wire,
   'total_cost': moneyJson(fill.totalCost),
   'is_full_tank': fill.isFullTank,
@@ -198,4 +209,15 @@ Map<String, Object?> tripBackupJson(Trip trip) => {
   'created_at': rfc3339(trip.createdAtUtcMs),
   'updated_at': rfc3339(trip.updatedAtUtcMs),
   'deleted_at': null,
+};
+
+/// The one quantity key that matches [quantity]'s form.
+///
+/// A `null` quantity takes the litre slot, which is where the entry form puts
+/// it and where a reader that only understands liquid fuel will look.
+Map<String, Object?> quantityJson(FuelQuantity? quantity) => switch (quantity) {
+  LiquidVolume(:final volume) => {'quantity_ml': volume.millilitres},
+  GasMass(:final mass) => {'quantity_g': mass.grams},
+  ElectricEnergy(:final energy) => {'energy_wh': energy.wattHours},
+  null => {'quantity_ml': null},
 };
