@@ -13,7 +13,20 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:odova/features/backup/domain/backup_format.dart';
+
+/// What a `content_hash` field holds before the digest is written into it.
+///
+/// `sha256:` plus sixty-four zeros, and the LENGTH is the whole trick: the
+/// hash covers a document the hash is inside, which only works because the
+/// placeholder and the digest are the same size. No byte offset moves.
+///
+/// In `lib/core/export/` rather than in the backup feature because BOTH the
+/// backup writer and the pre-migration safety copy stamp it, and they live in
+/// different layers — the feature and `lib/data` — so neither can own it. The
+/// safety copy wrote `null` here until the review pass over EPIC-15, which
+/// made every escape-route file import with a "this has been edited" warning.
+const String kContentHashPlaceholder =
+    'sha256:0000000000000000000000000000000000000000000000000000000000000000';
 
 /// The `sha256:…` digest of [document], which must contain the placeholder.
 ///

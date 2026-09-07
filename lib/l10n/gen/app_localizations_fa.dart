@@ -2970,4 +2970,15 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get importKindCorrections => 'اصلاح‌های کیلومترشمار';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'و $nText مورد دیگر',
+      one: 'و $nText مورد دیگر',
+    );
+    return '$_temp0';
+  }
 }

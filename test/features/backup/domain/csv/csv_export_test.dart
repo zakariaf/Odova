@@ -12,7 +12,9 @@ import 'package:odova/core/domain/models/vehicle.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
+import 'package:odova/core/units/energy.dart';
 import 'package:odova/core/units/fuel_quantity.dart';
+import 'package:odova/core/units/mass.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:odova/features/backup/domain/backup_format.dart';
 import 'package:odova/features/backup/domain/csv/costs_csv.dart';
@@ -341,6 +343,60 @@ void main() {
 
     expect(rows.single[8], '');
     expect(rows.single[9], '');
+  });
+
+  test('a gas or electric fill names the unit it actually holds', () {
+    // `_volume` falls through to the canonical integer for both — grams and
+    // watt-hours — and the first version still wrote the user's VOLUME unit
+    // beside it, so an EV charge exported as `41500` with
+    // `quantity_unit = "l"`. The same silent unit swap `fillUpBackupJson`'s
+    // own doc says it exists to prevent.
+    final rows = fillUpCsvRows(
+      vehicle: _vehicle(),
+      fillUps: [
+        FillUp(
+          id: FillUpId.tryParse('fil_01K1Y4T8R2E6W0Q3A7S1D5F9GH')!,
+          vehicleId: _veh,
+          occurredOn: '2026-07-29',
+          odometerUnit: DistanceUnit.km,
+          fuelKind: FuelKind.electric,
+          quantity: const ElectricEnergy(Energy(41_500)),
+          quantityUnit: VolumeUnit.l,
+          totalCost: Money(1290, _eur),
+          createdAtUtcMs: 0,
+          updatedAtUtcMs: 0,
+        ),
+        FillUp(
+          id: FillUpId.tryParse('fil_01K1Y4T8R2E6W0Q3A7S1D5F9GJ')!,
+          vehicleId: _veh,
+          occurredOn: '2026-07-30',
+          odometerUnit: DistanceUnit.km,
+          fuelKind: FuelKind.cng,
+          quantity: const GasMass(Mass(4300)),
+          quantityUnit: VolumeUnit.l,
+          totalCost: Money(3900, _eur),
+          createdAtUtcMs: 1,
+          updatedAtUtcMs: 1,
+        ),
+      ],
+      cumulativeMetres: const {},
+      units: _metric,
+    );
+
+    const quantityColumn = 4;
+    const unitColumn = 5;
+    expect(rows[0][quantityColumn], '41500.00');
+    expect(rows[0][unitColumn], 'wh');
+    expect(rows[1][quantityColumn], '4300.00');
+    expect(rows[1][unitColumn], 'g');
+    // And a litre fill still says litres.
+    final litres = fillUpCsvRows(
+      vehicle: _vehicle(),
+      fillUps: [_fill(index: 0, occurredOn: '2026-01-01')],
+      cumulativeMetres: const {},
+      units: _metric,
+    );
+    expect(litres.single[unitColumn], 'l');
   });
 
   test('a negative amount stays a NUMBER in the costs CSV', () {

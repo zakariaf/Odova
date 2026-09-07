@@ -717,5 +717,6 @@
   "commonDone": "Terminé",
   "backupPickVehicle": "Quel véhicule ?",
   "backupAllVehicles": "Tous les véhicules",
-  "importKindCorrections": "Corrections de compteur"
+  "importKindCorrections": "Corrections de compteur",
+  "importAndMore": "{n, plural, one{et {nText} de plus} many{et {nText} de plus} other{et {nText} de plus}}"
 }

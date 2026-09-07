@@ -717,5 +717,6 @@
   "commonDone": "تم",
   "backupPickVehicle": "أي مركبة؟",
   "backupAllVehicles": "كل المركبات",
-  "importKindCorrections": "تصحيحات العدّاد"
+  "importKindCorrections": "تصحيحات العدّاد",
+  "importAndMore": "{n, plural, zero{و{nText} إدخال آخر} one{وإدخال واحد آخر} two{وإدخالان آخران} few{و{nText} إدخالات أخرى} many{و{nText} إدخالًا آخر} other{و{nText} إدخال آخر}}"
 }

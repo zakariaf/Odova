@@ -717,5 +717,6 @@
   "commonDone": "Fertig",
   "backupPickVehicle": "Welches Fahrzeug?",
   "backupAllVehicles": "Alle Fahrzeuge",
-  "importKindCorrections": "Kilometerstand-Korrekturen"
+  "importKindCorrections": "Kilometerstand-Korrekturen",
+  "importAndMore": "{n, plural, one{und {nText} weiterer} other{und {nText} weitere}}"
 }

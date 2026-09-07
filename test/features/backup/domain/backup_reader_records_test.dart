@@ -408,6 +408,71 @@ void main() {
     });
   });
 
+  test('a duplicate leaves recordsRead, but is not damage', () async {
+    // Two different things. A duplicate is a row the store will not hold, so
+    // it belongs out of `recordsRead` — otherwise the preview promises 1,204
+    // entries for a file that yields 1,199, and the number disagrees with what
+    // the importer counts afterwards, which refuses a good import as a
+    // `CountMismatch`.
+    //
+    // But it is NOT unreadable. Counting it toward the blast radius would
+    // refuse a file whose tail was appended to itself, which is the commonest
+    // way a file grows a duplicate at all.
+    const id = 'fil_01K1Y4T8R2E6W0Q3A7S1D5F9GH';
+    final plan = await _plan(
+      _write({
+        'fillups': [_fill(id: id), _fill(id: id)],
+      }),
+    );
+
+    expect(plan.recordsInFile, 3);
+    expect(plan.recordsRead, 2);
+    expect(plan.warnings.whereType<DuplicateIds>().single.count, 1);
+  });
+
+  test('a service line that cannot be read is counted and named', () async {
+    // The service still imports — its date, its odometer and its other lines
+    // are the user's history. But the LINE is a cost they entered, and §5.3's
+    // never-silently-drop rule is about what they lose. The first version
+    // cleared the rejection after the loop and added nothing.
+    final plan = await _plan(
+      _write({
+        'fillups': _ballast(),
+        'services': [
+          {
+            'id': 'srv_01K0C4V2H9B8N3Q7ZE5RY6TMWX',
+            'vehicle_id': _veh,
+            'occurred_on': '2026-05-22',
+            'odometer_unit': 'km',
+            'lines': [
+              {
+                'id': 'lin_01K0C4V2H9B8N3Q7ZE5RY6TMX1',
+                'label': 'Ölwechsel',
+                'amount_minor': 9820,
+                'currency': 'EUR',
+              },
+              {
+                'id': 'lin_01K0C4V2H9B8N3Q7ZE5RY6TMX2',
+                'label': 'Bremsen',
+                'amount_minor': 'forty',
+                'currency': 'EUR',
+              },
+            ],
+            'created_at': '2026-05-22T00:00:00Z',
+            'updated_at': '2026-05-22T00:00:00Z',
+          },
+        ],
+      }),
+    );
+
+    // The service arrives, with the line that could be read.
+    expect(plan.store.services.single.lines, hasLength(1));
+    // And the one that could not is named.
+    final skipped = plan.warnings.whereType<SkippedRecords>().single;
+    final lines = skipped.entries.where((e) => e.array == 'services');
+    expect(lines, hasLength(1));
+  });
+
   test('the plan reports what it will and will not import', () async {
     final plan = await _plan(
       _write({

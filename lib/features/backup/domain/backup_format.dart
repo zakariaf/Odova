@@ -19,6 +19,12 @@
 // conversation nobody can resolve.
 export 'package:odova/app/app_version.dart' show kSupportedFormatVersion;
 
+// The `content_hash` placeholder is `lib/core/export/`'s: the backup writer
+// and the pre-migration safety copy both stamp it, from different layers, so
+// neither can own it.
+export 'package:odova/core/export/content_hash.dart'
+    show kContentHashPlaceholder;
+
 /// The three bytes a UTF-8 byte-order mark is.
 ///
 /// Written by the CSV exports because Excel needs it to detect UTF-8, and
@@ -93,12 +99,3 @@ const List<String> kEnvelopeKeys = [
   'record_counts',
   'content_hash',
 ];
-
-/// The `content_hash` placeholder: `sha256:` and 64 zeros.
-///
-/// Written first, then overwritten IN PLACE with the real digest. The length
-/// is identical, so no byte offset shifts and the hash covers the document it
-/// is actually in — a hash computed over a shorter document and then inserted
-/// would describe a file that never existed.
-const String kContentHashPlaceholder =
-    'sha256:0000000000000000000000000000000000000000000000000000000000000000';

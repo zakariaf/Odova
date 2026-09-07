@@ -22,9 +22,23 @@ import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
 import 'package:odova/features/backup/domain/backup_reader.dart';
+import 'package:odova/features/backup/domain/import_warning.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../../support/export_stamp.dart';
+
+/// The one row every read needs. Its absence is a `StateError`, deliberately:
+/// a store with no settings is a store that has not been created.
+Future<void> _seedSettings(AppDatabase db) => db.customStatement('''
+  INSERT INTO settings (
+    id, created_at_utc_ms, updated_at_utc_ms, schema_version, language,
+    calendar, numerals, first_day_of_week, theme, currency_default,
+    currency_display, distance_unit, volume_unit, consumption_unit,
+    notification_time_minutes, quiet_hours_from_minutes,
+    quiet_hours_to_minutes
+  ) VALUES ('settings', 1, 1, 1, 'en', 'gregorian', 'auto', 1, 'system',
+            'EUR', 'none', 'km', 'l', 'l_100km', 540, 1260, 480);
+''');
 
 void main() {
   test('every numbered reader carries a projection, by construction', () {
@@ -187,4 +201,75 @@ void main() {
       );
     },
   );
+
+  test('the copy verifies its own hash, and warns about nothing', () async {
+    // It wrote `"content_hash": null`, so `contentHashMatches` found nothing
+    // and every pre-migration copy imported with "this file has been edited
+    // since Odova saved it" — on the ONE file a user reaches after a bad
+    // update, where a spurious damage warning is the last thing they need.
+    final db = AppDatabase.forTesting(
+      NativeDatabase(dbFile, setup: applyPragmas),
+    );
+    await _seedSettings(db);
+    await db.close();
+
+    final raw = sqlite3.open(dbFile.path);
+    final (file, _) = await writeMigrationSafetyCopy(
+      database: raw,
+      fromVersion: 1,
+      directory: dir,
+      stamp: kTestExportStamp,
+    );
+    raw.dispose();
+
+    final plan = switch (await const BackupReader().read(file!)) {
+      Ok(:final value) => value,
+      Err(:final failure) => fail('did not import: ${failure.code}'),
+    };
+    expect(
+      plan.warnings.whereType<ContentHashMismatch>(),
+      isEmpty,
+      reason: 'the escape route must verify against itself',
+    );
+  });
+
+  test('a reading from a previous restore is in the copy', () async {
+    // "Standalone" is `source_id IS NULL`, which is how `store_reader` and
+    // `record_backup` both define it. Filtering on `source == 'manual'`
+    // dropped every reading whose source was `import` — one that arrived in an
+    // earlier restore — from the escape route.
+    final db = AppDatabase.forTesting(
+      NativeDatabase(dbFile, setup: applyPragmas),
+    );
+    await _seedSettings(db);
+    await db.customStatement('''
+      INSERT INTO vehicles (
+        id, name, vehicle_type, is_business, fuel_kind_default, status,
+        sort_order, notifications_muted, created_at_utc_ms, updated_at_utc_ms
+      ) VALUES ('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD', 'Golf', 'car', 0, 'diesel',
+                'active', 0, 0, 1000, 1000);
+    ''');
+    await db.customStatement('''
+      INSERT INTO odometer_readings (
+        id, vehicle_id, occurred_on, odometer_m, odometer_unit, source,
+        created_at_utc_ms, updated_at_utc_ms
+      ) VALUES ('odo_01K2S1D9F4H7J0P3N6Q9T2W5YB',
+                'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVD', '2026-08-01', 215000000,
+                'km', 'import', 2100, 2100);
+    ''');
+    await db.close();
+
+    final raw = sqlite3.open(dbFile.path);
+    final (file, _) = await writeMigrationSafetyCopy(
+      database: raw,
+      fromVersion: 1,
+      directory: dir,
+      stamp: kTestExportStamp,
+    );
+    raw.dispose();
+
+    final document =
+        jsonDecode(file!.readAsStringSync()) as Map<String, Object?>;
+    expect(document['odometer_readings']! as List, hasLength(1));
+  });
 }

@@ -245,13 +245,32 @@ void main() {
     ).writeAsStringSync('x');
     File('${_temp.path}/something-else.txt').writeAsStringSync('x');
 
+    // The safety copies live in the SAME directory, and a prefix test on
+    // `odova-` would have swept the undo escape route away on every launch —
+    // deleting §6 §4.4's thirty-day window the first time the app started
+    // after a wipe.
+    File(
+      '${_temp.path}/odova-safety-import-20260902-1841.json',
+    ).writeAsStringSync('the escape route');
+    File(
+      '${_temp.path}/odova-safety-wipe-20260902-1841.json',
+    ).writeAsStringSync('the other one');
+    File(
+      '${_temp.path}/odova-safety-migration-1.json',
+    ).writeAsStringSync('and the third');
+
     final deleted = await deleteLeftoverExports(_temp);
 
     expect(deleted, 2);
-    // Not ours, not ours to delete.
+    // Not ours, not ours to delete — and the three copies survive.
     expect(
-      _temp.listSync().map((e) => e.uri.pathSegments.last),
-      ['something-else.txt'],
+      _temp.listSync().map((e) => e.uri.pathSegments.last).toSet(),
+      {
+        'something-else.txt',
+        'odova-safety-import-20260902-1841.json',
+        'odova-safety-wipe-20260902-1841.json',
+        'odova-safety-migration-1.json',
+      },
     );
   });
 

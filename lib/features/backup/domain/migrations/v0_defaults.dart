@@ -21,9 +21,22 @@ import 'package:odova/core/time/civil_date.dart';
 Map<String, Object?> fillDefaults(Map<String, Object?> document) => {
   ...document,
   'settings': _settings(_mapAt(document, 'settings')),
-  'vehicles': _each(document, 'vehicles', _vehicle),
-  'reminders': _each(document, 'reminders', _reminder),
-  'services': _each(document, 'services', _service),
+  // ONLY where the key is already the right shape. Writing `[]` back over a
+  // `"vehicles": "oops"` made rung 7 unreachable for these three arrays: the
+  // reader saw a well-formed empty list, so the file was neither refused as
+  // `MalformedArray` nor warned about as `MissingArray` — it imported silently
+  // as a phone with no vehicles, and every fill-up, service and expense in it
+  // became an orphan under "Recovered records".
+  //
+  // A defaults pass has no business changing a document's SHAPE. It fills
+  // absent fields inside records; deciding what an array is belongs to the
+  // rung that exists for it.
+  if (document['vehicles'] is List)
+    'vehicles': _each(document, 'vehicles', _vehicle),
+  if (document['reminders'] is List)
+    'reminders': _each(document, 'reminders', _reminder),
+  if (document['services'] is List)
+    'services': _each(document, 'services', _service),
 };
 
 /// How many reminders used the retired `whichever_last` rule.

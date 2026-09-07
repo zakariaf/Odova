@@ -189,6 +189,20 @@ int _records(StoreSnapshot store) =>
     store.expenses.length +
     store.trips.length;
 
+/// The filename prefixes a temporary export can have.
+///
+/// EXPLICIT, and not `odova-`. The safety copies are `odova-safety-*.json` and
+/// they live in the same directory; a prefix test would have swept the undo
+/// escape route away on every launch — deleting §6 §4.4's thirty-day window
+/// the first time the app started after a wipe.
+const Set<String> kTemporaryExportPrefixes = {
+  'odova-backup-',
+  'odova-fillups-',
+  'odova-costs-',
+  'odova-service-history-',
+  'odova-reminders-',
+};
+
 /// Deletes every temporary export left behind by a previous run.
 ///
 /// §6 §6: temporary copies are deleted on the next launch. The OS share sheet
@@ -203,7 +217,8 @@ Future<int> deleteLeftoverExports(Directory directory) async {
   var deleted = 0;
   for (final entity in directory.listSync()) {
     final name = entity.uri.pathSegments.last;
-    if (entity is! File || !name.startsWith('odova-')) continue;
+    if (entity is! File) continue;
+    if (!kTemporaryExportPrefixes.any(name.startsWith)) continue;
     try {
       entity.deleteSync();
       deleted++;

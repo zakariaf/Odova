@@ -156,6 +156,10 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     // and EPIC-14 each shipped once — `bootstrap_wires_ports_test` reads both
     // out of a bare container so it cannot recur silently.
     backupDirectoryProvider.overrideWithValue(getApplicationSupportDirectory),
+    // The free-space probe. Without it `BackupExportService` skips its check
+    // entirely, so §13's "free up about 6 MB" and the figure it names were
+    // unreachable code and a full disk surfaced as the generic write failure.
+    freeDiskBytesProvider.overrideWithValue(freeBytesInSupportDirectory),
     backupActionsProvider.overrideWith(WiredBackupActions.new),
   ];
 }

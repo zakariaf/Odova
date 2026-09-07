@@ -717,5 +717,6 @@
   "commonDone": "[Ḍǿǹḗ ǃǃ]",
   "backupPickVehicle": "[Ẇħīçħ ṽḗħīçŀḗ? ǃǃǃǃǃǃ]",
   "backupAllVehicles": "[Áŀŀ ṽḗħīçŀḗŝ ǃǃǃǃǃ]",
-  "importKindCorrections": "[Ǿḍǿḿḗţḗř çǿřřḗçţīǿǹŝ ǃǃǃǃǃǃǃǃ]"
+  "importKindCorrections": "[Ǿḍǿḿḗţḗř çǿřřḗçţīǿǹŝ ǃǃǃǃǃǃǃǃ]",
+  "importAndMore": "[{n, plural, one{áǹḍ {nText} ḿǿřḗ} other{áǹḍ {nText} ḿǿřḗ}} ǃǃǃǃǃǃǃǃ]"
 }

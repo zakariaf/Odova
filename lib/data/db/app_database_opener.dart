@@ -171,7 +171,14 @@ Future<OpenOutcome> openMigratedDatabase(
   );
   if (copyFailure != null) {
     return MigrationRefused(
-      database: build(NativeDatabase(dbFile, setup: applyPragmas)),
+      // `degraded`, not `build`. Drift opens LAZILY and runs `onUpgrade` on
+      // the first query, so handing back an ordinary connection here ran the
+      // migration this outcome exists to refuse — on the disk too full to
+      // write an escape route, or on the file from a newer build this binary
+      // has no reader for.
+      database: AppDatabase.degraded(
+        NativeDatabase(dbFile, setup: applyPragmas),
+      ),
       atVersion: fromVersion,
       expectedVersion: expected,
       reason: copyFailure,
@@ -208,7 +215,13 @@ Future<OpenOutcome> openMigratedDatabase(
     restored = true;
 
     return MigrationRolledBack(
-      database: build(NativeDatabase(dbFile, setup: applyPragmas)),
+      // `degraded`, for the same reason and a worse consequence: an ordinary
+      // connection's first query would re-attempt the migration that just
+      // threw, out of `readLaunchFacts`, which is §14's cold-launch crash
+      // loop — and a crash loop leaves uninstalling as the only remedy.
+      database: AppDatabase.degraded(
+        NativeDatabase(dbFile, setup: applyPragmas),
+      ),
       atVersion: fromVersion,
       expectedVersion: expected,
       error: error,

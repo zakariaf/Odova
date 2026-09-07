@@ -227,6 +227,11 @@ Future<Result<RestoreReport, ImportWriteFailure>> importStore({
   _removeStaging(staging);
 
   var published = false;
+  // Set the moment `closeLive` returns, so every path past it reopens —
+  // including the catch-all. The first version reopened only on the publish
+  // failure and on success, so a throw anywhere after the close left the app
+  // running with a closed database and a message saying the import failed.
+  var closed = false;
   try {
     onStage?.call(ImportStage.safetyCopy);
     final safetyCopy = await writeSafetyCopy();
@@ -254,6 +259,7 @@ Future<Result<RestoreReport, ImportWriteFailure>> importStore({
 
     onStage?.call(ImportStage.closing);
     await closeLive();
+    closed = true;
 
     onStage?.call(ImportStage.publish);
     try {
@@ -270,11 +276,14 @@ Future<Result<RestoreReport, ImportWriteFailure>> importStore({
       staging.renameSync(liveFile.path);
       published = true;
     } on FileSystemException catch (error) {
-      await reopenLive();
       return Err(PublishFailed(error.message));
     }
 
-    await reopenLive();
+    // Reopened in the `finally` below, not here. The first version reopened
+    // BEFORE returning Ok, so a throw from `reopenLive` returned
+    // `StagingFailed` for an import that had already published — the screen
+    // telling the user nothing on their phone had changed, over a store that
+    // had just been replaced.
     return Ok(
       RestoreReport(
         vehicles: store.vehicles.length,
@@ -283,6 +292,18 @@ Future<Result<RestoreReport, ImportWriteFailure>> importStore({
       ),
     );
   } on Object catch (error) {
+    // Past the rename this is no longer a failure the caller can act on: the
+    // data IS published. Saying otherwise would be the one lie §5.2's whole
+    // vocabulary exists to avoid.
+    if (published) {
+      return Ok(
+        RestoreReport(
+          vehicles: store.vehicles.length,
+          records: expectedRecords,
+          safetyCopyPath: null,
+        ),
+      );
+    }
     // NOTHING escapes as a throw. §14 names the crash loop as the worst
     // possible outcome, and an import is exactly where a user cannot afford
     // one: the app they are trying to get their data back into is the app
@@ -295,6 +316,10 @@ Future<Result<RestoreReport, ImportWriteFailure>> importStore({
     // unless it BECAME the live database, in which case it no longer exists
     // under that name.
     if (!published) _removeStaging(staging);
+    // And whatever happened, a database this function closed is reopened. An
+    // app left with a closed database cannot show the user the failure it is
+    // reporting.
+    if (closed) await reopenLive();
   }
 }
 

@@ -3057,4 +3057,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get importKindCorrections => 'Corrections de compteur';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'et $nText de plus',
+      many: 'et $nText de plus',
+      one: 'et $nText de plus',
+    );
+    return '$_temp0';
+  }
 }

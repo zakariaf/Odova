@@ -131,6 +131,16 @@ List<String> _row({
 
   final amount = quantity == null ? null : _volume(quantity, units.volume);
   final quantityCell = amount == null ? '' : csvNumber(amount, decimals: 2);
+  // The unit has to name what the NUMBER is. `_volume` correctly falls through
+  // to the canonical integer for gas and electric — grams and watt-hours — and
+  // the first version still wrote the user's VOLUME unit beside it, so an EV
+  // charge exported as `41500` with `quantity_unit = "l"`. That is the same
+  // silent unit swap `fillUpBackupJson`'s own doc says it exists to prevent.
+  final unitCell = switch (quantity) {
+    null || LiquidVolume() => units.volume.wire,
+    GasMass() => 'g',
+    ElectricEnergy() => 'wh',
+  };
   // Empty rather than zero when there is nothing to divide: a price per litre
   // of 0.00 is a number somebody will average.
   final priceCell = amount == null || amount == 0
@@ -152,7 +162,7 @@ List<String> _row({
     _distance(fill.odometer, units.distance),
     units.distance.wire,
     quantityCell,
-    units.volume.wire,
+    unitCell,
     priceCell,
     csvNumber(major, decimals: currency.exponent),
     currency.code,
@@ -172,9 +182,9 @@ String _distance(Distance? distance, DistanceUnit unit) =>
 
 double _volume(FuelQuantity quantity, VolumeUnit unit) => switch (quantity) {
   LiquidVolume(:final volume) => volume.inUnit(unit),
-  // Grams and watt-hours have no volume unit. The canonical integer is
-  // written as it stands, and `quantity_unit` beside it says which it is —
-  // converting kWh into gallons would be arithmetic on two different things.
+  // Grams and watt-hours have no volume unit. The canonical integer is written
+  // as it stands and `quantity_unit` says which it is — converting kWh into
+  // gallons would be arithmetic on two different things.
   _ => quantity.amount.toDouble(),
 };
 

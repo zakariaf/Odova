@@ -1,6 +1,5 @@
 // SPEC.md §6 §2.6's `content_hash`.
-import 'package:odova/features/backup/domain/backup_format.dart';
-import 'package:odova/features/backup/domain/content_hash.dart';
+import 'package:odova/core/export/content_hash.dart';
 import 'package:test/test.dart';
 
 String _doc(String hash) =>

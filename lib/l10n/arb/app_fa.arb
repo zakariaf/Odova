@@ -717,5 +717,6 @@
   "commonDone": "تمام",
   "backupPickVehicle": "کدام خودرو؟",
   "backupAllVehicles": "همه‌ی خودروها",
-  "importKindCorrections": "اصلاح‌های کیلومترشمار"
+  "importKindCorrections": "اصلاح‌های کیلومترشمار",
+  "importAndMore": "{n, plural, one{و {nText} مورد دیگر} other{و {nText} مورد دیگر}}"
 }

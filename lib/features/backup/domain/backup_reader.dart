@@ -19,11 +19,11 @@ import 'dart:io';
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/domain/models/store_snapshot.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/export/content_hash.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/features/backup/domain/backup_format.dart';
-import 'package:odova/features/backup/domain/content_hash.dart';
 import 'package:odova/features/backup/domain/import_failure.dart';
 import 'package:odova/features/backup/domain/import_plan.dart';
 import 'package:odova/features/backup/domain/import_warning.dart';
@@ -341,6 +341,13 @@ class BackupReader {
           .followedBy(trips.map((t) => t.startedOn)),
     );
 
+    // Dropped service LINES join the skipped list. They are not records — the
+    // service still imports — but §5.3's never-silently-drop rule is about
+    // what the user loses, and a line is a cost they entered.
+    for (final reason in log.droppedLines) {
+      skipped.add(SkippedEntry(array: 'services', reason: reason));
+    }
+
     if (skipped.isNotEmpty) warnings.add(SkippedRecords(skipped));
     if (log.coercedEnums > 0) warnings.add(CoercedEnums(log.coercedEnums));
     if (outOfRange > 0) warnings.add(OutOfRangeDates(outOfRange));
@@ -350,16 +357,29 @@ class BackupReader {
     if (duplicates > 0) warnings.add(DuplicateIds(duplicates));
 
     // ---- Rung 13: blast radius. ------------------------------------------
+    //
+    // UNREADABLE only. A duplicate is not damage: the file lists a record
+    // twice, the first copy is kept, and nothing is lost — so counting them
+    // here would refuse a file whose tail was appended to itself, which is the
+    // commonest way a file grows a duplicate in the first place.
     final unreadable = skipped.length;
-    final readable = found - unreadable;
     if (unreadable > kMaxDamagedRecords ||
         (found > 0 && unreadable > found * kMaxDamagedFraction)) {
       // Refused rather than partially imported. §2 makes import a REPLACE, so
       // a partial import is not "most of your history" — it is most of your
       // history standing where all of it used to be, with no way to tell which
       // parts are missing.
-      return Err(TooDamaged(readable: readable, total: found));
+      return Err(TooDamaged(readable: found - unreadable, total: found));
     }
+
+    // What will actually be IN the store: the file's rows, less the ones that
+    // could not be read and the ones that were listed twice. Duplicates belong
+    // in this number even though they are not damage — they are rows the store
+    // will not hold, so leaving them out made the preview promise 1,204
+    // entries for a file that yields 1,199, and made `recordsRead` disagree
+    // with what `store_importer` counts afterwards. That disagreement refuses
+    // an otherwise good import as a `CountMismatch`.
+    final readable = found - unreadable - duplicates;
 
     return Ok(
       ImportPlan(

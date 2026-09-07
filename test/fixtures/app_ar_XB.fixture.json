@@ -717,5 +717,6 @@
   "commonDone": "‏enoD",
   "backupPickVehicle": "‏?elcihev hcihW",
   "backupAllVehicles": "‏selcihev llA",
-  "importKindCorrections": "‏snoitcerroc retemodO"
+  "importKindCorrections": "‏snoitcerroc retemodO",
+  "importAndMore": "‏{n, plural, one{ dna{nText}erom } other{ dna{nText}erom }}"
 }

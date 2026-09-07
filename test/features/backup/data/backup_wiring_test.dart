@@ -78,6 +78,7 @@ ProviderContainer _container(_Share share) {
       appDatabaseProvider.overrideWithValue(_db),
       shareServiceProvider.overrideWithValue(share),
       backupDirectoryProvider.overrideWithValue(() async => _dir),
+      freeDiskBytesProvider.overrideWithValue(() async => 1 << 40),
       clockProvider.overrideWithValue(
         Clock.fixed(DateTime(2026, 9, 2, 18, 41)),
       ),
@@ -140,6 +141,35 @@ void main() {
     );
   });
 
+  test('a full disk is refused, with the figure it needs', () async {
+    // Production skipped this check entirely — `BackupExportService` takes
+    // `freeBytes` as a nullable and `backup_wiring` did not pass one — so
+    // §13's "free up about 6 MB" message and the figure it names were
+    // unreachable code, and a full disk surfaced as the generic write failure.
+    final container = ProviderContainer(
+      overrides: [
+        appDatabaseProvider.overrideWithValue(_db),
+        shareServiceProvider.overrideWithValue(_Share()),
+        backupDirectoryProvider.overrideWithValue(() async => _dir),
+        freeDiskBytesProvider.overrideWithValue(() async => 1),
+        clockProvider.overrideWithValue(
+          Clock.fixed(DateTime(2026, 9, 2, 18, 41)),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final result = await container.read(backupExportProvider)();
+
+    expect(
+      switch (result) {
+        Ok() => null,
+        Err(:final failure) => failure,
+      },
+      isA<ExportNoSpace>(),
+    );
+  });
+
   test('a refused share stamps nothing', () async {
     // §6 §6 stamps the HAND-OFF. If the OS never took the file there was no
     // hand-off, and telling the user they have a backup is worse than telling
@@ -149,6 +179,7 @@ void main() {
         appDatabaseProvider.overrideWithValue(_db),
         shareServiceProvider.overrideWithValue(_RefusingShare()),
         backupDirectoryProvider.overrideWithValue(() async => _dir),
+        freeDiskBytesProvider.overrideWithValue(() async => 1 << 40),
         clockProvider.overrideWithValue(
           Clock.fixed(DateTime(2026, 9, 2, 18, 41)),
         ),

@@ -3200,4 +3200,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get importKindCorrections => 'تصحيحات العدّاد';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'و$nText إدخال آخر',
+      many: 'و$nText إدخالًا آخر',
+      few: 'و$nText إدخالات أخرى',
+      two: 'وإدخالان آخران',
+      one: 'وإدخال واحد آخر',
+      zero: 'و$nText إدخال آخر',
+    );
+    return '$_temp0';
+  }
 }

@@ -126,6 +126,45 @@ void main() {
     expect(find.textContaining('2026'), findsWidgets);
   });
 
+  testWidgets("the header shows the WRITER's clock, not UTC", (tester) async {
+    // `exported_at_local` carries the writer's own offset, signed and with
+    // minutes so Tehran's +03:30 survives, and the writer emits it precisely
+    // so this line can be right. Reading the UTC clock put a Tehran user's
+    // export three and a half hours out.
+    //
+    // 2026-04-11T09:30Z is 13:00 in Tehran.
+    await _pump(
+      tester,
+      state: ImportPreviewState(
+        variant: const ReplaceVariant(),
+        fileName: 'odova-backup-2026-04-11-1300.json',
+        exportedAtUtcMs: _exportedAt,
+        exportedAtOffset: const Duration(hours: 3, minutes: 30),
+        comparison: const [],
+        plan: _plan(),
+      ),
+    );
+
+    expect(find.textContaining('10:11 PM'), findsNothing);
+    expect(find.textContaining('PM'), findsWidgets);
+  });
+
+  test('the offset is read out of the file, and defaults to none', () {
+    // Zero and not the READER's zone: a file with no local stamp says nothing
+    // about where it was written, and using this phone's would be an answer
+    // invented on the spot.
+    expect(
+      writerOffsetOf('2026-09-07T10:30:00+02:00'),
+      const Duration(hours: 2),
+    );
+    expect(
+      writerOffsetOf('2026-09-07T05:00:00-03:30'),
+      const Duration(hours: -3, minutes: -30),
+    );
+    expect(writerOffsetOf('2026-09-07T08:30:00Z'), Duration.zero);
+    expect(writerOffsetOf(null), Duration.zero);
+  });
+
   testWidgets('the comparison carries every type, both columns', (
     tester,
   ) async {

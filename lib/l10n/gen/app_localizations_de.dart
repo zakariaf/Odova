@@ -2994,4 +2994,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get importKindCorrections => 'Kilometerstand-Korrekturen';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'und $nText weitere',
+      one: 'und $nText weiterer',
+    );
+    return '$_temp0';
+  }
 }

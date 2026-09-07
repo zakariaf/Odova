@@ -36,6 +36,14 @@ import 'package:odova/ui/calm/calm_notice.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
 
+/// How many skipped entries the disclosure lists before it stops.
+///
+/// Rung 13 permits up to `max(50, 5% of found)` — six hundred on a
+/// 12,000-record file — and §4.3's reason for the list is that "a user who
+/// knows exactly what was lost can retype three rows". Past a few dozen that
+/// has stopped being true and the count is the message.
+const int kSkippedEntriesShown = 20;
+
 /// §13's Restore modal.
 class ImportScreen extends ConsumerWidget {
   /// Creates the modal.
@@ -141,8 +149,33 @@ class _Preview extends ConsumerWidget {
                   // Type, date and a plain reason. Never an identifier: a ULID
                   // tells the user nothing and makes the list read like a
                   // crash report.
-                  for (final entry in _skippedEntries(state.warnings))
+                  //
+                  // CAPPED. Rung 13 lets through up to `max(50, 5%)` skipped
+                  // records — six hundred on a 12,000-record file — and the
+                  // first version emitted one `Text` per entry into a
+                  // non-lazy Column, rebuilt on every frame. That is the same
+                  // shape as the "preview building 400 rows" defect the parity
+                  // pass caught before.
+                  //
+                  // A cap and not a lazy list, because the whole point is that
+                  // a user can retype three rows: past a few dozen the list
+                  // has stopped being actionable and the COUNT is the message.
+                  for (final entry in _skippedEntries(
+                    state.warnings,
+                  ).take(kSkippedEntriesShown))
                     Text(_skippedLine(context, entry, tags.formats)),
+                  if (skipped > kSkippedEntriesShown)
+                    Text(
+                      l10n.importAndMore(
+                        skipped - kSkippedEntriesShown,
+                        formatForDisplay(
+                          skipped - kSkippedEntriesShown,
+                          tags.formats,
+                          numerals: CalmNumerals.auto,
+                        ),
+                      ),
+                      style: CalmType.of(context).caption,
+                    ),
                 ],
               ),
             ],
@@ -221,8 +254,13 @@ class _FileHeader extends StatelessWidget {
           if (state.variant case UndoVariant(:final takenAtUtcMs))
             Text(
               l10n.importUndoHeader(
-                formatLongDate(isoDateOfUtcMs(takenAtUtcMs), tags.formats),
-                _clockOf(takenAtUtcMs, tags.formats),
+                formatLongDate(
+                  isoDateOfUtcMs(
+                    takenAtUtcMs + state.exportedAtOffset.inMilliseconds,
+                  ),
+                  tags.formats,
+                ),
+                _clockOf(takenAtUtcMs, state.exportedAtOffset, tags.formats),
               ),
               style: type.bodyLg.copyWith(fontWeight: type.semi),
             )
@@ -245,8 +283,11 @@ class _FileHeader extends StatelessWidget {
             if (state.exportedAtUtcMs case final at?)
               Text(
                 l10n.importFileMade(
-                  formatLongDate(isoDateOfUtcMs(at), tags.formats),
-                  _clockOf(at, tags.formats),
+                  formatLongDate(
+                    isoDateOfUtcMs(at + state.exportedAtOffset.inMilliseconds),
+                    tags.formats,
+                  ),
+                  _clockOf(at, state.exportedAtOffset, tags.formats),
                   l10n.backupVehicleCount(
                     plan.store.vehicles.length,
                     formatForDisplay(
@@ -489,7 +530,36 @@ String _kindLabel(AppLocalizations l10n, String kind) => switch (kind) {
   _ => kind,
 };
 
-String _clockOf(int utcMs, String tag) {
-  final t = DateTime.fromMillisecondsSinceEpoch(utcMs, isUtc: true);
-  return formatMinutesOfDay(t.hour * 60 + t.minute, tag);
+/// The wall clock [utcMs] showed on the phone that WROTE the file.
+///
+/// `exported_at_local` carries the writer's own offset, and the writer goes to
+/// the trouble of emitting it — signed, with minutes, so Tehran's `+03:30`
+/// survives — precisely so this line can be right. Reading the UTC clock
+/// instead put a Tehran user's export three and a half hours out, on the line
+/// that says when their file was made.
+String _clockOf(int utcMs, Duration offset, String tag) {
+  final local = DateTime.fromMillisecondsSinceEpoch(
+    utcMs + offset.inMilliseconds,
+    isUtc: true,
+  );
+  return formatMinutesOfDay(local.hour * 60 + local.minute, tag);
+}
+
+/// The offset `exported_at_local` records, or zero when the file has none.
+///
+/// Zero and not the READER's offset: a file with no local stamp says nothing
+/// about where it was written, and using this phone's zone would be an answer
+/// invented on the spot.
+///
+/// Public because whoever builds the preview state reads it out of the
+/// document — this screen only renders what it is handed.
+Duration writerOffsetOf(Object? exportedAtLocal) {
+  if (exportedAtLocal is! String) return Duration.zero;
+  final match = RegExp(r'([+-])(\d{2}):(\d{2})$').firstMatch(exportedAtLocal);
+  if (match == null) return Duration.zero;
+  final magnitude = Duration(
+    hours: int.parse(match.group(2)!),
+    minutes: int.parse(match.group(3)!),
+  );
+  return match.group(1) == '-' ? -magnitude : magnitude;
 }

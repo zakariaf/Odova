@@ -4312,5 +4312,17 @@
   "importKindCorrections": "Odometer corrections",
   "@importKindCorrections": {
     "description": "One row label in §6 §4.3's comparison. It was missing, so the switch's catch-all rendered odometer CORRECTIONS as 'Odometer readings' — two different record types under one name, on the screen whose whole job is showing the user what is about to change."
+  },
+  "importAndMore": "{n, plural, one{and {nText} more} other{and {nText} more}}",
+  "@importAndMore": {
+    "description": "The tail of §6 §4.3's skipped list, which is capped. Rung 13 permits up to six hundred skipped records on a large file, and the list exists so somebody can retype three rows — past a few dozen the count is the message.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nText": {
+        "type": "String"
+      }
+    }
   }
 }

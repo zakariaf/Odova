@@ -124,6 +124,45 @@ void main() {
   }
 
   test(
+    'a refused migration hands back a database that does NOT migrate',
+    () async {
+      // The bug this exists for: drift opens LAZILY and runs `onUpgrade` on the
+      // first query, so a refusal that handed back an ordinary connection ran
+      // the migration §6.4.4 had just refused. `bootstrap()` queries it
+      // immediately — `readLaunchFacts` — so the refusal lasted microseconds.
+      //
+      // The old tests could not see it: they asserted the FILE was intact
+      // when `openMigratedDatabase` returned, and never queried what it
+      // returned.
+      await seedV1();
+      final before = dbFile.readAsBytesSync();
+
+      final outcome = await openMigratedDatabase(
+        dbFile,
+        safetyDirectory: dir,
+        stamp: kTestExportStamp,
+        openDatabase: _ThrowingDatabase.new,
+      );
+
+      final database = switch (outcome) {
+        OpenedCleanly(:final database) => database,
+        MigrationRefused(:final database) => database,
+        MigrationRolledBack(:final database) => database,
+      };
+
+      // The query that used to trigger it, and it must not throw either.
+      final rows = await database
+          .customSelect('SELECT COUNT(*) AS n FROM vehicles;')
+          .getSingle();
+      expect(rows.read<int>('n'), 1);
+      await database.close();
+
+      // And the file is STILL untouched, after the query rather than before it.
+      expect(dbFile.readAsBytesSync(), before);
+    },
+  );
+
+  test(
     'a database already at the current version opens with no copy',
     () async {
       await seedV1();

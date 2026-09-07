@@ -15,6 +15,7 @@
 // It also imports nothing from `lib/features` and nothing from the current
 // mappers, for the same reason: a copy taken through the code that is about to
 // migrate is a copy taken through the crash.
+import 'package:odova/core/export/content_hash.dart';
 import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
@@ -66,7 +67,12 @@ Map<String, Object?> schemaV1BackupDocument(
     },
     'derived_fields': const <String>[],
     'record_counts': const <String, Object?>{},
-    'content_hash': null,
+    // The PLACEHOLDER, not null. `contentHashMatches` looks for
+    // `sha256:<64 hex>` and answers false when it finds nothing, so every
+    // pre-migration copy imported with a "this file has been edited" warning —
+    // on the one file a user reaches after a bad update, where a spurious
+    // damage warning is the last thing they need.
+    'content_hash': kContentHashPlaceholder,
     'settings': settingsRow.isEmpty
         ? const <String, Object?>{}
         : _settings(settingsRow.first),
@@ -74,9 +80,13 @@ Map<String, Object?> schemaV1BackupDocument(
     'reminders': rows('service_items').map(_reminder).toList(),
     // §6 §7: only STANDALONE readings. One a fill-up emitted is re-derived on
     // import, and exporting it would grow the record count on every cycle.
+    // STANDALONE means `source_id IS NULL`, which is how `store_reader` and
+    // `record_backup` both define it. Filtering on `source == 'manual'`
+    // dropped every reading whose source was `import` — one that arrived in a
+    // previous restore — from the ONE file §6.4.4 exists to produce.
     'odometer_readings': [
       for (final row in rows('odometer_readings'))
-        if (row['source'] == 'manual') _reading(row),
+        if (row['source_id'] == null) _reading(row),
     ],
     'odometer_corrections': rows(
       'odometer_corrections',
@@ -90,6 +100,10 @@ Map<String, Object?> schemaV1BackupDocument(
     'trips': rows('trips').map(_trip).toList(),
   };
 
+  // The PLACEHOLDER goes in the envelope above; the digest is stamped by
+  // whoever SERIALISES this, because the hash is over the bytes as written and
+  // a projection does not know how it will be encoded. `BackupWriter` does the
+  // same thing from the other side.
   return {...document, 'record_counts': _counts(document)};
 }
 

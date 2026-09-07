@@ -2976,4 +2976,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importKindCorrections => 'Odometer corrections';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'and $nText more',
+      one: 'and $nText more',
+    );
+    return '$_temp0';
+  }
 }

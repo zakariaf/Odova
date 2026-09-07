@@ -14,6 +14,7 @@ import 'package:odova/core/domain/models/records.dart';
 import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/domain/models/store_snapshot.dart';
 import 'package:odova/core/domain/models/vehicle.dart';
+import 'package:odova/core/export/content_hash.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
@@ -22,7 +23,6 @@ import 'package:odova/core/units/fuel_quantity.dart';
 import 'package:odova/core/units/volume.dart';
 import 'package:odova/features/backup/domain/backup_format.dart';
 import 'package:odova/features/backup/domain/backup_writer.dart';
-import 'package:odova/features/backup/domain/content_hash.dart';
 import 'package:test/test.dart';
 
 final Currency _eur = Currency.tryParse('EUR')!;

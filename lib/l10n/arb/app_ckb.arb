@@ -717,5 +717,6 @@
   "commonDone": "تەواو",
   "backupPickVehicle": "کام ئۆتۆمبێل؟",
   "backupAllVehicles": "هەموو ئۆتۆمبێلەکان",
-  "importKindCorrections": "ڕاستکردنەوەکانی ژمێرەر"
+  "importKindCorrections": "ڕاستکردنەوەکانی ژمێرەر",
+  "importAndMore": "{n, plural, one{و {nText} ی تر} other{و {nText} ی تر}}"
 }

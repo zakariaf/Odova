@@ -24,6 +24,22 @@ import 'package:odova/features/backup/application/backup_notifier.dart';
 import 'package:odova/features/backup/domain/backup_export_service.dart';
 import 'package:odova/features/backup/domain/backup_writer.dart';
 import 'package:odova/features/backup/domain/safety_copy_store.dart';
+import 'package:path_provider/path_provider.dart';
+
+/// How much room the device has, in bytes.
+///
+/// Injected, and NOT optional at the composition root. `BackupExportService`
+/// takes it as a nullable and skips the check when it is null — which is what
+/// production did, so §13's "free up about 6 MB" message and the figure it
+/// names were unreachable code and a full disk surfaced as the generic write
+/// failure instead.
+final Provider<Future<int> Function()> freeDiskBytesProvider =
+    Provider<Future<int> Function()>(
+      (ref) => throw UnimplementedError(
+        'freeDiskBytesProvider is unwired. bootstrap() supplies the real '
+        'probe; a test passes its own.',
+      ),
+    );
 
 /// Where temporary exports and safety copies go.
 ///
@@ -66,6 +82,7 @@ Future<Result<int, ExportFailure>> exportBackup(Ref ref) async {
     share: ref.read(shareServiceProvider),
     temporaryDirectory: ref.read(backupDirectoryProvider),
     writer: backupWriterFor(ref),
+    freeBytes: ref.read(freeDiskBytesProvider),
   );
 
   final result = await service.export(
@@ -151,3 +168,30 @@ class WiredBackupActions implements BackupActions {
   @override
   Future<void> beginDeleteAll() async {}
 }
+
+/// How many bytes are free where the store lives.
+///
+/// `statfs` through `dart:io` has no binding, so this asks the filesystem the
+/// only way the SDK offers: write nothing, and read the directory's stat. On a
+/// platform that cannot answer it returns the largest int rather than zero —
+/// refusing an export because the probe failed would be worse than letting the
+/// write fail with its own message.
+Future<int> freeBytesInSupportDirectory() async {
+  try {
+    final directory = await getApplicationSupportDirectory();
+    final result = await Process.run('df', ['-k', directory.path]);
+    final lines = (result.stdout as String).trim().split('\n');
+    if (lines.length < 2) return _unknownFreeSpace;
+    final columns = lines[1].split(RegExp(r'\s+'));
+    // `df -k` reports 1K blocks; the AVAILABLE column is the fourth.
+    final available = int.tryParse(columns.length > 3 ? columns[3] : '');
+    return available == null ? _unknownFreeSpace : available * 1024;
+  } on Object {
+    return _unknownFreeSpace;
+  }
+}
+
+/// What the probe answers when it cannot answer.
+///
+/// Effectively infinite, so the check passes and the write speaks for itself.
+const int _unknownFreeSpace = 1 << 62;

@@ -145,6 +145,7 @@ String _render(AppLocalizations l10n, String key, int n, String nText) =>
       // §4.3's warning row. NO `=0` — a preview with nothing skipped does not
       // draw the row, so a zero form would be copy nobody can reach.
       'importSkippedCount' => l10n.importSkippedCount(n, nText),
+      'importAndMore' => l10n.importAndMore(n, nText),
       _ => throw StateError(
         'plural key "$key" is in the ARB but not in this matrix — add it',
       ),

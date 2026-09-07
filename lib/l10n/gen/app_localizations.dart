@@ -4438,6 +4438,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Odometer corrections'**
   String get importKindCorrections;
+
+  /// The tail of §6 §4.3's skipped list, which is capped. Rung 13 permits up to six hundred skipped records on a large file, and the list exists so somebody can retype three rows — past a few dozen the count is the message.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{and {nText} more} other{and {nText} more}}'**
+  String importAndMore(int n, String nText);
 }
 
 class _AppLocalizationsDelegate

@@ -7,6 +7,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:odova/core/export/content_hash.dart';
 import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
 import 'package:sqlite3/common.dart';
@@ -65,8 +66,17 @@ Future<(File?, SafetyCopyFailure?)> writeMigrationSafetyCopy({
 
   final String encoded;
   try {
-    encoded = const JsonEncoder.withIndent('  ').convert(
-      reader.toBackupDocument(reader.read(database), stamp),
+    // Stamped AFTER encoding, over the bytes as written — the same order
+    // `BackupWriter` uses, and the only order that produces a hash the reader
+    // can verify. The projection leaves the placeholder; this replaces it.
+    //
+    // Until the review pass over EPIC-15 the field was written as `null`, so
+    // every pre-migration copy imported with "this file has been edited since
+    // Odova saved it" — on the one file a user reaches after a bad update.
+    encoded = withContentHash(
+      const JsonEncoder.withIndent('  ').convert(
+        reader.toBackupDocument(reader.read(database), stamp),
+      ),
     );
   } on Object {
     // `on Object`, not `on FileSystemException`. `SELECT *` throws

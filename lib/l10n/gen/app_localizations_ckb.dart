@@ -2978,4 +2978,15 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get importKindCorrections => 'ڕاستکردنەوەکانی ژمێرەر';
+
+  @override
+  String importAndMore(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'و $nText ی تر',
+      one: 'و $nText ی تر',
+    );
+    return '$_temp0';
+  }
 }

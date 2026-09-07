@@ -29,6 +29,7 @@ final class ImportPreviewState extends ImportScreenState {
     required this.exportedAtUtcMs,
     required this.comparison,
     required this.plan,
+    this.exportedAtOffset = Duration.zero,
   });
 
   /// Which of §4.3's three this is.
@@ -39,6 +40,13 @@ final class ImportPreviewState extends ImportScreenState {
 
   /// When the file was written, for the header line.
   final int? exportedAtUtcMs;
+
+  /// The offset the file's `exported_at_local` records.
+  ///
+  /// The WRITER's, so the header shows the clock their phone showed. Zero when
+  /// the file carries no local stamp: using this phone's zone would be an
+  /// answer invented on the spot.
+  final Duration exportedAtOffset;
 
   /// NOW → AFTER, every record type.
   final List<ImportCountRow> comparison;

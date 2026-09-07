@@ -151,6 +151,15 @@ class RestoreLog {
   /// How many strings were longer than the format allows.
   int truncatedStrings = 0;
 
+  /// Service LINES that could not be read, with the reason each gave.
+  ///
+  /// Counted separately because a line is not a record: its parent service
+  /// still imports, and §5.3's never-silently-drop rule still applies to the
+  /// line. The first version cleared the rejection after the line loop and
+  /// added nothing, so a service arrived with three of its five lines and the
+  /// user was told nothing at all.
+  final List<String> droppedLines = [];
+
   /// Marks the current record unreadable, keeping the FIRST reason.
   ///
   /// The first, because it is the one nearest the cause: a record with no
@@ -893,13 +902,24 @@ ServiceRecord? serviceFromBackup(
   final lines = <ServiceLine>[];
   if (rawLines is List) {
     for (final raw in rawLines) {
-      if (raw is! Map<String, Object?>) continue;
+      if (raw is! Map<String, Object?>) {
+        log.droppedLines.add(SkipReason.incomplete);
+        continue;
+      }
+      log.rejection = null;
       final line = serviceLineFromBackup(raw, id, log, links);
-      if (line != null) lines.add(line);
+      if (line == null) {
+        log.droppedLines.add(log.rejection ?? SkipReason.incomplete);
+        continue;
+      }
+      lines.add(line);
     }
   }
   // A line that could not be read must not take the whole service with it: the
   // date, the odometer and the other four lines are still the user's history.
+  // But it IS counted — the first version cleared the rejection here and added
+  // nothing, so a service arrived with three of its five lines and the user
+  // was told nothing at all, which is exactly what §5.3 forbids.
   log.rejection = null;
 
   return ServiceRecord(
