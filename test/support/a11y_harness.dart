@@ -112,6 +112,28 @@ void expectNoOverflow(WidgetTester tester) {
   throw Error.throwWithStackTrace(error as Object, StackTrace.current);
 }
 
+/// Fails when a tap target is smaller than the platform floor.
+///
+/// SPEC.md §17's gate and `accessibility-as-code`: 48 logical pixels on
+/// Android, 44 on iOS. It is about MOTOR accuracy rather than eyesight — a
+/// target easy for a steady hand at a desk is one somebody misses standing at
+/// a pump in the rain, which is the user §1's four facts describe.
+///
+/// **Delegates to Flutter's own guidelines rather than measuring nodes here.**
+/// A hand-rolled version was written first and reported the first-run language
+/// screen as having a 756x9 target — the row's TITLE node, on a row whose
+/// `minHeight` is 56. The semantics rect of a label is the height of its
+/// own text; what a finger hits is the hit-test region, and only the
+/// framework's matcher knows the difference. A gate that calls a correct
+/// 56pt row a 9pt one gets deleted in a fortnight, rightly.
+///
+/// Both platforms are checked, because the app ships to both and the floors
+/// differ.
+Future<void> expectTapTargets(WidgetTester tester) async {
+  await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+  await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+}
+
 /// Fails when something on screen cannot be announced.
 ///
 /// TWO passes, because neither alone is enough.

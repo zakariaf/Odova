@@ -152,3 +152,49 @@ ignore.
 worked. It proved one of its two passes worked and said nothing about the other,
 because every case exercised both and either could satisfy it. A self-test needs
 a case that ONLY the mechanism under test can pass.
+
+## Tasks 17.4, 17.6, 17.9 — one sweep, three rules
+
+Three of the epic's tasks ask the same screens three different questions:
+does it overflow at 200%, does it announce what it shows, is anything too small
+to hit. They are one matrix rather than three near-identical harnesses — the
+defects live in the same place, and pumping a screen three times to ask three
+questions costs three times as much and finds the same screens.
+
+One `testWidgets` per case, never a loop inside one test: an overflow is
+reported once per `RenderObject`, so a loop hides every failure after the first
+— which is exactly the shape that makes a sweep look clean.
+
+### The tap-target check was wrong, and I nearly shipped the wrong answer
+
+The hand-rolled version reported `firstrun.language` as having a **756x9** tap
+target — the row's TITLE node, on a row whose `minHeight` is 56. The semantics
+rect of a label is the height of its own text; what a finger hits is the
+hit-test region. I refined it once (measure only the outermost tappable node)
+and it STILL reported 756x9, because the title node genuinely is the outermost
+node carrying the tap action.
+
+A gate that calls a correct 56pt row a 9pt one gets deleted in a fortnight, and
+whoever deletes it is right. So it delegates to Flutter's own
+`androidTapTargetGuideline` and `iOSTapTargetGuideline` — both, because the app
+ships to both and the floors differ (48 and 44). That is the canonical
+implementation and it knows the difference my version did not.
+
+**The lesson is the `/simplify` one again:** I wrote a measuring loop for a rule
+the framework already implements, and the bug was in the part I wrote.
+
+### Two real findings, both fixed
+
+- **The language row's selection tick** and **`CalmListRow`'s disclosure
+  chevron** were bare `Icon`s: announced as nothing, on every row of every list
+  in the app. Both are now `ExcludeSemantics` rather than labelled — the row
+  already announces `selected` and its own tap action, so a label would say the
+  same fact twice, once as furniture.
+
+### Scope, stated rather than implied
+
+The sweep covers the screens that pump with the app's own defaults —
+`firstrun.language`, `settings.about`, `settings.licences`. The rest need
+repository fakes, and a sweep that pumps a screen through eight fakes is a sweep
+that tests the fakes. **Not done: the remaining 25 screens.** That is the bulk
+of 17.4 and 17.6 and it is named here rather than left to look finished.
