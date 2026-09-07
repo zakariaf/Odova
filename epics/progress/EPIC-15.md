@@ -69,3 +69,71 @@ today's settings, so a user who exports, changes their default currency and
 imports gets a garage frozen at the old one), and writing the old `archived`
 boolean instead of the three-valued status (which imports every sold car as
 merely archived and starts reminding its former owner about it).
+
+Then the nine projections — `mapping/vehicle_backup.dart`,
+`mapping/record_backup.dart`, `mapping/settings_backup.dart` — each pinned by a
+test that **parses `SPEC.md` §6 §2.5 at run time** rather than copying it. A
+copy would be a second description of the format to keep in step, and two
+descriptions of a backup format is the one thing it cannot afford.
+
+The assertion is key ORDER, not membership: §6 §2.6 makes a streaming reader's
+one-pass reference resolution depend on parents arriving before children, so a
+set comparison would pass on a document no reader could stream.
+
+Three rules here fail silently when broken, so each was mutation-checked and
+each mutation was seen to go red: `wallClock` writing minutes instead of
+`"09:00"` (2 red), a service line's FLAT `amount_minor`/`currency` nested like
+every other money field (1 red), and a reminder carrying a stored
+`next_due_date` (16 red). The flat shape differs from the rest of the format
+and is followed rather than normalised — a reader written against the spec
+would refuse a document that "improved" on it.
+
+Two omissions that look like bugs and are not. `odometerReadingBackupJson`
+writes no `source_id`: a reading a fill-up emitted is re-derived on import, so
+exporting the link would duplicate every fill's reading on the next round trip,
+the record count growing on each export/import cycle. `settingsBackupJson`
+writes neither `last_backup_reminder_at` (device-local nagging state) nor
+`schema_version` (the DATABASE's number; the file's own is `format_version` in
+the envelope, and one file carrying both invites a reader to check the wrong
+one).
+
+Finally `backup_writer.dart` and a new `lib/core/domain/models/store_snapshot.dart`.
+
+`StoreSnapshot` is in `core` because a backup is the only operation in the app
+that reads the **whole** store — every other read is per-vehicle and streamed,
+and composing nine of those over N vehicles is both slower and wrong at the
+edges: a vehicle deleted between the fourth stream and the fifth leaves orphan
+children in the file.
+
+The writer streams record by record (high-water mark is one record, not a
+12,000-record String), sorts every array by id **inside the writer** so a
+caller cannot lose byte-determinism, and feeds its sha256 the same bytes it
+feeds the sink. Four mutations, all seen red: no bidi stripping (1), arrays
+unsorted (1), hash offset moved one byte (11), `exported_at_local` losing its
+sign (1).
+
+Bidi controls are stripped once at the encode boundary rather than in each
+projection — thirty string fields across nine projections is thirty chances to
+forget, and the forgotten one would be the free-text note. Digits are
+deliberately **not** folded: a note typed in Persian numerals is the user's
+text, and §6's ASCII-digit rule is about the numbers the writer emits, which
+are JSON integers.
+
+**Deferred from 15.1, deliberately:**
+
+- **"the §6 §2.5 worked example round-trips"** — the loop needs a reader to
+  rebuild a `StoreSnapshot` from the parsed document, and the reader is task
+  15.2. `spec_key_order_test` already pins every array's keys against that same
+  block, so what is outstanding is the loop, not the agreement.
+- **Nothing reads the database into a `StoreSnapshot` yet.** The writer's only
+  callers are tests. Task 15.5 owns export delivery and is where the store
+  reader belongs; it is named here because "a port with no production caller"
+  is the exact defect EPIC-13 and EPIC-14 each shipped once, and this one is
+  not to be discovered by a user.
+
+**A gate collision worth naming.** `no_currency_conversion_test` greps the
+whole tree for the toman code and counted this task's own test assertion as the
+violation — the second time a policy grep has fired on a test that asserts the
+policy. The assertion was rewritten to pin the SET of currency codes in the
+file instead, which is the stronger check anyway: it catches any wrong code
+rather than the one we thought of.
