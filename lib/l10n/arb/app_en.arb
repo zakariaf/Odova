@@ -2928,7 +2928,7 @@
   },
   "costsUpdateOdometer": "Update odometer",
   "@costsUpdateOdometer": {
-    "description": "The action beside §12's distance explanations. Opens `log.odometer`."
+    "description": "The sheet's one action → `log.odometer`."
   },
   "costsRangeMonths": "{n, plural, one{{nText} month} other{{nText} months}}",
   "@costsRangeMonths": {
@@ -3260,5 +3260,31 @@
   "tripSaveFirstToAddExpense": "Save the trip first, then charge expenses to it.",
   "@tripSaveFirstToAddExpense": {
     "description": "Under Add expense in CREATE mode. §10 draws the affordance there, but an expense carries `trip_id` and there is no trip yet — so the button is disabled and this says why. A greyed-out button that explains nothing is what `CalmButton` asserts against, and dropping the button entirely would hide a control §10 names."
+  },
+  "costsEstimateTitle": "How this was worked out",
+  "@costsEstimateTitle": {
+    "description": "The estimate sheet's title. SPEC.md §12: tapping any estimated or dashed figure opens one sentence and one action."
+  },
+  "costsEstimateStaleBoundary": "Worked out from odometer readings {days} days apart from the dates shown.",
+  "@costsEstimateStaleBoundary": {
+    "description": "§12's >45-day case, verbatim. `days` is pre-shaped: a bare int renders Latin digits in four locales. Not a plural — the figure is always above 45 by construction, so `one` is unreachable and a plural would be five translations of a form nobody sees.",
+    "placeholders": {
+      "days": {
+        "type": "String",
+        "example": "62"
+      }
+    }
+  },
+  "costsEstimateNotEnoughDistance": "Not enough distance logged in this period to work out a cost per kilometre.",
+  "@costsEstimateNotEnoughDistance": {
+    "description": "§12's under-100 km case, verbatim."
+  },
+  "costsEstimateNoCompletedMonth": "Come back after the end of the month — there isn’t a full month to average yet.",
+  "@costsEstimateNoCompletedMonth": {
+    "description": "§12's `completedMonths < 1` case, verbatim — and the one case with NO action, because updating the odometer does not make the month end sooner."
+  },
+  "costsEstimateNoReadings": "There are no odometer readings in this period to measure between.",
+  "@costsEstimateNoReadings": {
+    "description": "The fourth case `CostReason` names. §12's table lists three, and the engine has always had a fourth: no reading at all to measure between, which is a new vehicle rather than a stale one. Offering `Update odometer` here is exactly right."
   }
 }

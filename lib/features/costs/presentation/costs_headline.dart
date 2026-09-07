@@ -7,6 +7,8 @@
 //
 // Every figure here can REFUSE. §12 gives three conditions and each prints a
 // dash with its own sentence rather than a number the app cannot stand behind.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:odova/core/costs/cost_aggregates.dart';
 import 'package:odova/core/costs/monthly_chart_model.dart';
@@ -15,6 +17,7 @@ import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/features/costs/application/costs_notifier.dart';
 import 'package:odova/features/costs/presentation/costs_screen.dart';
+import 'package:odova/features/costs/presentation/estimate_explain_sheet.dart';
 import 'package:odova/features/costs/presentation/monthly_cost_chart.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
@@ -22,6 +25,7 @@ import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_card.dart';
+import 'package:odova/ui/calm/calm_pressable.dart';
 
 /// The em dash §12 prints where a figure cannot be stated.
 ///
@@ -122,39 +126,51 @@ class CostsHeadline extends StatelessWidget {
             ],
           ),
           SizedBox(height: space.s3),
-          // Both figures WITH their units. `€0.29 · €2,184` is two amounts
-          // with nothing saying what either measures, on a line directly under
-          // a third amount that means something else again.
-          Text(
-            [
-              switch (state.perDistance) {
-                CostExact(:final minorPerKm?) when dominant != null =>
-                  _perDistance(l10n, formatsTag, minorPerKm, dominant),
-                // §12: an estimated figure IS shown, with the soft treatment.
-                // Hiding it would blank the number for every car added
-                // mid-year.
-                CostEstimated(:final minorPerKm) when dominant != null =>
-                  _perDistance(l10n, formatsTag, minorPerKm, dominant),
-                _ => kCostsDash,
-              },
-              if (dominant != null && state.range != null)
-                l10n.costsInMonths(
-                  state.range!.completedMonths,
-                  formatForDisplay(
-                    state.range!.completedMonths,
-                    formatsTag,
-                    numerals: CalmNumerals.auto,
-                    decimalDigits: 0,
-                    grouped: false,
-                  ),
-                  costsMoney(
-                    formatsTag,
-                    Money(state.total?.byCurrency[dominant] ?? 0, dominant),
-                    wholeOnly: true,
-                  ),
+          // §12: "Tapping any estimated value opens a one-sentence
+          // explanation and one action: Update odometer." The tap target is
+          // the LINE, not the glyph — a dash is 8pt wide and the rule about
+          // 44pt targets does not have an exception for punctuation.
+          _ExplainOnTap(
+            figure: state.perDistance,
+            formatsTag: formatsTag,
+            child:
+                // Both figures WITH their units. `€0.29 · €2,184` is two
+                // amounts with nothing saying what either measures, on a line
+                // directly under a third that means something else again.
+                Text(
+                  [
+                    switch (state.perDistance) {
+                      CostExact(:final minorPerKm?) when dominant != null =>
+                        _perDistance(l10n, formatsTag, minorPerKm, dominant),
+                      // §12: an estimated figure IS shown, with the soft
+                      // treatment. Hiding it would blank the number for
+                      // every car added mid-year.
+                      CostEstimated(:final minorPerKm) when dominant != null =>
+                        _perDistance(l10n, formatsTag, minorPerKm, dominant),
+                      _ => kCostsDash,
+                    },
+                    if (dominant != null && state.range != null)
+                      l10n.costsInMonths(
+                        state.range!.completedMonths,
+                        formatForDisplay(
+                          state.range!.completedMonths,
+                          formatsTag,
+                          numerals: CalmNumerals.auto,
+                          decimalDigits: 0,
+                          grouped: false,
+                        ),
+                        costsMoney(
+                          formatsTag,
+                          Money(
+                            state.total?.byCurrency[dominant] ?? 0,
+                            dominant,
+                          ),
+                          wholeOnly: true,
+                        ),
+                      ),
+                  ].join(' · '),
+                  style: type.body.copyWith(color: colors.ink2),
                 ),
-            ].join(' · '),
-            style: type.body.copyWith(color: colors.ink2),
           ),
           // §12's chart, INSIDE the card as the reference draws it. It is the
           // shape half of "columns for shape, list for figures" — the figures
@@ -165,6 +181,52 @@ class CostsHeadline extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// Makes a figure tappable when, and only when, there is something to explain.
+///
+/// An exact figure explains itself; wrapping it too would give the user a tap
+/// target that opens a sheet saying nothing is wrong.
+class _ExplainOnTap extends StatelessWidget {
+  const _ExplainOnTap({
+    required this.figure,
+    required this.formatsTag,
+    required this.child,
+  });
+
+  final CostFigure? figure;
+  final String formatsTag;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final (reason, gap) = switch (figure) {
+      CostEstimated(:final boundaryGapDays) => (
+        CostReason.boundaryReadingStale,
+        boundaryGapDays,
+      ),
+      CostAbsent(:final reason) => (reason, 0),
+      // An exact figure explains itself, and a null one has not loaded — a
+      // sheet over a screen that is still reading would explain the wrong
+      // thing.
+      CostExact() || null => (null, 0),
+    };
+    if (reason == null) return child;
+
+    return CalmPressable(
+      borderRadius: 0,
+      isButton: false,
+      onTap: () => unawaited(
+        showEstimateExplainSheet(
+          context,
+          formatsTag: formatsTag,
+          reason: reason,
+          boundaryGapDays: gap,
+        ),
+      ),
+      child: child,
     );
   }
 }

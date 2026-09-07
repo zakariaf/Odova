@@ -1962,7 +1962,7 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
-  String get costsUpdateOdometer => 'نوێکردنەوەی ئۆدۆمیتەر';
+  String get costsUpdateOdometer => 'نوێکردنەوەی کیلۆمەترپێو';
 
   @override
   String costsRangeMonths(int n, String nText) {
@@ -2195,4 +2195,24 @@ class AppLocalizationsCkb extends AppLocalizations {
   @override
   String get tripSaveFirstToAddExpense =>
       'سەرەتا گەشتەکە پاشەکەوت بکە، پاشان خەرجییەکانی پێوە ببەستە.';
+
+  @override
+  String get costsEstimateTitle => 'ئەمە چۆن دەرهێنراوە';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'لە خوێندنەوەی کیلۆمەترپێو دەرهێنراوە کە $days ڕۆژ لە بەروارە پیشاندراوەکان دوورن.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'لەم ماوەیەدا دووری پێویست تۆمار نەکراوە بۆ دەرهێنانی تێچووی هەر کیلۆمەترێک.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'دوای کۆتایی مانگ بگەڕێوە — هێشتا مانگێکی تەواو نییە بۆ ناوەند.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'لەم ماوەیەدا هیچ خوێندنەوەیەکی کیلۆمەترپێو نییە بۆ پێوان.';
 }

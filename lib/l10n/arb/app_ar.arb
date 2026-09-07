@@ -533,5 +533,10 @@
   "tripEndBelowStart": "قراءة النهاية أقل من قراءة البداية.",
   "tripDistanceNotPositive": "يجب أن تكون المسافة أكبر من صفر.",
   "tripSavedToast": "تم حفظ الرحلة",
-  "tripSaveFirstToAddExpense": "احفظ الرحلة أولًا، ثم حمّل عليها المصروفات."
+  "tripSaveFirstToAddExpense": "احفظ الرحلة أولًا، ثم حمّل عليها المصروفات.",
+  "costsEstimateTitle": "كيف حُسب هذا",
+  "costsEstimateStaleBoundary": "حُسب من قراءات عداد تبعد {days} يومًا عن التواريخ المعروضة.",
+  "costsEstimateNotEnoughDistance": "لم تُسجَّل مسافة كافية في هذه الفترة لحساب التكلفة لكل كيلومتر.",
+  "costsEstimateNoCompletedMonth": "عد بعد نهاية الشهر — لا يوجد شهر كامل للمتوسط بعد.",
+  "costsEstimateNoReadings": "لا توجد قراءات عداد في هذه الفترة للقياس بينها."
 }

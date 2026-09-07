@@ -533,5 +533,10 @@
   "tripEndBelowStart": "Le relevé de fin est inférieur au relevé de début.",
   "tripDistanceNotPositive": "La distance doit être supérieure à zéro.",
   "tripSavedToast": "Trajet enregistré",
-  "tripSaveFirstToAddExpense": "Enregistrez d’abord le trajet, puis imputez-lui des dépenses."
+  "tripSaveFirstToAddExpense": "Enregistrez d’abord le trajet, puis imputez-lui des dépenses.",
+  "costsEstimateTitle": "Comment ce chiffre est obtenu",
+  "costsEstimateStaleBoundary": "Calculé à partir de relevés distants de {days} jours des dates affichées.",
+  "costsEstimateNotEnoughDistance": "Pas assez de distance enregistrée sur cette période pour calculer un coût au kilomètre.",
+  "costsEstimateNoCompletedMonth": "Revenez après la fin du mois — il n’y a pas encore de mois complet à moyenner.",
+  "costsEstimateNoReadings": "Aucun relevé de compteur sur cette période pour mesurer un écart."
 }

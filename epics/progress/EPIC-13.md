@@ -228,3 +228,41 @@ confirmation before Delete (the row deletes directly today) and the
 `dialog.discard` guard on a dirty form; both dialogs exist from EPIC-08 and
 need wiring, not building. `End this trip` on `trips.list` opens the editor
 rather than revealing the end fields and focusing the odometer.
+
+## Task 13.10 — the estimate sheet and the navigation edges
+
+**First, the bug this task found.** `costsRepositoryProvider` and
+`fuelRepositoryProvider` were declared with their notifiers in tasks 13.1 and
+13.6 and BOTH threw `UnimplementedError`. `costs` and `costs.fuel` were routes
+that crashed on open outside a test, for two tasks, with a full green suite
+the whole time — every screen test overrode the provider with a fake. Fixed by
+`CostsSource` and `FuelSource`, and by `costs_source_test.dart`, which is the
+only test in the tree that puts a real implementation behind a real interface.
+The lesson generalises: **a fake behind an interface proves nothing about
+whether the interface has an implementation**, and neither the analyzer nor a
+widget test can tell.
+
+Built `estimate_explain_sheet.dart` — §12's one sentence and one action, with
+a different sentence for each of `CostReason`'s four cases (the table names
+three; the engine has always had a fourth, `noReadings`, which is a new
+vehicle rather than a stale one). `noCompletedMonth` gets no action, because
+updating the odometer does not make the month end sooner and an action that
+cannot help is worse than none. The tap target is the whole per-distance LINE,
+not the dash: a dash is about 8pt wide.
+
+`costs_navigation_test.dart` asserts the two edges that were dead taps, §7's
+two-push depth rule over the route table, and both estimate-sheet rules.
+
+**Deferred to EPIC-15, deliberately.** The overflow **Export costs (CSV)**.
+The task's own instruction is "No new export code: this is a second door to
+the generator the backup/export epic owns" — and EPIC-15 has not run, so there
+is no generator to open a second door to. Building one here is exactly the
+fifth export the task forbids. EPIC-15 adds the overflow entry when it builds
+the generator; the three tests §12's Interactions table implies
+(`costs_export_test.dart`) belong with it.
+
+**Also deferred:** the filtered-history edges (`costs` category row →
+filtered `history` in-stack, `costs.fuel` → `log.fillup` in edit mode and →
+filtered history) — the history filter API exists but the category rows have
+no `onTap` yet, and the stack-reset-on-vehicle-switch rule already has a test
+in `stack_reset_test.dart`.

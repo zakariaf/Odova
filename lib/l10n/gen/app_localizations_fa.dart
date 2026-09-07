@@ -2187,4 +2187,24 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get tripSaveFirstToAddExpense =>
       'ابتدا سفر را ذخیره کنید، سپس هزینه‌ها را به آن اختصاص دهید.';
+
+  @override
+  String get costsEstimateTitle => 'این عدد چگونه به دست آمده';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'از کیلومترشمارهایی محاسبه شده که $days روز با تاریخ‌های نشان‌داده‌شده فاصله دارند.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'در این بازه مسافت کافی ثبت نشده تا هزینهٔ هر کیلومتر محاسبه شود.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'پس از پایان ماه سر بزنید — هنوز یک ماه کامل برای میانگین‌گیری نیست.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'در این بازه هیچ کیلومترشماری برای اندازه‌گیری وجود ندارد.';
 }

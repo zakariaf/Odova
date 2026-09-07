@@ -2324,4 +2324,24 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get tripSaveFirstToAddExpense =>
       'احفظ الرحلة أولًا، ثم حمّل عليها المصروفات.';
+
+  @override
+  String get costsEstimateTitle => 'كيف حُسب هذا';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'حُسب من قراءات عداد تبعد $days يومًا عن التواريخ المعروضة.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'لم تُسجَّل مسافة كافية في هذه الفترة لحساب التكلفة لكل كيلومتر.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'عد بعد نهاية الشهر — لا يوجد شهر كامل للمتوسط بعد.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'لا توجد قراءات عداد في هذه الفترة للقياس بينها.';
 }

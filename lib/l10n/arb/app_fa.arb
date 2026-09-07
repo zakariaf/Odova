@@ -533,5 +533,10 @@
   "tripEndBelowStart": "عدد پایان کمتر از عدد آغاز است.",
   "tripDistanceNotPositive": "مسافت باید بیشتر از صفر باشد.",
   "tripSavedToast": "سفر ذخیره شد",
-  "tripSaveFirstToAddExpense": "ابتدا سفر را ذخیره کنید، سپس هزینه‌ها را به آن اختصاص دهید."
+  "tripSaveFirstToAddExpense": "ابتدا سفر را ذخیره کنید، سپس هزینه‌ها را به آن اختصاص دهید.",
+  "costsEstimateTitle": "این عدد چگونه به دست آمده",
+  "costsEstimateStaleBoundary": "از کیلومترشمارهایی محاسبه شده که {days} روز با تاریخ‌های نشان‌داده‌شده فاصله دارند.",
+  "costsEstimateNotEnoughDistance": "در این بازه مسافت کافی ثبت نشده تا هزینهٔ هر کیلومتر محاسبه شود.",
+  "costsEstimateNoCompletedMonth": "پس از پایان ماه سر بزنید — هنوز یک ماه کامل برای میانگین‌گیری نیست.",
+  "costsEstimateNoReadings": "در این بازه هیچ کیلومترشماری برای اندازه‌گیری وجود ندارد."
 }

@@ -2970,7 +2970,7 @@ abstract class AppLocalizations {
   /// **'Worked out from odometer readings {days} days apart from the dates shown.'**
   String costsBoundaryStale(String days);
 
-  /// The action beside §12's distance explanations. Opens `log.odometer`.
+  /// The sheet's one action → `log.odometer`.
   ///
   /// In en, this message translates to:
   /// **'Update odometer'**
@@ -3329,6 +3329,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save the trip first, then charge expenses to it.'**
   String get tripSaveFirstToAddExpense;
+
+  /// The estimate sheet's title. SPEC.md §12: tapping any estimated or dashed figure opens one sentence and one action.
+  ///
+  /// In en, this message translates to:
+  /// **'How this was worked out'**
+  String get costsEstimateTitle;
+
+  /// §12's >45-day case, verbatim. `days` is pre-shaped: a bare int renders Latin digits in four locales. Not a plural — the figure is always above 45 by construction, so `one` is unreachable and a plural would be five translations of a form nobody sees.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from odometer readings {days} days apart from the dates shown.'**
+  String costsEstimateStaleBoundary(String days);
+
+  /// §12's under-100 km case, verbatim.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough distance logged in this period to work out a cost per kilometre.'**
+  String get costsEstimateNotEnoughDistance;
+
+  /// §12's `completedMonths < 1` case, verbatim — and the one case with NO action, because updating the odometer does not make the month end sooner.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back after the end of the month — there isn’t a full month to average yet.'**
+  String get costsEstimateNoCompletedMonth;
+
+  /// The fourth case `CostReason` names. §12's table lists three, and the engine has always had a fourth: no reading at all to measure between, which is a new vehicle rather than a stale one. Offering `Update odometer` here is exactly right.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no odometer readings in this period to measure between.'**
+  String get costsEstimateNoReadings;
 }
 
 class _AppLocalizationsDelegate

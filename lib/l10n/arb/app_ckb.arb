@@ -474,7 +474,7 @@
   "costsNoCompletedMonth": "دوای کۆتایی مانگ بگەڕێوە — هێشتا مانگێکی تەواو نییە بۆ ناوەند.",
   "costsNotEnoughDistance": "لەم ماوەیەدا دووری پێویست تۆمار نەکراوە بۆ دەرخستنی تێچوو بۆ هەر کیلۆمەترێک.",
   "costsBoundaryStale": "لە پێوانەکانی ئۆدۆمیتەرەوە دەرهێنراوە کە {days} ڕۆژ لە بەروارە پیشاندراوەکان دوورن.",
-  "costsUpdateOdometer": "نوێکردنەوەی ئۆدۆمیتەر",
+  "costsUpdateOdometer": "نوێکردنەوەی کیلۆمەترپێو",
   "costsRangeMonths": "{n, plural, one{{nText} مانگ} other{{nText} مانگ}}",
   "costsHeadlineCaption": "{vehicle} · {range}",
   "costsRangeThisYearSoFar": "ئەمساڵ تا ئێستا",
@@ -533,5 +533,10 @@
   "tripEndBelowStart": "خوێندنەوەی کۆتایی لە خوێندنەوەی دەستپێک کەمترە.",
   "tripDistanceNotPositive": "دووری دەبێت لە سفر زیاتر بێت.",
   "tripSavedToast": "گەشت پاشەکەوت کرا",
-  "tripSaveFirstToAddExpense": "سەرەتا گەشتەکە پاشەکەوت بکە، پاشان خەرجییەکانی پێوە ببەستە."
+  "tripSaveFirstToAddExpense": "سەرەتا گەشتەکە پاشەکەوت بکە، پاشان خەرجییەکانی پێوە ببەستە.",
+  "costsEstimateTitle": "ئەمە چۆن دەرهێنراوە",
+  "costsEstimateStaleBoundary": "لە خوێندنەوەی کیلۆمەترپێو دەرهێنراوە کە {days} ڕۆژ لە بەروارە پیشاندراوەکان دوورن.",
+  "costsEstimateNotEnoughDistance": "لەم ماوەیەدا دووری پێویست تۆمار نەکراوە بۆ دەرهێنانی تێچووی هەر کیلۆمەترێک.",
+  "costsEstimateNoCompletedMonth": "دوای کۆتایی مانگ بگەڕێوە — هێشتا مانگێکی تەواو نییە بۆ ناوەند.",
+  "costsEstimateNoReadings": "لەم ماوەیەدا هیچ خوێندنەوەیەکی کیلۆمەترپێو نییە بۆ پێوان."
 }

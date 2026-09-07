@@ -2192,4 +2192,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tripSaveFirstToAddExpense =>
       'Save the trip first, then charge expenses to it.';
+
+  @override
+  String get costsEstimateTitle => 'How this was worked out';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'Worked out from odometer readings $days days apart from the dates shown.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'Not enough distance logged in this period to work out a cost per kilometre.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'Come back after the end of the month — there isn’t a full month to average yet.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'There are no odometer readings in this period to measure between.';
 }

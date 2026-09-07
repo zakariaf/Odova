@@ -2248,4 +2248,24 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tripSaveFirstToAddExpense =>
       'Enregistrez d’abord le trajet, puis imputez-lui des dépenses.';
+
+  @override
+  String get costsEstimateTitle => 'Comment ce chiffre est obtenu';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'Calculé à partir de relevés distants de $days jours des dates affichées.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'Pas assez de distance enregistrée sur cette période pour calculer un coût au kilomètre.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'Revenez après la fin du mois — il n’y a pas encore de mois complet à moyenner.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'Aucun relevé de compteur sur cette période pour mesurer un écart.';
 }

@@ -533,5 +533,10 @@
   "tripEndBelowStart": "Der Endstand ist niedriger als der Anfangsstand.",
   "tripDistanceNotPositive": "Die Strecke muss größer als null sein.",
   "tripSavedToast": "Fahrt gespeichert",
-  "tripSaveFirstToAddExpense": "Speichern Sie die Fahrt zuerst, dann können Sie ihr Ausgaben zuordnen."
+  "tripSaveFirstToAddExpense": "Speichern Sie die Fahrt zuerst, dann können Sie ihr Ausgaben zuordnen.",
+  "costsEstimateTitle": "So wurde das berechnet",
+  "costsEstimateStaleBoundary": "Berechnet aus Kilometerständen, die {days} Tage von den gezeigten Daten entfernt liegen.",
+  "costsEstimateNotEnoughDistance": "In diesem Zeitraum wurde zu wenig Strecke erfasst, um Kosten pro Kilometer zu berechnen.",
+  "costsEstimateNoCompletedMonth": "Schauen Sie nach Monatsende wieder vorbei — es gibt noch keinen vollen Monat zum Mitteln.",
+  "costsEstimateNoReadings": "In diesem Zeitraum gibt es keine Kilometerstände, zwischen denen gemessen werden könnte."
 }

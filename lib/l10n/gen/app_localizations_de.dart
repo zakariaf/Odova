@@ -2207,4 +2207,24 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get tripSaveFirstToAddExpense =>
       'Speichern Sie die Fahrt zuerst, dann können Sie ihr Ausgaben zuordnen.';
+
+  @override
+  String get costsEstimateTitle => 'So wurde das berechnet';
+
+  @override
+  String costsEstimateStaleBoundary(String days) {
+    return 'Berechnet aus Kilometerständen, die $days Tage von den gezeigten Daten entfernt liegen.';
+  }
+
+  @override
+  String get costsEstimateNotEnoughDistance =>
+      'In diesem Zeitraum wurde zu wenig Strecke erfasst, um Kosten pro Kilometer zu berechnen.';
+
+  @override
+  String get costsEstimateNoCompletedMonth =>
+      'Schauen Sie nach Monatsende wieder vorbei — es gibt noch keinen vollen Monat zum Mitteln.';
+
+  @override
+  String get costsEstimateNoReadings =>
+      'In diesem Zeitraum gibt es keine Kilometerstände, zwischen denen gemessen werden könnte.';
 }

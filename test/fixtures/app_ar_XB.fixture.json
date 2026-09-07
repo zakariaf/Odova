@@ -533,5 +533,10 @@
   "tripEndBelowStart": "‏.gnidaer trats eht naht rewol si gnidaer dne ehT",
   "tripDistanceNotPositive": "‏.orez naht erom eb tsum ecnatsiD",
   "tripSavedToast": "‏devas pirT",
-  "tripSaveFirstToAddExpense": "‏.ti ot sesnepxe egrahc neht ,tsrif pirt eht evaS"
+  "tripSaveFirstToAddExpense": "‏.ti ot sesnepxe egrahc neht ,tsrif pirt eht evaS",
+  "costsEstimateTitle": "‏tuo dekrow saw siht woH",
+  "costsEstimateStaleBoundary": "‏ sgnidaer retemodo morf tuo dekroW{days}.nwohs setad eht morf trapa syad ",
+  "costsEstimateNotEnoughDistance": "‏.ertemolik rep tsoc a tuo krow ot doirep siht ni deggol ecnatsid hguone toN",
+  "costsEstimateNoCompletedMonth": "‏.tey egareva ot htnom lluf a t’nsi ereht — htnom eht fo dne eht retfa kcab emoC",
+  "costsEstimateNoReadings": "‏.neewteb erusaem ot doirep siht ni sgnidaer retemodo on era erehT"
 }
