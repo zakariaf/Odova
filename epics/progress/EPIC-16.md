@@ -359,3 +359,36 @@ this app returns `kLatestSchemaVersion`, not a literal. The four commands from
 The migration test seeds a row in **every** table, migrates, and counts again.
 An additive step that silently rebuilt `vehicles` and lost every row would pass
 a shape check and `integrity_check` too.
+
+## Task 16.7 — the nudge
+
+**Two channels, and they are not the same decision.** The in-app card is free —
+no permission, no interruption — and §4.3.2 calls it "the whole feature", so it
+is warranted by the drift alone. The notification costs one of two slots a week
+and can be revoked by a reflex, so it needs the card ignored first, is capped
+per-vehicle AND across all vehicles, and gives up after three.
+
+The card is by construction the WEAKER condition, and a test pins that a
+notification is never warranted where a card is not — the inverse would be a
+notification about a vehicle the app is not showing a line for.
+
+**The give-up rule silences the notification and never the card.** That is the
+most important line in §4.3.3: the card costs the user nothing, and the app
+degrades to hedged language rather than going quiet about a stale estimate it is
+still using.
+
+**Two mutations survived because my own fixtures were degenerate**, which is the
+more useful half of this task:
+
+- "takes the largest drift" had one vehicle under threshold, so it was testing
+  that the other was *filtered out*, not that the larger was *chosen*. A
+  mutation returning the first warranting vehicle passed. Both fixtures warrant
+  now, and the loser is listed first so "took the first" gives the wrong answer
+  rather than the right one by luck.
+- The tie-break test's map was written `{'veh_b', 'veh_a'}` — reverse-sorted —
+  so a mutation that reversed the iteration order produced sorted order by
+  coincidence. Insertion order is now already sorted, and the assertion runs
+  both ways round.
+
+Both are the same lesson: a fixture that makes the assertion true for the wrong
+reason is worse than no fixture, and only a mutation finds it.
