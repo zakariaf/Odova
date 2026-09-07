@@ -111,3 +111,44 @@ own reference no matter how the widget is written.
 Both arms seen: a one-digit drift planted in `bark49` and in `amber52` each
 turns it red.
 
+## Task 18.4 — the sweep, and the triage
+
+`design/review/parity-sweep.md` has 112 rows, `design/review/parity-raw.txt` is
+the tool's own output kept verbatim beside it, and
+`test/parity/sweep_report_test.dart` fails on a missing row or an empty verdict.
+Both arms seen: a blanked verdict and a deleted row each turn it red.
+
+**6 of 112 pass. 106 fail the band profile, 17 the colour census, 2 the theme
+check.** Nothing was fixed in this task.
+
+The result worth having is that **no screen fails for a reason unique to
+itself**, which is the opposite of what twenty-eight per-screen files would have
+suggested and the whole argument for running them together.
+
+**bands — 106.** Two contributions, measured by dumping both band profiles for
+`settings-light-ltr`:
+
+1. Every artboard draws phone chrome — an iOS status bar reading `9:41` with
+   three icons, and a home indicator — and the app draws none. Those are edges
+   at y=66, 84 and 88 that no capture can produce, on all 112 comparisons. The
+   harness pads 54pt and 34pt for them and paints nothing.
+2. Real rhythm differences underneath. On `settings` the app's title sits 10px
+   higher than the reference's and its first card 16px lower — a gap about 26px
+   wider — and every band below inherits it. 48 of 100 edges match within 4px.
+
+**colour — 17, on five screens, every one of them modal.**
+`dialog.discard`, `dialog.confirmDelete`, `dialog.snooze`, `settings.import`,
+`vehicle.switcher`, and nothing else. Each draws a SCRIM, and the reported
+colours (`#9B9287`, `#9E9087`, `#9E8E85`) are that scrim composited over a Calm
+surface. The census compares composited pixels against un-composited tokens, so
+a scrim over any ground is by construction not a token.
+
+**theme — 2**, same cause: `dialog.discard-light-*` reports `#9E968E covers 36%
+and belongs to the dark palette`. That is the light backdrop *under* the scrim,
+landing nearer a dark token than a light one. The screens are in the right
+theme; the check cannot tell a scrimmed light screen from a dark one.
+
+The differing-pixel percentages are deliberately absent from the table. They are
+informational by the skill's own rule, and a number in a triage table is a
+number somebody sorts by.
+
