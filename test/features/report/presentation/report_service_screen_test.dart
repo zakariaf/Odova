@@ -8,6 +8,8 @@
 // what is on screen is the same thing that will be in the file — which is why
 // the toggle tests assert on the preview's content and not on a switch's
 // state.
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/misc.dart';
@@ -48,6 +50,17 @@ class _SpyShare implements ShareService {
       bytes: bytes.length,
     ));
     return const Ok(null);
+  }
+
+  @override
+  Future<Result<void, ShareFailure>> shareWrittenFile({
+    required File file,
+    required String mimeType,
+  }) async {
+    // §12's report renders to bytes in memory and never takes this path. The
+    // backup export does (EPIC-15 task 15.5); a fake that quietly returned Ok
+    // here would be a fake that lies about the port it implements.
+    fail('the report shares bytes, never a written file');
   }
 
   @override

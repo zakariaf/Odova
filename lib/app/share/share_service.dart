@@ -53,6 +53,22 @@ abstract interface class ShareService {
     required String mimeType,
   });
 
+  /// Offers a file the caller has ALREADY written.
+  ///
+  /// Added for the backup export (EPIC-15 task 15.5), and the reason is the
+  /// one thing `shareFile` cannot do: it takes the whole file as a
+  /// `Uint8List`, and a 12,000-record backup assembled in memory is tens of
+  /// megabytes of it on a phone that is already low — arriving at the exact
+  /// moment the user is trying to rescue their data. The backup writer streams
+  /// to a temp file and hands over the path.
+  ///
+  /// The file becomes this service's to clean up, exactly as if [shareFile]
+  /// had written it: `discard` deletes it, and so does the next share.
+  Future<Result<void, ShareFailure>> shareWrittenFile({
+    required File file,
+    required String mimeType,
+  });
+
   /// Deletes whatever was last written.
   Future<Result<void, ShareFailure>> discard();
 }
@@ -99,6 +115,22 @@ class PlatformShareService implements ShareService {
       return Err(ShareFailure('share_write', detail: error.message));
     }
 
+    return _offer(file, mimeType);
+  }
+
+  @override
+  Future<Result<void, ShareFailure>> shareWrittenFile({
+    required File file,
+    required String mimeType,
+  }) async {
+    // The previous file goes first, for the same reason as above: the button
+    // can be pressed twice a minute.
+    await discard();
+    _written = file;
+    return _offer(file, mimeType);
+  }
+
+  Future<Result<void, ShareFailure>> _offer(File file, String mimeType) async {
     try {
       await kShareChannel.invokeMethod<void>('shareFile', {
         'path': file.path,
