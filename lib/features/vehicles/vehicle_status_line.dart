@@ -18,13 +18,13 @@ import 'package:odova/core/due/due_state.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/due/vehicle_due_snapshot.dart';
 import 'package:odova/core/l10n/numerals.dart';
-import 'package:odova/core/l10n/relative_past.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/estimate_rounding.dart';
 import 'package:odova/core/vehicles/garage_status.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/relative_past_text.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 
 /// What joins the facts on a vehicle row.
@@ -108,26 +108,6 @@ String vehicleOdometerAndStatus({
 
 /// "4 months ago", bucketed and SHAPED.
 ///
-/// Public because `vehicle.edit`'s odometer row says the same thing about the
-/// same reading, and its own copy forced `'en'` with Latin numerals — so one
-/// reading read "۴ ماه پیش" in the garage and "4 months ago" one tap away.
-/// SPEC.md §5 has one numbering system active app-wide.
-String formatDaysAgo(AppLocalizations l10n, String tag, int staleDays) {
-  final past = bucketDaysAgo(staleDays);
-  String n() => formatForDisplay(
-    past.count,
-    tag,
-    numerals: CalmNumerals.auto,
-    decimalDigits: 0,
-  );
-  return switch (past.bucket) {
-    PastDateBucket.today => l10n.dateToday,
-    PastDateBucket.yesterday => l10n.dateYesterday,
-    PastDateBucket.daysAgo => l10n.dateDaysAgo(past.count, n()),
-    PastDateBucket.aboutWeeksAgo => l10n.dateAboutWeeksAgo(past.count, n()),
-    PastDateBucket.aboutMonthsAgo => l10n.dateAboutMonthsAgo(past.count, n()),
-  };
-}
 
 /// Which state the dot draws.
 ///

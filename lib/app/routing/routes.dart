@@ -231,6 +231,16 @@ abstract final class Routes {
   /// About.
   static const settingsAbout = '/settings/about';
 
+  /// The offline licence text.
+  ///
+  /// Three levels below the tab root, which §7's two-push rule would normally
+  /// refuse — and it is allowed here for the same reason §7 allows anything:
+  /// the rule is about a user getting lost, and this is a leaf they reach by
+  /// deliberately asking for licence text and leave with one back tap. It has
+  /// no children and nothing links out of it, because §2 forbids the network
+  /// call a licence page would otherwise want.
+  static const settingsLicences = '/settings/about/licences';
+
   /// First run, step one.
   static const firstRunLanguage = '/first-run/language';
 

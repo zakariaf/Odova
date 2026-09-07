@@ -2218,4 +2218,262 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get fuelEmptyBody => 'یەکەم ژمارەی خەرجکردنت لە دووەم تانکی پڕدا دێت.';
+
+  @override
+  String get settingsTitle => 'ڕێکخستنەکان';
+
+  @override
+  String get settingsBackupRow => 'پاڵپشت و گەڕاندنەوە';
+
+  @override
+  String get settingsBackupNever => 'هەرگیز پاڵپشتێکت دروست نەکردووە.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'دوایین پاڵپشت $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed =>
+      'ئۆدۆڤا نەیتوانی نوێکردنەوە تەواو بکات.';
+
+  @override
+  String get settingsVehiclesRow => 'ئۆتۆمبێلەکان';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText ئۆتۆمبێل',
+      one: '$nText ئۆتۆمبێل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'یەکە و شێوازەکان';
+
+  @override
+  String get settingsNotificationsRow => 'ئاگادارکردنەوەکان';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'کارا';
+
+  @override
+  String get settingsNotificationsOff => 'ناکارا';
+
+  @override
+  String get settingsAppearance => 'ڕوخسار';
+
+  @override
+  String get settingsThemeSystem => 'سیستەم';
+
+  @override
+  String get settingsThemeLight => 'ڕووناک';
+
+  @override
+  String get settingsThemeDark => 'تاریک';
+
+  @override
+  String get settingsAboutRow => 'دەربارە';
+
+  @override
+  String get settingsLanguageRow => 'زمان';
+
+  @override
+  String get settingsLanguageNote =>
+      'ئۆدۆڤا بۆ ئەم شەش زمانە وەرگێڕدراوە. ژمارە و بەروار و یەکەکان بە جیا لە «یەکە و شێوازەکان» ڕێک دەخرێن.';
+
+  @override
+  String get unitsPreviewLabel => 'پێشبینین';
+
+  @override
+  String get unitsGroupMeasurement => 'پێوانە';
+
+  @override
+  String get unitsGroupDatesNumbers => 'بەروار و ژمارەکان';
+
+  @override
+  String get unitsRowDistance => 'دووری';
+
+  @override
+  String get unitsRowVolume => 'قەبارە';
+
+  @override
+  String get unitsRowConsumption => 'خەرجکردن';
+
+  @override
+  String get unitsRowCurrency => 'دراو';
+
+  @override
+  String get unitsRowCalendar => 'ڕۆژژمێر';
+
+  @override
+  String get unitsRowNumerals => 'ژمارەکان';
+
+  @override
+  String get unitsRowFirstDay => 'یەکەم ڕۆژی هەفتە';
+
+  @override
+  String get unitsDistanceKm => 'کیلۆمەتر';
+
+  @override
+  String get unitsDistanceMi => 'مایل';
+
+  @override
+  String get unitsVolumeLitre => 'لیتر';
+
+  @override
+  String get unitsVolumeGalUs => 'گالۆنی ئەمریکی';
+
+  @override
+  String get unitsVolumeGalUk => 'گالۆنی بریتانی';
+
+  @override
+  String get unitsCalendarGregorian => 'زایینی';
+
+  @override
+  String get unitsCalendarPersian => 'کۆچی هەتاوی';
+
+  @override
+  String get unitsNumeralsAuto => 'خۆکار';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'لاتینی ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'خۆجێیی ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'پێشنیارکراو بۆ $distance و $volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'ئەمانە تەنها شێوەی پیشاندانی تۆمارەکانت دەگۆڕن. هیچ شتێک کە پێشتر تۆمارت کردووە ناگۆڕدرێت.';
+
+  @override
+  String get unitsCurrencyRecent => 'دواییەکان';
+
+  @override
+  String get unitsCurrencyAll => 'هەموو دراوەکان';
+
+  @override
+  String get unitsCurrencySearch => 'گەڕان بۆ دراو';
+
+  @override
+  String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'ئۆدۆڤا چی دەنێرێت';
+
+  @override
+  String get notifGroupWhen => 'کەی';
+
+  @override
+  String get notifGroupHowFar => 'چەند زوو';
+
+  @override
+  String get notifAllowed => 'ڕێپێدراو';
+
+  @override
+  String get notifRowService => 'بیرخەرەوەی خزمەت';
+
+  @override
+  String get notifRowOdometer => 'تۆمارکردنی کیلۆمەتر';
+
+  @override
+  String get notifRowBackup => 'بیرخەرەوەی پاڵپشت';
+
+  @override
+  String get notifRowTimeOfDay => 'کاتی ڕۆژ';
+
+  @override
+  String get notifRowQuietHours => 'کاتژمێری بێدەنگی';
+
+  @override
+  String get notifRowByDistance => 'بەپێی دووری';
+
+  @override
+  String get notifRowByTime => 'بەپێی کات';
+
+  @override
+  String get notifAutomatic => 'خۆکار';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'خۆکار واتە نزیکەی $percent٪ پێش کاتی خۆی.';
+  }
+
+  @override
+  String get notifCapFooter =>
+      'زۆرترین دوو ئاگادارکردنەوە لە هەفتەیەکدا. هەرگیز دووان لە یەک ڕۆژدا.';
+
+  @override
+  String get notifQuietOff => 'ناکارا';
+
+  @override
+  String get notifOffTitle => 'بیرخەرەوەکان کوژاونەتەوە.';
+
+  @override
+  String get notifOffAction => 'کردنەوەی بیرخەرەوەکان';
+
+  @override
+  String get notifBlockedTitle =>
+      'ئۆدۆڤا ناتوانێت بیرخەرەوە بنێرێت، چونکە ئاگادارکردنەوەکانی ئۆدۆڤا لە ڕێکخستنەکانی مۆبایلەکەت کوژاونەتەوە.';
+
+  @override
+  String get notifBlockedAction => 'کردنەوەی ڕێکخستنەکانی مۆبایل';
+
+  @override
+  String get notifBackgroundTitle =>
+      'لەوانەیە مۆبایلەکەت ڕێگر بێت لە بیرخەرەوەکانی ئۆدۆڤا.';
+
+  @override
+  String get notifSilentFooter =>
+      'ئۆدۆڤا هیچت بۆ نانێرێت. ئەوەی کاتی هاتووە هێشتا لە شاشەی سەرەکیدا دیارە.';
+
+  @override
+  String get notifRowCalendar => 'زیادکردنی بیرخەرەوەکان بۆ ڕۆژژمێرەکەم';
+
+  @override
+  String get aboutPrivacy =>
+      'بێ هەژمار. بێ تۆمارکردن. بێ ڕاژە. هیچ شتێک بار ناکرێت. بێ شوێنپێهەڵگرتن، بێ شیکاری، بێ ڕیکلام.';
+
+  @override
+  String get aboutBackupWarning =>
+      'تۆمارەکانت تەنها لەسەر ئەم مۆبایلەن. ئەگەر بەبێ پاڵپشت لەدەستت بدەیت، لەناودەچن.';
+
+  @override
+  String aboutVersion(String version, String build) {
+    return 'وەشانی $version ($build)';
+  }
+
+  @override
+  String aboutBackupFormat(String format) {
+    return 'شێوازی پاڵپشت $format';
+  }
+
+  @override
+  String get aboutLicencesRow => 'مۆڵەتی سەرچاوەکراوە';
+
+  @override
+  String get unitConsumptionMpgUs => 'مایل/گالۆنی ئەمریکی';
+
+  @override
+  String get unitConsumptionMpgUk => 'مایل/گالۆنی بریتانی';
+
+  @override
+  String get commonListSeparator => '، ';
 }

@@ -3365,6 +3365,456 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your first consumption figure arrives at your second full tank.'**
   String get fuelEmptyBody;
+
+  /// SPEC.md §13's tab-4 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// §13's FIRST row, in its own group, above Vehicles — because the person who needs Export is standing in a phone shop with a dead handset in their pocket. German is the width constraint for the whole screen and this is the string that sets it.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & restore'**
+  String get settingsBackupRow;
+
+  /// §13's never-exported state. Amber text with an amber dot: the only row in the app that changes colour.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve never made a backup.'**
+  String get settingsBackupNever;
+
+  /// The exported state. Both the DATE and the age, as the reference draws it — §13's table shows only the age, and the date is what a user checks against their own memory of when they last did it.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup {date} — {ago}'**
+  String settingsBackupLast(String date, String ago);
+
+  /// §13's migration-failed state. Red, and the app opened on `settings.backup`.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t finish updating.'**
+  String get settingsBackupMigrationFailed;
+
+  /// Pushes the garage.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles'**
+  String get settingsVehiclesRow;
+
+  /// The Vehicles subtitle beyond three, where the reference's list of names stops fitting. `nText` is pre-shaped; a bare int renders Latin digits in four locales.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} vehicle} other{{nText} vehicles}}'**
+  String settingsVehicleCount(int n, String nText);
+
+  /// §13's units screen. `Einheiten & Formate` is the second-longest label and wraps rather than truncating.
+  ///
+  /// In en, this message translates to:
+  /// **'Units & formats'**
+  String get settingsUnitsRow;
+
+  /// §13's notifications screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotificationsRow;
+
+  /// The row's value — `On · 09:00`. Two facts joined, so the ORDER is a translation decision rather than a Dart concatenation.
+  ///
+  /// In en, this message translates to:
+  /// **'{state} · {time}'**
+  String settingsNotificationsValue(String state, String time);
+
+  /// The OS permission state, in a word.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingsNotificationsOn;
+
+  /// The same, denied or off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsNotificationsOff;
+
+  /// The section label over the inline three-valued control. §13 keeps it inline because it is one setting with an instantly visible result.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
+
+  /// Follows the OS.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsThemeSystem;
+
+  /// Always light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// Always dark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
+  /// Pushes the about screen, with the version as its value.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAboutRow;
+
+  /// §13's language row. Its VALUE is the language's own name, never translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguageRow;
+
+  /// The trailing paragraph on `settings.language`. Present in SETTINGS mode only — SPEC.md §8's firstRun variant omits it, because there is no Units screen to point at yet. It exists to stop a user hunting for the numeral setting in the language list, which is where they look first and where it is not.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova is translated into these six. Numbers, dates and units are set separately under Units & formats.'**
+  String get settingsLanguageNote;
+
+  /// The label over §13's live preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get unitsPreviewLabel;
+
+  /// The first group's header.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement'**
+  String get unitsGroupMeasurement;
+
+  /// The second group's header.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates and numbers'**
+  String get unitsGroupDatesNumbers;
+
+  /// Row 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get unitsRowDistance;
+
+  /// Row 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get unitsRowVolume;
+
+  /// Row 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumption'**
+  String get unitsRowConsumption;
+
+  /// Row 4 — a SHEET, not a push. §7 allows no branch in this app three levels deep.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get unitsRowCurrency;
+
+  /// Row 5.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get unitsRowCalendar;
+
+  /// Row 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Numerals'**
+  String get unitsRowNumerals;
+
+  /// Row 7.
+  ///
+  /// In en, this message translates to:
+  /// **'First day of week'**
+  String get unitsRowFirstDay;
+
+  /// The distance option, with its abbreviation so the row's value matches what the preview shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilometres (km)'**
+  String get unitsDistanceKm;
+
+  /// The other one.
+  ///
+  /// In en, this message translates to:
+  /// **'Miles (mi)'**
+  String get unitsDistanceMi;
+
+  /// Litres.
+  ///
+  /// In en, this message translates to:
+  /// **'Litres (L)'**
+  String get unitsVolumeLitre;
+
+  /// 3.785 L. Named apart from the imperial gallon because they are different UNITS: offering `gal` alone makes a British user's consumption wrong by 17%.
+  ///
+  /// In en, this message translates to:
+  /// **'US gallons'**
+  String get unitsVolumeGalUs;
+
+  /// 4.546 L.
+  ///
+  /// In en, this message translates to:
+  /// **'Imperial gallons'**
+  String get unitsVolumeGalUk;
+
+  /// The stored calendar, and the display calendar for five of the six locales.
+  ///
+  /// In en, this message translates to:
+  /// **'Gregorian'**
+  String get unitsCalendarGregorian;
+
+  /// Jalali / Solar Hijri. §18 has an open question about whether `ckb-IR` should default to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Jalali'**
+  String get unitsCalendarPersian;
+
+  /// The locale's CLDR default.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get unitsNumeralsAuto;
+
+  /// The Latin numerals row. `digits` is a PLACEHOLDER and not a baked `0–9`: `arb_template_test.dart` refuses a digit in copy, correctly — a baked one cannot be shaped — and here the sample is the point of the row, so the screen supplies it already in the right block.
+  ///
+  /// In en, this message translates to:
+  /// **'Latin ({digits})'**
+  String unitsNumeralsLatin(String digits);
+
+  /// The locale's own digits, with a sample of them. The sample answers the question the row asks: a Persian user reading `محلی (۰–۹)` can see what they are choosing without applying it first.
+  ///
+  /// In en, this message translates to:
+  /// **'Local ({digits})'**
+  String unitsNumeralsLocal(String digits);
+
+  /// Under the consumption row when the app filled it in from the distance and volume pairing. It says WHY, because a value that changed without being touched reads as a bug.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for {distance} and {volume}'**
+  String unitsConsumptionSuggested(String distance, String volume);
+
+  /// §13's footer, verbatim in intent. Changing the currency rewrites no stored amount and applies no rate — §2 forbids a rate anywhere in this app — and a user about to switch needs to know that before they tap rather than after.
+  ///
+  /// In en, this message translates to:
+  /// **'These change how Odova shows your records. Nothing you’ve already entered is altered.'**
+  String get unitsFooter;
+
+  /// Up to three currencies already used in the user's records, above the A–Z list.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get unitsCurrencyRecent;
+
+  /// The A–Z list's header.
+  ///
+  /// In en, this message translates to:
+  /// **'All currencies'**
+  String get unitsCurrencyAll;
+
+  /// The sheet's search field. Matches on the CODE and on the localised name, so a Persian user can type `يورو`.
+  ///
+  /// In en, this message translates to:
+  /// **'Search currencies'**
+  String get unitsCurrencySearch;
+
+  /// The mark that joins two facts on one line. In the ARB because WHICH mark is a translation decision — and because a `' · '` literal in Dart is exactly what `check_status_encoding.sh` was written to find. Identical in all six today, and that is a translator's finding rather than an assumption.
+  ///
+  /// In en, this message translates to:
+  /// **' · '**
+  String get commonSeparator;
+
+  /// The first group's header.
+  ///
+  /// In en, this message translates to:
+  /// **'What Odova sends'**
+  String get notifGroupWhat;
+
+  /// The second.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get notifGroupWhen;
+
+  /// The third.
+  ///
+  /// In en, this message translates to:
+  /// **'How far ahead'**
+  String get notifGroupHowFar;
+
+  /// The permission chip beside the first group's header, in the granted state.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get notifAllowed;
+
+  /// §13's first category. The ARB comment caps these at 22 characters so the switch never pushes the label to two lines.
+  ///
+  /// In en, this message translates to:
+  /// **'Service reminders'**
+  String get notifRowService;
+
+  /// The second.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer check-ins'**
+  String get notifRowOdometer;
+
+  /// The third.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup reminders'**
+  String get notifRowBackup;
+
+  /// The daily delivery time, stored as local wall-clock minutes and never as an instant.
+  ///
+  /// In en, this message translates to:
+  /// **'Time of day'**
+  String get notifRowTimeOfDay;
+
+  /// The window notifications are held out of.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet hours'**
+  String get notifRowQuietHours;
+
+  /// §3's notice window, by distance.
+  ///
+  /// In en, this message translates to:
+  /// **'By distance'**
+  String get notifRowByDistance;
+
+  /// And by date.
+  ///
+  /// In en, this message translates to:
+  /// **'By time'**
+  String get notifRowByTime;
+
+  /// The computed default for either notice window. Stores NULL — a stored number is a number that stops tracking the item's own interval.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get notifAutomatic;
+
+  /// What Automatic means, under the two rows. `percent` is pre-shaped; a bare int renders Latin digits in four locales.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic is about {percent}% before it is due.'**
+  String notifAutomaticNote(String percent);
+
+  /// §14's delivery cap, stated as a FACT and not offered as a switch. A user who could raise it would, and then blame the app for the noise.
+  ///
+  /// In en, this message translates to:
+  /// **'At most two notifications a week. Never two in one day.'**
+  String get notifCapFooter;
+
+  /// The quiet-hours value when the window is empty — `from == to` is not a zero-length window, it is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get notifQuietOff;
+
+  /// §13's never-asked card.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are off.'**
+  String get notifOffTitle;
+
+  /// Its one action; EPIC-16 owns the sheet it presents.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on reminders'**
+  String get notifOffAction;
+
+  /// §13's denied card, verbatim. It names WHERE the setting is, because the app cannot change it and the user has to.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova can’t send reminders because notifications are turned off for Odova in your phone’s settings.'**
+  String get notifBlockedTitle;
+
+  /// The only remaining door.
+  ///
+  /// In en, this message translates to:
+  /// **'Open phone settings'**
+  String get notifBlockedAction;
+
+  /// §14's OEM background-restriction card, shown once after three unconfirmed deliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone may be stopping Odova’s reminders.'**
+  String get notifBackgroundTitle;
+
+  /// Shown when every category is off. It says what still works, because the alternative reading is that the app has stopped doing anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova won’t send you anything. What’s due still shows on the home screen.'**
+  String get notifSilentFooter;
+
+  /// The `.ics` export. Moves ABOVE the delivery group when notifications are blocked — it is then the only thing on the screen that still delivers anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminders to my calendar'**
+  String get notifRowCalendar;
+
+  /// §13's privacy promise, in plain words and one block. A PROMISE, not a legal notice: it is the sentence the store listing claims and §2 makes true by construction, and breaking it into bullets would make it read like terms nobody reads.
+  ///
+  /// In en, this message translates to:
+  /// **'No account. No sign-up. No server. Nothing is uploaded. No tracking, no analytics, no ads.'**
+  String get aboutPrivacy;
+
+  /// The sentence a future PR will quietly delete, which is why the test asserts it by name. §1: the user's history is worth money and no server holds a copy — and the honest consequence of that has to be said out loud somewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Your records live on this phone only. If you lose it without a backup, they are gone.'**
+  String get aboutBackupWarning;
+
+  /// Both numbers, and both stay LATIN digits: §13 says a version string is an identifier a support conversation quotes back, not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} ({build})'**
+  String aboutVersion(String version, String build);
+
+  /// From `kSupportedFormatVersion` — the same constant the backup writer writes — so the two can never disagree. The internal `schema_version` is deliberately never shown: a user cannot act on it.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup format {format}'**
+  String aboutBackupFormat(String format);
+
+  /// Pushes an OFFLINE text view from a bundled asset. §2 forbids a network call, so there is nothing to link out to.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source licences'**
+  String get aboutLicencesRow;
+
+  /// Miles per US gallon. NAMED apart from the imperial one because they are different units: a US gallon is 3.785 L and an imperial one 4.546 L, so one figure is 17% off the other and a bare `mpg` makes the two unpickable.
+  ///
+  /// In en, this message translates to:
+  /// **'mpg (US)'**
+  String get unitConsumptionMpgUs;
+
+  /// Miles per imperial gallon.
+  ///
+  /// In en, this message translates to:
+  /// **'mpg (imp)'**
+  String get unitConsumptionMpgUk;
+
+  /// The mark between items in a short list of names. Arabic-script locales use U+060C, not a Latin comma — a Dart `', '` here puts a Western comma into a Persian list, which is the small wrongness a reader notices without being able to name.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get commonListSeparator;
 }
 
 class _AppLocalizationsDelegate

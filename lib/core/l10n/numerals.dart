@@ -34,6 +34,14 @@ enum CalmNumerals {
 
   const CalmNumerals(this.wire);
 
+  /// The numeral system [wire] names, or [auto].
+  ///
+  /// [auto] and not [latin] as the fallback: an unreadable stored value means
+  /// the app does not know what the user chose, and the locale's own default
+  /// is a better guess than forcing Latin digits onto a Persian screen.
+  static CalmNumerals fromWire(String? wire) =>
+      values.where((n) => n.wire == wire).firstOrNull ?? auto;
+
   /// The value as it is stored and exported.
   ///
   /// The old name `persian` for a numeral system is dead and must appear

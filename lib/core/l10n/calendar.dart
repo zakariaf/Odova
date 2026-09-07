@@ -21,6 +21,24 @@ enum CalmCalendar {
 
   const CalmCalendar(this.wire);
 
+  /// The calendar [wire] names, or null.
+  ///
+  /// NULLABLE, and that is the one every caller reaching for `resolveCalendar`
+  /// wants: null means "the user has not chosen", and `resolveCalendar` then
+  /// applies the locale's own default — which for a Persian user is Jalali.
+  /// Collapsing this to a Gregorian fallback would silently answer a question
+  /// §5 answers from the locale.
+  static CalmCalendar? tryFromWire(String? wire) =>
+      values.where((c) => c.wire == wire).firstOrNull;
+
+  /// The calendar [wire] names, or [gregorian].
+  ///
+  /// For a caller that needs a value rather than a decision — the units row,
+  /// which shows what is STORED. The fallback is Gregorian because a value
+  /// that will not parse came from a future build, and Gregorian is the
+  /// calendar every date in the database is already in.
+  static CalmCalendar fromWire(String? wire) => tryFromWire(wire) ?? gregorian;
+
   /// The value as it is stored and exported.
   final String wire;
 }

@@ -2216,4 +2216,261 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fuelEmptyBody =>
       'Your first consumption figure arrives at your second full tank.';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsBackupRow => 'Backup & restore';
+
+  @override
+  String get settingsBackupNever => 'You’ve never made a backup.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'Last backup $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed => 'Odova couldn’t finish updating.';
+
+  @override
+  String get settingsVehiclesRow => 'Vehicles';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText vehicles',
+      one: '$nText vehicle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'Units & formats';
+
+  @override
+  String get settingsNotificationsRow => 'Notifications';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'On';
+
+  @override
+  String get settingsNotificationsOff => 'Off';
+
+  @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get settingsThemeSystem => 'System';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsAboutRow => 'About';
+
+  @override
+  String get settingsLanguageRow => 'Language';
+
+  @override
+  String get settingsLanguageNote =>
+      'Odova is translated into these six. Numbers, dates and units are set separately under Units & formats.';
+
+  @override
+  String get unitsPreviewLabel => 'Preview';
+
+  @override
+  String get unitsGroupMeasurement => 'Measurement';
+
+  @override
+  String get unitsGroupDatesNumbers => 'Dates and numbers';
+
+  @override
+  String get unitsRowDistance => 'Distance';
+
+  @override
+  String get unitsRowVolume => 'Volume';
+
+  @override
+  String get unitsRowConsumption => 'Consumption';
+
+  @override
+  String get unitsRowCurrency => 'Currency';
+
+  @override
+  String get unitsRowCalendar => 'Calendar';
+
+  @override
+  String get unitsRowNumerals => 'Numerals';
+
+  @override
+  String get unitsRowFirstDay => 'First day of week';
+
+  @override
+  String get unitsDistanceKm => 'Kilometres (km)';
+
+  @override
+  String get unitsDistanceMi => 'Miles (mi)';
+
+  @override
+  String get unitsVolumeLitre => 'Litres (L)';
+
+  @override
+  String get unitsVolumeGalUs => 'US gallons';
+
+  @override
+  String get unitsVolumeGalUk => 'Imperial gallons';
+
+  @override
+  String get unitsCalendarGregorian => 'Gregorian';
+
+  @override
+  String get unitsCalendarPersian => 'Jalali';
+
+  @override
+  String get unitsNumeralsAuto => 'Automatic';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'Latin ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'Local ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'Suggested for $distance and $volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'These change how Odova shows your records. Nothing you’ve already entered is altered.';
+
+  @override
+  String get unitsCurrencyRecent => 'Recent';
+
+  @override
+  String get unitsCurrencyAll => 'All currencies';
+
+  @override
+  String get unitsCurrencySearch => 'Search currencies';
+
+  @override
+  String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'What Odova sends';
+
+  @override
+  String get notifGroupWhen => 'When';
+
+  @override
+  String get notifGroupHowFar => 'How far ahead';
+
+  @override
+  String get notifAllowed => 'Allowed';
+
+  @override
+  String get notifRowService => 'Service reminders';
+
+  @override
+  String get notifRowOdometer => 'Odometer check-ins';
+
+  @override
+  String get notifRowBackup => 'Backup reminders';
+
+  @override
+  String get notifRowTimeOfDay => 'Time of day';
+
+  @override
+  String get notifRowQuietHours => 'Quiet hours';
+
+  @override
+  String get notifRowByDistance => 'By distance';
+
+  @override
+  String get notifRowByTime => 'By time';
+
+  @override
+  String get notifAutomatic => 'Automatic';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'Automatic is about $percent% before it is due.';
+  }
+
+  @override
+  String get notifCapFooter =>
+      'At most two notifications a week. Never two in one day.';
+
+  @override
+  String get notifQuietOff => 'Off';
+
+  @override
+  String get notifOffTitle => 'Reminders are off.';
+
+  @override
+  String get notifOffAction => 'Turn on reminders';
+
+  @override
+  String get notifBlockedTitle =>
+      'Odova can’t send reminders because notifications are turned off for Odova in your phone’s settings.';
+
+  @override
+  String get notifBlockedAction => 'Open phone settings';
+
+  @override
+  String get notifBackgroundTitle =>
+      'Your phone may be stopping Odova’s reminders.';
+
+  @override
+  String get notifSilentFooter =>
+      'Odova won’t send you anything. What’s due still shows on the home screen.';
+
+  @override
+  String get notifRowCalendar => 'Add reminders to my calendar';
+
+  @override
+  String get aboutPrivacy =>
+      'No account. No sign-up. No server. Nothing is uploaded. No tracking, no analytics, no ads.';
+
+  @override
+  String get aboutBackupWarning =>
+      'Your records live on this phone only. If you lose it without a backup, they are gone.';
+
+  @override
+  String aboutVersion(String version, String build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String aboutBackupFormat(String format) {
+    return 'Backup format $format';
+  }
+
+  @override
+  String get aboutLicencesRow => 'Open source licences';
+
+  @override
+  String get unitConsumptionMpgUs => 'mpg (US)';
+
+  @override
+  String get unitConsumptionMpgUk => 'mpg (imp)';
+
+  @override
+  String get commonListSeparator => ', ';
 }

@@ -473,11 +473,9 @@ final Provider<CostsRepository> costsRepositoryProvider =
         // `resolveCalendar` is the one place that decision lives, and §18 has
         // an open question about whether `ckb-IR` should default to Jalali.
         resolveCalendar(
-          CalmCalendar.values
-              .where(
-                (c) => c.wire == ref.watch(settingsProvider).value?.calendar,
-              )
-              .firstOrNull,
+          CalmCalendar.tryFromWire(
+            ref.watch(settingsProvider).value?.calendar,
+          ),
           ref.watch(resolvedLocaleTagsProvider).formats,
         ),
       ),

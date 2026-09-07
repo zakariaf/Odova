@@ -56,6 +56,16 @@ class CalmRowGroupScope extends InheritedWidget {
 /// action tappable.
 const double kCalmCompactRowHeight = 56;
 
+/// How wide a row's VALUE may get before it wraps.
+///
+/// A fixed ceiling rather than a fraction of the row: a row does not know its
+/// own width without a `LayoutBuilder`, and adding one to every row in the app
+/// to bound one Persian string is a cost the whole list pays. 160 is wide
+/// enough for `On · 09:00`, `km · L · €` and `1.4.0` at their natural size on
+/// the narrowest phone, and narrow enough that the longest value wraps rather
+/// than pushing the title off the edge.
+const double kCalmRowValueMaxWidth = 160;
+
 /// One row: lead / main / end.
 ///
 /// The `Row` mirrors for free under RTL; only the disclosure chevron flips its
@@ -419,13 +429,33 @@ class _CalmRowBody extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // A CEILING on the VALUE, and on nothing else. It had no
+                // bound at all, which is fine while every value is `1.4.0` or
+                // `On · 09:00` in English and is not fine in Persian:
+                // `settings` overflowed by 26 pixels the first time it drew
+                // `اعلان‌ها` beside `روشن · ۹:۰۰`.
+                //
+                // Two narrower fixes were tried and the tests rejected both. A
+                // `Flexible` on the end block makes it a flex sibling of the
+                // title, which moves where text wraps on every row in the app
+                // — eleven vehicle tests and two row goldens went red. A
+                // ceiling on the whole end block starves `end` and the
+                // chevron, which are fixed-size and were never the problem.
+                // This leaves a short value at its natural size and wraps only
+                // the long one, which is §13's rule for these rows: never
+                // truncate.
                 if (value != null)
-                  Text(
-                    value!,
-                    textAlign: TextAlign.end,
-                    style: type.body.copyWith(
-                      color: selected ? colors.brand : colors.ink2,
-                      fontWeight: type.medium,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: kCalmRowValueMaxWidth,
+                    ),
+                    child: Text(
+                      value!,
+                      textAlign: TextAlign.end,
+                      style: type.body.copyWith(
+                        color: selected ? colors.brand : colors.ink2,
+                        fontWeight: type.medium,
+                      ),
                     ),
                   ),
                 if (end != null) ...[SizedBox(width: space.s2), end!],

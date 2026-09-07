@@ -2347,4 +2347,265 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fuelEmptyBody => 'يظهر أول رقم استهلاك عند ثاني خزان ممتلئ.';
+
+  @override
+  String get settingsTitle => 'الإعدادات';
+
+  @override
+  String get settingsBackupRow => 'النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get settingsBackupNever => 'لم تنشئ نسخة احتياطية قط.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'آخر نسخة احتياطية $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed =>
+      'لم تتمكن أودوفا من إكمال التحديث.';
+
+  @override
+  String get settingsVehiclesRow => 'المركبات';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText مركبةٍ',
+      many: '$nText مركبةً',
+      few: '$nText مركبات',
+      two: 'مركبتان',
+      one: 'مركبة واحدة',
+      zero: '$nText مركبةٍ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'الوحدات والتنسيقات';
+
+  @override
+  String get settingsNotificationsRow => 'الإشعارات';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'مفعّل';
+
+  @override
+  String get settingsNotificationsOff => 'معطّل';
+
+  @override
+  String get settingsAppearance => 'المظهر';
+
+  @override
+  String get settingsThemeSystem => 'النظام';
+
+  @override
+  String get settingsThemeLight => 'فاتح';
+
+  @override
+  String get settingsThemeDark => 'داكن';
+
+  @override
+  String get settingsAboutRow => 'حول';
+
+  @override
+  String get settingsLanguageRow => 'اللغة';
+
+  @override
+  String get settingsLanguageNote =>
+      'أودوفا مترجمة إلى هذه اللغات الست. تُضبط الأرقام والتواريخ والوحدات على حدة ضمن «الوحدات والتنسيقات».';
+
+  @override
+  String get unitsPreviewLabel => 'معاينة';
+
+  @override
+  String get unitsGroupMeasurement => 'القياس';
+
+  @override
+  String get unitsGroupDatesNumbers => 'التواريخ والأرقام';
+
+  @override
+  String get unitsRowDistance => 'المسافة';
+
+  @override
+  String get unitsRowVolume => 'الحجم';
+
+  @override
+  String get unitsRowConsumption => 'الاستهلاك';
+
+  @override
+  String get unitsRowCurrency => 'العملة';
+
+  @override
+  String get unitsRowCalendar => 'التقويم';
+
+  @override
+  String get unitsRowNumerals => 'الأرقام';
+
+  @override
+  String get unitsRowFirstDay => 'أول أيام الأسبوع';
+
+  @override
+  String get unitsDistanceKm => 'كيلومترات (كم)';
+
+  @override
+  String get unitsDistanceMi => 'أميال (ميل)';
+
+  @override
+  String get unitsVolumeLitre => 'لترات (ل)';
+
+  @override
+  String get unitsVolumeGalUs => 'جالونات أمريكية';
+
+  @override
+  String get unitsVolumeGalUk => 'جالونات إمبراطورية';
+
+  @override
+  String get unitsCalendarGregorian => 'ميلادي';
+
+  @override
+  String get unitsCalendarPersian => 'هجري شمسي';
+
+  @override
+  String get unitsNumeralsAuto => 'تلقائي';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'لاتينية ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'محلية ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'مقترح لـ $distance و$volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'تغيّر هذه طريقة عرض سجلاتك فقط. لا يُعدَّل شيء أدخلته من قبل.';
+
+  @override
+  String get unitsCurrencyRecent => 'الأخيرة';
+
+  @override
+  String get unitsCurrencyAll => 'كل العملات';
+
+  @override
+  String get unitsCurrencySearch => 'البحث عن عملة';
+
+  @override
+  String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'ما ترسله أودوفا';
+
+  @override
+  String get notifGroupWhen => 'متى';
+
+  @override
+  String get notifGroupHowFar => 'قبل بكم';
+
+  @override
+  String get notifAllowed => 'مسموح';
+
+  @override
+  String get notifRowService => 'تذكيرات الصيانة';
+
+  @override
+  String get notifRowOdometer => 'تسجيل قراءة العداد';
+
+  @override
+  String get notifRowBackup => 'تذكيرات النسخ الاحتياطي';
+
+  @override
+  String get notifRowTimeOfDay => 'وقت اليوم';
+
+  @override
+  String get notifRowQuietHours => 'ساعات الهدوء';
+
+  @override
+  String get notifRowByDistance => 'حسب المسافة';
+
+  @override
+  String get notifRowByTime => 'حسب الوقت';
+
+  @override
+  String get notifAutomatic => 'تلقائي';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'التلقائي يعني نحو $percent٪ قبل الاستحقاق.';
+  }
+
+  @override
+  String get notifCapFooter =>
+      'إشعاران في الأسبوع على الأكثر. ولا إشعاران في يوم واحد أبدًا.';
+
+  @override
+  String get notifQuietOff => 'معطّلة';
+
+  @override
+  String get notifOffTitle => 'التذكيرات معطّلة.';
+
+  @override
+  String get notifOffAction => 'تفعيل التذكيرات';
+
+  @override
+  String get notifBlockedTitle =>
+      'لا تستطيع أودوفا إرسال التذكيرات لأن الإشعارات معطّلة لأودوفا في إعدادات هاتفك.';
+
+  @override
+  String get notifBlockedAction => 'فتح إعدادات الهاتف';
+
+  @override
+  String get notifBackgroundTitle => 'قد يمنع هاتفك تذكيرات أودوفا.';
+
+  @override
+  String get notifSilentFooter =>
+      'لن ترسل لك أودوفا شيئًا. ما هو مستحق يظل ظاهرًا على الشاشة الرئيسية.';
+
+  @override
+  String get notifRowCalendar => 'إضافة التذكيرات إلى تقويمي';
+
+  @override
+  String get aboutPrivacy =>
+      'بلا حساب. بلا تسجيل. بلا خادم. لا يُرفع شيء. بلا تتبّع، بلا تحليلات، بلا إعلانات.';
+
+  @override
+  String get aboutBackupWarning =>
+      'سجلاتك موجودة على هذا الهاتف فقط. إن فقدته دون نسخة احتياطية، فقدتها معه.';
+
+  @override
+  String aboutVersion(String version, String build) {
+    return 'الإصدار $version ($build)';
+  }
+
+  @override
+  String aboutBackupFormat(String format) {
+    return 'تنسيق النسخ الاحتياطي $format';
+  }
+
+  @override
+  String get aboutLicencesRow => 'تراخيص المصادر المفتوحة';
+
+  @override
+  String get unitConsumptionMpgUs => 'ميل/جالون أمريكي';
+
+  @override
+  String get unitConsumptionMpgUk => 'ميل/جالون إمبراطوري';
+
+  @override
+  String get commonListSeparator => '، ';
 }

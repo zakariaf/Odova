@@ -66,6 +66,14 @@ final VehicleId golfId = VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA')!;
 /// A second vehicle, for the switcher and the other-vehicles row.
 final VehicleId vanId = VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVB')!;
 
+/// A third vehicle, for the garage-size boundaries.
+final VehicleId bikeId = VehicleId.tryParse('veh_01JQ8ZK3M7F0R6XN2E9TB4HCVC')!;
+
+/// And a fourth.
+final VehicleId fourthId = VehicleId.tryParse(
+  'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVE',
+)!;
+
 /// Builds a vehicle.
 Vehicle homeVehicle(
   VehicleId id,
@@ -90,10 +98,20 @@ Vehicle homeVehicle(
 );
 
 /// Settings pointing at [active], in kilometres and euros.
-AppSettings homeSettings(VehicleId? active) => AppSettings(
+AppSettings homeSettings(
+  VehicleId? active, {
+  int? lastBackupAtUtcMs,
+  // The stored LANGUAGE, which is what `localeControllerProvider` reads —
+  // `pumpShell`'s `locale:` sets the app's starting locale and the setting
+  // then wins. A test that pumps `fa` and leaves this at `system` gets an
+  // English screen, which is how a Persian assertion quietly checks nothing.
+  String language = 'system',
+}) => AppSettings(
   schemaVersion: 1,
   currencyDefault: Currency.tryParse('EUR')!,
   activeVehicleId: active,
+  language: language,
+  lastBackupAtUtcMs: lastBackupAtUtcMs,
   createdAtUtcMs: 1000,
   updatedAtUtcMs: 1000,
 );

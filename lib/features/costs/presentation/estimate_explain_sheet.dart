@@ -56,10 +56,8 @@ Future<void> showEstimateExplainSheet(
   required String formatsTag,
   required CostReason reason,
   int boundaryGapDays = 0,
-}) => showModalBottomSheet<void>(
-  context: context,
-  isScrollControlled: true,
-  backgroundColor: Colors.transparent,
+}) => CalmSheet.show<void>(
+  context,
   builder: (sheetContext) {
     final l10n = AppLocalizations.of(sheetContext);
     return CalmSheet(

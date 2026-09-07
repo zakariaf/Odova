@@ -86,9 +86,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     // is the one place that decision lives, and §18 has an open question about
     // whether `ckb-IR` should default to Jalali.
     final calendar = resolveCalendar(
-      CalmCalendar.values
-          .where((c) => c.wire == ref.watch(settingsProvider).value?.calendar)
-          .firstOrNull,
+      CalmCalendar.tryFromWire(ref.watch(settingsProvider).value?.calendar),
       tags.formats,
     );
     final state = ref.watch(historyProvider(scope));

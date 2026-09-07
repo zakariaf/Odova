@@ -35,6 +35,12 @@ String formatLongDate(
   String isoDate,
   String formatsTag, {
   CalmCalendar? calendar,
+  // Defaulted, so every existing caller keeps the locale's own digits. It is
+  // a parameter because `settings.units`' preview has to render the numeral
+  // system the user is CHOOSING, not the one their locale implies — and a
+  // preview with the date in one digit set and the distance beside it in
+  // another is the exact confusion the preview exists to remove.
+  CalmNumerals numerals = CalmNumerals.auto,
 }) {
   final parsed = DateTime.tryParse(isoDate);
   if (parsed == null) return isoDate;
@@ -43,14 +49,28 @@ String formatLongDate(
   final parts = projectDate(parsed, resolved, formatsTag);
 
   if (parts.monthName == null) {
-    // ICU owns the word order, the separators and the capitalisation.
-    return DateFormat.yMMMMd(dateFormatLocale(formatsTag)).format(parsed);
+    // ICU owns the word order, the separators and the capitalisation. It also
+    // renders Latin digits whatever the locale, so the shaping happens here:
+    // without it a Persian user on the Gregorian calendar reads `12 March
+    // 2026` beside `۱۴۲٬۳۸۰ کیلومتر`.
+    // FOLDED to ASCII, then shaped. `shapeDigits` only maps ASCII into a
+    // block, and ICU already renders Persian digits for a `fa` locale — so
+    // shaping alone could never turn them back into Latin ones, and a user who
+    // chose Latin numerals on a Persian phone read `۱۲ مارس ۲۰۲۶` beside
+    // `142,380 km`. `number_format.dart` documents the same order for the same
+    // reason.
+    return shapeDigits(
+      foldDigitsToAscii(
+        DateFormat.yMMMMd(dateFormatLocale(formatsTag)).format(parsed),
+      ),
+      resolveNumerals(numerals, formatsTag),
+    );
   }
 
   String number(int value) => formatForDisplay(
     value,
     formatsTag,
-    numerals: CalmNumerals.auto,
+    numerals: numerals,
     decimalDigits: 0,
     grouped: false,
   );
@@ -154,4 +174,40 @@ String formatYear(String isoOrYear, String formatsTag) {
     decimalDigits: 0,
     grouped: false,
   );
+}
+
+/// A time of day from minutes past midnight — `09:00`, `۹:۰۰`.
+///
+/// Through ICU's `jm` skeleton, which is the LOCALE-PREFERRED one: `09:00` in
+/// de-DE, `9:00 AM` in en-US. `Hm` is the fixed 24-hour skeleton, and this
+/// documented locale-awareness while using it — so an American user opened a
+/// time picker offering "9:00 PM" and read `21:00` back on the row beside it.
+///
+/// The digits are shaped afterwards, because `DateFormat` renders Latin ones
+/// and §5 keeps one numbering system active app-wide.
+String formatMinutesOfDay(
+  int minutes,
+  String formatsTag, {
+  CalmNumerals numerals = CalmNumerals.auto,
+}) {
+  final clamped = minutes.clamp(0, 24 * 60 - 1);
+  final at = DateTime.utc(2000, 1, 2, clamped ~/ 60, clamped % 60);
+  return shapeDigits(
+    foldDigitsToAscii(DateFormat.jm(dateFormatLocale(formatsTag)).format(at)),
+    resolveNumerals(numerals, formatsTag),
+  );
+}
+
+/// An ISO-8601 weekday's name — `Monday`, `Montag`, `دوشنبه`.
+///
+/// From ICU's own symbols rather than from our ARB files, which is the
+/// opposite of the rule for UNIT labels and for the same reason: §5 says unit
+/// abbreviations are ours because ICU's are wrong for us, and weekday names
+/// are exactly what ICU is authoritative about. Six translations of "Monday"
+/// would be six chances to disagree with the calendar the user is looking at.
+String weekdayName(String formatsTag, int isoWeekday) {
+  // 2000-01-03 was a Monday, so `+ isoWeekday - 1` lands on the day asked for
+  // without any arithmetic about where a week starts.
+  final day = DateTime.utc(2000, 1, 2 + isoWeekday);
+  return DateFormat.EEEE(dateFormatLocale(formatsTag)).format(day);
 }

@@ -2211,4 +2211,261 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get fuelEmptyBody =>
       'نخستین عدد مصرف شما در دومین باک پر به دست می‌آید.';
+
+  @override
+  String get settingsTitle => 'تنظیمات';
+
+  @override
+  String get settingsBackupRow => 'پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get settingsBackupNever => 'هرگز پشتیبانی نگرفته‌اید.';
+
+  @override
+  String settingsBackupLast(String date, String ago) {
+    return 'آخرین پشتیبان $date — $ago';
+  }
+
+  @override
+  String get settingsBackupMigrationFailed =>
+      'اودووا نتوانست به‌روزرسانی را کامل کند.';
+
+  @override
+  String get settingsVehiclesRow => 'خودروها';
+
+  @override
+  String settingsVehicleCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText خودرو',
+      one: '$nText خودرو',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsUnitsRow => 'یکاها و قالب‌ها';
+
+  @override
+  String get settingsNotificationsRow => 'اعلان‌ها';
+
+  @override
+  String settingsNotificationsValue(String state, String time) {
+    return '$state · $time';
+  }
+
+  @override
+  String get settingsNotificationsOn => 'روشن';
+
+  @override
+  String get settingsNotificationsOff => 'خاموش';
+
+  @override
+  String get settingsAppearance => 'ظاهر';
+
+  @override
+  String get settingsThemeSystem => 'سیستم';
+
+  @override
+  String get settingsThemeLight => 'روشن';
+
+  @override
+  String get settingsThemeDark => 'تیره';
+
+  @override
+  String get settingsAboutRow => 'درباره';
+
+  @override
+  String get settingsLanguageRow => 'زبان';
+
+  @override
+  String get settingsLanguageNote =>
+      'اودووا به این شش زبان ترجمه شده است. اعداد، تاریخ‌ها و یکاها جداگانه در «یکاها و قالب‌ها» تنظیم می‌شوند.';
+
+  @override
+  String get unitsPreviewLabel => 'پیش‌نمایش';
+
+  @override
+  String get unitsGroupMeasurement => 'اندازه‌گیری';
+
+  @override
+  String get unitsGroupDatesNumbers => 'تاریخ و اعداد';
+
+  @override
+  String get unitsRowDistance => 'مسافت';
+
+  @override
+  String get unitsRowVolume => 'حجم';
+
+  @override
+  String get unitsRowConsumption => 'مصرف';
+
+  @override
+  String get unitsRowCurrency => 'واحد پول';
+
+  @override
+  String get unitsRowCalendar => 'تقویم';
+
+  @override
+  String get unitsRowNumerals => 'ارقام';
+
+  @override
+  String get unitsRowFirstDay => 'نخستین روز هفته';
+
+  @override
+  String get unitsDistanceKm => 'کیلومتر';
+
+  @override
+  String get unitsDistanceMi => 'مایل';
+
+  @override
+  String get unitsVolumeLitre => 'لیتر';
+
+  @override
+  String get unitsVolumeGalUs => 'گالن آمریکایی';
+
+  @override
+  String get unitsVolumeGalUk => 'گالن بریتانیایی';
+
+  @override
+  String get unitsCalendarGregorian => 'میلادی';
+
+  @override
+  String get unitsCalendarPersian => 'هجری شمسی';
+
+  @override
+  String get unitsNumeralsAuto => 'خودکار';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'لاتین ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'محلی ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'پیشنهادشده برای $distance و $volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'این‌ها فقط نحوهٔ نمایش سوابق شما را تغییر می‌دهند. آنچه پیش‌تر وارد کرده‌اید تغییر نمی‌کند.';
+
+  @override
+  String get unitsCurrencyRecent => 'اخیر';
+
+  @override
+  String get unitsCurrencyAll => 'همهٔ واحدهای پول';
+
+  @override
+  String get unitsCurrencySearch => 'جست‌وجوی واحد پول';
+
+  @override
+  String get commonSeparator => ' · ';
+
+  @override
+  String get notifGroupWhat => 'اودووا چه می‌فرستد';
+
+  @override
+  String get notifGroupWhen => 'چه زمانی';
+
+  @override
+  String get notifGroupHowFar => 'چقدر زودتر';
+
+  @override
+  String get notifAllowed => 'مجاز';
+
+  @override
+  String get notifRowService => 'یادآور سرویس';
+
+  @override
+  String get notifRowOdometer => 'یادآور کیلومترشمار';
+
+  @override
+  String get notifRowBackup => 'یادآور پشتیبان';
+
+  @override
+  String get notifRowTimeOfDay => 'ساعت روز';
+
+  @override
+  String get notifRowQuietHours => 'ساعات سکوت';
+
+  @override
+  String get notifRowByDistance => 'بر پایهٔ مسافت';
+
+  @override
+  String get notifRowByTime => 'بر پایهٔ زمان';
+
+  @override
+  String get notifAutomatic => 'خودکار';
+
+  @override
+  String notifAutomaticNote(String percent) {
+    return 'خودکار یعنی حدود $percent٪ پیش از سررسید.';
+  }
+
+  @override
+  String get notifCapFooter => 'حداکثر دو اعلان در هفته. هرگز دو تا در یک روز.';
+
+  @override
+  String get notifQuietOff => 'خاموش';
+
+  @override
+  String get notifOffTitle => 'یادآورها خاموش‌اند.';
+
+  @override
+  String get notifOffAction => 'روشن کردن یادآورها';
+
+  @override
+  String get notifBlockedTitle =>
+      'اودووا نمی‌تواند یادآور بفرستد، چون اعلان‌های اودووا در تنظیمات گوشی خاموش است.';
+
+  @override
+  String get notifBlockedAction => 'باز کردن تنظیمات گوشی';
+
+  @override
+  String get notifBackgroundTitle =>
+      'ممکن است گوشی شما جلوی یادآورهای اودووا را بگیرد.';
+
+  @override
+  String get notifSilentFooter =>
+      'اودووا چیزی برایتان نمی‌فرستد. آنچه سررسید شده همچنان در صفحهٔ خانه دیده می‌شود.';
+
+  @override
+  String get notifRowCalendar => 'افزودن یادآورها به تقویم من';
+
+  @override
+  String get aboutPrivacy =>
+      'بدون حساب کاربری. بدون ثبت‌نام. بدون سرور. هیچ چیزی آپلود نمی‌شود. بدون ردیابی، بدون تحلیل، بدون تبلیغات.';
+
+  @override
+  String get aboutBackupWarning =>
+      'سوابق شما فقط روی همین گوشی است. اگر آن را بدون پشتیبان از دست بدهید، از بین می‌روند.';
+
+  @override
+  String aboutVersion(String version, String build) {
+    return 'نسخهٔ $version ($build)';
+  }
+
+  @override
+  String aboutBackupFormat(String format) {
+    return 'قالب پشتیبان $format';
+  }
+
+  @override
+  String get aboutLicencesRow => 'پروانه‌های متن‌باز';
+
+  @override
+  String get unitConsumptionMpgUs => 'مایل بر گالن آمریکایی';
+
+  @override
+  String get unitConsumptionMpgUk => 'مایل بر گالن بریتانیایی';
+
+  @override
+  String get commonListSeparator => '، ';
 }
