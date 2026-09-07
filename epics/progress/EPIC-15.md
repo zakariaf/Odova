@@ -568,3 +568,61 @@ rewrote that this change does not touch.
 - **"`ImportWarning.code` has no production reader."** It has a test reader and
   the corpus sidecars name warnings by it, which is the point: the sidecar is a
   document a human writes.
+
+## `/code-review` — thirteen findings, four of them data loss
+
+Run after `/simplify`, over the same branch. Every finding applied; none
+answered-and-skipped. The four worth reading:
+
+**A refused migration ran the migration.** Drift opens LAZILY and runs
+`onUpgrade` on the first query, so handing back an ordinary `AppDatabase` from
+the refusal path meant `bootstrap()`'s next call — `readLaunchFacts` — ran the
+migration §6.4.4 had just refused, on the disk too full to write an escape route
+or on a file from a newer build. The rolled-back path re-attempted the migration
+that had just thrown, out of cold launch: §14's crash loop.
+
+**Introduced by the `/simplify` fix an hour earlier**, which is the lesson: a
+fix that wires a previously-dead path is a fix that needs its own test of the
+path, not of the wiring. `AppDatabase.degraded` refuses to migrate, and the test
+now QUERIES the database it was handed — the old ones asserted the file was
+intact when the function returned and never touched what it returned.
+
+**`fillDefaults` made rung 7 unreachable for `vehicles`, `reminders` and
+`services`.** It wrote `[]` back over a malformed value, so `"vehicles": "oops"`
+was neither refused nor warned about: the file imported as a phone with no
+vehicles and every record in it became an orphan under "Recovered records". A
+defaults pass has no business changing a document's shape.
+
+**A dropped service line was silent.** The loop cleared the rejection and added
+nothing, so a service arrived with three of its five lines and the user was told
+nothing — exactly what §5.3 forbids, in the one place the rule was not applied.
+
+**The safety copy dropped readings and warned about itself.** `source ==
+'manual'` lost every reading that arrived in an earlier restore ("standalone" is
+`source_id IS NULL` everywhere else), and `"content_hash": null` made every
+pre-migration copy import with "this file has been edited since Odova saved it".
+
+**Two findings were about telling the user something untrue.** The importer
+returned a failure when `reopenLive` threw after a successful rename — "nothing
+on your phone has changed", over a store that had just been replaced. And
+`recordsRead` over-counted duplicates, so the preview promised more than the
+import would deliver AND disagreed with the importer's own count, which would
+refuse a good file as `CountMismatch`.
+
+**One correction to the review.** It proposed counting duplicates toward rung
+13's blast radius. They leave `recordsRead`, correctly, but they are not damage:
+counting them would refuse a file whose tail was appended to itself, which is
+the commonest way a file grows a duplicate. The two numbers are now computed
+separately.
+
+**Also fixed:** the CSV writing a volume unit beside a gas or electric quantity;
+`deleteLeftoverExports` sweeping on `odova-` and therefore one wiring step from
+deleting the undo window; `ExportNoSpace` unreachable because `freeBytes` was
+never passed; the skipped list rendering up to six hundred rows on every build;
+the import header showing UTC rather than the writer's clock.
+
+**A pattern across both passes.** Eight of the eighteen findings were a typed
+thing built carefully and then flattened at a seam — a `Result` collapsed to
+`int?`, a sealed failure to `null`, a projection to a `switch` with a fallback,
+a rejection cleared without being counted. The types were right; the joins
+between them were where the data went.
