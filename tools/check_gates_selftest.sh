@@ -941,4 +941,84 @@ restore_all
 rm -rf .selftest
 assert 0 "check_stream_notify is green again" bash "$NOTIFY"
 
+echo "== check_notification_manifest =="
+NOTIF=tools/check_notification_manifest.sh
+assert 0 "check_notification_manifest is green on the real manifest" bash "$NOTIF"
+
+# A manifest that does not exist is a FAILURE and not a skip. The skill's
+# version exits 0 here, which turns a typo'd path into a passing gate.
+assert 1 "check_notification_manifest is red on a missing manifest" \
+  bash "$NOTIF" --manifest .selftest/nope.xml
+
+mkdir -p .selftest
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
+    </application>
+</manifest>
+XML
+assert 0 "check_notification_manifest is green on a minimal correct manifest" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+
+# The two refusals, planted separately: one is a Play-policy rejection risk and
+# the other is a permission dialog SPEC.md §4.6.3 declines to spend.
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
+    </application>
+</manifest>
+XML
+assert 1 "check_notification_manifest is red on USE_EXACT_ALARM" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
+    </application>
+</manifest>
+XML
+assert 1 "check_notification_manifest is red on SCHEDULE_EXACT_ALARM" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+
+# The boot receiver, whose absence is the silent one: the app keeps working and
+# simply never notifies again after a restart.
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <application />
+</manifest>
+XML
+assert 1 "check_notification_manifest is red with no boot receiver" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+
+# And the comment paragraph in the real manifest EXPLAINING why the exact-alarm
+# permissions are absent must not itself trip the gate that keeps them absent.
+write_scratch .selftest/manifest.xml <<'XML'
+<manifest>
+    <!-- Never declare android.permission.USE_EXACT_ALARM: Play policy. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <application>
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" />
+    </application>
+</manifest>
+XML
+assert 0 "check_notification_manifest ignores a comment naming the ban" \
+  bash "$NOTIF" --manifest .selftest/manifest.xml
+restore_all
+rm -rf .selftest
+assert 0 "check_notification_manifest is green again" bash "$NOTIF"
+
 exit "$rc"

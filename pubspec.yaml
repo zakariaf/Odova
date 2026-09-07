@@ -34,11 +34,51 @@ dependencies:
   drift: ^2.28.2
   flutter:
     sdk: flutter
+  # The one plugin that talks to the OS notification centre. SPEC.md §4 is the
+  # whole reason: a reminder that only exists inside the app is a reminder for
+  # somebody who already opened the app.
+  #
+  # Opens NO socket, and this was checked rather than assumed — its transitive
+  # tree is timezone, clock and the platform channels, and `tools/audit_deps.sh`
+  # walks it and reports clean. There is no allowlist to add it to: audit_deps.py
+  # says so in a comment, deliberately, and the packages are not banned.
+  #
+  # The alternative was a foreground-only in-app reminder, which is what the app
+  # already has. §6.4 is explicit that notifications are an accelerant and no
+  # feature may depend on delivery — so this dependency buys reach, not
+  # correctness, and the app stays fully usable if the user denies it forever.
+  #
+  # **18, not 22, and the reason is the offline gate.** `timezone` added an
+  # `http` dependency in 0.10.0 — for its own tzdata-refresh tool, which this
+  # app never runs — and every flutter_local_notifications from 19 upwards
+  # requires timezone >= 0.10. So the newest version of this plugin puts a
+  # network client in the shipped binary, and `tools/audit_deps.sh` refuses it:
+  # CLAUDE.md rule 1 bans `http` permanently, and §2's store-listing claim of
+  # zero network calls is meant to be true BY CONSTRUCTION rather than by
+  # nobody calling it.
+  #
+  # 18.0.1 accepts `timezone >=0.9.0 <0.11.0`, and 0.9.4 depends on `path` and
+  # nothing else. It has `zonedSchedule`, `AndroidScheduleMode`, notification
+  # actions and the vm:entry-point background handler — everything §4 needs.
+  #
+  # The cost is real and worth stating: this pin holds the plugin back, and a
+  # security fix in 19+ would force the choice again. Revisit when `timezone`
+  # moves `http` to a dev dependency, which is where it belongs — it is
+  # tooling, not runtime. Until then the ban wins, because a transitively
+  # shipped HTTP client makes the store listing false whether or not anything
+  # calls it.
+  flutter_local_notifications: ^18.0.1
   flutter_localizations:
     sdk: flutter
   # State AND dependency injection. Deciding that here is what stops get_it
   # arriving in epic seven.
   flutter_riverpod: ^3.0.0
+  # The device's IANA zone name, once, at startup. SPEC.md §4.5 stores a
+  # notification as wall-clock and resolves it in the CURRENT zone at schedule
+  # time, so a user who flies Berlin -> Tehran still gets 09:00 local. Without
+  # this, `timezone` defaults to UTC and every reminder fires at the wrong hour
+  # for anyone not on GMT — silently, and only on their device.
+  flutter_timezone: ^4.1.1
   # The router. SPEC.md §7 needs one navigation graph with typed locations,
   # a real `errorBuilder` and a shell whose four tabs each keep their own
   # stack — `StatefulShellRoute.indexedStack` is the reason for the package
@@ -82,6 +122,11 @@ dependencies:
   # the OS shipped, which on older Android is too old for STRICT tables — and
   # STRICT is what makes a wrong column type impossible rather than unlikely.
   sqlite3_flutter_libs: ^0.5.42
+  # The TZDatabase the line above names. Bundled data, no lookup, no network:
+  # 0.9.4's only dependency is `path`. Capped below 0.10.0 on purpose — see the
+  # note on flutter_local_notifications above. Do not widen this to ^0.10 to
+  # take a newer plugin; that is the change that puts `http` in the binary.
+  timezone: ^0.9.4
 
 dev_dependencies:
   # Drift's code generator and the schema-snapshot tooling. Dev-only: the

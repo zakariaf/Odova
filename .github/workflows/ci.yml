@@ -108,6 +108,22 @@ jobs:
       - name: raw writers announce their tables
         run: bash tools/check_stream_notify.sh
 
+      # Contract: the Android manifest declares what SPEC.md §4 needs and
+      # NEITHER exact-alarm permission. USE_EXACT_ALARM is Play-policy
+      # restricted to alarm/timer/calendar apps and risks store rejection;
+      # SCHEDULE_EXACT_ALARM would work and is refused by §4.6.3 anyway,
+      # because it spends a permission dialog on an hour of precision that
+      # §4.2's absolute-anchor bodies were written to make irrelevant. It also
+      # REQUIRES the boot re-arm, whose absence is the silent one — Android
+      # drops every alarm on reboot, so without it a phone that restarts
+      # overnight stops notifying forever and nothing in the app can tell.
+      #
+      # Odova's own gate rather than the local-notifications-scheduler skill's,
+      # which requires SCHEDULE_EXACT_ALARM. CLAUDE.md §3: the skill is a
+      # general default, the spec is this product's decision.
+      - name: the notification manifest asks for no exact alarms
+        run: bash tools/check_notification_manifest.sh
+
       # Contract: the pub ecosystem block in .github/dependabot.yml is live
       # and grouped. It shipped commented out because Dependabot aborts on a
       # missing pubspec.yaml; pubspec.yaml exists now, and this is what stops
@@ -274,6 +290,17 @@ jobs:
       # sits, so the compiler cannot see this one.
       - name: Drift stays inside the data layer
         run: bash tools/check_drift_confinement.sh
+
+      # Contract: exactly one file imports flutter_local_notifications, the
+      # scheduling math stays pure, and no feature calls the gateway directly.
+      # SPEC.md §4.6.1. The rule is what keeps §4's hardest promises testable:
+      # "never more than two in a rolling seven days" is a claim about a SET,
+      # which no on-device test can check.
+      - name: the notification plugin stays behind its port
+        run: |
+          bash .claude/skills/local-notifications-scheduler/scripts/check-single-fln-import.sh
+          bash .claude/skills/local-notifications-scheduler/scripts/check-scheduler-purity.sh
+          bash .claude/skills/local-notifications-scheduler/scripts/check-adhoc-schedule-calls.sh
 
       # Contract: the committed .g.dart IS the schema. A stale generated file
       # compiles and runs against yesterday's tables, and for a migration

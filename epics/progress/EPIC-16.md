@@ -104,3 +104,53 @@ a null is a value a future reader has to make a decision about.
 `vehicleId` passed all twelve. The guard was there and untested, which is the
 same as not being there; `""` is what a serialiser writes for a null id.
 Thirteen now, and the mutation is red.
+
+## Task 16.4 — the port, and the dependency that nearly failed the offline gate
+
+**`flutter_local_notifications` 18, not 22, and the reason is SPEC.md §2.**
+`timezone` added an `http` dependency in 0.10.0 — for its own tzdata-refresh
+tool, which this app never runs — and every FLN from 19 upwards requires
+timezone ≥ 0.10. So the current plugin puts a network client in the shipped
+binary, and `tools/audit_deps.sh --require-graph` refused it by name:
+
+```
+BANNED  http  [TRANSITIVE]
+        a network client — SPEC.md §2: the app ships with no networking code
+```
+
+18.0.1 accepts `timezone >=0.9.0 <0.11.0`, and 0.9.4 depends on `path` and
+nothing else. The audit is clean on that pairing. **The cost is real:** the pin
+holds the plugin back, and a security fix in 19+ would force the choice again.
+Recorded in `pubspec.yaml` next to the constraint, with what would release it —
+`timezone` moving `http` to a dev dependency, which is where it belongs.
+
+There was no allowlist to add anything to, contrary to the task text.
+
+**`lib/services/` does not exist and was not created.** The epic and the skill
+both name it; `structure_test` allows seven top-level directories under `lib/`
+and `services` is not one. EPIC-14 hit this first and put its ports in
+`lib/app/notifications/`, which is where the gateway, the adapter and the fake
+now sit beside `app/share/`, `app/pdf/` and `app/file_picker.dart`.
+
+**The skill's manifest gate contradicts the spec, so Odova has its own.**
+`check-manifest-permissions.sh` REQUIRES `SCHEDULE_EXACT_ALARM`; SPEC.md §4.6.3
+says "do not request exact-alarm privileges" in as many words. CLAUDE.md §3
+settles it — the skill is a general default, the spec is the product's
+decision — so `tools/check_notification_manifest.sh` forbids **both**
+exact-alarm permissions and requires the boot re-arm, with seven planted arms
+in the gates self-test. Its `forbid` strips comments first, so the paragraph in
+the manifest explaining why the permissions are absent does not trip the gate
+that keeps them absent. It also treats a missing manifest as a failure rather
+than a skip; the skill's version exits 0, which turns a typo'd path into a
+passing gate.
+
+**`PendingNotification` carries an id and nothing else,** and that is the
+contract test worth reading. Neither platform returns a fire time from its
+pending list, so a `when` field would be one the live adapter could only fill by
+inventing a value — and code written against it passes every test and cannot be
+implemented on a device. §6.1 states the same division from the other side: the
+OS is the truth for "is it pending", the table for "why".
+
+The fake ships in `lib/` rather than `test/support/` because the contract suite
+IS the definition of the port, and a fake beside the port is one somebody
+maintains when the port changes.
