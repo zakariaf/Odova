@@ -323,3 +323,38 @@ the reference set does not have.
 
 `test/a11y/gate_coverage_test.dart` records the row as partly covered with the
 gap named, which is the mechanism that stops this being forgotten.
+
+## Task 17.5 (rest) — the table, and the design change I did NOT make
+
+§17 asks for "an accessible data table behind one control". The obvious build is
+a segmented Chart/Table control on `costs` and `costs.fuel` — and that is a
+deliberate design change to two REFERENCED screens, moving the band profile and
+requiring eight re-shot images.
+
+**The chart is the control instead.** §17's first row names "chart tap targets"
+alongside the odometer stepper, so a chart is meant to be tappable — and neither
+of Odova's was. Making the chart the control satisfies both rows at once and
+adds no visible element, so `design/reference/calm/` still describes the app.
+Inventing a segmented control would have been adding UI to satisfy a rule that
+did not ask for any, and then re-shooting the reference set to match the
+invention.
+
+The table opens as a sheet rather than replacing the chart in place: swapping in
+place changes the height of a card on a referenced layout, and a taller table
+overflows at 200% on the floor device — the exact failure §17's other row is
+about.
+
+Three decisions the mutations pin:
+
+- **The painted chart is `ExcludeSemantics`.** §17 says two representations of
+  the same data must not both be read. What leaks through an unexcluded chart is
+  its axis labels — a bare run of numbers with no idea what they measure.
+- **`HitTestBehavior.opaque`.** A line chart is mostly empty space; without it a
+  tap between two points falls through, giving a target that measures 300x120
+  and behaves like a few thin strokes.
+- **Every table cell announces its own column.** A reader landing on a row hears
+  "Month: October, Consumption: 6.4 l/100 km" rather than a number whose meaning
+  was two swipes ago. A table read as a flat run of values is not a table.
+
+**Still not wired:** the two chart widgets do not call it. That is a change on
+the screens EPIC-18 owns, and the gate test records it with the gap named.
