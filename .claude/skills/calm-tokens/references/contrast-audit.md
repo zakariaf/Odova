@@ -1,5 +1,16 @@
 # Calm contrast audit — measured, not asserted
 
+> **Findings 1, 2 and 4 are CLOSED as of 2026-09-07 (EPIC-17 task 17.2), and the
+> hexes they name no longer exist.** `--color-ink-3` is now `#6B5F53` light /
+> `#B0A18F` dark, `--color-ink-4` is `#7D6C5A` / `#968776`, `--color-focus` is
+> `#8A5F3A` light, and `--chart-axis-ink` follows ink-3. The findings are kept
+> verbatim below because they are the audit's reasoning, and the reasoning is
+> what makes the new values checkable — but do not read a hex out of this file.
+> The shipped values are `lib/theme/calm/calm_palette.dart`, the ratios are
+> `test/theme/calm/calm_contrast_test.dart`, and the decision is
+> `design/calm/ACCESSIBILITY-FINDING.md`.
+
+
 Every ratio below is WCAG 2.x relative luminance computed from the real hexes in `tokens.json`.
 Thresholds: **4.5:1** text under 18.66px regular / 24px bold — which is *every* Calm role except
 `display`, `hero`, `titleLg` and `title`; **3:1** large text and non-text graphics (status dots,
