@@ -238,3 +238,41 @@ three native RTL reads, colour-vision simulation, and 200% on a real device. It
 is written now so the work is scheduled rather than discovered, and so a reader
 can tell "checked and fine" from "never looked at". `ckb` is named as the
 largest single risk, with EPIC-15's 103 unreviewed Sorani strings behind it.
+
+## Tasks 17.7 and 17.8 — colour independence, and traversal order
+
+**17.7 does not simulate a colour-vision deficiency, deliberately.** Simulation
+asks "can these two hues be told apart", which is a judgement about a person's
+eyes and varies by type and severity. The test asks the stronger and cheaper
+question: **is there a second channel at all.** If every state ships words, the
+hue question stops mattering — for deuteranopia, protanopia, tritanopia, a
+monochrome screenshot, a photocopy, and a phone in bright sun. The CVD
+simulation itself is a human pass, listed as not done in `A11Y-SIGNOFF.md`.
+
+The assertion is DISTINCTNESS, not presence. Two states that both announce "Due"
+are two states a colour-blind user reads as one — the failure 1.4.1 describes,
+and it survives a per-state "has a label" check. All six `DueState` values
+announce differently, and `unknown` and `needsOdometer` are asserted apart from
+each other specifically: one means no anchor exists, the other means there is
+one and the reading is stale, and only the second has a fix the user can perform
+in ten seconds.
+
+### 17.8 — I asserted a bug into the suite and caught it
+
+I expected traversal to MIRROR under RTL: `Save` on the left, therefore read
+first. It does not, and Flutter is right.
+
+A `Row`'s children are laid out in **logical** order — the first child sits at
+the START edge, which is the right under RTL. An Arabic reader going
+right-to-left meets `Cancel` first, the same child a left-to-right reader meets
+first. The visual positions mirror; the order does not.
+
+Had I trusted the expectation I would have written a failing test against
+correct framework behaviour and then "fixed" the app to match it. The wrong
+expectation is kept as a comment because it is the intuitive one, and the claim
+is now checked against GEOMETRY as well: the first traversed action really does
+sit at the start edge — the left in LTR, the right in RTL.
+
+Traversal reads `debugListChildrenInOrder(traversalOrder)` rather than
+`visitChildren`, which walks construction order — what a developer wrote, not
+what the platform reads.
