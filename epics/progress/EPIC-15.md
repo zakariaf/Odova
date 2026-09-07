@@ -306,3 +306,45 @@ return the choice rather than to write it.
 invert the layering. `lib/data/repositories/store_writer.dart` is the new
 whole-store write path — one batch per table, parents before children,
 corrections last because each names a reading.
+
+## Task 15.5 — export delivery, filenames and the nudge predicate
+
+The four naming rules from §6 §6, each with its reason in the test. The one
+worth repeating: a name written only in Arabic script falls back to
+`vehicle-<position>` rather than being transliterated, because a transliteration
+invents a spelling nobody asked for and an empty slug collides with every other
+export.
+
+**Two changes outside this task's own files, both because the export found
+them.**
+
+`ShareService` gained `shareWrittenFile`. The existing member takes a
+`Uint8List`, so every caller assembles the whole file in memory — which is
+precisely what the streaming writer exists to avoid, and the peak arrives when
+the user is rescuing their data. The report's two fakes now `fail()` on the new
+member: a fake that quietly answers a call the real subject never makes is a
+fake that lies about the port it implements.
+
+**The export writes under `.writing` and renames.** The first version wrote to
+the published name and deleted on failure, and the mutation check would not go
+red for removing that delete — because there is no honest way to make a write
+fail halfway in a unit test. That is the argument, not an excuse:
+delete-on-failure leaves a half-written backup under the right name for as long
+as the catch takes, and for ever if the delete also fails on the full disk that
+caused the problem. Under the rename the published name is only created after
+the last byte is flushed. **The guarantee is structural and is not covered by a
+test that could go red**; it is recorded here rather than claimed.
+
+`last_backup_at` is stamped on the hand-off, because the OS never says what the
+user did with the file.
+
+**Deferred from 15.5, and each needs a caller:**
+
+- **Nothing calls `BackupExportService` yet.** `settings.backup` is task 15.6.
+  Named because "a port with no production caller" is the defect EPIC-13 and
+  EPIC-14 each shipped once.
+- **`deleteLeftoverExports` is not wired into launch.** It belongs in
+  `bootstrap`, and 15.6 is where the temp directory is chosen.
+- **The nudge predicate has no scheduler.** EPIC-16 task 16.x places
+  `backup.nudge` in the slot builder. The predicate and its ninety-day
+  bookkeeping are done and tested.
