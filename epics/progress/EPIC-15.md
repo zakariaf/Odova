@@ -137,3 +137,75 @@ violation — the second time a policy grep has fired on a test that asserts the
 policy. The assertion was rewritten to pin the SET of currency codes in the
 file instead, which is the stronger check anyway: it catches any wrong code
 rather than the one we thought of.
+
+## Task 15.2 — the reader, the ladder, and the messages
+
+`BackupReader.read(File)` walks §6 §5.1's thirteen rungs in order and returns an
+`ImportPlan` or a typed `ImportFailure`, having written nothing. Twelve failure
+variants and thirteen warning variants, each carrying typed parameters and no
+user-facing string.
+
+Every refusal path asserts the picked file is **byte-unchanged**. That is the
+assertion behind §5.2's "Nothing on your phone has changed", and it is only true
+because the reader writes nothing to reach its verdict.
+
+Six mutations, each seen red: truncated collapsed into not-valid (1),
+last-duplicate-wins (1), an unmatched correction applied anyway (1), orphans
+dropped rather than adopted (2), the blast radius using `>=` (1), and watt-hours
+read back as millilitres (1). Three more over the messages: a German string
+carrying "JSON" (1), Arabic's dual filled with a copy of the plural (1), and a
+failure falling through to an empty string (1).
+
+**A defect in task 15.1, found by writing the reader.** `fillUpBackupJson` wrote
+`fill.quantity?.amount` into `quantity_ml` whatever the fuel was, because
+`amount` is the canonical integer for all three forms — so an EV's 41,500
+watt-hours would round-trip as 41.5 litres of diesel with nothing to say so.
+§6 §2.5 wants exactly one of `quantity_ml`, `quantity_g` and `energy_wh`, named
+for what it counts. Fixed, and pinned by a round trip over all three forms.
+
+**Two ids in `SPEC.md` that no Odova build could ever write.** The §2.5 worked
+example carried `odo_…J0L3…` and `trp_…H2L5…`; a ULID is Crockford base32, which
+omits I, L, O and U so a human reading an id aloud cannot turn a 1 into an l.
+`RecordId.tryParse` refuses them, so the round-trip test found the spec
+describing a file the app would decline to import. Two characters changed in
+`SPEC.md`, and `tools/check_spec_examples.py` now walks every id in every
+example against the alphabet — both arms planted in
+`tools/check_gates_selftest.sh`, so the new gate has been seen to fail.
+
+**`active_vehicle_id` is not restored into the settings row.**
+`test/app/active_vehicle_test.dart` asserts exactly one place in the app selects
+a vehicle, because selecting one resets the tab stack. The file's value rides on
+`ImportPlan.preferredActiveVehicleId` and **task 15.4 must apply it through
+`setActiveVehicle`** — if it does not, an imported phone keeps whatever vehicle
+was active before. The gate caught this and was right to.
+
+**Skip reasons collapsed to six.** `missing_interval_distance_m` and
+`missing_notice_distance_m` are the same sentence to a person. The six that
+remain are the ones that change what a user would do: the date, the amount of
+fuel, the amount of money, an unrecognised currency, an unmatched correction,
+and everything else.
+
+**Three existing gates caught real defects**, which is the argument for having
+them. `font_coverage_test` found `←` in the three RTL messages — the mirrored
+"Settings → Export" arrow, with no glyph in any bundled face — and a stray `Ʃ`
+surviving in four Sorani strings. `plurals_test` refused ten new plural keys
+missing from its render matrix. `pseudo_locales_test` refused a template that
+had grown without a rebuild.
+
+**Rung 13's threshold is a PROPORTION, and it bites on small files.** One
+unreadable row in a three-record document is a third of it, so the import is
+refused. That follows §5.1 literally and is defensible — a third of a history is
+not a successful import — but it means a hand-made two-record file with one
+defect cannot be imported at all. Recorded rather than softened; §18 can decide
+whether a small-file floor is wanted.
+
+**Deferred from 15.2:** `incremental_parser.dart` for files over 4 MB. The
+reader decodes in one pass and the 6 MB case is pinned for time rather than for
+peak memory, which is not something a unit test can measure honestly. §5.4's
+real protection today is the 64 MB size cap, the depth cap and the string cap,
+all three of which are tested. Named here so the next reader of §5.4 does not
+assume it shipped.
+
+**Sorani remains the largest translation risk in the app** (`CLAUDE.md` §9). The
+forty-three import strings were written without a native speaker and need one
+before release.
