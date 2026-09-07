@@ -161,3 +161,45 @@ applied early: a fake behind an interface proves nothing about the write.
 on a direction change — the rebuild is correct and instant today, and the
 transition belongs with EPIC-17's motion sweep rather than as an untested
 animation here.
+
+## Task 14.4 — the format preview and the units catalogue
+
+Built `lib/features/settings/domain/format_preview.dart` and
+`units_catalogue.dart`. Both pure Dart with no Flutter import — the unit words
+arrive as an already-resolved `FormatLabels` record, the way EPIC-12's
+`ReportFormatters` does, because this is the file whose output has to be
+asserted byte-for-byte in six locales and a `BuildContext` would put a widget
+harness between the test and the string.
+
+**Two real bugs in `formatLongDate`, both found by the property test.**
+
+1. **It ignored the numeral setting entirely** — the digits were hard-coded to
+   `CalmNumerals.auto`. In the preview that means the date renders the
+   locale's digits while the distance beside it renders the user's chosen
+   ones: one line, two numbering systems, which is the exact confusion the
+   preview exists to remove. It now takes `numerals`, defaulted so every
+   existing caller is unchanged.
+2. **Its Gregorian branch shaped without folding first.** `shapeDigits` only
+   maps ASCII into a block, and ICU already renders Persian digits for a `fa`
+   locale — so shaping alone could never turn them back into Latin ones, and a
+   Persian user who chose Latin numerals read `۱۲ مارس ۲۰۲۶` beside
+   `142,380 km`. `number_format.dart` documents the fold-then-shape order for
+   the same reason; the date formatter did not follow it.
+
+The property test that found both runs every (locale × numerals × calendar)
+combination and asserts each rendered line draws from **at most one** digit
+block. It also caught a third thing before the code: the consumption label's
+`100` has to arrive pre-shaped, because a baked `L/100 km` puts Latin digits
+into an Arabic-Indic line.
+
+`suggestConsumptionUnit` fills the row in for km/L, mi/gal-us and mi/gal-uk,
+and returns null for every other pairing and for any user who has chosen
+explicitly. Miles with litres has no conventional unit, and inventing one
+would be the app stating a preference the user has not got.
+
+**A gate false-positived, and the test moved rather than the gate.**
+`no_currency_conversion_test.dart` greps the whole tree for a quoted `IRT`,
+and my assertion that toman display never emits it contained the literal it
+was asserting against. The gate is right to be that strict, so the test now
+asserts on the code that DOES exist — no `IRR` beside the toman word — which
+is a truer check anyway.

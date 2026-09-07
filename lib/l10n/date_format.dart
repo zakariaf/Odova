@@ -35,6 +35,12 @@ String formatLongDate(
   String isoDate,
   String formatsTag, {
   CalmCalendar? calendar,
+  // Defaulted, so every existing caller keeps the locale's own digits. It is
+  // a parameter because `settings.units`' preview has to render the numeral
+  // system the user is CHOOSING, not the one their locale implies — and a
+  // preview with the date in one digit set and the distance beside it in
+  // another is the exact confusion the preview exists to remove.
+  CalmNumerals numerals = CalmNumerals.auto,
 }) {
   final parsed = DateTime.tryParse(isoDate);
   if (parsed == null) return isoDate;
@@ -43,14 +49,28 @@ String formatLongDate(
   final parts = projectDate(parsed, resolved, formatsTag);
 
   if (parts.monthName == null) {
-    // ICU owns the word order, the separators and the capitalisation.
-    return DateFormat.yMMMMd(dateFormatLocale(formatsTag)).format(parsed);
+    // ICU owns the word order, the separators and the capitalisation. It also
+    // renders Latin digits whatever the locale, so the shaping happens here:
+    // without it a Persian user on the Gregorian calendar reads `12 March
+    // 2026` beside `۱۴۲٬۳۸۰ کیلومتر`.
+    // FOLDED to ASCII, then shaped. `shapeDigits` only maps ASCII into a
+    // block, and ICU already renders Persian digits for a `fa` locale — so
+    // shaping alone could never turn them back into Latin ones, and a user who
+    // chose Latin numerals on a Persian phone read `۱۲ مارس ۲۰۲۶` beside
+    // `142,380 km`. `number_format.dart` documents the same order for the same
+    // reason.
+    return shapeDigits(
+      foldDigitsToAscii(
+        DateFormat.yMMMMd(dateFormatLocale(formatsTag)).format(parsed),
+      ),
+      resolveNumerals(numerals, formatsTag),
+    );
   }
 
   String number(int value) => formatForDisplay(
     value,
     formatsTag,
-    numerals: CalmNumerals.auto,
+    numerals: numerals,
     decimalDigits: 0,
     grouped: false,
   );
