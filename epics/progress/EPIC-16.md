@@ -453,3 +453,40 @@ soak on a real Xiaomi or Huawei device. An emulator run is not evidence and none
 was taken.
 
 Twelve mutations, twelve caught, first pass.
+
+## Task 16.10 — the rollover rule
+
+The worked example from §4.7.4 with its literal numbers — due at 115,000, done
+at 118,400, next at **128,400** — plus its own assertion that the answer is
+`isNot(125000000)`, so a failure names the permanent-debt bug rather than a
+number.
+
+**Rolling from the due value is the worst kind of wrong this app can be.** The
+user stays "3,400 km behind" forever, every later reminder fires while the oil
+is still fresh, and nothing on screen shows it: the due figure looks entirely
+plausible. It is the kind of wrong that ships.
+
+**`from_due` is about the CALENDAR anchor only.** The distance half always rolls
+from actual, including on an anchored kind — a registration that somehow carries
+a distance interval still wears at the rate the car is driven, and there is no
+anchor for a distance to be tied to. Mutation-checked in both directions.
+
+**A back-dated completion returns a date already in the past, deliberately.** A
+"don't go backwards" clamp is the obvious defensive move and it invents a
+service that never happened; §4.7.4 says reprojection may immediately mark the
+item due again and the confirmation says so. Worth noting the function takes no
+clock, so the clamp is not even expressible without changing the signature —
+that is structural rather than lucky.
+
+The anchored set is asserted as a SET over `ServiceKind.values`, so adding a
+fourth kind and quietly anchoring it fails a test rather than passing one.
+
+**Not built here:** `complete()`'s four-step transaction, the notification action
+handler and the confirmation strip. Those are the data-layer and UI halves —
+`dialog.snooze` already exists from EPIC-08 and this task wires to it. What is
+built is the arithmetic they call, which is the part where being wrong is
+silent.
+
+Eleven mutations after one of my own turned out to be a no-op — I wrote
+identical `from` and `to`, and the harness reported it as SURVIVED, which is the
+correct reading of "the tests do not distinguish these two identical programs".
