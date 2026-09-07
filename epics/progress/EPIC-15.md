@@ -54,3 +54,18 @@ happens to a backup.
 Timestamps drop Dart's `.000` sub-second suffix — three characters of nothing
 in every row of a 12,000-record file, and a difference from §6 §2.5's worked
 example that the byte-comparison test would report as a format mismatch.
+
+**The vehicle projection is pinned against `SPEC.md` itself**, not a fixture.
+The test parses §6 §2.5's worked example out of the document and asserts the
+writer reproduces it — key ORDER included, because §6 §2.6 makes a streaming
+reader's one-pass resolution depend on it and a set comparison would pass on a
+document no reader could stream. A copied fixture would be a second document to
+keep in step, which is how a spec and its code stop matching without either
+changing.
+
+Two mutations checked, both on rules that would be silent: materialising an
+inherited unit instead of writing null (which pins every vehicle in the file to
+today's settings, so a user who exports, changes their default currency and
+imports gets a garage frozen at the old one), and writing the old `archived`
+boolean instead of the three-valued status (which imports every sold car as
+merely archived and starts reminding its former owner about it).
