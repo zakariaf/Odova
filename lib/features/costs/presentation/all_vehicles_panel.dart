@@ -13,6 +13,7 @@
 import 'package:flutter/material.dart';
 import 'package:odova/core/costs/household_costs.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/features/costs/presentation/costs_headline.dart';
 import 'package:odova/features/costs/presentation/costs_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
@@ -125,7 +126,13 @@ class _VehicleRow extends StatelessWidget {
         ],
         SizedBox(width: space.s3),
         Text(
-          costsMoney(formatsTag, row.perMonth, wholeOnly: true),
+          // A DASH where the engine could not produce a figure. The row is
+          // still listed — §12's trailing line counts what is hidden, and a
+          // vehicle dropped from the list is neither shown nor counted — but
+          // §1 forbids printing the zero it carries as though it were a cost.
+          row.hasCost
+              ? costsMoney(formatsTag, row.perMonth, wholeOnly: true)
+              : kCostsDash,
           style: type.body.copyWith(fontWeight: type.semi),
         ),
       ],

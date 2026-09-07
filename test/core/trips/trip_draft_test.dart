@@ -27,15 +27,27 @@ TripDraft _draft({
 void main() {
   test('purpose prefills from whether the vehicle is driven for work', () {
     expect(
-      TripDraft.create(today: _today, drivenForWork: true).purpose,
+      TripDraft.create(
+        today: _today,
+        drivenForWork: true,
+        groupingSeparator: ',',
+      ).purpose,
       TripPurpose.business,
     );
     expect(
-      TripDraft.create(today: _today, drivenForWork: false).purpose,
+      TripDraft.create(
+        today: _today,
+        drivenForWork: false,
+        groupingSeparator: ',',
+      ).purpose,
       TripPurpose.personal,
     );
     // Both dates today, nothing else filled — §10's Create column.
-    final draft = TripDraft.create(today: _today, drivenForWork: false);
+    final draft = TripDraft.create(
+      today: _today,
+      drivenForWork: false,
+      groupingSeparator: ',',
+    );
     expect(draft.startedOn, '2026-09-07');
     expect(draft.endedOn, '2026-09-07');
     expect(draft.stillGoing, isFalse);
@@ -136,8 +148,31 @@ void main() {
   });
 
   test('a draft with nothing in it is not dirty', () {
-    final fresh = TripDraft.create(today: _today, drivenForWork: false);
+    final fresh = TripDraft.create(
+      today: _today,
+      drivenForWork: false,
+      groupingSeparator: ',',
+    );
     expect(fresh.isDirty(fresh), isFalse);
     expect(fresh.withTitle('Munich run').isDirty(fresh), isTrue);
+  });
+
+  test('a German 12.345 is twelve thousand kilometres, not twelve', () {
+    // The default `','` stood while every other form in the app passed
+    // `groupingSeparatorFor(tag)`, so a German user typing `12.345` had the
+    // dot read as a DECIMAL POINT — 12,345 km stored as 12,345 metres, and
+    // fanned out as two `odometer_readings` rows. Silent corruption of the
+    // one series this app treats as the source of truth.
+    const german = TripDraft(
+      purpose: TripPurpose.business,
+      startedOn: '2026-09-01',
+      manualDistance: '12.345',
+      groupingSeparator: '.',
+    );
+
+    expect(
+      german.manualDistanceMetres(unit: DistanceUnit.km),
+      12_345_000,
+    );
   });
 }

@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/active_vehicle.dart';
 import 'package:odova/core/costs/cost_aggregates.dart';
+import 'package:odova/core/costs/cost_range.dart';
+import 'package:odova/core/costs/household_costs.dart';
 import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/costs/application/costs_notifier.dart';
@@ -17,7 +19,7 @@ import '../../home/home_fixture.dart';
 
 final CivilDate _today = CivilDate.tryParse('2026-09-02')!;
 
-ProviderContainer _container({FakeCostsRepository? repository}) {
+ProviderContainer _container({CostsRepository? repository}) {
   final container = ProviderContainer(
     overrides: [
       costsRepositoryProvider.overrideWithValue(
@@ -230,4 +232,43 @@ void main() {
 
     expect(repository.reads, 1);
   });
+
+  test('a failed read does not wedge tab 3 for ever', () async {
+    // `_loading` was cleared only on the success path, so any throw left it
+    // true and `isLoaded` false for the life of the provider — the empty
+    // state, permanently, with the exception surfacing as an unhandled async
+    // error somewhere else entirely.
+    final repository = _ThrowingCostsRepository();
+    final container = _container(repository: repository);
+    final notifier = container.read(costsProvider.notifier)
+      ..ensureLoaded('veh_1', today: _today);
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    notifier.ensureLoaded('veh_1', today: _today);
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(repository.calls, 2, reason: 'a retry must actually retry');
+    // And it says nothing rather than "No costs yet", which after a failed
+    // read would be §1's "guessing in a way that looks like fact".
+    expect(container.read(costsProvider).isLoaded, isFalse);
+  });
+}
+
+class _ThrowingCostsRepository implements CostsRepository {
+  int calls = 0;
+
+  @override
+  Future<CostsInputs> read(String vehicleId, {required CostRange? range}) {
+    calls++;
+    throw StateError('disk');
+  }
+
+  @override
+  Future<List<HouseholdVehicle>> readHousehold(
+    List<HouseholdVehicleFacts> vehicles, {
+    required CivilDate today,
+    required CostsRangeChoice choice,
+  }) async => const [];
 }

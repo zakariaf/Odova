@@ -32,6 +32,8 @@ import 'package:odova/features/trips/presentation/trip_purpose_control.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/persist_failure_message.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
@@ -105,7 +107,13 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
     final model = vehicleId == null
         ? TripsListModel.loading
         : ref.watch(tripsListProvider(vehicleId));
-    _ensureDraft(today: today, vehicle: vehicle, model: model, unit: unit);
+    _ensureDraft(
+      today: today,
+      vehicle: vehicle,
+      model: model,
+      unit: unit,
+      groupingSeparator: groupingSeparatorFor(tag),
+    );
 
     final draft = _draft;
     if (draft == null) {
@@ -285,6 +293,7 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
     required Vehicle? vehicle,
     required TripsListModel model,
     required DistanceUnit unit,
+    required String groupingSeparator,
   }) {
     if (_draft != null || vehicle == null) return;
 
@@ -294,6 +303,9 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
         // §10: Business if the vehicle answered yes to "do you drive this for
         // work?", else Personal.
         drivenForWork: vehicle.isBusiness,
+        // The LOCALE's separator. Without it a German `12.345` is read as a
+        // decimal point and 12,345 km is stored as 12,345 metres.
+        groupingSeparator: groupingSeparator,
       );
       _draft = fresh;
       return;
@@ -317,6 +329,7 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
       endOdometer: _asField(trip.endOdometer, unit),
       manualDistance: _asField(trip.manualDistance, unit),
       notes: trip.notes ?? '',
+      groupingSeparator: groupingSeparator,
     );
     _existing = trip;
     _draft = loaded;
@@ -327,8 +340,21 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
     _notes.text = loaded.notes;
   }
 
-  static String _asField(Distance? distance, DistanceUnit unit) =>
-      distance == null ? '' : '${distance.inUnit(unit).round()}';
+  /// A stored distance as the field's text, WITHOUT rounding it away.
+  ///
+  /// `.round()` alone rewrote history: a reading entered in miles is stored as
+  /// `miles * 1609344 ~/ 1000` metres and does not convert back to a whole
+  /// number, so opening a trip and saving it unchanged shifted the stored
+  /// value — and that value fans out to the two derived odometer readings.
+  /// Whole where it really is whole, one decimal where it is not.
+  static String _asField(Distance? distance, DistanceUnit unit) {
+    if (distance == null) return '';
+    final value = distance.inUnit(unit);
+    final whole = value.round();
+    // A metre of integer truncation is 0.0006 miles, so the tolerance is
+    // about a reading no odometer draws rather than about floating point.
+    return (value - whole).abs() < 0.01 ? '$whole' : value.toStringAsFixed(1);
+  }
 
   void _edit(TripDraft next) => setState(() => _draft = next);
 
@@ -397,7 +423,14 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
     if (written case TripSaveFailed(:final failure)) {
       // The form STAYS OPEN with everything intact. Losing a trip because a
       // disk was full is the one failure this screen must not have.
-      snackbars.show(message: failure.toString(), danger: true);
+      // The LOCALISED sentence, not `failure.toString()`. A Dart object
+      // description in English, in front of a user reading the app in Sorani,
+      // is §2's six-locales rule broken on the one path where a user most
+      // needs to understand what happened.
+      snackbars.show(
+        message: persistFailureMessage(l10n, failure),
+        danger: true,
+      );
       return;
     }
     snackbars.show(message: l10n.tripSavedToast);
@@ -407,12 +440,26 @@ class _TripsEditScreenState extends ConsumerState<TripsEditScreen> {
   Future<void> _delete() async {
     final existing = _existing;
     if (existing == null) return;
+    final snackbars = CalmSnackbarHost.of(context);
+    final l10n = AppLocalizations.of(context);
     final router = GoRouter.of(context);
+
     final result = await ref
         .read(tripSaveProvider.notifier)
         .delete(existing.id);
     if (!mounted) return;
-    if (result case Ok()) router.pop();
+
+    switch (result) {
+      case Ok():
+        router.pop();
+      // A failed delete used to be discarded silently: the screen just stayed
+      // open, and the user was left to guess whether the tap had registered.
+      case Err(:final failure):
+        snackbars.show(
+          message: persistFailureMessage(l10n, failure),
+          danger: true,
+        );
+    }
   }
 }
 

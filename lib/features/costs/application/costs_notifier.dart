@@ -71,8 +71,12 @@ class CostsInputs {
     this.soldOn,
     this.thisMonthAmounts = const [],
     this.monthlyPoints = const [],
+    this.businessPercent,
     this.narrowTo,
   });
+
+  /// §12's business share, or null when no logged trip has a distance.
+  final int? businessPercent;
 
   /// Narrows every figure to the range this is called with.
   ///
@@ -131,6 +135,7 @@ class CostsState {
     this.chart,
     this.includeInactive = false,
     this.showsHousehold = false,
+    this.businessPercent,
     this.household,
     this.isLoaded = false,
   });
@@ -166,6 +171,9 @@ class CostsState {
   /// average that silently included a car nobody drives any more would be
   /// wrong in the direction of looking cheap.
   final bool includeInactive;
+
+  /// §12's business share, or null when it is unknowable.
+  final int? businessPercent;
 
   /// Whether §12's All-vehicles panel is showing.
   ///
@@ -211,6 +219,7 @@ class CostsState {
     chart: chart,
     includeInactive: includeInactive ?? this.includeInactive,
     showsHousehold: showsHousehold ?? this.showsHousehold,
+    businessPercent: businessPercent,
     household: household ?? this.household,
     isLoaded: isLoaded,
   );
@@ -263,7 +272,7 @@ class CostsNotifier extends Notifier<CostsState> {
     _loading = true;
     _vehicleId = vehicleId;
     _inputs = null;
-    unawaited(_reload(vehicleId, today: today));
+    unawaited(_guarded(vehicleId, today: today));
   }
 
   /// Selects a range chip and recomputes.
@@ -274,6 +283,28 @@ class CostsNotifier extends Notifier<CostsState> {
   }) async {
     state = state.copyWith(choice: choice);
     await _reload(vehicleId, today: today);
+  }
+
+  /// [_reload], with the failure path that `unawaited` otherwise loses.
+  ///
+  /// `_loading` was cleared only on the success path, so any throw from the
+  /// read — a `VehicleId` that will not parse, a disk error — left the flag
+  /// true and `isLoaded` false for the life of the provider. Tab 3 then showed
+  /// its empty state permanently, with the exception surfacing as an unhandled
+  /// async error somewhere else entirely.
+  ///
+  /// `isLoaded` stays false rather than becoming an empty screen: §1 forbids
+  /// stating what the app does not know, and "No costs yet" after a failed
+  /// read is exactly that.
+  Future<void> _guarded(String vehicleId, {required CivilDate today}) async {
+    try {
+      await _reload(vehicleId, today: today);
+    } on Object {
+      _vehicleId = null;
+      _inputs = null;
+    } finally {
+      _loading = false;
+    }
   }
 
   Future<void> _reload(String vehicleId, {required CivilDate today}) async {
@@ -330,12 +361,12 @@ class CostsNotifier extends Notifier<CostsState> {
               points: data.monthlyPoints,
               currency: dominant,
             ),
+      businessPercent: data.businessPercent,
       includeInactive: state.includeInactive,
       showsHousehold: state.showsHousehold,
       household: state.household,
       isLoaded: true,
     );
-    _loading = false;
   }
 
   /// Loads §12's household list.
@@ -437,6 +468,7 @@ final Provider<CostsRepository> costsRepositoryProvider =
         ref.watch(expenseRepositoryProvider),
         ref.watch(serviceRepositoryProvider),
         ref.watch(odometerRepositoryProvider),
+        ref.watch(tripRepositoryProvider),
         // The SETTING, falling back to what the locale implies —
         // `resolveCalendar` is the one place that decision lives, and §18 has
         // an open question about whether `ckb-IR` should default to Jalali.

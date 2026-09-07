@@ -24,7 +24,22 @@ class FuelState {
   final bool isLoaded;
 
   /// The kind shown by default: the one with the most data.
-  String? get primaryKind => byKind.keys.isEmpty ? null : byKind.keys.first;
+  ///
+  /// Measured, not insertion order. `byKind.keys.first` is whichever fuel kind
+  /// the OLDEST fill happened to use, so a bi-fuel car whose first tank was
+  /// LPG opened on LPG for good. Ties break on the kind's name, so two kinds
+  /// with equal history do not swap between builds.
+  String? get primaryKind {
+    if (byKind.isEmpty) return null;
+    final ranked = byKind.entries.toList()
+      ..sort((a, b) {
+        final byCount = b.value.chartPoints.length.compareTo(
+          a.value.chartPoints.length,
+        );
+        return byCount != 0 ? byCount : a.key.compareTo(b.key);
+      });
+    return ranked.first.key;
+  }
 
   /// Whether §12's empty state applies. Loaded AND nothing — an eager empty
   /// would flash "No fill-ups yet" at somebody with eight years of them.
@@ -42,20 +57,50 @@ abstract interface class FuelRepository {
 class FuelNotifier extends Notifier<FuelState> {
   var _loading = false;
 
+  /// Which vehicle and currency the current state describes.
+  ///
+  /// `CostsNotifier` had exactly this defect and documents fixing it: without
+  /// a key, `ensureLoaded` ran once for the app's lifetime and a vehicle
+  /// switch left the first car's consumption under the second car's name — a
+  /// plausible wrong number, which is worse than none. The CURRENCY is part of
+  /// the key too, because `byFuelKind` excludes every fill in another one: a
+  /// first build before `settingsProvider` has resolved captures the EUR
+  /// fallback, and a household in pounds then sees an empty screen for the
+  /// rest of the session.
+  ({String vehicleId, Currency currency})? _loadedFor;
+
   @override
   FuelState build() => const FuelState();
 
-  /// Loads once.
+  /// Loads for [vehicleId], and reloads when the vehicle or currency changes.
   void ensureLoaded(String vehicleId, {required Currency currency}) {
-    if (_loading || state.isLoaded) return;
+    if (_loading) return;
+    final key = (vehicleId: vehicleId, currency: currency);
+    if (state.isLoaded && _loadedFor == key) return;
     _loading = true;
+    _loadedFor = key;
     unawaited(
       Future.microtask(() async {
-        final fills = await ref.read(fuelRepositoryProvider).read(vehicleId);
-        state = FuelState(
-          byKind: FuelInsights.byFuelKind(fills, currency: currency),
-          isLoaded: true,
-        );
+        try {
+          final fills = await ref.read(fuelRepositoryProvider).read(vehicleId);
+          state = FuelState(
+            byKind: FuelInsights.byFuelKind(fills, currency: currency),
+            isLoaded: true,
+          );
+        } on Object {
+          // CAUGHT, and `isLoaded` deliberately left false. The read threw, so
+          // the app does not know whether this car has fills — and §1 forbids
+          // saying something that looks like a fact, which "No fill-ups yet"
+          // would be. `isLoaded: false` renders neither the figures nor the
+          // empty state, and the next build retries.
+          //
+          // Uncaught, this reached the zone as an unhandled async error while
+          // the screen sat on its empty state for the life of the provider,
+          // because `_loading` was cleared only on the success path.
+          _loadedFor = null;
+        } finally {
+          _loading = false;
+        }
       }),
     );
   }

@@ -89,6 +89,7 @@ void main() {
     ExpenseRepository(db, testIds()),
     ServiceRepository(db, testIds()),
     OdometerRepository(db),
+    TripRepository(db, testIds()),
     CalmCalendar.gregorian,
   );
 
@@ -216,4 +217,40 @@ void main() {
       expect(thisMonth, greaterThan(5000));
     },
   );
+
+  test('the headline is on the accrual, like the chart under it', () async {
+    // §12 opens by saying costs are accrual and the screen prints a caption
+    // under the headline promising it. `_byRow` filtered `occurred_on` and
+    // took each amount whole, so a €1,200 premium paid in month 1 of a
+    // 12-month range was counted in FULL by the headline and by twelfths in
+    // the chart directly beneath — two numbers on one screen disagreeing,
+    // under a caption saying they cannot.
+    await ExpenseRepository(db, testIds()).save(
+      Expense(
+        id: ExpenseId.tryParse('exp_01JQ8ZK3M7F0R6XN2E9TB4HCVF')!,
+        vehicleId: _vehicleId,
+        occurredOn: '2026-09-01',
+        category: ExpenseCategory.insurance,
+        amount: Money(120_000, _eur),
+        coversFrom: '2026-09-01',
+        coversTo: '2027-08-31',
+        odometerUnit: DistanceUnit.km,
+        createdAtUtcMs: 1000,
+        updatedAtUtcMs: 1000,
+      ),
+    );
+
+    final inputs = await source().read(
+      _vehicleId.toString(),
+      // Three completed months: June, July, August 2026. The policy starts in
+      // September, so NONE of it falls in range.
+      range: CostRange.months(3, today: CivilDate.tryParse('2026-09-07')!),
+    );
+
+    expect(
+      inputs.amountsByRow[CostCategoryRow.insuranceAndTax],
+      isNull,
+      reason: 'a policy that has not started yet costs nothing in range',
+    );
+  });
 }

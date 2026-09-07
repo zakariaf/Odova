@@ -189,6 +189,16 @@ class _ShareBar extends StatelessWidget {
             alignment: AlignmentDirectional.centerStart,
             child: FractionallySizedBox(
               widthFactor: (percent / 100).clamp(0.0, 1.0),
+              // `heightFactor: 1` is load-bearing, and its absence is the
+              // same defect `monthly_cost_chart.dart` documents finding next
+              // door: `Align` loosens the constraints, a `ColoredBox` with no
+              // child then takes `constraints.smallest`, and
+              // `FractionallySizedBox` sizes to that child — so every share
+              // bar was laid out at full width and ZERO height, painting
+              // nothing. A widget test that asserts the box exists passes the
+              // whole time, and the parity capture that would have shown it
+              // is deferred to EPIC-18.
+              heightFactor: 1,
               child: ColoredBox(color: colour),
             ),
           ),

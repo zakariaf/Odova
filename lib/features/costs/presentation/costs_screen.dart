@@ -24,6 +24,7 @@ import 'package:odova/core/money/money.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/costs/application/costs_notifier.dart';
 import 'package:odova/features/costs/presentation/all_vehicles_panel.dart';
+import 'package:odova/features/costs/presentation/business_split_row.dart';
 import 'package:odova/features/costs/presentation/costs_category_rows.dart';
 import 'package:odova/features/costs/presentation/costs_headline.dart';
 import 'package:odova/features/costs/presentation/costs_range_chips.dart';
@@ -62,6 +63,11 @@ class CostsScreen extends ConsumerWidget {
 
     final state = ref.watch(costsProvider);
     final garage = ref.watch(vehiclesProvider).value ?? const [];
+    final vehicle = garage.where((v) => v.id == vehicleId).firstOrNull;
+    final dominant = state.total?.dominantCurrency;
+    final dominantTotal = dominant == null
+        ? null
+        : Money(state.total?.byCurrency[dominant] ?? 0, dominant);
 
     void loadHousehold() => unawaited(
       ref
@@ -158,6 +164,15 @@ class CostsScreen extends ConsumerWidget {
               formatsTag: tag,
             ),
           ],
+          // §12's business split — the one figure on these screens that goes
+          // on a tax form, and it was mounted by nothing. Hidden entirely for
+          // a vehicle that is not driven for work, which is what §12 says.
+          BusinessSplitRow(
+            isBusinessVehicle: vehicle?.isBusiness ?? false,
+            sharePercent: state.businessPercent,
+            total: dominantTotal,
+            formatsTag: tag,
+          ),
           SizedBox(height: space.s6),
           CostsCategoryRows(
             state: state,
@@ -276,5 +291,13 @@ String costsMoney(String tag, Money m, {bool wholeOnly = false}) => formatMoney(
   m,
   tag,
   numerals: CalmNumerals.auto,
-  decimalDigits: wholeOnly && m.amountMinor % 100 == 0 ? 0 : null,
+  // `minorPerMajor`, not a hard-coded 100. Six currencies have three decimals
+  // — IQD, KWD, BHD, JOD, OMR, TND, LYD — and this app ships `ckb` and `ar`,
+  // so IQD is not hypothetical. `% 100 == 0` was true for 12,500 fils, which
+  // is 12.5 IQD and not a whole number: the headline printed `13`, silently
+  // rounding a figure whose minor part is non-zero. Both this function's doc
+  // and `formatMoney`'s `decimalDigits` parameter forbid exactly that.
+  decimalDigits: wholeOnly && m.amountMinor % m.currency.minorPerMajor == 0
+      ? 0
+      : null,
 );

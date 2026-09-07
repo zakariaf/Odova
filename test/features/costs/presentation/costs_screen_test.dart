@@ -197,4 +197,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TripsListScreen), findsOneWidget);
   });
+
+  testWidgets('the share bars have a height, and paint something', (
+    tester,
+  ) async {
+    // Every bar was laid out at full width and ZERO height: `Align` loosens
+    // the constraints, a `ColoredBox` with no child takes
+    // `constraints.smallest`, and `FractionallySizedBox` sizes to its child.
+    // The same defect `monthly_cost_chart.dart` documents finding next door.
+    // A test that asserts the box EXISTS passes the whole time, which is why
+    // this one measures it.
+    await _pump(tester);
+
+    final bars = tester
+        .widgetList<FractionallySizedBox>(find.byType(FractionallySizedBox))
+        .toList();
+    expect(bars, isNotEmpty);
+
+    for (final box in bars) {
+      final size = tester.getSize(find.byWidget(box));
+      expect(
+        size.height,
+        greaterThan(0),
+        reason: 'a bar with no height paints nothing',
+      );
+    }
+  });
 }

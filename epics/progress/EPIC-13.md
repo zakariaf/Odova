@@ -345,3 +345,77 @@ fails if the panel stops mounting.
 - **`TripDraft.groupingSeparator` is always `','`.** The value object is right
   to carry it; what is missing is the screen passing the locale's. Recorded
   with the discard guard, since both are `trips.edit` polish.
+
+## `/code-review` — 14 findings, all applied
+
+The pass was worth more than `/simplify`, and the two together are the argument
+for the rule: a green suite of 4,200 tests sat over every one of these.
+
+**High.**
+
+1. **Every cost vanished from the monthly chart under the Persian calendar.**
+   `_monthsSpanned` built its keys as `MonthKey(calendar: gregorian, …)` and
+   `MonthKey.==` includes the calendar, so for a Jalali user NO month ever
+   matched: `monthlyShare` returned zero for every line, the chart and "this
+   month so far" were empty, and the headline total — computed down a different
+   path — showed real money beside them. `monthlyShares` now walks DAYS and
+   buckets by the key's own calendar, which is right because a day is a day in
+   every calendar.
+2. **`_monthsIn` stepped Gregorian firsts and labelled them with the user's
+   calendar**, so a Jalali chart had duplicate columns where two firsts landed
+   in one Jalali month and a missing one where none did. Same fix.
+3. **`costs.fuel` showed the previous vehicle's figures after a switch** —
+   `CostsNotifier`'s defect, in the file next door, unfixed. The key now
+   includes the CURRENCY too: `byFuelKind` excludes every fill in another one,
+   so a first build before settings resolve captured the EUR fallback and a
+   household in pounds saw an empty screen for the session. And `_loading` is
+   cleared in a `finally`, so one transient failure no longer wedges it.
+4. **A thousandfold odometer misparse on `trips.edit` in `de`, `fa` and `ar`.**
+   `TripDraft.groupingSeparator` defaulted to `','` and nothing passed the
+   locale's, so a German `12.345` had the dot read as a decimal point: 12,345
+   km stored as 12,345 metres, and fanned out as two `odometer_readings` rows.
+   **The progress note above calling this "polish" was wrong triage** — it is
+   silent corruption of the one series this app treats as the source of truth.
+   `groupingSeparator` is now required on `TripDraft.create`.
+
+**Medium.**
+
+5. **Every share bar rendered at zero height** — `Align` loosens the
+   constraints, a childless `ColoredBox` takes `constraints.smallest`, and
+   `FractionallySizedBox` sizes to its child. The same defect
+   `monthly_cost_chart.dart` documents finding next door. The new test
+   MEASURES the bars rather than asserting they exist.
+6. **`costsMoney(wholeOnly)` rounded three-decimal currencies.**
+   `% 100 == 0` was true for 12,500 fils — 12.5 IQD — so the headline printed
+   13. This app ships `ckb` and `ar`. Now `% m.currency.minorPerMajor`. (The
+   first version of the test asserted against Latin `'13'` in `ar-IQ`, where
+   the digits render as `١٢٫٥٠٠`; it passed whatever the code did. Fixed to
+   `en-GB` so the mutation is caught.)
+7. **The headline was cash-basis while the chart was accrual** — a €1,200
+   premium counted in full above a column showing one twelfth of it, under a
+   caption promising the opposite. `_byRow` goes through the allocator now.
+8. **Vehicles dropped from the household list were not counted as hidden**, so
+   §12's trailing line — which exists so a household total is always
+   reconcilable — under-reported. They are listed with `hasCost: false` and
+   drawn with a dash.
+9. **Tab 3 wedged permanently on a read failure**: `_loading` was cleared only
+   on the success path and the throw escaped `unawaited`. Both notifiers now
+   catch, leave `isLoaded` false — §1 forbids "No costs yet" after a failed
+   read — and retry.
+10. **§12's `This month so far: 64 €` was computed, translated into six
+    locales, and drawn by nothing.** It is the whole justification for ending
+    the range at the last completed month; without it the exclusion looks like
+    missing money. Now under the headline pair.
+11. **`BusinessSplitRow` was mounted by nothing** — the same class of defect
+    `/simplify` caught for `AllVehiclesPanel` and missed here, and it is the
+    one figure on these screens that goes on a tax form. `CostsSource` now
+    computes the share from LOGGED TRIPS (never the odometer, per §12's own
+    caption) and the row is mounted.
+
+**Low.** `primaryKind` returned insertion order, so a bi-fuel car whose oldest
+fill was LPG opened on LPG for good — now ranked by history with a name
+tie-break. `snackbars.show(message: failure.toString())` put an English Dart
+object description in front of a Sorani reader; `persistFailureMessage` lifted
+to `lib/l10n/` and used by both features. A failed trip delete was discarded
+silently. `_asField` rounded on load, so opening and re-saving an unchanged
+trip in miles rewrote its stored metres and both derived readings.

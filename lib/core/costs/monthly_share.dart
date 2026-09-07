@@ -22,15 +22,27 @@ import 'package:odova/core/money/allocate.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/core/time/civil_date.dart';
 
-/// What [month] is charged for an expense.
+/// What every month is charged for one expense.
 ///
 /// Everything is in MINOR UNITS. No step of this touches a `double`: §3 makes
 /// storage canonical integers, and a float anywhere in this path is exactly
 /// where the missing cent comes from.
-Money monthlyShare({
+///
+/// **Buckets days by the KEY's own calendar.** The first version built its
+/// months as `MonthKey(calendar: gregorian, …)` and compared a Gregorian
+/// `year`/`month` pair against the key it was asked about — and `MonthKey.==`
+/// includes the calendar, so for a Persian user NO month ever matched: every
+/// line returned zero, the stacked chart and "this month so far" were empty,
+/// and the headline total (computed down a different path) showed real money
+/// beside them. A Jalali month also starts around the 21st of a Gregorian one,
+/// so even ignoring the equality the buckets were the wrong days.
+///
+/// A day is a day in every calendar, so the walk is over DAYS and only the
+/// bucketing is calendar-aware.
+Map<MonthKey, Money> monthlyShares({
   required Money amount,
   required CivilDate occurredOn,
-  required MonthKey month,
+  required CalmCalendar calendar,
   CivilDate? coversFrom,
   CivilDate? coversTo,
 }) {
@@ -43,22 +55,54 @@ Money monthlyShare({
   // the user can find — a negative denominator would either throw or silently
   // lose the expense.
   if (from == null || to == null || to < from) {
-    return _containsMonth(month, occurredOn)
-        ? amount
-        : Money(0, amount.currency);
+    return {monthKeyOf(occurredOn.toString(), calendar): amount};
   }
 
-  final months = _monthsSpanned(from, to);
-  final shares = allocateByWeight(
-    amount,
-    [for (final m in months) _overlapDays(m, from, to)],
-  );
-
-  for (final (i, m) in months.indexed) {
-    if (m == month) return shares[i];
+  // One pass over the window's days. Only a covered expense — insurance and
+  // road tax, per §10's two period categories — reaches this at all, so the
+  // day walk runs over a handful of rows rather than the whole history.
+  final weights = <MonthKey, int>{};
+  var cursor = from;
+  while (cursor <= to) {
+    weights.update(
+      monthKeyOf(cursor.toString(), calendar),
+      (n) => n + 1,
+      ifAbsent: () => 1,
+    );
+    cursor = cursor.addDays(1);
   }
-  return Money(0, amount.currency);
+
+  final keys = weights.keys.toList();
+  final shares = allocateByWeight(amount, [
+    for (final key in keys) weights[key]!,
+  ]);
+  return {
+    for (final (i, key) in keys.indexed) key: shares[i],
+  };
 }
+
+/// What one month is charged for an expense.
+///
+/// [monthlyShares] for the whole window, indexed. Callers that need every
+/// month should use that directly: this one recomputes the window per month
+/// asked, which is `months × lines` walks instead of `lines`.
+Money monthlyShare({
+  required Money amount,
+  required CivilDate occurredOn,
+  required MonthKey month,
+  CivilDate? coversFrom,
+  CivilDate? coversTo,
+}) =>
+    monthlyShares(
+      amount: amount,
+      occurredOn: occurredOn,
+      // The KEY's calendar, not a parameter. Asking about a Persian month in
+      // Gregorian buckets is the bug this function had.
+      calendar: month.calendar,
+      coversFrom: coversFrom,
+      coversTo: coversTo,
+    )[month] ??
+    Money(0, amount.currency);
 
 /// Splits [amount] across [weights] so the parts sum to the whole EXACTLY.
 ///
@@ -85,41 +129,3 @@ List<Money> allocateByWeight(Money amount, List<int> weights) {
   }
   return allocate(amount, weights);
 }
-
-/// Every month [from]..[to] touches, in order.
-List<MonthKey> _monthsSpanned(CivilDate from, CivilDate to) {
-  final months = <MonthKey>[];
-  var cursor = _firstOf(from);
-  while (cursor <= to) {
-    months.add(
-      MonthKey(
-        calendar: CalmCalendar.gregorian,
-        year: cursor.year,
-        month: cursor.month,
-      ),
-    );
-    cursor = cursor.addMonths(1);
-  }
-  return months;
-}
-
-/// How many days of [month] fall inside [from]..[to], both ends inclusive.
-int _overlapDays(MonthKey month, CivilDate from, CivilDate to) {
-  final start = _firstOf2(month.year, month.month);
-  final end = start.addMonths(1).addDays(-1);
-
-  final lower = start < from ? from : start;
-  final upper = end > to ? to : end;
-  final days = lower.daysUntil(upper) + 1;
-  return days < 0 ? 0 : days;
-}
-
-bool _containsMonth(MonthKey month, CivilDate date) =>
-    date.year == month.year && date.month == month.month;
-
-CivilDate _firstOf(CivilDate d) => _firstOf2(d.year, d.month);
-
-CivilDate _firstOf2(int year, int month) => CivilDate.tryParse(
-  '${year.toString().padLeft(4, '0')}-'
-  '${month.toString().padLeft(2, '0')}-01',
-)!;

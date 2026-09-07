@@ -286,4 +286,43 @@ void main() {
       -1000,
     );
   });
+
+  test('a Persian month gets its share, and Gregorian buckets do not', () {
+    // `_monthsSpanned` built its keys as `MonthKey(calendar: gregorian, …)`
+    // and `MonthKey.==` includes the calendar, so for a Jalali user NO month
+    // ever matched: every line returned zero, the stacked chart and "this
+    // month so far" were empty, and the headline total — computed down a
+    // different path — showed real money beside them.
+    //
+    // Mehr 1405 runs 23 September to 22 October 2026, so a September-to-August
+    // insurance window overlaps it and the share must be non-zero.
+    final mehr = monthKeyOf('2026-10-01', CalmCalendar.persian);
+    expect(mehr.calendar, CalmCalendar.persian);
+
+    final share = monthlyShare(
+      amount: Money(120_000, eur),
+      occurredOn: CivilDate.tryParse('2026-09-01')!,
+      month: mehr,
+      coversFrom: CivilDate.tryParse('2026-09-01'),
+      coversTo: CivilDate.tryParse('2027-08-31'),
+    );
+
+    expect(share.amountMinor, greaterThan(0));
+    // Roughly a twelfth of €1,200, because a Jalali month is a month.
+    expect(share.amountMinor, lessThan(15_000));
+  });
+
+  test('an uncovered expense lands in its own month, in any calendar', () {
+    final mehr = monthKeyOf('2026-10-01', CalmCalendar.persian);
+    final shahrivar = monthKeyOf('2026-09-01', CalmCalendar.persian);
+
+    Money at(MonthKey month) => monthlyShare(
+      amount: Money(5000, eur),
+      occurredOn: CivilDate.tryParse('2026-10-01')!,
+      month: month,
+    );
+
+    expect(at(mehr), Money(5000, eur));
+    expect(at(shahrivar), Money(0, eur));
+  });
 }

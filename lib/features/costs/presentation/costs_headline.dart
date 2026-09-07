@@ -84,6 +84,17 @@ class CostsHeadline extends StatelessWidget {
     final space = CalmSpace.of(context);
 
     final dominant = state.total?.dominantCurrency;
+    // Per currency, and NEVER summed across them — the same rule the total
+    // above obeys. Null when nothing has been spent this month, which is a
+    // fact the line has no reason to state.
+    final soFar = state.thisMonthSoFar;
+    final thisMonth = soFar == null || soFar.isEmpty || dominant == null
+        ? null
+        : costsMoney(
+            formatsTag,
+            soFar.inCurrency(dominant),
+            wholeOnly: true,
+          );
     final perMonth = state.perMonth;
 
     return CalmCard(
@@ -172,6 +183,18 @@ class CostsHeadline extends StatelessWidget {
                   style: type.body.copyWith(color: colors.ink2),
                 ),
           ),
+          // §12's `This month so far: 64 €`, which was computed, translated
+          // into all six locales, and drawn by NOTHING. It is the whole
+          // justification for the range ending at the last completed month —
+          // without it the exclusion looks like missing money, and SPEC.md
+          // §12 puts it directly under the headline pair for that reason.
+          if (thisMonth != null) ...[
+            SizedBox(height: space.s1),
+            Text(
+              l10n.costsThisMonthSoFar(thisMonth),
+              style: type.body.copyWith(color: colors.ink3),
+            ),
+          ],
           // §12's chart, INSIDE the card as the reference draws it. It is the
           // shape half of "columns for shape, list for figures" — the figures
           // themselves are the category list below.

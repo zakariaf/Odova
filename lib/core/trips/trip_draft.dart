@@ -64,12 +64,14 @@ class TripDraft {
   factory TripDraft.create({
     required CivilDate today,
     required bool drivenForWork,
+    required String groupingSeparator,
   }) {
     final on = today.toString();
     return TripDraft(
       purpose: drivenForWork ? TripPurpose.business : TripPurpose.personal,
       startedOn: on,
       endedOn: on,
+      groupingSeparator: groupingSeparator,
     );
   }
 
@@ -104,6 +106,15 @@ class TripDraft {
   ///
   /// Carried, never read from a locale: a value object that reads a locale is
   /// a value object that answers differently in Tehran and Toronto.
+  ///
+  /// **Required on [TripDraft.create]**, and it was not. The default `','`
+  /// stood while every other form in the app passed
+  /// `groupingSeparatorFor(tag)`, so a German user typing `12.345` had the
+  /// dot read as a DECIMAL POINT: 12.345 km became 12,345 metres instead of
+  /// 12,345,000. That value was written to `trips` and fanned out as two
+  /// `odometer_readings` rows — silent corruption of the one series this app
+  /// treats as the source of truth. `numeric_input.dart` names this exact
+  /// failure as the reason the argument exists.
   final String groupingSeparator;
 
   /// Whether the Distance field accepts input.

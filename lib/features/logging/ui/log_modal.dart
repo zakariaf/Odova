@@ -57,6 +57,7 @@ import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/expense_labels.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/persist_failure_message.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -900,7 +901,10 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
       // previous one was told their phone was out of space — a message that
       // sends them to Settings to delete photos over a number they could have
       // corrected in two taps.
-      snackbars.show(message: _failureMessage(l10n, failure), danger: true);
+      snackbars.show(
+        message: persistFailureMessage(l10n, failure),
+        danger: true,
+      );
       return;
     }
 
@@ -1161,17 +1165,6 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// not what was written. It is set by the steps that did the writing, so a
   /// segment that writes nothing cannot leave a stale Undo behind it.
   Future<Result<void, PersistFailure>> Function()? _undoWritten;
-
-  /// What the snackbar says when the save was refused.
-  ///
-  /// `WriteFailed` keeps the disk-full wording because that is what it usually
-  /// is; the two failures with a different remedy get their own sentence.
-  String _failureMessage(AppLocalizations l10n, PersistFailure failure) =>
-      switch (failure) {
-        OdometerWouldGoBackwards() => l10n.saveRefusedBackwards,
-        StoreReadOnly() => l10n.saveRefusedReadOnly,
-        _ => l10n.saveDiskFullError,
-      };
 
   /// What the snackbar says after a successful save.
   ///

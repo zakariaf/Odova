@@ -22,6 +22,7 @@ class HouseholdVehicle {
     required this.vehicleId,
     required this.name,
     required this.perMonth,
+    this.hasCost = true,
     this.isArchived = false,
     this.isSold = false,
   });
@@ -35,6 +36,15 @@ class HouseholdVehicle {
 
   /// Its cost per completed month.
   final Money perMonth;
+
+  /// Whether [perMonth] is a figure at all.
+  ///
+  /// False where the engine could not produce an exact one — no completed
+  /// month, no records in range. The row is still LISTED, because §12's
+  /// trailing line counts what is hidden and a vehicle dropped from the list
+  /// entirely is neither shown nor counted; the caller draws a dash instead of
+  /// the zero this carries. §1: zero is a claim, and this is not one.
+  final bool hasCost;
 
   /// Whether it is archived.
   final bool isArchived;
