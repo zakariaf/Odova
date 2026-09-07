@@ -55,3 +55,59 @@ them. `settings` draws "4 vehicles" where the reference names three, and
 `km · L · EUR` where both the reference and §13 say `km · L · €`. All three go
 into Task 18.4's table rather than being fixed here.
 
+## Task 18.2 — the fixture properties, and what was not built
+
+The epic asked for one `ParityFixture` building one in-memory Drift database
+that every capture reads. **That is not what is here, and the reason is worth
+stating rather than hiding.**
+
+Twenty-eight backdrops already exist, every one of them deterministic and every
+one already carrying its own artboard's numbers — `home` reads 187,412 km,
+`report.service` reads 62,400 → 187,412, `costs.fuel` computes 6.7 from 35
+stored fills. Collapsing them into one database would rewrite all 28 captures
+in the sweep, and it would prove one property: that the data is the same twice.
+`test/parity/parity_fixture_test.dart` proves that directly, along with the four
+the epic actually named.
+
+What it pins:
+
+- **The fixtures are byte-identical across two builds.** An unseeded
+  `DateTime.now()`, a fresh ULID or a hash-ordered `Set` moves a row between two
+  runs of the same suite, and the band it moves is reported as absent on a
+  screen nobody touched.
+- **`en` renders 187,412 and `fa` renders ۱۸۷٬۴۱۲.** Being shot in `en` is the
+  single most common way an RTL capture passes for the wrong reason: the bands
+  are then identical to the LTR twin's and the check is perfectly happy. Seen to
+  fail with the locale swapped.
+- **`fa` dates are Jalali.** 14 March 2026 renders as ۲۳ اسفند ۱۴۰۴; a Gregorian
+  capture has a different month-name width and moves every band under it. Seen
+  to fail with the calendar swapped.
+- **Each of the four cases is shot in the locale its filename claims.**
+
+**Not covered, and named rather than left implicit:** the licence-plate bidi
+assertion the epic listed. `vehicle.edit` is the only screen that draws
+`M-AB 1234`, its capture goes through a real Drift database, and asserting the
+plate is not mirrored needs a rendered-text-direction read rather than a
+formatter call. It stays for the human RTL pass in Task 18.8.
+
+## Task 18.3 — the contrast finding, and the gate that was missing
+
+**The finding was closed in EPIC-17 task 17.2**, taking outcome 1: seven token
+values moved in `design/calm/odova.css` and `lib/theme/calm/calm_palette.dart`
+together, all 112 references were re-shot in the same PR, and
+`knownContrastExceptions` is empty with a test asserting it stays empty.
+`design/calm/ACCESSIBILITY-FINDING.md` carries the dated decision.
+
+What EPIC-17 did NOT have is this task's second test, and its absence is
+exactly what let a defect through. `test/theme/calm/calm_token_source_test.dart`
+parses the stylesheet and compares fifteen declared colour properties against
+their `CalmColors` slots in both themes. It exists because the contrast fix
+moved `--color-ink-3` in three artefacts and `CalmField` went on passing `ink4`
+to `hintStyle` for a day: nothing in the suite compared the design source with
+the app's copy of it. The references are shot from the CSS and the app is drawn
+from the Dart, so a difference between them is a screen that cannot match its
+own reference no matter how the widget is written.
+
+Both arms seen: a one-digit drift planted in `bark49` and in `amber52` each
+turns it red.
+
