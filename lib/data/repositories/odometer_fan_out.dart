@@ -12,7 +12,7 @@
 // written in a second transaction is a moment where the parent exists and its
 // reading does not, and a monotonicity check in between sees a history with a
 // hole in it.
-import 'package:drift/drift.dart' show Variable;
+import 'package:drift/drift.dart' show TableUpdate, UpdateKind, Variable;
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/ids/ulid.dart';
@@ -69,6 +69,7 @@ Future<void> syncDerivedReading(
       'WHERE source_id = ? AND source = ? AND deleted_at_utc_ms IS NULL;',
       [nowUtcMs, parentId, source.wire],
     );
+    _announce(db, UpdateKind.update);
     return;
   }
 
@@ -124,7 +125,29 @@ Future<void> syncDerivedReading(
       nowUtcMs,
     ],
   );
+  _announce(db, UpdateKind.insert);
 }
+
+/// Tells drift that `odometer_readings` changed.
+///
+/// **Required, and easy to forget.** Both writes above go through
+/// `customStatement`, which hands SQLite a raw string — drift cannot parse it
+/// to learn which tables it touched, so it dispatches no update and every open
+/// `.watch()` on the table keeps serving its cached result. The row really is
+/// written; the screen watching for it never hears.
+///
+/// That is not a stale pixel. `vehicleReadingsProvider` is a `StreamProvider`
+/// over exactly this query, and a fill-up — the app's commonest write, with a
+/// REQUIRED odometer — derives its reading through here. SPEC.md §4.2.1 makes
+/// re-projection a consequence of the same streams, so a stream that does not
+/// fire is a due date that never recomputes.
+///
+/// Inside a transaction drift batches these and dispatches once on commit, so
+/// a trip's two readings wake the subscriber once rather than twice, and a
+/// rolled-back transaction wakes it not at all.
+void _announce(AppDatabase db, UpdateKind kind) => db.notifyUpdates({
+  TableUpdate.onTable(db.odometerReadings, kind: kind),
+});
 
 /// Whether the reading [parentId] is about to emit would break monotonicity.
 ///

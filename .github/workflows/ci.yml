@@ -95,6 +95,19 @@ jobs:
       - name: the schema version and its snapshots agree
         run: bash tools/check_schema_freshness.sh
 
+      # Contract: a repository writing through customStatement also calls
+      # notifyUpdates. Drift is handed a raw string and cannot learn which
+      # tables it touched, so it dispatches no update and every open .watch()
+      # keeps serving its cached result — the row is written and the screen
+      # never hears. Two writers shipped this: the derived-reading fan-out, so
+      # a fill-up's reading never reached vehicleReadingsProvider, and the
+      # vehicle hard-delete, which cascades through six tables. A suite of
+      # 4,600 tests could not see it, because a test that reads .first after
+      # the write opens a NEW subscription; only a subscriber that was already
+      # listening — which is what a screen is — can tell.
+      - name: raw writers announce their tables
+        run: bash tools/check_stream_notify.sh
+
       # Contract: the pub ecosystem block in .github/dependabot.yml is live
       # and grouped. It shipped commented out because Dependabot aborts on a
       # missing pubspec.yaml; pubspec.yaml exists now, and this is what stops

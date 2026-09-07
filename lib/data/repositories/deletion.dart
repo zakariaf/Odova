@@ -10,7 +10,8 @@
 //   3. After the window, the row is PURGED. A settled database has
 //      `deleted_at IS NULL` on every row that exists: no bin, no tombstones,
 //      nothing deleted in the export.
-import 'package:drift/drift.dart' show Table, TableInfo, Variable;
+import 'package:drift/drift.dart'
+    show Table, TableInfo, TableUpdate, UpdateKind, Variable;
 import 'package:odova/core/domain/enums.dart';
 import 'package:odova/core/ids/record_id.dart';
 import 'package:odova/core/result.dart';
@@ -208,6 +209,22 @@ Future<Result<void, PersistFailure>> eraseVehiclePermanently(
     await db.customStatement('DELETE FROM vehicles WHERE id = ?;', [
       vehicleId.toString(),
     ]);
+    // Drift is handed a raw string here and cannot parse it, so it dispatches
+    // NO update and every open `.watch()` keeps serving what it had. One
+    // untraced statement, and `ON DELETE CASCADE` empties six tables behind
+    // it: without this the vehicle is gone from the database and still on the
+    // screen, with its fill-ups, services and readings intact in every stream.
+    //
+    // EVERY table, not the six this cascade names. The cascade is declared in
+    // the schema and a future table hanging off `vehicles` inherits it
+    // silently; a hand-kept list here would be right until the next migration
+    // and then quietly wrong. This is the one hard delete in the app and it
+    // happens once in a vehicle's life, so the cost of over-notifying is a
+    // handful of queries re-running on a screen that is about to be popped.
+    db.notifyUpdates({
+      for (final table in db.allTables)
+        TableUpdate.onTable(table, kind: UpdateKind.delete),
+    });
   });
   return const Ok(null);
 });

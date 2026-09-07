@@ -884,4 +884,61 @@ assert 1 "check_schema_freshness is red on a snapshot with no bump" \
 restore_all
 assert 0 "check_schema_freshness is green again" bash "$FRESH"
 
+echo "== check_stream_notify =="
+NOTIFY=tools/check_stream_notify.sh
+assert 0 "check_stream_notify is green on the real tree" bash "$NOTIFY"
+
+# Both real violations, planted as they actually shipped. `--root` keeps the
+# plant out of lib/, so a failed run cannot leave a probe behind in the tree
+# the app compiles from.
+# The probe lives outside lib/ so a failed run cannot leave it where the app
+# compiles from. `rm -rf` below is the cleanup rather than `scratch`, which
+# unlinks files and would report "is a directory" on this one.
+mkdir -p .selftest/repos
+
+write_scratch .selftest/repos/probe.dart <<'DART'
+// The fan-out's shape: a raw INSERT and no announcement.
+Future<void> sync(db) async {
+  await db.customStatement('''
+    INSERT INTO odometer_readings (id, vehicle_id) VALUES (?, ?)
+    ON CONFLICT DO NOTHING;
+  ''', [1, 2]);
+}
+DART
+assert 1 "check_stream_notify is red on a raw INSERT with no notifyUpdates" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# The DELETE arm, which is the one that emptied six tables through a cascade.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> erase(db) async {
+  await db.customStatement('DELETE FROM vehicles WHERE id = ?;', [1]);
+}
+DART
+assert 1 "check_stream_notify is red on a raw DELETE with no notifyUpdates" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# And green once it announces — otherwise the gate would be satisfied by
+# deleting the statement rather than by fixing it.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> erase(db) async {
+  await db.customStatement('DELETE FROM vehicles WHERE id = ?;', [1]);
+  db.notifyUpdates({TableUpdate.onTable(db.vehicles)});
+}
+DART
+assert 0 "check_stream_notify is green once the writer announces" \
+  bash "$NOTIFY" --root .selftest/repos
+
+# A raw READ needs no announcement, and a gate that fired on one would be
+# deleted by the third person who hit it.
+write_scratch .selftest/repos/probe.dart <<'DART'
+Future<void> read(db) async {
+  await db.customStatement('SELECT id FROM vehicles;');
+}
+DART
+assert 0 "check_stream_notify ignores a raw SELECT" \
+  bash "$NOTIFY" --root .selftest/repos
+restore_all
+rm -rf .selftest
+assert 0 "check_stream_notify is green again" bash "$NOTIFY"
+
 exit "$rc"
