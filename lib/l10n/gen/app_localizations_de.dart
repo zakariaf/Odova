@@ -2140,4 +2140,71 @@ class AppLocalizationsDe extends AppLocalizations {
   String tripsBusinessValue(String percent) {
     return '$percent %';
   }
+
+  @override
+  String get tripEditTitle => 'Fahrt bearbeiten';
+
+  @override
+  String get tripNewTitle => 'Fahrt';
+
+  @override
+  String get tripSaveAction => 'Fahrt speichern';
+
+  @override
+  String get tripPurposeLabel => 'Zweck';
+
+  @override
+  String get tripTitleLabel => 'Titel';
+
+  @override
+  String get tripStartsLabel => 'Beginn';
+
+  @override
+  String get tripEndsLabel => 'Ende';
+
+  @override
+  String get tripStillGoing => 'Läuft noch';
+
+  @override
+  String get tripStartOdometerLabel => 'Kilometerstand Beginn';
+
+  @override
+  String get tripEndOdometerLabel => 'Kilometerstand Ende';
+
+  @override
+  String get tripDistanceLabel => 'Strecke';
+
+  @override
+  String get tripExpensesLabel => 'Ausgaben';
+
+  @override
+  String get tripAddExpense => 'Ausgabe hinzufügen';
+
+  @override
+  String get tripNoExpenses => 'Dieser Fahrt ist noch nichts zugeordnet.';
+
+  @override
+  String get tripDeleteAction => 'Fahrt löschen';
+
+  @override
+  String get tripStartInFuture =>
+      'Wählen Sie heute oder einen Tag in der Vergangenheit.';
+
+  @override
+  String get tripEndBeforeStart => 'Das Enddatum liegt vor dem Startdatum.';
+
+  @override
+  String get tripEndBelowStart =>
+      'Der Endstand ist niedriger als der Anfangsstand.';
+
+  @override
+  String get tripDistanceNotPositive =>
+      'Die Strecke muss größer als null sein.';
+
+  @override
+  String get tripSavedToast => 'Fahrt gespeichert';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'Speichern Sie die Fahrt zuerst, dann können Sie ihr Ausgaben zuordnen.';
 }

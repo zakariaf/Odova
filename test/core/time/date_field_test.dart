@@ -10,9 +10,9 @@
 @TestOn('vm')
 library;
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/time/civil_date.dart';
-import 'package:odova/features/logging/domain/date_field.dart';
+import 'package:odova/core/time/date_field.dart';
+import 'package:test/test.dart';
 
 final CivilDate _today = CivilDate.tryParse('2026-09-02')!;
 

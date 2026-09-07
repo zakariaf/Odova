@@ -10,7 +10,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/routing/app_router.dart';
-import 'package:odova/app/routing/placeholder_screen.dart';
 import 'package:odova/app/routing/route_not_found_screen.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/features/home/ui/home_screen.dart';
@@ -138,39 +137,33 @@ void main() {
     }
   });
 
-  testWidgets('an id-bearing route reads its id from pathParameters', (
-    tester,
-  ) async {
+  test('no id-bearing route is still a placeholder', () {
     // A cold start from a deep link has a null `state.extra`, so identity that
     // travels in `extra` is identity that vanishes when the OS restarts the
-    // app. The placeholder renders whatever the route read, so the assertion is
-    // that the id reached the screen — not that a particular field was touched.
+    // app. This test used to pump each id-bearing route and read the id back
+    // off a `PlaceholderScreen`; EPIC-13 built the last of those screens, so
+    // there is no placeholder left to read.
     //
-    // `vehicle.edit`, `reminders.edit` and the four `log.*` forms are NOT in
-    // this map any more: EPIC-09, EPIC-10 and EPIC-11 gave them real screens,
-    // so their path-reading is asserted against the screen —
-    // `vehicle_edit_route_test.dart`, `reminders_edit_test.dart` and
-    // `log_modal_shell_test.dart` — rather than against a placeholder's text.
-    // One placeholder remains and it still earns its line.
-    const idBearing = {'/costs/trips/:tripId': 'trips.edit'};
+    // What replaces it is the same assertion made against the real screens —
+    // `vehicle_edit_route_test.dart`, `reminders_edit_test.dart`,
+    // `log_modal_shell_test.dart` and `trips_edit_test.dart` each open their
+    // route by a concrete id and assert the record arrived. This one keeps the
+    // INVENTORY honest: a sixth id-bearing route added later with a
+    // placeholder behind it goes red here, because a placeholder is where
+    // "reads its id" quietly stops being true.
+    const idBearing = {
+      '/settings/vehicles/:vehicleId',
+      '/reminders/:reminderId',
+      '/costs/trips/:tripId',
+    };
 
-    for (final MapEntry(key: path, value: screenId) in idBearing.entries) {
-      final location = _concrete(path);
-      final id = Uri.parse(location).pathSegments.last;
+    final declared = kScreenRoutes.values
+        .whereType<ScreenLocation>()
+        .map((r) => r.path)
+        .where((l) => l.contains(':'))
+        .toSet();
 
-      await pumpShell(tester, location);
-
-      final screen = tester.widget<PlaceholderScreen>(
-        find.byType(PlaceholderScreen),
-      );
-      expect(screen.screenId, screenId, reason: path);
-      expect(screen.detail, id, reason: '$path did not read $id from the path');
-    }
-
-    // And the graph declares exactly this one plus `vehicle.edit`,
-    // `reminders.edit` and the log forms. A sixth added without a test is a
-    // sixth nobody proved reads its path.
-    expect(idBearing, hasLength(1));
+    expect(declared, idBearing);
   });
 
   testWidgets('an unknown location renders the error screen', (tester) async {

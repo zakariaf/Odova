@@ -29,6 +29,7 @@ import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/features/reminders/ui/reminders_edit_screen.dart';
 import 'package:odova/features/reminders/ui/reminders_list_screen.dart';
 import 'package:odova/features/report/presentation/report_service_screen.dart';
+import 'package:odova/features/trips/presentation/trips_edit_screen.dart';
 import 'package:odova/features/trips/presentation/trips_list_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_switcher_sheet.dart';
@@ -269,9 +270,8 @@ final List<StatefulShellBranch> _branches = [
                 pageBuilder: (context, state) => PageKind.modal.page(
                   context,
                   state,
-                  PlaceholderScreen(
-                    screenId: 'trips.edit',
-                    detail: state.pathParameters['tripId'],
+                  TripsEditScreen(
+                    tripId: state.pathParameters['tripId'] ?? kNewRecordId,
                   ),
                 ),
               ),

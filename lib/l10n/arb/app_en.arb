@@ -3176,5 +3176,89 @@
         "example": "62"
       }
     }
+  },
+  "tripEditTitle": "Edit trip",
+  "@tripEditTitle": {
+    "description": "SPEC.md §10's title in edit mode. The reference draws it; §10's Edit-mode row names it."
+  },
+  "tripNewTitle": "Trip",
+  "@tripNewTitle": {
+    "description": "The same bar in create mode."
+  },
+  "tripSaveAction": "Save trip",
+  "@tripSaveAction": {
+    "description": "The footer button. `Save trip` and not `Save`: the app bar already carries a Save, and two controls a thumb-width apart reading the same word is where a delivery driver loses a trip."
+  },
+  "tripPurposeLabel": "Purpose",
+  "@tripPurposeLabel": {
+    "description": "The segmented control's accessible name. It has no visible label in the reference — the four options say what it is — but a screen reader landing on four unlabelled segments does not."
+  },
+  "tripTitleLabel": "Title",
+  "@tripTitleLabel": {
+    "description": "Field 2."
+  },
+  "tripStartsLabel": "Starts",
+  "@tripStartsLabel": {
+    "description": "Field 3."
+  },
+  "tripEndsLabel": "Ends",
+  "@tripEndsLabel": {
+    "description": "Field 4."
+  },
+  "tripStillGoing": "Still going",
+  "@tripStillGoing": {
+    "description": "Field 5's checkbox. Ticking CLEARS the end date and end odometer, per §10."
+  },
+  "tripStartOdometerLabel": "Start odometer",
+  "@tripStartOdometerLabel": {
+    "description": "Field 6."
+  },
+  "tripEndOdometerLabel": "End odometer",
+  "@tripEndOdometerLabel": {
+    "description": "Field 7."
+  },
+  "tripDistanceLabel": "Distance",
+  "@tripDistanceLabel": {
+    "description": "Field 8, computed with the ƒ badge and editable only when BOTH odometer fields are empty."
+  },
+  "tripExpensesLabel": "Expenses",
+  "@tripExpensesLabel": {
+    "description": "The section header over the live query. Not a draft: §10 says an expense added through Add expense appears without a save."
+  },
+  "tripAddExpense": "Add expense",
+  "@tripAddExpense": {
+    "description": "Opens `log.expense` with `trip_id` prefilled and locked."
+  },
+  "tripNoExpenses": "Nothing charged to this trip yet.",
+  "@tripNoExpenses": {
+    "description": "The section's empty line. `yet` because the expenses arrive after the trip does — a toll is paid on the road, not when the trip is created."
+  },
+  "tripDeleteAction": "Delete trip",
+  "@tripDeleteAction": {
+    "description": "Edit mode only. The confirm dialog says what SURVIVES, which is the fact the user needs."
+  },
+  "tripStartInFuture": "Pick today or a day in the past.",
+  "@tripStartInFuture": {
+    "description": "Field 3's exact error, verbatim from §10's field table."
+  },
+  "tripEndBeforeStart": "The end date is before the start date.",
+  "@tripEndBeforeStart": {
+    "description": "Field 4's exact error, verbatim from §10."
+  },
+  "tripEndBelowStart": "The end reading is lower than the start reading.",
+  "@tripEndBelowStart": {
+    "description": "Field 7's exact error, verbatim from §10."
+  },
+  "tripDistanceNotPositive": "Distance must be more than zero.",
+  "@tripDistanceNotPositive": {
+    "description": "Field 8's exact error, verbatim from §10."
+  },
+  "tripSavedToast": "Trip saved",
+  "@tripSavedToast": {
+    "description": "§10's confirmation after saving."
+  },
+  "tripSaveFirstToAddExpense": "Save the trip first, then charge expenses to it.",
+  "@tripSaveFirstToAddExpense": {
+    "description": "Under Add expense in CREATE mode. §10 draws the affordance there, but an expense carries `trip_id` and there is no trip yet — so the button is disabled and this says why. A greyed-out button that explains nothing is what `CalmButton` asserts against, and dropping the button entirely would hide a control §10 names."
   }
 }

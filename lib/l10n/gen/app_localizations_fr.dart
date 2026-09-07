@@ -2182,4 +2182,70 @@ class AppLocalizationsFr extends AppLocalizations {
   String tripsBusinessValue(String percent) {
     return '$percent %';
   }
+
+  @override
+  String get tripEditTitle => 'Modifier le trajet';
+
+  @override
+  String get tripNewTitle => 'Trajet';
+
+  @override
+  String get tripSaveAction => 'Enregistrer le trajet';
+
+  @override
+  String get tripPurposeLabel => 'Motif';
+
+  @override
+  String get tripTitleLabel => 'Titre';
+
+  @override
+  String get tripStartsLabel => 'Début';
+
+  @override
+  String get tripEndsLabel => 'Fin';
+
+  @override
+  String get tripStillGoing => 'En cours';
+
+  @override
+  String get tripStartOdometerLabel => 'Compteur au début';
+
+  @override
+  String get tripEndOdometerLabel => 'Compteur à la fin';
+
+  @override
+  String get tripDistanceLabel => 'Distance';
+
+  @override
+  String get tripExpensesLabel => 'Dépenses';
+
+  @override
+  String get tripAddExpense => 'Ajouter une dépense';
+
+  @override
+  String get tripNoExpenses => 'Rien n’est encore imputé à ce trajet.';
+
+  @override
+  String get tripDeleteAction => 'Supprimer le trajet';
+
+  @override
+  String get tripStartInFuture => 'Choisissez aujourd’hui ou un jour passé.';
+
+  @override
+  String get tripEndBeforeStart => 'La date de fin précède la date de début.';
+
+  @override
+  String get tripEndBelowStart =>
+      'Le relevé de fin est inférieur au relevé de début.';
+
+  @override
+  String get tripDistanceNotPositive =>
+      'La distance doit être supérieure à zéro.';
+
+  @override
+  String get tripSavedToast => 'Trajet enregistré';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'Enregistrez d’abord le trajet, puis imputez-lui des dépenses.';
 }

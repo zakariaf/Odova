@@ -3203,6 +3203,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percent}%'**
   String tripsBusinessValue(String percent);
+
+  /// SPEC.md §10's title in edit mode. The reference draws it; §10's Edit-mode row names it.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trip'**
+  String get tripEditTitle;
+
+  /// The same bar in create mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get tripNewTitle;
+
+  /// The footer button. `Save trip` and not `Save`: the app bar already carries a Save, and two controls a thumb-width apart reading the same word is where a delivery driver loses a trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Save trip'**
+  String get tripSaveAction;
+
+  /// The segmented control's accessible name. It has no visible label in the reference — the four options say what it is — but a screen reader landing on four unlabelled segments does not.
+  ///
+  /// In en, this message translates to:
+  /// **'Purpose'**
+  String get tripPurposeLabel;
+
+  /// Field 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get tripTitleLabel;
+
+  /// Field 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get tripStartsLabel;
+
+  /// Field 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get tripEndsLabel;
+
+  /// Field 5's checkbox. Ticking CLEARS the end date and end odometer, per §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Still going'**
+  String get tripStillGoing;
+
+  /// Field 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Start odometer'**
+  String get tripStartOdometerLabel;
+
+  /// Field 7.
+  ///
+  /// In en, this message translates to:
+  /// **'End odometer'**
+  String get tripEndOdometerLabel;
+
+  /// Field 8, computed with the ƒ badge and editable only when BOTH odometer fields are empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get tripDistanceLabel;
+
+  /// The section header over the live query. Not a draft: §10 says an expense added through Add expense appears without a save.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get tripExpensesLabel;
+
+  /// Opens `log.expense` with `trip_id` prefilled and locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get tripAddExpense;
+
+  /// The section's empty line. `yet` because the expenses arrive after the trip does — a toll is paid on the road, not when the trip is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing charged to this trip yet.'**
+  String get tripNoExpenses;
+
+  /// Edit mode only. The confirm dialog says what SURVIVES, which is the fact the user needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete trip'**
+  String get tripDeleteAction;
+
+  /// Field 3's exact error, verbatim from §10's field table.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick today or a day in the past.'**
+  String get tripStartInFuture;
+
+  /// Field 4's exact error, verbatim from §10.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date is before the start date.'**
+  String get tripEndBeforeStart;
+
+  /// Field 7's exact error, verbatim from §10.
+  ///
+  /// In en, this message translates to:
+  /// **'The end reading is lower than the start reading.'**
+  String get tripEndBelowStart;
+
+  /// Field 8's exact error, verbatim from §10.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance must be more than zero.'**
+  String get tripDistanceNotPositive;
+
+  /// §10's confirmation after saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip saved'**
+  String get tripSavedToast;
+
+  /// Under Add expense in CREATE mode. §10 draws the affordance there, but an expense carries `trip_id` and there is no trip yet — so the button is disabled and this says why. A greyed-out button that explains nothing is what `CalmButton` asserts against, and dropping the button entirely would hide a control §10 names.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the trip first, then charge expenses to it.'**
+  String get tripSaveFirstToAddExpense;
 }
 
 class _AppLocalizationsDelegate

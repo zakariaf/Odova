@@ -2127,4 +2127,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String tripsBusinessValue(String percent) {
     return '$percent%';
   }
+
+  @override
+  String get tripEditTitle => 'Edit trip';
+
+  @override
+  String get tripNewTitle => 'Trip';
+
+  @override
+  String get tripSaveAction => 'Save trip';
+
+  @override
+  String get tripPurposeLabel => 'Purpose';
+
+  @override
+  String get tripTitleLabel => 'Title';
+
+  @override
+  String get tripStartsLabel => 'Starts';
+
+  @override
+  String get tripEndsLabel => 'Ends';
+
+  @override
+  String get tripStillGoing => 'Still going';
+
+  @override
+  String get tripStartOdometerLabel => 'Start odometer';
+
+  @override
+  String get tripEndOdometerLabel => 'End odometer';
+
+  @override
+  String get tripDistanceLabel => 'Distance';
+
+  @override
+  String get tripExpensesLabel => 'Expenses';
+
+  @override
+  String get tripAddExpense => 'Add expense';
+
+  @override
+  String get tripNoExpenses => 'Nothing charged to this trip yet.';
+
+  @override
+  String get tripDeleteAction => 'Delete trip';
+
+  @override
+  String get tripStartInFuture => 'Pick today or a day in the past.';
+
+  @override
+  String get tripEndBeforeStart => 'The end date is before the start date.';
+
+  @override
+  String get tripEndBelowStart =>
+      'The end reading is lower than the start reading.';
+
+  @override
+  String get tripDistanceNotPositive => 'Distance must be more than zero.';
+
+  @override
+  String get tripSavedToast => 'Trip saved';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'Save the trip first, then charge expenses to it.';
 }

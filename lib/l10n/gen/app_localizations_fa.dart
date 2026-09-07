@@ -2123,4 +2123,68 @@ class AppLocalizationsFa extends AppLocalizations {
   String tripsBusinessValue(String percent) {
     return '$percent%';
   }
+
+  @override
+  String get tripEditTitle => 'ویرایش سفر';
+
+  @override
+  String get tripNewTitle => 'سفر';
+
+  @override
+  String get tripSaveAction => 'ذخیرهٔ سفر';
+
+  @override
+  String get tripPurposeLabel => 'هدف';
+
+  @override
+  String get tripTitleLabel => 'عنوان';
+
+  @override
+  String get tripStartsLabel => 'آغاز';
+
+  @override
+  String get tripEndsLabel => 'پایان';
+
+  @override
+  String get tripStillGoing => 'هنوز ادامه دارد';
+
+  @override
+  String get tripStartOdometerLabel => 'کیلومترشمار آغاز';
+
+  @override
+  String get tripEndOdometerLabel => 'کیلومترشمار پایان';
+
+  @override
+  String get tripDistanceLabel => 'مسافت';
+
+  @override
+  String get tripExpensesLabel => 'هزینه‌ها';
+
+  @override
+  String get tripAddExpense => 'افزودن هزینه';
+
+  @override
+  String get tripNoExpenses => 'هنوز چیزی به این سفر اختصاص نیافته است.';
+
+  @override
+  String get tripDeleteAction => 'حذف سفر';
+
+  @override
+  String get tripStartInFuture => 'امروز یا روزی در گذشته را انتخاب کنید.';
+
+  @override
+  String get tripEndBeforeStart => 'تاریخ پایان پیش از تاریخ آغاز است.';
+
+  @override
+  String get tripEndBelowStart => 'عدد پایان کمتر از عدد آغاز است.';
+
+  @override
+  String get tripDistanceNotPositive => 'مسافت باید بیشتر از صفر باشد.';
+
+  @override
+  String get tripSavedToast => 'سفر ذخیره شد';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'ابتدا سفر را ذخیره کنید، سپس هزینه‌ها را به آن اختصاص دهید.';
 }

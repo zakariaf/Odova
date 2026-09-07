@@ -177,3 +177,54 @@ thing to get wrong here.
 routes that crash on open outside a test. `trips.list` reads the real stream
 providers and does not have this problem. Wiring those two is 13.10's first
 job, before any of its own scope.
+
+## Task 13.9 — `trips.edit`
+
+Built `lib/core/trips/trip_draft.dart`, `lib/features/trips/application/
+trip_save.dart`, `lib/features/trips/presentation/trips_edit_screen.dart` +
+`trip_purpose_control.dart`, and `TripRepository.delete`/`undelete`. The route
+now renders the real screen; `trips.edit` was the LAST `PlaceholderScreen` in
+the app.
+
+Three things this touched outside the feature, each because the alternative
+was a special case:
+
+1. **`stampLogRowDeleted` takes `sources` (a Set), not `source`.** A trip
+   emits two readings — `trip_start` and `trip_end` — that differ by source
+   alone. Calling the helper twice works for the readings and then reports
+   `NotFound` on the second call, because the row itself is already stamped;
+   the caller would have to know to ignore that. One `IN (...)` removes the
+   case. All four existing call sites pass a one-element set.
+2. **`date_field.dart` moved from `features/logging/domain/` to
+   `core/time/`.** `trips.edit` is its fifth caller and its first outside the
+   logging feature; `structure_test.dart` refuses one feature importing
+   another, correctly. The file was already pure Dart with no picker and no
+   `BuildContext`, so the lift is a path change and nothing else.
+3. **`route_table_test.dart`'s "an id-bearing route reads its id from
+   pathParameters" was rewritten.** It read the id back off a
+   `PlaceholderScreen`, and there is no placeholder left. It now asserts the
+   INVENTORY of id-bearing routes instead, and the id-reading claim is made
+   against each real screen — `trips_edit_test.dart` opens the route by a
+   concrete id and asserts the trip arrived.
+
+Two decisions worth recording:
+
+- **Add expense is disabled in create mode, with a `CalmButtonExplain`
+  underneath.** §10 draws the affordance there, but an expense carries a
+  `trip_id` and there is no trip yet. Dropping the button would hide a control
+  §10 names; leaving it enabled would open a form that cannot attach what it
+  collects. A greyed-out button that says nothing is what `CalmButton` asserts
+  against, so it says why.
+- **The purpose control's 2×2 grid is keyed on the text scale**, not on the
+  locale. §10 names German as the case, but the rule is about width and any
+  locale can hit it; keying on `de` would leave Sorani to shrink its text,
+  which is the answer §10 rejects.
+
+**Deferred.** The parity capture, per §6a. The `See all 34` cap on the
+expenses list (§10's dozens-of-expenses state) — the section shows the
+per-currency total and the Add button, and the row list itself is 13.10's
+`log.expense`/`log.fillup` edit-mode wiring. The `dialog.confirmDelete`
+confirmation before Delete (the row deletes directly today) and the
+`dialog.discard` guard on a dirty form; both dialogs exist from EPIC-08 and
+need wiring, not building. `End this trip` on `trips.list` opens the editor
+rather than revealing the end fields and focusing the odometer.

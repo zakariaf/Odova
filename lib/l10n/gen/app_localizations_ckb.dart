@@ -2130,4 +2130,69 @@ class AppLocalizationsCkb extends AppLocalizations {
   String tripsBusinessValue(String percent) {
     return '$percent%';
   }
+
+  @override
+  String get tripEditTitle => 'دەستکاری گەشت';
+
+  @override
+  String get tripNewTitle => 'گەشت';
+
+  @override
+  String get tripSaveAction => 'پاشەکەوتی گەشت';
+
+  @override
+  String get tripPurposeLabel => 'مەبەست';
+
+  @override
+  String get tripTitleLabel => 'ناونیشان';
+
+  @override
+  String get tripStartsLabel => 'دەستپێک';
+
+  @override
+  String get tripEndsLabel => 'کۆتایی';
+
+  @override
+  String get tripStillGoing => 'هێشتا بەردەوامە';
+
+  @override
+  String get tripStartOdometerLabel => 'کیلۆمەترپێوی دەستپێک';
+
+  @override
+  String get tripEndOdometerLabel => 'کیلۆمەترپێوی کۆتایی';
+
+  @override
+  String get tripDistanceLabel => 'دووری';
+
+  @override
+  String get tripExpensesLabel => 'خەرجییەکان';
+
+  @override
+  String get tripAddExpense => 'زیادکردنی خەرجی';
+
+  @override
+  String get tripNoExpenses => 'هێشتا هیچ شتێک بەم گەشتەوە نەبەستراوە.';
+
+  @override
+  String get tripDeleteAction => 'سڕینەوەی گەشت';
+
+  @override
+  String get tripStartInFuture => 'ئەمڕۆ یان ڕۆژێکی ڕابردوو هەڵبژێرە.';
+
+  @override
+  String get tripEndBeforeStart => 'بەرواری کۆتایی پێش بەرواری دەستپێکە.';
+
+  @override
+  String get tripEndBelowStart =>
+      'خوێندنەوەی کۆتایی لە خوێندنەوەی دەستپێک کەمترە.';
+
+  @override
+  String get tripDistanceNotPositive => 'دووری دەبێت لە سفر زیاتر بێت.';
+
+  @override
+  String get tripSavedToast => 'گەشت پاشەکەوت کرا';
+
+  @override
+  String get tripSaveFirstToAddExpense =>
+      'سەرەتا گەشتەکە پاشەکەوت بکە، پاشان خەرجییەکانی پێوە ببەستە.';
 }

@@ -42,11 +42,18 @@ import 'package:odova/data/repositories/guard.dart';
 /// behind would leave the due engine computing distance from a fill-up the user
 /// has just undone; an undo that did not bring it back would resurrect the
 /// record with a hole in the odometer series.
+///
+/// [sources] is a SET because a trip emits two readings — `trip_start` and
+/// `trip_end` — which differ by source alone. Calling this twice would work
+/// for the readings and then report `NotFound` on the second call, because the
+/// row itself is already stamped; the caller would have to know to ignore
+/// that, which is a special case that eventually gets ignored somewhere it
+/// matters.
 Future<Result<void, PersistFailure>> stampLogRowDeleted(
   AppDatabase db, {
   required TableInfo<Table, dynamic> table,
   required String id,
-  required OdometerSource source,
+  required Set<OdometerSource> sources,
   required int? deletedAtUtcMs,
 }) => guardPersist(() async {
   final name = table.actualTableName;
@@ -60,13 +67,14 @@ Future<Result<void, PersistFailure>> stampLogRowDeleted(
   // Undo, and an Undo for something that did not happen is worse than an error.
   if (rows == 0) return Err(NotFound(id));
 
+  final placeholders = List.filled(sources.length, '?').join(', ');
   await db.customUpdate(
     'UPDATE odometer_readings SET deleted_at_utc_ms = ? '
-    'WHERE source_id = ? AND source = ?;',
+    'WHERE source_id = ? AND source IN ($placeholders);',
     variables: [
       Variable<int>(deletedAtUtcMs),
       Variable<String>(id),
-      Variable<String>(source.wire),
+      for (final source in sources) Variable<String>(source.wire),
     ],
     updates: {db.odometerReadings},
   );

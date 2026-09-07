@@ -287,7 +287,7 @@ class ServiceRepository {
     _db,
     table: _db.serviceRecords,
     id: id.toString(),
-    source: OdometerSource.service,
+    sources: {OdometerSource.service},
     deletedAtUtcMs: deletedAtUtcMs,
   );
 
@@ -297,7 +297,7 @@ class ServiceRepository {
         _db,
         table: _db.serviceRecords,
         id: id.toString(),
-        source: OdometerSource.service,
+        sources: {OdometerSource.service},
         deletedAtUtcMs: null,
       );
 
