@@ -16,6 +16,7 @@
 // mappers, for the same reason: a copy taken through the code that is about to
 // migrate is a copy taken through the crash.
 import 'package:odova/core/export/export_stamp.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
 
 /// v1's own value for the envelope's `format_version`. Never a constant that
@@ -334,12 +335,8 @@ Map<String, Object?>? _money(Object? minor, Object? currency) =>
     ? null
     : {'amount_minor': minor, 'currency': currency};
 
-String? _wallClock(Object? minutes) {
-  if (minutes is! int) return null;
-  final clamped = minutes.clamp(0, 24 * 60 - 1);
-  return '${(clamped ~/ 60).toString().padLeft(2, '0')}:'
-      '${(clamped % 60).toString().padLeft(2, '0')}';
-}
+String? _wallClock(Object? minutes) =>
+    minutes is int ? wallClockOfMinutes(minutes) : null;
 
 String _rfc3339(int utcMs) => DateTime.fromMillisecondsSinceEpoch(
   utcMs,

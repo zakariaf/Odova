@@ -5,20 +5,8 @@
 // number a human has to decode. The database stores minutes because arithmetic
 // on them is what the scheduler does; the file stores the thing a person reads.
 import 'package:odova/core/domain/models/settings.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/features/backup/domain/mapping/backup_values.dart';
-
-/// Minutes past midnight as `HH:mm`, zero-padded and ASCII.
-///
-/// ASCII whatever the app's numeral setting: §6 says every digit in the file is
-/// ASCII 0-9, because a backup with Persian digits in its timestamps is a
-/// backup that only opens on a Persian device — which is the one thing a
-/// backup must never be.
-String wallClock(int minutes) {
-  final clamped = minutes.clamp(0, 24 * 60 - 1);
-  final hh = (clamped ~/ 60).toString().padLeft(2, '0');
-  final mm = (clamped % 60).toString().padLeft(2, '0');
-  return '$hh:$mm';
-}
 
 /// [settings] as its JSON object, in §6 §2.5's key order.
 ///
@@ -42,9 +30,9 @@ Map<String, Object?> settingsBackupJson(AppSettings settings) => {
   'first_day_of_week': settings.firstDayOfWeek,
   'calendar': settings.calendar,
   'numerals': settings.numerals,
-  'notification_time': wallClock(settings.notificationTimeMinutes),
-  'quiet_hours_from': wallClock(settings.quietHoursFromMinutes),
-  'quiet_hours_to': wallClock(settings.quietHoursToMinutes),
+  'notification_time': wallClockOfMinutes(settings.notificationTimeMinutes),
+  'quiet_hours_from': wallClockOfMinutes(settings.quietHoursFromMinutes),
+  'quiet_hours_to': wallClockOfMinutes(settings.quietHoursToMinutes),
   'weekdays_only': settings.weekdaysOnly,
   'notify_service': settings.notifyService,
   'notify_odometer': settings.notifyOdometer,

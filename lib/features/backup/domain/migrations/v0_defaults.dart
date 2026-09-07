@@ -11,6 +11,7 @@
 // rather than having one of them cleared. Rule 2: never fail on missing data —
 // which is why every read is a lookup with a default and never a cast.
 import 'package:odova/core/domain/models/settings.dart';
+import 'package:odova/core/time/civil_date.dart';
 
 /// [document] with every absent field from §6 §3.1 filled in.
 ///
@@ -83,9 +84,10 @@ Map<String, Object?> _service(Map<String, Object?> service) => {
 Map<String, Object?> _settings(Map<String, Object?> settings) => {
   ...settings,
   'quiet_hours_from':
-      settings['quiet_hours_from'] ?? _wallClock(kDefaultQuietFromMinutes),
+      settings['quiet_hours_from'] ??
+      wallClockOfMinutes(kDefaultQuietFromMinutes),
   'quiet_hours_to':
-      settings['quiet_hours_to'] ?? _wallClock(kDefaultQuietToMinutes),
+      settings['quiet_hours_to'] ?? wallClockOfMinutes(kDefaultQuietToMinutes),
   'weekdays_only': settings['weekdays_only'] ?? false,
   'notify_service': settings['notify_service'] ?? true,
   'notify_odometer': settings['notify_odometer'] ?? true,
@@ -98,10 +100,6 @@ Map<String, Object?> _settings(Map<String, Object?> settings) => {
       settings['currency_display'] ??
       (settings['language'] == 'fa' ? 'toman' : 'none'),
 };
-
-String _wallClock(int minutes) =>
-    '${(minutes ~/ 60).toString().padLeft(2, '0')}:'
-    '${(minutes % 60).toString().padLeft(2, '0')}';
 
 Map<String, Object?> _mapAt(Map<String, Object?> document, String key) =>
     document[key] is Map<String, Object?>

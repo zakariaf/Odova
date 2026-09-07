@@ -87,7 +87,7 @@ void main() {
     // it.
     expect(_chrome().undoRows, isEmpty);
     expect(
-      _chrome(copies: [_copy(SafetyCopyKind.wipe)]).undoRows,
+      _chrome(copies: [_copy(SafetyCopyKind.wipe)]).undoRows.map((c) => c.kind),
       [SafetyCopyKind.wipe],
     );
   });
@@ -100,7 +100,13 @@ void main() {
       ],
     );
 
-    expect(chrome.undoRows, [SafetyCopyKind.restore, SafetyCopyKind.wipe]);
+    expect(chrome.undoRows.map((c) => c.kind), [
+      SafetyCopyKind.restore,
+      SafetyCopyKind.wipe,
+    ]);
+    // And each row carries its OWN copy, so the screen reads the expiry off
+    // it rather than folding the list again to find the newest of that kind.
+    expect(chrome.undoRows.first.writtenAtUtcMs, _now - _day);
   });
 
   test('an expired copy has no row', () {
@@ -110,7 +116,9 @@ void main() {
       isEmpty,
     );
     expect(
-      _chrome(copies: [_copy(SafetyCopyKind.wipe, ageDays: 30)]).undoRows,
+      _chrome(
+        copies: [_copy(SafetyCopyKind.wipe, ageDays: 30)],
+      ).undoRows.map((c) => c.kind),
       [SafetyCopyKind.wipe],
     );
   });

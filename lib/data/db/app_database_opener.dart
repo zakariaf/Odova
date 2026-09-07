@@ -71,6 +71,7 @@ final class OpenedCleanly extends OpenOutcome {
 final class MigrationRefused extends OpenOutcome {
   /// Creates the outcome.
   const MigrationRefused({
+    required this.database,
     required this.atVersion,
     required this.expectedVersion,
     required this.reason,
@@ -84,6 +85,18 @@ final class MigrationRefused extends OpenOutcome {
 
   /// Why the copy could not be written.
   final SafetyCopyFailure reason;
+
+  /// The database, opened on the OLD schema.
+  ///
+  /// Carried here so the caller never builds one. `bootstrap()` did, and that
+  /// put `package:drift` in `lib/app` — which `check_drift_confinement`
+  /// refuses, correctly: opening a database is this layer's job, and a caller
+  /// that constructs its own is a caller that can pick different pragmas.
+  ///
+  /// §14: the app comes up READ-ONLY rather than refusing to launch. The user
+  /// must be able to open it and get their data out; a crash loop leaves
+  /// uninstalling as the only remedy, and uninstalling deletes it.
+  final AppDatabase database;
 }
 
 /// The migration threw, and the snapshot was restored.
@@ -94,6 +107,7 @@ final class MigrationRefused extends OpenOutcome {
 final class MigrationRolledBack extends OpenOutcome {
   /// Creates the outcome.
   const MigrationRolledBack({
+    required this.database,
     required this.atVersion,
     required this.expectedVersion,
     required this.error,
@@ -111,6 +125,9 @@ final class MigrationRolledBack extends OpenOutcome {
 
   /// Where the JSON copy went, when one was written.
   final File? safetyCopy;
+
+  /// The database, reopened on the restored snapshot. See [MigrationRefused].
+  final AppDatabase database;
 }
 
 /// Opens [dbFile], migrating it and restoring it if that fails.
@@ -154,6 +171,7 @@ Future<OpenOutcome> openMigratedDatabase(
   );
   if (copyFailure != null) {
     return MigrationRefused(
+      database: build(NativeDatabase(dbFile, setup: applyPragmas)),
       atVersion: fromVersion,
       expectedVersion: expected,
       reason: copyFailure,
@@ -190,6 +208,7 @@ Future<OpenOutcome> openMigratedDatabase(
     restored = true;
 
     return MigrationRolledBack(
+      database: build(NativeDatabase(dbFile, setup: applyPragmas)),
       atVersion: fromVersion,
       expectedVersion: expected,
       error: error,

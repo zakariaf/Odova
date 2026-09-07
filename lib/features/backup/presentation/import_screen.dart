@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/features/backup/application/import_notifier.dart';
 import 'package:odova/features/backup/domain/import_preview.dart';
 import 'package:odova/features/backup/domain/import_warning.dart';
@@ -27,6 +28,7 @@ import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_disclosure.dart';
@@ -151,8 +153,13 @@ class _Preview extends ConsumerWidget {
         // The sentence. One ICU message, never concatenated, never softened —
         // and on its own surface so it cannot be read as small print under the
         // table above it.
+        // Through `CalmStatusStyle`, not a raw slot. `check_status_encoding`
+        // refuses a screen reaching into `colors.overdue` directly and it is
+        // right: `resolve` is what keeps `overdue.tint` paired with
+        // `overdue.ink`, and a screen that picks the two separately can pair a
+        // tint from one family with ink from another and nothing notices.
         CalmSurface(
-          color: colors.overdue.tint,
+          color: CalmStatusStyle.of(context, DueState.overdue).tint,
           radius: space.s4,
           padding: EdgeInsets.all(space.s4),
           child: Column(
@@ -165,7 +172,7 @@ class _Preview extends ConsumerWidget {
                   _ => l10n.importReplacesEverything,
                 },
                 style: CalmType.of(context).bodyLg.copyWith(
-                  color: colors.overdue.ink,
+                  color: CalmStatusStyle.of(context, DueState.overdue).ink,
                   fontWeight: CalmType.of(context).semi,
                 ),
               ),
@@ -214,7 +221,7 @@ class _FileHeader extends StatelessWidget {
           if (state.variant case UndoVariant(:final takenAtUtcMs))
             Text(
               l10n.importUndoHeader(
-                formatLongDate(_isoOf(takenAtUtcMs), tags.formats),
+                formatLongDate(isoDateOfUtcMs(takenAtUtcMs), tags.formats),
                 _clockOf(takenAtUtcMs, tags.formats),
               ),
               style: type.bodyLg.copyWith(fontWeight: type.semi),
@@ -238,7 +245,7 @@ class _FileHeader extends StatelessWidget {
             if (state.exportedAtUtcMs case final at?)
               Text(
                 l10n.importFileMade(
-                  formatLongDate(_isoOf(at), tags.formats),
+                  formatLongDate(isoDateOfUtcMs(at), tags.formats),
                   _clockOf(at, tags.formats),
                   l10n.backupVehicleCount(
                     plan.store.vehicles.length,
@@ -350,7 +357,9 @@ class _Comparison extends ConsumerWidget {
                     strong: true,
                     // A row that LOSES records is amber. Losing 24 fill-ups
                     // must not look like the three rows above it that gained.
-                    colour: row.loses ? colors.due.ink : colors.ink,
+                    colour: row.loses
+                        ? CalmStatusStyle.of(context, DueState.due).ink
+                        : colors.ink,
                   ),
                 ),
               ],
@@ -479,11 +488,6 @@ String _kindLabel(AppLocalizations l10n, String kind) => switch (kind) {
   // missing one, so this says nothing rather than guessing.
   _ => kind,
 };
-
-String _isoOf(int utcMs) => DateTime.fromMillisecondsSinceEpoch(
-  utcMs,
-  isUtc: true,
-).toIso8601String().substring(0, 10);
 
 String _clockOf(int utcMs, String tag) {
   final t = DateTime.fromMillisecondsSinceEpoch(utcMs, isUtc: true);

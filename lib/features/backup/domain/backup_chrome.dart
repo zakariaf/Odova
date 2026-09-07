@@ -69,10 +69,14 @@ class BackupChrome {
 
   /// One row per safety copy that exists, newest first.
   ///
+  /// The COPIES, not their kinds. `_newestFirst` has already found the newest
+  /// of each; handing the screen only the kind made it fold the same list
+  /// again to get the timestamp back for the expiry line.
+  ///
   /// A kind with no copy has NO ROW — absent, not greyed. A greyed control
   /// with no explanation is a worse answer than no control, and a user who
   /// sees "Undo" greyed out will tap it.
-  final List<SafetyCopyKind> undoRows;
+  final List<SafetyCopy> undoRows;
 }
 
 /// Resolves §13's table.
@@ -117,7 +121,7 @@ BackupChrome resolveBackupChrome({
     undoRows: [
       for (final copy in _newestFirst(safetyCopies))
         if (!copy.isExpired(nowUtcMs) && copy.kind != SafetyCopyKind.migration)
-          copy.kind,
+          copy,
     ],
   );
 }

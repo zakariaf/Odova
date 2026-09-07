@@ -445,4 +445,32 @@ void main() {
       expect(d('2024-02-28').monthsUntil(d('2025-02-28')), 12);
     });
   });
+
+  group('wallClockOfMinutes — one formatter, three former copies', () {
+    test('it pads to HH:mm in ASCII', () {
+      // ASCII whatever the numeral setting: §6 says every digit in a backup is
+      // ASCII 0-9, because one with Persian digits in its timestamps only
+      // opens on a Persian device.
+      expect(wallClockOfMinutes(0), '00:00');
+      expect(wallClockOfMinutes(9 * 60), '09:00');
+      expect(wallClockOfMinutes(21 * 60), '21:00');
+      expect(wallClockOfMinutes(23 * 60 + 59), '23:59');
+    });
+
+    test('it CLAMPS, which one of the three copies did not', () {
+      // The migration-defaults copy had no clamp, so a stored 1500 wrote
+      // `25:00` — a time no reader accepts, in a file whose whole promise is
+      // that it opens in ten years.
+      expect(wallClockOfMinutes(24 * 60), '23:59');
+      expect(wallClockOfMinutes(1500), '23:59');
+      expect(wallClockOfMinutes(-1), '00:00');
+    });
+  });
+
+  test('isoDateOfUtcMs is the ISO date of a UTC instant', () {
+    // Four call sites converted UTC ms to a date string three different ways,
+    // two of them byte-identical private helpers in adjacent screens.
+    expect(isoDateOfUtcMs(1788374460000), '2026-09-02');
+    expect(isoDateOfUtcMs(0), '1970-01-01');
+  });
 }

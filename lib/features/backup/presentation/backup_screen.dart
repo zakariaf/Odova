@@ -14,6 +14,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/time/civil_date.dart';
 import 'package:odova/features/backup/application/backup_notifier.dart';
 import 'package:odova/features/backup/domain/backup_chrome.dart';
 import 'package:odova/features/backup/domain/backup_export_service.dart';
@@ -121,15 +122,27 @@ class BackupScreen extends ConsumerWidget {
             // One row per copy that EXISTS. A kind with none has no row —
             // absent, not greyed: a user who sees "Undo" greyed out will tap
             // it, and a disabled control with no explanation answers nothing.
-            for (final kind in chrome.undoRows)
+            for (final copy in chrome.undoRows)
               CalmListRow(
-                title: kind == SafetyCopyKind.wipe
+                title: copy.kind == SafetyCopyKind.wipe
                     ? l10n.backupUndoWipe
                     : l10n.backupUndoImport,
-                subtitle: _expiryOf(context, ref, state, kind),
+                // The copy carries its own instant, so this reads it rather
+                // than folding the list again to find the newest of its kind.
+                subtitle: l10n.backupUndoUntil(
+                  formatLongDate(
+                    isoDateOfUtcMs(
+                      copy.writtenAtUtcMs + kSafetyCopyLifetime.inMilliseconds,
+                    ),
+                    tags.formats,
+                    calendar: state.calendar,
+                    numerals: state.numerals,
+                  ),
+                ),
                 showChevron: true,
                 enabled: chrome.canRestore,
-                onTap: () => ref.read(backupScreenProvider.notifier).undo(kind),
+                onTap: () =>
+                    ref.read(backupScreenProvider.notifier).undo(copy.kind),
               ),
           ],
         ),
@@ -175,31 +188,6 @@ class BackupScreen extends ConsumerWidget {
           ],
         ),
       ],
-    );
-  }
-
-  String? _expiryOf(
-    BuildContext context,
-    WidgetRef ref,
-    BackupScreenState state,
-    SafetyCopyKind kind,
-  ) {
-    final copy = state.safetyCopies
-        .where((c) => c.kind == kind)
-        .fold<SafetyCopy?>(
-          null,
-          (best, c) =>
-              best == null || c.writtenAtUtcMs > best.writtenAtUtcMs ? c : best,
-        );
-    if (copy == null) return null;
-    final tags = ref.watch(resolvedLocaleTagsProvider);
-    return AppLocalizations.of(context).backupUndoUntil(
-      formatLongDate(
-        _isoOf(copy.writtenAtUtcMs + kSafetyCopyLifetime.inMilliseconds),
-        tags.formats,
-        calendar: state.calendar,
-        numerals: state.numerals,
-      ),
     );
   }
 }
@@ -269,7 +257,7 @@ class _LastBackupCard extends ConsumerWidget {
                 state.lastBackupAtUtcMs == null
                     ? l10n.backupNever
                     : formatLongDate(
-                        _isoOf(state.lastBackupAtUtcMs!),
+                        isoDateOfUtcMs(state.lastBackupAtUtcMs!),
                         tags.formats,
                         calendar: state.calendar,
                         numerals: state.numerals,
@@ -391,9 +379,3 @@ class _GroupLabel extends StatelessWidget {
     );
   }
 }
-
-/// A UTC instant as the `YYYY-MM-DD` string the date formatter takes.
-String _isoOf(int utcMs) => DateTime.fromMillisecondsSinceEpoch(
-  utcMs,
-  isUtc: true,
-).toIso8601String().substring(0, 10);

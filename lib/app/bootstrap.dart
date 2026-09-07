@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:clock/clock.dart';
-import 'package:drift/native.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:odova/app/app_version.dart';
@@ -72,7 +71,7 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
   // project has shipped a seam satisfied only in tests.
   final supportDirectory = await getApplicationSupportDirectory();
   final outcome = await openMigratedDatabase(
-    File('${supportDirectory.path}/$databaseFileName'),
+    databaseFileIn(supportDirectory),
     safetyDirectory: supportDirectory,
     stamp: ExportStamp(
       nowUtcMs: DateTime.now().toUtc().millisecondsSinceEpoch,
@@ -82,18 +81,18 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     ),
   );
 
+  // Every outcome carries an open database, so nothing here builds one — and
+  // `lib/app` therefore imports no drift, which `check_drift_confinement`
+  // requires and which the first version of this broke.
+  //
+  // §14: both failure outcomes come up READ-ONLY on the old schema rather than
+  // refusing to launch. The user must be able to open the app and get their
+  // data out; a crash loop leaves uninstalling as the only remedy, and
+  // uninstalling deletes it.
   final database = switch (outcome) {
     OpenedCleanly(:final database) => database,
-    // Both failure outcomes come up READ-ONLY on the old schema rather than
-    // refusing to launch. §14: the user must be able to open the app and get
-    // their data out; a crash loop leaves uninstalling as the only remedy, and
-    // uninstalling deletes it.
-    MigrationRefused() || MigrationRolledBack() => AppDatabase.forTesting(
-      NativeDatabase(
-        File('${supportDirectory.path}/$databaseFileName'),
-        setup: applyPragmas,
-      ),
-    ),
+    MigrationRefused(:final database) => database,
+    MigrationRolledBack(:final database) => database,
   };
   final migrationFailed = outcome is! OpenedCleanly;
 

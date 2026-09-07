@@ -9,8 +9,6 @@
 // The cost of writing it early is a file on disk for a wipe that did not
 // happen, which the thirty-day expiry clears and which nobody notices. The
 // cost of writing it late is the thing this whole file exists to prevent.
-import 'package:meta/meta.dart';
-
 /// The steps of the flow, in order, for a test to assert against.
 enum DeleteAllStep {
   /// The wipe safety copy. First, always.
@@ -47,6 +45,19 @@ abstract class DeleteAllPorts {
   Future<void> routeToFirstRun();
 }
 
+/// What survives a wipe: LANGUAGE, and only language.
+///
+/// Not a type — a sentence, because there is exactly one field and a class
+/// around it was left over from an earlier shape of this task, referenced by
+/// nothing including the flow in this file.
+///
+/// We are not asking somebody who has just wiped their data to find their
+/// alphabet again: a Sorani speaker dropped into an English first-run screen
+/// has to navigate a language picker they cannot read, in an app they have
+/// just emptied. Everything else goes, including the theme and the units —
+/// preferences a person re-sets in ten seconds, where keeping half a profile
+/// would make "delete all data" a phrase that needs a footnote.
+///
 /// Runs the flow and reports what it did.
 ///
 /// Returns the steps that actually ran. A cancelled dialog stops after
@@ -79,23 +90,4 @@ Future<List<DeleteAllStep>> runDeleteAll(DeleteAllPorts ports) async {
   ran.add(DeleteAllStep.routeToFirstRun);
 
   return ran;
-}
-
-/// What survives a wipe.
-///
-/// LANGUAGE, and only language. We are not asking somebody who has just wiped
-/// their data to find their alphabet again — a Sorani speaker dropped into an
-/// English first-run screen has to navigate a language picker they cannot
-/// read, in an app they have just emptied.
-///
-/// Everything else goes, including the theme and the units: those are
-/// preferences a person re-sets in ten seconds, and keeping half a profile
-/// would make "delete all data" a phrase that needs a footnote.
-@immutable
-class WipeSurvivors {
-  /// Creates the survivors.
-  const WipeSurvivors({required this.language});
-
-  /// The language tag, or `system`.
-  final String language;
 }

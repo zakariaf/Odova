@@ -258,3 +258,28 @@ class CivilDate with ValueEquality implements Comparable<CivilDate> {
       '${month.toString().padLeft(2, '0')}-'
       '${day.toString().padLeft(2, '0')}';
 }
+
+/// Minutes past midnight as `HH:mm`, zero-padded and ASCII.
+///
+/// ASCII whatever the app's numeral setting: SPEC.md §6 says every digit in a
+/// backup file is ASCII 0-9, because a backup with Persian digits in its
+/// timestamps only opens on a Persian device.
+///
+/// In `core` because THREE copies of it landed in one epic — the settings
+/// projection, the v1 schema projection and the migration defaults — and one
+/// of the three had already drifted: it had no clamp, so a stored 1500 wrote
+/// `25:00`.
+String wallClockOfMinutes(int minutes) {
+  final clamped = minutes.clamp(0, 24 * 60 - 1);
+  return '${(clamped ~/ 60).toString().padLeft(2, '0')}:'
+      '${(clamped % 60).toString().padLeft(2, '0')}';
+}
+
+/// A UTC millisecond instant as the `YYYY-MM-DD` string a formatter takes.
+///
+/// Beside [CivilDate.isoDateOf] and for the same reason: four call sites
+/// converted UTC ms to a date string three different ways, two of them
+/// byte-identical private helpers in adjacent screens.
+String isoDateOfUtcMs(int utcMs) => CivilDate.isoDateOf(
+  DateTime.fromMillisecondsSinceEpoch(utcMs, isUtc: true),
+);
