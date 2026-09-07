@@ -209,3 +209,50 @@ assume it shipped.
 **Sorani remains the largest translation risk in the app** (`CLAUDE.md` §9). The
 forty-three import strings were written without a native speaker and need one
 before release.
+
+## Task 15.3 — the chain, the corpus, and a safety copy that can be restored
+
+The chain is §6 §3.1's loop verbatim: pure `json → json`, in memory, before
+anything touches the database. Purity is asserted **structurally** — the two
+migration files import no `dart:io`, no drift and no Flutter — rather than with
+a fake filesystem, because a file with no filesystem to reach cannot reach one
+whatever a future author intends.
+
+`kMigrations` is empty at v1 and declared anyway, and a test asserts every step
+up to `kSupportedFormatVersion` exists. **Bumping that constant without writing
+the migration is now a red test.**
+
+`whichever_last` keeps both intervals and is counted; the other two retired
+rules clear an interval that was already ignored. Clearing one of
+`whichever_last`'s would delete a value the user entered, which §3.1 rule 1
+forbids.
+
+**The corpus is thirteen files with sidecars**, walked rather than enumerated,
+and wired into CI as its own step (`the backup corpus imports`). All synthetic.
+The trades file is 11,883 records over three vans and ten years, 4.5 MB.
+
+**The pre-migration safety copy was not restorable, and now is.** EPIC-05 wrote
+it as a raw table dump — every byte of the user's history in a shape nothing in
+the app could read back. §6.4.4 calls that file the escape route. It passed
+review twice because the file plainly exists and plainly has the data in it.
+
+`lib/data/db/schema_readers/schema_v1_backup.dart` now projects v1's raw rows
+into §6's document, and `safety_copy_imports_test` runs the whole loop — a real
+v1 database, the numbered reader, the v1 projection, `BackupReader` — because
+each half passing separately is exactly what let the gap exist.
+
+**Every constant in that file is pinned to v1 and must never track a moving
+one.** A v5 binary writing a v1 database stamps `format_version: 1`. This is the
+first thing to check when schema v2 lands: the v2 reader needs its own
+projection beside it, and `backupDocumentForVersion` falls back to the raw dump
+for a version that has none — not importable, but still every byte, which is the
+better of two bad outcomes.
+
+**A mutation that needed a new test before it could be caught.** Collapsing the
+three quantity columns into `quantity_ml` passed the whole suite until an
+electric and a gas fill existed as fixtures. Coverage would have called that
+line covered.
+
+**Not done in 15.3:** the epic's "assert against a fake filesystem that records
+zero opens" was replaced by the import check described above, which is stronger
+and cannot be fooled by a migration that opens a file through a different API.
