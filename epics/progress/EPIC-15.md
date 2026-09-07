@@ -495,3 +495,76 @@ the screen — `WiredBackupActions` returns without doing anything for all three
 "also export" rows. The picker, the projections and the file writer all exist;
 what is missing is the three lines that join them, and they belong with the
 picker's `BuildContext`, which an action object does not have.
+
+## `/simplify` — four agents, and what came out of it
+
+The pass found **five correctness defects**, which is not what it is for. They
+are recorded here because the epic's own rules say findings are applied or
+answered, and because the pattern is worth reading.
+
+**1. `openMigratedDatabase` had no production caller.** `bootstrap()` called
+`AppDatabase()` directly, so EPIC-05's entire migration guard — the
+pre-migration copy, the refusal when it cannot be written, the roll-back, the
+read-only degraded mode — was true only of a function called from tests.
+§6.3.3's escape route and §6.4.4's "no exceptions" described code that did not
+execute. **The third seam this project has shipped satisfied only in tests**,
+and the one where the cost is highest: the case it protects is a failed update,
+and what it protects is the user's only copy.
+
+**2. Every safety copy was stamped 1970.** Task 15.3 gave
+`writeMigrationSafetyCopy` four parameters with placeholder defaults so its
+caller would not have to change. It did not change. Four loose parameters with
+defaults is how that happens, so they are one required `ExportStamp` now.
+
+**3. The delete-all dialog's safety-copy note never rendered.** The `body`
+override replaced the whole composed string, and the composition is what
+appends `note` — on the dialog that destroys everything.
+
+**4. Negative amounts exported as text.** `-` is a formula leader and §10's
+refund switch makes an expense the one money field that may be negative, so
+every refund left the costs CSV as `'-25.00` — in the file §8.1 says exists so
+somebody can add up the amount column. Fixed with cell provenance rather than a
+special case for the minus sign, which would have reopened the hole for a note
+beginning `-cmd`.
+
+**5. `odometer_corrections` rendered as "Odometer readings".** Three switches
+ended in catch-alls returning a real label, so a missing ARB key was invisible.
+That is the failure mode of a catch-all that returns something plausible: it
+compiles, it renders, and no reading of the code finds it. The fallbacks return
+the raw name now, and a test walks `kBackupArrays`.
+
+**Applied from the cleanup findings:** the writer projected every record twice
+(counts, then emit); sort comparators rebuilt id strings per comparison;
+`RegExp`s compiled per record in `rfc3339` and per date on import;
+`stripBidiControls` duplicated `stripBidi`, whose own doc names "into an export"
+as its caller; `_foldToAscii` duplicated `searchLatinFolds`, which is public
+precisely to prevent a second table and had already drifted on `ß`; three copies
+of the wall-clock formatter, one without a clamp; two byte-identical `_isoOf`
+helpers; `undoRows` throwing away the copy the screen then recomputed; dead
+`WipeSurvivors`.
+
+**The badge golden was re-baselined properly.** The first version branched the
+layout to keep the sheet from moving, which left the NEW affordance in no golden
+at all. One layout, an icon specimen, and the four images through
+`run-goldens-rebaseline` — including reverting six images `--update-goldens`
+rewrote that this change does not touch.
+
+**Answered rather than applied:**
+
+- **"`store_writer`'s nine companion builders duplicate the repositories'."**
+  True, and the argument is strong — the inverse direction already paid for this
+  split, and `row_mappers.dart` documents the bug it cost. But moving nine
+  private methods out of five repositories is a refactor across files this epic
+  does not touch, and it deserves its own PR where a reviewer can see it. **The
+  agents also found a real drift between the two copies** — `store_writer`
+  writes a correction's `notes` and `OdometerRepository._correctionCompanion`
+  omits it — which is a defect in the repository and is filed for EPIC-17.
+- **"Eight `ImportWarning` subclasses differ only in a string."** Collapsing
+  them to one counted type plus an enum would split the hierarchy: four other
+  warnings carry typed parameters that are not a count. Two kinds of warning is
+  worse than eight small classes.
+- **"`BackupNudgeState` is a class for one predicate."** It is four values that
+  travel together and the epic asks for the predicate as a unit. Left.
+- **"`ImportWarning.code` has no production reader."** It has a test reader and
+  the corpus sidecars name warnings by it, which is the point: the sidecar is a
+  document a human writes.
