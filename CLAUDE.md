@@ -357,6 +357,36 @@ CI, so EPIC-18 was always going to be the first real enforcement rather than a
 sweep over working screens. This decision widens that backlog; it does not
 create it.
 
+## 6b. Velocity decision — 2026-09-07 (second)
+
+**Owner's call, recorded here rather than applied quietly**, same as §6a. Two
+more things change from EPIC-16 task 16.6 onwards.
+
+- **Commit bodies are short.** Two or three sentences saying why, and the full
+  reasoning — the decision, what was rejected, what a mutation found — goes to
+  `epics/progress/EPIC-NN.md`. That file is already the handover and already the
+  only record of what was deferred, so the long-form argument was being written
+  nearly twice. §5's convention otherwise stands: imperative subject, optional
+  `<area>:` prefix, a body that explains why rather than what, both trailers.
+
+- **Mutation checks are batched.** Same coverage, one scripted pass:
+  `tools/mutate.sh <file> <test>` plants each mutation, runs the test, reverts,
+  and prints one line per mutation. They were costing five to seven separate
+  write/run/revert cycles per task, which is where a lot of the wall clock went.
+
+**What is NOT relaxed:** the mutations themselves. They earn their keep — in
+EPIC-16 alone they found an empty-`vehicleId` guard that no test exercised, and
+two scheduler rules whose tests could not see them being deleted. Nor is
+anything in §6a's list: TDD's red step, the gates, `flutter analyze
+--fatal-infos --fatal-warnings`, six-locale ARB parity, no derived value
+persisted, no currency summed, green CI before a merge.
+
+**Also not a policy change, just competence,** written down so it is not
+relitigated: read an existing fixture before writing a new one rather than
+guessing a constructor; run `dart format` and the analyzer before the first test
+run, not after it; run the scoped test during a task and the full suite once at
+the commit.
+
 ---
 
 ## 7. Visual parity — a screen is not done until it matches
