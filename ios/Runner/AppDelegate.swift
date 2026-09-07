@@ -26,11 +26,18 @@ import UIKit
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
+    // `applicationRegistrar.messenger`, not `engineBridge.binaryMessenger`.
+    // The bridge exposes exactly two properties — `pluginRegistry` and
+    // `applicationRegistrar` — and the messenger hangs off the registrar. This
+    // file named a property the protocol does not have, so the iOS app did not
+    // compile at all; CI builds only `flutter build apk --debug`, so nothing
+    // said so. See the note in tools/ and the progress file.
     let channel = FlutterMethodChannel(
       name: AppDelegate.channelName,
-      binaryMessenger: engineBridge.binaryMessenger
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
     )
-    channel.setMethodCallHandler { [weak self] call, result in
+    channel.setMethodCallHandler {
+      [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
       guard call.method == "shareFile" else {
         result(FlutterMethodNotImplemented)
         return

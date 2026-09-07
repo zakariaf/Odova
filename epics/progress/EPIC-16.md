@@ -154,3 +154,29 @@ OS is the truth for "is it pending", the table for "why".
 The fake ships in `lib/` rather than `test/support/` because the contract suite
 IS the definition of the port, and a fake beside the port is one somebody
 maintains when the port changes.
+
+## Mid-epic — the iOS app had not compiled since EPIC-12
+
+Found by running the app on a simulator, not by a test. `ios/Runner/AppDelegate.swift`
+read `engineBridge.binaryMessenger`; the `FlutterImplicitEngineBridge` protocol
+in Flutter 3.44.6 exposes exactly two properties, `pluginRegistry` and
+`applicationRegistrar`, and the messenger hangs off the registrar. Three Swift
+compiler errors, so **no iOS build has succeeded since the share channel landed
+in EPIC-12** — three merged epics ago.
+
+**Nothing could have caught it.** `.github/workflows/ci.yml` had one compile
+lane and it was `flutter build apk --debug`. The Dart side is fully covered —
+`flutter analyze` and 4,700 tests — and none of that touches a line of Swift.
+Every PR since EPIC-12 was green.
+
+Fixed, and CI gained an `ios build` job so the next one is caught at the PR that
+causes it. It does **not** run on every PR: a cold iOS build is 20–30 minutes
+against the Android lane's two, so it is conditioned on the iOS host sources,
+the podfile or the dependency set having moved — `pubspec.yaml` is in that list
+because adding a plugin regenerates `GeneratedPluginRegistrant` and changes what
+the Swift links against, which is exactly how this break arrived. When there is
+no base commit to diff against it runs anyway: a gate that cannot tell whether
+it is needed and therefore skips is a gate that is off.
+
+`macos-15` is free here because the repo is public. On a private repo it bills
+at ten times the Linux rate and the trade would be worth re-reading.
