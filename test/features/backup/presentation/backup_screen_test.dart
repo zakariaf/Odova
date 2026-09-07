@@ -13,7 +13,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/features/backup/application/backup_notifier.dart';
+import 'package:odova/features/backup/domain/backup_export_service.dart';
 import 'package:odova/features/backup/domain/safety_copy_store.dart';
 import 'package:odova/features/backup/presentation/backup_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
@@ -42,12 +44,21 @@ class _SpyActions implements BackupActions {
   /// Without it the export finishes inside the same microtask and the screen
   /// is back to its button before the first `pump` — which would make the
   /// progress assertion pass for the wrong reason.
-  Completer<int?>? pending;
+  Completer<Result<int, ExportFailure>>? pending;
+
+  /// What the export answers. A refusal by default, because that is the state
+  /// an unwired build is in and a fake that succeeded by default would hide it.
+  Result<int, ExportFailure> answer = const Err(
+    ExportShareRefused('refused'),
+  );
 
   @override
-  Future<int?> backUpNow() {
+  Future<Result<int, ExportFailure>> backUpNow() {
     calls.add('backUpNow');
-    return pending?.future ?? Future<int?>.value(exportedAt);
+    return pending?.future ??
+        Future<Result<int, ExportFailure>>.value(
+          exportedAt == null ? answer : Ok(exportedAt!),
+        );
   }
 
   @override
@@ -260,7 +271,8 @@ void main() {
   ) async {
     // A spinner beside a live button invites a second tap, and a second export
     // writes a second copy of the whole history.
-    final actions = _SpyActions()..pending = Completer<int?>();
+    final actions = _SpyActions()
+      ..pending = Completer<Result<int, ExportFailure>>();
     await _pump(tester, actions: actions);
     final l10n = await _l10n();
 
@@ -270,7 +282,7 @@ void main() {
     expect(find.text(l10n.backupPreparing), findsOneWidget);
     expect(find.text(l10n.backupNow), findsNothing);
 
-    actions.pending!.complete(null);
+    actions.pending!.complete(const Err(ExportShareRefused('cancelled')));
     await tester.pumpAndSettle();
     expect(actions.calls, ['backUpNow']);
     expect(find.text(l10n.backupNow), findsOneWidget);
@@ -289,6 +301,42 @@ void main() {
     // Not "never" any more, and "entries since" is now none.
     expect(find.text(l10n.backupNever), findsNothing);
     expect(find.textContaining('68'), findsNothing);
+  });
+
+  testWidgets('a failed export says which failure, inline', (tester) async {
+    // §13 gives each of the three its own sentence and its own actions, and
+    // nothing rendered any of them until the review pass over this epic: the
+    // port returned `int?`, so "the disk is full" and "the user dismissed the
+    // share sheet" were one answer and the spinner just stopped.
+    final actions = _SpyActions()
+      ..answer = const Err(ExportNoSpace(neededBytes: 6 * 1024 * 1024));
+    await _pump(tester, actions: actions);
+    final l10n = await _l10n();
+
+    await tester.tap(find.text(l10n.backupNow));
+    await tester.pumpAndSettle();
+
+    // The figure, because "free up some space" is advice a user cannot act on.
+    expect(find.textContaining('6 MB'), findsOneWidget);
+    // No Try again beside it: that message asks the user to change something
+    // first, and a retry button there is an invitation to fail twice.
+    expect(find.text(l10n.commonRetry), findsNothing);
+  });
+
+  testWidgets('a write failure offers Try again', (tester) async {
+    final actions = _SpyActions()
+      ..answer = const Err(ExportWriteFailed('disk'));
+    await _pump(tester, actions: actions);
+    final l10n = await _l10n();
+
+    await tester.tap(find.text(l10n.backupNow));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('Nothing on this phone has changed'),
+      findsOneWidget,
+    );
+    expect(find.text(l10n.commonRetry), findsOneWidget);
   });
 
   testWidgets('Restore from a backup asks for the picker', (tester) async {

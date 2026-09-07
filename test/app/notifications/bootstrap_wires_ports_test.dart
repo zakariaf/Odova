@@ -14,7 +14,9 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/notifications/schedule_rebuilder.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/features/backup/application/backup_notifier.dart';
+import 'package:odova/features/backup/domain/backup_export_service.dart';
 
 void main() {
   test('a bare container can reschedule notifications', () {
@@ -39,7 +41,13 @@ void main() {
     addTearDown(container.dispose);
 
     final actions = container.read(backupActionsProvider);
-    await expectLater(actions.backUpNow(), completion(isNull));
+    // A typed refusal, not a null and not a throw: the default is honest
+    // about being unwired, and the screen renders it as §13's third export
+    // error rather than as a spinner that stops.
+    await expectLater(
+      actions.backUpNow(),
+      completion(isA<Err<int, ExportFailure>>()),
+    );
     await expectLater(actions.pickFileToRestore(), completes);
     await expectLater(actions.beginDeleteAll(), completes);
   });

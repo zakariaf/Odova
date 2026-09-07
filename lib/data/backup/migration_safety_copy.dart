@@ -9,7 +9,6 @@ import 'dart:io';
 
 import 'package:odova/core/export/export_stamp.dart';
 import 'package:odova/data/db/schema_readers/schema_reader.dart';
-import 'package:odova/data/db/schema_readers/schema_v1_backup.dart';
 import 'package:sqlite3/common.dart';
 
 /// The name SPEC.md §6.4.4 gives the migration copy.
@@ -40,22 +39,6 @@ enum SafetyCopyFailure {
   writeFailed,
 }
 
-/// The raw rows of [version], projected into §6's file format.
-///
-/// Keyed by version and never by "the current projection", for the same reason
-/// the readers are numbered: a v5 binary must describe a v1 database the way v1
-/// described itself. A version with no projection falls back to the raw dump —
-/// which is not importable, but is still every byte of the user's history, and
-/// losing it because a projection was forgotten would be the worse failure.
-Map<String, Object?> backupDocumentForVersion(
-  int version,
-  Map<String, Object?> raw,
-  ExportStamp stamp,
-) => switch (version) {
-  1 => schemaV1BackupDocument(raw, stamp),
-  _ => raw,
-};
-
 /// Writes the pre-migration safety copy for [database], read at [fromVersion].
 ///
 /// The file is §6's backup document, not a raw table dump. §6.4.4 calls this
@@ -83,7 +66,7 @@ Future<(File?, SafetyCopyFailure?)> writeMigrationSafetyCopy({
   final String encoded;
   try {
     encoded = const JsonEncoder.withIndent('  ').convert(
-      backupDocumentForVersion(fromVersion, reader.read(database), stamp),
+      reader.toBackupDocument(reader.read(database), stamp),
     );
   } on Object {
     // `on Object`, not `on FileSystemException`. `SELECT *` throws

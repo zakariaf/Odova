@@ -11,6 +11,8 @@
 // with a v1 file and a v5 binary, and the only way to write their safety copy
 // is a reader that still understands v1. That is why they are numbered rather
 // than being one function with an `if`.
+import 'package:odova/core/export/export_stamp.dart';
+import 'package:odova/data/db/schema_readers/schema_v1_backup.dart';
 import 'package:sqlite3/common.dart';
 
 /// Reads a database of one specific schema version into plain JSON.
@@ -26,6 +28,22 @@ abstract class SchemaReader {
 
   /// Every table this version has, in dependency order.
   List<String> get tables;
+
+  /// This version's rows as SPEC.md §6's backup document.
+  ///
+  /// ABSTRACT, so a new numbered reader cannot compile without one. The first
+  /// version put the projections in a `switch` in `migration_safety_copy.dart`
+  /// with a `_ => raw` fallback, which meant the next schema bump would ship
+  /// an escape route that `BackupReader` refuses at rung 4 — and the only
+  /// signal would be a user who cannot restore.
+  ///
+  /// Version-pinned like the reader itself: a v5 binary must describe a v1
+  /// database the way v1 described itself, so this must never reach for a
+  /// constant that moves.
+  Map<String, Object?> toBackupDocument(
+    Map<String, Object?> raw,
+    ExportStamp stamp,
+  );
 
   /// Reads the whole database.
   ///
@@ -57,6 +75,12 @@ class SchemaReaderV1 extends SchemaReader {
 
   @override
   int get version => 1;
+
+  @override
+  Map<String, Object?> toBackupDocument(
+    Map<String, Object?> raw,
+    ExportStamp stamp,
+  ) => schemaV1BackupDocument(raw, stamp);
 
   @override
   List<String> get tables => const [

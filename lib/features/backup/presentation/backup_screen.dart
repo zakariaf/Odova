@@ -13,10 +13,13 @@
 // nobody would remember to pump.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:odova/core/l10n/numerals.dart';
 import 'package:odova/features/backup/application/backup_notifier.dart';
 import 'package:odova/features/backup/domain/backup_chrome.dart';
+import 'package:odova/features/backup/domain/backup_export_service.dart';
 import 'package:odova/features/backup/domain/safety_copy_store.dart';
 import 'package:odova/l10n/date_format.dart';
+import 'package:odova/l10n/export_message.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
@@ -311,7 +314,7 @@ class _LastBackupCard extends ConsumerWidget {
                 Text(l10n.backupPreparing, style: type.body),
               ],
             )
-          else
+          else ...[
             CalmButton(
               label: l10n.backupNow,
               icon: Icons.ios_share,
@@ -324,10 +327,47 @@ class _LastBackupCard extends ConsumerWidget {
                   ? () => ref.read(backupScreenProvider.notifier).backUpNow()
                   : null,
             ),
+            // Inline, under the button, and never a dialog: §12's reasoning
+            // holds here too — the user is already having a bad day, and a
+            // dialog is a second thing to dismiss.
+            if (state.exportFailure case final failure?) ...[
+              SizedBox(height: space.s3),
+              CalmNotice(
+                icon: Icons.error_outline,
+                tone: CalmNoticeTone.warn,
+                children: [
+                  Text(
+                    exportFailureMessage(
+                      l10n,
+                      failure,
+                      size: _sizeOf(failure, tags.formats, state.numerals),
+                    ),
+                  ),
+                  if (exportFailureRetries(failure))
+                    CalmButton(
+                      label: l10n.commonRetry,
+                      variant: CalmButtonVariant.quiet,
+                      onPressed: () =>
+                          ref.read(backupScreenProvider.notifier).backUpNow(),
+                    ),
+                ],
+              ),
+            ],
+          ],
         ],
       ),
     );
   }
+}
+
+/// The figure §13's out-of-space message names.
+///
+/// Rounded UP to the next megabyte, and named: "free up some space" is advice
+/// a user cannot act on where "free up about 6 MB" is.
+String _sizeOf(ExportFailure failure, String tag, CalmNumerals numerals) {
+  if (failure is! ExportNoSpace) return '';
+  final megabytes = (failure.neededBytes / (1024 * 1024)).ceil();
+  return '${formatForDisplay(megabytes, tag, numerals: numerals)} MB';
 }
 
 class _GroupLabel extends StatelessWidget {

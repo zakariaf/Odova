@@ -23,6 +23,7 @@ import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/connection.dart';
 import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/features/backup/data/backup_wiring.dart';
+import 'package:odova/features/backup/domain/backup_export_service.dart';
 
 late Directory _dir;
 late AppDatabase _db;
@@ -101,7 +102,11 @@ void main() {
     final share = _Share();
     final container = _container(share);
 
-    final at = await container.read(backupExportProvider)();
+    final result = await container.read(backupExportProvider)();
+    final at = switch (result) {
+      Ok(:final value) => value,
+      Err(:final failure) => fail('refused with ${failure.code}'),
+    };
 
     expect(at, isNotNull);
     final file = share.offered.single;
@@ -121,12 +126,18 @@ void main() {
   test('the hand-off is stamped on the settings row', () async {
     final container = _container(_Share());
 
-    final at = await container.read(backupExportProvider)();
+    final result = await container.read(backupExportProvider)();
 
     final row = await _db
         .customSelect('SELECT last_backup_at_utc_ms AS n FROM settings;')
         .getSingle();
-    expect(row.read<int?>('n'), at);
+    expect(
+      row.read<int?>('n'),
+      switch (result) {
+        Ok(:final value) => value,
+        Err() => null,
+      },
+    );
   });
 
   test('a refused share stamps nothing', () async {
@@ -145,9 +156,11 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final at = await container.read(backupExportProvider)();
+    final result = await container.read(backupExportProvider)();
 
-    expect(at, isNull);
+    // A TYPED failure, not a null: §13 gives each of the three its own
+    // sentence and its own actions.
+    expect(result, isA<Err<int, ExportFailure>>());
     final row = await _db
         .customSelect('SELECT last_backup_at_utc_ms AS n FROM settings;')
         .getSingle();

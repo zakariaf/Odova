@@ -55,11 +55,11 @@ BackupWriter backupWriterFor(Ref ref) {
 
 /// Reads the whole store, writes it, hands it to the OS, and stamps it.
 ///
-/// Returns the hand-off instant, or null if anything refused — §13 renders
-/// each export failure inline with its own sentence and its own actions, and a
-/// thrown exception here would be a red screen on the one screen a user
-/// reaches when something has already gone wrong.
-Future<int?> exportBackup(Ref ref) async {
+/// Returns the hand-off instant, or the typed failure — §13 renders each of
+/// the three inline with its own sentence and its own actions, and a thrown
+/// exception here would be a red screen on the one screen a user reaches when
+/// something has already gone wrong.
+Future<Result<int, ExportFailure>> exportBackup(Ref ref) async {
   final store = await readStoreSnapshot(ref.read(appDatabaseProvider));
 
   final service = BackupExportService(
@@ -74,8 +74,8 @@ Future<int?> exportBackup(Ref ref) async {
   );
 
   return switch (result) {
-    Ok(:final value) => await _stamp(ref, value),
-    Err() => null,
+    Ok(:final value) => Ok(await _stamp(ref, value)),
+    Err(:final failure) => Err(failure),
   };
 }
 
@@ -98,16 +98,18 @@ Future<int> _stamp(Ref ref, int atUtcMs) async {
   return atUtcMs;
 }
 
-/// The export, as a provider the screen's actions read.
+/// The export, as one function type.
 ///
 /// A provider rather than a bare function so a test can reach it from a plain
 /// `ProviderContainer` — which is exactly how the two defects this file exists
 /// to prevent would have been caught.
-final Provider<Future<int?> Function()> backupExportProvider =
-    Provider<Future<int?> Function()>(
-      (ref) =>
-          () => exportBackup(ref),
-    );
+typedef ExportBackup = Future<Result<int, ExportFailure>> Function();
+
+/// The export, as a provider a test can reach from a bare container.
+final Provider<ExportBackup> backupExportProvider = Provider<ExportBackup>(
+  (ref) =>
+      () => exportBackup(ref),
+);
 
 /// The real `BackupActions`.
 ///
@@ -122,7 +124,7 @@ class WiredBackupActions implements BackupActions {
   final Ref _ref;
 
   @override
-  Future<int?> backUpNow() => exportBackup(_ref);
+  Future<Result<int, ExportFailure>> backUpNow() => exportBackup(_ref);
 
   // The three below need a vehicle picker and the CSV and PDF writers, which
   // are EPIC-15 tasks 15.8 and 15.9. They are no-ops rather than throws for

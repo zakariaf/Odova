@@ -9,7 +9,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/result.dart';
 import 'package:odova/features/backup/domain/backup_chrome.dart';
+import 'package:odova/features/backup/domain/backup_export_service.dart';
 import 'package:odova/features/backup/domain/safety_copy_store.dart';
 
 /// Everything the screen draws.
@@ -25,6 +27,7 @@ class BackupScreenState {
     this.lastBackupAtUtcMs,
     this.migrationFailed = false,
     this.isExporting = false,
+    this.exportFailure,
     this.calendar = CalmCalendar.gregorian,
     this.numerals = CalmNumerals.auto,
   });
@@ -53,6 +56,13 @@ class BackupScreenState {
   /// Whether an export is in flight, which replaces the button.
   final bool isExporting;
 
+  /// Why the last export did not finish, or null.
+  ///
+  /// Rendered inline under the button — §13 gives each of the three its own
+  /// sentence and its own actions, and a dialog would be a second thing to
+  /// dismiss for somebody who is already having a bad day.
+  final ExportFailure? exportFailure;
+
   /// The user's calendar, for the date.
   final CalmCalendar calendar;
 
@@ -69,7 +79,10 @@ class BackupScreenState {
     migrationFailed: migrationFailed,
   );
 
-  /// A copy with [isExporting] flipped.
+  /// A copy with [isExporting] flipped and any previous failure cleared.
+  ///
+  /// Cleared FIRST, so a retry does not sit under a failure it has already
+  /// superseded — the user would read that as failing twice.
   BackupScreenState exporting({required bool value}) => BackupScreenState(
     nowUtcMs: nowUtcMs,
     entryCount: entryCount,
@@ -79,6 +92,20 @@ class BackupScreenState {
     lastBackupAtUtcMs: lastBackupAtUtcMs,
     migrationFailed: migrationFailed,
     isExporting: value,
+    calendar: calendar,
+    numerals: numerals,
+  );
+
+  /// A copy carrying [failure], with the spinner cleared.
+  BackupScreenState failed(ExportFailure failure) => BackupScreenState(
+    nowUtcMs: nowUtcMs,
+    entryCount: entryCount,
+    entriesSinceBackup: entriesSinceBackup,
+    onDiskKilobytes: onDiskKilobytes,
+    safetyCopies: safetyCopies,
+    lastBackupAtUtcMs: lastBackupAtUtcMs,
+    migrationFailed: migrationFailed,
+    exportFailure: failure,
     calendar: calendar,
     numerals: numerals,
   );
@@ -109,8 +136,14 @@ class BackupScreenState {
 /// every test passes against a fake. EPIC-13 and EPIC-14 each shipped one of
 /// those.
 abstract class BackupActions {
-  /// Writes a backup and hands it to the OS. Returns the hand-off instant.
-  Future<int?> backUpNow();
+  /// Writes a backup and hands it to the OS.
+  ///
+  /// A `Result`, not an `int?`. The first version returned null for both "the
+  /// user dismissed the share sheet" and "the disk is full", so §13's three
+  /// export errors — each with its own sentence and its own actions — were
+  /// three classes with nowhere to be rendered, and the screen's spinner just
+  /// stopped.
+  Future<Result<int, ExportFailure>> backUpNow();
 
   /// Opens the fill-ups CSV flow.
   Future<void> exportFillUpsCsv();
@@ -144,7 +177,8 @@ class NoBackupActions implements BackupActions {
   const NoBackupActions();
 
   @override
-  Future<int?> backUpNow() async => null;
+  Future<Result<int, ExportFailure>> backUpNow() async =>
+      const Err(ExportShareRefused('unwired'));
 
   @override
   Future<void> exportFillUpsCsv() async {}
@@ -194,10 +228,13 @@ class BackupNotifier extends Notifier<BackupScreenState> {
   Future<void> backUpNow() async {
     if (state.isExporting) return;
     state = state.exporting(value: true);
-    final at = await ref.read(backupActionsProvider).backUpNow();
+    final result = await ref.read(backupActionsProvider).backUpNow();
     // Stamped on the HAND-OFF and not on a confirmed save: the OS never tells
     // us what the user did with the file.
-    state = at == null ? state.exporting(value: false) : state.exportedAt(at);
+    state = switch (result) {
+      Ok(:final value) => state.exportedAt(value),
+      Err(:final failure) => state.failed(failure),
+    };
   }
 
   /// Opens the fill-ups CSV flow.

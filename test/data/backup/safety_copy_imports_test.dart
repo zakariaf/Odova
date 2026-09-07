@@ -20,12 +20,35 @@ import 'package:odova/core/result.dart';
 import 'package:odova/data/backup/migration_safety_copy.dart';
 import 'package:odova/data/db/app_database.dart';
 import 'package:odova/data/db/connection.dart';
+import 'package:odova/data/db/schema_readers/schema_reader.dart';
 import 'package:odova/features/backup/domain/backup_reader.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../../support/export_stamp.dart';
 
 void main() {
+  test('every numbered reader carries a projection, by construction', () {
+    // `toBackupDocument` is an ABSTRACT member of `SchemaReader`, so a new
+    // numbered reader cannot compile without one. The first version put the
+    // projections in a `switch` with a `_ => raw` fallback, which meant the
+    // next schema bump would ship an escape route `BackupReader` refuses at
+    // rung 4 — and the only signal would be a user who cannot restore.
+    //
+    // Asserted over every reader this build carries rather than over v1, so
+    // it keeps meaning something when there are three.
+    for (final entry in schemaReaders.entries) {
+      final document = entry.value.toBackupDocument(
+        const {'schema_version': 1, 'tables': <String, Object?>{}},
+        kTestExportStamp,
+      );
+
+      expect(document['format'], 'odova.backup', reason: 'v${entry.key}');
+      // Its OWN version, never a constant that moves: a v5 binary writing a
+      // v1 database must stamp 1.
+      expect(document['format_version'], entry.key, reason: 'v${entry.key}');
+    }
+  });
+
   late Directory dir;
   late File dbFile;
 
