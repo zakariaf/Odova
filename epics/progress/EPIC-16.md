@@ -180,3 +180,61 @@ it is needed and therefore skips is a gate that is off.
 
 `macos-15` is free here because the repo is public. On a private repo it bills
 at ten times the Linux rate and the trade would be worth re-reading.
+
+## Task 16.5 — the cap, and two mutations that survived
+
+The headline assertion runs: five vehicles, twelve reminders each, all four
+stages — 240 candidates — and the test walks **every** rolling seven-day window
+across the whole 120-day horizon rather than sampling. Never more than two in
+any of them, never more than one on a calendar day, never more than the budget.
+
+**§4.3's three steps are ordered and the order is the design.** Coalesce, then
+prioritise, then defer. My first implementation prioritised first, and three of
+my own tests were written to match it — both were wrong. Five items due on one
+Tuesday must spend ONE slot; prioritising first spends five and throws three
+away, which is how a household with two cars goes quiet.
+
+**`compute` returns `PlannedNotification`, not `ScheduledNotification`.** The
+remaining step — title, body, deterministic id — needs the locale, and this is
+the one function that can prove §4.3. Pulling six languages of ICU into it to
+satisfy the task's signature would make the hardest rule in the epic depend on a
+string lookup. The render step is separate and thin.
+
+### Two mutations survived, and both are findings
+
+**Deleting the one-a-day guard leaves every test green.** `taken` is keyed by
+date, so a second group landing on an occupied day OVERWRITES the first rather
+than joining it — the rule is structural and the failure mode without the guard
+is a notification that vanishes silently, which no assertion about the output
+can see. The guard stays, with that written above it.
+
+**Deleting §4.3 step 4's reserved slots also leaves every test green, because
+the reserve is unreachable.** The queue is sorted by stage rank before anything
+is placed, so every overdue and every nudge has taken its slot before the first
+`early` is considered — there is no urgent item left to starve. Step 4 is the
+fix for a scheduler that places in DATE order, and §4.2.1's "recompute
+everything, always" means this one never does. Its only effect today is to leave
+up to two slots of the next four weeks unused, which makes the app quieter and
+never louder.
+
+It is KEPT rather than deleted — `SPEC.md` wins until a deliberate PR changes it
+— with the reason written in the file, and the assumption that makes it inert is
+now pinned by its own test, so a change to date-ordered placement goes red.
+**Raise as a §18 question: is step 4 wanted at all under §4.2.1's full-rebuild
+model?**
+
+### Two defects this task found in existing code
+
+**`ValueEquality` compares props element-by-element with `==`, so a nested
+collection makes every instance unequal to every other** — including an
+identical one. `PlannedNotification` held a `List` and `SchedulePreferences` a
+`Set`; both are spread now, the set sorted first because a `Set`'s iteration
+order is not part of its value. Caught by "the same inputs produce the same
+list": the scheduler was deterministic and its own output type could not say so.
+
+**`value_equality_completeness_test`'s parser then reported a false positive.**
+It read a props entry as `^\w+$` after stripping `...`, so it recognised
+`...lines` and not `...(weekend.toList()..sort())` — and reported
+`SchedulePreferences` as omitting a field it does not omit. A gate that cries
+wolf is a gate somebody deletes, so the parser now reads the first identifier
+inside a spread, with both arms tested directly.

@@ -600,15 +600,20 @@ jobs:
     # Xcode build does not fit in 25.
     timeout-minutes: 40
     steps:
+      # Contract: this job compiles the same commit the tests ran against.
       - uses: actions/checkout@v7
+      # Contract: the same pinned toolchain the app job used.
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version: ${{ needs.repo.outputs.flutter_version }}
           cache: true
+      # Contract: the same resolved version set the app job tested. The plugin
+      # list is what generates the Swift registrant this job is here to compile.
       - run: flutter pub get --enforce-lockfile
-      # Simulator, debug, unsigned. Signing material never enters CI —
-      # tools/check_release_hygiene.sh walks git log --all for exactly that
-      # reason — so a device build could not be produced here anyway, and a
-      # simulator build compiles every line of Swift in ios/Runner/.
+      # Contract: every line of Swift in ios/Runner/ compiles. Simulator,
+      # debug, unsigned — signing material never enters CI, which is why
+      # tools/check_release_hygiene.sh walks git log --all, so a device build
+      # could not be produced here anyway. A simulator build still type-checks
+      # the whole host, which is all that was missing.
       - run: flutter build ios --simulator --debug

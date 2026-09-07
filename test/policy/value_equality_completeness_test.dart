@@ -80,13 +80,34 @@ List<ValueClass> valueClassesIn(String source) {
         : propsBody
               .group(1)!
               .split(',')
-              .map((entry) => entry.replaceAll('...', '').trim())
-              .where((entry) => RegExp(r'^\w+$').hasMatch(entry))
+              .map(_fieldNamedBy)
+              .whereType<String>()
               .toSet();
 
     classes.add((name: header.group(1)!, fields: fields, props: props));
   }
   return classes;
+}
+
+/// The field a props entry covers, or null when it names none.
+///
+/// A bare `id` covers `id`. A spread covers whatever collection it spreads,
+/// and the expression may do work on the way — `...(weekend.toList()..sort())`
+/// still covers `weekend`, because every element of that list came from it.
+///
+/// Sorting inside a spread is not a curiosity: a `Set`'s iteration order is not
+/// part of its value, so spreading one unsorted would make `{sat, sun}` and
+/// `{sun, sat}` compare unequal. This parser reading only `^\w+$` is what
+/// reported `SchedulePreferences` as omitting a field it does not omit.
+String? _fieldNamedBy(String entry) {
+  final trimmed = entry.trim();
+  if (!trimmed.startsWith('...')) {
+    return RegExp(r'^\w+$').hasMatch(trimmed) ? trimmed : null;
+  }
+  // The first identifier after the spread is the collection being spread.
+  // `const` and `final` cannot appear here, so no keyword filter is needed.
+  final identifier = RegExp(r'\w+').firstMatch(trimmed.substring(3));
+  return identifier?.group(0);
 }
 
 void main() {
@@ -217,6 +238,15 @@ enum Unit {
 
     final bad = classes.last;
     expect(bad.fields.difference(bad.props), {'b'});
+  });
+
+  test('the entry parser reads both spread forms', () {
+    // Both arms, because the narrow one shipped and reported a false positive.
+    expect(_fieldNamedBy('id'), 'id');
+    expect(_fieldNamedBy(' ...lines '), 'lines');
+    expect(_fieldNamedBy('...(weekend.toList()..sort())'), 'weekend');
+    expect(_fieldNamedBy('runtimeType.toString()'), isNull);
+    expect(_fieldNamedBy(''), isNull);
   });
 
   test('a spread in props counts as covering its field', () {

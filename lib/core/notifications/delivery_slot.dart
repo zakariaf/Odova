@@ -55,8 +55,17 @@ class SchedulePreferences with ValueEquality {
   /// reminder moved to the wrong day", which they cannot.
   final Set<Weekday> weekend;
 
+  // The weekend is SORTED and spread for the same reason a list is spread in
+  // `PlannedNotification`: `==` on two distinct Sets is identity, so an
+  // unspread set makes two identical preference objects unequal. Sorted
+  // because a Set's iteration order is not part of its value, and unsorted
+  // spreading would make {sat, sun} and {sun, sat} differ.
   @override
-  List<Object?> get props => [deliveryMinutes, weekdaysOnly, weekend];
+  List<Object?> get props => [
+    deliveryMinutes,
+    weekdaysOnly,
+    ...(weekend.toList()..sort()),
+  ];
 }
 
 /// A wall-clock delivery moment.
