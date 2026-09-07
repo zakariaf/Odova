@@ -116,3 +116,14 @@
   is visible: the epic calls it the most common bug in this category, and it
   is invisible in the resulting figure. Four mutations checked, including that
   one.
+- **Task 13.7 (built; parity deferred).** `costs.fuel` — headline card, the
+  consumption line chart with its dashed average and best/worst markers, and
+  §3's "your first figure arrives at your next full fill" where a plot would
+  otherwise be blank. The reference draws a LINE, not the columns §12's prose
+  suggests; reference wins per rule 4. Consumption renders to ONE decimal
+  everywhere: a second invites the reader to compare 6.42 with 6.47 as though
+  the difference meant something, and it is noise from a hand-typed odometer
+  and a pump that rounds. The chart mirrors its AXIS and not its series, with
+  the direction applied in exactly one place — the painter's x mapping.
+  **Parity capture deferred to EPIC-18 per CLAUDE.md §6a**, along with the
+  fuel-kind selector, price chart, data-quality row and per-tank tooltip.

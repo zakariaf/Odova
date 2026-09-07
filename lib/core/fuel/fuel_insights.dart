@@ -45,6 +45,7 @@ class FuelInsights {
   const FuelInsights._({
     required this.costedFillIds,
     required this.mixedCurrencySegments,
+    this.chartPoints = const [],
     this.averageLitresPer100Km,
     this.lastLitresPer100Km,
     this.bestOccurredOn,
@@ -141,9 +142,20 @@ class FuelInsights {
         (a, b) => _perHundred(a).compareTo(_perHundred(b)),
       );
 
+    final bestId = ranked.first.toFillUpId;
+    final worstId = ranked.last.toFillUpId;
+
     return FuelInsights._(
       costedFillIds: costedIds,
       mixedCurrencySegments: mixed,
+      chartPoints: [
+        for (final s in set.segments)
+          (
+            value: _perHundred(s),
+            isBest: s.toFillUpId == bestId,
+            isWorst: s.toFillUpId == worstId,
+          ),
+      ],
       averageLitresPer100Km: totalMetres == 0
           ? null
           : totalAmount / 1000 / (totalMetres / 1000) * 100,
@@ -209,6 +221,13 @@ class FuelInsights {
 
   /// Minor units per kilometre, over the costed segments only.
   final double? costPerKmMinor;
+
+  /// Every segment's figure, OLDEST FIRST, with the best and worst marked.
+  ///
+  /// Oldest-first and never reversed: §12 mirrors the chart's AXIS under RTL
+  /// and not its series, and the one place that distinction is applied is the
+  /// painter's x mapping.
+  final List<({double value, bool isBest, bool isWorst})> chartPoints;
 
   static double _perHundred(FuelSegment segment) => segment.distance.metres == 0
       ? 0
