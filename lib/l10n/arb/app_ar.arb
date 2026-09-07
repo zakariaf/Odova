@@ -557,5 +557,6 @@
   "settingsThemeLight": "فاتح",
   "settingsThemeDark": "داكن",
   "settingsAboutRow": "حول",
-  "settingsLanguageRow": "اللغة"
+  "settingsLanguageRow": "اللغة",
+  "settingsLanguageNote": "أودوفا مترجمة إلى هذه اللغات الست. تُضبط الأرقام والتواريخ والوحدات على حدة ضمن «الوحدات والتنسيقات»."
 }

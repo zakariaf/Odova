@@ -557,5 +557,6 @@
   "settingsThemeLight": "Hell",
   "settingsThemeDark": "Dunkel",
   "settingsAboutRow": "Über",
-  "settingsLanguageRow": "Sprache"
+  "settingsLanguageRow": "Sprache",
+  "settingsLanguageNote": "Odova ist in diese sechs Sprachen übersetzt. Zahlen, Daten und Einheiten stellen Sie getrennt unter „Einheiten & Formate“ ein."
 }

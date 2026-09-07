@@ -2278,4 +2278,8 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsLanguageRow => 'زبان';
+
+  @override
+  String get settingsLanguageNote =>
+      'اودووا به این شش زبان ترجمه شده است. اعداد، تاریخ‌ها و یکاها جداگانه در «یکاها و قالب‌ها» تنظیم می‌شوند.';
 }

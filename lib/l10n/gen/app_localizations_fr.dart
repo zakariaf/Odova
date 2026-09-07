@@ -2340,4 +2340,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsLanguageRow => 'Langue';
+
+  @override
+  String get settingsLanguageNote =>
+      'Odova est traduit dans ces six langues. Les nombres, les dates et les unités se règlent séparément sous « Unités et formats ».';
 }

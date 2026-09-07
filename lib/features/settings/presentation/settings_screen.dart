@@ -107,9 +107,16 @@ class SettingsScreen extends ConsumerWidget {
               // has ended up in a language they cannot read has to find their
               // own by shape — and `System (English)` names what it resolves
               // to, live.
+              // The resolved STRINGS tag, not the formats one. They differ
+              // whenever the device is set to a seventh language: formats
+              // stay with the region — a `pt-BR` phone still groups numbers
+              // the Brazilian way — while the strings fall back to English,
+              // and `localeEndonym` throws on anything outside the six.
               value: state.language == systemLanguage
                   ? l10n.settingsLanguageSystem(
-                      localeEndonym(languageOf(tag)),
+                      localeEndonym(
+                        ref.watch(resolvedLocaleTagsProvider).strings,
+                      ),
                     )
                   : localeEndonym(state.language),
               showChevron: true,

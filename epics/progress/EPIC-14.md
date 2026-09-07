@@ -127,3 +127,37 @@ day it is, where it used to paint a placeholder that asked nothing.
 **Deferred.** The parity capture, per §6a. The app bar's bell glyph in the
 reference — §7's edge table is the authority for navigation and it declares no
 destination for it, so an undeclared edge is worse than an unexplained glyph.
+
+## Task 14.3 — `settings.language`
+
+Built `lib/features/settings/presentation/settings_language_screen.dart` and
+lifted `LanguageRowList` into `lib/ui/language/`.
+
+**The lift, and what it did NOT take with it.** EPIC-09 had already extracted
+the row list inside the first-run feature, with a note saying EPIC-14 would
+want it — so this was a move rather than a copy. What changed is the write:
+`onSelect` is now a required callback instead of a hard-wired
+`firstRunLanguageProvider.select`, because the two frames apply a language
+differently. First run commits on Continue; settings applies **on tap**, which
+§13 is emphatic about — "not on Continue, not on back: the user must see the
+result while the list is still on screen" — and goes through `SettingsWriter`
+so the write reschedules notifications. It lives in `lib/ui/` for the reason
+`lib/ui/dialogs/` does: two features draw it.
+
+**A bug the tests found in 14.2's screen.** The Settings row's `System (…)`
+parenthesis was resolving through the FORMATS tag, and `localeEndonym` throws
+on anything outside the six — so a `pt-BR` phone crashed the settings screen.
+The two tags differ exactly when the device is set to a seventh language:
+formats stay with the region, strings fall back to English.
+
+**The reschedule test needed a real database.** `pumpShell`'s `settings:`
+supplies the read stream and nothing behind it, so a `SettingsWriter` call
+against it reports `NotFound` and — correctly — never reaches the scheduler.
+Asserting the reschedule needs a row a targeted UPDATE can match, so that one
+test seeds an in-memory database. That is the shape of the EPIC-13 lesson
+applied early: a fake behind an interface proves nothing about the write.
+
+**Deferred.** The parity capture, per §6a. The LTR↔RTL cross-fade §13 asks for
+on a direction change — the rebuild is correct and instant today, and the
+transition belongs with EPIC-17's motion sweep rather than as an untested
+animation here.

@@ -557,5 +557,6 @@
   "settingsThemeLight": "Clair",
   "settingsThemeDark": "Sombre",
   "settingsAboutRow": "À propos",
-  "settingsLanguageRow": "Langue"
+  "settingsLanguageRow": "Langue",
+  "settingsLanguageNote": "Odova est traduit dans ces six langues. Les nombres, les dates et les unités se règlent séparément sous « Unités et formats »."
 }

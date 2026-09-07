@@ -2285,4 +2285,8 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get settingsLanguageRow => 'زمان';
+
+  @override
+  String get settingsLanguageNote =>
+      'ئۆدۆڤا بۆ ئەم شەش زمانە وەرگێڕدراوە. ژمارە و بەروار و یەکەکان بە جیا لە «یەکە و شێوازەکان» ڕێک دەخرێن.';
 }

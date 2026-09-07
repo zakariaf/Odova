@@ -557,5 +557,6 @@
   "settingsThemeLight": "ڕووناک",
   "settingsThemeDark": "تاریک",
   "settingsAboutRow": "دەربارە",
-  "settingsLanguageRow": "زمان"
+  "settingsLanguageRow": "زمان",
+  "settingsLanguageNote": "ئۆدۆڤا بۆ ئەم شەش زمانە وەرگێڕدراوە. ژمارە و بەروار و یەکەکان بە جیا لە «یەکە و شێوازەکان» ڕێک دەخرێن."
 }

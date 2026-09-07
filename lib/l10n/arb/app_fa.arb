@@ -557,5 +557,6 @@
   "settingsThemeLight": "روشن",
   "settingsThemeDark": "تیره",
   "settingsAboutRow": "درباره",
-  "settingsLanguageRow": "زبان"
+  "settingsLanguageRow": "زبان",
+  "settingsLanguageNote": "اودووا به این شش زبان ترجمه شده است. اعداد، تاریخ‌ها و یکاها جداگانه در «یکاها و قالب‌ها» تنظیم می‌شوند."
 }

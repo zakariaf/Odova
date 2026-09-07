@@ -2418,4 +2418,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsLanguageRow => 'اللغة';
+
+  @override
+  String get settingsLanguageNote =>
+      'أودوفا مترجمة إلى هذه اللغات الست. تُضبط الأرقام والتواريخ والوحدات على حدة ضمن «الوحدات والتنسيقات».';
 }

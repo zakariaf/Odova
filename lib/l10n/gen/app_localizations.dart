@@ -3473,6 +3473,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Language'**
   String get settingsLanguageRow;
+
+  /// The trailing paragraph on `settings.language`. Present in SETTINGS mode only — SPEC.md §8's firstRun variant omits it, because there is no Units screen to point at yet. It exists to stop a user hunting for the numeral setting in the language list, which is where they look first and where it is not.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova is translated into these six. Numbers, dates and units are set separately under Units & formats.'**
+  String get settingsLanguageNote;
 }
 
 class _AppLocalizationsDelegate
