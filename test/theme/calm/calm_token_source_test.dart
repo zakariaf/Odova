@@ -11,7 +11,8 @@
 // mirror kept by hand is a mirror that is right until the day it matters.
 //
 // It compares the DECLARED VALUES, not the usages: a widget reaching for the
-// wrong slot is `check_raw_values.sh`'s job and `rendered_text_contrast_test`'s.
+// wrong slot is `check_raw_values.sh`'s job, and the colour a widget actually
+// draws is `test/a11y/rendered_text_contrast_test.dart`'s.
 // What this pins is that `--color-ink-3` and `CalmColors.ink3` are the same
 // hex, in light and in dark, for every slot the CSS declares.
 @TestOn('vm')
@@ -41,8 +42,10 @@ Map<String, String> _declarations(String block) {
 }
 
 /// `#RRGGBB` for an opaque colour.
-String _hex(Color c) =>
-    '#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).toUpperCase().padLeft(6, '0')}';
+String _hex(Color c) {
+  final rgb = c.toARGB32() & 0xFFFFFF;
+  return '#${rgb.toRadixString(16).toUpperCase().padLeft(6, '0')}';
+}
 
 /// Which CSS property each `CalmColors` slot mirrors.
 ///
@@ -116,8 +119,9 @@ void main() {
           continue;
         }
         final inDart = _hex(entry.value(colors));
-        if (inCss != inDart)
+        if (inCss != inDart) {
           wrong.add('${entry.key}: CSS $inCss, Dart $inDart');
+        }
       }
 
       expect(
