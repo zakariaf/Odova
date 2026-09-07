@@ -74,24 +74,27 @@ typedef FormatLabels = ({
   String separator,
 });
 
-/// The three lines §13's preview shows.
+/// The two lines §13's preview shows.
+///
+/// TWO, not three: §13's prose describes three, and the reference draws
+/// `2 September 2026 · 187,412 km` over `42.8 L · €74.20 · 6.4 L/100 km`.
+/// Per epics/README.md rule 4 the reference is the authority, and it is also
+/// the better shape — the second line is one thought, "what a tankful looks
+/// like", and splitting it puts a lone consumption figure on a line of its own
+/// with nothing to compare it against.
 @immutable
 class FormatPreview {
   /// Creates a preview.
   const FormatPreview({
     required this.dateAndDistance,
-    required this.volumeAndMoney,
-    required this.consumption,
+    required this.quantities,
   });
 
-  /// `12 Mar 2026 · 142,380 km`.
+  /// `2 September 2026 · 187,412 km`.
   final String dateAndDistance;
 
-  /// `38.42 L · €68.90`.
-  final String volumeAndMoney;
-
-  /// `6.4 L/100 km`.
-  final String consumption;
+  /// `42.8 L · €74.20 · 6.4 L/100 km`.
+  final String quantities;
 }
 
 /// A fixed sample, so the preview is a golden vector rather than a clock read.
@@ -126,12 +129,17 @@ class FormatSample {
   final double consumption;
 }
 
-/// §13's fixed sample: 12 March 2026, 142,380 km, 38.42 L, 68.90, 6.4.
+/// The reference's fixed sample: 2 September 2026, 187,412 km, 42.8 L, 74.20,
+/// 6.4 L/100 km.
+///
+/// A FIXED vector and not a clock read. SPEC.md §3 makes time an argument
+/// everywhere, and a preview built from `DateTime.now()` renders differently
+/// on every frame and cannot be pinned in a test at all.
 const FormatSample kFormatSample = FormatSample(
-  isoDate: '2026-03-12',
-  distance: Distance(142_380_000),
-  volume: Volume(38_420),
-  amount: 6890,
+  isoDate: '2026-09-02',
+  distance: Distance(187_412_000),
+  volume: Volume(42_800),
+  amount: 7420,
   consumption: 6.4,
 );
 
@@ -176,10 +184,11 @@ FormatPreview buildFormatPreview({
       labels.volume,
       formatsTag,
       numerals: formats.numerals,
-      // TWO decimals on a tankful. §5's decimals table: a pump measures to a
-      // hundredth of a litre and a driver checking a receipt against the app
-      // is comparing exactly those digits.
-      decimalDigits: 2,
+      // ONE decimal, as the reference draws it — `42.8 L`, not `42.80 L`.
+      // §5's decimals table allows two on a stored quantity; the preview is
+      // showing what a FORMAT looks like, and a trailing zero there is a digit
+      // that teaches the reader nothing about their settings.
+      decimalDigits: 1,
     ),
   );
 
@@ -207,7 +216,6 @@ FormatPreview buildFormatPreview({
 
   return FormatPreview(
     dateAndDistance: join([isolate(date), distance]),
-    volumeAndMoney: join([volume, money]),
-    consumption: consumption,
+    quantities: join([volume, money, consumption]),
   );
 }

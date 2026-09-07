@@ -3392,5 +3392,129 @@
   "settingsLanguageNote": "Odova is translated into these six. Numbers, dates and units are set separately under Units & formats.",
   "@settingsLanguageNote": {
     "description": "The trailing paragraph on `settings.language`. Present in SETTINGS mode only — SPEC.md §8's firstRun variant omits it, because there is no Units screen to point at yet. It exists to stop a user hunting for the numeral setting in the language list, which is where they look first and where it is not."
+  },
+  "unitsPreviewLabel": "Preview",
+  "@unitsPreviewLabel": {
+    "description": "The label over §13's live preview."
+  },
+  "unitsGroupMeasurement": "Measurement",
+  "@unitsGroupMeasurement": {
+    "description": "The first group's header."
+  },
+  "unitsGroupDatesNumbers": "Dates and numbers",
+  "@unitsGroupDatesNumbers": {
+    "description": "The second group's header."
+  },
+  "unitsRowDistance": "Distance",
+  "@unitsRowDistance": {
+    "description": "Row 1."
+  },
+  "unitsRowVolume": "Volume",
+  "@unitsRowVolume": {
+    "description": "Row 2."
+  },
+  "unitsRowConsumption": "Consumption",
+  "@unitsRowConsumption": {
+    "description": "Row 3."
+  },
+  "unitsRowCurrency": "Currency",
+  "@unitsRowCurrency": {
+    "description": "Row 4 — a SHEET, not a push. §7 allows no branch in this app three levels deep."
+  },
+  "unitsRowCalendar": "Calendar",
+  "@unitsRowCalendar": {
+    "description": "Row 5."
+  },
+  "unitsRowNumerals": "Numerals",
+  "@unitsRowNumerals": {
+    "description": "Row 6."
+  },
+  "unitsRowFirstDay": "First day of week",
+  "@unitsRowFirstDay": {
+    "description": "Row 7."
+  },
+  "unitsDistanceKm": "Kilometres (km)",
+  "@unitsDistanceKm": {
+    "description": "The distance option, with its abbreviation so the row's value matches what the preview shows."
+  },
+  "unitsDistanceMi": "Miles (mi)",
+  "@unitsDistanceMi": {
+    "description": "The other one."
+  },
+  "unitsVolumeLitre": "Litres (L)",
+  "@unitsVolumeLitre": {
+    "description": "Litres."
+  },
+  "unitsVolumeGalUs": "US gallons",
+  "@unitsVolumeGalUs": {
+    "description": "3.785 L. Named apart from the imperial gallon because they are different UNITS: offering `gal` alone makes a British user's consumption wrong by 17%."
+  },
+  "unitsVolumeGalUk": "Imperial gallons",
+  "@unitsVolumeGalUk": {
+    "description": "4.546 L."
+  },
+  "unitsCalendarGregorian": "Gregorian",
+  "@unitsCalendarGregorian": {
+    "description": "The stored calendar, and the display calendar for five of the six locales."
+  },
+  "unitsCalendarPersian": "Jalali",
+  "@unitsCalendarPersian": {
+    "description": "Jalali / Solar Hijri. §18 has an open question about whether `ckb-IR` should default to it."
+  },
+  "unitsNumeralsAuto": "Automatic",
+  "@unitsNumeralsAuto": {
+    "description": "The locale's CLDR default."
+  },
+  "unitsNumeralsLatin": "Latin ({digits})",
+  "@unitsNumeralsLatin": {
+    "description": "The Latin numerals row. `digits` is a PLACEHOLDER and not a baked `0–9`: `arb_template_test.dart` refuses a digit in copy, correctly — a baked one cannot be shaped — and here the sample is the point of the row, so the screen supplies it already in the right block.",
+    "placeholders": {
+      "digits": {
+        "type": "String",
+        "example": "0–9"
+      }
+    }
+  },
+  "unitsNumeralsLocal": "Local ({digits})",
+  "@unitsNumeralsLocal": {
+    "description": "The locale's own digits, with a sample of them. The sample answers the question the row asks: a Persian user reading `محلی (۰–۹)` can see what they are choosing without applying it first.",
+    "placeholders": {
+      "digits": {
+        "type": "String",
+        "example": "0–9"
+      }
+    }
+  },
+  "unitsConsumptionSuggested": "Suggested for {distance} and {volume}",
+  "@unitsConsumptionSuggested": {
+    "description": "Under the consumption row when the app filled it in from the distance and volume pairing. It says WHY, because a value that changed without being touched reads as a bug.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "unitsFooter": "These change how Odova shows your records. Nothing you’ve already entered is altered.",
+  "@unitsFooter": {
+    "description": "§13's footer, verbatim in intent. Changing the currency rewrites no stored amount and applies no rate — §2 forbids a rate anywhere in this app — and a user about to switch needs to know that before they tap rather than after."
+  },
+  "unitsCurrencyRecent": "Recent",
+  "@unitsCurrencyRecent": {
+    "description": "Up to three currencies already used in the user's records, above the A–Z list."
+  },
+  "unitsCurrencyAll": "All currencies",
+  "@unitsCurrencyAll": {
+    "description": "The A–Z list's header."
+  },
+  "unitsCurrencySearch": "Search currencies",
+  "@unitsCurrencySearch": {
+    "description": "The sheet's search field. Matches on the CODE and on the localised name, so a Persian user can type `يورو`."
+  },
+  "commonSeparator": " · ",
+  "@commonSeparator": {
+    "description": "The mark that joins two facts on one line. In the ARB because WHICH mark is a translation decision — and because a `' · '` literal in Dart is exactly what `check_status_encoding.sh` was written to find. Identical in all six today, and that is a translator's finding rather than an assumption."
   }
 }

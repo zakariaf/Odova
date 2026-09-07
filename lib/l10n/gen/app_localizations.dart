@@ -3479,6 +3479,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Odova is translated into these six. Numbers, dates and units are set separately under Units & formats.'**
   String get settingsLanguageNote;
+
+  /// The label over §13's live preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get unitsPreviewLabel;
+
+  /// The first group's header.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement'**
+  String get unitsGroupMeasurement;
+
+  /// The second group's header.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates and numbers'**
+  String get unitsGroupDatesNumbers;
+
+  /// Row 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get unitsRowDistance;
+
+  /// Row 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get unitsRowVolume;
+
+  /// Row 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumption'**
+  String get unitsRowConsumption;
+
+  /// Row 4 — a SHEET, not a push. §7 allows no branch in this app three levels deep.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get unitsRowCurrency;
+
+  /// Row 5.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get unitsRowCalendar;
+
+  /// Row 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Numerals'**
+  String get unitsRowNumerals;
+
+  /// Row 7.
+  ///
+  /// In en, this message translates to:
+  /// **'First day of week'**
+  String get unitsRowFirstDay;
+
+  /// The distance option, with its abbreviation so the row's value matches what the preview shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilometres (km)'**
+  String get unitsDistanceKm;
+
+  /// The other one.
+  ///
+  /// In en, this message translates to:
+  /// **'Miles (mi)'**
+  String get unitsDistanceMi;
+
+  /// Litres.
+  ///
+  /// In en, this message translates to:
+  /// **'Litres (L)'**
+  String get unitsVolumeLitre;
+
+  /// 3.785 L. Named apart from the imperial gallon because they are different UNITS: offering `gal` alone makes a British user's consumption wrong by 17%.
+  ///
+  /// In en, this message translates to:
+  /// **'US gallons'**
+  String get unitsVolumeGalUs;
+
+  /// 4.546 L.
+  ///
+  /// In en, this message translates to:
+  /// **'Imperial gallons'**
+  String get unitsVolumeGalUk;
+
+  /// The stored calendar, and the display calendar for five of the six locales.
+  ///
+  /// In en, this message translates to:
+  /// **'Gregorian'**
+  String get unitsCalendarGregorian;
+
+  /// Jalali / Solar Hijri. §18 has an open question about whether `ckb-IR` should default to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Jalali'**
+  String get unitsCalendarPersian;
+
+  /// The locale's CLDR default.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get unitsNumeralsAuto;
+
+  /// The Latin numerals row. `digits` is a PLACEHOLDER and not a baked `0–9`: `arb_template_test.dart` refuses a digit in copy, correctly — a baked one cannot be shaped — and here the sample is the point of the row, so the screen supplies it already in the right block.
+  ///
+  /// In en, this message translates to:
+  /// **'Latin ({digits})'**
+  String unitsNumeralsLatin(String digits);
+
+  /// The locale's own digits, with a sample of them. The sample answers the question the row asks: a Persian user reading `محلی (۰–۹)` can see what they are choosing without applying it first.
+  ///
+  /// In en, this message translates to:
+  /// **'Local ({digits})'**
+  String unitsNumeralsLocal(String digits);
+
+  /// Under the consumption row when the app filled it in from the distance and volume pairing. It says WHY, because a value that changed without being touched reads as a bug.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for {distance} and {volume}'**
+  String unitsConsumptionSuggested(String distance, String volume);
+
+  /// §13's footer, verbatim in intent. Changing the currency rewrites no stored amount and applies no rate — §2 forbids a rate anywhere in this app — and a user about to switch needs to know that before they tap rather than after.
+  ///
+  /// In en, this message translates to:
+  /// **'These change how Odova shows your records. Nothing you’ve already entered is altered.'**
+  String get unitsFooter;
+
+  /// Up to three currencies already used in the user's records, above the A–Z list.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get unitsCurrencyRecent;
+
+  /// The A–Z list's header.
+  ///
+  /// In en, this message translates to:
+  /// **'All currencies'**
+  String get unitsCurrencyAll;
+
+  /// The sheet's search field. Matches on the CODE and on the localised name, so a Persian user can type `يورو`.
+  ///
+  /// In en, this message translates to:
+  /// **'Search currencies'**
+  String get unitsCurrencySearch;
+
+  /// The mark that joins two facts on one line. In the ARB because WHICH mark is a translation decision — and because a `' · '` literal in Dart is exactly what `check_status_encoding.sh` was written to find. Identical in all six today, and that is a translator's finding rather than an assumption.
+  ///
+  /// In en, this message translates to:
+  /// **' · '**
+  String get commonSeparator;
 }
 
 class _AppLocalizationsDelegate

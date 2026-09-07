@@ -203,3 +203,59 @@ and my assertion that toman display never emits it contained the literal it
 was asserting against. The gate is right to be that strict, so the test now
 asserts on the code that DOES exist — no `IRR` beside the toman word — which
 is a truer check anyway.
+
+## Task 14.5 — `settings.units` and the currency sheet
+
+Built `units_screen.dart`, `currency_sheet.dart` and `units_labels.dart`, and
+switched the estimate sheet EPIC-13 built over to `CalmSheet.show` with them.
+
+**The preview is two lines, not three.** §13's prose describes three; the
+reference draws `2 September 2026 · 187,412 km` over
+`42.8 L · €74.20 · 6.4 L/100 km`. Rule 4 makes the reference the authority and
+it is also the better shape — the second line is one thought, "what a tankful
+looks like", and splitting it strands a lone consumption figure with nothing
+to compare it against. The fixed sample moved to the reference's numbers too.
+
+**Three real bugs the tests found, all in code written this task:**
+
+1. **The pairing rule closed over stale build values.** `setVolume` asked
+   about the distance unit as it was when the row was rendered, so switching
+   to miles and then to gallons asked about (km, gal) and then (mi, L) —
+   neither of which has an answer — and the screen sat on `L/100 km` under
+   miles and gallons, which is the exact state §13 fills the row in to avoid.
+   It reads the settings back through the repository now, not through the
+   watched stream, because the stream is asynchronous and returns the row as
+   it was before the write.
+2. **"The user chose this" was inferred from a null.** When the previous
+   pairing implied nothing — miles with litres has no conventional unit — the
+   check `current != implied` was `current != null`, always true, so the app
+   concluded the user had chosen and never suggested again. `implied != null
+   && current != implied` is the honest test.
+3. **The numerals row offered no local digits to a Persian speaker on a
+   British phone.** §5 keeps formats with the region and strings with the
+   language, so that user reads Persian words and British numbers — and
+   keying the Local row on the formats tag alone offered them Latin and
+   Latin, with no way to choose Persian digits at all. It consults both tags
+   now.
+
+**And one in the test harness, worth recording.** `pumpShell`'s `locale:`
+goes straight to `OdovaApp` and bypasses `localeControllerProvider`, so a test
+that pumps `fa` gets a Persian screen whose RESOLVED tags still say `en-US`.
+Every assertion about locale-derived behaviour passed for the wrong reason
+until the device locale was overridden too.
+
+Every option row is a sheet, and so is currency: §7 allows no branch in this
+app three levels deep, and seven pushed sub-screens would put each choice a
+navigation level away from the preview that exists to explain it. The currency
+list is curated rather than all 180 ISO codes — `Currency.tryParse` still
+accepts any well-formed three letters, because a backup from another phone may
+carry one, but a picker of 180 rows would be 160 nobody has checked an amount
+against. Every three-decimal currency is in it on purpose: those are the ones
+where getting minor units wrong is a silent factor of ten.
+
+**Deferred.** The parity capture, per §6a. The sheet's `Recent` group — it
+needs the currencies present in the user's records, which is a read across
+every record table that no screen has needed yet; the A–Z list works without
+it. Search matches on the CODE only; matching a localised currency NAME needs
+a name table the app does not have, and inventing six translations of 35
+currency names is EPIC-17 work at best.

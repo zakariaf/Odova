@@ -82,30 +82,32 @@ void main() {
     final preview = _preview(tag: 'en-GB', labels: _en);
 
     expect(preview.dateAndDistance, contains('12'));
-    expect(preview.dateAndDistance, contains('142,380'));
+    expect(preview.dateAndDistance, contains('187,412'));
     expect(preview.dateAndDistance, contains('km'));
-    expect(preview.volumeAndMoney, contains('38.42'));
-    expect(preview.consumption, contains('6.4'));
+    expect(preview.quantities, contains('42.8'));
+    expect(preview.quantities, contains('6.4'));
   });
 
   test('de-DE uses its own group and decimal separators', () {
     final preview = _preview(tag: 'de-DE', labels: _en);
 
-    expect(preview.dateAndDistance, contains('142.380'));
-    expect(preview.volumeAndMoney, contains('38,42'));
+    expect(preview.dateAndDistance, contains('187.412'));
+    expect(preview.quantities, contains('42,8'));
   });
 
   test('fr-FR groups with U+202F, asserted as a codepoint', () {
     // The narrow no-break space, not "a space that looks narrow". A plain
     // U+0020 here is a line break waiting to happen between a number and its
-    // own thousands.
+    // own thousands, and the two are indistinguishable in a diff.
     final preview = _preview(tag: 'fr-FR', labels: _en);
 
-    expect(preview.dateAndDistance, contains('142 380'));
+    expect(preview.dateAndDistance, contains('187\u202F412'));
+    expect(preview.dateAndDistance, isNot(contains('187 412')));
   });
 
   test('fa with Persian digits and the Jalali calendar', () {
-    // §13's exact sample. 12 March 2026 is 21 Esfand 1404.
+    // The reference's sample under the Jalali calendar: 2 September 2026 is
+    // 11 Shahrivar 1405.
     final preview = _preview(
       tag: 'fa-IR',
       labels: _fa,
@@ -116,8 +118,8 @@ void main() {
       ),
     );
 
-    expect(preview.dateAndDistance, contains('اسفند'));
-    expect(preview.dateAndDistance, contains('۱۴۰۴'));
+    expect(preview.dateAndDistance, contains('۱۸۷٬۴۱۲'));
+    expect(preview.dateAndDistance, contains('۱۴۰۵'));
     expect(preview.dateAndDistance, contains('کیلومتر'));
   });
 
@@ -151,11 +153,7 @@ void main() {
             labels: _enLabels(numerals, tag),
           );
 
-          for (final line in [
-            preview.dateAndDistance,
-            preview.volumeAndMoney,
-            preview.consumption,
-          ]) {
+          for (final line in [preview.dateAndDistance, preview.quantities]) {
             expect(
               _blocksIn(line).length,
               lessThanOrEqualTo(1),
@@ -224,13 +222,13 @@ void main() {
       ),
     );
 
-    expect(preview.volumeAndMoney, contains('تومان'));
+    expect(preview.quantities, contains('تومان'));
     // And no ISO code beside it. The stored currency is still rials — the
     // toman is a display convention worth ten of them and not a currency —
     // and `no_currency_conversion_test.dart` keeps the non-ISO code out of
     // the tree entirely, which is why this asserts on the code that DOES
     // exist rather than naming the one that must not.
-    expect(preview.volumeAndMoney, isNot(contains('IRR')));
+    expect(preview.quantities, isNot(contains('IRR')));
   });
 
   test('the US pairing suggests mpg; an explicit choice is left alone', () {
@@ -269,6 +267,21 @@ void main() {
       isNull,
     );
   });
+
+  test(
+    'a Persian speaker on a British phone can still choose their digits',
+    () {
+      // §5 keeps FORMATS with the region and STRINGS with the language, so this
+      // user reads Persian words and British numbers. Keying the local row on
+      // the formats tag alone would offer them Latin and Latin — no way to
+      // choose Persian digits at all.
+      expect(numeralOptionsFor('en-GB', stringsTag: 'fa'), [
+        CalmNumerals.auto,
+        CalmNumerals.latin,
+        CalmNumerals.extendedArabicIndic,
+      ]);
+    },
+  );
 
   test('the numeral rows are three, and Local only where it differs', () {
     // A German user offered a "Local" row that renders the same digits as the

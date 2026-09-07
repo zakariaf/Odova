@@ -2422,4 +2422,89 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get settingsLanguageNote =>
       'أودوفا مترجمة إلى هذه اللغات الست. تُضبط الأرقام والتواريخ والوحدات على حدة ضمن «الوحدات والتنسيقات».';
+
+  @override
+  String get unitsPreviewLabel => 'معاينة';
+
+  @override
+  String get unitsGroupMeasurement => 'القياس';
+
+  @override
+  String get unitsGroupDatesNumbers => 'التواريخ والأرقام';
+
+  @override
+  String get unitsRowDistance => 'المسافة';
+
+  @override
+  String get unitsRowVolume => 'الحجم';
+
+  @override
+  String get unitsRowConsumption => 'الاستهلاك';
+
+  @override
+  String get unitsRowCurrency => 'العملة';
+
+  @override
+  String get unitsRowCalendar => 'التقويم';
+
+  @override
+  String get unitsRowNumerals => 'الأرقام';
+
+  @override
+  String get unitsRowFirstDay => 'أول أيام الأسبوع';
+
+  @override
+  String get unitsDistanceKm => 'كيلومترات (كم)';
+
+  @override
+  String get unitsDistanceMi => 'أميال (ميل)';
+
+  @override
+  String get unitsVolumeLitre => 'لترات (ل)';
+
+  @override
+  String get unitsVolumeGalUs => 'جالونات أمريكية';
+
+  @override
+  String get unitsVolumeGalUk => 'جالونات إمبراطورية';
+
+  @override
+  String get unitsCalendarGregorian => 'ميلادي';
+
+  @override
+  String get unitsCalendarPersian => 'هجري شمسي';
+
+  @override
+  String get unitsNumeralsAuto => 'تلقائي';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'لاتينية ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'محلية ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'مقترح لـ $distance و$volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'تغيّر هذه طريقة عرض سجلاتك فقط. لا يُعدَّل شيء أدخلته من قبل.';
+
+  @override
+  String get unitsCurrencyRecent => 'الأخيرة';
+
+  @override
+  String get unitsCurrencyAll => 'كل العملات';
+
+  @override
+  String get unitsCurrencySearch => 'البحث عن عملة';
+
+  @override
+  String get commonSeparator => ' · ';
 }

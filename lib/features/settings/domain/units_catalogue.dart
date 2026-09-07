@@ -30,19 +30,30 @@ const List<CalmCalendar> kCalendarOptions = CalmCalendar.values;
 
 /// The numeral rows §13 offers, over FOUR stored values.
 ///
-/// Three rows: `auto`, `latin`, and the locale's own — which is
-/// `arabicIndic` or `extendedArabicIndic` depending on where the user is.
-/// Offering both Eastern sets to everyone would ask a Persian user to choose
-/// between `۴۵۶` and `٤٥٦`, a question with no meaning outside a font table.
-List<CalmNumerals> numeralOptionsFor(String formatsTag) {
-  final local = resolveNumerals(CalmNumerals.auto, formatsTag);
+/// `auto`, `latin`, and the local set — which is `arabicIndic` or
+/// `extendedArabicIndic` depending on the user. Offering both Eastern sets to
+/// everyone would ask a Persian user to choose between `۴۵۶` and `٤٥٦`, a
+/// question with no meaning outside a font table.
+///
+/// Both tags are consulted, and the reason is a real user: §5 keeps FORMATS
+/// with the region and STRINGS with the language, so a Persian speaker on a
+/// British phone reads Persian words and British numbers. Keying the local
+/// row on the formats tag alone would offer them Latin and Latin — no way to
+/// choose Persian digits at all — and keying it on the language alone would
+/// offer an English speaker in Iran a row for a script they do not read.
+List<CalmNumerals> numeralOptionsFor(String formatsTag, {String? stringsTag}) {
+  final locals = <CalmNumerals>{
+    resolveNumerals(CalmNumerals.auto, formatsTag),
+    if (stringsTag != null) resolveNumerals(CalmNumerals.auto, stringsTag),
+  };
   return [
     CalmNumerals.auto,
     CalmNumerals.latin,
-    // Only where the locale's default is not already Latin. A German user
-    // offered a "Local" row that renders the same digits as the row above it
-    // is being asked a question with one answer.
-    if (local != CalmNumerals.latin) local,
+    // Only where a local set is not already Latin. A German user offered a
+    // "Local" row that renders the same digits as the row above it is being
+    // asked a question with one answer.
+    for (final local in locals)
+      if (local != CalmNumerals.latin) local,
   ];
 }
 

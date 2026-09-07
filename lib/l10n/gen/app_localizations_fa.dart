@@ -2282,4 +2282,89 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get settingsLanguageNote =>
       'اودووا به این شش زبان ترجمه شده است. اعداد، تاریخ‌ها و یکاها جداگانه در «یکاها و قالب‌ها» تنظیم می‌شوند.';
+
+  @override
+  String get unitsPreviewLabel => 'پیش‌نمایش';
+
+  @override
+  String get unitsGroupMeasurement => 'اندازه‌گیری';
+
+  @override
+  String get unitsGroupDatesNumbers => 'تاریخ و اعداد';
+
+  @override
+  String get unitsRowDistance => 'مسافت';
+
+  @override
+  String get unitsRowVolume => 'حجم';
+
+  @override
+  String get unitsRowConsumption => 'مصرف';
+
+  @override
+  String get unitsRowCurrency => 'واحد پول';
+
+  @override
+  String get unitsRowCalendar => 'تقویم';
+
+  @override
+  String get unitsRowNumerals => 'ارقام';
+
+  @override
+  String get unitsRowFirstDay => 'نخستین روز هفته';
+
+  @override
+  String get unitsDistanceKm => 'کیلومتر';
+
+  @override
+  String get unitsDistanceMi => 'مایل';
+
+  @override
+  String get unitsVolumeLitre => 'لیتر';
+
+  @override
+  String get unitsVolumeGalUs => 'گالن آمریکایی';
+
+  @override
+  String get unitsVolumeGalUk => 'گالن بریتانیایی';
+
+  @override
+  String get unitsCalendarGregorian => 'میلادی';
+
+  @override
+  String get unitsCalendarPersian => 'هجری شمسی';
+
+  @override
+  String get unitsNumeralsAuto => 'خودکار';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'لاتین ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'محلی ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'پیشنهادشده برای $distance و $volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'این‌ها فقط نحوهٔ نمایش سوابق شما را تغییر می‌دهند. آنچه پیش‌تر وارد کرده‌اید تغییر نمی‌کند.';
+
+  @override
+  String get unitsCurrencyRecent => 'اخیر';
+
+  @override
+  String get unitsCurrencyAll => 'همهٔ واحدهای پول';
+
+  @override
+  String get unitsCurrencySearch => 'جست‌وجوی واحد پول';
+
+  @override
+  String get commonSeparator => ' · ';
 }

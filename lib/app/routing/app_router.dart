@@ -31,6 +31,7 @@ import 'package:odova/features/reminders/ui/reminders_list_screen.dart';
 import 'package:odova/features/report/presentation/report_service_screen.dart';
 import 'package:odova/features/settings/presentation/settings_language_screen.dart';
 import 'package:odova/features/settings/presentation/settings_screen.dart';
+import 'package:odova/features/settings/presentation/units_screen.dart';
 import 'package:odova/features/trips/presentation/trips_edit_screen.dart';
 import 'package:odova/features/trips/presentation/trips_list_screen.dart';
 import 'package:odova/features/vehicles/presentation/vehicle_edit_screen.dart';
@@ -344,7 +345,7 @@ final List<StatefulShellBranch> _branches = [
             pageBuilder: (context, state) => PageKind.push.page(
               context,
               state,
-              const PlaceholderScreen(screenId: 'settings.units'),
+              const UnitsScreen(),
             ),
           ),
           GoRoute(

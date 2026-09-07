@@ -2289,4 +2289,89 @@ class AppLocalizationsCkb extends AppLocalizations {
   @override
   String get settingsLanguageNote =>
       'ئۆدۆڤا بۆ ئەم شەش زمانە وەرگێڕدراوە. ژمارە و بەروار و یەکەکان بە جیا لە «یەکە و شێوازەکان» ڕێک دەخرێن.';
+
+  @override
+  String get unitsPreviewLabel => 'پێشبینین';
+
+  @override
+  String get unitsGroupMeasurement => 'پێوانە';
+
+  @override
+  String get unitsGroupDatesNumbers => 'بەروار و ژمارەکان';
+
+  @override
+  String get unitsRowDistance => 'دووری';
+
+  @override
+  String get unitsRowVolume => 'قەبارە';
+
+  @override
+  String get unitsRowConsumption => 'خەرجکردن';
+
+  @override
+  String get unitsRowCurrency => 'دراو';
+
+  @override
+  String get unitsRowCalendar => 'ڕۆژژمێر';
+
+  @override
+  String get unitsRowNumerals => 'ژمارەکان';
+
+  @override
+  String get unitsRowFirstDay => 'یەکەم ڕۆژی هەفتە';
+
+  @override
+  String get unitsDistanceKm => 'کیلۆمەتر';
+
+  @override
+  String get unitsDistanceMi => 'مایل';
+
+  @override
+  String get unitsVolumeLitre => 'لیتر';
+
+  @override
+  String get unitsVolumeGalUs => 'گالۆنی ئەمریکی';
+
+  @override
+  String get unitsVolumeGalUk => 'گالۆنی بریتانی';
+
+  @override
+  String get unitsCalendarGregorian => 'زایینی';
+
+  @override
+  String get unitsCalendarPersian => 'کۆچی هەتاوی';
+
+  @override
+  String get unitsNumeralsAuto => 'خۆکار';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'لاتینی ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'خۆجێیی ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'پێشنیارکراو بۆ $distance و $volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'ئەمانە تەنها شێوەی پیشاندانی تۆمارەکانت دەگۆڕن. هیچ شتێک کە پێشتر تۆمارت کردووە ناگۆڕدرێت.';
+
+  @override
+  String get unitsCurrencyRecent => 'دواییەکان';
+
+  @override
+  String get unitsCurrencyAll => 'هەموو دراوەکان';
+
+  @override
+  String get unitsCurrencySearch => 'گەڕان بۆ دراو';
+
+  @override
+  String get commonSeparator => ' · ';
 }

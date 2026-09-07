@@ -194,3 +194,17 @@ String formatMinutesOfDay(int minutes, String formatsTag) {
     resolveNumerals(CalmNumerals.auto, formatsTag),
   );
 }
+
+/// An ISO-8601 weekday's name — `Monday`, `Montag`, `دوشنبه`.
+///
+/// From ICU's own symbols rather than from our ARB files, which is the
+/// opposite of the rule for UNIT labels and for the same reason: §5 says unit
+/// abbreviations are ours because ICU's are wrong for us, and weekday names
+/// are exactly what ICU is authoritative about. Six translations of "Monday"
+/// would be six chances to disagree with the calendar the user is looking at.
+String weekdayName(String formatsTag, int isoWeekday) {
+  // 2000-01-03 was a Monday, so `+ isoWeekday - 1` lands on the day asked for
+  // without any arithmetic about where a week starts.
+  final day = DateTime.utc(2000, 1, 2 + isoWeekday);
+  return DateFormat.EEEE(dateFormatLocale(formatsTag)).format(day);
+}

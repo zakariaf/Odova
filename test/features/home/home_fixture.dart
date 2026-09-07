@@ -98,15 +98,23 @@ Vehicle homeVehicle(
 );
 
 /// Settings pointing at [active], in kilometres and euros.
-AppSettings homeSettings(VehicleId? active, {int? lastBackupAtUtcMs}) =>
-    AppSettings(
-      schemaVersion: 1,
-      currencyDefault: Currency.tryParse('EUR')!,
-      activeVehicleId: active,
-      lastBackupAtUtcMs: lastBackupAtUtcMs,
-      createdAtUtcMs: 1000,
-      updatedAtUtcMs: 1000,
-    );
+AppSettings homeSettings(
+  VehicleId? active, {
+  int? lastBackupAtUtcMs,
+  // The stored LANGUAGE, which is what `localeControllerProvider` reads —
+  // `pumpShell`'s `locale:` sets the app's starting locale and the setting
+  // then wins. A test that pumps `fa` and leaves this at `system` gets an
+  // English screen, which is how a Persian assertion quietly checks nothing.
+  String language = 'system',
+}) => AppSettings(
+  schemaVersion: 1,
+  currencyDefault: Currency.tryParse('EUR')!,
+  activeVehicleId: active,
+  language: language,
+  lastBackupAtUtcMs: lastBackupAtUtcMs,
+  createdAtUtcMs: 1000,
+  updatedAtUtcMs: 1000,
+);
 
 /// A tracked, active item called [label].
 ServiceItem homeItem(

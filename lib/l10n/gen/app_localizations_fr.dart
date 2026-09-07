@@ -2344,4 +2344,89 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get settingsLanguageNote =>
       'Odova est traduit dans ces six langues. Les nombres, les dates et les unités se règlent séparément sous « Unités et formats ».';
+
+  @override
+  String get unitsPreviewLabel => 'Aperçu';
+
+  @override
+  String get unitsGroupMeasurement => 'Mesures';
+
+  @override
+  String get unitsGroupDatesNumbers => 'Dates et nombres';
+
+  @override
+  String get unitsRowDistance => 'Distance';
+
+  @override
+  String get unitsRowVolume => 'Volume';
+
+  @override
+  String get unitsRowConsumption => 'Consommation';
+
+  @override
+  String get unitsRowCurrency => 'Devise';
+
+  @override
+  String get unitsRowCalendar => 'Calendrier';
+
+  @override
+  String get unitsRowNumerals => 'Chiffres';
+
+  @override
+  String get unitsRowFirstDay => 'Premier jour de la semaine';
+
+  @override
+  String get unitsDistanceKm => 'Kilomètres (km)';
+
+  @override
+  String get unitsDistanceMi => 'Milles (mi)';
+
+  @override
+  String get unitsVolumeLitre => 'Litres (L)';
+
+  @override
+  String get unitsVolumeGalUs => 'Gallons US';
+
+  @override
+  String get unitsVolumeGalUk => 'Gallons impériaux';
+
+  @override
+  String get unitsCalendarGregorian => 'Grégorien';
+
+  @override
+  String get unitsCalendarPersian => 'Jalali';
+
+  @override
+  String get unitsNumeralsAuto => 'Automatique';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'Latins ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'Locaux ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'Suggéré pour $distance et $volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'Ces réglages changent seulement l’affichage. Rien de ce que vous avez déjà saisi n’est modifié.';
+
+  @override
+  String get unitsCurrencyRecent => 'Récentes';
+
+  @override
+  String get unitsCurrencyAll => 'Toutes les devises';
+
+  @override
+  String get unitsCurrencySearch => 'Rechercher une devise';
+
+  @override
+  String get commonSeparator => ' · ';
 }

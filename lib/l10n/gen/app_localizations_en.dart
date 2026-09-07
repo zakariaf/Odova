@@ -2286,4 +2286,89 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsLanguageNote =>
       'Odova is translated into these six. Numbers, dates and units are set separately under Units & formats.';
+
+  @override
+  String get unitsPreviewLabel => 'Preview';
+
+  @override
+  String get unitsGroupMeasurement => 'Measurement';
+
+  @override
+  String get unitsGroupDatesNumbers => 'Dates and numbers';
+
+  @override
+  String get unitsRowDistance => 'Distance';
+
+  @override
+  String get unitsRowVolume => 'Volume';
+
+  @override
+  String get unitsRowConsumption => 'Consumption';
+
+  @override
+  String get unitsRowCurrency => 'Currency';
+
+  @override
+  String get unitsRowCalendar => 'Calendar';
+
+  @override
+  String get unitsRowNumerals => 'Numerals';
+
+  @override
+  String get unitsRowFirstDay => 'First day of week';
+
+  @override
+  String get unitsDistanceKm => 'Kilometres (km)';
+
+  @override
+  String get unitsDistanceMi => 'Miles (mi)';
+
+  @override
+  String get unitsVolumeLitre => 'Litres (L)';
+
+  @override
+  String get unitsVolumeGalUs => 'US gallons';
+
+  @override
+  String get unitsVolumeGalUk => 'Imperial gallons';
+
+  @override
+  String get unitsCalendarGregorian => 'Gregorian';
+
+  @override
+  String get unitsCalendarPersian => 'Jalali';
+
+  @override
+  String get unitsNumeralsAuto => 'Automatic';
+
+  @override
+  String unitsNumeralsLatin(String digits) {
+    return 'Latin ($digits)';
+  }
+
+  @override
+  String unitsNumeralsLocal(String digits) {
+    return 'Local ($digits)';
+  }
+
+  @override
+  String unitsConsumptionSuggested(String distance, String volume) {
+    return 'Suggested for $distance and $volume';
+  }
+
+  @override
+  String get unitsFooter =>
+      'These change how Odova shows your records. Nothing you’ve already entered is altered.';
+
+  @override
+  String get unitsCurrencyRecent => 'Recent';
+
+  @override
+  String get unitsCurrencyAll => 'All currencies';
+
+  @override
+  String get unitsCurrencySearch => 'Search currencies';
+
+  @override
+  String get commonSeparator => ' · ';
 }
