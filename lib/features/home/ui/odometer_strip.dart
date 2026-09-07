@@ -11,6 +11,7 @@
 // word "estimated" — not a lighter grey and not a smaller font, both of which a
 // user in bright sunlight with a contrast setting on will never see.
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:odova/core/due/estimate_odometer.dart';
 import 'package:odova/core/units/distance.dart';
 import 'package:odova/core/units/estimate_rounding.dart';
@@ -24,6 +25,7 @@ import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_icon_tile.dart';
 import 'package:odova/ui/calm/calm_pressable.dart';
 import 'package:odova/ui/calm/calm_surface.dart';
+import 'package:odova/ui/calm/estimated_value_semantics.dart';
 
 /// The strip's height.
 ///
@@ -72,31 +74,61 @@ class EstimatedValueText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // ROUNDED only when projected. A reading is a fact and rounding a fact
-    // would make it look like an estimate — the opposite error, same rule.
-    final shown = isProjected
-        ? roundEstimateForDisplay(Distance(estimate.metres), unit)
-        : Distance(estimate.metres);
-    // Through `formatDistanceFigure`: the mark goes inside the isolate, and it
-    // comes from an ARB key rather than a Dart `'~'`, for the three reasons
-    // that function states.
-    final figure = formatDistanceFigure(
+    final figure = odometerFigure(
       l10n,
       formatsTag,
-      shown,
+      estimate,
       unit,
-      estimated: isProjected,
+      marked: isProjected,
     );
 
-    return Semantics(
-      // The word "estimated" in the label, because the `~` is a glyph a screen
-      // reader may or may not announce and §9 requires the distinction to
-      // survive every stripping.
-      label: isProjected ? l10n.commonEstimatedA11y(figure) : null,
-      excludeSemantics: isProjected,
+    return EstimatedValueSemantics(
+      // The PLAIN figure, without its mark. This built its label from the
+      // marked string, so the announcement was "estimated, about ~187,400 km" —
+      // the glyph read aloud inside the sentence that exists to replace it.
+      //
+      // It was inert while the strip's root wrapper swallowed it, and this
+      // widget is shared with the glance tiles and the cards: the next caller
+      // outside that wrapper would have reintroduced it with no test in the
+      // way. Fixed at the source rather than at the one call site that hid it.
+      value: odometerFigure(
+        l10n,
+        formatsTag,
+        estimate,
+        unit,
+        marked: false,
+      ),
+      announce: isProjected,
       child: Text(figure, style: style),
     );
   }
+}
+
+/// The odometer as a string, with or without its estimate mark.
+///
+/// ONE derivation. The rounding rule — round a projection, never a reading,
+/// because rounding a fact makes it look like an estimate — lived in two places
+/// after the announcement moved to the strip's root, and the copy that drifts
+/// is the one only screen-reader users hear.
+String odometerFigure(
+  AppLocalizations l10n,
+  String formatsTag,
+  OdometerEstimate estimate,
+  DistanceUnit unit, {
+  required bool marked,
+}) {
+  final projected = estimate.projection == OdometerProjection.projected;
+  return formatDistanceFigure(
+    l10n,
+    formatsTag,
+    // ROUNDED only when projected. A reading is a fact and rounding a fact
+    // would make it look like an estimate — the opposite error, same rule.
+    projected
+        ? roundEstimateForDisplay(Distance(estimate.metres), unit)
+        : Distance(estimate.metres),
+    unit,
+    estimated: marked && projected,
+  );
 }
 
 /// The full-width odometer strip.
@@ -147,18 +179,15 @@ class OdometerStrip extends StatelessWidget {
       formatsTag: formatsTag,
       style: type.title,
     );
-    // The figure WITHOUT its mark, for the announcement. `estimated: false`
-    // here is not a claim that the value is entered — it asks for the plain
-    // body, because the label says "estimated" in words a few lines below and
-    // reading the `~` as well would say it twice, once unintelligibly.
-    final figureText = formatDistanceFigure(
+    // The figure WITHOUT its mark, for the announcement: the label says
+    // "estimated" in words, and reading the `~` as well would say it twice,
+    // once unintelligibly.
+    final figureText = odometerFigure(
       l10n,
       formatsTag,
-      estimate.projection == OdometerProjection.projected
-          ? roundEstimateForDisplay(Distance(estimate.metres), unit)
-          : Distance(estimate.metres),
+      estimate,
       unit,
-      estimated: false,
+      marked: false,
     );
 
     // The WHOLE strip announces one sentence, built here rather than left to a
@@ -179,6 +208,21 @@ class OdometerStrip extends StatelessWidget {
       label: _announcement(l10n, figureText),
       excludeSemantics: true,
       onTap: onTap,
+      // The popover, restored. `excludeSemantics` above collapses the whole
+      // strip into one node — which is what a reader wants for the SENTENCE,
+      // and which also deleted the inner `CalmPressable` that opens §9's
+      // "why is this a guess" popover. One node with one tap action meant a
+      // TalkBack user who double-tapped got the odometer entry modal, and the
+      // EXPLANATION for the guess existed for sighted users only.
+      //
+      // A custom action rather than a second node: the one-utterance win is
+      // the reason the wrapper exists, and a second node would undo it.
+      customSemanticsActions: estimated
+          ? {
+              CustomSemanticsAction(label: l10n.homeExplainEstimateA11y):
+                  onTapValue,
+            }
+          : null,
       child: CalmPressable(
         onTap: onTap,
         borderRadius: shapes.radiusLg,

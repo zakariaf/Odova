@@ -45,7 +45,6 @@ class ChartSummary with ValueEquality {
     required this.last,
     required this.lowest,
     required this.highest,
-    required this.trend,
   });
 
   /// How many points are plotted.
@@ -65,10 +64,29 @@ class ChartSummary with ValueEquality {
   final double highest;
 
   /// Which way it is going.
-  final SeriesTrend trend;
+  ///
+  /// DERIVED, not stored. It is a function of [first], [last], [lowest] and
+  /// [highest], and a constructor argument is a second place it can be set —
+  /// which is the shape SPEC.md §2 forbids everywhere else in this app ("a
+  /// stored due date survives an import and is then wrong forever"). A summary
+  /// built by hand with `up` on a falling series would announce the opposite of
+  /// what the chart draws, to the one user who cannot check.
+  SeriesTrend get trend {
+    final span = highest - lowest;
+    final change = last - first;
+
+    // Measured against the SPAN of the series rather than against the first
+    // value. A 0.2 change is enormous on a series that moves by 0.3 and
+    // nothing on one that moves by 4, and the fraction of the first value says
+    // neither.
+    if (span == 0 || change.abs() < span * kTrendNoiseFraction) {
+      return SeriesTrend.flat;
+    }
+    return change < 0 ? SeriesTrend.down : SeriesTrend.up;
+  }
 
   @override
-  List<Object?> get props => [count, first, last, lowest, highest, trend];
+  List<Object?> get props => [count, first, last, lowest, highest];
 }
 
 /// Anything below this fraction of the range is noise, not a trend.
@@ -95,22 +113,11 @@ ChartSummary? summariseSeries(List<double> values) {
     if (v > highest) highest = v;
   }
 
-  final span = highest - lowest;
-  final change = values.last - values.first;
-
-  // Measured against the SPAN of the series rather than against the first
-  // value. A 0.2 change is enormous on a series that moves by 0.3 and nothing
-  // on one that moves by 4, and the fraction of the first value says neither.
-  final trend = span == 0 || change.abs() < span * kTrendNoiseFraction
-      ? SeriesTrend.flat
-      : (change < 0 ? SeriesTrend.down : SeriesTrend.up);
-
   return ChartSummary(
     count: values.length,
     first: values.first,
     last: values.last,
     lowest: lowest,
     highest: highest,
-    trend: trend,
   );
 }

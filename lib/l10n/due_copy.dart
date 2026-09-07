@@ -122,6 +122,14 @@ String remindersStatusLine(
   DistanceUnit unit,
 ) => switch (assessment.state) {
   DueState.ok => dueLeadTimeLine(l10n, formatsTag, assessment, unit),
+  // The same QUESTION `_endText` gives a row with no assessment at all, and
+  // for the same reason: §9's drawing says a tracked item the app cannot date
+  // gets the question rather than a blank. [dueStatusLine] returns '' for
+  // `unknown` because Home collapses that state into its own card and never
+  // asks — but `reminders.list` DOES ask, and an empty end column left the row
+  // announcing its title and a coloured dot. A state carried by hue alone is
+  // WCAG 1.4.1, and it is the state whose whole meaning is "we do not know".
+  DueState.unknown => l10n.remindersWhenLastDone,
   _ => dueStatusLine(l10n, formatsTag, assessment, unit),
 };
 

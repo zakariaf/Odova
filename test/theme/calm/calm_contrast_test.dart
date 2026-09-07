@@ -60,8 +60,9 @@ final _surfaces = <String, Color Function(CalmColors)>{
 ///
 /// Its NON-exempt use is the row disclosure chevron, which arrived with
 /// EPIC-03 task 3.3 exactly as this file predicted it would. A chevron is a
-/// non-text graphic, so it is declared below at the 3:1 floor and it fails
-/// there — see [knownContrastExceptions]. The chart axis label, the other
+/// non-text graphic, so it is declared below at the 3:1 floor, where it now
+/// PASSES — EPIC-17 task 17.2 lightened the dark slot and the exception list
+/// emptied. The chart axis label, the other
 /// predicted use, reaches the slot through `chartAxisInk` and is already
 /// declared as text.
 final _inks = <String, Color Function(CalmColors)>{
@@ -353,13 +354,20 @@ void main() {
   });
 
   test('ink4 is reachable only from its declared call sites', () {
-    // #AC9C8B is 2.60:1 on surface — below even the 3:1 non-text floor. The
-    // slot is not banned outright any more, because the design does place it
-    // on the chevron; it is ALLOWLISTED, so the file that adds the next use
-    // has to come here and say what the use is and which SC exempts it.
-    // Comment lines stripped — EPIC-03's CalmField will want to write
-    // "/// Never [CalmColors.ink4] here" above its placeholder colour, and
-    // that sentence is the point.
+    // `ink4` is the lightest ink there is, and every use of it is a claim
+    // that SC 1.4.3 exempts the text or that the 3:1 graphic floor is the
+    // right one. It is ALLOWLISTED rather than banned, so the file that adds
+    // the next use has to come here and say which of those two it is.
+    //
+    // That is not theory. EPIC-17 moved `--color-ink-3` in the CSS, the
+    // palette and 116 reference PNGs, and `CalmField` went on drawing its
+    // PLACEHOLDER in ink4 at 4.23:1 for a day — a live SC 1.4.3 failure that
+    // every token-level test passed straight over. The list below is now one
+    // line shorter in what it claims for that file, and
+    // `test/a11y/rendered_text_contrast_test.dart` measures the pixel.
+    //
+    // Comment lines stripped, because "/// Never [CalmColors.ink4] here" is a
+    // sentence a call site should be able to write.
     final callSites = dartFilesUnder('lib')
         .where((f) => !f.path.startsWith('lib/theme/calm/'))
         .where(
@@ -376,13 +384,13 @@ void main() {
       callSites,
       {
         // The disclosure chevron — a non-text graphic, declared above and
-        // failing at 2.60:1. Deferred to EPIC-17 with ink3.
+        // now passing the 3:1 floor after EPIC-17 task 17.2.
         'lib/ui/calm/calm_list_row.dart',
         // Disabled button text, which SC 1.4.3 exempts outright.
         'lib/ui/calm/calm_button.dart',
-        // TWO uses, and only one is exempt. Disabled field text is SC 1.4.3
-        // exempt like the button's; the PLACEHOLDER is not, and it fails at
-        // the same 2.60 / 2.23 the chevron does — see the ink4 pairs above.
+        // Disabled field text, SC 1.4.3 exempt like the button's. The
+        // PLACEHOLDER used to be here too and was NOT exempt — a placeholder
+        // is text — so it moved to `ink3` in EPIC-17 task 17.2.
         'lib/ui/calm/calm_field.dart',
         // `.modal-head__action.is-disabled` — disabled text, SC 1.4.3 exempt.
         // SPEC.md §10 forbids a disabled Save on the five log.* forms; the

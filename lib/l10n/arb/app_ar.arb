@@ -211,6 +211,7 @@
   "homeDurationWeeks": "{n, plural, zero{{nText} أسبوع} one{أسبوع واحد} two{أسبوعان} few{{nText} أسابيع} many{{nText} أسبوعًا} other{{nText} أسبوع}}",
   "homeDurationMonths": "{n, plural, zero{{nText} شهر} one{شهر واحد} two{شهران} few{{nText} أشهر} many{{nText} شهرًا} other{{nText} شهر}}",
   "homeEnteredOn": "أُدخِل {date}",
+  "homeExplainEstimateA11y": "شرح هذا التقدير",
   "homeEstimatedFrom": "تقدير من نحو {rate} يوميًا منذ {date}.",
   "homeEstimateExpired": "قراءتك الأخيرة قديمة جدًا، لذا توقّفت أودوفا عن التقدير. أدخِل ما يظهر على العدّاد الآن.",
   "homeConsumptionPending": "يصل أول رقم استهلاك عند تعبئة الخزان بالكامل في المرّة القادمة.",

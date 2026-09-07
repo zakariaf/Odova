@@ -334,6 +334,12 @@ jobs:
       # grammatical. TalkBack, VoiceOver, Switch Access, the three native RTL
       # reads and the colour-vision simulation are human work, and none of them
       # has been done.
+      #
+      # These tests run a SECOND time in the full `flutter test` below, and the
+      # duplication is deliberate: it costs about two seconds, and it is what
+      # puts "the §17 accessibility gate" in the checks list as its own red X.
+      # §17 calls this a release blocker, and a release blocker buried inside a
+      # 900-test run is one nobody reads the name of.
       - name: the §17 accessibility gate
         run: flutter test test/a11y/ test/policy/
 

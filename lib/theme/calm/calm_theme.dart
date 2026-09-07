@@ -28,7 +28,7 @@ const calmColorsLight = CalmColors(
   divider: CalmPalette.bark89,
   ink: CalmPalette.bark27,
   ink2: CalmPalette.bark43,
-  ink3: CalmPalette.bark48,
+  ink3: CalmPalette.bark49,
   ink4: CalmPalette.bark55,
   inkInverse: CalmPalette.bark99,
   brand: CalmPalette.clay48,
@@ -38,7 +38,7 @@ const calmColorsLight = CalmColors(
   onBrand: CalmPalette.clay98,
   danger: CalmPalette.ember51,
   dangerTint: CalmPalette.ember92,
-  focus: CalmPalette.amber51,
+  focus: CalmPalette.amber52,
   scrim: Color.fromRGBO(44, 34, 26, 0.44), // --scrim
   sheen: Color.fromRGBO(
     255,
@@ -52,7 +52,7 @@ const calmColorsLight = CalmColors(
   chart4: CalmPalette.slate57,
   chart5: CalmPalette.plum52,
   chartGrid: CalmPalette.bark88,
-  chartAxisInk: CalmPalette.bark48,
+  chartAxisInk: CalmPalette.bark49,
   chartPlot: CalmPalette.sand99,
   overdue: CalmRamp(
     base: CalmPalette.terracotta57,

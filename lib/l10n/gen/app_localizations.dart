@@ -1383,6 +1383,12 @@ abstract class AppLocalizations {
   /// **'entered {date}'**
   String homeEnteredOn(String date);
 
+  /// The screen-reader action that opens the estimate popover. SPEC.md §9 says tapping an estimated value opens a transient popover — the strip announces as ONE node, so the popover has no node of its own and a custom action is how a TalkBack or VoiceOver user reaches it. A VERB, because a screen reader reads it after “actions available”.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain this estimate'**
+  String get homeExplainEstimateA11y;
+
   /// The popover behind an estimated value. §9 allows exactly one sentence and one action, and no percentage, no bar and no tier name — "the tilde and the word 'about' are the whole vocabulary".
   ///
   /// In en, this message translates to:

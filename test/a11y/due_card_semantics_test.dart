@@ -13,7 +13,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/theme/calm/calm_status.dart';
 import 'package:odova/ui/calm/calm_due_card.dart';
@@ -38,37 +37,6 @@ CalmDueView view({
   progress: 0.7,
 );
 
-List<String> labels(WidgetTester tester) {
-  final out = <String>[];
-  void walk(SemanticsNode node) {
-    if (node.label.isNotEmpty) out.add(node.label);
-    node.visitChildren((child) {
-      walk(child);
-      return true;
-    });
-  }
-
-  // `ensureSemantics` FIRST. Without a live handle the semantics tree is not
-  // built at all, so a walk finds nothing and the test reports "announces
-  // nothing" for a widget that announces perfectly well. A harness that fails
-  // for its own reasons is worse than one that does not run.
-  final handle = tester.ensureSemantics();
-  // `pipelineOwner`, not `rootPipelineOwner`. The newer one's `semanticsOwner`
-  // is NULL in a widget test even with a live handle, so a walk from it finds
-  // nothing and reports "this widget announces nothing" for one that announces
-  // perfectly well. That false negative is worse than no sweep: it sends
-  // somebody to fix a screen that was already correct, and it would have
-  // reported every screen in the app as broken.
-  //
-  // Deprecated in favour of interacting with SemanticsBinding, which has no
-  // equivalent whole-tree read. Revisit when it does.
-  // ignore: deprecated_member_use
-  final root = tester.binding.pipelineOwner.semanticsOwner?.rootSemanticsNode;
-  if (root != null) walk(root);
-  handle.dispose();
-  return out;
-}
-
 Future<void> pumpCard(WidgetTester tester, CalmDueView v) => pumpA11y(
   tester,
   const A11yCase(),
@@ -85,7 +53,7 @@ Future<void> pumpCard(WidgetTester tester, CalmDueView v) => pumpA11y(
 void main() {
   testWidgets('announces the item, its state and its anchor', (tester) async {
     await pumpCard(tester, view());
-    final said = labels(tester).join(' | ');
+    final said = spokenLabels(tester).join(' | ');
 
     expect(said, contains('Oil and filter'));
     expect(said, contains('Due now'), reason: 'the state, in words');
@@ -100,7 +68,7 @@ void main() {
     await pumpCard(tester, view());
 
     expect(
-      labels(tester).where((l) => l.trim().isNotEmpty),
+      spokenLabels(tester).where((l) => l.trim().isNotEmpty),
       isNotEmpty,
       reason: 'the card announced nothing at all',
     );
@@ -119,7 +87,7 @@ void main() {
         view(state: state, statusLine: 'state is ${state.name}'),
       );
       expect(
-        labels(tester).join(' | '),
+        spokenLabels(tester).join(' | '),
         contains(state.name),
         reason: '${state.name} is not in the announcement',
       );
@@ -140,7 +108,7 @@ void main() {
         snoozeLine: 'Snoozed until 12 October',
       ),
     );
-    final said = labels(tester).join(' | ');
+    final said = spokenLabels(tester).join(' | ');
 
     expect(said, contains('Overdue by 2 weeks'));
     expect(said, contains('Snoozed until 12 October'));
@@ -154,7 +122,7 @@ void main() {
     // rule the real error will never be measured — so it must never be implied
     // by a number, including one only a screen reader hears.
     await pumpCard(tester, view());
-    final said = labels(tester).join(' | ').toLowerCase();
+    final said = spokenLabels(tester).join(' | ').toLowerCase();
 
     for (final banned in ['measured', 'assumed', 'confidence', '%']) {
       expect(said, isNot(contains(banned)), reason: banned);

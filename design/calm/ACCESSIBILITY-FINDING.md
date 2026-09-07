@@ -144,7 +144,13 @@ Seven values moved. Four of them are failures this document does not describe.
 | `--chart-axis-ink` | dark | `#9C8B79` | `#B0A18F` | follows ink-3 | 4.5 (13px text) |
 
 `--color-focus` in dark (`#D6A874`, worst 5.85) already cleared and did not move.
-Placeholders now point at the corrected `--color-ink-3`, per §2 above.
+Placeholders now point at the corrected `--color-ink-3`, per §2 above — in the
+CSS **and** in `CalmField`. That sentence was true of the stylesheet alone for a
+day: `odova.css`, `calm_palette.dart` and 116 re-shot reference PNGs all agreed,
+and the widget that draws the pixel went on passing `colors.ink4` to `hintStyle`
+at 4.23:1 light and 4.14:1 dark. No token test could see it, because the token
+was right. `test/a11y/rendered_text_contrast_test.dart` reads the colour off the
+`RenderParagraph` instead, so the claim above is now measured where it is drawn.
 
 ### What this document did not say
 

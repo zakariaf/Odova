@@ -7,31 +7,10 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/ui/calm/chart_alternative.dart';
 
 import '../support/a11y_harness.dart';
-
-List<String> spoken(WidgetTester tester) {
-  final out = <String>[];
-  void walk(SemanticsNode node) {
-    if (node.label.isNotEmpty) out.add(node.label);
-    node.visitChildren((child) {
-      walk(child);
-      return true;
-    });
-  }
-
-  final handle = tester.ensureSemantics();
-  // `pipelineOwner`, not `rootPipelineOwner` — see a11y_harness.dart.
-  //
-  // ignore: deprecated_member_use
-  final root = tester.binding.pipelineOwner.semanticsOwner?.rootSemanticsNode;
-  if (root != null) walk(root);
-  handle.dispose();
-  return out;
-}
 
 void main() {
   group('the chart', () {
@@ -53,7 +32,7 @@ void main() {
         ),
       );
 
-      expect(spoken(tester), anyElement(contains('trending down')));
+      expect(spokenLabels(tester), anyElement(contains('trending down')));
       expect(opened, 0);
     });
 
@@ -73,7 +52,7 @@ void main() {
         ),
       );
 
-      expect(spoken(tester), isNot(anyElement(contains('7.1 6.9'))));
+      expect(spokenLabels(tester), isNot(anyElement(contains('7.1 6.9'))));
     });
 
     testWidgets('the whole painted area is the target, not just the ink', (
@@ -132,7 +111,7 @@ void main() {
         ),
       );
 
-      final said = spoken(tester);
+      final said = spokenLabels(tester);
       expect(said, anyElement(contains('Month: October')));
       expect(said, anyElement(contains('Consumption: 6.4 l/100 km')));
     });
@@ -149,7 +128,7 @@ void main() {
         ),
       );
 
-      expect(spoken(tester), isNot(anyElement(equals('6.4'))));
+      expect(spokenLabels(tester), isNot(anyElement(equals('6.4'))));
     });
   });
 }

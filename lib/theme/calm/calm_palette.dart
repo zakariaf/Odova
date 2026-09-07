@@ -75,7 +75,7 @@ abstract final class CalmPalette {
   /// Light `--color-ink-3`, `--chart-axis-ink`. Darkened from `#8B7B6C` in
   /// EPIC-17 task 17.2 — it was `color:` in 47 CSS rules at 3.02–3.99:1,
   /// the single biggest accessibility defect in the palette.
-  static const bark48 = Color(0xFF6B5F53);
+  static const bark49 = Color(0xFF6B5F53);
 
   /// Dark `--color-ink-3`, `--chart-axis-ink`. Lightened from `#9C8B79` in
   /// EPIC-17 task 17.2. The finding document reports ink-3 as a light-theme
@@ -330,8 +330,7 @@ abstract final class CalmPalette {
   /// Light `--color-focus`. Darkened from `#A8794F` in EPIC-17 task 17.2:
   /// 2.82:1 on `surface-3` is under SC 1.4.11's 3:1 for a focus indicator, so
   /// a control inside a warm container got a ring the user could not see.
-  ///.
-  static const amber51 = Color(0xFF8A5F3A);
+  static const amber52 = Color(0xFF8A5F3A);
 
   /// Dark `--color-focus`.
   static const amber76 = Color(0xFFD6A874);

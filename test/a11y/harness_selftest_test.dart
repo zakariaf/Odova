@@ -223,4 +223,129 @@ void main() {
       expect(a11yMatrix.where((c) => c.boldText), hasLength(12));
     });
   });
+
+  testWidgets('an icon under Semantics(excludeSemantics:) is not a failure', (
+    tester,
+  ) async {
+    // The false red this gate shipped with. `Semantics(excludeSemantics: true)`
+    // is a FLAG on the render object, not an `ExcludeSemantics` widget, so the
+    // ancestor-by-type search missed it and reported a chevron that contributes
+    // no semantics node at all. `OdometerStrip` has exactly that shape, and
+    // EPIC-18 adding `home` to the screen sweep is when it would have gone red
+    // on correct code.
+    await pumpA11y(
+      tester,
+      const A11yCase(),
+      Center(
+        child: Semantics(
+          label: 'the whole row, spoken once',
+          button: true,
+          excludeSemantics: true,
+          child: const Icon(Icons.chevron_right),
+        ),
+      ),
+    );
+
+    expectEverythingLabelled(tester);
+  });
+
+  // ---- the 48pt floor, and the harness that enforces it ----
+
+  testWidgets('a 24pt target fails', (tester) async {
+    await pumpA11y(
+      tester,
+      const A11yCase(),
+      // CENTRED. A bare SizedBox is stretched by the scaffold, so the
+      // semantics node is the full viewport and the assertion passes on a
+      // target that is genuinely 24pt on screen.
+      Center(
+        child: Semantics(
+          label: 'Delete',
+          button: true,
+          child: GestureDetector(
+            onTap: () {},
+            child: const SizedBox(width: 24, height: 24),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(expectTapTargets(tester), throwsA(isA<TestFailure>()));
+  });
+
+  testWidgets('a 48pt target passes', (tester) async {
+    await pumpA11y(
+      tester,
+      const A11yCase(),
+      Center(
+        child: Semantics(
+          label: 'Delete',
+          button: true,
+          child: GestureDetector(
+            onTap: () {},
+            child: const SizedBox(width: 48, height: 48),
+          ),
+        ),
+      ),
+    );
+
+    await expectTapTargets(tester);
+  });
+
+  testWidgets('a wide but short target still fails', (tester) async {
+    // Height and width are both floors, not an area. A 60x18 link is easy to
+    // hit horizontally and easy to miss vertically, and vertical is the axis a
+    // thumb is worst at.
+    await pumpA11y(
+      tester,
+      const A11yCase(),
+      Center(
+        child: Semantics(
+          label: 'Terms of use',
+          button: true,
+          child: GestureDetector(
+            onTap: () {},
+            child: const SizedBox(width: 60, height: 18),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(expectTapTargets(tester), throwsA(isA<TestFailure>()));
+  });
+
+  testWidgets('and an undersized target under an excluding wrapper does NOT', (
+    tester,
+  ) async {
+    // The blind spot, asserted rather than described. Flutter's guideline
+    // measures nodes carrying `SemanticsAction.tap`; `excludeSemantics: true`
+    // deletes the small node and leaves the wrapper's own rect, so a 12x12
+    // control inside one passes. Both shapes this epic introduced are large
+    // enough that nothing is hidden today.
+    //
+    // It asserts the CURRENT behaviour on purpose. The day a hit-test-region
+    // walk lands in EPIC-18 this test goes red, and its removal is the record
+    // that the gap closed — where a comment would have gone on describing a
+    // blind spot that no longer exists.
+    await pumpA11y(
+      tester,
+      const A11yCase(),
+      Center(
+        child: Semantics(
+          label: 'Delete',
+          button: true,
+          // NO `onTap:` on the wrapper — that is the whole shape. With one,
+          // the wrapper carries the tap action, its own rect is measured, and
+          // the guideline catches the 12x12 correctly.
+          excludeSemantics: true,
+          child: GestureDetector(
+            onTap: () {},
+            child: const SizedBox(width: 12, height: 12),
+          ),
+        ),
+      ),
+    );
+
+    await expectTapTargets(tester);
+  });
 }

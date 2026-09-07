@@ -964,6 +964,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get homeExplainEstimateA11y => 'Diese Schätzung erklären';
+
+  @override
   String homeEstimatedFrom(String rate, String date) {
     return 'Geschätzt aus etwa $rate pro Tag seit $date.';
   }

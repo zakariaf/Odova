@@ -34,6 +34,7 @@ class EstimatedValueSemantics extends StatelessWidget {
   const EstimatedValueSemantics({
     required this.value,
     required this.child,
+    this.announce = true,
     super.key,
   });
 
@@ -43,21 +44,21 @@ class EstimatedValueSemantics extends StatelessWidget {
   /// The visible widget, which carries the `~`.
   final Widget child;
 
+  /// Whether this value IS an estimate.
+  ///
+  /// False passes the child through untouched rather than announcing a reading
+  /// as a guess — the opposite error, and the same rule. §9: an expired
+  /// estimate shows the reading itself with no mark, so it is not announced as
+  /// one either.
+  final bool announce;
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    if (!announce) return child;
     return Semantics(
-      label: l10n.commonEstimatedA11y(value),
+      label: AppLocalizations.of(context).commonEstimatedA11y(value),
       excludeSemantics: true,
       child: child,
     );
   }
 }
-
-/// The sentence itself, for a caller that already owns a `Semantics`.
-///
-/// A screen with one merged announcement — a due card reads as a single node —
-/// cannot nest another `Semantics` inside it without splitting the node in two.
-/// It builds its whole sentence and needs this piece as a string.
-String estimatedValueLabel(AppLocalizations l10n, String value) =>
-    l10n.commonEstimatedA11y(value);

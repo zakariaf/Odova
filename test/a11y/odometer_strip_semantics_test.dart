@@ -7,6 +7,7 @@
 @TestOn('vm')
 library;
 
+import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/domain/enums.dart';
@@ -64,10 +65,53 @@ void main() {
     );
 
     expect(
-      _allLabels(tester),
+      spokenLabels(tester),
       everyElement(isNot(contains('~'))),
       reason: 'the mark is visual; the label says it in words',
     );
+  });
+
+  group('EstimatedValueText on its own, which is how the tiles use it', () {
+    // The strip's root `Semantics` swallows this widget's own announcement, so
+    // every assertion above passes whatever it says. A mutation putting the
+    // MARKED figure back into its label survived the whole file — and this
+    // widget's doc says it is "shared by the strip, the glance tiles and the
+    // cards", where nothing swallows anything.
+    //
+    // So it is pumped standalone here, which is the shape the next caller has.
+    testWidgets('announces the estimate WITHOUT its tilde', (tester) async {
+      await pumpA11y(
+        tester,
+        const A11yCase(),
+        Center(
+          child: EstimatedValueText(
+            estimate: estimate(projected: true),
+            unit: DistanceUnit.km,
+            formatsTag: 'en',
+          ),
+        ),
+      );
+
+      final said = spokenLabels(tester);
+      expect(said, anyElement(contains('estimated')));
+      expect(said, everyElement(isNot(contains('~'))));
+    });
+
+    testWidgets('announces an entered reading as itself', (tester) async {
+      await pumpA11y(
+        tester,
+        const A11yCase(),
+        Center(
+          child: EstimatedValueText(
+            estimate: estimate(projected: false),
+            unit: DistanceUnit.km,
+            formatsTag: 'en',
+          ),
+        ),
+      );
+
+      expect(spokenLabels(tester), everyElement(isNot(contains('estimated'))));
+    });
   });
 
   testWidgets('an ENTERED reading is not announced as an estimate', (
@@ -87,43 +131,69 @@ void main() {
       ),
     );
 
-    expect(_allLabels(tester), everyElement(isNot(contains('estimated'))));
+    expect(spokenLabels(tester), everyElement(isNot(contains('estimated'))));
   });
-}
 
-/// Every label in the tree, which is what a screen reader walks.
-///
-/// From the ROOT rather than from the widget's own node: a `CalmPressable`
-/// inside the strip is its own button and therefore its own semantics node, so
-/// asking the strip's node for its descendants misses exactly the part that
-/// carries the estimate. A reader does not care which node a label hangs off.
-List<String> _allLabels(WidgetTester tester) {
-  final out = <String>[];
-  void walk(SemanticsNode node) {
-    if (node.label.isNotEmpty) out.add(node.label);
-    node.visitChildren((child) {
-      walk(child);
-      return true;
-    });
-  }
+  testWidgets('the estimate popover is reachable without sight', (
+    tester,
+  ) async {
+    // The half of §9 the one-utterance wrapper deleted. `excludeSemantics` on
+    // the root collapses the strip to a single node, which is what a reader
+    // wants for the sentence — and it took the inner `CalmPressable` with it,
+    // so a TalkBack user who double-tapped the strip got the odometer entry
+    // modal and the EXPLANATION for the guess existed for sighted users only.
+    var explained = 0;
+    var entered = 0;
+    await pumpA11y(
+      tester,
+      const A11yCase(),
+      OdometerStrip(
+        estimate: estimate(projected: true),
+        unit: DistanceUnit.km,
+        formatsTag: 'en',
+        onTap: () => entered++,
+        onTapValue: () => explained++,
+      ),
+    );
 
-  // `ensureSemantics` FIRST. Without a live handle the semantics tree is not
-  // built at all, so a walk finds nothing and the test reports "announces
-  // nothing" for a widget that announces perfectly well. A harness that fails
-  // for its own reasons is worse than one that does not run.
-  final handle = tester.ensureSemantics();
-  // `pipelineOwner`, not `rootPipelineOwner`. The newer one's `semanticsOwner`
-  // is NULL in a widget test even with a live handle, so a walk from it finds
-  // nothing and reports "this widget announces nothing" for one that announces
-  // perfectly well. That false negative is worse than no sweep: it sends
-  // somebody to fix a screen that was already correct, and it would have
-  // reported every screen in the app as broken.
-  //
-  // Deprecated in favour of interacting with SemanticsBinding, which has no
-  // equivalent whole-tree read. Revisit when it does.
-  // ignore: deprecated_member_use
-  final root = tester.binding.pipelineOwner.semanticsOwner?.rootSemanticsNode;
-  if (root != null) walk(root);
-  handle.dispose();
-  return out;
+    final node = tester.semantics.find(find.byType(OdometerStrip));
+    final actions =
+        node.getSemanticsData().customSemanticsActionIds ?? const [];
+    expect(
+      actions,
+      hasLength(1),
+      reason: 'no custom action, so the popover has no way in',
+    );
+
+    final action = CustomSemanticsAction.getAction(actions.first)!;
+    expect(action.label, isNotEmpty);
+
+    performCustomAction(tester, node, actions.first);
+    await tester.pump();
+
+    expect(explained, 1, reason: 'the action did not open the popover');
+    expect(entered, 0, reason: 'it opened the entry modal instead');
+  });
+
+  testWidgets('an entered reading offers no popover action', (tester) async {
+    // §9: a plain reading has nothing to explain. An action a reader is
+    // offered and that opens a sentence about a guess that was never made is
+    // the same defect pointed the other way.
+    await pumpA11y(
+      tester,
+      const A11yCase(),
+      OdometerStrip(
+        estimate: estimate(projected: false),
+        unit: DistanceUnit.km,
+        formatsTag: 'en',
+        onTap: () {},
+        onTapValue: () {},
+      ),
+    );
+
+    final data = tester.semantics
+        .find(find.byType(OdometerStrip))
+        .getSemanticsData();
+    expect(data.customSemanticsActionIds ?? const [], isEmpty);
+  });
 }

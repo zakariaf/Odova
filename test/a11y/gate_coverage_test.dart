@@ -23,6 +23,14 @@ import 'package:flutter_test/flutter_test.dart';
 /// One row of §17's gate, and what stands behind it.
 typedef GateRow = ({String rule, String coveredBy, String? notCovered});
 
+/// How many of the nine rows are wholly covered today.
+///
+/// A named floor rather than a literal in the assertion, because the number is
+/// the CLAIM this file makes and a literal three lines into a test body is a
+/// number nobody reviews. It goes up when a row's `notCovered` becomes null,
+/// and the assertion below refuses to let it go down.
+const kFullyCoveredRows = 3;
+
 /// The nine rules §17's gate states, in its order.
 const _gate = <GateRow>[
   (
@@ -64,12 +72,15 @@ const _gate = <GateRow>[
   (
     rule: 'Both charts have a non-visual alternative',
     coveredBy:
-        'test/a11y/chart_summary_test.dart — the summary is computed '
+        'test/a11y/chart_summary_test.dart and '
+        'test/a11y/chart_alternative_test.dart — the summary is computed '
         'from the plotted series, so the sentence and the painting cannot '
-        'drift apart',
+        'drift apart, and the table behind the control announces each cell '
+        'with its column',
     notCovered:
-        'the accessible DATA TABLE behind one control is not built, '
-        'and neither chart is wired to the summary yet',
+        'NEITHER chart is wired to it. ChartAlternative has no caller '
+        "in lib/ outside its own test, so §17's row is satisfied by a "
+        'component and not by a screen — EPIC-18',
   ),
   (
     rule: 'Save in the log modal is reachable one-handed',
@@ -90,7 +101,9 @@ const _gate = <GateRow>[
     coveredBy:
         'the focus ring now clears SC 1.4.11 at 4.11:1 '
         '(test/theme/calm/calm_contrast_test.dart)',
-    notCovered: 'traversal ORDER is untested — EPIC-17 task 17.8',
+    notCovered:
+        'test/a11y/traversal_order_test.dart pumps a synthetic form, '
+        'so it pins framework behaviour rather than any Odova screen',
   ),
 ];
 
@@ -134,7 +147,7 @@ void main() {
     final covered = _gate.where((r) => r.notCovered == null).length;
     expect(
       covered,
-      greaterThanOrEqualTo(3),
+      greaterThanOrEqualTo(kFullyCoveredRows),
       reason: 'coverage went backwards',
     );
 

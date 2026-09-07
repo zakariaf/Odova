@@ -14,41 +14,9 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/a11y_harness.dart';
-
-/// Every focusable label, in the order assistive tech will visit them.
-List<String> traversal(WidgetTester tester) {
-  final out = <String>[];
-  void walk(SemanticsNode node) {
-    final data = node.getSemanticsData();
-    if (data.label.isNotEmpty &&
-        (data.hasAction(SemanticsAction.tap) ||
-            data.flagsCollection.isButton ||
-            data.flagsCollection.isTextField)) {
-      out.add(data.label);
-    }
-    // `debugListChildrenInOrder` gives the platform's traversal order, which
-    // is NOT construction order — construction order is what a developer wrote,
-    // and the whole point of this file is that direction changes what the user
-    // gets. Falls back to `visitChildren` if the debug list is unavailable, and
-    // says so rather than silently asserting the wrong order.
-    node
-        .debugListChildrenInOrder(DebugSemanticsDumpOrder.traversalOrder)
-        .forEach(walk);
-  }
-
-  final handle = tester.ensureSemantics();
-  // `pipelineOwner`, not `rootPipelineOwner` — see a11y_harness.dart.
-  //
-  // ignore: deprecated_member_use
-  final root = tester.binding.pipelineOwner.semanticsOwner?.rootSemanticsNode;
-  if (root != null) walk(root);
-  handle.dispose();
-  return out;
-}
 
 Widget form() => Column(
   mainAxisAlignment: MainAxisAlignment.center,
@@ -86,7 +54,7 @@ void main() {
   testWidgets('left to right in an LTR locale', (tester) async {
     await pumpA11y(tester, const A11yCase(), form());
 
-    expect(traversal(tester), ['Odometer', 'Cancel', 'Save']);
+    expect(focusableLabels(tester), ['Odometer', 'Cancel', 'Save']);
   });
 
   testWidgets('LOGICAL order is preserved in Arabic, not reversed', (
@@ -105,7 +73,7 @@ void main() {
     // then "fixing" the framework to match it.
     await pumpA11y(tester, const A11yCase(locale: Locale('ar')), form());
 
-    expect(traversal(tester), ['Odometer', 'Cancel', 'Save']);
+    expect(focusableLabels(tester), ['Odometer', 'Cancel', 'Save']);
   });
 
   testWidgets('and the first action really is at the start edge in both', (
@@ -135,7 +103,7 @@ void main() {
     // saves an empty form.
     for (final locale in [const Locale('en'), const Locale('ar')]) {
       await pumpA11y(tester, A11yCase(locale: locale), form());
-      final order = traversal(tester);
+      final order = focusableLabels(tester);
 
       expect(
         order.indexOf('Odometer'),

@@ -211,6 +211,7 @@
   "homeDurationWeeks": "{n, plural, one{{nText} Woche} other{{nText} Wochen}}",
   "homeDurationMonths": "{n, plural, one{{nText} Monat} other{{nText} Monate}}",
   "homeEnteredOn": "erfasst {date}",
+  "homeExplainEstimateA11y": "Diese Schätzung erklären",
   "homeEstimatedFrom": "Geschätzt aus etwa {rate} pro Tag seit {date}.",
   "homeEstimateExpired": "Ihr letzter Stand ist zu alt, daher schätzt Odova nicht mehr. Geben Sie ein, was das Display jetzt zeigt.",
   "homeConsumptionPending": "Ihr erster Verbrauchswert kommt beim nächsten Volltanken.",

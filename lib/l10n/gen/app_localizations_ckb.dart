@@ -961,6 +961,9 @@ class AppLocalizationsCkb extends AppLocalizations {
   }
 
   @override
+  String get homeExplainEstimateA11y => 'ڕوونکردنەوەی ئەم خەمڵاندنە';
+
+  @override
   String homeEstimatedFrom(String rate, String date) {
     return 'خەمڵێنراو لە نزیکەی $rate ڕۆژانە لە $dateەوە.';
   }

@@ -87,35 +87,54 @@ class ChartDataTable extends StatelessWidget {
   /// One list per row, each the same length as [columnHeaders].
   final List<List<String>> rows;
 
+  /// One row as `header: cell, header: cell`.
+  ///
+  /// A header past the end is `?` rather than a dropped cell: in release, where
+  /// the assert above is compiled out, a ragged row must still announce every
+  /// value it holds. Announcing "?: 6.4" is a visible defect; announcing
+  /// nothing is an invisible one.
+  String _labelFor(List<String> row) => [
+    for (var i = 0; i < row.length; i++)
+      '${i < columnHeaders.length ? columnHeaders[i] : '?'}: ${row[i]}',
+  ].join(', ');
+
   @override
-  Widget build(BuildContext context) => Semantics(
-    container: true,
-    explicitChildNodes: true,
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final row in rows)
-          Semantics(
-            container: true,
-            // Each CELL announces its own column, so a reader landing on a row
-            // hears "October, 6.4 litres per 100 kilometres" rather than a
-            // number whose meaning was two swipes ago. A table read as a flat
-            // run of values is a table nobody can use.
-            label: [
-              for (var i = 0; i < row.length && i < columnHeaders.length; i++)
-                '${columnHeaders[i]}: ${row[i]}',
-            ].join(', '),
-            excludeSemantics: true,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  for (final cell in row) Expanded(child: Text(cell)),
-                ],
+  Widget build(BuildContext context) {
+    // A ragged row is a caller bug, and the version that clamped the loop to
+    // `columnHeaders.length` DROPPED the extra cells — data missing from the
+    // one representation a screen-reader user has, with nothing to notice. An
+    // assert fails the caller's test instead of quietly shortening the table.
+    assert(
+      rows.every((r) => r.length == columnHeaders.length),
+      'a row has a different number of cells than there are column headers, '
+      'so the table would announce fewer values than the chart plots',
+    );
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final row in rows)
+            Semantics(
+              container: true,
+              // Each CELL announces its own column, so a reader landing on
+              // a row hears "October, 6.4 litres per 100 kilometres" rather
+              // than a number whose meaning was two swipes ago. A table read
+              // as a flat run of values is a table nobody can use.
+              label: _labelFor(row),
+              excludeSemantics: true,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    for (final cell in row) Expanded(child: Text(cell)),
+                  ],
+                ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
