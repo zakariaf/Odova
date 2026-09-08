@@ -108,6 +108,7 @@ Future<ProviderContainer> _pump(
   late ProviderContainer container;
   await pumpApp(
     tester,
+    stubSettings: false,
     // Opened as a ROUTE, not pumped as the root. Half of what this sheet does
     // is DISMISS, and a sheet that is the whole tree has nothing to pop.
     Builder(

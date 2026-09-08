@@ -10,6 +10,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/file_picker.dart';
+import 'package:odova/core/domain/models/settings.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/first_run/presentation/first_run_language_screen.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
@@ -36,6 +38,13 @@ Future<void> captureFirstrunLanguage(
         // provider that throws when read is a provider that must be stated
         // even so.
         filePickerProvider.overrideWithValue(() async => null),
+        // `LocaleController` reads the stored language now, so the capture has
+        // to supply the row it reads. Without it the real stream looks for a
+        // database, finds none, and leaves a pending timer that fails
+        // whichever capture runs next.
+        settingsProvider.overrideWith(
+          (ref) => const Stream<AppSettings?>.empty(),
+        ),
       ],
       child: const FirstRunLanguageScreen(),
     ),

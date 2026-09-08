@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +11,7 @@ import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/app_router.dart';
 import 'package:odova/app/routing/launch_gate.dart';
+import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/data/repositories/providers.dart';
 
 /// Pumps [child] inside everything a real Odova screen sits in.
@@ -51,6 +51,18 @@ Future<void> pumpApp(
   Locale? locale,
   ThemeMode themeMode = ThemeMode.light,
   List<Override> overrides = const [],
+  // Defaulted, and a NAMED parameter rather than something a caller adds to
+  // `overrides`: Riverpod refuses two overrides of one provider in a scope, so
+  // a test that needed its own settings row could not simply pass another.
+  //
+  // It exists because `LocaleController` reads the stored language now. It used
+  // to return `systemLanguage` unconditionally — which is why tapping a
+  // language on a device did nothing — and the moment it started watching the
+  // row, every `pumpApp` mount subscribed to a stream with no database behind
+  // it and left a pending timer at teardown. That failure lands on the NEXT
+  // test, which is the worst place for it.
+  AppSettings? settings,
+  bool stubSettings = true,
   TextScaler? textScaler,
   bool? boldText,
   bool? accessibleNavigation,
@@ -64,7 +76,11 @@ Future<void> pumpApp(
 
   await tester.pumpWidget(
     ProviderScope(
-      overrides: overrides,
+      overrides: [
+        if (stubSettings)
+          settingsProvider.overrideWith((ref) => Stream.value(settings)),
+        ...overrides,
+      ],
       retry: noProviderRetry,
       // The MediaQuery sits ABOVE the app, not inside it: MaterialApp inserts
       // none of its own, so this is the nearest ancestor and it wins. It is

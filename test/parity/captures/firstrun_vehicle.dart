@@ -15,7 +15,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/file_picker.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/domain/enums.dart';
+import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/vehicles/annual_band.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/features/first_run/first_run_vehicle_notifier.dart';
 import 'package:odova/features/first_run/presentation/first_run_vehicle_screen.dart';
 import 'package:odova/l10n/locale_controller.dart';
@@ -64,6 +66,12 @@ Future<void> captureFirstrunVehicle(
           Clock.fixed(DateTime.utc(2026, 9, 4)),
         ),
         filePickerProvider.overrideWithValue(() async => null),
+        // `LocaleController` reads the stored language now; without the row
+        // the real stream reaches for a database that is not here and
+        // leaves a pending timer at teardown.
+        settingsProvider.overrideWith(
+          (ref) => const Stream<AppSettings?>.empty(),
+        ),
         firstRunVehicleProvider.overrideWith(_ArtboardDraft.new),
       ],
       child: const FirstRunVehicleScreen(),

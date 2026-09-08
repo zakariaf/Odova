@@ -146,6 +146,7 @@ Future<void> _pump(
 
   await pumpApp(
     tester,
+    stubSettings: false,
     const VehiclesScreen(),
     locale: locale,
     overrides: <Override>[

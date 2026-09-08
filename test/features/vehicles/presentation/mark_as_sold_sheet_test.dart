@@ -26,6 +26,7 @@ Future<List<MarkAsSoldResult?>> _open(WidgetTester tester) async {
   final captured = <MarkAsSoldResult?>[];
   await pumpApp(
     tester,
+    stubSettings: false,
     Builder(
       builder: (context) => Center(
         child: TextButton(
