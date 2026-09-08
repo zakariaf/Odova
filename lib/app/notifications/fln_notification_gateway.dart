@@ -260,7 +260,7 @@ class FlnPermissionPort implements NotificationPermissionPort {
 Future<FlutterLocalNotificationsPlugin?> initializeNotifications() async {
   try {
     final plugin = FlutterLocalNotificationsPlugin();
-    final ready = await plugin.initialize(
+    await plugin.initialize(
       const InitializationSettings(
         // The launcher icon, which every Flutter Android project has. A named
         // asset would be one more thing to keep in step with the manifest.
@@ -275,7 +275,28 @@ Future<FlutterLocalNotificationsPlugin?> initializeNotifications() async {
         ),
       ),
     );
-    return (ready ?? false) ? plugin : null;
+    // The RETURN VALUE IS IGNORED ON PURPOSE, and reading it cost this app
+    // notifications on iOS entirely.
+    //
+    // `initialize` answers a different question on each platform. Android
+    // returns whether the plugin set itself up. **Darwin returns whether
+    // permissions were granted** — and three lines above this, all three
+    // `request*Permission` flags are deliberately `false`, because §4.6 asks
+    // after its own pre-prompt rather than on the first frame of a first
+    // launch. So on iOS `initialize` returned `false` every time, by design,
+    // and `(ready ?? false) ? plugin : null` read that as a failure.
+    //
+    // The consequence was the whole feature: `bootstrap()` overrode neither
+    // provider, both fell back to their inert defaults, and on iOS the app
+    // could not ask for permission, could not schedule a reminder, and showed
+    // §13's `neverAsked` card for ever. "I'm clicking Turn on Reminders and
+    // nothing happens" is exactly what that looks like.
+    //
+    // A THROW is still a failure and still returns null — §6.4 forbids cold
+    // launch dying over a reminder. `ready` is logged nowhere and gated on
+    // nowhere, because on one of the two platforms it does not mean what the
+    // name says.
+    return plugin;
   } on Object {
     return null;
   }
