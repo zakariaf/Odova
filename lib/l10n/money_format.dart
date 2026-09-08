@@ -18,6 +18,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/money/currency.dart';
 import 'package:odova/core/money/money.dart';
 import 'package:odova/l10n/number_format.dart';
 
@@ -129,3 +130,26 @@ const tomanLabel = 'تومان';
 
 bool _usesArabicScript(String formatsTag) =>
     const {'fa', 'ar', 'ckb'}.contains(languageOf(formatsTag));
+
+/// The symbol [currency] is written with, for [formatsTag].
+///
+/// A field AFFIX needs the symbol on its own, without an amount attached —
+/// `log.fillup`'s Price/L and Total, `log.service`'s Cost, `log.expense`'s
+/// Amount. Every one of those shipped as a bare number: a user typed 2500 into
+/// Cost with nothing on screen saying whether that was euros, dollars or
+/// rials, on an app whose whole point is that it holds several currencies and
+/// never sums across them.
+///
+/// It resolves through the same `NumberFormat.simpleCurrency` the amounts do,
+/// and applies SPEC.md §5's Arabic-script overrides, so the affix and the
+/// figure beside it can never disagree about what `$` means.
+String currencySymbolFor(Currency currency, String formatsTag) {
+  final format = NumberFormat.simpleCurrency(
+    locale: numberFormatLocale(formatsTag),
+    name: currency.code,
+  );
+  final ours = arabicScriptCurrencySymbols[currency.code];
+  return (ours != null && _usesArabicScript(formatsTag))
+      ? ours
+      : format.currencySymbol;
+}

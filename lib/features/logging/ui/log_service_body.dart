@@ -36,6 +36,7 @@ class LogServiceBody extends StatelessWidget {
     required this.onAddOther,
     required this.onTotalChanged,
     required this.onSplitChanged,
+    required this.moneySymbol,
     super.key,
     this.costError,
   });
@@ -86,6 +87,14 @@ class LogServiceBody extends StatelessWidget {
   TextEditingController _sumController(ServiceCostModel cost) =>
       TextEditingController(text: cost.sum);
 
+  /// The active currency's symbol, drawn as the money fields' affix.
+  ///
+  /// Every money field shipped as a bare number. §10's artboard draws `€` on
+  /// `log.fillup`'s Price/L and Total, and the app drew one only on the litres
+  /// field — so a figure typed into Cost or Amount said nothing about which of
+  /// the currencies this app holds it was in.
+  final String moneySymbol;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -127,6 +136,8 @@ class LogServiceBody extends StatelessWidget {
         Text(l10n.logServiceTickResets),
         CalmField(
           label: l10n.logServiceCostLabel,
+          affix: Text(moneySymbol),
+          affixExtent: kCalmCompactAffixExtent,
           // Under a split the field shows the SUM, not whatever was typed
           // before the switch was turned on. §10 and `service_cost_model.dart`
           // both say "Total is read-only and EQUALS the sum"; disabling the

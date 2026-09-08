@@ -26,6 +26,7 @@ class LogExpenseBody extends StatelessWidget {
     required this.onAmountChanged,
     required this.onLabelChanged,
     required this.onRefundChanged,
+    required this.moneySymbol,
     super.key,
     this.amountError,
     this.labelError,
@@ -74,6 +75,14 @@ class LogExpenseBody extends StatelessWidget {
   /// The category chips' message.
   final String? categoryError;
 
+  /// The active currency's symbol, drawn as the money fields' affix.
+  ///
+  /// Every money field shipped as a bare number. §10's artboard draws `€` on
+  /// `log.fillup`'s Price/L and Total, and the app drew one only on the litres
+  /// field — so a figure typed into Cost or Amount said nothing about which of
+  /// the currencies this app holds it was in.
+  final String moneySymbol;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -110,6 +119,8 @@ class LogExpenseBody extends StatelessWidget {
           ),
         CalmField(
           label: l10n.logExpenseAmountLabel,
+          affix: Text(moneySymbol),
+          affixExtent: kCalmCompactAffixExtent,
           controller: amountController,
           numeric: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
