@@ -39,7 +39,9 @@ class _CountingRebuilder implements ScheduleRebuilder {
 class _FixedPermission implements NotificationPermissionPort {
   _FixedPermission(this.value);
 
-  final NotificationPermission value;
+  /// MUTABLE, so a test can change what the OS says between two reads — which
+  /// is exactly what a user does when they leave for Settings and come back.
+  NotificationPermission value;
 
   /// How many times the screen asked the OS.
   ///
@@ -335,6 +337,29 @@ void _routingTests() {
 
     expect(_permission.requests, 1);
     expect(_link.asked, isEmpty);
+  });
+
+  testWidgets('coming back from Settings re-reads the permission', (
+    tester,
+  ) async {
+    // The other half of the deep link, and the half that was missing on the
+    // device: the button opened Android's notification page, the switch went
+    // on, and returning to Odova showed the same "notifications are turned off"
+    // card. The user had just turned them on, one tap earlier, at the app's own
+    // suggestion.
+    await _pump(tester, permission: NotificationPermission.denied);
+    expect(find.text(_l10n(tester).notifBlockedTitle), findsOneWidget);
+
+    // What the OS now says, as if the user had flipped the switch out there.
+    _permission.value = NotificationPermission.granted;
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(_l10n(tester).notifBlockedTitle),
+      findsNothing,
+      reason: 'the card outlived the permission it is about',
+    );
   });
 
   testWidgets('a door that will not open says so', (tester) async {

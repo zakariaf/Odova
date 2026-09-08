@@ -46,12 +46,51 @@ final FutureProvider<NotificationPermission> notificationPermissionState =
     );
 
 /// §13's notifications screen.
-class NotificationsSettingsScreen extends ConsumerWidget {
+class NotificationsSettingsScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const NotificationsSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsSettingsScreen> createState() =>
+      _NotificationsSettingsScreenState();
+}
+
+class _NotificationsSettingsScreenState
+    extends ConsumerState<NotificationsSettingsScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Re-reads the OS permission whenever the app comes back.
+  ///
+  /// **The other half of the deep link.** "Open phone settings" sends the user
+  /// out to change exactly the thing this screen is showing, and without this
+  /// they came back to the same card telling them notifications were off —
+  /// having just turned them on, one tap earlier, at the app's own suggestion.
+  /// A door that ignores what you did on the other side of it is half a door.
+  ///
+  /// It is not only about the button. `read()`'s own doc says a cached grant
+  /// "shows them a screen full of controls that do nothing", and a user can
+  /// revoke the permission from the OS at any point while this screen sits in
+  /// the background.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(notificationPermissionState);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = CalmColors.of(context);
     final space = CalmSpace.of(context);
