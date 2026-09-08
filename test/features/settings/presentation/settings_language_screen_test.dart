@@ -37,6 +37,7 @@ Future<_CountingRebuilder> _pump(
   Locale? locale = const Locale('en'),
   List<Locale> device = const [Locale('en', 'GB')],
   AppDatabase? db,
+  bool liveStreams = false,
 }) async {
   tester.useDevice(Device.tallForm);
   final rebuilder = _CountingRebuilder();
@@ -44,6 +45,7 @@ Future<_CountingRebuilder> _pump(
     tester,
     Routes.settingsLanguage,
     locale: locale,
+    liveStreams: liveStreams,
     settings: homeSettings(golfId),
     vehicles: [homeVehicle(golfId, 'The Golf')],
     overrides: <Override>[
@@ -62,10 +64,10 @@ Future<_CountingRebuilder> _pump(
 /// so a `SettingsWriter` call against it reports `NotFound` and — correctly —
 /// never reaches the scheduler. Asserting the reschedule therefore needs a row
 /// that a targeted UPDATE can actually match.
-Future<AppDatabase> _seeded() async {
+Future<AppDatabase> _seeded({String language = 'system'}) async {
   final db = AppDatabase.forTesting(NativeDatabase.memory());
   addTearDown(db.close);
-  await SettingsRepository(db).save(homeSettings(golfId));
+  await SettingsRepository(db).save(homeSettings(golfId, language: language));
   return db;
 }
 
@@ -121,6 +123,67 @@ void main() {
     expect(rebuilder.calls, 1);
     // The list is still there, in German now.
     expect(find.byType(SettingsLanguageScreen), findsOneWidget);
+  });
+
+  testWidgets('and the app is actually in German afterwards', (tester) async {
+    // The half the test above did not assert, and the defect that hid behind
+    // it. §13's screen wrote the row through `settingsWriterProvider`, and
+    // `LocaleController.build()` returned `systemLanguage` unconditionally and
+    // never read it back — so tapping Deutsch persisted "de" and the app
+    // stayed in English, on every build, in every locale. Found by a person
+    // tapping a row on a device and watching nothing happen.
+    //
+    // "The list is still there" passed throughout, because the list is still
+    // there when nothing works. What was missing is a reading of the LOCALE
+    // the app resolved after the tap.
+    // `locale: null` so the CONTROLLER decides, and `liveStreams: true` so the
+    // settings row it reads is the one the tap just wrote. Every other case
+    // here pins `MaterialApp.locale` and stubs the settings stream — which is
+    // exactly what let the defect live, twice over: a pinned locale looks the
+    // same whether the controller reads the stored row or ignores it, and a
+    // stubbed stream cannot report a write at all.
+    await _pump(tester, locale: null, liveStreams: true, db: await _seeded());
+    expect(_l10n(tester).localeName, 'en');
+
+    await tester.tap(find.text('Deutsch'));
+    await tester.pumpAndSettle();
+
+    expect(
+      _l10n(tester).localeName,
+      'de',
+      reason: 'the row was written and the app did not follow it',
+    );
+  });
+
+  testWidgets('a language the app does not ship never reaches the app', (
+    tester,
+  ) async {
+    // §14: a bad store comes up rather than refusing to. The enforcement is
+    // the DATABASE — `settings.language` carries
+    // `CHECK (language IN ('system','en','de','fr','fa','ar','ckb'))` — so a
+    // value this build does not ship cannot be written at all, and the row the
+    // controller reads is always one of the seven.
+    //
+    // `LocaleController.build()` guards again on `localeOverrideValues`, and
+    // this test is the reason that guard is written as defence and not as the
+    // rule: it is unreachable through the writer. It covers an import or a
+    // future migration writing the column directly, where the CHECK is the only
+    // thing standing between a restored backup and a launch crash.
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    await SettingsRepository(db).save(homeSettings(golfId));
+
+    expect(
+      () async => db.customStatement(
+        "UPDATE settings SET language = 'xx'",
+      ),
+      throwsA(anything),
+      reason: 'the column would accept a language with no translations',
+    );
+
+    await _pump(tester, locale: null, liveStreams: true, db: db);
+    expect(tester.takeException(), isNull);
+    expect(_l10n(tester).localeName, 'en');
   });
 
   testWidgets('the trailing paragraph is present in settings mode', (

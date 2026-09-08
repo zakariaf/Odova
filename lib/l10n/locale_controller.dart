@@ -12,6 +12,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
+import 'package:odova/data/repositories/providers.dart';
 
 /// What changed. The notification reschedule and the cached-layout
 /// invalidation hang off this.
@@ -78,8 +79,27 @@ final localeAffectingChangeProvider =
 /// Restored BEFORE the first frame by `bootstrap`, which is the only way a
 /// locale the OS cannot select — `ckb` on most devices — is ever reachable.
 class LocaleController extends Notifier<String> {
+  /// The stored choice, or [systemLanguage] until the row lands.
+  ///
+  /// This RETURNED `systemLanguage` and nothing else. §13's language screen
+  /// wrote the row through `settingsWriterProvider` and this never read it
+  /// back, so tapping Deutsch persisted "de" and the app stayed in English —
+  /// on every build, for every locale. Found by a person tapping a row on a
+  /// device and watching nothing happen.
+  ///
+  /// It is the same defect the Appearance control had, in a different file:
+  /// a controller whose `build()` is a constant is a setting the user cannot
+  /// change.
+  ///
+  /// An unknown value falls back to following the device rather than asserting.
+  /// A row written by an older build, or restored from a backup, must not
+  /// crash the app on launch — §14's rule that a bad store comes up rather than
+  /// refusing to.
   @override
-  String build() => systemLanguage;
+  String build() {
+    final stored = ref.watch(settingsProvider).value?.language;
+    return localeOverrideValues.contains(stored) ? stored! : systemLanguage;
+  }
 
   /// Sets the persisted language, or [systemLanguage] to follow the device.
   ///
