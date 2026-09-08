@@ -522,6 +522,18 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get firstRunHaveBackup => 'پێشتر پاشەکەوتێکی ئۆدۆڤام هەیە';
 
   @override
+  String get saveRefusedNotFound =>
+      'ئەو تۆمارە چیتر نییە. لەوانەیە پێشتر لەسەر ئەم تەلەفۆنە سڕابێتەوە.';
+
+  @override
+  String get saveRefusedDerivedReading =>
+      'ئەم ژمارەیە لە سووتەمەنی، خزمەت یان گەشتێکەوە هاتووە. ئەو تۆمارە دەستکاری بکە، ژمارەکەش شوێنی دەکەوێت.';
+
+  @override
+  String get saveRefusedConstraint =>
+      'ئۆدۆڤا نەیتوانی ئەوە پاشەکەوت بکات. شتێک لە تۆمارەکەدا لەگەڵ یاساکانی خۆیدا ناگونجێت — ژمارەکان بپشکنە و دووبارە هەوڵ بدەوە.';
+
+  @override
   String get saveRefusedBackwards =>
       'ئەم ژمارەیە لە پێشووتر کەمترە. تکایە ژمارەکە بپشکنە.';
 
@@ -1697,6 +1709,90 @@ class AppLocalizationsCkb extends AppLocalizations {
   @override
   String get logFillUpChainBrokenHint =>
       'ژمارەکانی خەرجکردنت لەم پڕکردنەوەیەوە لە نوێ دەست پێدەکەن.';
+
+  @override
+  String get serviceKindOilAndFilter => 'ڕۆن و فلتەر';
+
+  @override
+  String get serviceKindAirFilter => 'فلتەری هەوا';
+
+  @override
+  String get serviceKindCabinFilter => 'فلتەری ژوور';
+
+  @override
+  String get serviceKindFuelFilter => 'فلتەری سووتەمەنی';
+
+  @override
+  String get serviceKindSparkPlugs => 'شمع';
+
+  @override
+  String get serviceKindTimingBelt => 'قایشی تایم';
+
+  @override
+  String get serviceKindBrakePadsCheck => 'پشکنینی لەنتی برێک';
+
+  @override
+  String get serviceKindBrakePadsFront => 'لەنتی پێشەوە';
+
+  @override
+  String get serviceKindBrakePadsRear => 'لەنتی دواوە';
+
+  @override
+  String get serviceKindBrakeFluid => 'ڕۆنی برێک';
+
+  @override
+  String get serviceKindCoolant => 'ئاوی فێنکەرەوە';
+
+  @override
+  String get serviceKindTransmissionFluid => 'ڕۆنی گیربۆکس';
+
+  @override
+  String get serviceKindWheelAlignment => 'ڕێکخستنی چەرخ';
+
+  @override
+  String get serviceKindTyreRotate => 'گۆڕینەوەی تایە';
+
+  @override
+  String get serviceKindTyreReplace => 'تایەی نوێ';
+
+  @override
+  String get serviceKindBattery => 'باتری';
+
+  @override
+  String get serviceKindWipers => 'ماشێنی پاککەرەوە';
+
+  @override
+  String get serviceKindInspection => 'پشکنینی فەننی';
+
+  @override
+  String get serviceKindRegistration => 'تۆمارکردن';
+
+  @override
+  String get serviceKindInsuranceRenewal => 'نوێکردنەوەی بیمە';
+
+  @override
+  String get serviceKindAcService => 'خزمەتی فێنککەرەوە';
+
+  @override
+  String get serviceKindChainLube => 'ڕۆنکردنی زنجیر';
+
+  @override
+  String get serviceKindChainAndSprockets => 'زنجیر و دەندان';
+
+  @override
+  String get serviceKindValveClearance => 'بۆشایی ڤاڵف';
+
+  @override
+  String get serviceKindForkOil => 'ڕۆنی فۆرک';
+
+  @override
+  String get serviceKindReductionGearboxOil => 'ڕۆنی گیربۆکسی کەمکەرەوە';
+
+  @override
+  String get serviceKindBattery12v => 'باتریی یاریدەدەر';
+
+  @override
+  String get serviceKindCustom => 'بڕگەی تایبەت';
 
   @override
   String get logServiceWorkshop => 'تاقیگە';

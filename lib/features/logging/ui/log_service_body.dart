@@ -5,8 +5,10 @@
 // consequence of a tick is otherwise invisible until the next time Home is
 // looked at.
 import 'package:flutter/material.dart';
+import 'package:odova/core/domain/enums.dart';
 import 'package:odova/features/logging/domain/service_cost_model.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/service_kind_label.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_chip.dart';
 import 'package:odova/ui/calm/calm_field.dart';
@@ -14,7 +16,12 @@ import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 
 /// One tickable item.
-typedef ServiceItemChip = ({String id, String label, bool ticked});
+typedef ServiceItemChip = ({
+  String id,
+  ServiceKind kind,
+  String? label,
+  bool ticked,
+});
 
 /// The service segment's body.
 class LogServiceBody extends StatelessWidget {
@@ -100,7 +107,11 @@ class LogServiceBody extends StatelessWidget {
             chips: [
               for (final item in items)
                 CalmChip(
-                  label: item.label,
+                  label: serviceItemLabel(
+                    l10n,
+                    kind: item.kind,
+                    label: item.label,
+                  ),
                   selected: item.ticked,
                   onTap: () => onToggleItem(item.id),
                 ),

@@ -35,11 +35,12 @@ AssessedItem _item(
   required DueState state,
   String? due,
   bool isActive = true,
+  ServiceKind kind = ServiceKind.custom,
 }) => (
   ServiceItem(
     id: _id(),
     vehicleId: _vehicleId,
-    kind: ServiceKind.custom,
+    kind: kind,
     label: label,
     priority: ServicePriority.normal,
     rollover: ServiceRollover.fromActual,
@@ -116,14 +117,31 @@ void main() {
     expect(ticked.last.ticked, isFalse);
   });
 
-  test('an unlabelled item is not offered as a blank chip', () {
-    // A chip with no text is a control the user cannot read or describe, and
-    // §9 already treats a label as the item's identity on screen.
+  test('a seeded item IS offered, named by its kind', () {
+    // This asserted the opposite — that an item with no label is excluded —
+    // and that rule excluded the entire catalogue, because SPEC.md §8 gives
+    // `ServiceItem.label` meaning only for `kind = custom` and every seed
+    // therefore has a null one. On a real vehicle the form offered `+ Other`
+    // and nothing else, which is what a manual pass on a device found.
+    //
+    // The chip carries its KIND now and the presentation edge resolves the
+    // name, so "a chip with no text" cannot happen without there being no name
+    // for that kind at all — which `serviceKindLabel`'s exhaustive switch makes
+    // a compile error.
     final chips = serviceItemChips(
-      assessments: [_item('', state: DueState.ok, due: '2026-12-01')],
+      assessments: [
+        _item(
+          '',
+          kind: ServiceKind.oilAndFilter,
+          state: DueState.ok,
+          due: '2026-12-01',
+        ),
+      ],
       ticked: const {},
     );
 
-    expect(chips, isEmpty);
+    expect(chips, hasLength(1));
+    expect(chips.single.kind, ServiceKind.oilAndFilter);
+    expect(chips.single.label, isEmpty, reason: 'the seed carries no label');
   });
 }

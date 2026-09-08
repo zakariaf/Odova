@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:odova/app/app_version.dart';
 import 'package:odova/app/error_handlers.dart';
+import 'package:odova/app/notifications/fln_notification_gateway.dart';
+import 'package:odova/app/notifications/notification_gateway.dart';
+import 'package:odova/app/notifications/notification_permission_port.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/startup_purge.dart';
@@ -134,8 +137,32 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
     ),
   );
 
+  // The notification subsystem, wired at last.
+  //
+  // EPIC-16 built the scheduler, the reconciler, the deterministic ids and the
+  // delivery slots, and `bootstrap()` overrode neither the gateway nor the
+  // permission port — so `notificationGatewayProvider` threw, nothing ever
+  // called the OS, and `notifications_screen.dart`'s `?? granted` fallback
+  // turned the throw into a screen full of switches over a permission that had
+  // never been asked for. A person tapping that toggle on a simulator is what
+  // found it.
+  //
+  // A null plugin is a platform that would not have it, and the app comes up
+  // anyway on the inert defaults: §6.4 forbids any feature depending on
+  // delivery, and a reminder is not worth a crash loop.
+  await initializeTimeZones();
+  final notifications = await initializeNotifications();
+
   return [
     crashSinkProvider.overrideWithValue(crashSink),
+    if (notifications case final plugin?) ...[
+      notificationGatewayProvider.overrideWithValue(
+        FlnNotificationGateway(plugin),
+      ),
+      notificationPermissionProvider.overrideWithValue(
+        FlnPermissionPort(plugin),
+      ),
+    ],
     clockProvider.overrideWithValue(const Clock()),
     // The database is built HERE and injected, not constructed by its provider.
     // `readLaunchFacts` has to query it before the first frame, and two

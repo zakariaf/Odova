@@ -518,6 +518,18 @@ class AppLocalizationsFa extends AppLocalizations {
   String get firstRunHaveBackup => 'از قبل پشتیبان اودووا دارم';
 
   @override
+  String get saveRefusedNotFound =>
+      'آن ثبت دیگر وجود ندارد. شاید پیش‌تر روی همین گوشی حذف شده باشد.';
+
+  @override
+  String get saveRefusedDerivedReading =>
+      'این کیلومترشمار از یک سوخت‌گیری، سرویس یا سفر آمده است. همان ثبت را ویرایش کنید تا عدد هم به‌روز شود.';
+
+  @override
+  String get saveRefusedConstraint =>
+      'اودوا نتوانست آن را ذخیره کند. چیزی در این ثبت با قواعد خودش نمی‌خواند — عددها را بررسی کنید و دوباره تلاش کنید.';
+
+  @override
   String get saveRefusedBackwards =>
       'این عدد از عدد قبلی کمتر است. لطفاً بررسی کنید.';
 
@@ -1691,6 +1703,90 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get logFillUpChainBrokenHint =>
       'عددهای مصرف شما از این سوخت‌گیری از نو شروع می‌شود.';
+
+  @override
+  String get serviceKindOilAndFilter => 'روغن و فیلتر';
+
+  @override
+  String get serviceKindAirFilter => 'فیلتر هوا';
+
+  @override
+  String get serviceKindCabinFilter => 'فیلتر کابین';
+
+  @override
+  String get serviceKindFuelFilter => 'فیلتر سوخت';
+
+  @override
+  String get serviceKindSparkPlugs => 'شمع';
+
+  @override
+  String get serviceKindTimingBelt => 'تسمه تایم';
+
+  @override
+  String get serviceKindBrakePadsCheck => 'بررسی لنت ترمز';
+
+  @override
+  String get serviceKindBrakePadsFront => 'لنت جلو';
+
+  @override
+  String get serviceKindBrakePadsRear => 'لنت عقب';
+
+  @override
+  String get serviceKindBrakeFluid => 'روغن ترمز';
+
+  @override
+  String get serviceKindCoolant => 'ضدیخ';
+
+  @override
+  String get serviceKindTransmissionFluid => 'روغن گیربکس';
+
+  @override
+  String get serviceKindWheelAlignment => 'تنظیم فرمان';
+
+  @override
+  String get serviceKindTyreRotate => 'جابه‌جایی لاستیک';
+
+  @override
+  String get serviceKindTyreReplace => 'تعویض لاستیک';
+
+  @override
+  String get serviceKindBattery => 'باتری';
+
+  @override
+  String get serviceKindWipers => 'تیغه برف‌پاک‌کن';
+
+  @override
+  String get serviceKindInspection => 'معاینه فنی';
+
+  @override
+  String get serviceKindRegistration => 'تمدید پلاک';
+
+  @override
+  String get serviceKindInsuranceRenewal => 'تمدید بیمه';
+
+  @override
+  String get serviceKindAcService => 'سرویس کولر';
+
+  @override
+  String get serviceKindChainLube => 'روغن‌کاری زنجیر';
+
+  @override
+  String get serviceKindChainAndSprockets => 'زنجیر و چرخ‌دنده';
+
+  @override
+  String get serviceKindValveClearance => 'تنظیم سوپاپ';
+
+  @override
+  String get serviceKindForkOil => 'روغن کمک جلو';
+
+  @override
+  String get serviceKindReductionGearboxOil => 'روغن گیربکس کاهنده';
+
+  @override
+  String get serviceKindBattery12v => 'باتری کمکی';
+
+  @override
+  String get serviceKindCustom => 'مورد دلخواه';
 
   @override
   String get logServiceWorkshop => 'تعمیرگاه';

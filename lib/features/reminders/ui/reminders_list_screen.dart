@@ -21,6 +21,7 @@ import 'package:odova/features/reminders/domain/reminders_groups.dart';
 import 'package:odova/l10n/due_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/l10n/service_kind_label.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -253,7 +254,11 @@ class _Group extends StatelessWidget {
               ),
             ],
             child: CalmListRow(
-              title: row.item.label ?? l10n.vehicleStatusItemGeneric,
+              title: serviceItemLabel(
+                l10n,
+                kind: row.item.kind,
+                label: row.item.label,
+              ),
               lead: row.assessment == null
                   ? null
                   : CalmStatusDot(

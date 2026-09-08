@@ -19,6 +19,7 @@ import 'package:odova/data/repositories/vehicle_repository.dart';
 import 'package:odova/features/settings/presentation/notifications_screen.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
+import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_switch.dart';
 
@@ -39,8 +40,21 @@ class _FixedPermission implements NotificationPermissionPort {
 
   final NotificationPermission value;
 
+  /// How many times the screen asked the OS.
+  ///
+  /// Counted rather than ignored: `request()` did not exist at all, so nothing
+  /// could ask, and a fake that answered without recording would let that
+  /// happen again.
+  int requests = 0;
+
   @override
   Future<NotificationPermission> read() async => value;
+
+  @override
+  Future<NotificationPermission> request() async {
+    requests++;
+    return value;
+  }
 }
 
 AppLocalizations _l10n(WidgetTester tester) => AppLocalizations.of(
@@ -49,6 +63,8 @@ AppLocalizations _l10n(WidgetTester tester) => AppLocalizations.of(
 
 late AppDatabase _db;
 late _CountingRebuilder _rebuilder;
+
+late _FixedPermission _permission;
 
 Future<void> _pump(
   WidgetTester tester, {
@@ -82,7 +98,7 @@ Future<void> _pump(
       appDatabaseProvider.overrideWithValue(_db),
       scheduleRebuilderProvider.overrideWithValue(_rebuilder),
       notificationPermissionProvider.overrideWithValue(
-        _FixedPermission(permission),
+        _permission = _FixedPermission(permission),
       ),
       if (locale != null) deviceLocalesProvider.overrideWithValue([locale]),
     ],
@@ -231,5 +247,28 @@ void main() {
       ),
     );
     expect(row.onTap, isNotNull);
+  });
+
+  testWidgets("the card's button asks the OS", (tester) async {
+    // It was `onPressed: () {}` — a button that did nothing — under a comment
+    // saying EPIC-16 owned the pre-prompt and the OS deep link. EPIC-16
+    // shipped and neither arrived, so the one control that turns reminders on
+    // was dead for four epics.
+    //
+    // Nothing caught it because no test pressed it: this file asserted the
+    // card APPEARS for each permission state and never that its button does
+    // anything. A person tapping it on a simulator and seeing no iOS dialog is
+    // what found it.
+    await _pump(tester, permission: NotificationPermission.neverAsked);
+    final l10n = _l10n(tester);
+
+    expect(_permission.requests, 0, reason: 'nothing asks on open');
+
+    final button = find.widgetWithText(CalmButton, l10n.notifOffAction);
+    await tester.ensureVisible(button);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+
+    expect(_permission.requests, 1, reason: 'the button did not ask');
   });
 }

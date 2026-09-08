@@ -137,7 +137,13 @@ class CalmSheet extends StatelessWidget {
         children: [
           if (!full) ...[
             SizedBox(height: space.s3),
-            const CalmSheetGrip(),
+            // CENTRED, because the Column above is `stretch`. `.sheet__grip`
+            // is `align-self: center` and 44x5; without this the SizedBox gets
+            // tight full-width constraints, its 44 is discarded, and the grip
+            // draws as a line across the whole sheet. Reported from a device
+            // as "there is a line at the top and I don't know what it is",
+            // which is exactly what a 44pt grip stretched to 390 looks like.
+            const Center(child: CalmSheetGrip()),
           ],
           Padding(
             padding: EdgeInsetsDirectional.fromSTEB(
@@ -208,7 +214,20 @@ class CalmSheet extends StatelessWidget {
                 ],
               ),
             ),
-          SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
+          // The KEYBOARD, the home indicator, and `.sheet`'s own
+          // `padding-block-end`.
+          //
+          // Only the first of the three was here, so a sheet with no actions —
+          // every picker — ended flush with the bottom of the screen and its
+          // last row sat under the home indicator. `showModalBottomSheet`'s
+          // `useSafeArea` guards the TOP against the notch; it does not pad the
+          // bottom, and a sheet is the one surface that reaches it.
+          SizedBox(
+            height:
+                MediaQuery.viewInsetsOf(context).bottom +
+                MediaQuery.paddingOf(context).bottom +
+                (actions.isEmpty ? space.s5 : 0),
+          ),
         ],
       ),
     );

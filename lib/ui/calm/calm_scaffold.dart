@@ -187,11 +187,26 @@ class CalmScaffold extends StatelessWidget {
                 Expanded(
                   child: ListView.separated(
                     controller: controller,
+                    // The tab bar's height is ADDED to the bottom padding, not
+                    // assumed away. `CalmChromeScope` has said `hasTabBar`
+                    // since EPIC-10 and exactly one caller read it — the
+                    // snackbar — so on every tab-root screen the last card sat
+                    // underneath the bar. On `settings` that was the About row,
+                    // which a user could not reach at all: the list ended, and
+                    // the thing it ended on was covered.
+                    //
+                    // `paddingOf().bottom` goes with it, because the bar is
+                    // drawn over the home indicator and the content has to
+                    // clear both.
                     padding: EdgeInsetsDirectional.fromSTEB(
                       space.screenPad,
                       bodyPadBlock?.top ?? space.s5,
                       space.screenPad,
-                      bodyPadBlock?.bottom ?? space.s6,
+                      (bodyPadBlock?.bottom ?? space.s6) +
+                          (CalmChromeScope.hasTabBarIn(context)
+                              ? space.tabbarH +
+                                    MediaQuery.paddingOf(context).bottom
+                              : 0.0),
                     ),
                     itemCount: children.length,
                     separatorBuilder: (_, _) => SizedBox(

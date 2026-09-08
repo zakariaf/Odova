@@ -26,8 +26,7 @@ import 'package:odova/core/notifications/permission_preprompt.dart';
 export 'package:odova/core/notifications/permission_preprompt.dart'
     show NotificationPermission;
 
-/// Reads the OS permission.
-// ignore: one_member_abstracts
+/// Reads the OS permission, and asks for it.
 abstract interface class NotificationPermissionPort {
   /// What the OS says right now.
   ///
@@ -35,14 +34,46 @@ abstract interface class NotificationPermissionPort {
   /// settings while the app is in the background, and a cached `granted` shows
   /// them a screen full of controls that do nothing.
   Future<NotificationPermission> read();
+
+  /// Asks the OS, and returns what it said.
+  ///
+  /// This did not exist. §4.6's pre-prompt, its cooldown and the `neverAsked`
+  /// member were all built and tested with no platform call behind any of
+  /// them, so no iOS or Android dialog could ever appear — and because
+  /// `notifications_screen.dart` falls back to `granted` when the read fails,
+  /// nothing said so.
+  ///
+  /// It returns the ANSWER rather than a bool, so a caller cannot mistake
+  /// "asked and refused" for "could not ask".
+  Future<NotificationPermission> request();
 }
 
 /// The port. Throws until the composition root supplies an implementation.
 final Provider<NotificationPermissionPort> notificationPermissionProvider =
     Provider<NotificationPermissionPort>(
-      (ref) => throw UnimplementedError(
-        'notificationPermissionProvider must be overridden — EPIC-16 supplies '
-        'the implementation, and until it lands the composition root wires a '
-        'fake.',
-      ),
+      (ref) => const _NeverAsked(),
     );
+
+/// The default: an app with no plugin behind it.
+///
+/// It used to THROW, and nothing ever saw the throw —
+/// `notifications_screen.dart` reads `.value ?? granted`, so an
+/// `UnimplementedError` came back as null and the screen assumed the OS had
+/// said yes. A page of switches over a permission nobody had asked for, on
+/// every build, for four epics.
+///
+/// `neverAsked` rather than `granted` or `denied`, because it is the truth and
+/// because §4.6's pre-prompt keys off exactly that state: a build with no
+/// plugin should show the same "we would like to remind you" card a first
+/// launch does, not a screen pretending the answer is yes.
+class _NeverAsked implements NotificationPermissionPort {
+  const _NeverAsked();
+
+  @override
+  Future<NotificationPermission> read() async =>
+      NotificationPermission.neverAsked;
+
+  @override
+  Future<NotificationPermission> request() async =>
+      NotificationPermission.neverAsked;
+}

@@ -48,6 +48,7 @@ import 'package:odova/l10n/due_copy.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/service_kind_label.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
@@ -329,7 +330,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final on = next?.$2.projectedDueDate;
     if (next == null || on == null) return null;
     return l10n.homeNextIs(
-      next.$1.label ?? l10n.vehicleStatusItemGeneric,
+      serviceItemLabel(l10n, kind: next.$1.kind, label: next.$1.label),
       formatLongDate(on.toString(), tag),
     );
   }

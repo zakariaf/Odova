@@ -519,6 +519,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstRunHaveBackup => 'I already have an Odova backup';
 
   @override
+  String get saveRefusedNotFound =>
+      'That entry is no longer there. It may have been deleted on this phone already.';
+
+  @override
+  String get saveRefusedDerivedReading =>
+      'This reading came from a fill-up, a service or a trip. Edit that entry and the reading follows.';
+
+  @override
+  String get saveRefusedConstraint =>
+      'Odova could not save that. Something in the entry does not fit its own rules — check the figures and try again.';
+
+  @override
   String get saveRefusedBackwards =>
       'That reading is lower than the one before it. Check the number and try again.';
 
@@ -1694,6 +1706,90 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get logFillUpChainBrokenHint =>
       'Your consumption figures start fresh from this fill-up.';
+
+  @override
+  String get serviceKindOilAndFilter => 'Oil and filter';
+
+  @override
+  String get serviceKindAirFilter => 'Air filter';
+
+  @override
+  String get serviceKindCabinFilter => 'Cabin filter';
+
+  @override
+  String get serviceKindFuelFilter => 'Fuel filter';
+
+  @override
+  String get serviceKindSparkPlugs => 'Spark plugs';
+
+  @override
+  String get serviceKindTimingBelt => 'Timing belt';
+
+  @override
+  String get serviceKindBrakePadsCheck => 'Brake pad check';
+
+  @override
+  String get serviceKindBrakePadsFront => 'Front brake pads';
+
+  @override
+  String get serviceKindBrakePadsRear => 'Rear brake pads';
+
+  @override
+  String get serviceKindBrakeFluid => 'Brake fluid';
+
+  @override
+  String get serviceKindCoolant => 'Coolant';
+
+  @override
+  String get serviceKindTransmissionFluid => 'Transmission fluid';
+
+  @override
+  String get serviceKindWheelAlignment => 'Wheel alignment';
+
+  @override
+  String get serviceKindTyreRotate => 'Tyre rotation';
+
+  @override
+  String get serviceKindTyreReplace => 'New tyres';
+
+  @override
+  String get serviceKindBattery => 'Battery';
+
+  @override
+  String get serviceKindWipers => 'Wiper blades';
+
+  @override
+  String get serviceKindInspection => 'Inspection';
+
+  @override
+  String get serviceKindRegistration => 'Registration';
+
+  @override
+  String get serviceKindInsuranceRenewal => 'Insurance renewal';
+
+  @override
+  String get serviceKindAcService => 'Air conditioning';
+
+  @override
+  String get serviceKindChainLube => 'Chain lube';
+
+  @override
+  String get serviceKindChainAndSprockets => 'Chain and sprockets';
+
+  @override
+  String get serviceKindValveClearance => 'Valve clearance';
+
+  @override
+  String get serviceKindForkOil => 'Fork oil';
+
+  @override
+  String get serviceKindReductionGearboxOil => 'Reduction gearbox oil';
+
+  @override
+  String get serviceKindBattery12v => 'Auxiliary battery';
+
+  @override
+  String get serviceKindCustom => 'Custom item';
 
   @override
   String get logServiceWorkshop => 'Workshop';

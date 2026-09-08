@@ -32,6 +32,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:odova/app/notifications/notification_gateway.dart';
+import 'package:odova/app/notifications/notification_permission_port.dart';
 import 'package:odova/core/notifications/scheduled_notification.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -140,4 +141,142 @@ class FlnNotificationGateway implements NotificationGateway {
     NotificationChannelId.odometer: 'Odometer reminders',
     NotificationChannelId.keeping: 'Odova status',
   };
+}
+
+/// SPEC.md §4.6 has a pre-prompt, a cooldown and a `NotificationPermission`
+/// enum with a `neverAsked` member — all of it domain code, all of it tested,
+/// and **nothing behind it**. `NotificationPermissionPort` declared `read()`
+/// and no `request()`, no implementation existed anywhere in `lib/`, and the
+/// provider threw `UnimplementedError` in production.
+///
+/// The screen did not show that error. `notifications_screen.dart` reads
+/// `ref.watch(notificationPermissionState).value ?? NotificationPermission
+/// .granted`, so a provider that threw came back null and the screen assumed
+/// permission had been given — a screen full of switches over an OS that had
+/// never been asked. On a device: no iOS dialog, no Android 13 dialog, ever,
+/// and no error either.
+///
+/// Found by a person tapping the toggle and noticing nothing happened.
+///
+/// It lives in THIS file because `notifications_import_policy_test` allows
+/// `flutter_local_notifications` in exactly one of them, and that rule is
+/// §4.6.1's: one import point is what keeps the scheduling maths pure and
+/// testable. A second file would have been the easier change and the wrong
+/// one.
+///
+/// Both platforms are asked through their own resolver, because the plugin has
+/// no cross-platform permission call: iOS wants `alert`/`badge`/`sound` and
+/// Android wants the single `POST_NOTIFICATIONS` runtime grant that arrived in
+/// 13. A resolver that returns null is a platform with nothing to ask — an
+/// older Android, or a test host — and that is [NotificationPermission.granted]
+/// rather than an error, because on those platforms the notification really
+/// will be delivered.
+class FlnPermissionPort implements NotificationPermissionPort {
+  /// Creates the port over [_plugin].
+  const FlnPermissionPort(this._plugin);
+
+  final FlutterLocalNotificationsPlugin _plugin;
+
+  @override
+  Future<NotificationPermission> read() async {
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (android != null) {
+      final enabled = await android.areNotificationsEnabled();
+      // NULL is not `false`. The plugin returns null when it cannot tell, and
+      // reporting `denied` there would draw §4.6's "turn them on in Settings"
+      // card over a phone where they are already on.
+      return switch (enabled) {
+        true => NotificationPermission.granted,
+        false => NotificationPermission.denied,
+        null => NotificationPermission.granted,
+      };
+    }
+
+    final ios = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    if (ios == null) return NotificationPermission.granted;
+
+    // iOS has no "read" that distinguishes never-asked from denied without
+    // asking, so `checkPermissions` is the closest thing: it reports what was
+    // granted, and a first launch reports nothing granted. §4.6's pre-prompt
+    // is what stops that reading as a refusal — it asks before the OS does.
+    final status = await ios.checkPermissions();
+    return (status?.isAlertEnabled ?? false)
+        ? NotificationPermission.granted
+        : NotificationPermission.denied;
+  }
+
+  @override
+  Future<NotificationPermission> request() async {
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (android != null) {
+      final granted = await android.requestNotificationsPermission();
+      return (granted ?? true)
+          ? NotificationPermission.granted
+          : NotificationPermission.denied;
+    }
+
+    final ios = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    if (ios == null) return NotificationPermission.granted;
+
+    // No `critical`, and no provisional. §4.6 asks for at most two reminders a
+    // week at a time the user picked; a critical alert bypasses Do Not Disturb
+    // and this app has nothing that earns that.
+    final granted = await ios.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    return (granted ?? false)
+        ? NotificationPermission.granted
+        : NotificationPermission.denied;
+  }
+}
+
+/// The plugin, initialised, or null when the platform would not have it.
+///
+/// **This never ran.** `bootstrap()` overrode neither
+/// `notificationGatewayProvider` nor `notificationPermissionProvider`, and
+/// neither has a working default — so every rule EPIC-16 wrote was live in the
+/// tests and inert in the app. `sync_notifications.dart` says in its own header
+/// that this is "the seam this repo has shipped without five times"; it shipped
+/// without it a sixth.
+///
+/// It returns null rather than throwing on any failure. SPEC.md §6.4:
+/// notifications are an accelerant and no feature may depend on delivery, so a
+/// plugin that will not initialise must cost the user a reminder and not a
+/// launch. The caller then wires the inert defaults and the app comes up.
+Future<FlutterLocalNotificationsPlugin?> initializeNotifications() async {
+  try {
+    final plugin = FlutterLocalNotificationsPlugin();
+    final ready = await plugin.initialize(
+      const InitializationSettings(
+        // The launcher icon, which every Flutter Android project has. A named
+        // asset would be one more thing to keep in step with the manifest.
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        // Nothing is requested HERE. §4.6 asks after its own pre-prompt, at a
+        // moment the user can see the reason — an OS dialog on the first frame
+        // of a first launch is the one a user dismisses without reading.
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        ),
+      ),
+    );
+    return (ready ?? false) ? plugin : null;
+  } on Object {
+    return null;
+  }
 }

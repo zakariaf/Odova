@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// Override lives in misc.dart in Riverpod 3.x, not the root library.
 import 'package:flutter_riverpod/misc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odova/app/lifecycle_observer.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/app_router.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/supported_locales.dart';
@@ -77,7 +77,7 @@ class OdovaApp extends ConsumerWidget {
     super.key,
     this.locale,
     this.router,
-    this.themeMode = ThemeMode.system,
+    this.themeMode,
   });
 
   /// Forces a locale, overriding both the setting and the device's list.
@@ -107,7 +107,31 @@ class OdovaApp extends ConsumerWidget {
   /// a parity capture passes an explicit value, because a capture that follows
   /// the host compares a dark screenshot against a light reference on somebody
   /// else's machine.
-  final ThemeMode themeMode;
+  ///
+  /// NULL means "read the user's choice". The field used to default to
+  /// [ThemeMode.system] and nothing ever overrode it: §13's Appearance control
+  /// wrote `theme` through `settingsWriterProvider` and no one read it back, so
+  /// tapping Dark did nothing at all. The comment here said "there is no
+  /// settings store yet; the seam is `themeMode` and EPIC-14 fills it from
+  /// SettingsRepository" — EPIC-14 shipped the store and left the seam empty
+  /// for four epics, and a manual pass on a device is what found it.
+  final ThemeMode? themeMode;
+
+  /// The palette the user chose, read from the settings row.
+  ///
+  /// `settingsProvider` is a stream and is `AsyncLoading` on the first frame;
+  /// `ThemeMode.system` is the honest answer until it lands, and it is also
+  /// what a fresh install stores. `design-system-structure` rule 9 asks for the
+  /// persisted mode BEFORE the first frame, which this does not manage — the
+  /// stream resolves a frame or two in. That is a visible flash only for a user
+  /// who chose Dark on a Light device, and closing it means reading the row in
+  /// `bootstrap()`; it is written down rather than pretended away.
+  static ThemeMode _storedThemeMode(WidgetRef ref) =>
+      switch (ref.watch(settingsProvider).value?.theme) {
+        'light' => ThemeMode.light,
+        'dark' => ThemeMode.dark,
+        _ => ThemeMode.system,
+      };
 
   /// The four themes, built once.
   ///
@@ -144,7 +168,12 @@ class OdovaApp extends ConsumerWidget {
       // `builder` below, because it depends on the resolved locale.
       theme: _themes[(Brightness.light, CalmType.latin)],
       darkTheme: _themes[(Brightness.dark, CalmType.latin)],
-      themeMode: themeMode,
+      // The user's choice, or the caller's override. §13's three-way control
+      // writes `system` / `light` / `dark`; anything else — an older build, a
+      // corrupted row — falls back to following the device rather than picking
+      // one, because guessing a palette is a guess the user sees on every
+      // screen.
+      themeMode: themeMode ?? _storedThemeMode(ref),
       // MaterialApp mounts an AnimatedTheme and crossfades ThemeData over
       // ~200ms unless told not to. That is not a Calm token, and it is
       // actively worse than either alternative here: CalmMotion and CalmType

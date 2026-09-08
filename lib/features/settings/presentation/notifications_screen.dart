@@ -64,12 +64,24 @@ class NotificationsSettingsScreen extends ConsumerWidget {
     final unit = effectiveDistanceUnit(null, settings);
 
     final chrome = resolveNotificationsChrome(
-      // Until the permission read lands, assume GRANTED and draw no card. The
-      // alternative is a "Reminders are off" card that flashes on every open
-      // for a user whose reminders are perfectly on.
-      permission:
-          ref.watch(notificationPermissionState).value ??
-          NotificationPermission.granted,
+      // LOADING assumes granted and draws no card — the alternative is a
+      // "Reminders are off" card that flashes on every open for a user whose
+      // reminders are perfectly on.
+      //
+      // An ERROR does not. It used to: this was `.value ?? granted`, which
+      // treats "the read failed" and "the read has not finished" as the same
+      // thing — and the read failed on every build, because
+      // `notificationPermissionProvider` threw and nothing wired it. The screen
+      // drew a page of switches over an OS that had never been asked, and said
+      // nothing. `neverAsked` is the honest answer to a read that failed, and
+      // it is the state §4.6's pre-prompt exists for.
+      permission: ref
+          .watch(notificationPermissionState)
+          .when(
+            data: (permission) => permission,
+            loading: () => NotificationPermission.granted,
+            error: (_, _) => NotificationPermission.neverAsked,
+          ),
       allCategoriesOff: !notifyService && !notifyOdometer && !notifyBackup,
     );
 
@@ -390,13 +402,24 @@ String quietHoursLabel(
   );
 }
 
-class _PermissionCard extends StatelessWidget {
+/// Asks the OS, then re-reads it so the card answers to the new state.
+Future<void> _ask(WidgetRef ref) async {
+  await ref.read(notificationPermissionProvider).request();
+  // INVALIDATED rather than assumed. `request()` returns what the OS said and
+  // the screen could take that word for it — but a user can change the answer
+  // in Settings between the dialog and the rebuild, and this file's own
+  // `read()` doc says a cached grant "shows them a screen full of controls
+  // that do nothing".
+  ref.invalidate(notificationPermissionState);
+}
+
+class _PermissionCard extends ConsumerWidget {
   const _PermissionCard({required this.card});
 
   final NotificationsCard card;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final space = CalmSpace.of(context);
 
@@ -423,14 +446,22 @@ class _PermissionCard extends StatelessWidget {
           children: [Text(message, style: CalmType.of(context).body)],
         ),
         SizedBox(height: space.s3),
-        // EPIC-16 owns the pre-prompt sheet and the OS deep link this raises;
-        // §13 calls the sheet "owned by this screen", and that ownership is
-        // presentational. Writing a second one here for EPIC-16 to delete is
-        // the thing the epic boundary exists to prevent.
+        // It ASKS now. This was `onPressed: () {}` — a button that did
+        // nothing — under a comment saying EPIC-16 owned the pre-prompt and
+        // the OS deep link. EPIC-16 shipped and neither arrived, so the one
+        // control on the one screen that turns reminders on was dead for four
+        // epics. A person tapping it and seeing no iOS dialog is what found it.
+        //
+        // For a BLOCKED phone the honest remedy is a deep link into the OS
+        // settings, which needs a platform channel this app does not have and
+        // will not add without auditing its transitive tree — SPEC.md §2's
+        // no-network rule applies to any new dependency. Asking again there is
+        // a no-op rather than a lie: the OS answers immediately and the card
+        // stays, which is at least the truth.
         CalmButton(
           label: action,
           variant: CalmButtonVariant.secondary,
-          onPressed: () {},
+          onPressed: () => unawaited(_ask(ref)),
         ),
       ],
     );

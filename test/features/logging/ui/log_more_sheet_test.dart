@@ -149,7 +149,7 @@ void main() {
     expect(emitted.last.chainBroken, isTrue);
   });
 
-  testWidgets('every form that has a More section shows its Date row', (
+  testWidgets('every form shows its Date row, More section or not', (
     tester,
   ) async {
     // The Date row and the More row are one card, built by the shell. When the
@@ -168,18 +168,42 @@ void main() {
       final l10n = AppLocalizations.of(
         tester.element(find.byType(LogModalShell)),
       );
+      // The DATE row is the one this test exists for, and it is asserted for
+      // every form regardless of More. The two share a card, and when the
+      // slots were collapsed `log.expense` lost both — shipping with no way to
+      // change the date at all.
       expect(find.text(l10n.logDateLabel), findsOneWidget, reason: type.wire);
-      expect(find.text(l10n.logMoreRow), findsOneWidget, reason: type.wire);
+
+      // The More row follows `logTypeHasMore`, which is not the same question.
+      expect(
+        find.text(l10n.logMoreRow),
+        logTypeHasMore(type) ? findsOneWidget : findsNothing,
+        reason: type.wire,
+      );
     }
   });
 
-  testWidgets('log.odometer has no More section', (tester) async {
-    // §10: "Two fields. No notes, no category, no More section — this screen
-    // exists to be finished before the user changes their mind; one more
-    // optional field would be a net loss."
+  testWidgets('only the forms with fields behind More offer it', (
+    tester,
+  ) async {
+    // §10 excludes `log.odometer` by design: "Two fields. No notes, no
+    // category, no More section — this screen exists to be finished before the
+    // user changes their mind."
     expect(logTypeHasMore(LogType.odometer), isFalse);
-    for (final type in [LogType.fillUp, LogType.service, LogType.expense]) {
-      expect(logTypeHasMore(type), isTrue, reason: type.wire);
+
+    // `service` and `expense` are excluded for a different reason and a worse
+    // one: `LogMoreSheet` builds fields for `fillUp` and nothing else, so both
+    // offered a row promising "Workshop · Invoice · Notes" and opened a sheet
+    // with its title and empty space. Found by a person on a device; this file
+    // could not see it, because it pumps the sheet with `type: fillUp`.
+    //
+    // This assertion is a PLACEHOLDER for the fields, not a decision that they
+    // are unwanted. When they are built it goes back to `isTrue` — and the
+    // test that should exist alongside it is one that opens each form's More
+    // through `CalmSheet.show` and finds a field.
+    expect(logTypeHasMore(LogType.fillUp), isTrue);
+    for (final type in [LogType.service, LogType.expense]) {
+      expect(logTypeHasMore(type), isFalse, reason: type.wire);
     }
   });
 }

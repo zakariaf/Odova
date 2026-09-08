@@ -524,6 +524,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get firstRunHaveBackup => 'Ich habe schon ein Odova-Backup';
 
   @override
+  String get saveRefusedNotFound =>
+      'Dieser Eintrag ist nicht mehr da. Möglicherweise wurde er auf diesem Telefon bereits gelöscht.';
+
+  @override
+  String get saveRefusedDerivedReading =>
+      'Dieser Stand stammt aus einer Betankung, einem Service oder einer Fahrt. Bearbeiten Sie diesen Eintrag, der Stand folgt.';
+
+  @override
+  String get saveRefusedConstraint =>
+      'Odova konnte das nicht speichern. Etwas am Eintrag passt nicht zu seinen eigenen Regeln — prüfen Sie die Werte und versuchen Sie es erneut.';
+
+  @override
   String get saveRefusedBackwards =>
       'Dieser Stand liegt unter dem vorherigen. Bitte die Zahl prüfen.';
 
@@ -1705,6 +1717,90 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get logFillUpChainBrokenHint =>
       'Ihre Verbrauchswerte beginnen mit dieser Tankfüllung neu.';
+
+  @override
+  String get serviceKindOilAndFilter => 'Öl und Filter';
+
+  @override
+  String get serviceKindAirFilter => 'Luftfilter';
+
+  @override
+  String get serviceKindCabinFilter => 'Innenraumfilter';
+
+  @override
+  String get serviceKindFuelFilter => 'Kraftstofffilter';
+
+  @override
+  String get serviceKindSparkPlugs => 'Zündkerzen';
+
+  @override
+  String get serviceKindTimingBelt => 'Zahnriemen';
+
+  @override
+  String get serviceKindBrakePadsCheck => 'Bremsbeläge prüfen';
+
+  @override
+  String get serviceKindBrakePadsFront => 'Bremsbeläge vorn';
+
+  @override
+  String get serviceKindBrakePadsRear => 'Bremsbeläge hinten';
+
+  @override
+  String get serviceKindBrakeFluid => 'Bremsflüssigkeit';
+
+  @override
+  String get serviceKindCoolant => 'Kühlmittel';
+
+  @override
+  String get serviceKindTransmissionFluid => 'Getriebeöl';
+
+  @override
+  String get serviceKindWheelAlignment => 'Achsvermessung';
+
+  @override
+  String get serviceKindTyreRotate => 'Reifen wechseln';
+
+  @override
+  String get serviceKindTyreReplace => 'Neue Reifen';
+
+  @override
+  String get serviceKindBattery => 'Batterie';
+
+  @override
+  String get serviceKindWipers => 'Wischerblätter';
+
+  @override
+  String get serviceKindInspection => 'Hauptuntersuchung';
+
+  @override
+  String get serviceKindRegistration => 'Zulassung';
+
+  @override
+  String get serviceKindInsuranceRenewal => 'Versicherung verlängern';
+
+  @override
+  String get serviceKindAcService => 'Klimaservice';
+
+  @override
+  String get serviceKindChainLube => 'Kette schmieren';
+
+  @override
+  String get serviceKindChainAndSprockets => 'Kette und Ritzel';
+
+  @override
+  String get serviceKindValveClearance => 'Ventilspiel';
+
+  @override
+  String get serviceKindForkOil => 'Gabelöl';
+
+  @override
+  String get serviceKindReductionGearboxOil => 'Getriebeöl (Untersetzung)';
+
+  @override
+  String get serviceKindBattery12v => 'Zusatzbatterie';
+
+  @override
+  String get serviceKindCustom => 'Eigener Eintrag';
 
   @override
   String get logServiceWorkshop => 'Werkstatt';
