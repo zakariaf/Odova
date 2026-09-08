@@ -75,3 +75,26 @@ denial `requestPermissions` is a no-op and "Turn on Reminders" does nothing
 visible — the remedy is a deep link to OS Settings, which needs a platform
 channel whose transitive tree has to be audited against §2's no-network rule
 first. Android re-prompts and works today.
+
+### Verified on the Pixel 8a emulator, 2026-09-08
+
+Fresh install through first run, then one fill-up and one service.
+
+| | Now |
+|---|---|
+| F-4 language | tapping Deutsch turns the whole screen German and moves the tick; "System (Deutsch)" follows |
+| F-5 currency | `$` on Price/L, Total paid and service Cost, from the stored code |
+| A-3 / F-3 fuel | `94.50 $` renders in full in a third-width field — the case that used to clip |
+| **A-1 save** | a fill-up **saves**: Home goes to 48,591 mi and Last fill-up reads $94.50 · 50.00 L |
+| A-2 message | a refusal names itself — "That reading is lower than the one before it" — instead of blaming the disk |
+| F-2 snackbar | "Fill-up saved / Undo" sits clear above the tab bar |
+| F-6 panel | the confirmation stands alone: no segmented control, no footer Save, app-bar Save greyed |
+| E-1 / D-3 names | seven named reminders, and named chips on `log.service` |
+| F-1 edit | the Name field shows "Oil and filter" in placeholder grey, with the field itself empty |
+
+**A-1 was not what the first pass thought it was.** It was recorded as a save
+that "reported a full disk" and fixed by making the message honest. The honest
+message then said the true thing: the save was failing every time, because
+`FillUpDraft.occurredOn` was never set. Fixing the wording is what made the
+defect findable — which is the argument for §2's rule about never guessing in a
+way that looks like fact, applied to error copy.
