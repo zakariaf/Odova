@@ -139,6 +139,41 @@ the notification screen would show a page that looks entirely correct.
 | switch flipped out there | ✅ | — *(iOS shows no Notifications row until the app has asked)* |
 | returning re-reads the permission | ✅ card gone | ✅ card correctly stays |
 
+### G-4 — neither platform could tell "never asked" from "refused"
+
+Reported as *"there is no notification in its setting"*: the deep link opened
+iOS Settings on a page with **no Notifications row on it**. That is iOS
+behaving correctly — it adds the row only once an app has actually requested
+authorisation — and Odova never had.
+
+Both platform reads collapsed the two states §13 most needs apart:
+
+- iOS `checkPermissions()` returns an options object with **every flag false**
+  both when the user has refused and when nobody has asked.
+- Android `areNotificationsEnabled()` is a boolean with no third value.
+
+So a fresh install on either reported `denied`, §13 drew the **blocked** card,
+and its button — correctly, for a genuinely blocked phone — offered the OS
+settings instead of asking. The app could never ask, on either platform.
+
+The two branches are now one question over the app's own channel:
+`UNNotificationSettings.authorizationStatus` on iOS, and on Android
+`areNotificationsEnabled()` widened to a third state. Android cannot fully
+distinguish "never asked" from "refused for good" —
+`shouldShowRequestPermissionRationale` is false in both — so `FlnPermissionPort`
+remembers a refusal **for the session only**: §2 forbids persisting a derived
+value, and a stored flag would survive an import onto a phone where the user
+had granted and be wrong for ever. A relaunch asks once more, which costs one
+tap on a phone that has refused for good and is right on every phone that has
+not.
+
+| | Android | iOS |
+|---|---|---|
+| fresh install | "Reminders are off." | "Reminders are off." |
+| tapping it | **the OS dialog appears** | **the OS dialog appears** |
+| refusing | blocked card | blocked card |
+| the deep link then | app notification page | Odova's Settings page, **now with a Notifications row** |
+
 **Still open.** CI has an `ios build` job that reports `skipping`, so no Swift in
 this repo is compiled by any pipeline — the `AppDelegate` typo that stopped the
 iOS app building at all reached `main` that way, and this change is mostly

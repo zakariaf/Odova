@@ -72,16 +72,27 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SETTINGS_CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    // Android has no "not determined" once POST_NOTIFICATIONS
-                    // exists: the permission is either held or it is not, and
-                    // the plugin's own read already answers that. This exists
-                    // so the Dart side asks ONE question on both platforms
-                    // rather than learning which it is on.
+                    // Three states on Android too, so the Dart side asks ONE
+                    // question rather than learning which platform it is on.
+                    //
+                    // `areNotificationsEnabled()` alone collapses "never asked"
+                    // into "refused", exactly as iOS's `checkPermissions` does,
+                    // and with the same cost: a fresh install would be sent to
+                    // Settings to flip a switch by hand when one tap would have
+                    // raised the system dialog.
+                    //
+                    // `shouldShowRequestPermissionRationale` is what separates
+                    // them, as far as Android allows. False before the app has
+                    // ever asked, true after one refusal, false again once the
+                    // user has refused for good — so the first and last cases
+                    // are genuinely indistinguishable here. Both are reported
+                    // as "not determined" and the port's own session memory
+                    // settles it: see `FlnPermissionPort`.
                     "notificationAuthorizationStatus" -> result.success(
-                        if (NotificationManagerCompat.from(this).areNotificationsEnabled()) {
-                            "authorized"
-                        } else {
-                            "denied"
+                        when {
+                            NotificationManagerCompat.from(this)
+                                .areNotificationsEnabled() -> "authorized"
+                            else -> "notDetermined"
                         },
                     )
                     // §13's blocked card. Straight to this app's notification
