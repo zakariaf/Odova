@@ -9,13 +9,21 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/app.dart';
 import 'package:odova/app/providers.dart';
+import 'package:odova/core/domain/models/settings.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 
 import '../support/capture_context.dart';
 import '../support/pump_app.dart';
+
+/// `settingsProvider`, stubbed. See the comment at the first use.
+final List<Override> _themeOverride = [
+  settingsProvider.overrideWith((ref) => const Stream<AppSettings?>.empty()),
+];
 
 void main() {
   testWidgets('supportedLocales is exactly en de fr fa ar ckb', (tester) async {
@@ -25,6 +33,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         retry: noProviderRetry,
+        // The settings row, because `OdovaApp` reads the user's palette from
+        // it now. Without an override the real StreamProvider reaches for a
+        // database that is not here and leaves a pending timer at teardown —
+        // which fails the NEXT test rather than this one.
+        overrides: _themeOverride,
         child: OdovaApp(router: singleScreenRouter(const SizedBox.shrink())),
       ),
     );
@@ -52,6 +65,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           retry: noProviderRetry,
+          overrides: _themeOverride,
           child: OdovaApp(
             locale: Locale(locale),
             router: singleScreenRouter(
@@ -76,6 +90,7 @@ void main() {
       // it needs a scope even when a test pins the locale itself.
       ProviderScope(
         retry: noProviderRetry,
+        overrides: _themeOverride,
         child: OdovaApp(
           router: singleScreenRouter(
             captureContext((context) => l10n = AppLocalizations.of(context)),

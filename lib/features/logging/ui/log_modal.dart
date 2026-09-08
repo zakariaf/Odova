@@ -58,6 +58,7 @@ import 'package:odova/l10n/expense_labels.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/persist_failure_message.dart';
+import 'package:odova/l10n/service_kind_label.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -591,9 +592,22 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     _pendingTickItemId = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      setState(() => _cost = _cost.ticked(match.id, match.label));
+      setState(
+        () => _cost = _cost.ticked(match.id, _chipLabel(match)),
+      );
     });
   }
+
+  /// What a ticked line is called in the cost split.
+  ///
+  /// A seed has no label of its own, so the name comes from its kind — the
+  /// same resolution the chip itself draws, so the split and the chip cannot
+  /// disagree about what the user ticked.
+  String _chipLabel(ServiceItemChip chip) => serviceItemLabel(
+    AppLocalizations.of(context),
+    kind: chip.kind,
+    label: chip.label,
+  );
 
   /// Ticks or unticks one item.
   ///
@@ -604,7 +618,9 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     final chip = _itemChips().where((c) => c.id == id).firstOrNull;
     if (chip == null) return;
     setState(() {
-      _cost = chip.ticked ? _cost.unticked(id) : _cost.ticked(id, chip.label);
+      _cost = chip.ticked
+          ? _cost.unticked(id)
+          : _cost.ticked(id, _chipLabel(chip));
     });
   }
 

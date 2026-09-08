@@ -13,6 +13,7 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/app/notifications/notification_permission_port.dart';
 import 'package:odova/app/notifications/schedule_rebuilder.dart';
 import 'package:odova/core/result.dart';
 import 'package:odova/features/backup/application/backup_notifier.dart';
@@ -70,6 +71,33 @@ void main() {
     await expectLater(
       const NoScheduledNotifications().rebuildAll(),
       completes,
+    );
+  });
+
+  test('the permission port has a working default', () async {
+    // It threw `UnimplementedError`, and nothing ever saw it:
+    // `notifications_screen.dart` reads `.value ?? granted`, so the throw came
+    // back null and the screen assumed the OS had said yes — a page of
+    // switches over a permission nobody had asked for. On a device that is no
+    // dialog, ever, and no error either.
+    //
+    // The default is inert rather than absent, for the reason the backup
+    // actions give above: a widget test pumps `settings.notifications` with no
+    // plugin, and a throwing default makes the screen untestable rather than
+    // merely quiet.
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    final port = container.read(notificationPermissionProvider);
+    expect(
+      await port.read(),
+      NotificationPermission.neverAsked,
+      reason: 'an app with no plugin has not asked, and must not claim it has',
+    );
+    expect(
+      await port.request(),
+      NotificationPermission.neverAsked,
+      reason: 'and it cannot ask, which is not the same as being refused',
     );
   });
 }

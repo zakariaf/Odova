@@ -26,8 +26,24 @@ import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
 
-/// Whether [type] has a More section at all.
-bool logTypeHasMore(LogType type) => type != LogType.odometer;
+/// Whether [type]'s More section has anything behind it.
+///
+/// **`fillUp` only, and that is a retreat rather than a design.** The row was
+/// offered on `service` and `expense` too, with subtitles promising
+/// "Workshop · Invoice · Notes" and "Paid to · Trip · Notes" — and
+/// [LogMoreSheet] builds fields for `fillUp` and for nothing else, so both
+/// opened a sheet containing its title and empty space. A manual pass on a
+/// device is what found it; the sheet's own test pumps it with
+/// `type: fillUp` and never goes through `CalmSheet.show`, so the presentation
+/// path had no test at all.
+///
+/// Advertising a section that does not exist is worse than not offering it, so
+/// the row is gone until the fields are built. That is REAL WORK and not a
+/// line change: `ServiceRecord` has `vendor`, `invoiceRef` and `notes` and the
+/// modal collects none of them, and `ExpenseDraft` has no such fields at all,
+/// so the expense side needs draft columns before it needs a sheet. Recorded in
+/// `design/review/device-findings-2026-09-08.md`.
+bool logTypeHasMore(LogType type) => type == LogType.fillUp;
 
 /// Opens the More section for [type].
 Future<void> showLogMoreSheet(

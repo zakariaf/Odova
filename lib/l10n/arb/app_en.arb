@@ -744,6 +744,18 @@
   "@firstRunHaveBackup": {
     "description": "Quiet button under Start, opening the OS document picker. Deliberately SHORTER than `firstrun.language`'s two-line offer: by this screen the user has already declined it once. Odova is the app name."
   },
+  "saveRefusedNotFound": "That entry is no longer there. It may have been deleted on this phone already.",
+  "@saveRefusedNotFound": {
+    "description": "Shown when a save or delete names a row that is not in the store — an entry removed in another tab, or a stale id from a notification payload. It used to report saveDiskFullError like everything else unclassified."
+  },
+  "saveRefusedDerivedReading": "This reading came from a fill-up, a service or a trip. Edit that entry and the reading follows.",
+  "@saveRefusedDerivedReading": {
+    "description": "Shown when an edit names an odometer reading that a fill-up, service or trip produced. SPEC.md \\u00a73: a derived reading follows its parent, so the remedy is to edit the parent — which this says, where the disk-full sentence it used to borrow said nothing at all."
+  },
+  "saveRefusedConstraint": "Odova could not save that. Something in the entry does not fit its own rules — check the figures and try again.",
+  "@saveRefusedConstraint": {
+    "description": "Shown when a write was refused by one of the app's own CHECK constraints, NOT by a full disk. Every failure that was not the odometer rule or a read-only store reported saveDiskFullError, so a user whose entry broke an invariant this app wrote was told their phone was out of space and sent to delete photos. SPEC.md \\u00a72: the app never guesses in a way that looks like fact."
+  },
   "saveRefusedBackwards": "That reading is lower than the one before it. Check the number and try again.",
   "@saveRefusedBackwards": {
     "description": "Shown when a save is refused by the odometer monotonicity rule, NOT by a full disk. Every persist failure used to report saveDiskFullError, so a user whose reading was rejected as below the previous one was told their phone was out of space."
@@ -2530,6 +2542,118 @@
   "logFillUpChainBrokenHint": "Your consumption figures start fresh from this fill-up.",
   "@logFillUpChainBrokenHint": {
     "description": "Shown when the chain-broken box is ticked. It states the consequence, because a discarded segment is invisible otherwise."
+  },
+  "serviceKindOilAndFilter": "Oil and filter",
+  "@serviceKindOilAndFilter": {
+    "description": "The display name for ServiceKind.oilAndFilter. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindAirFilter": "Air filter",
+  "@serviceKindAirFilter": {
+    "description": "The display name for ServiceKind.airFilter. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindCabinFilter": "Cabin filter",
+  "@serviceKindCabinFilter": {
+    "description": "The display name for ServiceKind.cabinFilter. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindFuelFilter": "Fuel filter",
+  "@serviceKindFuelFilter": {
+    "description": "The display name for ServiceKind.fuelFilter. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindSparkPlugs": "Spark plugs",
+  "@serviceKindSparkPlugs": {
+    "description": "The display name for ServiceKind.sparkPlugs. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindTimingBelt": "Timing belt",
+  "@serviceKindTimingBelt": {
+    "description": "The display name for ServiceKind.timingBelt. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindBrakePadsCheck": "Brake pad check",
+  "@serviceKindBrakePadsCheck": {
+    "description": "The display name for ServiceKind.brakePadsCheck. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindBrakePadsFront": "Front brake pads",
+  "@serviceKindBrakePadsFront": {
+    "description": "The display name for ServiceKind.brakePadsFront. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindBrakePadsRear": "Rear brake pads",
+  "@serviceKindBrakePadsRear": {
+    "description": "The display name for ServiceKind.brakePadsRear. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindBrakeFluid": "Brake fluid",
+  "@serviceKindBrakeFluid": {
+    "description": "The display name for ServiceKind.brakeFluid. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindCoolant": "Coolant",
+  "@serviceKindCoolant": {
+    "description": "The display name for ServiceKind.coolant. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindTransmissionFluid": "Transmission fluid",
+  "@serviceKindTransmissionFluid": {
+    "description": "The display name for ServiceKind.transmissionFluid. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindWheelAlignment": "Wheel alignment",
+  "@serviceKindWheelAlignment": {
+    "description": "The display name for ServiceKind.wheelAlignment. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindTyreRotate": "Tyre rotation",
+  "@serviceKindTyreRotate": {
+    "description": "The display name for ServiceKind.tyreRotate. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindTyreReplace": "New tyres",
+  "@serviceKindTyreReplace": {
+    "description": "The display name for ServiceKind.tyreReplace. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindBattery": "Battery",
+  "@serviceKindBattery": {
+    "description": "The display name for ServiceKind.battery. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindWipers": "Wiper blades",
+  "@serviceKindWipers": {
+    "description": "The display name for ServiceKind.wipers. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindInspection": "Inspection",
+  "@serviceKindInspection": {
+    "description": "The display name for ServiceKind.inspection. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindRegistration": "Registration",
+  "@serviceKindRegistration": {
+    "description": "The display name for ServiceKind.registration. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindInsuranceRenewal": "Insurance renewal",
+  "@serviceKindInsuranceRenewal": {
+    "description": "The display name for ServiceKind.insuranceRenewal. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindAcService": "Air conditioning",
+  "@serviceKindAcService": {
+    "description": "The display name for ServiceKind.acService. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindChainLube": "Chain lube",
+  "@serviceKindChainLube": {
+    "description": "The display name for ServiceKind.chainLube. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindChainAndSprockets": "Chain and sprockets",
+  "@serviceKindChainAndSprockets": {
+    "description": "The display name for ServiceKind.chainAndSprockets. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindValveClearance": "Valve clearance",
+  "@serviceKindValveClearance": {
+    "description": "The display name for ServiceKind.valveClearance. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindForkOil": "Fork oil",
+  "@serviceKindForkOil": {
+    "description": "The display name for ServiceKind.forkOil. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindReductionGearboxOil": "Reduction gearbox oil",
+  "@serviceKindReductionGearboxOil": {
+    "description": "The display name for ServiceKind.reductionGearboxOil. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindBattery12v": "Auxiliary battery",
+  "@serviceKindBattery12v": {
+    "description": "The display name for ServiceKind.battery12v — the AUXILIARY battery, which SPEC.md \u00a78 seeds in place of `battery` on an electric vehicle: the small 12-volt one that runs the electronics, not the traction pack. Named without the number because `arb_template_test` refuses a bare digit in copy \u2014 a Latin 12 beside Persian-shaped digits is the failure that rule exists for. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
+  },
+  "serviceKindCustom": "Custom item",
+  "@serviceKindCustom": {
+    "description": "The display name for ServiceKind.custom. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them \"Service\"."
   },
   "logServiceWorkshop": "Workshop",
   "@logServiceWorkshop": {

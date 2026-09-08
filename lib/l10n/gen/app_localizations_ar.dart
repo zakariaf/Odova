@@ -565,6 +565,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get firstRunHaveBackup => 'لديّ بالفعل نسخة احتياطية من أودوفا';
 
   @override
+  String get saveRefusedNotFound =>
+      'لم يعد هذا الإدخال موجودًا. ربما حُذف على هذا الهاتف من قبل.';
+
+  @override
+  String get saveRefusedDerivedReading =>
+      'جاء هذا القراءة من تعبئة وقود أو صيانة أو رحلة. عدّل ذلك الإدخال وستتبعه القراءة.';
+
+  @override
+  String get saveRefusedConstraint =>
+      'تعذّر على أودوفا الحفظ. هناك شيء في الإدخال لا يوافق قواعده — راجع الأرقام وحاول مجددًا.';
+
+  @override
   String get saveRefusedBackwards =>
       'هذه القراءة أقل من السابقة. تحقّق من الرقم.';
 
@@ -1803,6 +1815,90 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get logFillUpChainBrokenHint =>
       'تبدأ أرقام استهلاكك من جديد بهذه التعبئة.';
+
+  @override
+  String get serviceKindOilAndFilter => 'الزيت والفلتر';
+
+  @override
+  String get serviceKindAirFilter => 'فلتر الهواء';
+
+  @override
+  String get serviceKindCabinFilter => 'فلتر المقصورة';
+
+  @override
+  String get serviceKindFuelFilter => 'فلتر الوقود';
+
+  @override
+  String get serviceKindSparkPlugs => 'شمعات الإشعال';
+
+  @override
+  String get serviceKindTimingBelt => 'سير التوقيت';
+
+  @override
+  String get serviceKindBrakePadsCheck => 'فحص تيل الفرامل';
+
+  @override
+  String get serviceKindBrakePadsFront => 'تيل الفرامل الأمامي';
+
+  @override
+  String get serviceKindBrakePadsRear => 'تيل الفرامل الخلفي';
+
+  @override
+  String get serviceKindBrakeFluid => 'زيت الفرامل';
+
+  @override
+  String get serviceKindCoolant => 'سائل التبريد';
+
+  @override
+  String get serviceKindTransmissionFluid => 'زيت ناقل الحركة';
+
+  @override
+  String get serviceKindWheelAlignment => 'ضبط زوايا العجلات';
+
+  @override
+  String get serviceKindTyreRotate => 'تدوير الإطارات';
+
+  @override
+  String get serviceKindTyreReplace => 'إطارات جديدة';
+
+  @override
+  String get serviceKindBattery => 'البطارية';
+
+  @override
+  String get serviceKindWipers => 'مساحات الزجاج';
+
+  @override
+  String get serviceKindInspection => 'الفحص الفني';
+
+  @override
+  String get serviceKindRegistration => 'تجديد الترخيص';
+
+  @override
+  String get serviceKindInsuranceRenewal => 'تجديد التأمين';
+
+  @override
+  String get serviceKindAcService => 'خدمة التكييف';
+
+  @override
+  String get serviceKindChainLube => 'تشحيم السلسلة';
+
+  @override
+  String get serviceKindChainAndSprockets => 'السلسلة والتروس';
+
+  @override
+  String get serviceKindValveClearance => 'خلوص الصمامات';
+
+  @override
+  String get serviceKindForkOil => 'زيت الشوكة';
+
+  @override
+  String get serviceKindReductionGearboxOil => 'زيت علبة التخفيض';
+
+  @override
+  String get serviceKindBattery12v => 'البطارية المساعدة';
+
+  @override
+  String get serviceKindCustom => 'عنصر مخصص';
 
   @override
   String get logServiceWorkshop => 'الورشة';

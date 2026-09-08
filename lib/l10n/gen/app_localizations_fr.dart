@@ -538,6 +538,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get firstRunHaveBackup => 'J’ai déjà une sauvegarde Odova';
 
   @override
+  String get saveRefusedNotFound =>
+      'Cette entrée n’existe plus. Elle a peut-être déjà été supprimée sur ce téléphone.';
+
+  @override
+  String get saveRefusedDerivedReading =>
+      'Ce relevé provient d’un plein, d’un entretien ou d’un trajet. Modifiez cette entrée et le relevé suivra.';
+
+  @override
+  String get saveRefusedConstraint =>
+      'Odova n’a pas pu enregistrer. Quelque chose dans la saisie ne respecte pas ses propres règles — vérifiez les valeurs et réessayez.';
+
+  @override
   String get saveRefusedBackwards =>
       'Ce relevé est inférieur au précédent. Vérifiez le nombre.';
 
@@ -1738,6 +1750,90 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get logFillUpChainBrokenHint =>
       'Vos valeurs de consommation repartent de ce plein.';
+
+  @override
+  String get serviceKindOilAndFilter => 'Huile et filtre';
+
+  @override
+  String get serviceKindAirFilter => 'Filtre à air';
+
+  @override
+  String get serviceKindCabinFilter => 'Filtre d’habitacle';
+
+  @override
+  String get serviceKindFuelFilter => 'Filtre à carburant';
+
+  @override
+  String get serviceKindSparkPlugs => 'Bougies d’allumage';
+
+  @override
+  String get serviceKindTimingBelt => 'Courroie de distribution';
+
+  @override
+  String get serviceKindBrakePadsCheck => 'Contrôle des plaquettes';
+
+  @override
+  String get serviceKindBrakePadsFront => 'Plaquettes avant';
+
+  @override
+  String get serviceKindBrakePadsRear => 'Plaquettes arrière';
+
+  @override
+  String get serviceKindBrakeFluid => 'Liquide de frein';
+
+  @override
+  String get serviceKindCoolant => 'Liquide de refroidissement';
+
+  @override
+  String get serviceKindTransmissionFluid => 'Huile de boîte';
+
+  @override
+  String get serviceKindWheelAlignment => 'Parallélisme';
+
+  @override
+  String get serviceKindTyreRotate => 'Permutation des pneus';
+
+  @override
+  String get serviceKindTyreReplace => 'Pneus neufs';
+
+  @override
+  String get serviceKindBattery => 'Batterie';
+
+  @override
+  String get serviceKindWipers => 'Balais d’essuie-glace';
+
+  @override
+  String get serviceKindInspection => 'Contrôle technique';
+
+  @override
+  String get serviceKindRegistration => 'Carte grise';
+
+  @override
+  String get serviceKindInsuranceRenewal => 'Renouvellement d’assurance';
+
+  @override
+  String get serviceKindAcService => 'Climatisation';
+
+  @override
+  String get serviceKindChainLube => 'Graissage de chaîne';
+
+  @override
+  String get serviceKindChainAndSprockets => 'Chaîne et pignons';
+
+  @override
+  String get serviceKindValveClearance => 'Jeu aux soupapes';
+
+  @override
+  String get serviceKindForkOil => 'Huile de fourche';
+
+  @override
+  String get serviceKindReductionGearboxOil => 'Huile de réducteur';
+
+  @override
+  String get serviceKindBattery12v => 'Batterie auxiliaire';
+
+  @override
+  String get serviceKindCustom => 'Élément personnalisé';
 
   @override
   String get logServiceWorkshop => 'Garage';

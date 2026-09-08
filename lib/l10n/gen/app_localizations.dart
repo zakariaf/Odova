@@ -801,6 +801,24 @@ abstract class AppLocalizations {
   /// **'I already have an Odova backup'**
   String get firstRunHaveBackup;
 
+  /// Shown when a save or delete names a row that is not in the store — an entry removed in another tab, or a stale id from a notification payload. It used to report saveDiskFullError like everything else unclassified.
+  ///
+  /// In en, this message translates to:
+  /// **'That entry is no longer there. It may have been deleted on this phone already.'**
+  String get saveRefusedNotFound;
+
+  /// Shown when an edit names an odometer reading that a fill-up, service or trip produced. SPEC.md \u00a73: a derived reading follows its parent, so the remedy is to edit the parent — which this says, where the disk-full sentence it used to borrow said nothing at all.
+  ///
+  /// In en, this message translates to:
+  /// **'This reading came from a fill-up, a service or a trip. Edit that entry and the reading follows.'**
+  String get saveRefusedDerivedReading;
+
+  /// Shown when a write was refused by one of the app's own CHECK constraints, NOT by a full disk. Every failure that was not the odometer rule or a read-only store reported saveDiskFullError, so a user whose entry broke an invariant this app wrote was told their phone was out of space and sent to delete photos. SPEC.md \u00a72: the app never guesses in a way that looks like fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova could not save that. Something in the entry does not fit its own rules — check the figures and try again.'**
+  String get saveRefusedConstraint;
+
   /// Shown when a save is refused by the odometer monotonicity rule, NOT by a full disk. Every persist failure used to report saveDiskFullError, so a user whose reading was rejected as below the previous one was told their phone was out of space.
   ///
   /// In en, this message translates to:
@@ -2557,6 +2575,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your consumption figures start fresh from this fill-up.'**
   String get logFillUpChainBrokenHint;
+
+  /// The display name for ServiceKind.oilAndFilter. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Oil and filter'**
+  String get serviceKindOilAndFilter;
+
+  /// The display name for ServiceKind.airFilter. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Air filter'**
+  String get serviceKindAirFilter;
+
+  /// The display name for ServiceKind.cabinFilter. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Cabin filter'**
+  String get serviceKindCabinFilter;
+
+  /// The display name for ServiceKind.fuelFilter. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel filter'**
+  String get serviceKindFuelFilter;
+
+  /// The display name for ServiceKind.sparkPlugs. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Spark plugs'**
+  String get serviceKindSparkPlugs;
+
+  /// The display name for ServiceKind.timingBelt. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Timing belt'**
+  String get serviceKindTimingBelt;
+
+  /// The display name for ServiceKind.brakePadsCheck. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Brake pad check'**
+  String get serviceKindBrakePadsCheck;
+
+  /// The display name for ServiceKind.brakePadsFront. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Front brake pads'**
+  String get serviceKindBrakePadsFront;
+
+  /// The display name for ServiceKind.brakePadsRear. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Rear brake pads'**
+  String get serviceKindBrakePadsRear;
+
+  /// The display name for ServiceKind.brakeFluid. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Brake fluid'**
+  String get serviceKindBrakeFluid;
+
+  /// The display name for ServiceKind.coolant. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Coolant'**
+  String get serviceKindCoolant;
+
+  /// The display name for ServiceKind.transmissionFluid. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Transmission fluid'**
+  String get serviceKindTransmissionFluid;
+
+  /// The display name for ServiceKind.wheelAlignment. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Wheel alignment'**
+  String get serviceKindWheelAlignment;
+
+  /// The display name for ServiceKind.tyreRotate. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Tyre rotation'**
+  String get serviceKindTyreRotate;
+
+  /// The display name for ServiceKind.tyreReplace. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'New tyres'**
+  String get serviceKindTyreReplace;
+
+  /// The display name for ServiceKind.battery. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Battery'**
+  String get serviceKindBattery;
+
+  /// The display name for ServiceKind.wipers. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Wiper blades'**
+  String get serviceKindWipers;
+
+  /// The display name for ServiceKind.inspection. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Inspection'**
+  String get serviceKindInspection;
+
+  /// The display name for ServiceKind.registration. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Registration'**
+  String get serviceKindRegistration;
+
+  /// The display name for ServiceKind.insuranceRenewal. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance renewal'**
+  String get serviceKindInsuranceRenewal;
+
+  /// The display name for ServiceKind.acService. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Air conditioning'**
+  String get serviceKindAcService;
+
+  /// The display name for ServiceKind.chainLube. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Chain lube'**
+  String get serviceKindChainLube;
+
+  /// The display name for ServiceKind.chainAndSprockets. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Chain and sprockets'**
+  String get serviceKindChainAndSprockets;
+
+  /// The display name for ServiceKind.valveClearance. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Valve clearance'**
+  String get serviceKindValveClearance;
+
+  /// The display name for ServiceKind.forkOil. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Fork oil'**
+  String get serviceKindForkOil;
+
+  /// The display name for ServiceKind.reductionGearboxOil. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Reduction gearbox oil'**
+  String get serviceKindReductionGearboxOil;
+
+  /// The display name for ServiceKind.battery12v — the AUXILIARY battery, which SPEC.md §8 seeds in place of `battery` on an electric vehicle: the small 12-volt one that runs the electronics, not the traction pack. Named without the number because `arb_template_test` refuses a bare digit in copy — a Latin 12 beside Persian-shaped digits is the failure that rule exists for. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Auxiliary battery'**
+  String get serviceKindBattery12v;
+
+  /// The display name for ServiceKind.custom. SPEC.md §8 gives ServiceItem.label meaning only when kind = custom, so every seeded catalogue item is named by its kind — these are those names. Without them the app called all 28 of them "Service".
+  ///
+  /// In en, this message translates to:
+  /// **'Custom item'**
+  String get serviceKindCustom;
 
   /// §10's logServiceWorkshop label.
   ///

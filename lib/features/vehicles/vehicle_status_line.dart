@@ -25,6 +25,7 @@ import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/relative_past_text.dart';
+import 'package:odova/l10n/service_kind_label.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 
 /// What joins the facts on a vehicle row.
@@ -155,15 +156,21 @@ String _statusLine(
   // overdue; only its name is missing, and a generic noun says exactly that
   // much and no more.
   GarageStatus.overdue => l10n.vehicleStatusOverdue(
-    worst?.label ?? l10n.vehicleStatusItemGeneric,
+    worst == null
+        ? l10n.vehicleStatusItemGeneric
+        : serviceItemLabel(l10n, kind: worst.kind, label: worst.label),
   ),
   // Named, and no number — the engine gave none and this line invents nothing.
   GarageStatus.due => l10n.vehicleStatusDue(
-    worst?.label ?? l10n.vehicleStatusItemGeneric,
+    worst == null
+        ? l10n.vehicleStatusItemGeneric
+        : serviceItemLabel(l10n, kind: worst.kind, label: worst.label),
   ),
   GarageStatus.dueInDays => l10n.vehicleStatusDueInDays(
     days ?? 0,
-    worst?.label ?? l10n.vehicleStatusItemGeneric,
+    worst == null
+        ? l10n.vehicleStatusItemGeneric
+        : serviceItemLabel(l10n, kind: worst.kind, label: worst.label),
     // Through `formatForDisplay`, never `'\$days'`. SPEC.md §5: one numbering
     // system app-wide, and this count sits on the same LINE as the odometer —
     // "۱۸۷٬۴۱۲ کیلومتر · Service due in 3 days" is two systems in one sentence.
