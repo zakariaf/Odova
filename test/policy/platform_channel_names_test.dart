@@ -74,13 +74,29 @@ void main() {
     final dart = File(
       'lib/app/notifications/notification_settings_link.dart',
     ).readAsStringSync();
-    final invoked = RegExp(
-      r"_open\('(\w+)'\)",
-    ).allMatches(dart).map((m) => m.group(1)!).toSet();
+    // Every string this file names as a channel method, however it reaches
+    // the channel. The first version matched only `_open('…')` and therefore
+    // missed `authorization()`, which invokes directly — a gate that covered
+    // two of the three verbs and reported success. Whitespace is collapsed
+    // first, because `dart format` wraps a long invocation across lines and a
+    // regex that assumes one line is a regex that stops matching the day the
+    // name gets longer.
+    final flat = dart.replaceAll(RegExp(r'\s+'), ' ');
+    final invoked = {
+      for (final pattern in [
+        RegExp(r"_open\( ?'(\w+)' ?\)"),
+        RegExp(r"invokeMethod<\w+>\( ?'(\w+)'"),
+      ])
+        ...pattern.allMatches(flat).map((m) => m.group(1)!),
+    };
 
     expect(
       invoked,
-      {'openNotificationSettings', 'openAppDetailsSettings'},
+      {
+        'openNotificationSettings',
+        'openAppDetailsSettings',
+        'notificationAuthorizationStatus',
+      },
       reason: 'the port grew or lost a verb and this list did not follow',
     );
     for (final method in invoked) {

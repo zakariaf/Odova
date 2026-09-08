@@ -53,6 +53,32 @@ void main() {
     );
   });
 
+  test('the three-state status maps from the native name', () async {
+    // The states §13's screen is built on. `notDetermined` is the one the
+    // plugin cannot report on iOS — its `checkPermissions` gives an options
+    // object with every flag false for BOTH never-asked and refused — and
+    // collapsing it into `denied` is what stopped the app ever asking.
+    const link = PlatformNotificationSettingsLink();
+    for (final (name, expected) in [
+      ('notDetermined', NotificationAuthorization.notDetermined),
+      ('denied', NotificationAuthorization.denied),
+      ('authorized', NotificationAuthorization.authorized),
+    ]) {
+      mock((_) => name);
+      expect(await link.authorization(), expected, reason: name);
+    }
+  });
+
+  test('a name this build does not know is unknown, not denied', () async {
+    // A future iOS status, or a platform answering something else. `unknown`
+    // reads as never-asked at the caller: asking is recoverable, and telling
+    // someone they are blocked when they are not is not.
+    mock((_) => 'provisionalIshSomething');
+    const link = PlatformNotificationSettingsLink();
+
+    expect(await link.authorization(), NotificationAuthorization.unknown);
+  });
+
   test('a refusal is a value, not a throw', () async {
     // The screen has a card on it already and needs a sentence under the
     // button, not a red screen. §13 gives it no dialog to put an error in.

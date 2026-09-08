@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UserNotifications
 
 /// SPEC.md §12's share hand-off and §13's door out to Settings.
 ///
@@ -108,6 +109,26 @@ import UIKit
     )
     channel.setMethodCallHandler { (call: FlutterMethodCall, result: @escaping FlutterResult) in
       switch call.method {
+      case "notificationAuthorizationStatus":
+        // The three-state answer `flutter_local_notifications` cannot give.
+        // Its `checkPermissions` reports an options object with every flag
+        // false BOTH when the user refused and when nobody has asked yet, so
+        // §13's "Reminders are off." card and its blocked card become
+        // indistinguishable — and the app stops asking, which is the only way
+        // iOS ever adds a Notifications row to its Settings page.
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+          let name: String
+          switch settings.authorizationStatus {
+          case .notDetermined: name = "notDetermined"
+          case .denied: name = "denied"
+          case .authorized, .provisional, .ephemeral: name = "authorized"
+          @unknown default: name = "unknown"
+          }
+          // Back to the main thread: the completion runs on an arbitrary
+          // queue and a FlutterResult must be called on the platform thread.
+          DispatchQueue.main.async { result(name) }
+        }
+
       case "openNotificationSettings", "openAppDetailsSettings":
         guard let url = URL(string: UIApplication.openSettingsURLString),
           UIApplication.shared.canOpenURL(url)

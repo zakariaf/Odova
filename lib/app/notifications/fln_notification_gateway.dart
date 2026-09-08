@@ -33,6 +33,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:odova/app/notifications/notification_gateway.dart';
 import 'package:odova/app/notifications/notification_permission_port.dart';
+import 'package:odova/app/notifications/notification_settings_link.dart';
 import 'package:odova/core/notifications/scheduled_notification.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -172,10 +173,13 @@ class FlnNotificationGateway implements NotificationGateway {
 /// rather than an error, because on those platforms the notification really
 /// will be delivered.
 class FlnPermissionPort implements NotificationPermissionPort {
-  /// Creates the port over [_plugin].
-  const FlnPermissionPort(this._plugin);
+  /// Creates the port over [_plugin], asking [_link] for iOS's status.
+  const FlnPermissionPort(this._plugin, this._link);
 
   final FlutterLocalNotificationsPlugin _plugin;
+
+  /// The OS's own three-state answer, which the plugin cannot give on iOS.
+  final NotificationSettingsLink _link;
 
   @override
   Future<NotificationPermission> read() async {
@@ -201,14 +205,31 @@ class FlnPermissionPort implements NotificationPermissionPort {
         >();
     if (ios == null) return NotificationPermission.granted;
 
-    // iOS has no "read" that distinguishes never-asked from denied without
-    // asking, so `checkPermissions` is the closest thing: it reports what was
-    // granted, and a first launch reports nothing granted. §4.6's pre-prompt
-    // is what stops that reading as a refusal — it asks before the OS does.
-    final status = await ios.checkPermissions();
-    return (status?.isAlertEnabled ?? false)
-        ? NotificationPermission.granted
-        : NotificationPermission.denied;
+    // Asked of iOS DIRECTLY, because the plugin cannot answer it.
+    //
+    // `checkPermissions` reports an options object with every flag false both
+    // when the user has refused and when nobody has asked yet — the two states
+    // §13 most needs to tell apart. Reading it as `denied` made a fresh
+    // install show the BLOCKED card, whose button correctly offers the OS
+    // settings rather than asking; so the app never asked, and because iOS
+    // only adds a Notifications row to an app's Settings page once that app
+    // has requested at least once, the deep link landed on a page with no
+    // notification setting on it. The user was sent somewhere to turn on a
+    // switch that was not there.
+    //
+    // `UNNotificationSettings.authorizationStatus` is the real answer and
+    // reaches Dart over this app's own channel — see
+    // `notification_settings_link.dart` for why that is a channel of our own
+    // and why every verb on it takes no arguments.
+    //
+    // `unknown` reads as `neverAsked`: asking is recoverable, and telling
+    // someone they are blocked when they are not is not.
+    return switch (await _link.authorization()) {
+      NotificationAuthorization.authorized => NotificationPermission.granted,
+      NotificationAuthorization.denied => NotificationPermission.denied,
+      NotificationAuthorization.notDetermined ||
+      NotificationAuthorization.unknown => NotificationPermission.neverAsked,
+    };
   }
 
   @override

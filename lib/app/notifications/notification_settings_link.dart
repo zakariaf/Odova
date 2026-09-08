@@ -32,8 +32,38 @@ const MethodChannel kNotificationSettingsChannel = MethodChannel(
   'dev.odova/notification_settings',
 );
 
-/// Opens this app's own pages in the OS settings app.
+/// What the OS says about this app's notification authorisation.
+///
+/// The THREE-state answer §13's screen is built on, which
+/// `flutter_local_notifications` cannot give on iOS: its `checkPermissions`
+/// returns an options object with every flag false both when the user has
+/// refused and when nobody has asked yet, so the two collapse into one. iOS
+/// itself distinguishes them — `UNNotificationSettings.authorizationStatus` —
+/// and getting it wrong costs the app the one moment it is allowed to ask.
+enum NotificationAuthorization {
+  /// Nobody has asked yet. §13's "Reminders are off." card, which asks.
+  notDetermined,
+
+  /// The user refused. §13's blocked card, whose only door is OS settings.
+  denied,
+
+  /// Allowed, in any of iOS's several flavours.
+  authorized,
+
+  /// The platform would not say. Treated as [notDetermined] by the caller,
+  /// because asking is recoverable and telling someone they are blocked when
+  /// they are not is not.
+  unknown,
+}
+
+/// Opens this app's own pages in the OS settings app, and reads its status.
 abstract interface class NotificationSettingsLink {
+  /// What the OS says about notification authorisation for this app.
+  ///
+  /// A READ, and still no arguments — see the note above about why every verb
+  /// on this channel takes none.
+  Future<NotificationAuthorization> authorization();
+
   /// Opens the notification settings for this app.
   ///
   /// §13's blocked card. Android lands on the app's notification screen
@@ -58,6 +88,25 @@ abstract interface class NotificationSettingsLink {
 class PlatformNotificationSettingsLink implements NotificationSettingsLink {
   /// Creates the link.
   const PlatformNotificationSettingsLink();
+
+  @override
+  Future<NotificationAuthorization> authorization() async {
+    try {
+      final name = await kNotificationSettingsChannel.invokeMethod<String>(
+        'notificationAuthorizationStatus',
+      );
+      return switch (name) {
+        'notDetermined' => NotificationAuthorization.notDetermined,
+        'denied' => NotificationAuthorization.denied,
+        'authorized' => NotificationAuthorization.authorized,
+        _ => NotificationAuthorization.unknown,
+      };
+    } on PlatformException {
+      return NotificationAuthorization.unknown;
+    } on MissingPluginException {
+      return NotificationAuthorization.unknown;
+    }
+  }
 
   @override
   Future<bool> openNotificationSettings() => _open('openNotificationSettings');

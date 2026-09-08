@@ -64,6 +64,10 @@ class _FixedPermission implements NotificationPermissionPort {
 class _FakeSettingsLink implements NotificationSettingsLink {
   _FakeSettingsLink({this.opens = true});
 
+  @override
+  Future<NotificationAuthorization> authorization() async =>
+      NotificationAuthorization.unknown;
+
   /// Whether the OS accepts. False is the OEM that ships neither screen, and
   /// the case §1 needs a sentence for.
   final bool opens;

@@ -3,6 +3,7 @@ package io.applander.odova
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -71,6 +72,18 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SETTINGS_CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
+                    // Android has no "not determined" once POST_NOTIFICATIONS
+                    // exists: the permission is either held or it is not, and
+                    // the plugin's own read already answers that. This exists
+                    // so the Dart side asks ONE question on both platforms
+                    // rather than learning which it is on.
+                    "notificationAuthorizationStatus" -> result.success(
+                        if (NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+                            "authorized"
+                        } else {
+                            "denied"
+                        },
+                    )
                     // §13's blocked card. Straight to this app's notification
                     // screen — the switch the card is talking about is the
                     // first thing on it.
