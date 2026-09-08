@@ -74,7 +74,9 @@ class NotificationsSettingsScreen extends ConsumerWidget {
     );
 
     return CalmScaffold(
-      appBar: CalmAppBar(title: l10n.settingsNotificationsRow),
+      appBar: CalmAppBar.pushed(
+        title: l10n.settingsNotificationsRow,
+      ),
       children: [
         if (chrome.card case final card when card is! NotificationsNoCard) ...[
           _PermissionCard(card: card),

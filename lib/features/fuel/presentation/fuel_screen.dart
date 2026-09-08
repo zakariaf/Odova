@@ -57,7 +57,9 @@ class FuelScreen extends ConsumerWidget {
         : state.byKind[state.primaryKind];
 
     return CalmScaffold(
-      appBar: CalmAppBar(title: l10n.fuelTitle),
+      appBar: CalmAppBar.pushed(
+        title: l10n.fuelTitle,
+      ),
       children: [
         if (state.isEmpty || insights == null)
           _FuelEmpty(l10n: l10n)

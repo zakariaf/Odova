@@ -45,10 +45,10 @@ const Size kReferenceLogical = Size(390, 844);
 /// Where `check_parity.sh` looks.
 const String kParityOutDir = 'build/parity';
 
-/// `--h-statusbar` in `odova.css`, and `CalmSpace.statusbarH`.
+/// `--statusbar-h` in `odova.css`, and `CalmSpace.statusbarH`.
 const double kReferenceStatusBarHeight = 54;
 
-/// `--h-homebar`.
+/// `--homebar-h`.
 const double kReferenceHomeBarHeight = 34;
 
 /// One capture configuration.
@@ -58,6 +58,29 @@ typedef ParityCase = ({
   Locale locale,
   ThemeMode mode,
 });
+
+/// Whether [config] is one of the two right-to-left combinations.
+///
+/// Derived rather than carried, and read through this rather than compared at
+/// the call site: `config.dir == 'rtl'` was written out at fifteen of them, and
+/// one `'RTL'` among them yields LTR fixtures filed under an RTL filename —
+/// which is precisely the "passes for the wrong reason" failure the RTL
+/// captures exist to catch.
+bool isRtl(ParityCase config) => config.dir == 'rtl';
+
+/// The device region the artboards were drawn on.
+///
+/// `en-GB` for the Latin captures and a continental region for the rest: the
+/// reference's dates read "12 March 2024" and its numbers group with commas,
+/// which is `en-GB` — `en-US` would draw "March 12, 2024" and be equally
+/// correct for somebody else. SPEC.md §5 puts both under the region.
+///
+/// One helper because the expression was written out at thirteen call sites,
+/// and now all 28 screens run in one command: a single screen shot in `en-US`
+/// groups its numbers differently from the other 27 and both captures pass.
+List<Locale> artboardDeviceLocales(Locale locale) => [
+  Locale(locale.languageCode, locale.languageCode == 'en' ? 'GB' : 'DE'),
+];
 
 /// The four combinations every referenced screen is shot in.
 ///
@@ -127,7 +150,7 @@ Future<void> captureParity(
         textScaler: TextScaler.noScaling,
         disableAnimations: true,
         // The reference artboards draw a 54pt status bar and a 34pt home
-        // indicator — `--h-statusbar` and `--h-homebar`, the same numbers
+        // indicator — `--statusbar-h` and `--homebar-h`, the same numbers
         // `CalmSpace` carries. A capture with no padding puts the app bar at
         // y=0 and shifts EVERY horizontal band up by 54, which reads as "55% of
         // the reference's band edges are absent" and says nothing about the
@@ -183,13 +206,6 @@ Future<void> captureParity(
       ),
     ),
   );
-  // TWICE. Animations are collapsed, so the first pump settles the layout —
-  // but a provider overridden with a `Stream.value` delivers on a microtask,
-  // and a capture taken after one pump photographs the pre-data frame. That is
-  // a real state and not the one the reference draws: `log.fillup` came out
-  // with no helper line and no estimate chip because its reading history had
-  // not arrived yet, and the band profile could not match a reference that has
-  // both rows.
   // THREE times. Animations are collapsed, so the first pump settles the
   // layout — but a provider overridden with a `Stream.value` delivers on a
   // microtask, and each dependent provider downstream of it needs another

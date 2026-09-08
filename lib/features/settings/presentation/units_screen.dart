@@ -138,7 +138,9 @@ class UnitsScreen extends ConsumerWidget {
     }
 
     return CalmScaffold(
-      appBar: CalmAppBar(title: l10n.settingsUnitsRow),
+      appBar: CalmAppBar.pushed(
+        title: l10n.settingsUnitsRow,
+      ),
       children: [
         _PreviewCard(preview: preview, label: l10n.unitsPreviewLabel),
         SizedBox(height: space.s5),

@@ -1278,6 +1278,14 @@
       }
     }
   },
+  "homeOverdueCount": "{n, plural, one{{nText} overdue} other{{nText} overdue}}",
+  "@homeOverdueCount": {
+    "description": "The app-bar pill on Home, counting the overdue items. SPEC.md §9: Home answers one question, and this is the only element that answers it before the user reads a card. {nText} is the already-numeral-shaped count, so the digits follow the locale; {n} drives the plural category and is never rendered. Arabic carries all six CLDR categories.",
+    "placeholders": {
+      "n": { "type": "int" },
+      "nText": { "type": "String", "example": "1" }
+    }
+  },
   "homeMoreDue": "{n, plural, =0{See all reminders} one{See all — {nText} more due or overdue} other{See all — {nText} more due or overdue}}",
   "@homeMoreDue": {
     "description": "The red see-all row under the stack, counting the due or overdue items that did not fit in three cards. At =0 nothing is left over and the screen uses `remindersSeeAll` instead; this branch is the honest fallback rather than an empty string.",

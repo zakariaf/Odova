@@ -201,6 +201,7 @@
   "homeUnknownTitle": "ئەمانە دواجار کەی کران؟",
   "homeUnknownHint": "پێم بڵێ تا ببنە بیرخەرەوە.",
   "homeUnknownMore": "{n, plural, =0{هەموویان ببینە} one{+ {nText} تری} other{+ {nText} تری}}",
+  "homeOverdueCount": "{n, plural, one{{nText} دواکەوتوو} other{{nText} دواکەوتوو}}",
   "homeMoreDue": "{n, plural, =0{هەموو بیرخەرەوەکان} one{هەموویان ببینە — {nText} تری کاتیەتی یان دواکەوتووە} other{هەموویان ببینە — {nText} تری کاتیەتی یان دواکەوتووە}}",
   "homeSnoozedUntil": "دواخراوە هەتا {date}",
   "remindersSeeAll": "{n, plural, =0{هەموو بیرخەرەوەکان} one{هەموو بیرخەرەوەکان ({nText})} other{هەموو بیرخەرەوەکان ({nText})}}",

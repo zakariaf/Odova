@@ -6,7 +6,10 @@
 //
 // Bottom chrome comes from MediaQuery.paddingOf, never from `--homebar-h`:
 // that token is specimen-sheet chrome and is 0 on most Android hardware.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_shapes.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -306,7 +309,44 @@ class CalmAppBar extends StatelessWidget {
        startIcon = null,
        onStart = null,
        endLabel = null,
-       onEnd = null;
+       onEnd = null,
+       _pushed = false;
+
+  /// The standard bar with `.appbar__lead` — a pushed screen's way back.
+  ///
+  /// Twelve of the 28 artboards draw this lead and, until EPIC-18 put all 28
+  /// side by side, no screen in the app drew one: every pushed screen left
+  /// Android's system gesture as the only way out, and on iOS nothing at all.
+  /// Each of those screens passed its own parity test, because a missing
+  /// element is a band edge nobody was comparing against anything.
+  ///
+  /// It takes no label and no callback. Both were parameters first, and all
+  /// eleven call sites passed `l10n.commonBack` and
+  /// `Navigator.of(context).maybePop()` — one decision spelled out eleven
+  /// times, in a widget that has a `BuildContext` and can make it once. The
+  /// twelfth pushed screen could have passed `commonClose`, or a `pop()` that
+  /// throws on the last route where the other ten call `maybePop()`.
+  ///
+  /// The lead is still OPT-IN, and deliberately not derived from
+  /// `Navigator.canPop()`. The question it answers is "does this screen draw
+  /// `.appbar__lead`", which is a fact about `screens.html` and not about the
+  /// navigator: a modal is poppable and draws ✕ rather than ←, a first-run step
+  /// may be poppable and must offer no way back, and the four tab roots are
+  /// non-poppable only because of how the shell nests its navigators today.
+  const CalmAppBar.pushed({
+    required this.title,
+    super.key,
+    this.actions = const [],
+  }) : shape = CalmAppBarShape.standard,
+       subtitle = null,
+       titleWidget = null,
+       onTapVehicle = null,
+       startLabel = null,
+       startIcon = null,
+       onStart = null,
+       endLabel = null,
+       onEnd = null,
+       _pushed = true;
 
   /// The two-line bar: `type.titleLg` over an optional caption.
   const CalmAppBar.large({
@@ -321,7 +361,8 @@ class CalmAppBar extends StatelessWidget {
        startIcon = null,
        onStart = null,
        endLabel = null,
-       onEnd = null;
+       onEnd = null,
+       _pushed = false;
 
   /// The vehicle bar. The chevron exists only because this constructor was
   /// chosen — SPEC.md §9: with one vehicle the name is plain text.
@@ -337,7 +378,8 @@ class CalmAppBar extends StatelessWidget {
        startIcon = null,
        onStart = null,
        endLabel = null,
-       onEnd = null;
+       onEnd = null,
+       _pushed = false;
 
   /// The modal head: Cancel, title, Save (SPEC.md §10).
   ///
@@ -356,7 +398,14 @@ class CalmAppBar extends StatelessWidget {
        titleWidget = null,
        onTapVehicle = null,
        subtitle = null,
-       actions = const [];
+       actions = const [],
+       _pushed = false;
+
+  /// Whether this bar draws `.appbar__lead` — a pushed screen's way back.
+  ///
+  /// A flag rather than a callback, because the callback was the same at every
+  /// call site. See [CalmAppBar.pushed].
+  final bool _pushed;
 
   /// The screen's name, already localised.
   final String title;
@@ -508,27 +557,52 @@ class CalmAppBar extends StatelessWidget {
           ],
         ),
       ),
+      // A `Wrap`, not a `Row`. §9 puts a status pill beside the vehicle name,
+      // and at 200% text scale in German the two do not fit on one line: the
+      // pill measures 355pt against 358pt of content width, so the `Expanded`
+      // title collapsed to nothing and the bar overflowed by five pixels
+      // anyway. §17 asks for 200% and `accessibility-as-code` forbids the
+      // `FittedBox`/`ellipsis` escape, so the answer is to let it take the
+      // second line the bar's `minHeight` already allows.
+      //
+      // At the default scale nothing moves: one line, the same order, the same
+      // start alignment. `spacing` matches the `Row`'s former gap of nothing
+      // plus the actions' own padding.
       CalmAppBarShape.vehicle => Padding(
         padding: EdgeInsetsDirectional.symmetric(horizontal: space.s4),
-        child: Row(
-          children: [
-            Expanded(
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: CalmVehicleTitle(
-                  onTap: onTapVehicle,
-                  child: label(type.title),
-                ),
-              ),
-            ),
-            ...actions,
-          ],
+        // Centred inside the bar's `minHeight`. A `Row` did that for free;
+        // a `Wrap` sizes to its content and would otherwise sit at the top,
+        // moving the title up two pixels on every screen with a vehicle bar.
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: space.s2,
+            children: [
+              CalmVehicleTitle(onTap: onTapVehicle, child: label(type.title)),
+              ...actions,
+            ],
+          ),
         ),
       ),
       CalmAppBarShape.standard => Padding(
         padding: EdgeInsetsDirectional.symmetric(horizontal: space.s4),
         child: Row(
           children: [
+            // `.appbar__lead`, and only when the screen asked for one. §7
+            // gives the four tab roots nothing behind them, so a bar that grew
+            // an arrow unconditionally would put a dead control on `home`,
+            // `history`, `costs` and `settings`.
+            if (_pushed)
+              CalmAppBarAction(
+                // LABELLED. A bare glyph announced as "button" is the only way
+                // off a screen, unnamed — the same reason [CalmAppBar.modal]'s
+                // ✕ carries `commonClose`.
+                label: AppLocalizations.of(context).commonBack,
+                onTap: () => unawaited(Navigator.of(context).maybePop()),
+                icon: Icons.arrow_back,
+                directional: true,
+              ),
             Expanded(child: titleWidget ?? label(type.title)),
             ...actions,
           ],
@@ -603,6 +677,7 @@ class CalmAppBarAction extends StatelessWidget {
     super.key,
     this.primary = false,
     this.icon,
+    this.directional = false,
   });
 
   /// The word, already localised — or, when [icon] is set, the glyph's name.
@@ -610,6 +685,14 @@ class CalmAppBarAction extends StatelessWidget {
 
   /// Drawn instead of [label], which then becomes the accessible name.
   final IconData? icon;
+
+  /// Whether [icon] mirrors under RTL.
+  ///
+  /// True for the back lead and false for everything else in a bar today.
+  /// `CalmDirectionalIcon` flips whatever it is given, so wrapping every action
+  /// would mirror `+` and `✕` as well — harmless for a symmetric glyph and
+  /// wrong the moment one is not.
+  final bool directional;
 
   /// Null draws it disabled.
   final VoidCallback? onTap;
@@ -644,7 +727,13 @@ class CalmAppBarAction extends StatelessWidget {
           child: Align(
             widthFactor: 1,
             child: icon != null
-                ? Icon(icon, size: space.iconMd, color: foreground)
+                ? (directional
+                      ? CalmDirectionalIcon(
+                          icon!,
+                          size: space.iconMd,
+                          color: foreground,
+                        )
+                      : Icon(icon, size: space.iconMd, color: foreground))
                 : Text(
                     label,
                     textAlign: TextAlign.center,

@@ -52,7 +52,9 @@ class BackupScreen extends ConsumerWidget {
     final chrome = state.chrome;
 
     return CalmScaffold(
-      appBar: CalmAppBar(title: l10n.backupTitle),
+      appBar: CalmAppBar.pushed(
+        title: l10n.backupTitle,
+      ),
       children: [
         // Above everything, because §6 §3.3 says the app may have opened HERE
         // instead of home and the banner is the reason why.

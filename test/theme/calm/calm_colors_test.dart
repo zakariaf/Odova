@@ -13,79 +13,7 @@ import '../../support/calm_css.dart';
 import '../../support/calm_ramps.dart';
 import '../../support/calm_theme_harness.dart';
 import '../../support/contrast.dart';
-
-/// Every one of the 56 CSS roles, and the slot it must land on.
-///
-/// Written out rather than derived from the token name. A kebab-to-camel rule
-/// would map `--color-due-soon-ink` onto something, and whether that something
-/// is `dueSoon.ink` or a field called `dueSoonInk` is exactly the decision this
-/// table exists to record — the four-rung families are read as `.ink` on a
-/// [CalmRamp], never as a flat slot.
-final _roleToSlot = <String, Color Function(CalmColors)>{
-  '--color-bg': (c) => c.bg,
-  '--color-bg-sunk': (c) => c.bgSunk,
-  '--color-surface': (c) => c.surface,
-  '--color-surface-2': (c) => c.surface2,
-  '--color-surface-3': (c) => c.surface3,
-  '--color-surface-inverse': (c) => c.surfaceInverse,
-  '--color-divider': (c) => c.divider,
-  '--color-ink': (c) => c.ink,
-  '--color-ink-2': (c) => c.ink2,
-  '--color-ink-3': (c) => c.ink3,
-  '--color-ink-4': (c) => c.ink4,
-  '--color-ink-inverse': (c) => c.inkInverse,
-  '--color-brand': (c) => c.brand,
-  '--color-brand-strong': (c) => c.brandStrong,
-  '--color-brand-soft': (c) => c.brandSoft,
-  '--color-brand-soft-ink': (c) => c.brandSoftInk,
-  '--color-on-brand': (c) => c.onBrand,
-  '--color-danger': (c) => c.danger,
-  '--color-danger-tint': (c) => c.dangerTint,
-  '--color-focus': (c) => c.focus,
-  '--color-overdue': (c) => c.overdue.base,
-  '--color-overdue-ink': (c) => c.overdue.ink,
-  '--color-overdue-tint': (c) => c.overdue.tint,
-  '--color-overdue-edge': (c) => c.overdue.edge,
-  '--color-due': (c) => c.due.base,
-  '--color-due-ink': (c) => c.due.ink,
-  '--color-due-tint': (c) => c.due.tint,
-  '--color-due-edge': (c) => c.due.edge,
-  '--color-due-soon': (c) => c.dueSoon.base,
-  '--color-due-soon-ink': (c) => c.dueSoon.ink,
-  '--color-due-soon-tint': (c) => c.dueSoon.tint,
-  '--color-due-soon-edge': (c) => c.dueSoon.edge,
-  '--color-ok': (c) => c.ok.base,
-  '--color-ok-ink': (c) => c.ok.ink,
-  '--color-ok-tint': (c) => c.ok.tint,
-  '--color-ok-edge': (c) => c.ok.edge,
-  '--color-unknown': (c) => c.unknown.base,
-  '--color-unknown-ink': (c) => c.unknown.ink,
-  '--color-unknown-tint': (c) => c.unknown.tint,
-  '--color-unknown-edge': (c) => c.unknown.edge,
-  '--color-needs-odometer': (c) => c.needsOdometer.base,
-  '--color-needs-odometer-ink': (c) => c.needsOdometer.ink,
-  '--color-needs-odometer-tint': (c) => c.needsOdometer.tint,
-  '--color-needs-odometer-edge': (c) => c.needsOdometer.edge,
-  '--color-business': (c) => c.business.base,
-  '--color-business-ink': (c) => c.business.ink,
-  '--color-business-tint': (c) => c.business.tint,
-  '--color-business-edge': (c) => c.business.edge,
-  '--chart-1': (c) => c.chart1,
-  '--chart-2': (c) => c.chart2,
-  '--chart-3': (c) => c.chart3,
-  '--chart-4': (c) => c.chart4,
-  '--chart-5': (c) => c.chart5,
-  '--chart-grid': (c) => c.chartGrid,
-  '--chart-axis-ink': (c) => c.chartAxisInk,
-  '--chart-plot': (c) => c.chartPlot,
-};
-
-/// `#RRGGBB`, upper-cased, to compare against the CSS.
-String _hex(Color c) {
-  String channel(double v) =>
-      (v * 255).round().toRadixString(16).padLeft(2, '0').toUpperCase();
-  return '#${channel(c.r)}${channel(c.g)}${channel(c.b)}';
-}
+import 'calm_role_slots.dart';
 
 void main() {
   test('every CSS role lands on its slot, in both themes', () {
@@ -98,12 +26,12 @@ void main() {
 
       for (final MapEntry(key: role, value: hex) in roles.entries) {
         expect(
-          _roleToSlot,
+          calmRoleToSlot,
           contains(role),
           reason: '$role has no slot in the table above',
         );
         expect(
-          _hex(_roleToSlot[role]!(colours)),
+          calmHex(calmRoleToSlot[role]!(colours)),
           hex,
           reason: '$label $role should be $hex',
         );
@@ -140,7 +68,7 @@ void main() {
     // Guard the guard: a role added to the CSS and not to the table would be
     // skipped by the loop above rather than failing it.
     expect(
-      _roleToSlot.keys.toSet(),
+      calmRoleToSlot.keys.toSet(),
       colourRolesIn(lightTokenBlock()).keys.toSet(),
     );
   });
@@ -150,7 +78,7 @@ void main() {
     // in both, so this is unconditional: any equal pair is a slot that fell
     // through to light, and that is invisible until someone opens the app at
     // night.
-    for (final MapEntry(key: role, value: slot) in _roleToSlot.entries) {
+    for (final MapEntry(key: role, value: slot) in calmRoleToSlot.entries) {
       expect(
         slot(calmColorsDark),
         isNot(slot(calmColorsLight)),
@@ -166,7 +94,7 @@ void main() {
     // forgotten in lerp does not transition, and nothing says so.
     final half = calmColorsLight.lerp(calmColorsDark, 0.5);
 
-    for (final MapEntry(key: role, value: slot) in _roleToSlot.entries) {
+    for (final MapEntry(key: role, value: slot) in calmRoleToSlot.entries) {
       expect(
         slot(half),
         isNot(slot(calmColorsLight)),
@@ -182,7 +110,7 @@ void main() {
 
   test('copyWith round-trips every field', () {
     const sentinel = Color(0xFF010203);
-    for (final MapEntry(key: role, value: slot) in _roleToSlot.entries) {
+    for (final MapEntry(key: role, value: slot) in calmRoleToSlot.entries) {
       // A ramp rung is reached through its family's copyWith, so the flat
       // slots are covered here and the ramps in calm_ramp_test.dart.
       if (role.contains('overdue') ||

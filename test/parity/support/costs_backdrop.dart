@@ -31,6 +31,7 @@ import 'package:odova/features/costs/presentation/costs_screen.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
 import '../../features/home/home_fixture.dart';
+import 'parity_capture.dart';
 
 /// Tab 3, ready to be a capture's `child`.
 Widget costsBackdrop({required bool rtl, required Locale locale}) =>
@@ -50,12 +51,9 @@ Widget costsBackdrop({required bool rtl, required Locale locale}) =>
         clockProvider.overrideWithValue(
           Clock.fixed(DateTime.utc(2026, 9, 2, 12)),
         ),
-        deviceLocalesProvider.overrideWithValue([
-          Locale(
-            locale.languageCode,
-            locale.languageCode == 'en' ? 'GB' : 'DE',
-          ),
-        ]),
+        deviceLocalesProvider.overrideWithValue(
+          artboardDeviceLocales(locale),
+        ),
       ],
       // The artboard has `This year` selected, not the twelve-month default —
       // so the capture selects it too. Comparing a twelve-month screen with a

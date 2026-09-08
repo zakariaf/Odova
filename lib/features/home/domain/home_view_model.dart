@@ -95,6 +95,7 @@ class HomeStack {
     required this.cards,
     required this.trackedCount,
     required this.moreDueCount,
+    required this.overdueCount,
     this.unknown,
   });
 
@@ -111,6 +112,15 @@ class HomeStack {
   /// How many due or overdue items did not fit. Rendered as the red see-all
   /// row.
   final int moreDueCount;
+
+  /// How many items are OVERDUE, across the whole stack.
+  ///
+  /// The app-bar pill's number, and counted over every due item rather than
+  /// over [cards]: the stack is capped at three, and a garage with five overdue
+  /// items would have said "3 overdue" — a smaller number than the truth, on
+  /// the one element SPEC.md §9 puts in the header to answer the screen's whole
+  /// question before anybody reads a card.
+  final int overdueCount;
 
   /// The collapsed unknown-anchor card, or null when nothing is unknown.
   final UnknownAnchorCard? unknown;
@@ -192,6 +202,9 @@ HomeStack buildHomeStack({
     cards: List.unmodifiable(due.take(kHomeCardCap)),
     trackedCount: tracked,
     moreDueCount: due.length > kHomeCardCap ? due.length - kHomeCardCap : 0,
+    overdueCount: due
+        .where((c) => c.assessment.state == DueState.overdue)
+        .length,
     unknown: unknownItems.isEmpty
         ? null
         : UnknownAnchorCard(

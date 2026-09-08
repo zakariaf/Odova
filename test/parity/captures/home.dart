@@ -10,29 +10,22 @@
 // The fixture itself lives in `support/home_backdrop.dart`, because
 // `dialog.discard`, `dialog.snooze` and `vehicle.switcher` are all shot over
 // this same screen and all four have to be photographing one `home`.
-@Tags(['parity'])
-library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/home_backdrop.dart';
-import 'support/parity_capture.dart';
+import '../support/home_backdrop.dart';
+import '../support/parity_capture.dart';
 
-void main() {
-  setUpAll(loadParityFonts);
-
-  for (final config in kParityCases) {
-    testWidgets('home ${config.theme}/${config.dir}', (tester) async {
-      await captureParity(
-        tester,
-        screen: 'home',
-        config: config,
-        tab: 0,
-        child: homeBackdrop(
-          rtl: config.dir == 'rtl',
-          locale: config.locale,
-        ),
-      );
-    });
-  }
+/// Captures `home` in one combination.
+Future<void> captureHome(WidgetTester tester, ParityCase config) async {
+  await captureParity(
+    tester,
+    screen: 'home',
+    config: config,
+    tab: 0,
+    child: homeBackdrop(
+      rtl: isRtl(config),
+      locale: config.locale,
+    ),
+  );
 }

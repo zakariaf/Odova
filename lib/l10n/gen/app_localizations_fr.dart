@@ -908,6 +908,18 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String homeOverdueCount(int n, String nText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nText en retard',
+      many: '$nText en retard',
+      one: '$nText en retard',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homeMoreDue(int n, String nText) {
     String _temp0 = intl.Intl.pluralLogic(
       n,

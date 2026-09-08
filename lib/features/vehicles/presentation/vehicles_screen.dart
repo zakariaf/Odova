@@ -64,7 +64,7 @@ class VehiclesScreen extends ConsumerWidget {
     final gone = all.where((v) => v.status != VehicleStatus.active).toList();
 
     return CalmScaffold(
-      appBar: CalmAppBar(
+      appBar: CalmAppBar.pushed(
         title: l10n.vehiclesTitle,
         actions: [
           // §8: "**+** in the app bar → `vehicle.edit`, create mode. On Save

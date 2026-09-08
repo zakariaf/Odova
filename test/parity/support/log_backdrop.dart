@@ -22,6 +22,7 @@ import 'package:odova/features/logging/ui/log_modal.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
 import '../../features/home/home_fixture.dart';
+import 'parity_capture.dart';
 
 /// The log modal on [type], ready to be a capture's `child`.
 ///
@@ -77,12 +78,9 @@ Widget logBackdrop({
       golfId,
     ).overrideWith((ref) => Stream.value(const [])),
     clockProvider.overrideWithValue(Clock.fixed(DateTime.utc(2026, 9, 2, 12))),
-    deviceLocalesProvider.overrideWithValue([
-      Locale(
-        locale.languageCode,
-        locale.languageCode == 'en' ? 'GB' : 'DE',
-      ),
-    ]),
+    deviceLocalesProvider.overrideWithValue(
+      artboardDeviceLocales(locale),
+    ),
   ],
   child: LogModalShell(type: type),
 );

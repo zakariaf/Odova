@@ -53,6 +53,7 @@ import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_motion.dart';
 import 'package:odova/theme/calm/calm_space.dart';
 import 'package:odova/ui/calm/calm_all_clear.dart';
+import 'package:odova/ui/calm/calm_badge.dart';
 import 'package:odova/ui/calm/calm_popover.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_snackbar.dart';
@@ -146,6 +147,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: state.vehicle.name,
         showVehicleChevron: state.showsSwitcher,
         onTapVehicle: state.showsSwitcher ? _openSwitcher : null,
+        actions: [
+          // `.badge.badge--overdue` in the artboard, and absent from the app
+          // until EPIC-18's sweep put all 28 screens side by side. §9 says
+          // Home answers one question — what does my car need next — and this
+          // is the only element that answers it before the user reads a card.
+          //
+          // Counted over the WHOLE stack, not over the three cards it shows:
+          // a garage with five overdue items would otherwise say "3 overdue",
+          // which is a smaller number than the truth in the one place the
+          // screen is trusted to be blunt.
+          if (state.stack.overdueCount > 0)
+            Padding(
+              padding: EdgeInsetsDirectional.only(start: space.s2),
+              child: CalmBadge(
+                kind: CalmBadgeKind.overdue,
+                icon: Icons.circle,
+                label: l10n.homeOverdueCount(
+                  state.stack.overdueCount,
+                  formatForDisplay(
+                    state.stack.overdueCount,
+                    tag,
+                    numerals: CalmNumerals.auto,
+                    grouped: false,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       children: [
         // §9's *Error*, and it replaces everything: "Home renders no cards and

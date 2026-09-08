@@ -201,6 +201,7 @@
   "homeUnknownTitle": "‏?enod tsal eseht erew nehW",
   "homeUnknownHint": "‏.srednimer otni meht snrut em gnilleT",
   "homeUnknownMore": "‏{n, plural, =0{lla eeS} one{ +{nText}erom } other{ +{nText}erom }}",
+  "homeOverdueCount": "‏{n, plural, one{{nText}eudrevo } other{{nText}eudrevo }}",
   "homeMoreDue": "‏{n, plural, =0{srednimer lla eeS} one{ — lla eeS{nText}eudrevo ro eud erom } other{ — lla eeS{nText}eudrevo ro eud erom }}",
   "homeSnoozedUntil": "‏ litnu dezoonS{date}",
   "remindersSeeAll": "‏{n, plural, =0{srednimer lla eeS} one{( srednimer lla eeS{nText})} other{( srednimer lla eeS{nText})}}",

@@ -43,7 +43,9 @@ class SettingsLanguageScreen extends ConsumerWidget {
     final setting = ref.watch(localeControllerProvider);
 
     return CalmScaffold(
-      appBar: CalmAppBar(title: l10n.settingsLanguageRow),
+      appBar: CalmAppBar.pushed(
+        title: l10n.settingsLanguageRow,
+      ),
       children: [
         LanguageRowList(
           // IMMEDIATELY, and through `SettingsWriter` so the write reschedules

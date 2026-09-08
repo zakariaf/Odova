@@ -182,6 +182,30 @@ class OdometerField extends StatelessWidget {
           ),
           errorText: _message(l10n, check, last, separator),
           onChanged: onChanged,
+          // SPEC.md §10: "On blur the field re-renders canonically in the
+          // active numbering system." That sentence had a function —
+          // `canonicalDisplay` — with its own tests and ZERO callers, until
+          // EPIC-18's sweep put `log.fillup` beside its reference and the app
+          // read `187412` where the artboard reads `187,412`.
+          //
+          // It is the field §10 makes mandatory on every form, typed
+          // one-handed at a pump in the rain, and an ungrouped six-digit
+          // number is where a mistyped digit is easiest to make and hardest to
+          // see. The grouping is what makes it visible.
+          //
+          // BOTH edges. Grouping on blur and never ungrouping makes the field
+          // UNEDITABLE: `DecimalFieldFormatter` reads `187,41` — one backspace
+          // into `187,412` — as a decimal rather than a grouping, and
+          // `decimals: 0` refuses it, silently, in five of the six locales.
+          // `log_modal.dart`'s prefill already carries the same warning, and
+          // this got it wrong anyway.
+          //
+          // Through `CalmField` and NOT a `FocusNode` of this widget's own. The
+          // field already creates, listens to and disposes one; a second node
+          // observing the first is two objects for one event. §10 applies the
+          // same rule to litres, price and money, and those fields can now
+          // reach it without repeating any of this.
+          onFocusChanged: (focused) => _reShape(focused: focused),
         ),
         // ONE ROW: the two helper lines on the start side, the estimate chip on
         // the end. The artboard draws them that way and the first version
@@ -224,6 +248,35 @@ class OdometerField extends StatelessWidget {
   /// the largest number the user has ever typed as the vehicle's earliest
   /// reading. `DecimalFieldFormatter(decimals: 0)` accepts arbitrarily many
   /// digits, so the field is reachable.
+  /// Groups the reading for READING it and ungroups it for editing.
+  ///
+  /// §10 asks for the first — "on blur the field re-renders canonically in the
+  /// active numbering system" — and the second is what makes the first usable:
+  /// a separator in the box is a character the formatter has to accept on the
+  /// next keystroke, and it does not.
+  ///
+  /// Unchanged when the parser cannot read it, in either direction: replacing
+  /// what somebody typed with the app's guess about it is how a mis-parse
+  /// becomes permanent, and §10 says exactly that in one line.
+  void _reShape({required bool focused}) {
+    final raw = controller.text;
+    final shaped = canonicalDisplay(
+      raw,
+      formatsTag,
+      decimals: 0,
+      grouped: !focused,
+    );
+    if (shaped == raw) return;
+
+    controller.value = TextEditingValue(
+      text: shaped,
+      selection: TextSelection.collapsed(offset: shaped.length),
+    );
+    // The screen holds the typed string too, and a re-render it was not told
+    // about is a draft that disagrees with the field showing it.
+    onChanged(shaped);
+  }
+
   Distance? _entered(String separator) {
     final metres = OdometerEntry(
       unit: unit,

@@ -50,9 +50,10 @@ AssessedItem _assessed(
   String? label,
   AnchorRung rung = AnchorRung.record,
   bool active = true,
+  String? snoozedUntil,
   DueDriver driver = DueDriver.distance,
 }) => (
-  _item(suffix, label: label, active: active),
+  _item(suffix, label: label, active: active, snoozedUntil: snoozedUntil),
   DueAssessment(
     state: state,
     driver: driver,
@@ -122,6 +123,53 @@ void main() {
 
     expect(stack.cards, hasLength(3));
     expect(stack.moreDueCount, 6);
+
+    // The app-bar pill counts the WHOLE stack, not the three cards it shows.
+    // Nine overdue items reported as "3 overdue" is a smaller number than the
+    // truth on the one element §9 puts in the header to answer the screen's
+    // question before anybody reads a card — and the cap is exactly the
+    // condition under which nobody would notice.
+    expect(stack.overdueCount, 9);
+  });
+
+  test('a snoozed overdue item is still counted, deliberately', () {
+    // Answered rather than changed, because both answers are defensible and
+    // only one of them is coherent on screen. A snoozed item still renders a
+    // card — §9 draws it with "Snoozed until 20 September" — so a pill reading
+    // "0 overdue" above a red card would have the header contradicting the
+    // screen under it. `moreDueCount` counts them for the same reason.
+    //
+    // Pinned so the next person meets a decision rather than an accident.
+    final stack = _stack(
+      items: [
+        _assessed(
+          '1',
+          state: DueState.overdue,
+          projected: '2026-08-01',
+          snoozedUntil: '2026-09-20',
+        ),
+      ],
+      today: _day('2026-09-02'),
+    );
+
+    expect(stack.cards, hasLength(1));
+    expect(stack.overdueCount, 1);
+  });
+
+  test('the overdue count counts only overdue, not everything due', () {
+    // §9 gives `due` and `overdue` different words and different colours, and
+    // a pill that lumped them would tell somebody a service booked for this
+    // week is already late.
+    final stack = _stack(
+      items: [
+        _assessed('1', state: DueState.overdue, projected: '2026-08-01'),
+        _assessed('2', state: DueState.due, projected: '2026-09-02'),
+        _assessed('3', state: DueState.dueSoon, projected: '2026-09-20'),
+      ],
+      today: _day('2026-09-02'),
+    );
+
+    expect(stack.overdueCount, 1);
   });
 
   test('downgrades a purchase-anchored item to unknown', () {

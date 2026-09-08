@@ -201,6 +201,7 @@
   "homeUnknownTitle": "اینها آخرین بار کی انجام شدند؟",
   "homeUnknownHint": "بگو تا به یادآور تبدیل شوند.",
   "homeUnknownMore": "{n, plural, =0{دیدن همه} one{+ {nText} مورد دیگر} other{+ {nText} مورد دیگر}}",
+  "homeOverdueCount": "{n, plural, one{{nText} عقب‌افتاده} other{{nText} عقب‌افتاده}}",
   "homeMoreDue": "{n, plural, =0{همهٔ یادآورها} one{دیدن همه — {nText} مورد دیگر رسیده یا گذشته} other{دیدن همه — {nText} مورد دیگر رسیده یا گذشته}}",
   "homeSnoozedUntil": "تا {date} به تعویق افتاد",
   "remindersSeeAll": "{n, plural, =0{همهٔ یادآورها} one{همهٔ یادآورها ({nText})} other{همهٔ یادآورها ({nText})}}",

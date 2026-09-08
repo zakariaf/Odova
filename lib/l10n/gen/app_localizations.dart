@@ -1323,6 +1323,12 @@ abstract class AppLocalizations {
   /// **'{n, plural, =0{See all} one{+ {nText} more} other{+ {nText} more}}'**
   String homeUnknownMore(int n, String nText);
 
+  /// The app-bar pill on Home, counting the overdue items. SPEC.md §9: Home answers one question, and this is the only element that answers it before the user reads a card. {nText} is the already-numeral-shaped count, so the digits follow the locale; {n} drives the plural category and is never rendered. Arabic carries all six CLDR categories.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{nText} overdue} other{{nText} overdue}}'**
+  String homeOverdueCount(int n, String nText);
+
   /// The red see-all row under the stack, counting the due or overdue items that did not fit in three cards. At =0 nothing is left over and the screen uses `remindersSeeAll` instead; this branch is the honest fallback rather than an empty string.
   ///
   /// In en, this message translates to:

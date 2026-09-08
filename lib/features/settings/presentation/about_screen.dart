@@ -34,7 +34,9 @@ class AboutScreen extends ConsumerWidget {
     final type = CalmType.of(context);
 
     return CalmScaffold(
-      appBar: CalmAppBar(title: l10n.settingsAboutRow),
+      appBar: CalmAppBar.pushed(
+        title: l10n.settingsAboutRow,
+      ),
       children: [
         Text(l10n.appTitle, style: type.display),
         SizedBox(height: space.s2),

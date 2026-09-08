@@ -4,11 +4,8 @@
 // paused under its header, and two untracked with `+ Track`. Five states rather
 // than six identical rows on purpose — the colour census can only see a status
 // colour that is actually drawn.
-@Tags(['parity'])
-library;
 
 import 'package:clock/clock.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,8 +19,8 @@ import 'package:odova/features/reminders/domain/reminders_groups.dart';
 import 'package:odova/features/reminders/ui/reminders_list_screen.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
-import '../features/home/home_fixture.dart';
-import 'support/parity_capture.dart';
+import '../../features/home/home_fixture.dart';
+import '../support/parity_capture.dart';
 
 /// The catalogue the artboard draws, in the direction it drew it.
 ///
@@ -112,56 +109,51 @@ import 'support/parity_capture.dart';
   );
 }
 
-void main() {
-  setUpAll(loadParityFonts);
+/// Captures `reminders.list` in one combination.
+Future<void> captureRemindersList(
+  WidgetTester tester,
+  ParityCase config,
+) async {
+  final rtl = isRtl(config);
+  final catalogue = _catalogue(rtl: rtl);
 
-  for (final config in kParityCases) {
-    testWidgets('reminders.list ${config.theme}/${config.dir}', (tester) async {
-      final rtl = config.dir == 'rtl';
-      final catalogue = _catalogue(rtl: rtl);
-
-      await captureParity(
-        tester,
-        screen: 'reminders.list',
-        config: config,
-        // §7: it is one push under the HOME tab root, so the reference draws
-        // that tab active beneath it. A capture of the body alone is a capture
-        // of a screen nobody sees.
-        tab: 0,
-        child: ProviderScope(
-          overrides: <Override>[
-            settingsProvider.overrideWith(
-              (ref) => Stream.value(homeSettings(golfId)),
-            ),
-            vehiclesProvider.overrideWith(
-              (ref) => Stream.value([
-                homeVehicle(golfId, rtl ? 'گلف' : 'The Golf'),
-              ]),
-            ),
-            // The GROUPS, synchronously. `captureParity` takes a single frame
-            // and a `StreamProvider` override is still loading in it — the
-            // first version of this file supplied `serviceItemsProvider` and
-            // photographed an empty screen with a title on it, which is a real
-            // state and not this one.
-            remindersListProvider(golfId).overrideWithValue(
-              groupReminders(
-                items: catalogue.items,
-                assessed: catalogue.assessed,
-              ),
-            ),
-            clockProvider.overrideWithValue(
-              Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
-            ),
-            deviceLocalesProvider.overrideWithValue([
-              Locale(
-                config.locale.languageCode,
-                config.locale.languageCode == 'en' ? 'GB' : 'DE',
-              ),
-            ]),
-          ],
-          child: const RemindersListScreen(),
+  await captureParity(
+    tester,
+    screen: 'reminders.list',
+    config: config,
+    // §7: it is one push under the HOME tab root, so the reference draws
+    // that tab active beneath it. A capture of the body alone is a capture
+    // of a screen nobody sees.
+    tab: 0,
+    child: ProviderScope(
+      overrides: <Override>[
+        settingsProvider.overrideWith(
+          (ref) => Stream.value(homeSettings(golfId)),
         ),
-      );
-    });
-  }
+        vehiclesProvider.overrideWith(
+          (ref) => Stream.value([
+            homeVehicle(golfId, rtl ? 'گلف' : 'The Golf'),
+          ]),
+        ),
+        // The GROUPS, synchronously. `captureParity` takes a single frame
+        // and a `StreamProvider` override is still loading in it — the
+        // first version of this file supplied `serviceItemsProvider` and
+        // photographed an empty screen with a title on it, which is a real
+        // state and not this one.
+        remindersListProvider(golfId).overrideWithValue(
+          groupReminders(
+            items: catalogue.items,
+            assessed: catalogue.assessed,
+          ),
+        ),
+        clockProvider.overrideWithValue(
+          Clock.fixed(DateTime.utc(2026, 9, 5, 12)),
+        ),
+        deviceLocalesProvider.overrideWithValue(
+          artboardDeviceLocales(config.locale),
+        ),
+      ],
+      child: const RemindersListScreen(),
+    ),
+  );
 }

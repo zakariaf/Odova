@@ -102,7 +102,7 @@ class ReportServiceScreen extends ConsumerWidget {
     );
 
     return CalmScaffold(
-      appBar: CalmAppBar(
+      appBar: CalmAppBar.pushed(
         title: l10n.reportTitle,
         actions: [
           // §12's overflow: "Copy as text. Paper size. Nothing else."

@@ -36,6 +36,7 @@ import 'package:odova/features/vehicles/presentation/vehicles_screen.dart';
 import 'package:odova/l10n/locale_controller.dart';
 
 import '../../support/due_case.dart';
+import 'parity_capture.dart';
 
 const _golf = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVA';
 const _transit = 'veh_01JQ8ZK3M7F0R6XN2E9TB4HCVB';
@@ -100,10 +101,32 @@ VehicleDueSnapshot _snapshot({
   ),
 );
 
+/// The `veh_` id the artboard's active car carries.
+///
+/// Public because `settings` names the same garage in its Vehicles row and
+/// `settingsBackdrop` marks this one active. Two ids would be two cars.
+VehicleId get artboardGolfId => _id(_golf);
+
 /// The artboard's garage, in the artboard's order.
 ///
 /// The SOLD one is handed over FIRST, so the capture proves the screen sinks it
 /// rather than proving the fixture was already sorted.
+///
+/// Public for the same reason [artboardGolfId] is: the `settings` row prints
+/// "Golf, Transit, CB500X" off this list, and a second copy would let the row
+/// and the screen it opens disagree while both captures passed.
+///
+/// [includeSold] is false for `settings`, and the two artboards genuinely
+/// differ: `vehicles-light-ltr.png` draws four cars with the sold Yamaha sunk
+/// to the bottom, and `settings-light-ltr.png` names three — "Golf, Transit,
+/// CB500X" — which is the household without it. Reproducing one garage on both
+/// would make one of the two captures disagree with its own reference, and the
+/// reference is the authority.
+List<Vehicle> artboardGarage({required bool rtl, bool includeSold = true}) =>
+    _garage(
+      rtl: rtl,
+    ).where((v) => includeSold || v.status != VehicleStatus.sold).toList();
+
 List<Vehicle> _garage({required bool rtl}) => [
   _vehicle(
     _yamaha,
@@ -199,12 +222,9 @@ Widget vehiclesBackdrop({required bool rtl, required Locale locale}) =>
         // would draw "March 12, 2024" and be equally correct for somebody
         // else. The non-Latin cases take a continental region for the same
         // reason `vehicle.edit`'s capture does.
-        deviceLocalesProvider.overrideWithValue([
-          Locale(
-            locale.languageCode,
-            locale.languageCode == 'en' ? 'GB' : 'DE',
-          ),
-        ]),
+        deviceLocalesProvider.overrideWithValue(
+          artboardDeviceLocales(locale),
+        ),
         // SUPPLIED, never computed. The due engine reads six drift streams
         // and none of them delivers inside a widget test's fake async —
         // the capture would shoot four rows saying "Couldn't work out
