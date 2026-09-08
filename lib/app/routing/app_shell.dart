@@ -97,26 +97,43 @@ class AppShell extends ConsumerWidget {
           start: 0,
           end: 0,
           bottom: 0,
-          child: CalmTabBar(
-            index: navigationShell.currentIndex,
-            labels: [
-              l10n.tabHome,
-              l10n.tabHistory,
-              l10n.tabCosts,
-              l10n.tabSettings,
-            ],
-            icons: const [
-              CalmTabIcons.home,
-              CalmTabIcons.history,
-              CalmTabIcons.costs,
-              CalmTabIcons.settings,
-            ],
-            addLabel: l10n.tabLogA11y,
-            onChanged: (index) => _onTab(ref, index),
-            // `push` on the ROOT navigator, which is what puts the form over
-            // the tab bar instead of inside the tab. `context.push` finds the
-            // root because the log route is declared outside the shell.
-            onAdd: () => context.push(Routes.log(LogType.fillUp)),
+          // TRANSPARENT Material, and it is not decoration. The bar is a
+          // SIBLING of `navigationShell` in this Stack, so it is outside every
+          // route and inherits no `Material` — and a `Text` with no `Material`
+          // ancestor renders in Flutter's missing-style treatment: the right
+          // glyphs with a yellow underline under them.
+          //
+          // `test/parity/support/parity_capture.dart` met this exact failure
+          // when it mounted the bar for its captures, fixed it there, and
+          // wrote down that "on device the route's own `MaterialPage` supplies
+          // one". That sentence was wrong, and it was wrong in a comment for
+          // four epics: the bar is not inside a route. Running the app on a
+          // simulator is what showed four yellow-underlined tab labels on
+          // every screen of the app. No test could: `pumpApp` mounts a
+          // `MaterialApp`, and the parity harness had already patched it.
+          child: Material(
+            type: MaterialType.transparency,
+            child: CalmTabBar(
+              index: navigationShell.currentIndex,
+              labels: [
+                l10n.tabHome,
+                l10n.tabHistory,
+                l10n.tabCosts,
+                l10n.tabSettings,
+              ],
+              icons: const [
+                CalmTabIcons.home,
+                CalmTabIcons.history,
+                CalmTabIcons.costs,
+                CalmTabIcons.settings,
+              ],
+              addLabel: l10n.tabLogA11y,
+              onChanged: (index) => _onTab(ref, index),
+              // `push` on the ROOT navigator, which is what puts the form over
+              // the tab bar instead of inside the tab. `context.push` finds the
+              // root because the log route is declared outside the shell.
+              onAdd: () => context.push(Routes.log(LogType.fillUp)),
+            ),
           ),
         ),
       ],
