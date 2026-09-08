@@ -144,12 +144,19 @@ class CalmSnackbarHost {
   );
 
   /// Captures what [context] can see, while it can still see it.
-  factory CalmSnackbarHost.of(BuildContext context) => CalmSnackbarHost._(
-    ScaffoldMessenger.of(context),
-    CalmSpace.of(context).s5,
-    calmSnackbarBottomInset(context),
-    CalmMotion.of(context).undoWindow,
-  );
+  ///
+  /// [overTabBar] overrides what the context says about the tab bar, for a
+  /// caller that knows the snackbar will be drawn somewhere else. A `log.*`
+  /// modal is the case: it is a root-navigator route with no bar under it, it
+  /// pops on save, and the snackbar then appears over the shell — where there
+  /// is one. See [calmSnackbarBottomInset].
+  factory CalmSnackbarHost.of(BuildContext context, {bool? overTabBar}) =>
+      CalmSnackbarHost._(
+        ScaffoldMessenger.of(context),
+        CalmSpace.of(context).s5,
+        calmSnackbarBottomInset(context, overTabBar: overTabBar),
+        CalmMotion.of(context).undoWindow,
+      );
 
   final ScaffoldMessengerState _messenger;
   final double _inlineInset;

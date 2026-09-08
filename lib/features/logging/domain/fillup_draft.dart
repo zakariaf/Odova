@@ -170,6 +170,18 @@ class FillUpDraft {
   FillUpDraft withFullTank({required bool full}) => _copy(isFullTank: full);
 
   /// A copy with the station replaced.
+  /// The same draft dated [value], as `YYYY-MM-DD`.
+  ///
+  /// The field had a default of `''` and NO way to set it, which is the whole
+  /// of the defect: `LogModal` kept its chosen date in `_occurredOn` and handed
+  /// `_ExpenseSteps` and `_ServiceSteps` that value explicitly, while
+  /// `_FillUpSteps` read `draft.occurredOn` — always empty. `FillUpSave` parsed
+  /// it, got null, and returned §3's clock-suspicion refusal, which the UI
+  /// renders as "Couldn't save. Your phone may be out of space." So the app's
+  /// most-used form could not save at all, on any device.
+  FillUpDraft withDate(String value) => _copy(occurredOn: value);
+
+  /// A copy with the station replaced.
   FillUpDraft withStation(String value) => _copy(station: value);
 
   /// A copy with the grade replaced.

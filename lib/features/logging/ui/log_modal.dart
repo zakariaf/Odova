@@ -56,12 +56,15 @@ import 'package:odova/features/logging/ui/service_confirmation_panel.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/expense_labels.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/money_format.dart';
 import 'package:odova/l10n/number_format.dart';
 import 'package:odova/l10n/persist_failure_message.dart';
 import 'package:odova/l10n/service_kind_label.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
+import 'package:odova/theme/calm/calm_colors.dart';
 import 'package:odova/theme/calm/calm_space.dart';
+import 'package:odova/theme/calm/calm_type.dart';
 import 'package:odova/ui/calm/calm_button.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
@@ -204,6 +207,24 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         clockIsSuspect: _clockIsSuspect,
       ).toString();
 
+  /// The fill-up draft with the modal's chosen date on it.
+  ///
+  /// `FillUpDraft.occurredOn` defaults to `''` and NOTHING ever set it, so the
+  /// most-used form in the app could not save at all: `FillUpSave` parsed that
+  /// empty string, got null, and returned the §3 clock-suspicion refusal —
+  /// which the UI renders as "Couldn't save. Your phone may be out of space."
+  /// on a device with 60 GB free. The Date row showed a date the whole time,
+  /// because the row reads `_occurredOn` and the draft is a different object.
+  ///
+  /// `problems()` read it too, so §10's "Pick today or a day in the past"
+  /// could never fire either — an empty string parses to null and the
+  /// comparison is skipped.
+  ///
+  /// One getter rather than two call sites passing the date, because two call
+  /// sites is how this happened: `_ExpenseSteps` and `_ServiceSteps` are
+  /// handed `occurredOn: _occurredOn` explicitly and `_FillUpSteps` was not.
+  FillUpDraft get _datedFillUp => _fillUp.withDate(_occurredOn);
+
   /// Today, as the forms' validation means it.
   String? get _today => ref.watch(todayProvider)?.toString();
 
@@ -336,14 +357,24 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
           // segments. On tap it validates, scrolls to the first failing field,
           // focuses it, shows one inline error beneath it." A greyed-out Save
           // tells the user nothing about what it wants.
-          onEnd: _save,
+          //
+          // The one exception is AFTER the write, while the confirmation panel
+          // is up: there is nothing left to save and the row already exists,
+          // so a second tap would write it twice. The panel shipped replacing
+          // only the BODY — a "Service done" card under a live Save, over a
+          // segmented control offering to switch to Expense, above a
+          // "Save service" button. A person asked what the screen was.
+          onEnd: _showingConfirmation ? null : _save,
         ),
         // No footer on `log.odometer`: §10 puts Save "in the app bar, and as a
         // full-width primary button pinned above the keyboard", and on that
         // screen the keypad IS the keyboard — its confirm key is that button,
         // which is how the artboard draws it. A footer as well would be three
         // Saves, two of them adjacent.
-        footer: _segment == LogType.odometer
+        // Gone while the confirmation is up, for the reason on `onEnd` above:
+        // the entry is written and the panel's Close is the only thing left to
+        // do.
+        footer: _segment == LogType.odometer || _showingConfirmation
             ? null
             : CalmButton(
                 label: _saveLabel(l10n),
@@ -355,7 +386,11 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
           // Create mode only: an entry cannot change type, so an edit that
           // offered the choice would be offering to delete this row and write
           // a different one.
-          if (!_isEdit)
+          // And not while the confirmation is up: a segmented control that
+          // offers to switch to Expense, over a card saying the service was
+          // saved, is a screen asking the user to do something that would
+          // throw away what they just read.
+          if (!_isEdit && !_showingConfirmation)
             CalmSegmented(
               key: kLogSegmentBarKey,
               labels: [
@@ -437,6 +472,15 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     return switch (_segment) {
       LogType.fillUp => _fillUpBody(l10n),
       LogType.service => LogServiceBody(
+        // The currency symbol as an AFFIX. Every money field shipped as a
+        // bare number — somebody typed 2500 into Cost with nothing saying
+        // whether that was euros, dollars or rials, in an app whose point is
+        // that it holds several and never sums across them. §10's artboard
+        // draws it on Price/L and Total; only litres had one.
+        moneySymbol: currencySymbolFor(
+          _currency ?? Currency.tryParse('EUR')!,
+          _formatsTag,
+        ),
         odometer: _odometerField(),
         navRows: _dateAndMoreRows(l10n),
         items: _itemChips(),
@@ -473,7 +517,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// line is the exception in the other direction: it is a warning, it is not
   /// gated on Save, and it never blocks one.
   Widget _fillUpBody(AppLocalizations l10n) {
-    final problems = _fillUp
+    final problems = _datedFillUp
         .problems(today: _today, tankCapacity: _tankCapacity)
         .toSet();
     final warnings = _fillUp.warnings(tankCapacity: _tankCapacity);
@@ -482,6 +526,15 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         _showProblems && problems.contains(problem) ? message : null;
 
     return LogFillUpBody(
+      // The currency symbol as an AFFIX. Every money field shipped as a
+      // bare number — somebody typed 2500 into Cost with nothing saying
+      // whether that was euros, dollars or rials, in an app whose point
+      // is that it holds several and never sums across them. §10's
+      // artboard draws it on Price/L and Total; only litres had one.
+      moneySymbol: currencySymbolFor(
+        _currency ?? Currency.tryParse('EUR')!,
+        _formatsTag,
+      ),
       odometer: _odometerField(),
       navRows: _dateAndMoreRows(l10n),
       trio: _fillUp.trio,
@@ -546,6 +599,14 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// was reset, so there is no consequence to show — which is why this is a
   /// field set by the save rather than a branch on the segment.
   ServiceConfirmationPanel? _confirmation;
+
+  /// Whether the write is done and the panel is showing its result.
+  ///
+  /// The chrome reads this and stands down — §10 says the panel "replaces the
+  /// body", and the modal shipped taking that literally: the Save in the app
+  /// bar, the segmented control and the `Save service` button all stayed live
+  /// over a card announcing the save had already happened.
+  bool get _showingConfirmation => _confirmation != null;
 
   /// Closes the panel and leaves.
   void _closeConfirmation() {
@@ -632,6 +693,15 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   Widget _expenseBody(AppLocalizations l10n) {
     final problems = _expense.problems().toSet();
     return LogExpenseBody(
+      // The currency symbol as an AFFIX. Every money field shipped as a
+      // bare number — somebody typed 2500 into Cost with nothing saying
+      // whether that was euros, dollars or rials, in an app whose point
+      // is that it holds several and never sums across them. §10's
+      // artboard draws it on Price/L and Total; only litres had one.
+      moneySymbol: currencySymbolFor(
+        _currency ?? Currency.tryParse('EUR')!,
+        _formatsTag,
+      ),
       draft: _expense,
       navRows: _dateAndMoreRows(l10n),
       categoryLabel: (c) => expenseCategoryLabel(l10n, c),
@@ -730,7 +800,32 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
   /// also the right grouping: both are navigation rows that leave the form,
   /// and `log.odometer` — which has no More section — gets the Date row alone
   /// from the same function.
-  Widget _dateAndMoreRows(AppLocalizations l10n) => CalmRowGroup(
+  Widget _dateAndMoreRows(AppLocalizations l10n) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _dateAndMoreGroup(l10n),
+      // §1: "Save is never disabled without an explanation." A future date
+      // blocks the save and had NO message anywhere: `FillUpProblem.futureDate`
+      // was computed, checked, and never rendered, so Save simply did nothing.
+      // The date lives in a nav row rather than a field, so the error hangs
+      // under the group instead of inside a box.
+      if (_showProblems && _problems().contains(FillUpProblem.futureDate))
+        Padding(
+          padding: EdgeInsets.only(
+            top: CalmSpace.of(context).s2,
+            left: CalmSpace.of(context).s4,
+          ),
+          child: Text(
+            l10n.logDateFutureError,
+            style: CalmType.of(context).caption.copyWith(
+              color: CalmColors.of(context).danger,
+            ),
+          ),
+        ),
+    ],
+  );
+
+  Widget _dateAndMoreGroup(AppLocalizations l10n) => CalmRowGroup(
     rows: [
       CalmListRow(
         // `logDateLabel`, not `reminderOnceOnDate`. That key is
@@ -893,7 +988,15 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
     // CAPTURED before the await. `CalmSnackbarHost.of` reads values rather than
     // holding a context precisely so the Undo survives the modal it was
     // offered from — the route is about to pop.
-    final snackbars = CalmSnackbarHost.of(context);
+    //
+    // `overTabBar: true` because of where it POPS TO. §7 pushes the four
+    // `log.*` routes on the root navigator so the form covers the tab bar, and
+    // `CalmChromeScope` says so correctly from in here — but on save the modal
+    // is gone and the snackbar is drawn over the shell, which has one. Without
+    // this the inset was 62pt short and "Odometer saved · Undo" came up behind
+    // the bar with its Undo under the `+`: a write whose recovery window the
+    // user cannot reach.
+    final snackbars = CalmSnackbarHost.of(context, overTabBar: true);
     final l10n = AppLocalizations.of(context);
     final router = GoRouter.of(context);
 
@@ -1032,7 +1135,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
 
   /// Everything wrong with the visible segment, in the order it reads.
   List<Object> _problems() => switch (_segment) {
-    LogType.fillUp => _fillUp.problems(
+    LogType.fillUp => _datedFillUp.problems(
       // TODAY, not the entry's own date. Passing the entry date made
       // `on > now` unreachable, so §10's "Pick today or a day in the past"
       // could never fire — including for a date arriving from an unvalidated
@@ -1089,7 +1192,7 @@ class _LogModalShellState extends ConsumerState<LogModalShell> {
         save: ref.read(fillUpSaveProvider.notifier),
         recomputeDue: recompute,
         vehicle: vehicle,
-        draft: _fillUp,
+        draft: _datedFillUp,
         currency: currency,
         odometer: _enteredOdometer(),
         onWritten: (fillUp) =>

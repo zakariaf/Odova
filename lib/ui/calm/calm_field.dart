@@ -48,6 +48,16 @@ enum CalmFieldSize {
   multiline,
 }
 
+/// `.inputgroup`'s end padding: room for the odometer's tappable unit chip.
+const double kCalmAffixExtent = 76;
+
+/// Room for a one- or two-character label like `L` or `km`.
+///
+/// The three-up row on `log.fillup` gives each field about a third of the
+/// screen, and the chip's 76 left no room for the number — see
+/// [CalmField.affixExtent].
+const double kCalmCompactAffixExtent = 28;
+
 /// A filled field with an inset ring.
 class CalmField extends StatefulWidget {
   /// Creates a field.
@@ -59,6 +69,7 @@ class CalmField extends StatefulWidget {
     this.errorText,
     this.placeholder,
     this.affix,
+    this.affixExtent = kCalmAffixExtent,
     this.lead,
     this.size = CalmFieldSize.md,
     this.showLabel = true,
@@ -106,6 +117,20 @@ class CalmField extends StatefulWidget {
   /// Sits on the END edge (the odometer's `km` chip). Mirrors for free, and is
   /// NOT wrapped in an IgnorePointer: on `log.odometer` it is tappable.
   final Widget? affix;
+
+  /// How much end padding [affix] is given, in logical pixels.
+  ///
+  /// `.inputgroup` reserves 76 for the odometer's tappable unit CHIP, and that
+  /// was the only number here. On `log.fillup`'s three-up row each field is
+  /// about a third of 390pt — so 76 of roughly 106 went to a one-letter `L`
+  /// and the number had about thirty left. Two digits did not fit: a person
+  /// typed 50 and saw `5`, typed 10 and saw what looked like `0`, and reported
+  /// it as data going missing.
+  ///
+  /// A parameter rather than a measurement because the affix is positioned
+  /// absolutely — reserving exactly its width would mean laying it out twice.
+  /// [kCalmCompactAffixExtent] is the plain-label case.
+  final double affixExtent;
 
   /// Sits on the START edge (a currency glyph).
   final Widget? lead;
@@ -287,12 +312,13 @@ class _CalmFieldState extends State<CalmField> {
         ? CalmType.tabular(plainStyle)
         : plainStyle;
 
-    // `.inputgroup` reserves 76pt of end padding for the affix and 56pt of
-    // start padding for the lead. The ring is painted INSIDE the box
+    // `.inputgroup` reserves 56pt of start padding for the lead, and
+    // [CalmField.affixExtent] for the affix. The ring is painted INSIDE the box
     // (BoxDecoration borders deflate the child), so subtract it from the
     // padding to keep the height identical across rest, focus and error.
     final padStart = (widget.lead == null ? space.s5 : 56.0) - ringWidth;
-    final padEnd = (widget.affix == null ? space.s5 : 76.0) - ringWidth;
+    final padEnd =
+        (widget.affix == null ? space.s5 : widget.affixExtent) - ringWidth;
     final padBlock = space.s4 - ringWidth;
 
     // One node, not four. A screen reader that reads label, box, hint and

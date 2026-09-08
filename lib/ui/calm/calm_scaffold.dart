@@ -1036,8 +1036,24 @@ class _CalmTabItem extends StatelessWidget {
 /// `.snackbar` sits above the tab bar and the home indicator.
 ///
 /// The CSS composes `--homebar-h`; on device that number is MediaQuery's.
-double calmSnackbarBottomInset(BuildContext context) {
+///
+/// [overTabBar] answers the question this function is really asking — will
+/// there be a tab bar UNDER the snackbar when it appears — which is not always
+/// what the calling context can see. The four `log.*` routes are pushed on the
+/// ROOT navigator so they cover the bar, so `CalmChromeScope` correctly reports
+/// no bar inside them; but the modal pops on save and the snackbar lands over
+/// the shell, where the bar is. Captured in the modal and drawn over the
+/// shell, the inset was 62pt short and "Odometer saved · Undo" came up behind
+/// the tab bar, with the Undo under the `+`.
+///
+/// It is explicit rather than inferred because the two facts genuinely differ
+/// and only the caller knows which one it means. `app_shell.dart` already
+/// carries the note that a snackbar 62pt too low is a write whose recovery
+/// window does not exist.
+double calmSnackbarBottomInset(BuildContext context, {bool? overTabBar}) {
   final space = CalmSpace.of(context);
-  final tabBar = CalmChromeScope.hasTabBarIn(context) ? space.tabbarH : 0.0;
-  return tabBar + MediaQuery.paddingOf(context).bottom + space.s3;
+  final hasBar = overTabBar ?? CalmChromeScope.hasTabBarIn(context);
+  return (hasBar ? space.tabbarH : 0.0) +
+      MediaQuery.paddingOf(context).bottom +
+      space.s3;
 }

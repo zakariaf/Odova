@@ -106,9 +106,12 @@ AppSettings homeSettings(
   // then wins. A test that pumps `fa` and leaves this at `system` gets an
   // English screen, which is how a Persian assertion quietly checks nothing.
   String language = 'system',
+  // The stored CURRENCY, which every money field now draws as its affix. A
+  // test that only ever pumps euros passes against a hard-coded `€`.
+  String currency = 'EUR',
 }) => AppSettings(
   schemaVersion: 1,
-  currencyDefault: Currency.tryParse('EUR')!,
+  currencyDefault: Currency.tryParse(currency)!,
   activeVehicleId: active,
   language: language,
   lastBackupAtUtcMs: lastBackupAtUtcMs,

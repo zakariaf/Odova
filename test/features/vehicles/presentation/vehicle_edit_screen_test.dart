@@ -68,6 +68,7 @@ Future<AppDatabase> _pump(
 
   await pumpApp(
     tester,
+    stubSettings: false,
     VehicleEditScreen(vehicleId: _id),
     locale: locale,
     overrides: [
@@ -155,6 +156,7 @@ Future<AppDatabase> _pumpHosted(
 
   await pumpApp(
     tester,
+    stubSettings: false,
     // A SCAFFOLD under it: `ScaffoldMessenger.showSnackBar` has nothing to
     // present to without one, so a bare host silently swallows the Undo this
     // flow exists to offer — and a test written against that would assert
@@ -751,6 +753,7 @@ void main() {
       final popped = <Vehicle?>[];
       await pumpApp(
         tester,
+        stubSettings: false,
         Builder(
           builder: (context) => TextButton(
             onPressed: () async => popped.add(

@@ -24,6 +24,7 @@ class LogFillUpBody extends StatelessWidget {
     required this.controllers,
     required this.onTrioChanged,
     required this.onFullTankChanged,
+    required this.moneySymbol,
     super.key,
     this.isFirstEver = false,
     this.trioError,
@@ -78,6 +79,14 @@ class LogFillUpBody extends StatelessWidget {
 
   /// The amber over-capacity line, or null. Never a refusal — §10 saves it.
   final String? overTankWarning;
+
+  /// The active currency's symbol, drawn as the money fields' affix.
+  ///
+  /// Every money field shipped as a bare number. §10's artboard draws `€` on
+  /// `log.fillup`'s Price/L and Total, and the app drew one only on the litres
+  /// field — so a figure typed into Cost or Amount said nothing about which of
+  /// the currencies this app holds it was in.
+  final String moneySymbol;
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +146,7 @@ class LogFillUpBody extends StatelessWidget {
               child: _TrioField(
                 field: TrioField.pricePerUnit,
                 label: l10n.logFillUpPricePerUnitLabel(quantityUnit),
+                affix: moneySymbol,
                 trio: trio,
                 controllers: controllers,
                 onChanged: onTrioChanged,
@@ -146,6 +156,7 @@ class LogFillUpBody extends StatelessWidget {
               child: _TrioField(
                 field: TrioField.total,
                 label: l10n.logFillUpTotalLabel,
+                affix: moneySymbol,
                 trio: trio,
                 controllers: controllers,
                 onChanged: onTrioChanged,
@@ -194,6 +205,10 @@ class _TrioField extends StatelessWidget {
     numeric: true,
     keyboardType: const TextInputType.numberWithOptions(decimal: true),
     affix: affix == null ? null : Text(affix!),
+    // A one- or two-character label, not the odometer's tappable chip. The
+    // default 76 left about seventeen points for the number in a third-width
+    // field, so `50` rendered as `5` with the zero clipped by its own `L`.
+    affixExtent: kCalmCompactAffixExtent,
     // §10: "The computed field looks computed: lighter text plus a `ƒ` badge
     // whose accessible name is 'calculated from the other two'." `CalmField`
     // draws both from this one flag.
