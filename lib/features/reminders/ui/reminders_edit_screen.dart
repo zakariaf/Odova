@@ -27,6 +27,7 @@ import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/gen/app_localizations.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/l10n/number_format.dart';
+import 'package:odova/l10n/service_kind_label.dart';
 import 'package:odova/l10n/unit_format.dart';
 import 'package:odova/l10n/vehicle_labels.dart';
 import 'package:odova/theme/calm/calm_space.dart';
@@ -182,6 +183,25 @@ class _RemindersEditScreenState extends ConsumerState<RemindersEditScreen> {
         CalmField(
           label: l10n.reminderName,
           controller: _controller('label', draft.label),
+          // The kind's name as a PLACEHOLDER, not as the field's value.
+          //
+          // A seeded item's label is null by construction — SPEC.md §8 gives
+          // `ServiceItem.label` meaning only for `kind = custom`, and
+          // `validateReminder` agrees: a blank label is a problem for `custom`
+          // and for nothing else. So the field really is empty, and until this
+          // it looked broken: a person opened "Oil and filter" to edit and
+          // found no name at all.
+          //
+          // Prefilling would have been the obvious fix and the wrong one. The
+          // moment a prefilled value is saved the item HAS a label, and a
+          // labelled item stops following the locale — so a user who opened a
+          // reminder once in English would keep "Oil and filter" after
+          // switching to German while every untouched item became "Öl und
+          // Filter". A placeholder shows the name, leaves the label null, and
+          // makes typing the deliberate act it is.
+          placeholder: draft.kind == ServiceKind.custom
+              ? null
+              : serviceKindLabel(l10n, draft.kind),
           // The ERROR, not the field's own label. This printed
           // `l10n.reminderName` — the word "Name" in red under a field already
           // labelled "Name" — because no `reminderName*Error` key had been

@@ -26,6 +26,8 @@ import 'package:odova/data/db/database_provider.dart';
 import 'package:odova/data/failures/persist_failure.dart';
 import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/data/repositories/service_repository.dart';
+import 'package:odova/l10n/gen/app_localizations.dart';
+import 'package:odova/l10n/service_kind_label.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 import 'package:odova/ui/calm/calm_list_row.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
@@ -493,6 +495,54 @@ void main() {
     expect(
       find.text('Wie weit im Voraus soll ich Bescheid sagen?'),
       findsOneWidget,
+    );
+  });
+
+  testWidgets('a seeded item names its kind without filling the field', (
+    tester,
+  ) async {
+    // §8 gives `ServiceItem.label` meaning only for `kind = custom`, so all 28
+    // seeded items have a null label BY CONSTRUCTION. The field bound that null
+    // and a person who tapped "Oil and filter" to edit it found an empty box
+    // with the word "Name" over it and no clue what they were editing.
+    //
+    // A PLACEHOLDER and deliberately not a prefill. A prefilled value that gets
+    // saved gives the item a real label, and a labelled item stops following
+    // the locale: open a reminder once in English and it stays "Oil and filter"
+    // after a switch to German while every untouched item becomes "Öl und
+    // Filter". So both halves are asserted — the name is visible, and the field
+    // is still empty.
+    final seeded = ServiceItem(
+      id: ServiceItemId.tryParse(_oilId)!,
+      vehicleId: golfId,
+      kind: ServiceKind.oilAndFilter,
+      priority: ServicePriority.normal,
+      rollover: ServiceRollover.fromActual,
+      intervalDistance: const Distance.fromKm(10000),
+      intervalDistanceUnit: DistanceUnit.km,
+      intervalMonths: 12,
+      isTracked: true,
+      createdAtUtcMs: 1000,
+      updatedAtUtcMs: 1000,
+    );
+    await _pump(tester, db: await _seeded(seeded));
+    await tester.pumpAndSettle();
+
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(CalmField).first),
+    );
+    final expected = serviceKindLabel(l10n, ServiceKind.oilAndFilter);
+    final field = _field(tester, l10n.reminderName);
+
+    expect(
+      field.placeholder,
+      expected,
+      reason: 'the field says nothing about what is being edited',
+    );
+    expect(
+      field.controller.text,
+      isEmpty,
+      reason: 'a prefill would freeze the name in whatever locale was open',
     );
   });
 }
