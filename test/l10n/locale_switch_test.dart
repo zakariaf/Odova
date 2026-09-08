@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/core/l10n/locale_resolution.dart';
+import 'package:odova/data/repositories/providers.dart';
 import 'package:odova/l10n/locale_controller.dart';
 import 'package:odova/ui/calm/calm_field.dart';
 
@@ -92,7 +93,15 @@ void main() {
     // this: notification bodies are baked into the OS at schedule time, so an
     // event per rebuild would cancel and reschedule every reminder whenever a
     // settings screen repainted.
-    final container = ProviderContainer(retry: noProviderRetry);
+    // `settingsProvider` STUBBED. `LocaleController.build()` reads the stored
+    // language, and without an override that read opens the real database —
+    // which needs `path_provider`, which has no implementation on the test
+    // host. The failure arrives after the test has already passed, so it lands
+    // on whichever test the randomised ordering ran next.
+    final container = ProviderContainer(
+      retry: noProviderRetry,
+      overrides: [settingsProvider.overrideWith((ref) => Stream.value(null))],
+    );
     addTearDown(container.dispose);
 
     final seen = <LocaleChangeEvent>[];
