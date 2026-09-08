@@ -33,8 +33,11 @@ ImportPreviewState _preview() => ImportPreviewState(
   variant: const ReplaceVariant(),
   fileName: 'odova-backup-2026-04-11-0930.json',
   exportedAtUtcMs: DateTime.utc(2026, 4, 11, 9, 30).millisecondsSinceEpoch,
+  // `now` is the three-car garage `settingsBackdrop` draws behind this sheet.
+  // It read one vehicle first, which is a preview contradicting the screen
+  // under it — the file and the backdrop describing two different phones.
   comparison: buildComparison(
-    now: const {'vehicles': 1, 'fillups': 412, 'services': 37},
+    now: const {'vehicles': 3, 'fillups': 412, 'services': 37},
     after: const {'vehicles': 3, 'fillups': 388, 'services': 41},
     kinds: const ['vehicles', 'fillups', 'services'],
   ),
@@ -48,7 +51,15 @@ ImportPreviewState _preview() => ImportPreviewState(
       ),
     ),
     warnings: const [],
-    recordsRead: 388,
+    // EQUAL, and the reason is a state machine rather than a preference.
+    // `backup_reader.dart` computes `readable = found - unreadable -
+    // duplicates` and appends a `SkippedRecords` or `DuplicateIds` warning
+    // whenever either is non-zero — so 388 read out of 391 with an empty
+    // warnings list is a state the app cannot produce. The real screen would
+    // draw §4.3's warning block above the counts and shift every band under
+    // it, which is a capture compared against its reference in a state that
+    // does not exist.
+    recordsRead: 391,
     recordsInFile: 391,
   ),
 );

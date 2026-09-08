@@ -19,6 +19,8 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/core/l10n/calendar.dart';
 import 'package:odova/core/l10n/numerals.dart';
+import 'package:odova/core/money/currency.dart';
+import 'package:odova/core/money/money_total.dart';
 import 'package:odova/l10n/date_format.dart';
 import 'package:odova/l10n/number_format.dart';
 
@@ -28,22 +30,23 @@ import 'support/trips_backdrop.dart';
 import 'support/vehicles_backdrop.dart';
 
 void main() {
-  test('the fixtures are byte-identical across two builds', () {
+  test('the fixtures are identical across two builds', () {
     // Anything unseeded — `DateTime.now()`, a fresh ULID, a `Set` iterated in
     // hash order — moves a row's date or a list's order between two runs of
     // the same suite. The band it moves is a band the check then reports as
     // absent, on a screen nobody touched.
+    //
+    // FIELD BY FIELD, not `toString()`. The first version compared
+    // `summary.toString()`, and `TripsSummary` has no override — so it compared
+    // the constant `Instance of 'TripsSummary'` with itself. Planting the exact
+    // non-determinism this comment names (`tripCount: 14 + now.millisecond`)
+    // left it green. `Vehicle.toString()` is only `Vehicle($id, $name)`, so
+    // that arm was passing over an unseeded `soldOn` or `createdAtUtcMs` too.
     for (final rtl in const [false, true]) {
-      expect(
-        artboardGarage(rtl: rtl).toString(),
-        artboardGarage(rtl: rtl).toString(),
-      );
-      expect(
-        artboardTrips(rtl: rtl).summary.toString(),
-        artboardTrips(rtl: rtl).summary.toString(),
-      );
+      expect(_garageFingerprint(rtl), _garageFingerprint(rtl));
+      expect(_tripsFingerprint(rtl), _tripsFingerprint(rtl));
     }
-    expect(artboardFills().toString(), artboardFills().toString());
+    expect(_fillsFingerprint(), _fillsFingerprint());
   });
 
   test('the LTR fixture renders the reference odometer', () {
@@ -95,3 +98,81 @@ void main() {
     }
   });
 }
+
+/// A `MoneyTotal` as a string, per currency, in a fixed order.
+///
+/// §2 forbids summing across currencies, so a total is a MAP — and a map
+/// iterated in hash order is one of the ways a fixture stops being
+/// deterministic. Sorting by the code is what makes this comparable.
+String _money(MoneyTotal total) {
+  final keys = total.byCurrency.keys.map((c) => c.toString()).toList()..sort();
+  return keys
+      .map((k) => '$k:${total.byCurrency[Currency.tryParse(k)]}')
+      .join(',');
+}
+
+/// Every field of the garage that could move between two builds.
+String _garageFingerprint(bool rtl) => artboardGarage(rtl: rtl)
+    .map(
+      (v) => [
+        v.id,
+        v.name,
+        v.vehicleType,
+        v.fuelKindDefault,
+        v.status,
+        v.make,
+        v.model,
+        v.year,
+        v.isBusiness,
+        v.soldOn,
+        v.sortOrder,
+        v.createdAtUtcMs,
+        v.updatedAtUtcMs,
+      ].join('|'),
+    )
+    .join(';');
+
+/// The same for the trips summary and every row under it.
+String _tripsFingerprint(bool rtl) {
+  final model = artboardTrips(rtl: rtl);
+  final summary = model.summary;
+  final rows = [...model.open, ...model.earlier].map(
+    (r) => [
+      r.trip.id,
+      r.trip.title,
+      r.trip.purpose,
+      r.trip.startedOn,
+      r.trip.endedOn,
+      r.trip.startOdometer?.metres,
+      r.trip.createdAtUtcMs,
+      r.trip.updatedAtUtcMs,
+      r.distance?.metres,
+      _money(r.cost),
+    ].join('|'),
+  );
+
+  return [
+    summary.tripCount,
+    summary.loggedDistance.metres,
+    summary.businessPercent,
+    _money(summary.cost),
+    ...rows,
+  ].join(';');
+}
+
+/// And for the 35 fills the fuel figures are computed from.
+String _fillsFingerprint() => artboardFills()
+    .map(
+      (f) => [
+        f.id,
+        f.occurredOn,
+        f.createdAtUtcMs,
+        f.fuelKind,
+        f.cumulativeM,
+        f.quantity.amount,
+        f.isFullTank,
+        f.chainBroken,
+        f.cost.amountMinor,
+      ].join('|'),
+    )
+    .join(';');

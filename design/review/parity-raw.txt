@@ -141,9 +141,9 @@ FAIL  settings.about-dark-ltr
 FAIL  settings.about-dark-rtl
         FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.about-light-ltr
-        FAIL  63% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  62% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.about-light-rtl
-        FAIL  64% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  63% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.backup-dark-ltr
         FAIL  58% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.backup-dark-rtl
@@ -154,10 +154,10 @@ FAIL  settings.backup-light-rtl
         FAIL  52% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.import-dark-ltr
         FAIL  #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)
-        FAIL  58% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  57% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.import-dark-rtl
         FAIL  #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)
-        FAIL  60% of the reference's band edges are absent — something is a different height or in a different place
+        FAIL  63% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.import-light-ltr
         FAIL  59% of the reference's band edges are absent — something is a different height or in a different place
 FAIL  settings.import-light-rtl

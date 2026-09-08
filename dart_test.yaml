@@ -1,0 +1,15 @@
+# The two tags this suite uses, declared so the runner stops warning about them.
+#
+# `flutter test` prints "A tag was used that wasn't specified in dart_test.yaml"
+# for every undeclared tag, on every run, and a warning nobody can silence is a
+# warning nobody reads. Both tags are also how the lanes are selected:
+# `.github/workflows/ci.yml` runs the suite with `--exclude-tags golden`, and
+# the golden lane runs them on their own.
+tags:
+  # Screenshot tests against committed PNGs. Excluded from the coverage run
+  # because they are platform-sensitive and have their own job.
+  golden:
+  # The 112 captures the whole-app parity sweep writes into `build/parity/`.
+  # They are ordinary widget tests and run in the normal lane; the tag exists so
+  # a person can run or skip the sweep on its own, which takes ten seconds.
+  parity:

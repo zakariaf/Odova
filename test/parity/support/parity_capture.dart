@@ -45,10 +45,10 @@ const Size kReferenceLogical = Size(390, 844);
 /// Where `check_parity.sh` looks.
 const String kParityOutDir = 'build/parity';
 
-/// `--h-statusbar` in `odova.css`, and `CalmSpace.statusbarH`.
+/// `--statusbar-h` in `odova.css`, and `CalmSpace.statusbarH`.
 const double kReferenceStatusBarHeight = 54;
 
-/// `--h-homebar`.
+/// `--homebar-h`.
 const double kReferenceHomeBarHeight = 34;
 
 /// One capture configuration.
@@ -150,7 +150,7 @@ Future<void> captureParity(
         textScaler: TextScaler.noScaling,
         disableAnimations: true,
         // The reference artboards draw a 54pt status bar and a 34pt home
-        // indicator — `--h-statusbar` and `--h-homebar`, the same numbers
+        // indicator — `--statusbar-h` and `--homebar-h`, the same numbers
         // `CalmSpace` carries. A capture with no padding puts the app bar at
         // y=0 and shifts EVERY horizontal band up by 54, which reads as "55% of
         // the reference's band edges are absent" and says nothing about the

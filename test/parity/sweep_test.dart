@@ -21,7 +21,16 @@ import 'parity_screens.dart';
 import 'support/parity_capture.dart';
 
 void main() {
-  setUpAll(loadParityFonts);
+  setUpAll(() async {
+    await loadParityFonts();
+    // The output directory is CLEARED first. Without it, a capture that threw
+    // after its PNG was written leaves the previous run's image on disk, and
+    // both the "wrote no file" guard below and `check_parity.sh` then read a
+    // screen from a build nobody made — the same shape of lie as a cancelled
+    // CI run reported as green.
+    final out = Directory(kParityOutDir);
+    if (out.existsSync()) out.deleteSync(recursive: true);
+  });
 
   for (final screen in kParityScreens) {
     for (final config in kParityCases) {

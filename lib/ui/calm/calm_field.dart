@@ -73,7 +73,7 @@ class CalmField extends StatefulWidget {
     this.inputFormatters,
     this.onChanged,
     this.onSubmitted,
-    this.onBlur,
+    this.onFocusChanged,
   });
 
   /// Sits ABOVE the field, not beside it: German `Kraftstoffart` and Sorani
@@ -161,7 +161,7 @@ class CalmField extends StatefulWidget {
   /// Passed straight through.
   final ValueChanged<String>? onSubmitted;
 
-  /// Called when the field LOSES focus.
+  /// Called when the field gains or loses focus, with the new state.
   ///
   /// SPEC.md §10: "on blur the field re-renders canonically in the active
   /// numbering system." That is a rule about every numeric field on every log
@@ -169,7 +169,14 @@ class CalmField extends StatefulWidget {
   /// where the focus node already lives, rather than in one screen's widget.
   /// `OdometerField` grew its own node and its own listener first, which meant
   /// a second `FocusNode` observing the one this widget already owns.
-  final VoidCallback? onBlur;
+  ///
+  /// BOTH edges, not just the blur. A field that groups on blur and does not
+  /// ungroup on focus is a field a user cannot edit: `DecimalFieldFormatter`
+  /// reads `187,41` — one backspace into `187,412` — as a decimal rather than a
+  /// grouping, and `decimals: 0` then refuses the keystroke silently. That is
+  /// the failure `log_modal.dart`'s prefill comment already names: "grouping
+  /// separators would have to be parsed back out on the first keystroke."
+  final ValueChanged<bool>? onFocusChanged;
 
   @override
   State<CalmField> createState() => _CalmFieldState();
@@ -218,8 +225,8 @@ class _CalmFieldState extends State<CalmField> {
     if (_focused == _node.hasFocus) return;
     setState(() => _focused = _node.hasFocus);
     // AFTER the state is settled, so a callback that rewrites the controller
-    // is writing into a field that already knows it is unfocused.
-    if (!_focused) widget.onBlur?.call();
+    // is writing into a field that already knows which way the focus went.
+    widget.onFocusChanged?.call(_focused);
   }
 
   @override

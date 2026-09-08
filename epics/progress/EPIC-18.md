@@ -366,3 +366,71 @@ and a factory would either lose those or take them as a string parameter. The
 eleven that genuinely differ are staying either way, so the saving is six short
 files against a uniform shape a reader can scan.
 
+## `/code-review` — seven findings, two of them regressions I had just written
+
+Both serious ones were mine, from this epic's own fix round, and both were
+invisible to the whole suite.
+
+**HIGH — grouping on blur made the odometer field uneditable in five of the six
+locales.** Fixing §10's blur rule wrote a GROUPED string into the controller,
+and `DecimalFieldFormatter` then refuses the next keystroke: `187,41` — one
+backspace into `187,412` — reads as a decimal rather than a grouping, and
+`decimals: 0` rejects it. Silently, because `formatEditUpdate` returns
+`oldValue`. Only `fr` escaped, and only because its NNBSP separator is stripped
+before the parse.
+
+At a pump, one-handed: type the reading, tap the litres field, notice a wrong
+digit, tap back, press backspace — nothing happens. Recovery is select-all and
+retype. **`log_modal.dart` already carried the warning**, on the prefill three
+hundred lines away: "grouping separators would have to be parsed back out on
+the first keystroke." I read that file this epic and wrote the bug anyway.
+
+`CalmField.onBlur` became `onFocusChanged(bool)` and the field groups on blur
+and UNGROUPS on focus, which is the ordinary pattern and the one that makes §10
+usable. `canonicalDisplay`'s `grouped` is now REQUIRED rather than defaulted: a
+mutation showed the default was never exercised, and the two edges want opposite
+answers, so a default is a way to get one of them by accident. Three mutations
+caught, plus a new test that asserts the grouped form is one the FORMATTER
+accepts back — which is the assertion that would have caught this.
+
+**MEDIUM-HIGH — the new overdue pill overflowed the app bar at 200%.** In German
+at 2x on the 390pt reference device the pill measures 355pt against 358pt of
+content width, so the vehicle name's `Expanded` collapsed to zero and the bar
+overflowed by five pixels anyway. §17 asks for 200% and
+`accessibility-as-code` forbids both cheap outs — a `FittedBox` shrinks type the
+user asked to be bigger, an `ellipsis` hides the count.
+
+The vehicle bar is a `Wrap` now, so the pill takes the second line the bar's
+`minHeight` already allowed. It needed an `Align` to stay vertically centred —
+a `Row` did that for free and a `Wrap` sizes to content, which moved the title
+up two pixels and the app-bar goldens caught it. `calm_appbar_overflow_test.dart`
+runs the twelve 200% cases and pins that the default scale is still one line.
+
+**Nothing in the suite could see either.** The parity captures shoot at
+`TextScaler.noScaling`, and Home is not in `test/a11y/screen_sweep_test.dart`
+because it needs repository fakes — the same reason 25 screens are outside that
+sweep, now with a demonstrated cost.
+
+Also fixed:
+
+- **The determinism test was a tautology.** `TripsSummary` has no `toString()`,
+  so it compared `Instance of 'TripsSummary'` with itself; planting
+  `tripCount: 14 + DateTime.now().millisecond` left it green. All three arms
+  fingerprint field by field now, and three planted non-determinisms are caught.
+- **`settings.import` photographed a state the app cannot reach.**
+  `recordsRead: 388` of 391 with an empty warnings list is impossible —
+  `backup_reader.dart` appends `SkippedRecords` or `DuplicateIds` whenever
+  either is non-zero — so the real screen would draw §4.3's warning block and
+  shift every band under it. Its `now:` counts also said one vehicle over a
+  three-car garage.
+- **The band exclusion kept its two boundary rows**, which are precisely the
+  chrome/body luminance steps it exists to remove. `<=` and `>=`.
+- **A stale PNG satisfied the "wrote no file" guard**, because nothing cleared
+  `build/parity/` first. The sweep clears it in `setUpAll`.
+
+**Answered, not applied:** the pill counts a snoozed overdue item. A snoozed
+item still renders a card — §9 draws it "Snoozed until 20 September" — so a pill
+reading "0 overdue" above a red card would have the header contradicting the
+screen under it, and `moreDueCount` counts them for the same reason. Pinned in a
+test so the next person meets a decision rather than an accident.
+

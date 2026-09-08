@@ -166,18 +166,21 @@ class DecimalFieldFormatter extends TextInputFormatter {
 /// system." Unchanged when it cannot be read, because replacing what the user
 /// typed with the app's guess about it is how a mis-parse becomes permanent.
 ///
-/// GROUPED, which is `formatForDisplay`'s default. This shipped with
-/// `grouped: false` and a comment arguing that a separator appearing while you
-/// type moves the caret out from under your thumb — true, and describing a
-/// state this function is never in: a figure being typed never passes through
-/// here, because the field shows the controller's raw text and
-/// `DecimalFieldFormatter` guards the keystrokes. "Canonical display" and "on
-/// blur" are the same event in §10, and `log.fillup`'s artboard reads
-/// `187,412`.
+/// [grouped] is REQUIRED and has no default, because the two edges of a focus
+/// change want opposite answers and a default is a way to get one of them by
+/// accident. True is the blurred field, which is what §10 and the artboard both
+/// describe — `log.fillup` reads `187,412`. False is the focused one, which
+/// must hold an UNGROUPED string: `DecimalFieldFormatter` reads `187,41` — one
+/// backspace into `187,412` — as a decimal rather than a grouping, and
+/// `decimals: 0` then refuses the keystroke silently. This shipped grouping on
+/// blur and nothing on focus, which made the field uneditable in five of the
+/// six locales; a mutation then showed the default was never exercised, so it
+/// is gone.
 String canonicalDisplay(
   String raw,
   String formatsTag, {
   required int decimals,
+  required bool grouped,
 }) {
   final read = parseDecimal(
     raw,
@@ -189,5 +192,6 @@ String canonicalDisplay(
     formatsTag,
     numerals: CalmNumerals.auto,
     decimalDigits: decimals,
+    grouped: grouped,
   );
 }

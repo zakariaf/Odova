@@ -180,6 +180,11 @@ function census(raw) {
 // band edges in the top strip that no capture can ever produce, on all 112
 // comparisons.
 //
+// The boundaries are excluded too — `<=` and `>=`, not `<` and `>`. The row at
+// `chromeTop` is precisely the luminance step BETWEEN the chrome and the body,
+// which is one of the edges this exclusion exists to remove; keeping it left
+// two unmatchable edges per comparison.
+//
 // They are MASKED rather than simulated. The harness drew them for a day, and
 // that was the wrong altitude: `missRatio` divides by the reference's edge
 // count, so painting a matching clock converts three permanently-unmatched
@@ -214,7 +219,7 @@ function bands(raw) {
   }
   const edges = [];
   for (let y = 1; y < H; y++) {
-    if (y < chromeTop || y > chromeBottom) continue;
+    if (y <= chromeTop || y >= chromeBottom) continue;
     if (Math.abs(rows[y] - rows[y - 1]) > 2.0) edges.push(y);
   }
   // collapse runs

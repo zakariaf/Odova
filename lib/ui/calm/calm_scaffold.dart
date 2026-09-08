@@ -557,21 +557,32 @@ class CalmAppBar extends StatelessWidget {
           ],
         ),
       ),
+      // A `Wrap`, not a `Row`. §9 puts a status pill beside the vehicle name,
+      // and at 200% text scale in German the two do not fit on one line: the
+      // pill measures 355pt against 358pt of content width, so the `Expanded`
+      // title collapsed to nothing and the bar overflowed by five pixels
+      // anyway. §17 asks for 200% and `accessibility-as-code` forbids the
+      // `FittedBox`/`ellipsis` escape, so the answer is to let it take the
+      // second line the bar's `minHeight` already allows.
+      //
+      // At the default scale nothing moves: one line, the same order, the same
+      // start alignment. `spacing` matches the `Row`'s former gap of nothing
+      // plus the actions' own padding.
       CalmAppBarShape.vehicle => Padding(
         padding: EdgeInsetsDirectional.symmetric(horizontal: space.s4),
-        child: Row(
-          children: [
-            Expanded(
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: CalmVehicleTitle(
-                  onTap: onTapVehicle,
-                  child: label(type.title),
-                ),
-              ),
-            ),
-            ...actions,
-          ],
+        // Centred inside the bar's `minHeight`. A `Row` did that for free;
+        // a `Wrap` sizes to its content and would otherwise sit at the top,
+        // moving the title up two pixels on every screen with a vehicle bar.
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: space.s2,
+            children: [
+              CalmVehicleTitle(onTap: onTapVehicle, child: label(type.title)),
+              ...actions,
+            ],
+          ),
         ),
       ),
       CalmAppBarShape.standard => Padding(

@@ -142,14 +142,14 @@ Graded FIX and not chased.
 | `settings` | light | rtl | deferred-NOTE | bands | 60% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.about` | dark | ltr | deferred-NOTE | bands | 63% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.about` | dark | rtl | deferred-NOTE | bands | 62% of the reference's band edges are absent — something is a different height or in a different place |
-| `settings.about` | light | ltr | deferred-NOTE | bands | 63% of the reference's band edges are absent — something is a different height or in a different place |
-| `settings.about` | light | rtl | deferred-NOTE | bands | 64% of the reference's band edges are absent — something is a different height or in a different place |
+| `settings.about` | light | ltr | deferred-NOTE | bands | 62% of the reference's band edges are absent — something is a different height or in a different place |
+| `settings.about` | light | rtl | deferred-NOTE | bands | 63% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.backup` | dark | ltr | deferred-NOTE | bands | 58% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.backup` | dark | rtl | deferred-NOTE | bands | 53% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.backup` | light | ltr | deferred-NOTE | bands | 55% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.backup` | light | rtl | deferred-NOTE | bands | 52% of the reference's band edges are absent — something is a different height or in a different place |
-| `settings.import` | dark | ltr | deferred-NOTE | colour+bands | #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)<br>58% of the reference's band edges are absent — something is a different height or in a different place |
-| `settings.import` | dark | rtl | deferred-NOTE | colour+bands | #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)<br>60% of the reference's band edges are absent — something is a different height or in a different place |
+| `settings.import` | dark | ltr | deferred-NOTE | colour+bands | #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)<br>57% of the reference's band edges are absent — something is a different height or in a different place |
+| `settings.import` | dark | rtl | deferred-NOTE | colour+bands | #4C443C covers 0.6% and is not a Calm token — nearest is --color-business-edge #463442 (Δ28)<br>63% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.import` | light | ltr | deferred-NOTE | bands | 59% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.import` | light | rtl | deferred-NOTE | bands | 57% of the reference's band edges are absent — something is a different height or in a different place |
 | `settings.language` | dark | ltr | deferred-NOTE | bands | 48% of the reference's band edges are absent — something is a different height or in a different place |

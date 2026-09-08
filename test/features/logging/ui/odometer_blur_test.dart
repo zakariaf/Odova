@@ -87,4 +87,42 @@ void main() {
     final controller = await pumpField(tester, typed: '18..7x');
     expect(controller.text, '18..7x');
   });
+
+  testWidgets('and the grouped reading is EDITABLE when focus comes back', (
+    tester,
+  ) async {
+    // The regression this file shipped with for an hour. Grouping on blur and
+    // never ungrouping makes the field uneditable: `DecimalFieldFormatter`
+    // reads `187,41` — one backspace into `187,412` — as a decimal rather than
+    // a grouping, and `decimals: 0` refuses the keystroke SILENTLY. Five of
+    // the six locales; only `fr` escaped, because its NNBSP separator is
+    // stripped before the parse.
+    //
+    // At a pump, one-handed: type the reading, tap the litres field, notice a
+    // wrong digit, tap back, press backspace — and nothing happens.
+    final controller = await pumpField(tester, typed: '187412');
+    expect(controller.text, '187,412');
+
+    await tester.tap(find.byType(TextField).first);
+    await tester.pumpAndSettle();
+    expect(
+      controller.text,
+      '187412',
+      reason: 'focus must hand the field a string the formatter accepts',
+    );
+
+    await tester.enterText(find.byType(TextField).first, '18741');
+    await tester.pump();
+    expect(controller.text, '18741', reason: 'the keystroke was swallowed');
+  });
+
+  testWidgets('and re-groups when focus leaves again', (tester) async {
+    final controller = await pumpField(tester, typed: '187412');
+    await tester.tap(find.byType(TextField).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(TextField).last);
+    await tester.pumpAndSettle();
+
+    expect(controller.text, '187,412');
+  });
 }

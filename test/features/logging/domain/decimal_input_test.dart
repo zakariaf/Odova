@@ -166,21 +166,70 @@ void main() {
     });
   });
 
-  group('re-rendering on blur', () {
+  group('re-rendering on a focus change', () {
     test('a parsed value comes back in the active numbering system', () {
       // §10: "On blur the field re-renders canonically in the active numbering
       // system." 42.61 under fa is ۴۲٫۶۱ — the same value, the user's digits.
       expect(
-        canonicalDisplay('42.61', 'fa', decimals: 2),
+        canonicalDisplay('42.61', 'fa', decimals: 2, grouped: true),
         '۴۲٫۶۱',
       );
-      expect(canonicalDisplay('42.61', 'en', decimals: 2), '42.61');
+      expect(
+        canonicalDisplay('42.61', 'en', decimals: 2, grouped: true),
+        '42.61',
+      );
+    });
+
+    test('blurred groups and focused does not', () {
+      // The two edges, and why `grouped` has no default. A field that groups
+      // on blur and never ungroups is a field nobody can edit:
+      // `DecimalFieldFormatter` reads `187,41` — one backspace into `187,412`
+      // — as a decimal rather than a grouping, and `decimals: 0` refuses the
+      // keystroke silently, in five of the six locales.
+      expect(
+        canonicalDisplay('187412', 'en', decimals: 0, grouped: true),
+        '187,412',
+      );
+      expect(
+        canonicalDisplay('187,412', 'en', decimals: 0, grouped: false),
+        '187412',
+      );
+      expect(
+        canonicalDisplay('187412', 'de', decimals: 0, grouped: true),
+        '187.412',
+      );
+      expect(
+        canonicalDisplay('187.412', 'de', decimals: 0, grouped: false),
+        '187412',
+      );
+    });
+
+    test('and the grouped form is one the FORMATTER accepts back', () {
+      // The assertion that would have caught the regression. Grouping is only
+      // safe if the string it produces survives a round trip through the thing
+      // that guards the next keystroke.
+      for (final tag in ['en', 'de', 'fr', 'fa', 'ar', 'ckb']) {
+        final grouped = canonicalDisplay(
+          '187412',
+          tag,
+          decimals: 0,
+          grouped: true,
+        );
+        expect(
+          canonicalDisplay(grouped, tag, decimals: 0, grouped: false),
+          canonicalDisplay('187412', tag, decimals: 0, grouped: false),
+          reason: '$tag cannot read its own grouped form back',
+        );
+      }
     });
 
     test('an unparseable value is left exactly as typed', () {
       // Re-rendering something the app could not read would replace the user's
       // input with a guess about it.
-      expect(canonicalDisplay('1,234,5', 'en', decimals: 2), '1,234,5');
+      expect(
+        canonicalDisplay('1,234,5', 'en', decimals: 2, grouped: true),
+        '1,234,5',
+      );
     });
   });
 
