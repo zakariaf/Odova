@@ -2547,6 +2547,10 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get notifBlockedAction => 'کردنەوەی ڕێکخستنەکانی مۆبایل';
 
   @override
+  String get notifSettingsOpenFailed =>
+      'ئۆدۆڤا نەیتوانی ڕێکخستنەکانی مۆبایل بکاتەوە. ڕێکخستنەکان بکەرەوە، ئۆدۆڤا بدۆزەوە، و لەوێ ئاگادارکردنەکان بکەرەوە.';
+
+  @override
   String get notifBackgroundTitle =>
       'لەوانەیە مۆبایلەکەت ڕێگر بێت لە بیرخەرەوەکانی ئۆدۆڤا.';
 

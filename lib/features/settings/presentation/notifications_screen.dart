@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odova/app/notifications/notification_permission_port.dart';
+import 'package:odova/app/notifications/notification_settings_link.dart';
 import 'package:odova/core/domain/models/settings.dart';
 import 'package:odova/core/l10n/bidi.dart';
 import 'package:odova/core/l10n/numerals.dart';
@@ -32,6 +33,7 @@ import 'package:odova/ui/calm/calm_notice.dart';
 import 'package:odova/ui/calm/calm_row_group.dart';
 import 'package:odova/ui/calm/calm_scaffold.dart';
 import 'package:odova/ui/calm/calm_sheet.dart';
+import 'package:odova/ui/calm/calm_snackbar.dart';
 
 /// The permission the screen reads, refreshed on every open.
 ///
@@ -446,24 +448,74 @@ class _PermissionCard extends ConsumerWidget {
           children: [Text(message, style: CalmType.of(context).body)],
         ),
         SizedBox(height: space.s3),
-        // It ASKS now. This was `onPressed: () {}` — a button that did
-        // nothing — under a comment saying EPIC-16 owned the pre-prompt and
-        // the OS deep link. EPIC-16 shipped and neither arrived, so the one
-        // control on the one screen that turns reminders on was dead for four
-        // epics. A person tapping it and seeing no iOS dialog is what found it.
+        // ROUTED BY CARD. Every one of these three called `_ask`, and only one
+        // of them should: asking is the right move on `neverAsked` and a no-op
+        // on the other two. iOS shows its permission dialog ONCE per install,
+        // so after a refusal `request()` answers instantly from cached state
+        // and nothing appears — a person tapping "Open phone settings" and
+        // watching nothing happen is what found it. On §14's card the
+        // permission is already granted, so asking cannot even fail visibly.
         //
-        // For a BLOCKED phone the honest remedy is a deep link into the OS
-        // settings, which needs a platform channel this app does not have and
-        // will not add without auditing its transitive tree — SPEC.md §2's
-        // no-network rule applies to any new dependency. Asking again there is
-        // a no-op rather than a lie: the OS answers immediately and the card
-        // stays, which is at least the truth.
+        // The deep link is a method channel of our own with two verbs and no
+        // arguments, for the reason `share_service.dart` gives: `url_launcher`
+        // takes a URL, and SPEC.md §2's "zero network calls" is a claim about
+        // what the code CAN do.
         CalmButton(
           label: action,
           variant: CalmButtonVariant.secondary,
-          onPressed: () => unawaited(_ask(ref)),
+          onPressed: () => unawaited(switch (card) {
+            NotificationsOffCard() => _ask(ref),
+            NotificationsBlockedCard() => _openSettings(
+              context,
+              ref,
+              details: false,
+            ),
+            // The app DETAILS page, not the notification page. An OEM battery
+            // manager is what §14's card is about, and the notification screen
+            // looks entirely correct on a phone that has one.
+            //
+            // UNREACHABLE today, and deliberately written anyway: the screen
+            // never passes `deliveriesUnconfirmed`, because §14's ledger of
+            // unseen deliveries does not exist yet — the same status as
+            // `calendarFirst` in `notifications_chrome.dart`. The arm is the
+            // answer to a question this switch will be asked the day that
+            // ledger lands, and leaving it calling `_ask` — on a card where
+            // the permission is already GRANTED, so asking cannot even fail
+            // visibly — is how it would arrive dead.
+            NotificationsBackgroundRestrictedCard() => _openSettings(
+              context,
+              ref,
+              details: true,
+            ),
+            // Unreachable: the caller returns early when both strings are null.
+            NotificationsNoCard() => Future<void>.value(),
+          }),
         ),
       ],
     );
   }
+}
+
+/// Opens the phone's settings, and says so when it cannot.
+///
+/// §1: a control that refuses explains itself. A door that silently fails to
+/// open is the same defect this button already had once — and on a platform
+/// with no native half, or an OEM that ships neither screen, `false` is a real
+/// answer rather than a rare one.
+Future<void> _openSettings(
+  BuildContext context,
+  WidgetRef ref, {
+  required bool details,
+}) async {
+  final link = ref.read(notificationSettingsLinkProvider);
+  // CAPTURED BEFORE the await. `async_safety`: a BuildContext used after one is
+  // a context that may be gone, and this awaits an OS round trip on a screen
+  // the user can leave.
+  final snackbars = CalmSnackbarHost.of(context);
+  final message = AppLocalizations.of(context).notifSettingsOpenFailed;
+
+  final opened = details
+      ? await link.openAppDetailsSettings()
+      : await link.openNotificationSettings();
+  if (!opened) snackbars.show(message: message);
 }

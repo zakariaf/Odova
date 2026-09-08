@@ -637,6 +637,7 @@
   "notifOffAction": "‏srednimer no nruT",
   "notifBlockedTitle": "‏.sgnittes s’enohp ruoy ni avodO rof ffo denrut era snoitacifiton esuaceb srednimer dnes t’nac avodO",
   "notifBlockedAction": "‏sgnittes enohp nepO",
+  "notifSettingsOpenFailed": "‏.ereht no snoitacifiton nrut dna ,avodO dnif ,sgnitteS nepO .sgnittes s’enohp ruoy nepo t’ndluoc avodO",
   "notifBackgroundTitle": "‏.srednimer s’avodO gnippots eb yam enohp ruoY",
   "notifSilentFooter": "‏.neercs emoh eht no swohs llits eud s’tahW .gnihtyna uoy dnes t’now avodO",
   "notifRowCalendar": "‏radnelac ym ot srednimer ddA",

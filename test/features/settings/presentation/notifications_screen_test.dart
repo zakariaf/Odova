@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:odova/app/notifications/notification_permission_port.dart';
+import 'package:odova/app/notifications/notification_settings_link.dart';
 import 'package:odova/app/notifications/schedule_rebuilder.dart';
 import 'package:odova/app/routing/routes.dart';
 import 'package:odova/core/domain/models/settings.dart';
@@ -57,6 +58,28 @@ class _FixedPermission implements NotificationPermissionPort {
   }
 }
 
+/// Records which door the screen asked for, and answers whether it opened.
+class _FakeSettingsLink implements NotificationSettingsLink {
+  _FakeSettingsLink({this.opens = true});
+
+  /// Whether the OS accepts. False is the OEM that ships neither screen, and
+  /// the case §1 needs a sentence for.
+  final bool opens;
+  final List<String> asked = [];
+
+  @override
+  Future<bool> openNotificationSettings() async {
+    asked.add('notifications');
+    return opens;
+  }
+
+  @override
+  Future<bool> openAppDetailsSettings() async {
+    asked.add('appDetails');
+    return opens;
+  }
+}
+
 AppLocalizations _l10n(WidgetTester tester) => AppLocalizations.of(
   tester.element(find.byType(NotificationsSettingsScreen)),
 );
@@ -65,12 +88,14 @@ late AppDatabase _db;
 late _CountingRebuilder _rebuilder;
 
 late _FixedPermission _permission;
+late _FakeSettingsLink _link;
 
 Future<void> _pump(
   WidgetTester tester, {
   NotificationPermission permission = NotificationPermission.granted,
   Locale? locale = const Locale('en'),
   bool allOff = false,
+  bool settingsOpen = true,
 }) async {
   tester.useDevice(Device.tallForm);
   _db = AppDatabase.forTesting(NativeDatabase.memory());
@@ -100,6 +125,9 @@ Future<void> _pump(
       notificationPermissionProvider.overrideWithValue(
         _permission = _FixedPermission(permission),
       ),
+      notificationSettingsLinkProvider.overrideWithValue(
+        _link = _FakeSettingsLink(opens: settingsOpen),
+      ),
       if (locale != null) deviceLocalesProvider.overrideWithValue([locale]),
     ],
   );
@@ -112,6 +140,7 @@ Future<AppSettings?> _stored() async {
 }
 
 void main() {
+  _routingTests();
   testWidgets('three groups, in order, with the calendar row and the cap', (
     tester,
   ) async {
@@ -270,5 +299,58 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_permission.requests, 1, reason: 'the button did not ask');
+  });
+}
+
+void _routingTests() {
+  testWidgets('the blocked card opens SETTINGS and does not ask again', (
+    tester,
+  ) async {
+    // The defect, exactly. All three cards called `request()`, and on iOS that
+    // is a no-op after a refusal — the OS shows its dialog once per install and
+    // answers instantly from cached state from then on. So §13's "Open phone
+    // settings", the one door it leaves open, was painted on.
+    await _pump(tester, permission: NotificationPermission.denied);
+
+    await tester.tap(find.text(_l10n(tester).notifBlockedAction));
+    await tester.pumpAndSettle();
+
+    expect(_link.asked, ['notifications']);
+    expect(
+      _permission.requests,
+      0,
+      reason: 'it asked an OS that had already answered, which does nothing',
+    );
+  });
+
+  testWidgets('the off card still ASKS, and opens nothing', (tester) async {
+    // The other direction, and the one a blanket "always deep link" would
+    // break. On `neverAsked` the OS dialog has never been shown, so asking is
+    // exactly right and sending the user to Settings would be making them do
+    // by hand what one tap would do.
+    await _pump(tester, permission: NotificationPermission.neverAsked);
+
+    await tester.tap(find.text(_l10n(tester).notifOffAction));
+    await tester.pumpAndSettle();
+
+    expect(_permission.requests, 1);
+    expect(_link.asked, isEmpty);
+  });
+
+  testWidgets('a door that will not open says so', (tester) async {
+    // §1: a control that refuses explains itself. A deep link that silently
+    // fails is the same defect this button already had once, and on an OEM
+    // that ships neither screen `false` is a real answer.
+    await _pump(
+      tester,
+      permission: NotificationPermission.denied,
+      settingsOpen: false,
+    );
+    final message = _l10n(tester).notifSettingsOpenFailed;
+
+    await tester.tap(find.text(_l10n(tester).notifBlockedAction));
+    await tester.pumpAndSettle();
+
+    expect(find.text(message), findsOneWidget);
   });
 }

@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 
-/// SPEC.md §12's share hand-off, and nothing else.
+/// SPEC.md §12's share hand-off and §13's door out to Settings.
 ///
 /// One method, two arguments: a path and a mime type. There is deliberately no
 /// way to name a destination, request a permission or report where the file
@@ -15,6 +15,10 @@ import UIKit
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   /// Must match `kShareChannel` in `lib/app/share/share_service.dart`.
   private static let channelName = "dev.odova/share"
+
+  /// Must match `kNotificationSettingsChannel` in
+  /// `lib/app/notifications/notification_settings_link.dart`.
+  private static let settingsChannelName = "dev.odova/notification_settings"
 
   override func application(
     _ application: UIApplication,
@@ -79,6 +83,46 @@ import UIKit
         popover.permittedArrowDirections = []
       }
       root.present(sheet, animated: true) { result(nil) }
+    }
+
+    registerSettingsChannel(messenger: engineBridge.applicationRegistrar.messenger())
+  }
+
+  /// §13's blocked card and §14's background card, and nothing else.
+  ///
+  /// **Two verbs, no arguments.** iOS has exactly one settings page per app —
+  /// `UIApplication.openSettingsURLString`, which is `app-settings:` — and it
+  /// carries both Notifications and Background App Refresh, so both verbs land
+  /// there. They stay separate anyway, because Android's two pages are genuinely
+  /// different and the Dart side should not learn which platform it is on.
+  ///
+  /// This is why the app does not depend on `url_launcher`. That package takes
+  /// a URL, and a channel that takes a URL is a channel that can open one;
+  /// SPEC.md §2's "zero network calls" is a claim about what the code CAN do.
+  /// This handler builds its own URL from a system constant and accepts no
+  /// input at all, so there is nothing for a later caller to point somewhere.
+  private func registerSettingsChannel(messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: AppDelegate.settingsChannelName,
+      binaryMessenger: messenger
+    )
+    channel.setMethodCallHandler { (call: FlutterMethodCall, result: @escaping FlutterResult) in
+      switch call.method {
+      case "openNotificationSettings", "openAppDetailsSettings":
+        guard let url = URL(string: UIApplication.openSettingsURLString),
+          UIApplication.shared.canOpenURL(url)
+        else {
+          // FALSE, not an error. The Dart side puts a sentence under the card;
+          // §13 gives that screen no dialog to raise.
+          result(false)
+          return
+        }
+        UIApplication.shared.open(url, options: [:]) { opened in
+          result(opened)
+        }
+      default:
+        result(FlutterMethodNotImplemented)
+      }
     }
   }
 }

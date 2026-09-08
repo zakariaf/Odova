@@ -2684,6 +2684,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notifBlockedAction => 'فتح إعدادات الهاتف';
 
   @override
+  String get notifSettingsOpenFailed =>
+      'لم تتمكن أودوفا من فتح إعدادات الهاتف. افتح الإعدادات، وابحث عن أودوفا، وفعّل الإشعارات من هناك.';
+
+  @override
   String get notifBackgroundTitle => 'قد يمنع هاتفك تذكيرات أودوفا.';
 
   @override
