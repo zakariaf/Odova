@@ -98,3 +98,85 @@ message then said the true thing: the save was failing every time, because
 `FillUpDraft.occurredOn` was never set. Fixing the wording is what made the
 defect findable — which is the argument for §2's rule about never guessing in a
 way that looks like fact, applied to error copy.
+
+---
+
+## The iOS reminders deep link, 2026-09-08
+
+Three defects in one chain, each hiding the next.
+
+| | What was wrong | How it was found |
+|---|---|---|
+| **G-1** | `plugin.initialize()` returns a **different thing on each platform** — Android, whether it set itself up; Darwin, whether *permissions were granted*. All three `request*Permission` flags are false here by §4.6's design, so on iOS it returned `false` every launch and `(ready ?? false) ? plugin : null` read that as a failure. Both providers fell back to their inert defaults: **on iOS the app could not ask for permission or schedule anything at all.** | driving the simulator; a `print` in `initializeNotifications` |
+| **G-2** | §13's blocked card offers "Open phone settings" and the button called `request()`. iOS shows its dialog once per install and answers instantly from cache afterwards, so the one door §13 leaves open was painted on. | the original report |
+| **G-3** | The deep link sends the user out to change the very thing the screen is showing, and the screen ignored what they did there — turn the switch on, come back, same card. | the Android round trip, after G-2 was fixed |
+
+**G-1 is why G-2 was never reproducible on iOS.** With the stack inert, the
+screen showed the `neverAsked` card, so the *blocked* card — the one with the
+dead button — never appeared. Fixing G-1 made G-2 reachable, and fixing G-2
+made G-3 visible. Each fix was the thing that exposed the next.
+
+### Why a channel of our own and not `url_launcher`
+
+The same argument `share_service.dart` makes about `share_plus`: `url_launcher`
+takes a URL, and a channel that takes a URL is a channel that can open one.
+SPEC.md §2's "zero network calls" is a claim about what the code **can** do, so
+`dev.odova/notification_settings` has two verbs and **no arguments** — the
+handler builds its own URL from a system constant and accepts no input. There
+is nothing for a later caller to point somewhere.
+
+Two verbs rather than one with a destination, because Android's two pages are
+genuinely different: §13's card is about the notification permission, and §14's
+is about an OEM battery manager, which lives on the app details page and where
+the notification screen would show a page that looks entirely correct.
+
+### Verified
+
+| | Android (Pixel 8a) | iOS (iPhone 16 Pro) |
+|---|---|---|
+| blocked card appears | ✅ | ✅ *(only after G-1)* |
+| "Open phone settings" opens the OS | ✅ app notification page | ✅ Odova's Settings page |
+| switch flipped out there | ✅ | — *(iOS shows no Notifications row until the app has asked)* |
+| returning re-reads the permission | ✅ card gone | ✅ card correctly stays |
+
+### G-4 — neither platform could tell "never asked" from "refused"
+
+Reported as *"there is no notification in its setting"*: the deep link opened
+iOS Settings on a page with **no Notifications row on it**. That is iOS
+behaving correctly — it adds the row only once an app has actually requested
+authorisation — and Odova never had.
+
+Both platform reads collapsed the two states §13 most needs apart:
+
+- iOS `checkPermissions()` returns an options object with **every flag false**
+  both when the user has refused and when nobody has asked.
+- Android `areNotificationsEnabled()` is a boolean with no third value.
+
+So a fresh install on either reported `denied`, §13 drew the **blocked** card,
+and its button — correctly, for a genuinely blocked phone — offered the OS
+settings instead of asking. The app could never ask, on either platform.
+
+The two branches are now one question over the app's own channel:
+`UNNotificationSettings.authorizationStatus` on iOS, and on Android
+`areNotificationsEnabled()` widened to a third state. Android cannot fully
+distinguish "never asked" from "refused for good" —
+`shouldShowRequestPermissionRationale` is false in both — so `FlnPermissionPort`
+remembers a refusal **for the session only**: §2 forbids persisting a derived
+value, and a stored flag would survive an import onto a phone where the user
+had granted and be wrong for ever. A relaunch asks once more, which costs one
+tap on a phone that has refused for good and is right on every phone that has
+not.
+
+| | Android | iOS |
+|---|---|---|
+| fresh install | "Reminders are off." | "Reminders are off." |
+| tapping it | **the OS dialog appears** | **the OS dialog appears** |
+| refusing | blocked card | blocked card |
+| the deep link then | app notification page | Odova's Settings page, **now with a Notifications row** |
+
+**Still open.** CI has an `ios build` job that reports `skipping`, so no Swift in
+this repo is compiled by any pipeline — the `AppDelegate` typo that stopped the
+iOS app building at all reached `main` that way, and this change is mostly
+Swift. `test/policy/platform_channel_names_test.dart` now ties the Dart, Swift
+and Kotlin channel names and method names together in the `flutter` lane, which
+covers the string drift but not compilation.

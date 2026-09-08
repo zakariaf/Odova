@@ -1,6 +1,9 @@
 package io.applander.odova
 
 import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -8,7 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.File
 
 /**
- * SPEC.md §12's share hand-off, and nothing else.
+ * SPEC.md §12's share hand-off and §13's door out to Settings.
  *
  * One method, two arguments: a path and a mime type. There is deliberately no
  * way to name a destination, request a permission or report where the file
@@ -65,10 +68,81 @@ class MainActivity : FlutterActivity() {
                     result.error("share_refused", error.message, null)
                 }
             }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SETTINGS_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    // Three states on Android too, so the Dart side asks ONE
+                    // question rather than learning which platform it is on.
+                    //
+                    // `areNotificationsEnabled()` alone collapses "never asked"
+                    // into "refused", exactly as iOS's `checkPermissions` does,
+                    // and with the same cost: a fresh install would be sent to
+                    // Settings to flip a switch by hand when one tap would have
+                    // raised the system dialog.
+                    //
+                    // `shouldShowRequestPermissionRationale` is what separates
+                    // them, as far as Android allows. False before the app has
+                    // ever asked, true after one refusal, false again once the
+                    // user has refused for good — so the first and last cases
+                    // are genuinely indistinguishable here. Both are reported
+                    // as "not determined" and the port's own session memory
+                    // settles it: see `FlnPermissionPort`.
+                    "notificationAuthorizationStatus" -> result.success(
+                        when {
+                            NotificationManagerCompat.from(this)
+                                .areNotificationsEnabled() -> "authorized"
+                            else -> "notDetermined"
+                        },
+                    )
+                    // §13's blocked card. Straight to this app's notification
+                    // screen — the switch the card is talking about is the
+                    // first thing on it.
+                    "openNotificationSettings" -> result.success(
+                        open(
+                            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, packageName),
+                        ),
+                    )
+                    // §14's background card. The app DETAILS page, which is
+                    // where battery restrictions live. Sending someone to the
+                    // notification screen here would show them a page that
+                    // looks entirely correct while an OEM battery manager goes
+                    // on killing the app — the app pointing confidently at the
+                    // wrong thing, which SPEC.md §2 forbids everywhere else.
+                    "openAppDetailsSettings" -> result.success(
+                        open(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                .setData(Uri.fromParts("package", packageName, null)),
+                        ),
+                    )
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    /**
+     * Starts [intent], answering whether the OS took it.
+     *
+     * FALSE rather than an exception. There is no guarantee an OEM ships either
+     * screen, and the Dart side puts a sentence under the card — §13 gives that
+     * screen no dialog.
+     */
+    private fun open(intent: Intent): Boolean = try {
+        startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        true
+    } catch (error: Exception) {
+        false
     }
 
     private companion object {
         /** Must match `kShareChannel` in `lib/app/share/share_service.dart`. */
         const val CHANNEL = "dev.odova/share"
+
+        /**
+         * Must match `kNotificationSettingsChannel` in
+         * `lib/app/notifications/notification_settings_link.dart`.
+         */
+        const val SETTINGS_CHANNEL = "dev.odova/notification_settings"
     }
 }

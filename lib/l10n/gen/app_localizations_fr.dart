@@ -2603,6 +2603,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get notifBlockedAction => 'Ouvrir les réglages du téléphone';
 
   @override
+  String get notifSettingsOpenFailed =>
+      'Odova n’a pas pu ouvrir les réglages du téléphone. Ouvrez les Réglages, trouvez Odova et activez-y les notifications.';
+
+  @override
   String get notifBackgroundTitle =>
       'Votre téléphone empêche peut-être les rappels d’Odova.';
 

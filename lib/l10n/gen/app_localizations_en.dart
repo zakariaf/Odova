@@ -2544,6 +2544,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifBlockedAction => 'Open phone settings';
 
   @override
+  String get notifSettingsOpenFailed =>
+      'Odova couldn’t open your phone’s settings. Open Settings, find Odova, and turn notifications on there.';
+
+  @override
   String get notifBackgroundTitle =>
       'Your phone may be stopping Odova’s reminders.';
 

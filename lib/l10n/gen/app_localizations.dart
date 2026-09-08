@@ -3948,6 +3948,12 @@ abstract class AppLocalizations {
   /// **'Open phone settings'**
   String get notifBlockedAction;
 
+  /// Shown when the deep link into the OS settings is refused. It names the manual route, because the app cannot open the door and the user still has to.
+  ///
+  /// In en, this message translates to:
+  /// **'Odova couldn’t open your phone’s settings. Open Settings, find Odova, and turn notifications on there.'**
+  String get notifSettingsOpenFailed;
+
   /// §14's OEM background-restriction card, shown once after three unconfirmed deliveries.
   ///
   /// In en, this message translates to:

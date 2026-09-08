@@ -9,6 +9,7 @@ import 'package:odova/app/error_handlers.dart';
 import 'package:odova/app/notifications/fln_notification_gateway.dart';
 import 'package:odova/app/notifications/notification_gateway.dart';
 import 'package:odova/app/notifications/notification_permission_port.dart';
+import 'package:odova/app/notifications/notification_settings_link.dart';
 import 'package:odova/app/providers.dart';
 import 'package:odova/app/routing/launch_gate.dart';
 import 'package:odova/app/startup_purge.dart';
@@ -160,7 +161,7 @@ Future<List<Override>> bootstrap({required CrashSink crashSink}) async {
         FlnNotificationGateway(plugin),
       ),
       notificationPermissionProvider.overrideWithValue(
-        FlnPermissionPort(plugin),
+        FlnPermissionPort(plugin, const PlatformNotificationSettingsLink()),
       ),
     ],
     clockProvider.overrideWithValue(const Clock()),

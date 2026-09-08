@@ -33,6 +33,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:odova/app/notifications/notification_gateway.dart';
 import 'package:odova/app/notifications/notification_permission_port.dart';
+import 'package:odova/app/notifications/notification_settings_link.dart';
 import 'package:odova/core/notifications/scheduled_notification.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -172,43 +173,76 @@ class FlnNotificationGateway implements NotificationGateway {
 /// rather than an error, because on those platforms the notification really
 /// will be delivered.
 class FlnPermissionPort implements NotificationPermissionPort {
-  /// Creates the port over [_plugin].
-  const FlnPermissionPort(this._plugin);
+  /// Creates the port over [_plugin], asking [_link] for the OS's status.
+  FlnPermissionPort(this._plugin, this._link);
+
+  /// Whether asking has already been tried and refused this session.
+  ///
+  /// **Android cannot answer this and nor can any flag it exposes.**
+  /// `shouldShowRequestPermissionRationale` is false before the app has ever
+  /// asked AND false once the user has refused for good, so the platform
+  /// reports "not determined" for both — and without this the blocked card
+  /// would be unreachable there: every read would say "ask again", and asking
+  /// after a final refusal does nothing at all.
+  ///
+  /// Session-scoped, deliberately. §2 forbids persisting a derived value, and
+  /// this is derived from an answer the OS already holds: a relaunch asks once
+  /// more, which costs one tap on a phone that has refused for good and gets
+  /// the state right on every phone that has not. Persisting it would survive
+  /// an import onto a device where the user had granted, and be wrong for ever.
+  bool _refusedThisSession = false;
 
   final FlutterLocalNotificationsPlugin _plugin;
 
+  /// The OS's own three-state answer, which the plugin cannot give on iOS.
+  final NotificationSettingsLink _link;
+
   @override
   Future<NotificationPermission> read() async {
-    final android = _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-    if (android != null) {
-      final enabled = await android.areNotificationsEnabled();
-      // NULL is not `false`. The plugin returns null when it cannot tell, and
-      // reporting `denied` there would draw §4.6's "turn them on in Settings"
-      // card over a phone where they are already on.
-      return switch (enabled) {
-        true => NotificationPermission.granted,
-        false => NotificationPermission.denied,
-        null => NotificationPermission.granted,
-      };
-    }
+    // ONE question, both platforms, over this app's own channel.
+    //
+    // It used to branch: Android read `areNotificationsEnabled()`, iOS read
+    // `checkPermissions()`. Both collapse "nobody has asked yet" into
+    // "refused" — Android because the boolean has no third value, iOS because
+    // its options object reports every flag false in both states — and §13
+    // needs exactly those two told apart. A fresh install drew the BLOCKED
+    // card, whose button correctly offers the OS settings rather than asking,
+    // so the app never asked at all.
+    //
+    // The branch is gone rather than fixed twice. Two reads of the same fact
+    // are two places for it to be wrong, and this one was wrong in both.
 
-    final ios = _plugin
-        .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin
-        >();
-    if (ios == null) return NotificationPermission.granted;
-
-    // iOS has no "read" that distinguishes never-asked from denied without
-    // asking, so `checkPermissions` is the closest thing: it reports what was
-    // granted, and a first launch reports nothing granted. §4.6's pre-prompt
-    // is what stops that reading as a refusal — it asks before the OS does.
-    final status = await ios.checkPermissions();
-    return (status?.isAlertEnabled ?? false)
-        ? NotificationPermission.granted
-        : NotificationPermission.denied;
+    // Asked of iOS DIRECTLY, because the plugin cannot answer it.
+    //
+    // `checkPermissions` reports an options object with every flag false both
+    // when the user has refused and when nobody has asked yet — the two states
+    // §13 most needs to tell apart. Reading it as `denied` made a fresh
+    // install show the BLOCKED card, whose button correctly offers the OS
+    // settings rather than asking; so the app never asked, and because iOS
+    // only adds a Notifications row to an app's Settings page once that app
+    // has requested at least once, the deep link landed on a page with no
+    // notification setting on it. The user was sent somewhere to turn on a
+    // switch that was not there.
+    //
+    // `UNNotificationSettings.authorizationStatus` is the real answer and
+    // reaches Dart over this app's own channel — see
+    // `notification_settings_link.dart` for why that is a channel of our own
+    // and why every verb on it takes no arguments.
+    //
+    // `unknown` reads as `neverAsked`: asking is recoverable, and telling
+    // someone they are blocked when they are not is not.
+    return switch (await _link.authorization()) {
+      NotificationAuthorization.authorized => NotificationPermission.granted,
+      NotificationAuthorization.denied => NotificationPermission.denied,
+      // `_refusedThisSession` is what makes §13's blocked card reachable on
+      // Android, where the platform reports "not determined" both before the
+      // first ask and after the last one.
+      NotificationAuthorization.notDetermined ||
+      NotificationAuthorization.unknown =>
+        _refusedThisSession
+            ? NotificationPermission.denied
+            : NotificationPermission.neverAsked,
+    };
   }
 
   @override
@@ -219,9 +253,11 @@ class FlnPermissionPort implements NotificationPermissionPort {
         >();
     if (android != null) {
       final granted = await android.requestNotificationsPermission();
-      return (granted ?? true)
-          ? NotificationPermission.granted
-          : NotificationPermission.denied;
+      return _remember(
+        (granted ?? true)
+            ? NotificationPermission.granted
+            : NotificationPermission.denied,
+      );
     }
 
     final ios = _plugin
@@ -238,9 +274,22 @@ class FlnPermissionPort implements NotificationPermissionPort {
       badge: true,
       sound: true,
     );
-    return (granted ?? false)
-        ? NotificationPermission.granted
-        : NotificationPermission.denied;
+    return _remember(
+      (granted ?? false)
+          ? NotificationPermission.granted
+          : NotificationPermission.denied,
+    );
+  }
+
+  /// Records a refusal so [read] can report it, and returns [answer].
+  ///
+  /// Only a refusal is remembered, and only for this process — see
+  /// [_refusedThisSession]. A GRANT clears it, because the user can grant from
+  /// the OS settings between two asks and a sticky refusal would then draw
+  /// §13's blocked card over a phone that works.
+  NotificationPermission _remember(NotificationPermission answer) {
+    _refusedThisSession = answer == NotificationPermission.denied;
+    return answer;
   }
 }
 
@@ -260,7 +309,7 @@ class FlnPermissionPort implements NotificationPermissionPort {
 Future<FlutterLocalNotificationsPlugin?> initializeNotifications() async {
   try {
     final plugin = FlutterLocalNotificationsPlugin();
-    final ready = await plugin.initialize(
+    await plugin.initialize(
       const InitializationSettings(
         // The launcher icon, which every Flutter Android project has. A named
         // asset would be one more thing to keep in step with the manifest.
@@ -275,7 +324,28 @@ Future<FlutterLocalNotificationsPlugin?> initializeNotifications() async {
         ),
       ),
     );
-    return (ready ?? false) ? plugin : null;
+    // The RETURN VALUE IS IGNORED ON PURPOSE, and reading it cost this app
+    // notifications on iOS entirely.
+    //
+    // `initialize` answers a different question on each platform. Android
+    // returns whether the plugin set itself up. **Darwin returns whether
+    // permissions were granted** — and three lines above this, all three
+    // `request*Permission` flags are deliberately `false`, because §4.6 asks
+    // after its own pre-prompt rather than on the first frame of a first
+    // launch. So on iOS `initialize` returned `false` every time, by design,
+    // and `(ready ?? false) ? plugin : null` read that as a failure.
+    //
+    // The consequence was the whole feature: `bootstrap()` overrode neither
+    // provider, both fell back to their inert defaults, and on iOS the app
+    // could not ask for permission, could not schedule a reminder, and showed
+    // §13's `neverAsked` card for ever. "I'm clicking Turn on Reminders and
+    // nothing happens" is exactly what that looks like.
+    //
+    // A THROW is still a failure and still returns null — §6.4 forbids cold
+    // launch dying over a reminder. `ready` is logged nowhere and gated on
+    // nowhere, because on one of the two platforms it does not mean what the
+    // name says.
+    return plugin;
   } on Object {
     return null;
   }

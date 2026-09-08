@@ -2539,6 +2539,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get notifBlockedAction => 'باز کردن تنظیمات گوشی';
 
   @override
+  String get notifSettingsOpenFailed =>
+      'اودووا نتوانست تنظیمات گوشی را باز کند. تنظیمات را باز کنید، اودووا را پیدا کنید و اعلان‌ها را از آنجا روشن کنید.';
+
+  @override
   String get notifBackgroundTitle =>
       'ممکن است گوشی شما جلوی یادآورهای اودووا را بگیرد.';
 
