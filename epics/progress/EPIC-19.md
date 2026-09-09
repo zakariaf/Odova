@@ -15,3 +15,10 @@
   backup stays ON, recorded with a name and a date, and the copy rule that
   follows is enforced in six locales. The sheet's own test caught `sqlite3` and
   `sqlite3_flutter_libs` missing from it.
+- 19.6 store listing — done, with two caveats worth carrying.
+  **Sorani has not been read by a native speaker.** §18.11 names that as the
+  largest single risk to the RTL launch and it is still open; the copy is the
+  same shape as the other five and should be reviewed BEFORE submission.
+  **The screenshots are from a fresh install**, so Costs and History are empty
+  states and the set uses Home, Reminders and Settings instead. Richer shots
+  need a seeded device; the capture script takes a locale list and can be re-run.

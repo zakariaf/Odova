@@ -1,0 +1,103 @@
+# Builds the release artifact from a tag. It does NOT upload.
+#
+# Uploading is EPIC-19 task 19.10's ritual: a human runs it, reads the store
+# back afterwards, and watches the phased release against a written pause
+# criterion. A workflow that uploads on tag push turns an irreversible act into
+# a side effect of `git push --tags`, and a released iOS build cannot be
+# withdrawn — only superseded by another that must itself pass review.
+#
+# What it does do is prove the tag builds, and keep the symbols. Obfuscated
+# symbols that were not archived are a crash report nobody can read for the
+# life of that build.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+# NOT cancel-in-progress. The CI workflow cancels supersed runs because a newer
+# commit makes an older result irrelevant; here every run corresponds to a tag
+# that may already have been published, and a cancelled release build is a
+# missing symbol archive.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ipa:
+    name: ios release build
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The hygiene gate walks `git log --all`. A shallow checkout makes
+          # that half pass silently, which is the failure it exists to catch.
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .flutter-version
+
+      - run: flutter pub get --enforce-lockfile
+
+      - name: Gates
+        run: |
+          bash tools/check_release_hygiene.sh
+          bash tools/audit_deps.sh --require-graph
+          flutter analyze --fatal-infos --fatal-warnings
+          flutter test
+
+      - name: Signing material
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          DIST_CERT_P12: ${{ secrets.DIST_CERT_P12 }}
+          DIST_CERT_PASSWORD: ${{ secrets.DIST_CERT_PASSWORD }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          # Materialised into the RUNNER, never into the repository, and
+          # removed again below whatever happens. `ios/ExportOptions.plist` is
+          # gitignored for the same reason: teamID pins one account.
+          security create-keychain -p '' build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p '' build.keychain
+          echo "$DIST_CERT_P12" | base64 --decode > /tmp/dist.p12
+          security import /tmp/dist.p12 -k build.keychain \
+            -P "$DIST_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k '' build.keychain
+          rm -f /tmp/dist.p12
+          sed "s/TEAM_ID/$TEAM_ID/" ios/ExportOptions.plist.example \
+            > ios/ExportOptions.plist
+
+      - name: Build
+        run: bash tools/release.sh
+
+      - name: Archive the symbols
+        # BEFORE anything could be uploaded, and kept for the life of the build
+        # rather than the life of the run.
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: symbols-${{ github.ref_name }}
+          path: build/symbols/
+          retention-days: 90
+
+      - name: Archive the IPA
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa-${{ github.ref_name }}
+          path: build/ios/ipa/*.ipa
+          retention-days: 90
+
+      - name: Remove the signing material
+        # ALWAYS, including on failure. A keychain left on a runner is a
+        # credential on a machine somebody else's job will run on next.
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
+          rm -f ios/ExportOptions.plist /tmp/dist.p12
