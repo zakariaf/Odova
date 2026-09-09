@@ -16,6 +16,7 @@ sixteen-byte header. Anti-aliasing is 4x supersampling.
     python3 design/icon/generate.py
 """
 
+import json
 import math
 import re
 import struct
@@ -29,12 +30,22 @@ OUT = ROOT / "ios/Runner/Assets.xcassets/AppIcon.appiconset"
 SS = 4  # supersampling factor
 
 
-def token(name: str, *, occurrence: int = 0) -> tuple[int, int, int]:
-    """The nth declaration of `--name` in the stylesheet, as RGB."""
-    hits = re.findall(rf"--{name}:\s*#([0-9A-Fa-f]{{6}})", CSS.read_text())
-    if len(hits) <= occurrence:
-        raise SystemExit(f"--{name} #{occurrence} not found in {CSS}")
-    value = hits[occurrence]
+STYLESHEET = CSS.read_text()
+
+
+def token(name: str) -> tuple[int, int, int]:
+    """The first declaration of `--name` in the stylesheet, as RGB.
+
+    The FIRST, not the nth. An icon has one appearance — iOS does not swap it
+    for dark mode — so there is no second occurrence to want, and an
+    `occurrence` parameter no caller passes is generality that has to be read
+    by everyone and used by nobody. `launch_screen_test.dart` genuinely needs
+    light and dark; this does not.
+    """
+    found = re.search(rf"--{name}:\s*#([0-9A-Fa-f]{{6}})", STYLESHEET)
+    if not found:
+        raise SystemExit(f"--{name} not found in {CSS}")
+    value = found.group(1)
     return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4))
 
 
@@ -44,14 +55,24 @@ def draw(size: int, back: tuple, front: tuple) -> bytes:
     cx = cy = n / 2
     # A dial that reads as one at 40 px and still has air at 1024.
     radius = n * 0.30
-    stroke = n * 0.072
+    # The arc's thickness and the hub's radius are the same measure, so they
+    # are one name.
+    weight = n * 0.072
     # Sweeps from 150 deg round to 30 deg, leaving the gap at the bottom that
     # makes a dial read as a dial rather than as a ring.
     start, end = math.radians(150), math.radians(390)
     needle = math.radians(300)
     needle_len = radius * 0.92
     needle_w = n * 0.055
-    hub = n * 0.072
+    # HOISTED. These are constants of the whole drawing, and inside the pixel
+    # loop they were ~19 million redundant trig calls across the catalogue.
+    ux, uy = math.cos(needle), math.sin(needle)
+    half_weight = weight / 2
+    half_needle = needle_w / 2
+    tau = 2 * math.pi
+    # One bytes object each, not one per pixel: the loop below ran 19 million
+    # times and allocated a three-byte object on every pass.
+    front_b, back_b = bytes(front), bytes(back)
 
     rows = []
     for y in range(n):
@@ -59,27 +80,24 @@ def draw(size: int, back: tuple, front: tuple) -> bytes:
         for x in range(n):
             dx, dy = x - cx, y - cy
             dist = math.hypot(dx, dy)
-            on = False
 
-            # The arc.
-            if abs(dist - radius) <= stroke / 2:
-                angle = math.atan2(dy, dx) % (2 * math.pi)
-                if angle < start:
-                    angle += 2 * math.pi
-                on = start <= angle <= end
+            # One boolean, three ways to earn it. The first version was three
+            # guarded blocks each re-testing the flag the previous one set, at
+            # three levels of nesting, for the short-circuiting `or` already
+            # gives.
+            along = dx * ux + dy * uy
+            angle = math.atan2(dy, dx) % tau
+            if angle < start:
+                angle += tau
 
-            # The needle: distance from the hub to a point along its direction.
-            if not on:
-                ux, uy = math.cos(needle), math.sin(needle)
-                along = dx * ux + dy * uy
-                if 0 <= along <= needle_len:
-                    if abs(-dx * uy + dy * ux) <= needle_w / 2:
-                        on = True
+            on = (
+                (abs(dist - radius) <= half_weight and start <= angle <= end)
+                or (0 <= along <= needle_len
+                    and abs(-dx * uy + dy * ux) <= half_needle)
+                or dist <= weight
+            )
 
-            if not on and dist <= hub:
-                on = True
-
-            row += bytes(front if on else back)
+            row += front_b if on else back_b
         rows.append(bytes(row))
     return downsample(rows, size)
 
@@ -128,8 +146,6 @@ def png(size: int, scanlines: bytes) -> bytes:
 
 
 def main() -> None:
-    import json
-
     back = token("color-brand")
     # The LIGHT surface, always. An app icon has one appearance; iOS does not
     # swap it for dark mode, and picking the dark token here would put a

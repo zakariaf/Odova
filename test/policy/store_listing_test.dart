@@ -15,10 +15,16 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/l10n/supported_locales.dart';
 
-/// The six shipped locales. Same list as the ARBs, same rule as §2: six or
-/// none.
-const _locales = ['en', 'de', 'fr', 'fa', 'ar', 'ckb'];
+/// The shipped locales, from the app's own list rather than a copy of it.
+///
+/// §2 is "six or none", and a hand-typed sixth-and-final list is how a seventh
+/// locale ships with no listing at all: this gate passes, because it was never
+/// told the locale exists.
+final List<String> _locales = odovaSupportedLocales
+    .map((l) => l.languageCode)
+    .toList();
 
 /// Each field and what App Store Connect will accept.
 const _limits = <String, int>{
@@ -88,6 +94,7 @@ void main() {
     // the English text is worse than a missing one: the missing one blocks
     // submission, and this one ships.
     final english = _field('en', 'subtitle');
+    final englishDescription = _field('en', 'description');
     for (final locale in _locales.where((l) => l != 'en')) {
       expect(
         _field(locale, 'subtitle'),
@@ -96,7 +103,7 @@ void main() {
       );
       expect(
         _field(locale, 'description'),
-        isNot(_field('en', 'description')),
+        isNot(englishDescription),
         reason: '$locale/description.txt is the English text',
       );
     }
@@ -106,7 +113,10 @@ void main() {
     // §2 bans storing them, and the reason is the same here as in the app: a
     // control character invisible in an editor changes how the whole line
     // renders in a console nobody can debug.
-    final controls = RegExp('[‪-‮⁦-⁩‎‏]');
+    // ESCAPED, not literal. These characters are invisible and reorder the
+    // source around them — the analyzer refuses a literal one for exactly
+    // the reason this test exists.
+    final controls = RegExp('[\u202A-\u202E\u2066-\u2069\u200E\u200F]');
     for (final locale in _locales) {
       for (final field in _limits.keys) {
         expect(

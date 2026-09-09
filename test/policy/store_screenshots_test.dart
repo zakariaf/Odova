@@ -21,8 +21,18 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:odova/l10n/supported_locales.dart';
 
-const _locales = ['en', 'de', 'fr', 'fa', 'ar', 'ckb'];
+import '../support/png_header.dart';
+
+/// The shipped locales, from the app's own list rather than a copy.
+///
+/// A hand-typed sixth-and-final list is how a seventh locale ships with no
+/// store listing and no screenshots: both gates pass, because neither was told
+/// the locale exists.
+final List<String> _locales = odovaSupportedLocales
+    .map((l) => l.languageCode)
+    .toList();
 
 /// What App Store Connect accepts for the 6.9-inch class, in portrait.
 const _width = 1320;
@@ -30,6 +40,14 @@ const _height = 2868;
 
 /// At least this many shots per locale, per Apple's minimum.
 const _minimum = 3;
+
+/// The shots for each locale, listed ONCE.
+///
+/// Three tests want the same six directory walks; without this they do
+/// eighteen.
+final _byLocale = <String, List<File>>{
+  for (final locale in _locales) locale: _shots(locale),
+};
 
 List<File> _shots(String locale) {
   final dir = Directory('store/screenshots/$locale/6.9-inch');
@@ -44,22 +62,11 @@ List<File> _shots(String locale) {
     ..sort((a, b) => a.path.compareTo(b.path));
 }
 
-/// The width and height from a PNG's IHDR.
-({int width, int height}) _size(File file) {
-  final bytes = file.readAsBytesSync();
-  int at(int o) =>
-      (bytes[o] << 24) |
-      (bytes[o + 1] << 16) |
-      (bytes[o + 2] << 8) |
-      bytes[o + 3];
-  return (width: at(16), height: at(20));
-}
-
 void main() {
   test('every locale has the minimum number of shots', () {
     for (final locale in _locales) {
       expect(
-        _shots(locale).length,
+        _byLocale[locale]!.length,
         greaterThanOrEqualTo(_minimum),
         reason: '$locale has fewer than $_minimum screenshots',
       );
@@ -69,8 +76,8 @@ void main() {
   test('every shot is exactly the 6.9-inch size', () {
     final wrong = <String>[];
     for (final locale in _locales) {
-      for (final shot in _shots(locale)) {
-        final size = _size(shot);
+      for (final shot in _byLocale[locale]!) {
+        final size = pngHeaderIn(shot);
         if (size.width != _width || size.height != _height) {
           wrong.add('${shot.path}: ${size.width}x${size.height}');
         }
@@ -89,18 +96,21 @@ void main() {
     // captures of different screens never are.
     final duplicated = <String>[];
     for (final locale in _locales) {
-      final seen = <String, String>{};
-      for (final shot in _shots(locale)) {
-        final digest = shot.readAsBytesSync().fold<int>(
-          17,
-          (h, b) => (h * 31 + b) & 0x3FFFFFFF,
-        );
-        final key = '${shot.lengthSync()}:$digest';
-        final first = seen[key];
-        if (first != null) {
-          duplicated.add('$locale: ${shot.uri.pathSegments.last} == $first');
-        } else {
-          seen[key] = shot.uri.pathSegments.last;
+      // LENGTH FIRST. Two captures of different screens differ in size almost
+      // always, and hashing 8 MB of PNG through a Dart closure to learn that is
+      // eight million interpreted iterations for an answer `stat` already had.
+      // The bytes are only read when two files are the same size.
+      final seen = <int, List<File>>{};
+      for (final shot in _byLocale[locale]!) {
+        final sameSize = seen.putIfAbsent(shot.lengthSync(), () => []);
+        final twin = sameSize.where((f) => _sameBytes(f, shot)).firstOrNull;
+        sameSize.add(shot);
+        final key = twin;
+        if (key != null) {
+          duplicated.add(
+            '$locale: ${shot.uri.pathSegments.last} == '
+            '${key.uri.pathSegments.last}',
+          );
         }
       }
     }
@@ -113,4 +123,15 @@ void main() {
           '${duplicated.join('\n')}',
     );
   });
+}
+
+/// Whether two files hold the same bytes.
+bool _sameBytes(File a, File b) {
+  final left = a.readAsBytesSync();
+  final right = b.readAsBytesSync();
+  if (left.length != right.length) return false;
+  for (var i = 0; i < left.length; i++) {
+    if (left[i] != right[i]) return false;
+  }
+  return true;
 }

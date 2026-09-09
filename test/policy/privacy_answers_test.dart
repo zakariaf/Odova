@@ -61,7 +61,7 @@ void main() {
       pubspec.indexOf('\ndependencies:'),
       pubspec.indexOf('\ndev_dependencies:'),
     );
-    final declared = RegExp(r'^  ([a-z_][a-z0-9_]*):', multiLine: true)
+    final declared = RegExp('^  ([a-z_][a-z0-9_]*):', multiLine: true)
         .allMatches(block)
         .map((m) => m.group(1)!)
         .where((p) => !p.startsWith('flutter'))

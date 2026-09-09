@@ -29,7 +29,7 @@ String _plist() => File('ios/Runner/Info.plist').readAsStringSync();
 
 /// Every `<key>` the plist declares, in order.
 Set<String> _keys(String plist) => RegExp(
-  r'<key>([^<]+)</key>',
+  '<key>([^<]+)</key>',
 ).allMatches(plist).map((m) => m.group(1)!).toSet();
 
 void main() {
@@ -74,9 +74,10 @@ void main() {
     // OS delivers without the app running — `remote-notification` in
     // particular would imply a push server this app does not have and would
     // put a network claim in the capability surface itself.
+    // NO early return for the absent key. The four lines below already handle
+    // it — no match, null group, empty set — and a `return` here would make the
+    // test silently assert nothing for the case it is most likely to be in.
     final plist = _plist();
-    if (!plist.contains('UIBackgroundModes')) return;
-
     final modes = RegExp(
       r'<key>UIBackgroundModes</key>\s*<array>(.*?)</array>',
       dotAll: true,
@@ -84,7 +85,7 @@ void main() {
 
     expect(
       RegExp(
-        r'<string>([^<]+)</string>',
+        '<string>([^<]+)</string>',
       ).allMatches(modes ?? '').map((m) => m.group(1)!).toSet(),
       isEmpty,
       reason:

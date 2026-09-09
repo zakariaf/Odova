@@ -90,12 +90,24 @@ void main() {
   test('no ARB makes a claim the OS backup falsifies', () {
     final found = <String>[];
 
+    // Grouped by LOCALE. `_banned` names `en` three times, and reading and
+    // JSON-parsing a 216 KB ARB once per phrase is three parses for one file.
+    final byLocale = <String, List<Absolute>>{};
     for (final banned in _banned) {
-      for (final entry in _strings(banned.locale).entries) {
-        if (entry.value.toLowerCase().contains(banned.phrase.toLowerCase())) {
-          found.add(
-            '${banned.locale}/${entry.key}: "${banned.phrase}" — ${banned.why}',
-          );
+      byLocale.putIfAbsent(banned.locale, () => []).add(banned);
+    }
+
+    for (final group in byLocale.entries) {
+      final strings = _strings(group.key);
+      for (final banned in group.value) {
+        final needle = banned.phrase.toLowerCase();
+        for (final entry in strings.entries) {
+          if (entry.value.toLowerCase().contains(needle)) {
+            found.add(
+              '${banned.locale}/${entry.key}: "${banned.phrase}" — '
+              '${banned.why}',
+            );
+          }
         }
       }
     }
@@ -106,8 +118,10 @@ void main() {
   test('the store listing makes no claim the app does not', () {
     // The listing is the copy nobody re-reads, written once under submission
     // pressure and then translated five times. It gets the same rule.
+    // ASSERTED, not guarded. `store/` is committed; an `if (!exists) return`
+    // here would turn deleting the listing into a passing test.
     final store = Directory('store');
-    if (!store.existsSync()) return;
+    expect(store.existsSync(), isTrue, reason: 'the store listing is gone');
 
     final found = <String>[];
     for (final file in store.listSync(recursive: true).whereType<File>()) {

@@ -28,6 +28,11 @@ read -r WX WY < <(osascript -e 'tell application "System Events" to tell process
 read -r WW WH < <(osascript -e 'tell application "System Events" to tell process "Simulator" to get size of window 1' | tr ',' ' ')
 TITLEBAR=28
 INNER_H=$((WH - TITLEBAR))
+# Screen points per device pixel, once. The device is 1320x2868 physical and
+# the window scales it to fit below the title bar; spelling the same ratio out
+# in both axes is two places to edit it wrong.
+SCALE=$(python3 -c "print($INNER_H/2868.0)")
+LEFT=$(python3 -c "print($WX + ($WW - 1320*$SCALE)/2)")
 
 # Mirrored for the three RTL locales, because the app is. The first run of
 # this script produced three identical Home shots for fa, ar and ckb: every tap
@@ -35,11 +40,9 @@ INNER_H=$((WH - TITLEBAR))
 # is why store_screenshots_test refuses a set whose files are byte-identical.
 RTL=0
 tap() { # tap <device-px-x> <device-px-y>
-  local mx my x=$1
-  if [ "$RTL" = 1 ]; then x=$((1320 - $1)); fi
-  set -- "$x" "$2"
-  mx=$(python3 -c "print(int($WX + ($WW - ($INNER_H*1320/2868))/2 + ($1/3.0)*($INNER_H/956.0)))")
-  my=$(python3 -c "print(int($WY + $TITLEBAR + ($2/3.0)*($INNER_H/956.0)))")
+  local mx my
+  if [ "$RTL" = 1 ]; then set -- "$((1320 - $1))" "$2"; fi
+  read -r mx my < <(python3 -c "print(int($LEFT + $1*$SCALE), int($WY + $TITLEBAR + $2*$SCALE))")
   osascript -e "tell application \"System Events\" to click at {$mx, $my}" >/dev/null 2>&1
   sleep 2
 }
@@ -54,9 +57,16 @@ for locale in "${LOCALES[@]}"; do
   echo "== $locale"
   case "$locale" in fa|ar|ckb) RTL=1 ;; *) RTL=0 ;; esac
   xcrun simctl terminate "$DEVICE" "$BUNDLE" >/dev/null 2>&1 || true
-  # `ckb` has no iOS system locale, so the device cannot be set to it. The app
-  # can still be, through its own language screen — which is why that screen
-  # exists (SPEC.md §5: a locale the OS cannot select must still be reachable).
+  # Set on the APP's own domain as well as the device's. `ckb` is not a locale
+  # iOS offers in Settings — SPEC.md §5 is explicit that a language the OS
+  # cannot select must still be reachable, which is why the app has its own
+  # language screen — but `AppleLanguages` on the app's preference domain is
+  # honoured regardless of what the system list contains, so all six locales go
+  # through the same path here.
+  #
+  # If a locale ever stops taking, the duplicate assertion in
+  # `store_screenshots_test.dart` is what says so: an unchanged app produces an
+  # identical screen and the set collapses to copies of Home.
   xcrun simctl spawn "$DEVICE" defaults write .GlobalPreferences AppleLanguages "(\"$locale\")" 2>/dev/null || true
   xcrun simctl spawn "$DEVICE" defaults write "$BUNDLE" AppleLanguages "(\"$locale\")" 2>/dev/null || true
   xcrun simctl launch "$DEVICE" "$BUNDLE" >/dev/null 2>&1

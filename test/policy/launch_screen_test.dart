@@ -4,7 +4,8 @@
 // and everybody sees: a white storyboard under a dark app reads as a broken
 // app for the fifth of a second before Flutter paints. It is also the defect
 // that arrives silently — a token moves in `design/calm/odova.css` and the
-// platform file, which is not Dart and not linted, keeps the old value for ever.
+// platform file, which is not Dart and not linted, keeps the old value for
+// ever.
 //
 // **The expected hexes are READ from the stylesheet, not typed here.** A test
 // with its own copy of the palette is a second place for the palette to be

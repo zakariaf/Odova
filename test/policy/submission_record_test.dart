@@ -83,7 +83,7 @@ void main() {
     // no IAP" is a checkable one.
     expect(
       _record(),
-      matches(RegExp(r'Paid Applications Agreement.*not required.*free app')),
+      matches(RegExp('Paid Applications Agreement.*not required.*free app')),
       reason: 'the exemption is claimed without the reason for it',
     );
   });

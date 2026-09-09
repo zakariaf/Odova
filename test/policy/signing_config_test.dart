@@ -36,7 +36,7 @@ void main() {
     // writes when there is none, and is fine — the assertion is about a VALUE,
     // not about the key being absent, because Xcode re-adds the key freely.
     final teams = RegExp(
-      r'DEVELOPMENT_TEAM = ([^;]+);',
+      'DEVELOPMENT_TEAM = ([^;]+);',
     ).allMatches(project).map((m) => m.group(1)!.trim()).toSet();
 
     expect(
@@ -84,7 +84,7 @@ void main() {
       gate.indexOf(')', gate.indexOf('PATTERNS=(')),
     );
     final patterns = RegExp(
-      r"'([^']+)'",
+      "'([^']+)'",
     ).allMatches(block).map((m) => m.group(1)!).toSet();
 
     expect(patterns, isNotEmpty, reason: 'the gate declares no patterns');

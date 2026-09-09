@@ -18,6 +18,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/png_header.dart';
+
 /// Where the app icon lives.
 const _appIcon = 'ios/Runner/Assets.xcassets/AppIcon.appiconset';
 
@@ -28,28 +30,6 @@ List<Map<String, dynamic>> _entries() {
           as Map<String, dynamic>;
   return (json['images'] as List).cast<Map<String, dynamic>>();
 }
-
-/// The width and height of a PNG, from its IHDR chunk.
-///
-/// Eight bytes of signature, then a length and the `IHDR` tag, then width and
-/// height as big-endian 32-bit integers. Parsed here rather than pulled in as a
-/// dependency: SPEC.md §2 makes every added package a thing to audit, and this
-/// is sixteen bytes at a fixed offset.
-({int width, int height}) _pngSize(File file) {
-  final bytes = file.readAsBytesSync();
-  int at(int offset) =>
-      (bytes[offset] << 24) |
-      (bytes[offset + 1] << 16) |
-      (bytes[offset + 2] << 8) |
-      bytes[offset + 3];
-  return (width: at(16), height: at(20));
-}
-
-/// The PNG colour type byte, also from IHDR.
-///
-/// 0 greyscale, 2 truecolour, 3 indexed, 4 greyscale+alpha, 6 truecolour+alpha.
-/// Apple rejects the marketing icon for the two that carry alpha.
-int _pngColourType(File file) => file.readAsBytesSync()[25];
 
 void main() {
   test('the catalog names only files that exist, at the size it claims', () {
@@ -76,7 +56,7 @@ void main() {
         (entry['scale'] as String? ?? '1x').replaceAll('x', ''),
       );
       final expected = (points * scale).round();
-      final actual = _pngSize(file);
+      final actual = pngHeaderIn(file);
       if (actual.width != expected || actual.height != expected) {
         problems.add(
           '$name: ${actual.width}x${actual.height}, expected '
@@ -99,11 +79,74 @@ void main() {
     final file = File('$_appIcon/${marketing.single['filename']}');
     expect(file.existsSync(), isTrue);
     expect(
-      _pngColourType(file),
+      pngHeaderIn(file).colourType,
       isNot(anyOf(4, 6)),
       reason:
           'the 1024 icon has an alpha channel — App Store Connect rejects it '
           'as ITMS-90717, and a rejected upload burns its build number',
     );
   });
+
+  test('the icon is still the colour the tokens say it is', () {
+    // THE CLAIM THE GENERATOR MAKES, enforced. `design/icon/generate.py` says
+    // in its own docstring that "a palette that lives in two files is a palette
+    // that disagrees with itself, and the icon is the one surface where nobody
+    // notices for months" — and then commits thirteen PNGs, which are that
+    // second file. Without this, `--color-brand` can move and the icon keeps
+    // the old brown for ever: the exact drift the generator was written to
+    // prevent.
+    //
+    // `launch_screen_test` guards the same drift for the launch colour set by
+    // reading the hex out of the stylesheet. The icon had no equivalent.
+    //
+    // A CORNER pixel, because the gauge is centred and the corners are pure
+    // background at every size. Read out of the 1024, whose IDAT is one
+    // zlib stream of filtered scanlines.
+    final brand = RegExp(
+      r'--color-brand:\s*#([0-9A-Fa-f]{6})',
+    ).firstMatch(File('design/calm/odova.css').readAsStringSync())?.group(1);
+    expect(brand, isNotNull, reason: '--color-brand is not in the stylesheet');
+
+    final marketing = _entries().singleWhere((e) => e['size'] == '1024x1024');
+    final pixel = _topLeftPixel(File('$_appIcon/${marketing['filename']}'));
+
+    expect(
+      pixel,
+      brand!.toUpperCase(),
+      reason:
+          'the icon was generated from a different --color-brand than the one '
+          'the stylesheet declares now — rerun design/icon/generate.py',
+    );
+  });
+}
+
+/// The top-left pixel of a truecolour PNG, as `RRGGBB`.
+///
+/// Enough of a decoder for one pixel: inflate the IDAT, and the first scanline
+/// begins with its filter byte. Filter 0 (`None`) is what the generator emits,
+/// and anything else would mean the file was written by something other than
+/// the generator — which is itself worth failing on.
+String _topLeftPixel(File file) {
+  final bytes = file.readAsBytesSync();
+  final idat = <int>[];
+  var at = 8; // past the signature
+  while (at < bytes.length) {
+    final length =
+        (bytes[at] << 24) |
+        (bytes[at + 1] << 16) |
+        (bytes[at + 2] << 8) |
+        bytes[at + 3];
+    final tag = String.fromCharCodes(bytes.sublist(at + 4, at + 8));
+    if (tag == 'IDAT') {
+      idat.addAll(bytes.sublist(at + 8, at + 8 + length));
+    }
+    if (tag == 'IEND') break;
+    at += 12 + length;
+  }
+
+  final raw = ZLibDecoder().convert(idat);
+  expect(raw.first, 0, reason: 'the first scanline is not filter None');
+  return [
+    for (var i = 1; i <= 3; i++) raw[i].toRadixString(16).padLeft(2, '0'),
+  ].join().toUpperCase();
 }

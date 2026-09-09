@@ -7,80 +7,47 @@
 // clears the database is one accidental route away from doing it on a real
 // phone.
 //
-// `eraseDatabaseOnSchemaChange` is called out by name because drift ships it,
-// it is exactly one line, and it silently drops every table when a schema
-// version moves. In an app whose worst possible bug is losing service history,
-// it is the worst possible line.
+// `eraseDatabaseOnSchemaChange` is named because drift ships it, it is exactly
+// one line, and it silently drops every table when a schema version moves. In
+// an app whose worst possible bug is losing service history, it is the worst
+// possible line.
+//
+// The two grep tests go through `expectNoBannedPatterns` rather than walking
+// `lib/` here. That helper skips the analyzer's excluded directories and the
+// generated suffixes, and it FAILS ON AN EMPTY WALK — a hand-rolled walk that
+// mis-paths `lib/` passes while proving nothing, which is the shape of gate
+// this repo has been bitten by before.
 @TestOn('vm')
 library;
 
-import 'dart:io';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Every Dart file under `lib/`.
-Iterable<File> _libFiles() => Directory('lib')
-    .listSync(recursive: true)
-    .whereType<File>()
-    .where((f) => f.path.endsWith('.dart'));
-
-/// [source] with `//` line comments removed.
-///
-/// The repo documents what it does NOT do at length — `app_database.dart` has a
-/// paragraph about `eraseDatabaseOnSchemaChange` explaining its absence — and a
-/// grep that reads comments would fail on the explanation of why the thing is
-/// not there.
-String _code(String source) => source
-    .split('\n')
-    .map((l) {
-      final at = l.indexOf('//');
-      return at == -1 ? l : l.substring(0, at);
-    })
-    .join('\n');
+import '../support/pump_app.dart';
+import '../support/source_gates.dart';
 
 void main() {
-  test('no destructive drift affordance is compiled in', () {
-    final offenders = [
-      for (final file in _libFiles())
-        if (_code(file.readAsStringSync()).contains(
-          'eraseDatabaseOnSchemaChange',
-        ))
-          file.path,
-    ];
-
-    expect(
-      offenders,
-      isEmpty,
-      reason:
-          'eraseDatabaseOnSchemaChange drops every table when the schema '
-          'version moves, in an app whose worst bug is losing history',
-    );
+  test('no development-only affordance is compiled into lib/', () {
+    expectNoBannedPatterns({
+      'eraseDatabaseOnSchemaChange':
+          'drops every table when the schema version moves, in an app whose '
+          'worst bug is losing history',
+      'seedDemoData': 'writes rows nobody asked for; fixtures live under test/',
+      'loadFixture': 'a fixture loader in the shipped binary',
+      'insertDemo': 'a seeder in the shipped binary',
+    });
   });
 
-  test('no seeder or fixture loader is reachable from lib/', () {
-    // Test fixtures live under `test/`, which does not ship. A seeder in `lib/`
-    // is code in the binary whose only purpose is to write rows nobody asked
-    // for.
-    final offenders = <String>[];
-    for (final file in _libFiles()) {
-      final code = _code(file.readAsStringSync());
-      for (final banned in ['seedDemoData', 'loadFixture', 'insertDemo']) {
-        if (code.contains(banned)) offenders.add('${file.path}: $banned');
-      }
-    }
-
-    expect(offenders, isEmpty, reason: offenders.join('\n'));
-  });
-
-  test('the debug banner is off', () {
-    // Not a data risk — a credibility one. A store screenshot or a TestFlight
-    // build with the red DEBUG ribbon across it reads as unfinished, and it is
-    // one property on one widget that nobody looks at again.
-    final app = File('lib/app/app.dart').readAsStringSync();
+  testWidgets('the debug banner is off in the app as composed', (tester) async {
+    // The TREE, not the source. A `contains('debugShowCheckedModeBanner:
+    // false')` tests the implementation of the fix: it breaks on a reformat,
+    // and it passes if a second MaterialApp is introduced without the flag.
+    // What matters is that no CheckedModeBanner is mounted.
+    await pumpApp(tester, const SizedBox.shrink());
 
     expect(
-      _code(app),
-      contains('debugShowCheckedModeBanner: false'),
+      find.byType(CheckedModeBanner),
+      findsNothing,
       reason: 'the DEBUG ribbon ships across every screenshot',
     );
   });
