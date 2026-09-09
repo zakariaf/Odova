@@ -7,6 +7,42 @@
 | **Estimate** | **8.5 h (CC) · ~8.5 weeks (human)** total |
 | **Spec sections** | §17 Definition of done for v1 (offline gate, data-safety gate, per-locale gate, scale gate) |
 | **Screens** | none |
+| **Platform** | **iOS only.** See the decision below. |
+
+## Platform decision — 2026-09-09
+
+**Owner's call, recorded here rather than applied quietly**, in the manner of
+`CLAUDE.md` §6a and §6b. **v1 ships to the App Store and not to Google Play.**
+
+Every task below was written for two stores. Roughly half its weight was
+Android-shaped: an upload keystore and Play App Signing enrolment, a merged
+`AndroidManifest.xml` asserted whole, a Data Safety questionnaire, an `.aab`, a
+staged rollout by percentage. All of it is removed rather than carried at zero
+value, because a release checklist nobody can run is a checklist people learn to
+skip past.
+
+**What is removed is the Android RELEASE, not Android.** `flutter build apk
+--debug` stays in CI. Compiling for a second target is a cheap and genuine check
+— it is what catches a plugin that only resolves on one platform — and it costs
+nothing that a shipping decision should reclaim. The Kotlin half of
+`dev.odova/notification_settings` stays for the same reason and because the
+channel-name gate asserts both halves agree.
+
+**Two things get harder and are worth stating.** The merged-manifest permission
+assertion was the strongest mechanical evidence for §2's no-network claim: it
+read what actually shipped, not what the source said, and `INTERNET` being
+provably absent from it is a fact nothing on iOS reproduces. iOS declares no
+network permission at all, so its absence proves nothing. What is left is the
+source-graph and `pubspec.lock` gate — which is weaker, because it is a property
+of the *inputs* — plus Task 19.8's aeroplane-mode pass on the shipped binary,
+which is now carrying more of §17's offline gate than it was designed to. Task
+19.4 says so in its own text rather than letting the checklist imply otherwise.
+
+The second is that Play's staged rollout could be halted at 1%. App Store phased
+release can be paused, but a build that has been approved and released cannot be
+un-shipped — only superseded. The halt criterion in Task 19.10 is therefore a
+decision to *pause and expedite a fix*, not to roll back, and it is written that
+way.
 
 CI proves the *code*. A release proves the *artifact* — the exact bundle built with R8,
 obfuscation, tree-shaking and stripped asserts, signed by a key that must never be lost,
@@ -15,7 +51,7 @@ declaring things about itself to a store that will pull the app if they are untr
 Two things make Odova's release unusual and both are load-bearing here. First, the app has
 **no network code at all** (§2), so the privacy declaration is the easiest one anybody will
 ever fill in and the one most likely to be filled in carelessly — the value is in proving it
-from the source graph and the merged manifest, not in asserting it. Second, CI can only prove
+from the source graph and the dependency lock, not in asserting it. Second, CI can only prove
 that no banned import exists in the source graph; it cannot prove the shipped binary opens no
 socket on a real phone. §17's offline gate therefore ends in a **manual** aeroplane-mode pass
 from a clean install, and that pass is a release artifact, not a chore.
@@ -41,13 +77,22 @@ The app is built and reviewed. Concretely, at the moment this epic starts:
 - `pubspec.yaml`, `lib/`, `android/` and `ios/` exist (EPIC-01 created them with
   `flutter create`; `.flutter-version` pins 3.44.6). All 28 screens work in six locales, both
   directions.
+- CI runs five lanes: `repo gates`, `flutter`, `goldens`, `android build` and `ios build`.
+  The iOS lane went green for the first time on the notification-settings PR; before that it
+  reported `skipping`, which is how an `AppDelegate` typo that stopped the iOS app compiling
+  at all once reached `main`. **That lane is now load-bearing** — it is the only thing
+  standing between a Swift mistake and the store.
 - EPIC-17 left CI green — `dart format --set-exit-if-changed`, `flutter analyze
   --fatal-infos --fatal-warnings`, `flutter gen-l10n` freshness, `flutter test` — and the §17
   functional, data-safety, per-locale and scale gates each backed by a check. **If any of
   those is not true when this epic starts, stop.** Nothing here substitutes for them, and a
   release cut over a red gate is a release you cannot un-ship.
-- EPIC-18 left `design/review/SIGNOFF-<date>.md`, tracked, reading `SIGNED OFF`. That file is
-  a precondition of the release ritual, not part of it.
+- EPIC-18 left `design/review/SIGNOFF-2026-09-08.md`, tracked — and it reads **NOT SIGNED**.
+  It is a precondition of the release ritual (Task 19.10) and of nothing else. Tasks 19.1 –
+  19.9 are config and gates and are unblocked; **19.10 cannot run until that file is signed**,
+  and the reasons it is not are written in it: the band profile fails on 106 of 112 parity
+  comparisons and no release build has ever been looked at. Signing it to unblock a checklist
+  would make this epic's first assumption false.
 - `.github/workflows/ci.yml` already runs the repo gates, including
   `bash tools/check_release_hygiene.sh`, and has done since before the app existed. It walks
   `git log --all` for signing material, which needs `fetch-depth: 0` — verify that, because a
@@ -63,24 +108,26 @@ uploaded, so build number 1 has not been burned.
 
 ## What we will have when this is done
 
-- Odova's own icon on both platforms and a launch screen in Calm's `--color-surface`, light
-  and dark, with the hexes read from the tokens rather than typed twice.
-- `android/key.properties`, the keystore, the App Store Connect `.p8` and the Play
-  service-account JSON all injected from secrets, none of them in the working tree or
-  anywhere in `git log --all` — proved by a gate that has been seen to fail.
+- Odova's own icon and a launch screen in Calm's `--color-surface`, light and dark, with the
+  hexes read from the tokens rather than typed twice.
+- The App Store Connect `.p8` injected from secrets, absent from the working tree and from
+  `git log --all` — proved by a gate that has been seen to fail. The gate keeps refusing
+  Android signing material too, because a credential is a credential and the cost of the
+  extra patterns is zero.
 - `version: 1.0.0+1` in `pubspec.yaml` as the only version source, and `settings.about`
   showing that version and `SUPPORTED_FORMAT_VERSION` read from build constants (§13).
-- `android/expected_permissions.txt` and `test/policy/permissions_test.dart` asserting the
-  **merged** manifest's permission set whole, with `android.permission.INTERNET` provably
-  absent.
-- `store/{en,de,fr,fa,ar,ckb}/` — title, subtitle, short and full description in all six
-  languages, inside the store's length limits, with no absolute privacy claim, plus
-  `store/screenshots/` for every required display type.
-- `ios/Runner/PrivacyInfo.xcprivacy`, a Data Safety answer sheet and nutrition labels, all
-  reconciled against `pubspec.lock` — and the OS-auto-backup question (§18.12) answered in
-  writing, because the answer changes the privacy copy.
-- `tools/release.sh` and `.github/workflows/release.yml` producing an `.aab` and an `.ipa`
-  with `--obfuscate --split-debug-info=build/symbols/<x.y.z>+<N>/`, symbols archived before
+- `ios/expected_usage_descriptions.txt` and `test/policy/permissions_test.dart` asserting the
+  `Info.plist` capability surface whole — the usage-description keys, the background modes and
+  the absence of any App Transport Security exception — plus the source-graph no-network gate
+  that is now §17's main mechanical evidence.
+- `store/{en,de,fr,fa,ar,ckb}/` — name, subtitle, promotional text, description and keywords
+  in all six languages, inside the App Store's length limits, with no absolute privacy claim,
+  plus `store/screenshots/` for every required iPhone display type.
+- `ios/Runner/PrivacyInfo.xcprivacy` and an App Store nutrition-label answer sheet, both
+  reconciled against `pubspec.lock` — and the iOS container-backup question (§18.12) answered
+  in writing, because the answer changes the privacy copy.
+- `tools/release.sh` and `.github/workflows/release.yml` producing an `.ipa` with
+  `--obfuscate --split-debug-info=build/symbols/<x.y.z>+<N>/`, symbols archived before
   anything is uploaded.
 - `release/checks/1.0.0+1.md` — the two manual artifacts CI cannot produce: the
   aeroplane-mode walk from a clean install, and the upgrade over an installed build.
@@ -92,14 +139,14 @@ uploaded, so build number 1 has not been burned.
 | Skill | Why this epic needs it |
 |---|---|
 | `flutter-conventions-index` | The front door; the house rules still hold in `tools/`, `test/policy/` and the composition root. |
-| `release-and-store-shipping` | Governs the whole epic: version mapping, signing, obfuscation and symbols, merged-manifest permissions, store declarations, budgets, staged rollout, and the App Review submission rule. |
+| `release-and-store-shipping` | Governs the whole epic: version mapping, signing, obfuscation and symbols, the platform capability surface, store declarations, budgets, phased release, and the App Review submission rule. Its Play half does not apply — see the platform decision above. |
 | `ci-pipeline-and-gates` | Where the new gates live, the three-criteria bar a grep gate must clear, and the honest statement of what CI cannot prove — which is exactly why Task 19.8 exists. |
 | `dependency-hygiene` | A new dependency is what changes a store declaration. The no-network claim is a property of `pubspec.lock`, audited here. |
 | `design-review-workflow` | Owns the dated sign-off that is a precondition of the release ritual, and the data-safety rehearsal Task 19.8 repeats on the release artifact. |
 | `run-migration` | The upgrade-over-the-previous-release path in Task 19.8 is a migration test, and a schema-shape check passes on a migration that copies zero rows. |
 | `i18n-rtl-l10n` | The store listing is six locales with the same structural rules as the app: no concatenation, real Persian/Arabic/Sorani, and glyph coverage in the screenshots. |
 | `calm-tokens` | The icon and launch-screen colours are Calm tokens, not new values invented at the platform layer. |
-| `service-boundary-and-native` | The native seams the merged manifest and the platform launch configuration live behind, and where a flavour's composition root would go. |
+| `service-boundary-and-native` | The native seams `Info.plist` and the platform launch configuration live behind, and where a flavour's composition root would go. |
 
 ## Tasks
 
@@ -115,29 +162,25 @@ uploaded, so build number 1 has not been burned.
     - `iOS asset catalog has the 1024 marketing icon and no alpha` — `ios/Runner/Assets.xcassets/AppIcon.appiconset/`
       contains the 1024×1024 entry and its PNG has no alpha channel. Fails the upload with
       ITMS-90717 otherwise, which costs a whole build number.
-    - `Android ships an adaptive icon with both layers` — `mipmap-anydpi-v26/ic_launcher.xml`
-      references a foreground and a background drawable. API 26 is the floor, so there is no
-      legacy path to keep.
-    - `every launcher density is present` — mdpi through xxxhdpi. Fails on a half-generated
-      icon set, which shows as a blurry icon only on the devices you do not own.
+    - `every idiom the catalog claims is actually present` — each entry in
+      `Contents.json` names a file that exists on disk and whose pixel dimensions match the
+      size × scale it declares. Fails on a half-generated set, which shows as a blurry icon
+      only on the devices you do not own — and on the entry that names a file nobody
+      generated, which fails the upload rather than the eye.
   - `test/policy/launch_screen_test.dart`:
-    - `the Android launch background equals the Calm surface token` — the colour in
-      `android/app/src/main/res/values/colors.xml` equals `#FFFCF7` (`--color-surface`, light)
-      and `values-night/colors.xml` equals `#272019` (the dark block's `--color-surface`),
-      both read from `design/calm/odova.css` by the test rather than hardcoded in it. Fails
-      when a token moves and the platform file does not — the flash of the wrong colour on
-      launch that nobody files a bug for.
-    - `the iOS launch background equals the same tokens` — the `LaunchBackground` colour set
-      in `ios/Runner/Assets.xcassets` has an Any and a Dark appearance matching the same two
-      values.
+    - `the launch background equals the Calm surface token` — the `LaunchBackground` colour
+      set in `ios/Runner/Assets.xcassets` has an Any and a Dark appearance equal to
+      `--color-surface` light and dark, **read from `design/calm/odova.css` by the test**
+      rather than hardcoded in it. Fails when a token moves and the platform file does not —
+      the flash of the wrong colour on launch that nobody files a bug for.
 - **Then build**
   - `design/icon/` — the source artwork: the silhouette on `--color-brand` `#7A5340`, per §2's
     "a colour swatch and a silhouette only". Generate the platform sets from it; keep the
     source in the repo so a regeneration is reproducible.
-  - `android/app/src/main/res/mipmap-*/`, `mipmap-anydpi-v26/ic_launcher.xml`,
-    `values/colors.xml`, `values-night/colors.xml`, `values/styles.xml`.
   - `ios/Runner/Assets.xcassets/AppIcon.appiconset/`, `LaunchBackground` colour set, and
     `LaunchScreen.storyboard` pointing at it.
+  - Android's launcher icon is left as Flutter generated it. The debug APK is a compile
+    check, not a shipped artifact, and dressing it would be work with no reader.
 - **Verify**
   ```bash
   flutter test test/policy/app_icon_test.dart test/policy/launch_screen_test.dart
@@ -147,7 +190,7 @@ uploaded, so build number 1 has not been burned.
   A pass is both tests green and a launch that goes Calm-surface → Home with no white flash in
   dark mode.
 - **Done when**
-  - [ ] Icon present at every required size on both platforms; iOS 1024 has no alpha.
+  - [ ] Icon present at every size the catalog claims; the 1024 marketing icon has no alpha.
   - [ ] Launch background is the Calm surface token in both appearances, asserted against
         `odova.css`.
   - [ ] No colour literal was typed into a platform file that the test does not derive from a
@@ -164,33 +207,36 @@ uploaded, so build number 1 has not been burned.
 - **Write these tests first**
   - Extend `tools/check_gates_selftest.sh` with the cases the current file does not cover —
     it plants `./upload-keystore.jks` today; add, using the same `assert` helper:
-    - `red when key.properties is planted` — plant `android/key.properties`, assert
-      `tools/check_release_hygiene.sh` exits non-zero, remove it, assert green.
-    - `red when a .p8 is planted` — same shape for `AuthKey_XXXXXXXX.p8`.
-    - `red when a service-account json is planted` — `service-account-play.json`.
-    - `red when a credential exists only in history` — commit a `key.properties` in a scratch
-      clone, delete it in a second commit, and assert the gate still fails. This is the case
-      the working-tree half cannot see and the reason the gate walks `git log --all`.
+    - `red when a .p8 is planted` — plant `AuthKey_XXXXXXXX.p8`, assert
+      `tools/check_release_hygiene.sh` exits non-zero, remove it, assert green. This is the
+      one credential v1 actually holds.
+    - `red when key.properties is planted` — kept although Android does not ship. A
+      credential is a credential, the pattern costs nothing, and the gate that only knows
+      about the platform you ship today is the gate that misses the one you add tomorrow.
+    - `red when a credential exists only in history` — commit a `.p8` in a scratch clone,
+      delete it in a second commit, and assert the gate still fails. This is the case the
+      working-tree half cannot see and the reason the gate walks `git log --all`.
   - `test/policy/gitignore_test.dart`:
     - `gitignore covers every credential pattern the hygiene gate knows` — the pattern list in
       `.gitignore` is a superset of `PATTERNS` in `tools/check_release_hygiene.sh`. Fails when
       one file learns a pattern and the other does not.
   - `test/policy/signing_config_test.dart`:
-    - `release signing reads key.properties and never a literal` — `android/app/build.gradle.kts`
-      loads the keystore from `key.properties` and contains no `storePassword`/`keyAlias`
-      literal.
-    - `release build type is not debug-signed` — the release `signingConfig` is not
-      `signingConfigs.debug`. Fails the single most common accidental ship.
+    - `the Xcode project carries no development team or provisioning literal` —
+      `ios/Runner.xcodeproj/project.pbxproj` has no `DEVELOPMENT_TEAM` and no
+      `PROVISIONING_PROFILE_SPECIFIER` value committed. Signing comes from the CI environment,
+      so a committed team id is both a leak and a build that only works on one machine.
+    - `the release configuration is not signed to run locally` — `CODE_SIGN_STYLE` for Release
+      is `Manual`, or absent and supplied by the workflow. Fails the accidental ship of an
+      automatically-signed development build.
 - **Then build**
-  - `android/app/build.gradle.kts` — a release `signingConfig` reading `key.properties`, with
-    a clear failure message when the file is absent (a local debug build must still work).
-  - `android/key.properties.example` — the shape, with no values.
-  - GitHub Actions secrets for the keystore (base64), its passwords, the ASC `.p8` and the
-    Play service-account JSON; a release-workflow step that materialises them into the runner
-    workspace and deletes them after.
-  - Enrol in **Play App Signing** and keep the upload key separate — a lost upload key is
-    recoverable through support; a lost app-signing key on an unenrolled app is a dead
-    listing. Record the enrolment in `release/app-store-submission.md` (Task 19.9).
+  - GitHub Actions secrets for the ASC `.p8`, its key id and issuer id, and the distribution
+    certificate and profile; a release-workflow step that materialises them into the runner
+    keychain and **deletes them after**, including on failure.
+  - `ios/ExportOptions.plist.example` — the shape, with no team id in it.
+  - Rely on **Xcode-managed signing for distribution** and keep the ASC key separate from the
+    certificate. An ASC key can be revoked and reissued in minutes; a lost distribution
+    certificate with no revocation access is a listing that cannot be updated. Record which
+    account holds which in `release/app-store-submission.md` (Task 19.9).
   - Ensure the CI checkout that runs the hygiene gate uses `fetch-depth: 0`.
 - **Verify**
   ```bash
@@ -206,7 +252,7 @@ uploaded, so build number 1 has not been burned.
         `git log --all`.
   - [ ] Each new gate has been **seen** to fail in `check_gates_selftest.sh`.
   - [ ] CI checks out with `fetch-depth: 0` where the history half of the gate runs.
-  - [ ] Play App Signing enrolled; upload key held separately and recorded.
+  - [ ] The ASC key and the distribution certificate are held separately and recorded.
 - **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 19.3 — Version and build numbering, with one source
@@ -222,8 +268,6 @@ uploaded, so build number 1 has not been burned.
   - `test/policy/version_source_test.dart`:
     - `pubspec declares version x.y.z+N` — `version: 1.0.0+1` parses into a semantic version
       and an integer build number.
-    - `no version literal in android/app/build.gradle.kts` — no `versionName`/`versionCode`
-      assigned a literal; both come from the Flutter Gradle plugin.
     - `no version literal in Info.plist` — `CFBundleShortVersionString` and `CFBundleVersion`
       are the `$(FLUTTER_BUILD_NAME)` / `$(FLUTTER_BUILD_NUMBER)` substitutions. Fails the
       case where a crash report names a version that never shipped.
@@ -248,10 +292,13 @@ uploaded, so build number 1 has not been burned.
   flutter test test/policy/version_source_test.dart \
                test/features/settings/about_version_test.dart \
                test/export/envelope_version_test.dart
-  flutter build appbundle --release --build-name=1.0.0 --build-number=1 && \
-    unzip -p build/app/outputs/bundle/release/app-release.aab base/manifest/AndroidManifest.xml | strings | grep -i version
+  flutter build ipa --release --build-name=1.0.0 --build-number=1 --no-codesign && \
+    /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' \
+      build/ios/Release-iphoneos/Runner.app/Info.plist
   ```
-  A pass is the manifest's `versionName`/`versionCode` matching pubspec exactly.
+  A pass is the built `Info.plist` carrying `1.0.0` and `1` — the SUBSTITUTED values, not the
+  `$(FLUTTER_BUILD_NAME)` source. A test that reads the source plist proves the wiring; only
+  the built one proves the wiring worked.
 - **Done when**
   - [ ] `version: 1.0.0+1` is the only version source; platform files carry no literal.
   - [ ] About shows the same version and `Backup format 1`.
@@ -271,18 +318,24 @@ uploaded, so build number 1 has not been burned.
   `local-notifications-scheduler`.
 - **Write these tests first**
   - `test/policy/permissions_test.dart`:
-    - `shipped Android permissions are exactly the declared set` — parse the **merged**
-      manifest (`build/app/intermediates/merged_manifests/release/AndroidManifest.xml`, not
-      `android/app/src/main/AndroidManifest.xml`) and assert the `uses-permission` set equals
-      the committed list in `android/expected_permissions.txt`, which starts as
-      `android.permission.POST_NOTIFICATIONS` and `android.permission.RECEIVE_BOOT_COMPLETED`
-      (§4's re-arm). Whole-set equality, not "no forbidden permission" — that is what catches
-      a permission a transitive plugin bump introduced.
-    - `INTERNET is absent from the merged manifest` — named separately so the failure message
-      says the thing that matters. Fails the §2 promise directly.
     - `iOS usage strings are exactly the declared set` — the `NS*UsageDescription` keys in
-      `Info.plist` equal the committed list. A missing one is a rejection; an unused one is a
-      claim we cannot defend.
+      `Info.plist` equal the committed list in `ios/expected_usage_descriptions.txt`. WHOLE-SET
+      equality, not "no forbidden key" — that is what catches the key a transitive plugin bump
+      introduced. A missing one is a rejection; an unused one is a claim we cannot defend.
+    - `no App Transport Security exception is declared` — `NSAppTransportSecurity` is absent
+      from `Info.plist` entirely. An `NSAllowsArbitraryLoads` in an app that claims zero
+      network calls is the single most visible contradiction a reviewer can find, and it
+      arrives by copy-paste.
+    - `background modes are exactly the declared set` — `UIBackgroundModes` is absent or
+      contains only what §4 needs. `remote-notification` in particular would imply a push
+      server this app does not have.
+
+  **This is weaker evidence than the Android task it replaces, and the epic says so rather
+  than pretending otherwise.** The merged manifest was a property of the shipped artifact and
+  `INTERNET` being absent from it was mechanical proof. iOS declares no network permission at
+  all, so nothing here reproduces that; what is left is a property of the *inputs* — the
+  source graph and `pubspec.lock` — plus Task 19.8's aeroplane-mode pass on the real binary,
+  which now carries more of §17's offline gate than it was designed to.
   - `test/policy/no_network_test.dart` — **check first whether EPIC-17 already landed this
     gate; if so, extend it rather than writing a second one**:
     - `no networking import anywhere in the source graph` — walk `lib/` and the resolved
@@ -291,37 +344,33 @@ uploaded, so build number 1 has not been burned.
       and `package:googleapis*`. Fails on the transitive dependency that quietly adds a
       client.
     - `no analytics, crash-reporting or ads package in pubspec.lock` — §15 is explicit that
-      each of those is out, and each of them changes the Data Safety declaration in Task 19.5.
+      each of those is out, and each of them changes the nutrition labels in Task 19.5.
   - Extend `tools/check_gates_selftest.sh`: plant an `import 'package:http/http.dart';` in a
     scratch file, assert the no-network gate goes red, remove it, assert green.
 - **Then build**
-  - `android/expected_permissions.txt`, `ios/expected_usage_descriptions.txt`.
-  - Strip anything a plugin injects that Odova does not need with `tools:node="remove"` in
-    `android/app/src/main/AndroidManifest.xml` — with a comment naming which plugin injected
-    it, because the next person will otherwise remove the removal.
-  - Wire both tests into `.github/workflows/ci.yml`. The merged manifest only exists after a
-    build, so the permission test runs in the android-build job, not the fast lane.
+  - `ios/expected_usage_descriptions.txt`.
+  - Both tests read committed files, so they run in the fast `flutter` lane rather than
+    behind a build.
 - **Verify**
   ```bash
-  flutter build apk --release
   flutter test test/policy/permissions_test.dart test/policy/no_network_test.dart
   bash tools/check_gates_selftest.sh
-  unzip -p build/app/outputs/flutter-apk/app-release.apk AndroidManifest.xml | strings | grep -i permission
+  /usr/libexec/PlistBuddy -c 'Print' ios/Runner/Info.plist | grep -iE 'usage|transport|background'
   ```
-  A pass is the merged set equalling the committed list, with `INTERNET` absent. Note honestly
-  in the progress file what this does **not** prove: it is a property of the source graph and
-  the manifest, not of the running binary. Task 19.8 covers the rest.
+  A pass is the key set equalling the committed list with no ATS block. Note honestly in the
+  progress file what this does **not** prove: it is a property of the source graph and a
+  committed plist, not of the running binary. Task 19.8 carries the rest, and carries more of
+  it than the two-platform version of this epic asked it to.
 - **Done when**
-  - [ ] Whole-set permission assertion runs against the **merged** manifest in CI.
-  - [ ] `INTERNET` is provably absent, and the no-network source-graph gate has been seen to
-        fail.
-  - [ ] Every remaining permission traces to a §4 behaviour, named in a comment.
+  - [ ] Whole-set assertion over the `Info.plist` capability surface runs in CI.
+  - [ ] The no-network source-graph gate has been **seen** to fail on a planted import.
+  - [ ] Every declared key traces to a behaviour, named in a comment.
 - **Estimate** — 1 h (CC) · ~1 week (human)
 
 ### Task 19.5 — Privacy declarations that match an app with no network code
 
-- **Goal** — Data Safety, the App Store nutrition labels and `PrivacyInfo.xcprivacy` all say
-  what the code actually does, and every sentence in them is provable from the repo.
+- **Goal** — the App Store nutrition labels and `PrivacyInfo.xcprivacy` both say what the
+  code actually does, and every sentence in them is provable from the repo.
 - **Spec** — §2 Non-negotiables; §13 `settings.about` (the privacy paragraph, verbatim, is the
   copy this declaration must agree with); §6 (export hands the file to the OS share sheet);
   §18 open decision 12 (Android auto-backup / iOS container backup).
@@ -347,35 +396,34 @@ uploaded, so build number 1 has not been burned.
     - `the store privacy paragraph agrees with the About paragraph` — the claim set in
       `store/en/description.txt` is the same claim set as §13's About copy, which states the
       mechanism ("no way to reach the internet") rather than an absolute.
-  - `test/policy/data_safety_test.dart`:
-    - `the Data Safety answer sheet declares no collection and no sharing` — parse
-      `store/data-safety.md` and assert every data type is "not collected".
+  - `test/policy/privacy_answers_test.dart`:
+    - `the nutrition-label answer sheet declares no collection and no tracking` — parse
+      `store/privacy-answers.md` and assert every data type is "not collected".
     - `the answer sheet lists every package in pubspec.lock it depends on` — so a dependency
       bump that adds an SDK fails here rather than at a takedown.
 - **Then build**
   - `ios/Runner/PrivacyInfo.xcprivacy`.
-  - `store/data-safety.md` — the Play answer sheet, and the App Store nutrition-label answers
-    beside it, in one file, so the two can never disagree.
+  - `store/privacy-answers.md` — the App Store nutrition-label answers, one question per
+    line, in the console's own wording so they can be transcribed without interpretation.
   - **Close §18 open decision 12 in writing.** SPEC §6 says the app's data directory stays
     inside the OS's own app-backup mechanism, and §18.12 leaves it open whether that stays on.
     It is a release-blocking decision *for this task* because the answer changes the copy: if
-    Android auto-backup and the iOS container backup stay enabled, the privacy paragraph needs
-    a line saying the OS may copy the app's data to the user's own cloud backup. Either
-    disable it (`android:allowBackup="false"` plus the iOS exclusion) or write the line — and
-    record which, and who decided, in `store/data-safety.md`.
+    the iOS container backup stays enabled, the privacy paragraph needs a line saying the OS
+    may copy the app's data to the user's own iCloud backup. Either exclude the container or
+    write the line — and record which, and who decided, in `store/privacy-answers.md`.
 - **Verify**
   ```bash
   flutter test test/policy/privacy_manifest_test.dart test/policy/privacy_claims_test.dart \
-               test/policy/data_safety_test.dart
+               test/policy/privacy_answers_test.dart
   plutil -lint ios/Runner/PrivacyInfo.xcprivacy
   ```
-  A pass is all three tests green and a data-safety sheet a stranger could check against
+  A pass is all three tests green and an answer sheet a stranger could check against
   `pubspec.lock` in five minutes.
 - **Done when**
   - [ ] `PrivacyInfo.xcprivacy` declares no tracking, no collection, and the required-reason
         APIs the app actually uses.
-  - [ ] Data Safety and the nutrition labels live in one file and are reconciled against
-        `pubspec.lock`.
+  - [ ] The nutrition-label answers live in one file, in the console's wording, reconciled
+        against `pubspec.lock`.
   - [ ] No absolute privacy claim in any of the six locales or in the onboarding copy.
   - [ ] §18.12 is closed in writing, and the copy matches the decision.
 - **Estimate** — 1 h (CC) · ~1 week (human)
@@ -392,20 +440,18 @@ uploaded, so build number 1 has not been burned.
 - **Write these tests first**
   - `test/policy/store_listing_test.dart`:
     - `all six locales have the same key set` — `store/{en,de,fr,fa,ar,ckb}/` each contain
-      `title.txt`, `subtitle.txt`, `short_description.txt`, `full_description.txt`,
-      `keywords.txt`, `whats_new.txt`. Fails on the locale someone forgot, which blocks
-      submission per display type with a message that names a device class instead.
-    - `every field is within its store limit` — Play: title ≤ 30, short description ≤ 80, full
-      description ≤ 4000. App Store: name ≤ 30, subtitle ≤ 30, keywords ≤ 100. Measured in
-      characters, not bytes — Persian and Sorani will otherwise pass a byte check and fail the
-      upload.
+      `name.txt`, `subtitle.txt`, `promotional_text.txt`, `description.txt`, `keywords.txt`,
+      `whats_new.txt`. Fails on the locale someone forgot.
+    - `every field is within its App Store limit` — name ≤ 30, subtitle ≤ 30, keywords ≤ 100,
+      promotional text ≤ 170, description ≤ 4000. Measured in CHARACTERS, not bytes — Persian
+      and Sorani will otherwise pass a byte check and fail the upload.
     - `no untranslated English leaks into a non-English listing` — the fa/ar/ckb files do not
       contain the English title sentence. Fails the copy-paste-and-forget case.
     - `RTL listings contain no bidi control characters` — §2 bans storing them.
   - `test/policy/store_screenshots_test.dart`:
-    - `every required display type has the required count` — 6.7" and 6.5" iPhone and Android
-      phone, at least 3 shots each, present under `store/screenshots/<locale>/<display>/`.
-      Fails before the upload rather than during it.
+    - `every required display type has the required count` — 6.9" and 6.5" iPhone, at least 3
+      shots each, present under `store/screenshots/<locale>/<display>/`. Fails before the
+      upload rather than during it, where the message names a device class instead.
     - `at least one RTL screenshot ships for each RTL locale` — a Persian listing showing
       English screenshots is the most common way a six-language launch looks unfinished.
 - **Then build**
@@ -415,7 +461,7 @@ uploaded, so build number 1 has not been burned.
   - `store/screenshots/` — derive from EPIC-18's `design/review/shots/` release-build captures
     where the display type matches, and re-shoot at the store's required sizes where it does
     not. Same device frame, same standardised status bar.
-  - `store/README.md` — which file maps to which field in each console.
+  - `store/README.md` — which file maps to which App Store Connect field.
 - **Verify**
   ```bash
   flutter test test/policy/store_listing_test.dart test/policy/store_screenshots_test.dart
@@ -457,8 +503,6 @@ uploaded, so build number 1 has not been burned.
   - `tools/release.sh` — the ordered ritual, refusing to proceed when a precondition is
     unmet: clean tree, CI green on this commit, sign-off present, notes written. Then
     ```bash
-    flutter build appbundle --release \
-      --obfuscate --split-debug-info=build/symbols/1.0.0+1
     flutter build ipa --release \
       --obfuscate --split-debug-info=build/symbols/1.0.0+1 \
       --export-options-plist=ios/ExportOptions.plist
@@ -468,20 +512,20 @@ uploaded, so build number 1 has not been burned.
   - `.github/workflows/release.yml` — tag-triggered, materialising the secrets, calling the
     same script. Never `--update-goldens`, never a format fix, never a commit back.
   - Record the budgets in `release/budgets/1.0.0+1.md` from
-    `flutter build appbundle --release --analyze-size` and
+    `flutter build ipa --release --analyze-size` and
     `flutter run --profile --trace-startup` on the floor device.
 - **Verify**
   ```bash
   bash tools/check_gates_selftest.sh
   flutter test test/policy/debug_affordances_test.dart
   bash tools/release.sh --dry-run
-  ls build/symbols/1.0.0+1/                      # app.android-arm64.symbols and friends
+  ls build/symbols/1.0.0+1/                      # app.ios-arm64.symbols
   bash .claude/skills/release-and-store-shipping/scripts/check-ipa-slices.sh build/ios/ipa/*.ipa
   ```
   A pass is a dry run that names every precondition it checked, and a symbols directory that
   exists before any upload could have happened.
 - **Done when**
-  - [ ] Both artifacts build with `--obfuscate --split-debug-info` into a per-build directory.
+  - [ ] The IPA builds with `--obfuscate --split-debug-info` into a per-build directory.
   - [ ] Symbols archived off-machine before upload; the archive location is written down.
   - [ ] Debug affordances proved unreachable by a gate that has been seen to fail.
   - [ ] Size and cold start recorded against §17's budgets on the floor device.
@@ -525,14 +569,14 @@ uploaded, so build number 1 has not been burned.
     3. Export → wipe → import; then feed import a truncated file and a hand-corrupted file: a
        visible error, never a wiped store.
     4. Force-stop and relaunch; then the deliberate crash, exported and symbolized with
-       `flutter symbolize -i crash.txt -d build/symbols/1.0.0+1/app.android-arm64.symbols` —
+       `flutter symbolize -i crash.txt -d build/symbols/1.0.0+1/app.ios-arm64.symbols` —
        readable names, and no user content in the log.
   - On a **first** release there is no previous build to upgrade from. Say that in the
     artifact rather than ticking the line; step 2 becomes real from 1.0.1 onward.
 - **Verify**
   ```bash
   flutter test test/policy/release_check_artifact_test.dart test/migration/
-  flutter symbolize -i crash.txt -d build/symbols/1.0.0+1/app.android-arm64.symbols
+  flutter symbolize -i crash.txt -d build/symbols/1.0.0+1/app.ios-arm64.symbols
   ```
   A pass is a dated, device-named artifact with every line ticked or explicitly failed, and a
   symbolized crash with real function names. Hex offsets mean debug info leaked out of the
@@ -560,13 +604,14 @@ uploaded, so build number 1 has not been burned.
       claim in `release/app-store-submission.md` true; the day someone adds one, this test
       fails and the submission plan changes with it.
     - `no StoreKit or Billing entitlement in the platform configuration` — no
-      `com.apple.developer.in-app-payments`, no `com.android.vending.BILLING`.
+      `com.apple.developer.in-app-payments`.
   - `test/policy/submission_record_test.dart`:
     - `the submission record answers every account-holder-only gate` —
       `release/app-store-submission.md` has a filled line for the app record, the privacy
-      questionnaire, the Paid Applications Agreement (marked **not required**, with the reason)
-      and Play App Signing enrolment. Fails on a blank, because each of these blocks
-      submission with a message that names a symptom rather than the setting.
+      questionnaire, the Paid Applications Agreement (marked **not required**, with the
+      reason) and which account holds the ASC key and the distribution certificate. Fails on a
+      blank, because each of these blocks submission with a message that names a symptom
+      rather than the setting.
 - **Then build**
   - `release/app-store-submission.md`, saying explicitly:
     > **Odova ships no in-app purchase.** `release-and-store-shipping` rule 15 requires a
@@ -590,9 +635,9 @@ uploaded, so build number 1 has not been burned.
   - [ ] A future IAP breaks a test rather than a submission.
 - **Estimate** — 0.5 h (CC) · ~0.5 week (human)
 
-### Task 19.10 — Cut 1.0.0+1: the ordered ritual, the staged rollout, the tag
+### Task 19.10 — Cut 1.0.0+1: the ordered ritual, the phased release, the tag
 
-- **Goal** — Odova is in the stores, from a tagged commit, with a halt criterion someone is
+- **Goal** — Odova is on the App Store, from a tagged commit, with a halt criterion someone is
   watching.
 - **Spec** — §17 (every gate green before the tag).
 - **Skills** — `release-and-store-shipping` (the ordered ritual, rules 2, 12, 13 and 14),
@@ -606,8 +651,9 @@ uploaded, so build number 1 has not been burned.
       number in release/uploaded-build-numbers.txt`.
   - `test/policy/rollout_plan_test.dart`:
     - `a halt criterion is written before the rollout starts` — `release/rollout-1.0.0.md`
-      names the crash-free-sessions threshold and the person watching it. Fails on an empty
-      plan, which is how a bad build reaches 100%.
+      names the crash-free-sessions threshold, the person watching it, and — because a
+      released iOS build cannot be withdrawn — what the expedited fix would be. Fails on an
+      empty plan, which is how a bad build reaches 100%.
 - **Then build** — **only when the developer asks for a release by name.** Then, in order and
   without reordering:
   1. Preconditions (the tests above).
@@ -617,18 +663,23 @@ uploaded, so build number 1 has not been burned.
   5. Install the artifact on real hardware and walk the primary flow (Task 19.8's artifact
      covers the depth; this is the smoke test on the exact bundle).
   6. Record the budgets against Task 19.7's numbers.
-  7. Reconcile the declarations — merged permissions, Data Safety, nutrition labels,
+  7. Reconcile the declarations — the `Info.plist` capability surface, the nutrition labels,
      `PrivacyInfo.xcprivacy`, every privacy sentence in six languages.
-  8. Upload to the internal track and TestFlight, and smoke-test **from the store**, not from
-     a local install — store delivery re-signs and re-compresses.
+  8. Upload to TestFlight and smoke-test **from TestFlight**, not from a local install —
+     store delivery re-signs and re-compresses.
   9. **Read the store back**: price and territory availability, screenshots present for every
      required display type, metadata complete in all six locales, the privacy questionnaire
      answered. A green upload log is not server state, and a committed screenshot folder is
      not an uploaded screenshot set.
   10. Tag `v1.0.0`, publish the notes, append the build number to
-      `release/uploaded-build-numbers.txt`, start the staged rollout (internal → closed →
-      production at a percentage) and watch the crash-free rate against the written halt
-      criterion.
+      `release/uploaded-build-numbers.txt`, start the **phased release** over seven days and
+      watch the crash-free rate against the written halt criterion.
+
+      **The halt is a pause, not a rollback.** Phased release can be paused, and that is the
+      whole of the lever: a build that has been approved and released cannot be un-shipped,
+      only superseded by another that must itself pass review. So the criterion is written as
+      "pause the phase and expedite a fix", with the expedited-review request named as part of
+      the plan rather than discovered under pressure.
 - **Verify**
   ```bash
   flutter test test/policy/release_preconditions_test.dart test/policy/rollout_plan_test.dart
@@ -641,32 +692,32 @@ uploaded, so build number 1 has not been burned.
   - [ ] Every precondition passed as a test, not as a memory.
   - [ ] Symbols archived before upload; build number 1 recorded as burned.
   - [ ] Store-side state read back rather than trusted, in all six locales.
-  - [ ] `v1.0.0` tagged, notes published, rollout staged with a written halt criterion and a
-        named person watching it.
+  - [ ] `v1.0.0` tagged, notes published, phased release started with a written pause
+        criterion and a named person watching it.
 - **Estimate** — 0.5 h (CC) · ~0.5 week (human)
 
 ## Definition of done
 
-- [ ] Odova's own icon and a Calm-token launch screen on both platforms, in both appearances.
+- [ ] Odova's own icon and a Calm-token launch screen on iOS, in both appearances.
 - [ ] No signing material in the working tree or in `git log --all`, and each hygiene gate has
       been seen to fail on a planted violation.
 - [ ] `version: 1.0.0+1` is the only version source; About, the export envelope and the store
       all show the same numbers.
-- [ ] The merged manifest's permission set equals the committed list, `INTERNET` absent, and
+- [ ] The `Info.plist` capability surface equals the committed list, no ATS exception, and
       the no-network source-graph gate runs in CI.
-- [ ] `PrivacyInfo.xcprivacy`, Data Safety and the nutrition labels are reconciled against
+- [ ] `PrivacyInfo.xcprivacy` and the nutrition labels are reconciled against
       `pubspec.lock`; §18.12 (OS auto-backup) is closed in writing; no absolute privacy claim
       in any locale.
 - [ ] Store listing complete in en, de, fr, fa, ar and ckb, inside every length limit, with
-      screenshots for every required display type including RTL.
-- [ ] Artifacts build with `--obfuscate --split-debug-info`, symbols archived off-machine
+      screenshots for every required iPhone display type including RTL.
+- [ ] The IPA builds with `--obfuscate --split-debug-info`, symbols archived off-machine
       before upload, budgets recorded.
 - [ ] `release/checks/1.0.0+1.md` records the aeroplane-mode walk from a clean install on a
       never-online device, and the upgrade check or its explicit not-applicable.
 - [ ] `release/app-store-submission.md` states the no-IAP position and why rule 15 does not
       apply, pinned by a test.
-- [ ] `v1.0.0` tagged from a green commit with the design-review sign-off present, rolled out
-      in stages against a written halt criterion.
+- [ ] `v1.0.0` tagged from a green commit with the design-review sign-off present, phased
+      release started against a written pause criterion.
 - [ ] Every task above is checked off, and its tests pass.
 - [ ] `flutter analyze --fatal-infos --fatal-warnings` is clean and `flutter test` is green.
 - [ ] `/simplify` has been run over the epic's changes and its findings applied or answered.
