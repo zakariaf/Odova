@@ -22,3 +22,4 @@
   **The screenshots are from a fresh install**, so Costs and History are empty
   states and the set uses Home, Reminders and Settings instead. Richer shots
   need a seeded device; the capture script takes a locale list and can be re-run.
+- 19.7 release build — done. Found the DEBUG banner (it was in every screenshot ever taken in this repo). release.sh --dry-run refuses today, correctly: the design review is NOT SIGNED. The workflow does not upload, by design.

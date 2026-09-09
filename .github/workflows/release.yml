@@ -76,6 +76,11 @@ jobs:
       - name: Build
         run: bash tools/release.sh
 
+      - name: The shipped binary opens no socket
+        run: |
+          APP=$(find build/ios -maxdepth 3 -name 'Runner.app' | head -1)
+          bash tools/check_binary_offline.sh "$APP"
+
       - name: Archive the symbols
         # BEFORE anything could be uploaded, and kept for the life of the build
         # rather than the life of the run.

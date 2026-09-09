@@ -109,5 +109,17 @@ else
   exit 1
 fi
 
+# The ARTIFACT-level offline check, on the thing that will actually be
+# uploaded. §17's offline gate lost its strongest evidence when the Android
+# release was dropped — the merged manifest was a property of the shipped
+# artifact — and this is the closest iOS equivalent: a link-time fact that
+# survives obfuscation and tree-shaking.
+APP=$(find build/ios/iphonesimulator build/ios/Release-iphoneos -maxdepth 1 -name 'Runner.app' 2>/dev/null | head -1)
+if [ -n "$APP" ]; then
+  bash tools/check_binary_offline.sh "$APP" || exit 1
+else
+  say "no .app to inspect; run check_binary_offline.sh against the archive"
+fi
+
 echo
 echo "Built. Uploading is Task 19.10's ritual and is done by a human."
