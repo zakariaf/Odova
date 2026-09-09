@@ -116,7 +116,7 @@ dependencies:
   # network calls" is true BY CONSTRUCTION, not by which platform we happen to
   # ship. The share sheet is one platform intent; it gets a method channel of
   # our own rather than a package that can open a URL.
-  pdf: ^3.11.0
+  pdf: ^3.13.0
   sqlite3: ^2.9.1
   # The SQLite binary itself, bundled. Without it the app uses whatever SQLite
   # the OS shipped, which on older Android is too old for STRICT tables — and
