@@ -11,12 +11,12 @@
 // two agree, so the drift this trades for is a red test rather than a wrong
 // number in front of a user reporting a bug.
 
-/// The marketing version — `0.1.0`, never the build number.
+/// The marketing version — `1.0.0`, never the build number.
 ///
 /// SPEC.md §13: "1.4.0 stays Latin digits regardless of `numerals` — a version
 /// string, not a number." It is an identifier a support conversation quotes
 /// back, and Eastern Arabic-Indic digits in a bug report help nobody.
-const String kAppVersion = '0.1.0';
+const String kAppVersion = '1.0.0';
 
 /// The build number — the `+312` half of `pubspec.yaml`'s version.
 ///
