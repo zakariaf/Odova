@@ -78,7 +78,7 @@ dependencies:
   # time, so a user who flies Berlin -> Tehran still gets 09:00 local. Without
   # this, `timezone` defaults to UTC and every reminder fires at the wrong hour
   # for anyone not on GMT — silently, and only on their device.
-  flutter_timezone: ^4.1.1
+  flutter_timezone: ^5.1.0
   # The router. SPEC.md §7 needs one navigation graph with typed locations,
   # a real `errorBuilder` and a shell whose four tabs each keep their own
   # stack — `StatefulShellRoute.indexedStack` is the reason for the package
