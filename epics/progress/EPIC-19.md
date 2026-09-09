@@ -87,6 +87,33 @@ All three now assert the structural property. The first is the same shape as the
   NOT SIGNED. `tools/release.sh --dry-run` refuses today and names the review
   among its reasons, which is the correct answer.
 
+## What `/simplify` found
+
+Four review passes over the branch. Two findings were about the gates
+themselves being at the wrong altitude, and both were right.
+
+**The release gate was tested by grepping the script.** A mutation replacing a
+`grep` with `false` had already survived it once during the task, and my fix at
+the time was to match a *longer* string — the same altitude, one notch tighter.
+`check_gates_selftest.sh` now has five arms that RUN `release.sh --dry-run` over
+a scratch tree with one precondition broken at a time. A dry run that exits 0
+provably checked everything and built nothing, whatever its messages say.
+
+**The icon could drift from the token it claims to read.** `generate.py`'s own
+docstring argues that a palette living in two files disagrees with itself — and
+then commits thirteen PNGs, which are that second file. Nothing checked a pixel
+against `--color-brand`. It does now, by inflating the 1024's IDAT; seen to fail
+by moving the token one digit. This is the same shape as the `PrivacyInfo`
+finding: a claim that would have passed on the thing being absent.
+
+The rest: `debug_affordances` went through the existing `expectNoBannedPatterns`
+(which skips generated code and fails on an empty walk, neither of which my hand
+walk did) and now asserts the banner by finding no `CheckedModeBanner` in the
+tree; a shared PNG header reader replaced three copies and reads 26 bytes rather
+than 8 MB; the store gates take their locale list from the app's rather than a
+seventh hand-typed copy; two vacuous guards went; and the capture script carried
+a comment describing a step it does not take.
+
 ## What is NOT done, and why
 
 **Task 19.10's ritual is not run.** It requires the developer to ask for a
