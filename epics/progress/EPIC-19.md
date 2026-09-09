@@ -10,3 +10,8 @@
   equivalent, so 19.8's aeroplane-mode pass now carries more of the offline gate
   than the two-platform epic asked it to. `no_network_test` and `audit_deps`
   already existed (EPIC-17 and earlier); both were re-verified by planting.
+- 19.5 privacy — done. The manifest needed wiring into the Xcode target, not
+  just writing; verified it is bundled in the built .app. §18.12 decided: OS
+  backup stays ON, recorded with a name and a date, and the copy rule that
+  follows is enforced in six locales. The sheet's own test caught `sqlite3` and
+  `sqlite3_flutter_libs` missing from it.
