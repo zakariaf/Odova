@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Odova's privacy manifest.
+
+  SPEC.md §2: no network of any kind, no account, no analytics, no crash
+  reporter. Every answer below follows from that, and each one is checkable
+  against `pubspec.lock` in five minutes — which is what
+  `test/policy/privacy_answers_test.dart` asks of the sheet beside it.
+
+  This file covers THE APP TARGET only. Each plugin ships its own manifest and
+  Xcode merges them; path_provider_foundation and the notification plugin
+  declare their own required-reason APIs, and duplicating their entries here
+  would be this repo answering for code it does not own.
+
+  The app itself accesses ONE required-reason API category. Drift opens and
+  writes the database file and the backup writer stats it, which is
+  FileTimestamp. Reason C617.1: the timestamps are read for files inside the
+  app's own container and are never sent anywhere — there is nowhere to send
+  them.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSPrivacyTracking</key>
+    <false/>
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>C617.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
