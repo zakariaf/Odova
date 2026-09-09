@@ -4,3 +4,4 @@
   fixed; simulator and APK still build. The `.p8` pattern had never been seen to
   fail — the self-test only planted a keystore — and there was no history-half
   case at all, so a shallow checkout would have made that arm pass silently.
+- 19.3 version — done. The pubspec/constant tie already existed from EPIC-14; added the Info.plist substitution assertion, which was the untested third copy. Bumped to 1.0.0+1.

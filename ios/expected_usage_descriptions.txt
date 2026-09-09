@@ -1,0 +1,15 @@
+# Every NS*UsageDescription key ios/Runner/Info.plist is allowed to declare.
+#
+# Asserted as a WHOLE SET by test/policy/ios_capabilities_test.dart: a key here
+# that the plist does not declare fails, and so does a key the plist declares
+# that is not here. The second is the one that actually happens — a transitive
+# plugin bump adds a key, the app asks the user for something it never uses,
+# and App Review asks what for.
+#
+# EMPTY, and that is the point. Odova reads no contacts, no photos, no
+# location, no calendar and no microphone (SPEC.md §2 and §15). The two plugins
+# with a native side — flutter_local_notifications and flutter_timezone —
+# declare none: iOS notification authorisation is requested through
+# UNUserNotificationCenter at runtime and needs no plist key at all.
+#
+# One key per line. A `#` starts a comment.
