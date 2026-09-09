@@ -208,13 +208,15 @@ An empty heading is an unanswered question, not a formality. If a heading does n
 
 `.github/workflows/ci.yml` runs on every pull request, with `concurrency: ci-${{ github.ref }}` and `cancel-in-progress: true` — a new push cancels the run in flight. **A cancelled run is not a green run.** Watch the run for the commit you actually intend to merge.
 
-Three jobs:
+Five jobs. **`ios build` is the one that matters most from EPIC-19 onwards**, because v1 ships to the App Store and nothing else in this repo compiles Swift — an `AppDelegate` typo that stopped the iOS app building at all reached `main` once, back when that lane reported `skipping`:
 
 | Job | Name in checks | When it runs | What it proves |
 |---|---|---|---|
 | `repo` | `repo gates` | always | the repo lane, below |
 | `app` | `flutter` | only `if pubspec.yaml exists` | format, analyze `--fatal-infos --fatal-warnings`, `pub get --enforce-lockfile`, regenerated `lib/l10n/gen/` matches the ARBs, `flutter test --coverage` with randomized ordering |
-| `build` | `android build` | only `if pubspec.yaml exists`, after `app` | `flutter build apk --debug` — the app still compiles for a real target, unsigned on purpose |
+| `goldens` | `goldens` | only `if pubspec.yaml exists` | the golden and parity suites, which are slow enough to deserve their own lane |
+| `build` | `android build` | only `if pubspec.yaml exists`, after `app` | `flutter build apk --debug`. **Android is not a shipping target** — EPIC-19 ships iOS only — and this lane stays anyway, because compiling for a second target is a cheap check that catches a plugin resolving on one platform and not the other |
+| `ios` | `ios build` | only `if pubspec.yaml exists`, after `app` | `flutter build ios --no-codesign`. The **only** thing in this repo that compiles the Swift that ships |
 
 The `app` job also runs `tools/audit_deps.sh` and `tools/check_lint_include.sh`, which live there rather than in `repo` because both need the resolved tree that `flutter pub get` produces.
 
