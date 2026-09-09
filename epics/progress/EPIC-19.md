@@ -114,6 +114,44 @@ than 8 MB; the store gates take their locale list from the app's rather than a
 seventh hand-typed copy; two vacuous guards went; and the capture script carried
 a comment describing a step it does not take.
 
+## What `/code-review` found
+
+Eight findings, three of which say a gate this epic ADDS does not check what it
+claims. All three are the same shape, and it is the shape this epic kept
+meeting: **a check that passes on the thing being absent.**
+
+**The signing test was vacuous for the target that ships.** `CODE_SIGN_STYLE =
+Manual` appeared three times and the test was green — all three on
+**RunnerTests**. The app target declared the key nowhere at all, which Xcode
+reads as `Automatic`, and it inherited `CODE_SIGN_IDENTITY = "iPhone Developer"`
+on Release: an archive signed with a *development* identity, rejected at upload,
+burning a build number that can never be reused. My own commit message had
+claimed this fixed "three sites including Release". It was not.
+
+**The release self-test arms were red for the wrong reason.** The scratch copy
+brings `.git` along, so editing a tracked file leaves the tree dirty and
+`release.sh` fails precondition 1 — the clean tree — before reaching the arm's
+own rule. Deleting the signoff, build-number, checks and changelog checks from
+the script entirely left all four arms still passing. Four gates that had never
+been seen to fail, added in the same session as a note about how gates that have
+only ever been green are comments.
+
+**`check_binary_offline.sh` read the wrong binary.** `Runner` is the thin Swift
+host; the Dart AOT image is `Frameworks/App.framework/App`, each plugin is its
+own framework, and `dart:io`'s sockets are serviced by the engine. A package
+that opened a socket left no trace where the gate looked. The gate written
+specifically to partly replace the merged-manifest evidence was green by
+construction.
+
+The rest were real too: the release keychain was never put on the search list
+(imported and then not found) and never had its auto-lock disabled (relocked
+part-way through a 45-minute archive); no provisioning profile was installed and
+the team never reached `xcodebuild`, so manual signing could not archive at all;
+`release.sh` silently ignored `--dryrun` and built for real; `ExportOptions.plist`
+was checked only after minutes of compiling; and the privacy sheet's dependency
+assertion exempted every `flutter_*` package — which is all three with a native
+side.
+
 ## What is NOT done, and why
 
 **Task 19.10's ritual is not run.** It requires the developer to ask for a
