@@ -17,7 +17,13 @@
 set -uo pipefail
 
 DRY_RUN=0
-[ "${1:-}" = "--dry-run" ] && DRY_RUN=1
+case "${1:-}" in
+  '')        ;;
+  --dry-run) DRY_RUN=1 ;;
+  # REFUSED, not ignored. `--dryrun` or `-n` silently fell through to a real
+  # build — in a script whose header is an argument about irreversibility.
+  *) echo "unknown argument: $1 (expected --dry-run or nothing)" >&2; exit 2 ;;
+esac
 
 fail=0
 say()  { printf '  %s\n' "$1"; }
@@ -71,7 +77,18 @@ else
   bad "CHANGELOG.md has no $NAME section"
 fi
 
-# 6. The gates. Run rather than trusted — this script is the last place before
+# 6. The export options, which are gitignored and therefore absent on a fresh
+#    clone. Checked HERE rather than discovered after `flutter build ipa` has
+#    compiled for minutes — the one class of failure "everything checkable
+#    happens first" exists to eliminate. Skipped for a dry run, which builds
+#    nothing and should not demand a credential to say so.
+if [ "$DRY_RUN" -eq 1 ] || [ -f ios/ExportOptions.plist ]; then
+  ok "export options present (or not needed for a dry run)"
+else
+  bad "ios/ExportOptions.plist is missing — copy ios/ExportOptions.plist.example"
+fi
+
+# 7. The gates. Run rather than trusted — this script is the last place before
 #    an artifact exists.
 if bash tools/check_release_hygiene.sh >/dev/null 2>&1; then
   ok "no signing material in the tree or in git log --all"

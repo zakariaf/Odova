@@ -159,6 +159,14 @@ assert 0 "release.sh --dry-run is green when every precondition holds" \
   bash -c "cd '$release_scratch' && bash tools/release.sh --dry-run"
 
 # One precondition at a time, so a failure names the rule rather than the file.
+#
+# **Each arm COMMITS its mutation.** The copy brings `.git` with it, so editing
+# a tracked file leaves the tree dirty — and `release.sh` checks the clean tree
+# FIRST. Without the commit every arm went red on precondition 1 and never
+# reached its own rule: delete the signoff, build-number, checks and changelog
+# checks from the script entirely and all four arms still passed. Four gates
+# that had never been seen to fail, in the file whose whole purpose is that
+# they have.
 for arm in signoff buildnumber checks changelog; do
   cp -R "$release_scratch" "$release_scratch-$arm"
   case "$arm" in
@@ -169,6 +177,8 @@ for arm in signoff buildnumber checks changelog; do
     checks)      rm -f "$release_scratch-$arm"/release/checks/*.md ;;
     changelog)   rm -f "$release_scratch-$arm/CHANGELOG.md" ;;
   esac
+  git -C "$release_scratch-$arm" add -A >/dev/null 2>&1
+  git -C "$release_scratch-$arm" commit -q -m "$arm" >/dev/null 2>&1
   assert 1 "release.sh refuses on: $arm" \
     bash -c "cd '$release_scratch-$arm' && bash tools/release.sh --dry-run"
   rm -rf "$release_scratch-$arm"

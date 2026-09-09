@@ -64,7 +64,12 @@ void main() {
     final declared = RegExp('^  ([a-z_][a-z0-9_]*):', multiLine: true)
         .allMatches(block)
         .map((m) => m.group(1)!)
-        .where((p) => !p.startsWith('flutter'))
+        // The SDK entries, which have no version and no privacy surface:
+        // `flutter:` and `flutter_localizations:` are `sdk: flutter`. Filtering
+        // on the NAME instead exempted `flutter_local_notifications`,
+        // `flutter_riverpod` and `flutter_timezone` — the three packages with a
+        // native side, which are exactly the ones the sheet must describe.
+        .where((p) => !_isSdkPackage(block, p))
         .toSet();
 
     final sheet = _sheet();
@@ -94,4 +99,28 @@ void main() {
       reason: 'a decision with no name and no date is not a decision',
     );
   });
+}
+
+/// Whether [name]'s entry in [block] is an SDK package rather than a hosted
+/// one.
+///
+/// An SDK entry has no version on its own line and an `sdk: flutter` under it:
+///
+///     flutter:
+///       sdk: flutter
+///
+/// A hosted one is `flutter_timezone: ^4.1.1`, all on one line. The first
+/// version of this required a newline straight after the colon, so every
+/// hosted package matched nothing, was treated as SDK, and was exempted — which
+/// is the same hole in a different shape as the `startsWith('flutter')` it
+/// replaced.
+bool _isSdkPackage(String block, String name) {
+  final entry = RegExp(
+    '^  $name:(.*)\\n((?:    .*\\n)*)',
+    multiLine: true,
+  ).firstMatch(block);
+  if (entry == null) return false;
+
+  final sameLine = entry.group(1)!.trim();
+  return sameLine.isEmpty && entry.group(2)!.contains('sdk: flutter');
 }

@@ -54,22 +54,68 @@ void main() {
     );
   });
 
-  test('the release configuration is not automatically signed', () {
-    // The accidental ship. Automatic signing in Release archives with whatever
-    // identity the machine happens to hold, which is a development one on every
-    // machine that is not the release runner.
-    final project = _pbxproj();
-    final styles = RegExp(
-      r'CODE_SIGN_STYLE = (\w+);',
-    ).allMatches(project).map((m) => m.group(1)!).toSet();
+  test('the app target is manually signed, in every configuration', () {
+    // PER TARGET, and this assertion was vacuous when it was written over the
+    // whole file. `CODE_SIGN_STYLE = Manual` appeared three times and the test
+    // was green — but all three were on **RunnerTests**, and the app target
+    // declared the key nowhere at all, which Xcode reads as `Automatic`. The
+    // exact failure the docstring above names was live while the gate that
+    // named it passed.
+    //
+    // An `XCBuildConfiguration` for the app is identified by the app's own
+    // bundle id; the test bundle carries `…​.RunnerTests`.
+    final configurations = RegExp(
+      r'isa = XCBuildConfiguration;.*?\n\t\t\};',
+      dotAll: true,
+    ).allMatches(_pbxproj()).map((m) => m.group(0)!);
+
+    final appConfigurations = configurations
+        .where(
+          (c) => c.contains('PRODUCT_BUNDLE_IDENTIFIER = io.applander.odova;'),
+        )
+        .toList();
 
     expect(
-      styles,
-      isNot(contains('Automatic')),
-      reason:
-          'Release signs automatically, so an archive is built with whatever '
-          'identity the machine holds',
+      appConfigurations,
+      hasLength(3),
+      reason: 'expected Debug, Release and Profile for the app target',
     );
+
+    for (final configuration in appConfigurations) {
+      final name = RegExp(
+        r'name = (\w+);',
+      ).firstMatch(configuration)?.group(1);
+
+      expect(
+        configuration,
+        contains('CODE_SIGN_STYLE = Manual;'),
+        reason:
+            "the app target's $name configuration has no CODE_SIGN_STYLE, "
+            'so Xcode signs it automatically with whatever the machine holds',
+      );
+    }
+  });
+
+  test('the release archive is not signed with a development identity', () {
+    // The other half, and the one that costs a build number. An archive signed
+    // "iPhone Developer" is rejected at upload, and the number it burned can
+    // never be reused. The project-level Release configuration is what the app
+    // target inherits.
+    final release = RegExp(
+      'isa = XCBuildConfiguration;(?:(?!isa = XCBuildConfiguration).)*?'
+      'name = Release;',
+      dotAll: true,
+    ).allMatches(_pbxproj()).map((m) => m.group(0)!);
+
+    for (final configuration in release) {
+      expect(
+        configuration,
+        isNot(contains('"iPhone Developer"')),
+        reason:
+            'a Release configuration signs with a development identity — the '
+            'upload is rejected and its build number is spent',
+      );
+    }
   });
 
   test('gitignore covers every pattern the hygiene gate refuses', () {
