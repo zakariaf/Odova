@@ -1,0 +1,31 @@
+Most people look after their car by remembering, and remembering fails. The oil was changed "sometime last spring". The fuel receipt is in the door pocket. The timing belt was overdue when it broke.
+
+Odova replaces remembering. Add your car and its odometer reading, and it works out what is due next — by distance and by date, whichever comes first.
+
+WHAT IT DOES
+
+• Service reminders that count both ways. 10,000 km or 12 months, whichever arrives first.
+• Fuel tracking with real consumption, worked out from your fill-ups rather than a guess.
+• An odometer log, so the estimate of where you are today is based on how you actually drive.
+• Trips and trip expenses.
+• The running cost of ownership, per month and per kilometre.
+• Full service history, kept as long as you keep the car.
+• More than one vehicle, if you have more than one.
+
+BUILT FOR A MINUTE A MONTH
+
+You log at the pump, in the rain, one-handed, in a basement with no signal. The form is short, the odometer is the only thing you must type, and Save never refuses without telling you why.
+
+IT NEVER GUESSES AT YOU
+
+An estimated odometer reading is marked with a ~. A projected date is fuzzy on purpose — "around mid-October", not a false Tuesday. An item with no history says so instead of claiming you are overdue.
+
+NO ACCOUNT, NO SERVER
+
+No sign-up. Nothing is uploaded. No tracking, no analytics, no ads. Odova has no networking code at all, which is why there is no privacy policy to read.
+
+Your backup is a plain file you keep — readable, portable, and yours. Export it whenever you like.
+
+SIX LANGUAGES
+
+English, Deutsch, Français, فارسی, العربية and کوردیی ناوەندی, in both reading directions.

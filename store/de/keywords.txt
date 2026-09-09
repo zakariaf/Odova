@@ -1,0 +1,1 @@
+auto,wartung,inspektion,service,sprit,tanken,kilometerstand,verbrauch,erinnerung,kosten,offline

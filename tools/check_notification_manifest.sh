@@ -13,6 +13,17 @@
 #
 # The two refusals are not the same refusal:
 #
+#
+# **Android is no longer a shipping target** — EPIC-19 ships to the App Store
+# only — and this gate stays anyway, with its reasons restated. It is not a
+# store-policy check any more; it is the manifest half of SPEC.md §4's contract,
+# and the `android build` lane it runs beside is kept for the same reason: a
+# second platform is a cheap check on the plugins the first one also uses. The
+# Play-policy sentence below is history rather than a live constraint.
+#
+# The iOS half of §4 has no equivalent gate. `ios_capabilities_test.dart`
+# asserts the capability surface — no background modes, no ATS — but nothing
+# asserts that the notification contract is wired on the platform that ships.
 #   USE_EXACT_ALARM      is restricted by Play policy to alarm, timer and
 #                        calendar apps. Declaring it in a car-maintenance app
 #                        risks store rejection, and there is no appeal that
@@ -98,7 +109,7 @@ require "ScheduledNotificationReceiver" \
   "FLN broadcasts every scheduled alarm to it; without it nothing is ever posted"
 
 forbid "android.permission.USE_EXACT_ALARM" \
-  "Play policy restricts it to alarm/timer/calendar apps"
+  "it is not needed; §4 schedules inexactly on purpose"
 forbid "android.permission.SCHEDULE_EXACT_ALARM" \
   "SPEC.md §4.6.3 refuses exact alarms; §4.2's bodies are absolute anchors"
 

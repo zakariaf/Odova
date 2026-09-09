@@ -84,10 +84,106 @@ assert() { # assert <expected 0|1> <label> <command...>
 
 echo "== check_release_hygiene =="
 assert 0 "green on a clean tree" bash tools/check_release_hygiene.sh
-touch ./upload-keystore.jks
-assert 1 "red when a keystore is planted" bash tools/check_release_hygiene.sh
-rm -f ./upload-keystore.jks
-assert 0 "green again once removed" bash tools/check_release_hygiene.sh
+# Each credential pattern, planted and removed. A loop rather than four copies
+# of the same quartet: the list is the interesting part, and a copied block is
+# how the fourth pattern gets added to the gate and not to its self-test.
+#
+# `key.properties` is here although Android does not ship. A credential is a
+# credential, the pattern costs nothing, and the gate that only knows the
+# platform you ship today is the gate that misses the one you add tomorrow.
+for planted in ./upload-keystore.jks ./AuthKey_ABCD123456.p8 \
+               ./android/key.properties; do
+  mkdir -p "$(dirname "$planted")"
+  touch "$planted"
+  assert 1 "red when $(basename "$planted") is planted" \
+    bash tools/check_release_hygiene.sh
+  rm -f "$planted"
+  rmdir ./android 2>/dev/null || true
+  assert 0 "green again once $(basename "$planted") is removed" \
+    bash tools/check_release_hygiene.sh
+done
+
+# THE HISTORY HALF, which the working-tree cases above cannot reach. A
+# credential committed and later deleted is in every clone for ever, and this
+# is the only case that proves `git log --all` is actually walked — a shallow
+# checkout makes that half pass silently, which is why CI needs fetch-depth: 0.
+scratch_repo=$(mktemp -d)
+(
+  cd "$scratch_repo"
+  git init -q .
+  git config user.email selftest@example.com
+  git config user.name selftest
+  cp "$OLDPWD/tools/check_release_hygiene.sh" ./hygiene.sh
+  mkdir -p android && touch android/key.properties
+  git add -A && git commit -q -m 'plant'
+  git rm -q android/key.properties && git commit -q -m 'remove it again'
+)
+assert 1 "red when a credential exists only in history" \
+  bash -c "cd '$scratch_repo' && bash hygiene.sh"
+rm -rf "$scratch_repo"
+
+echo "== release.sh preconditions =="
+# Run the SCRIPT, not a grep over it. `release_preconditions_test.dart` used to
+# assert that certain strings appeared in this file, and a mutation replacing a
+# `grep` with `false` survived it — the filename was still named one line above.
+# A dry run that exits 0 provably checked everything and built nothing; one that
+# exits 1 provably refused.
+#
+# The tree is dirty during a self-test run by construction (it plants files), so
+# these arms drive the OTHER five preconditions from a scratch copy where the
+# clean-tree check is satisfied.
+release_scratch=$(mktemp -d)
+# ONLY what release.sh reads. `cp -R design` would bring 112 parity reference
+# PNGs along for a sign-off headline, five times over — which turned a
+# sub-second arm into a minute of copying.
+mkdir -p "$release_scratch"/{tools,design/review,release/checks}
+cp "$PWD/tools/release.sh" "$PWD/tools/check_release_hygiene.sh" \
+   "$release_scratch/tools/"
+cp "$PWD"/design/review/SIGNOFF-*.md "$release_scratch/design/review/"
+cp "$PWD"/release/checks/*.md "$release_scratch/release/checks/"
+cp "$PWD/release/uploaded-build-numbers.txt" "$release_scratch/release/"
+cp "$PWD/pubspec.yaml" "$PWD/CHANGELOG.md" "$release_scratch/"
+(
+  cd "$release_scratch"
+  git init -q . && git config user.email s@e && git config user.name s
+  # The real sign-off reads NOT SIGNED, deliberately and for stated reasons.
+  # The green arm needs a tree where every precondition HOLDS, so the scratch
+  # copy is signed — which is also what proves the signoff arm below is
+  # measuring the sign-off rather than something else that happens to be wrong.
+  sed -i.bak 's/NOT SIGNED/SIGNED OFF/' design/review/SIGNOFF-*.md
+  rm -f design/review/*.bak
+  git add -A >/dev/null 2>&1 && git commit -q -m init >/dev/null 2>&1
+)
+
+assert 0 "release.sh --dry-run is green when every precondition holds" \
+  bash -c "cd '$release_scratch' && bash tools/release.sh --dry-run"
+
+# One precondition at a time, so a failure names the rule rather than the file.
+#
+# **Each arm COMMITS its mutation.** The copy brings `.git` with it, so editing
+# a tracked file leaves the tree dirty — and `release.sh` checks the clean tree
+# FIRST. Without the commit every arm went red on precondition 1 and never
+# reached its own rule: delete the signoff, build-number, checks and changelog
+# checks from the script entirely and all four arms still passed. Four gates
+# that had never been seen to fail, in the file whose whole purpose is that
+# they have.
+for arm in signoff buildnumber checks changelog; do
+  cp -R "$release_scratch" "$release_scratch-$arm"
+  case "$arm" in
+    signoff)     sed -i.bak 's/SIGNED OFF/PENDING/' \
+                   "$release_scratch-$arm"/design/review/SIGNOFF-*.md
+                 rm -f "$release_scratch-$arm"/design/review/*.bak ;;
+    buildnumber) echo 1 > "$release_scratch-$arm/release/uploaded-build-numbers.txt" ;;
+    checks)      rm -f "$release_scratch-$arm"/release/checks/*.md ;;
+    changelog)   rm -f "$release_scratch-$arm/CHANGELOG.md" ;;
+  esac
+  git -C "$release_scratch-$arm" add -A >/dev/null 2>&1
+  git -C "$release_scratch-$arm" commit -q -m "$arm" >/dev/null 2>&1
+  assert 1 "release.sh refuses on: $arm" \
+    bash -c "cd '$release_scratch-$arm' && bash tools/release.sh --dry-run"
+  rm -rf "$release_scratch-$arm"
+done
+rm -rf "$release_scratch"
 
 echo "== check_skill_frontmatter =="
 assert 0 "green on the real skills tree" python3 tools/check_skill_frontmatter.py

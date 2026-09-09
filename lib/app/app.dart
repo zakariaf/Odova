@@ -154,6 +154,11 @@ class OdovaApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
+      // OFF. Not a data risk — a credibility one: the red ribbon sat across
+      // every store screenshot captured for EPIC-19 task 19.6 before this line
+      // existed, and across every device screenshot in every review before
+      // that. It is one property nobody looks at twice.
+      debugShowCheckedModeBanner: false,
       // The one router. `.router` rather than the plain constructor because a
       // plain `MaterialApp` mounts its own Navigator that go_router knows
       // nothing about, and every `context.go` inside it silently does nothing.

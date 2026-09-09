@@ -1,7 +1,7 @@
 name: odova
 description: "An offline, account-free log for car maintenance, fuel and running costs."
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.12.2

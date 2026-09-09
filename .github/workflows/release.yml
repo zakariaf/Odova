@@ -1,0 +1,145 @@
+# Builds the release artifact from a tag. It does NOT upload.
+#
+# Uploading is EPIC-19 task 19.10's ritual: a human runs it, reads the store
+# back afterwards, and watches the phased release against a written pause
+# criterion. A workflow that uploads on tag push turns an irreversible act into
+# a side effect of `git push --tags`, and a released iOS build cannot be
+# withdrawn — only superseded by another that must itself pass review.
+#
+# What it does do is prove the tag builds, and keep the symbols. Obfuscated
+# symbols that were not archived are a crash report nobody can read for the
+# life of that build.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+# NOT cancel-in-progress. The CI workflow cancels supersed runs because a newer
+# commit makes an older result irrelevant; here every run corresponds to a tag
+# that may already have been published, and a cancelled release build is a
+# missing symbol archive.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ipa:
+    name: ios release build
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The hygiene gate walks `git log --all`. A shallow checkout makes
+          # that half pass silently, which is the failure it exists to catch.
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .flutter-version
+
+      - run: flutter pub get --enforce-lockfile
+
+      - name: Gates
+        run: |
+          bash tools/check_release_hygiene.sh
+          bash tools/audit_deps.sh --require-graph
+          flutter analyze --fatal-infos --fatal-warnings
+          flutter test
+
+      - name: Signing material
+        env:
+          DIST_CERT_P12: ${{ secrets.DIST_CERT_P12 }}
+          DIST_CERT_PASSWORD: ${{ secrets.DIST_CERT_PASSWORD }}
+          PROVISIONING_PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
+          PROVISIONING_PROFILE_NAME: ${{ secrets.PROVISIONING_PROFILE_NAME }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          # Materialised into the RUNNER, never into the repository, and removed
+          # again below whatever happens. `ios/ExportOptions.plist` is
+          # gitignored for the same reason: teamID pins one account.
+          security create-keychain -p '' build.keychain
+          # Onto the SEARCH LIST, not merely the default. codesign and
+          # xcodebuild look through the search list, which otherwise still holds
+          # only login.keychain — so the identity imports fine and is then not
+          # found ("No signing certificate found").
+          security list-keychains -d user -s build.keychain login.keychain-db
+          security default-keychain -s build.keychain
+          security unlock-keychain -p '' build.keychain
+          # No auto-lock. The default relocks after 300 seconds, and an archive
+          # takes longer than that — "User interaction is not allowed", halfway
+          # through, on a runner nobody is sitting at.
+          security set-keychain-settings -lut 21600 build.keychain
+
+          echo "$DIST_CERT_P12" | base64 --decode > /tmp/dist.p12
+          security import /tmp/dist.p12 -k build.keychain \
+            -P "$DIST_CERT_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s -k '' build.keychain
+          rm -f /tmp/dist.p12
+
+          # The PROFILE. `ExportOptions.plist` asks for manual signing, and
+          # manual signing with no profile installed fails at `xcodebuild
+          # archive` with "Signing for 'Runner' requires a development team".
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$PROVISIONING_PROFILE" | base64 --decode \
+            > ~/Library/MobileDevice/Provisioning\ Profiles/odova.mobileprovision
+
+          sed "s/TEAM_ID/$TEAM_ID/" ios/ExportOptions.plist.example \
+            > ios/ExportOptions.plist
+
+          # The team and the profile as BUILD SETTINGS, where xcodebuild reads
+          # them. Substituting them into the export plist alone is not enough:
+          # `xcodebuild archive` runs first and fails with "Signing for 'Runner'
+          # requires a development team" before an export ever happens. The
+          # project carries neither on purpose — a committed team pins the repo
+          # to one Apple account — so CI appends them here and the "Remove the
+          # signing material" step below puts the file back.
+          cp ios/Flutter/Release.xcconfig /tmp/Release.xcconfig.orig
+          {
+            echo "DEVELOPMENT_TEAM=$TEAM_ID"
+            echo "PROVISIONING_PROFILE_SPECIFIER=$PROVISIONING_PROFILE_NAME"
+            echo "CODE_SIGN_STYLE=Manual"
+          } >> ios/Flutter/Release.xcconfig
+
+      - name: Build
+        run: bash tools/release.sh
+
+      - name: The shipped binary opens no socket
+        run: |
+          APP=$(find build/ios -maxdepth 3 -name 'Runner.app' | head -1)
+          bash tools/check_binary_offline.sh "$APP"
+
+      - name: Archive the symbols
+        # BEFORE anything could be uploaded, and kept for the life of the build
+        # rather than the life of the run.
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: symbols-${{ github.ref_name }}
+          path: build/symbols/
+          retention-days: 90
+
+      - name: Archive the IPA
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa-${{ github.ref_name }}
+          path: build/ios/ipa/*.ipa
+          retention-days: 90
+
+      - name: Remove the signing material
+        # ALWAYS, including on failure. A keychain left on a runner is a
+        # credential on a machine somebody else's job will run on next.
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
+          security list-keychains -d user -s login.keychain-db || true
+          rm -f ios/ExportOptions.plist /tmp/dist.p12
+          rm -f ~/Library/MobileDevice/Provisioning\ Profiles/odova.mobileprovision
+          [ -f /tmp/Release.xcconfig.orig ] && \
+            mv /tmp/Release.xcconfig.orig ios/Flutter/Release.xcconfig || true

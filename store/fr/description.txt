@@ -1,0 +1,31 @@
+La plupart des gens entretiennent leur voiture de mémoire, et la mémoire échoue. La vidange, c'était « au printemps dernier ». Le ticket de carburant est dans la portière. La courroie de distribution était en retard quand elle a cassé.
+
+Odova remplace la mémoire. Ajoutez votre voiture et son kilométrage, et l'application calcule ce qui arrive ensuite — par distance et par date, selon ce qui vient en premier.
+
+CE QU'ELLE FAIT
+
+• Des rappels d'entretien qui comptent les deux. 10 000 km ou 12 mois, au premier des deux.
+• La consommation réelle, calculée à partir de vos pleins et non estimée.
+• Un journal du kilométrage, pour que la projection corresponde à votre conduite.
+• Les trajets et leurs dépenses.
+• Le coût de possession, par mois et par kilomètre.
+• L'historique d'entretien complet, aussi longtemps que vous gardez la voiture.
+• Plusieurs véhicules, si vous en avez plusieurs.
+
+CONÇUE POUR UNE MINUTE PAR MOIS
+
+Vous saisissez à la pompe, sous la pluie, d'une main, dans un sous-sol sans réseau. Le formulaire est court, seul le kilométrage est obligatoire, et Enregistrer ne refuse jamais sans dire pourquoi.
+
+ELLE NE DEVINE PAS
+
+Un kilométrage estimé porte un ~. Une date prévue reste volontairement floue — « vers la mi-octobre », pas un mardi inventé. Un élément sans historique le dit, au lieu de vous déclarer en retard.
+
+SANS COMPTE, SANS SERVEUR
+
+Aucune inscription. Rien n'est téléversé. Aucun suivi, aucune analyse, aucune publicité. Odova ne contient aucun code réseau.
+
+Votre sauvegarde est un fichier simple que vous gardez — lisible, transportable, et le vôtre. Exportez-le quand vous voulez.
+
+SIX LANGUES
+
+English, Deutsch, Français, فارسی, العربية et کوردیی ناوەندی, dans les deux sens de lecture.
