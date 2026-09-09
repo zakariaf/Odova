@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The shape of `ios/ExportOptions.plist`, with no values in it.
+
+  The real file is written by the release workflow from secrets and deleted
+  after, and it is gitignored — `teamID` pins the archive to one Apple
+  Developer account, and a committed one makes the project build on exactly one
+  machine. `tools/check_release_hygiene.sh` refuses the credentials beside it.
+
+  Copy to `ios/ExportOptions.plist` and fill in TEAM_ID to export locally.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>app-store-connect</string>
+    <key>teamID</key>
+    <string>TEAM_ID</string>
+    <!-- Symbols are uploaded so App Store Connect can symbolicate; the app is
+         built with --obfuscate and its own symbol archive is kept off-machine
+         by tools/release.sh. -->
+    <key>uploadSymbols</key>
+    <true/>
+    <key>signingStyle</key>
+    <string>manual</string>
+</dict>
+</plist>

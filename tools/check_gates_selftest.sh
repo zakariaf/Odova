@@ -89,6 +89,43 @@ assert 1 "red when a keystore is planted" bash tools/check_release_hygiene.sh
 rm -f ./upload-keystore.jks
 assert 0 "green again once removed" bash tools/check_release_hygiene.sh
 
+# The credential v1 actually holds. EPIC-19 ships to the App Store, so the ASC
+# key is the one a careless `git add -A` would sweep in — and the only pattern
+# that had never been seen to fail.
+touch ./AuthKey_ABCD123456.p8
+assert 1 "red when an App Store Connect key is planted" \
+  bash tools/check_release_hygiene.sh
+rm -f ./AuthKey_ABCD123456.p8
+assert 0 "green again once the .p8 is removed" bash tools/check_release_hygiene.sh
+
+# Kept although Android does not ship. A credential is a credential, the
+# pattern costs nothing, and a gate that only knows the platform you ship today
+# is the gate that misses the one you add tomorrow.
+mkdir -p ./android && touch ./android/key.properties
+assert 1 "red when key.properties is planted" bash tools/check_release_hygiene.sh
+rm -f ./android/key.properties
+assert 0 "green again once key.properties is removed" \
+  bash tools/check_release_hygiene.sh
+
+# THE HISTORY HALF, which the working-tree cases above cannot reach. A
+# credential committed and later deleted is in every clone for ever, and this
+# is the only case that proves `git log --all` is actually walked — a shallow
+# checkout makes that half pass silently, which is why CI needs fetch-depth: 0.
+scratch_repo=$(mktemp -d)
+(
+  cd "$scratch_repo"
+  git init -q .
+  git config user.email selftest@example.com
+  git config user.name selftest
+  cp "$OLDPWD/tools/check_release_hygiene.sh" ./hygiene.sh
+  mkdir -p android && touch android/key.properties
+  git add -A && git commit -q -m 'plant'
+  git rm -q android/key.properties && git commit -q -m 'remove it again'
+)
+assert 1 "red when a credential exists only in history" \
+  bash -c "cd '$scratch_repo' && bash hygiene.sh"
+rm -rf "$scratch_repo"
+
 echo "== check_skill_frontmatter =="
 assert 0 "green on the real skills tree" python3 tools/check_skill_frontmatter.py
 plant .claude/skills/flutter-architecture/SKILL.md

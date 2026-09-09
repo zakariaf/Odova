@@ -86,3 +86,6 @@ tools/package-lock.json
 
 # Parity comparison sheets — regenerated on every run, never committed.
 design/reference/_parity/
+
+# Written by the release workflow from secrets; teamID pins one account.
+ios/ExportOptions.plist
