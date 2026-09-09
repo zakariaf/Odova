@@ -24,3 +24,4 @@
   need a seeded device; the capture script takes a locale list and can be re-run.
 - 19.7 release build — done. Found the DEBUG banner (it was in every screenshot ever taken in this repo). release.sh --dry-run refuses today, correctly: the design review is NOT SIGNED. The workflow does not upload, by design.
 - 19.8 manual checks — partly done, honestly. New artifact-level gate (binary symbol/link inspection) partly replaces the merged-manifest evidence iOS lost. The aeroplane-mode walk is NOT done: it needs real hardware and the real artifact, and is recorded as outstanding.
+- 19.9 submission record — done. Export compliance answered in writing (no encryption; the backup is plain by design and crypto only hashes), which is the question most likely to be answered wrongly out of caution.
