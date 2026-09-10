@@ -148,6 +148,21 @@ class _Tile extends StatelessWidget {
     final explanation = this.explanation;
     if (value != null || explanation == null) return tile;
 
+    // FILL the slot. §9 calls this row a three-column grid and a grid's
+    // columns are equal, but `CalmPressable` draws its focus ring in a `Stack`
+    // — and a `Stack` hands its non-positioned children loose constraints, so
+    // the tile inside shrank to its `—` while the two bare tiles either side
+    // took their full third. The consumption tile is the only one that gets a
+    // pressable, so the row was visibly lopsided on the home screen of every
+    // user who has not logged two fill-ups yet.
+    //
+    // Fixed here rather than in `CalmPressable`, deliberately: giving that
+    // `Stack` `StackFit.passthrough` fixes this row and also stretches every
+    // button the app puts in a stretched column — the `sm`, `md` and `lg`
+    // specimens included, which exist to show that a button hugs its label.
+    // "Cells of a grid are equal" is this row's rule, not every pressable's.
+    final filled = SizedBox(width: double.infinity, child: tile);
+
     return Builder(
       builder: (context) => CalmPressable(
         // The tile's own corner, so the press ripple does not square it off.
@@ -163,7 +178,7 @@ class _Tile extends StatelessWidget {
         ),
         semanticLabel: label,
         semanticsValue: kGlanceDash,
-        child: tile,
+        child: filled,
       ),
     );
   }

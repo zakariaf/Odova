@@ -79,7 +79,13 @@ TripsListModel artboardTrips({required bool rtl}) => TripsListModel(
     _row(
       _trip(
         suffix: 'B',
-        title: rtl ? 'مونیخ ← زالتسبورگ' : 'München → Salzburg',
+        // An EN DASH, not the arrow the artboard draws. A trip title is text
+        // the user types, so nothing in the app produces `→` — but the SDK's
+        // Roboto, which is what every capture in this repo renders Latin with,
+        // has no glyph for U+2192 at all. The store screenshots come out of
+        // these fixtures, and `08-trips` and `06-history` shipped a tofu box
+        // between the two city names in all six locales.
+        title: rtl ? 'مونیخ – زالتسبورگ' : 'München – Salzburg',
         startedOn: '2026-08-01',
         endedOn: '2026-08-02',
       ),

@@ -93,7 +93,7 @@ against app `6810617822`, version `1.0.0` in `PREPARE_FOR_SUBMISSION`.
 | Content rights | `DOES_NOT_USE_THIRD_PARTY_CONTENT` |
 | Copyright | `2026 Zakaria Fatahi` |
 | Price | Free, base territory USA, all 175 territories, `availableInNewTerritories: true` |
-| Screenshots | 12 — three 6.9-inch (1320×2868) captures in each of four locales |
+| Screenshots | 80 uploaded — ten 6.9-inch (1320×2868) and ten 13-inch (2048×2732) in each of four locales. 120 are captured; `fa` and `ckb` have a full set in the repo and no listing to carry them |
 | Privacy policy | `https://odova.applander.io/privacy` |
 | Support | `https://odova.applander.io/support` |
 | Marketing | `https://odova.applander.io` |

@@ -13,3 +13,8 @@ tags:
   # They are ordinary widget tests and run in the normal lane; the tag exists so
   # a person can run or skip the sweep on its own, which takes ten seconds.
   parity:
+  # `test/store/shoot_store.dart`, which WRITES the tracked App Store screenshot
+  # set. It is not named `*_test.dart`, so no lane collects it and the tag is
+  # belt and braces — a file that rewrites committed artifacts should be hard to
+  # run by accident, not merely unlikely to be.
+  store:
