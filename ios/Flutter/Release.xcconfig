@@ -4,3 +4,21 @@
 // their base.
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
+
+// The signing settings, when there are any. OPTIONAL and gitignored: a team id
+// is machine-specific configuration, and a committed one pins the repo to one
+// Apple Developer account — the next person clones it and Xcode tries to sign
+// against a team they are not in.
+//
+// It has to arrive HERE rather than through `XCODE_XCCONFIG_FILE`, which
+// applies to every target in the workspace: the pods and the SwiftPM packages
+// refuse a provisioning profile outright, and the archive fails with
+// "flutter_local_notifications does not support provisioning profiles". This
+// file is Runner's.
+//
+// And it has to arrive through an INCLUDE rather than an append, because
+// `tools/release.sh` refuses to build a dirty tree — the tag has to name what
+// was built. Appending here would fail that check before anything compiled.
+//
+// Copy `Signing.xcconfig.example` and fill it in to export locally.
+#include? "Signing.xcconfig"

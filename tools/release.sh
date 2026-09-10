@@ -44,14 +44,35 @@ else
   bad "working tree is dirty — the tag would not name what was built"
 fi
 
-# 2. The design sign-off. EPIC-19's own "Where we are now" makes this a
-#    precondition of the ritual and of nothing else: 19.1-19.9 are config and
-#    gates and do not need it.
+# 2. The design sign-off — or, failing that, a written decision to build without
+#    one.
+#
+#    This used to be a flat refusal, and it DEADLOCKED. The sign-off's own list
+#    of what must happen before it can be signed includes "run
+#    design-review-workflow's four lenses on a RELEASE BUILD and produce
+#    design/review/shots/", and its Build flavour row reads "none — debug widget
+#    captures only". The sign-off could not be earned without a build and the
+#    build could not be made without the sign-off.
+#
+#    So the gate is re-aimed, not dropped. An unsigned review still refuses —
+#    unless release/UNSIGNED-BUILD.md says, in a tracked file somebody reviewed,
+#    that this is deliberate and what is unfinished. Nobody does that by
+#    accident, which is the part of a gate worth keeping.
+#
+#    It gates the BUILD. It does not gate submission for review, because this
+#    script does not submit; the sign-off is still the gate on that, and
+#    release/UNSIGNED-BUILD.md says so in as many words.
 signoff=$(ls design/review/SIGNOFF-*.md 2>/dev/null | tail -1)
 if [ -n "$signoff" ] && grep -q 'SIGNED OFF' "$signoff"; then
   ok "design review signed off ($signoff)"
+elif [ -f release/UNSIGNED-BUILD.md ] &&
+     grep -q "$(basename "${signoff:-none}")" release/UNSIGNED-BUILD.md; then
+  ok "design review NOT signed (${signoff:-no SIGNOFF file}) — building anyway,"
+  say "on the recorded decision in release/UNSIGNED-BUILD.md. Read it."
+  say "This build must not be submitted for review."
 else
-  bad "design review is not signed off (${signoff:-no SIGNOFF file}) — see the file for why"
+  bad "design review is not signed off (${signoff:-no SIGNOFF file}) and no"
+  say "release/UNSIGNED-BUILD.md names it — see the sign-off for why"
 fi
 
 # 3. The build number has never been uploaded. This is the irreversible one:

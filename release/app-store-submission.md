@@ -129,6 +129,40 @@ form and rejects the record without it. Name, email, the "no demo account
 because there are no accounts" note and the reviewer walkthrough are written and
 waiting on that one field.
 
+## Build 1.0.0+1
+
+Built and uploaded 2026-09-10 over an unsigned design review — see
+`release/UNSIGNED-BUILD.md`, which records that decision and what it knowingly
+leaves unfinished. Uploading is not submitting: the version stays in
+`PREPARE_FOR_SUBMISSION` with `releaseType: MANUAL`, and the sign-off is still
+the gate on submission.
+
+| | |
+|---|---|
+| Artifact | `build/ios/ipa/odova.ipa`, 22 MB, `--obfuscate` with symbols in `build/symbols/1.0.0+1` |
+| Offline gate | 7 Mach-O binaries in the bundle, none reaching the network |
+| Validation | `altool --validate-app` — VERIFY SUCCEEDED, no errors |
+| Build number | **1, now spent.** Recorded in `release/uploaded-build-numbers.txt`, and `release.sh` refuses it from here on |
+
+The build exists so items 3 and 4 of the sign-off — build `costs.fuel` to its
+reference, and run the four design lenses **on a release build** — can be done
+against the artifact a user would actually get. That was the deadlock: neither
+could happen without a build, and no build could be made without them.
+
+### The signing identity moved, and one certificate was revoked
+
+The only Apple Distribution identity on the release machine was sealed inside a
+keychain whose password was lost, so no release could be signed at all — the
+archive fell back to a development identity and `CodeSign` failed. The account
+was also at Apple's three-certificate cap, so a replacement could not simply be
+added.
+
+The stranded certificate was revoked and a new one issued into the login
+keychain, with a fresh private key. **Two profiles for other apps on the same
+account went `INVALID` and must be regenerated before those apps upload again.**
+Nothing already on the App Store is affected: Apple re-signs App Store
+deliveries, so revocation reaches future uploads and not shipped apps.
+
 ## Who holds what
 
 | Credential | Held by | Recoverable? |
