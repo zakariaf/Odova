@@ -137,6 +137,31 @@ void main() {
     expect(found, isEmpty, reason: found.join('\n'));
   });
 
+  test("the repo's own docs make no claim the app does not", () {
+    // README.md is the most-read privacy claim this project has — more than
+    // the About screen, more than the listing — and it was the one document
+    // this gate did not cover. It said "Nothing leaves your phone", which §18
+    // decision 12 makes false: the container is inside the user's own OS
+    // backup, deliberately, so a restored phone finds the history there.
+    //
+    // The clause was defensible in context — the sentence went on to say "there
+    // is nothing to leave through", which is about Odova's code — but the
+    // absolute is the half people quote.
+    final found = <String>[];
+    for (final path in ['README.md', 'SECURITY.md', 'CONTRIBUTING.md']) {
+      final file = File(path);
+      if (!file.existsSync()) continue;
+      final text = file.readAsStringSync().toLowerCase();
+      for (final banned in _banned.where((b) => b.locale == 'en')) {
+        if (text.contains(banned.phrase.toLowerCase())) {
+          found.add('$path: "${banned.phrase}" — ${banned.why}');
+        }
+      }
+    }
+
+    expect(found, isEmpty, reason: found.join('\n'));
+  });
+
   test('the About paragraph still says the thing it is allowed to say', () {
     // The other direction, and the one a ban list alone would let rot: an
     // over-cautious edit that removes the promise entirely leaves a privacy
