@@ -208,7 +208,9 @@ An empty heading is an unanswered question, not a formality. If a heading does n
 
 `.github/workflows/ci.yml` runs on every pull request, with `concurrency: ci-${{ github.ref }}` and `cancel-in-progress: true` — a new push cancels the run in flight. **A cancelled run is not a green run.** Watch the run for the commit you actually intend to merge.
 
-Five jobs. **`ios build` is the one that matters most from EPIC-19 onwards**, because v1 ships to the App Store and nothing else in this repo compiles Swift — an `AppDelegate` typo that stopped the iOS app building at all reached `main` once, back when that lane reported `skipping`:
+Five jobs. **`ios build` is the one that matters most from EPIC-19 onwards**, because v1 ships to the App Store and nothing else in this repo compiles Swift — an `AppDelegate` typo that stopped the iOS app building at all reached `main` once, before that lane existed.
+
+It is **path-filtered on pull requests** and reports `skipping` on a PR that cannot have broken iOS, which is deliberate: a cold iOS build is twenty to thirty minutes against the Android lane's two. `skipping` there is not the same as the old always-skipping — but the two look identical in the checks list, so read the condition before concluding the Swift was compiled:
 
 | Job | Name in checks | When it runs | What it proves |
 |---|---|---|---|
@@ -216,7 +218,7 @@ Five jobs. **`ios build` is the one that matters most from EPIC-19 onwards**, be
 | `app` | `flutter` | only `if pubspec.yaml exists` | format, analyze `--fatal-infos --fatal-warnings`, `pub get --enforce-lockfile`, regenerated `lib/l10n/gen/` matches the ARBs, `flutter test --coverage` with randomized ordering |
 | `goldens` | `goldens` | only `if pubspec.yaml exists` | the golden and parity suites, which are slow enough to deserve their own lane |
 | `build` | `android build` | only `if pubspec.yaml exists`, after `app` | `flutter build apk --debug`. **Android is not a shipping target** — EPIC-19 ships iOS only — and this lane stays anyway, because compiling for a second target is a cheap check that catches a plugin resolving on one platform and not the other |
-| `ios` | `ios build` | only `if pubspec.yaml exists`, after `app` | `flutter build ios --simulator --debug`. The **only** thing in this repo that compiles the Swift that ships |
+| `ios` | `ios build` | after `app`, and on a PR **only when iOS could have broken** — the iOS host sources, the Podfile, or the dependency set that generates the plugin registrant. Force it with an `ios` label. Always on a push to `main`. | `flutter build ios --simulator --debug`. The **only** thing in this repo that compiles the Swift that ships |
 
 The `app` job also runs `tools/audit_deps.sh` and `tools/check_lint_include.sh`, which live there rather than in `repo` because both need the resolved tree that `flutter pub get` produces.
 
