@@ -95,16 +95,24 @@ jobs:
           # The team and the profile as BUILD SETTINGS, where xcodebuild reads
           # them. Substituting them into the export plist alone is not enough:
           # `xcodebuild archive` runs first and fails with "Signing for 'Runner'
-          # requires a development team" before an export ever happens. The
-          # project carries neither on purpose — a committed team pins the repo
-          # to one Apple account — so CI appends them here and the "Remove the
-          # signing material" step below puts the file back.
-          cp ios/Flutter/Release.xcconfig /tmp/Release.xcconfig.orig
+          # requires a development team" before an export ever happens.
+          #
+          # Into an UNTRACKED file that `ios/Flutter/Release.xcconfig` includes
+          # optionally. This step used to append to that tracked file and put it
+          # back afterwards, and it could never have worked: `release.sh`'s
+          # first precondition is a clean working tree, so the very next step
+          # refused before it compiled anything. Nothing caught it because this
+          # workflow runs on a tag and no tag has been cut.
+          #
+          # Not `XCODE_XCCONFIG_FILE` either — that applies to every target in
+          # the workspace, and the pods refuse a provisioning profile:
+          # "flutter_local_notifications does not support provisioning
+          # profiles".
           {
             echo "DEVELOPMENT_TEAM=$TEAM_ID"
             echo "PROVISIONING_PROFILE_SPECIFIER=$PROVISIONING_PROFILE_NAME"
             echo "CODE_SIGN_STYLE=Manual"
-          } >> ios/Flutter/Release.xcconfig
+          } > ios/Flutter/Signing.xcconfig
 
       - name: Build
         run: bash tools/release.sh
@@ -141,5 +149,4 @@ jobs:
           security list-keychains -d user -s login.keychain-db || true
           rm -f ios/ExportOptions.plist /tmp/dist.p12
           rm -f ~/Library/MobileDevice/Provisioning\ Profiles/odova.mobileprovision
-          [ -f /tmp/Release.xcconfig.orig ] && \
-            mv /tmp/Release.xcconfig.orig ios/Flutter/Release.xcconfig || true
+          rm -f ios/Flutter/Signing.xcconfig

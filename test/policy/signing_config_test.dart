@@ -24,6 +24,10 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+/// Whether git tracks [path].
+bool _tracked(String path) =>
+    Process.runSync('git', ['ls-files', '--error-unmatch', path]).exitCode == 0;
+
 /// The Xcode project file.
 String _pbxproj() =>
     File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
@@ -116,6 +120,55 @@ void main() {
             'upload is rejected and its build number is spent',
       );
     }
+  });
+
+  test('the team arrives through an untracked include, not an append', () {
+    // How the team id reaches xcodebuild WITHOUT dirtying the tree.
+    //
+    // It cannot come from `XCODE_XCCONFIG_FILE`: that applies to every target
+    // in the workspace, and the pods and SwiftPM packages refuse a provisioning
+    // profile outright — "flutter_local_notifications does not support
+    // provisioning profiles". The setting has to be scoped to Runner, which
+    // means a file Runner's configuration includes.
+    //
+    // `.github/workflows/release.yml` used to APPEND it to this tracked file
+    // and restore it afterwards. That could never have worked: `release.sh`'s
+    // first precondition is a clean working tree, so the append made the build
+    // step refuse before it compiled anything. The workflow has never run.
+    //
+    // An OPTIONAL include of a gitignored file fixes both. The tracked line is
+    // permanent and reviewed; the team id lives beside it, untracked; and the
+    // tree is clean at the moment the build is made, so the tag still names
+    // what was built.
+    final release = File('ios/Flutter/Release.xcconfig').readAsStringSync();
+    expect(
+      release,
+      contains('#include? "Signing.xcconfig"'),
+      reason: 'Release has no seam for the signing settings to arrive through',
+    );
+
+    // OPTIONAL — the `?`. A hard include of a gitignored file breaks every
+    // fresh clone, which is the failure this whole file exists to prevent.
+    expect(
+      release,
+      isNot(contains('#include "Signing.xcconfig"')),
+      reason: 'a hard include of an untracked file breaks a fresh clone',
+    );
+
+    expect(
+      File('.gitignore').readAsStringSync(),
+      contains('ios/Flutter/Signing.xcconfig'),
+      reason: 'the file carrying the team id is not gitignored',
+    );
+
+    // And it is not there. A committed one is the defect the first test in this
+    // file describes, arriving through the door this one just opened.
+    expect(
+      File('ios/Flutter/Signing.xcconfig').existsSync() &&
+          _tracked('ios/Flutter/Signing.xcconfig'),
+      isFalse,
+      reason: 'Signing.xcconfig is committed',
+    );
   });
 
   test('gitignore covers every pattern the hygiene gate refuses', () {

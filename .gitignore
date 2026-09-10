@@ -89,3 +89,7 @@ design/reference/_parity/
 
 # Written by the release workflow from secrets; teamID pins one account.
 ios/ExportOptions.plist
+# The team id and profile name, included optionally by Release.xcconfig. Not a
+# secret — a team id is readable from any shipped bundle — but machine-specific
+# configuration that pins the project to one Apple Developer account.
+ios/Flutter/Signing.xcconfig
