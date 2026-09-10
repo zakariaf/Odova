@@ -120,6 +120,38 @@ scratch_repo=$(mktemp -d)
 )
 assert 1 "red when a credential exists only in history" \
   bash -c "cd '$scratch_repo' && bash hygiene.sh"
+
+# BUILD OUTPUT IS NOT THE TREE. `flutter build ipa` writes an
+# embedded.mobileprovision into build/ios/archive/…/Runner.app, which is a
+# COPY of a profile Xcode put there, inside a gitignored directory that cannot
+# be committed. The gate flagged it, and `release.sh` runs this gate as
+# precondition 7 — so the second release ever attempted on any machine refused
+# itself, citing the output of the first.
+#
+# Asserted GREEN rather than left alone: an exclusion nobody tests is an
+# exclusion that quietly grows. This arm pins where it stops.
+# A SEPARATE repo. The one above has a credential in its history on purpose, so
+# nothing in it can ever come back green and an arm asserting 0 there would be
+# measuring the history check rather than the prune.
+build_repo=$(mktemp -d)
+cp "$PWD/tools/check_release_hygiene.sh" "$build_repo/hygiene.sh"
+(
+  cd "$build_repo"
+  git init -q . && git config user.email s@e && git config user.name s
+  mkdir -p build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app ios
+  touch build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision
+  echo build/ > .gitignore
+  git add -A >/dev/null 2>&1 && git commit -q -m init >/dev/null 2>&1
+)
+assert 0 "green when the only profile is inside build/" \
+  bash -c "cd '$build_repo' && bash hygiene.sh"
+
+# And still red for one OUTSIDE build/, so the exclusion is a path rule and not
+# a blanket amnesty on the pattern.
+touch "$build_repo/ios/leaked.mobileprovision"
+assert 1 "red for a profile outside build/" \
+  bash -c "cd '$build_repo' && bash hygiene.sh"
+rm -rf "$build_repo"
 rm -rf "$scratch_repo"
 
 echo "== release.sh preconditions =="
@@ -141,7 +173,12 @@ cp "$PWD/tools/release.sh" "$PWD/tools/check_release_hygiene.sh" \
    "$release_scratch/tools/"
 cp "$PWD"/design/review/SIGNOFF-*.md "$release_scratch/design/review/"
 cp "$PWD"/release/checks/*.md "$release_scratch/release/checks/"
-cp "$PWD/release/uploaded-build-numbers.txt" "$release_scratch/release/"
+# EMPTY, not the real list. The green arm needs a tree where every precondition
+# holds, and once 1.0.0+1 was actually uploaded the real file spends the very
+# build number `pubspec.yaml` names — so copying it made the green arm red for a
+# reason that has nothing to do with what it measures. The `buildnumber` arm
+# below plants the collision itself, which is where that belongs.
+: > "$release_scratch/release/uploaded-build-numbers.txt"
 cp "$PWD/release/UNSIGNED-BUILD.md" "$release_scratch/release/"
 cp "$PWD/pubspec.yaml" "$PWD/CHANGELOG.md" "$release_scratch/"
 (
@@ -180,7 +217,9 @@ for arm in signoff override buildnumber checks changelog; do
                  rm -f "$release_scratch-$arm"/release/*.bak ;;
     # No record at all, over the unsigned review that is really there.
     override)    rm -f "$release_scratch-$arm/release/UNSIGNED-BUILD.md" ;;
-    buildnumber) echo 1 > "$release_scratch-$arm/release/uploaded-build-numbers.txt" ;;
+    buildnumber) grep '^version:' "$release_scratch-$arm/pubspec.yaml" \
+                   | sed 's/.*+//' \
+                   > "$release_scratch-$arm/release/uploaded-build-numbers.txt" ;;
     checks)      rm -f "$release_scratch-$arm"/release/checks/*.md ;;
     changelog)   rm -f "$release_scratch-$arm/CHANGELOG.md" ;;
   esac

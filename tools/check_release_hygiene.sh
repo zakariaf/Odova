@@ -18,8 +18,22 @@ fail=0
 
 echo "== working tree =="
 for p in "${PATTERNS[@]}"; do
-  # -f: literal glob, not a regex. Prune the git dir and node_modules.
-  hits=$(find . -path ./.git -prune -o -name "$p" -type f -print 2>/dev/null || true)
+  # `build/` is PRUNED along with the git dir, and that is a fix rather than a
+  # loophole. `flutter build ipa` writes an `embedded.mobileprovision` into
+  # `build/ios/archive/.../Runner.app` — a copy Xcode puts there, in a
+  # gitignored directory that cannot be committed and that `flutter clean`
+  # deletes. This gate exists because "a credential committed and later deleted
+  # is in every clone forever", and nothing under `build/` can be committed.
+  #
+  # It was not a theoretical objection. `release.sh` runs this gate as
+  # precondition 7, so the FIRST release build on a machine left an artifact
+  # that made the second one refuse itself — a gate failing on the evidence
+  # that it had previously worked.
+  #
+  # The self-test pins both halves: green for a profile inside `build/`, red for
+  # one outside it, so this stays a path rule and not an amnesty on the pattern.
+  hits=$(find . \( -path ./.git -o -path ./build \) -prune -o \
+         -name "$p" -type f -print 2>/dev/null || true)
   if [ -n "$hits" ]; then
     echo "FAIL  signing material in the working tree:"
     echo "$hits" | sed 's/^/        /'
