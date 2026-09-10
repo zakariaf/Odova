@@ -142,16 +142,18 @@ cp "$PWD/tools/release.sh" "$PWD/tools/check_release_hygiene.sh" \
 cp "$PWD"/design/review/SIGNOFF-*.md "$release_scratch/design/review/"
 cp "$PWD"/release/checks/*.md "$release_scratch/release/checks/"
 cp "$PWD/release/uploaded-build-numbers.txt" "$release_scratch/release/"
+cp "$PWD/release/UNSIGNED-BUILD.md" "$release_scratch/release/"
 cp "$PWD/pubspec.yaml" "$PWD/CHANGELOG.md" "$release_scratch/"
 (
   cd "$release_scratch"
   git init -q . && git config user.email s@e && git config user.name s
-  # The real sign-off reads NOT SIGNED, deliberately and for stated reasons.
-  # The green arm needs a tree where every precondition HOLDS, so the scratch
-  # copy is signed — which is also what proves the signoff arm below is
-  # measuring the sign-off rather than something else that happens to be wrong.
-  sed -i.bak 's/NOT SIGNED/SIGNED OFF/' design/review/SIGNOFF-*.md
-  rm -f design/review/*.bak
+  # The real sign-off reads NOT SIGNED, deliberately and for stated reasons, and
+  # the scratch copy is left that way. The green arm holds on the OVERRIDE —
+  # release/UNSIGNED-BUILD.md, copied in above — which is the configuration the
+  # repo actually builds in today. Signing the scratch copy instead would make
+  # the green arm prove a path nobody takes, and would leave the override arm
+  # below unable to fail: with a signed sign-off, deleting the override changes
+  # nothing.
   git add -A >/dev/null 2>&1 && git commit -q -m init >/dev/null 2>&1
 )
 
@@ -167,12 +169,17 @@ assert 0 "release.sh --dry-run is green when every precondition holds" \
 # checks from the script entirely and all four arms still passed. Four gates
 # that had never been seen to fail, in the file whose whole purpose is that
 # they have.
-for arm in signoff buildnumber checks changelog; do
+for arm in signoff override buildnumber checks changelog; do
   cp -R "$release_scratch" "$release_scratch-$arm"
   case "$arm" in
-    signoff)     sed -i.bak 's/SIGNED OFF/PENDING/' \
-                   "$release_scratch-$arm"/design/review/SIGNOFF-*.md
-                 rm -f "$release_scratch-$arm"/design/review/*.bak ;;
+    # An override that names a DIFFERENT sign-off. The record is deliberately
+    # not a blank cheque: it names the review it overrides, so it cannot
+    # outlive it and silently authorise a build over the next one.
+    signoff)     sed -i.bak 's/SIGNOFF-[0-9-]*\.md/SIGNOFF-1999-01-01.md/' \
+                   "$release_scratch-$arm/release/UNSIGNED-BUILD.md"
+                 rm -f "$release_scratch-$arm"/release/*.bak ;;
+    # No record at all, over the unsigned review that is really there.
+    override)    rm -f "$release_scratch-$arm/release/UNSIGNED-BUILD.md" ;;
     buildnumber) echo 1 > "$release_scratch-$arm/release/uploaded-build-numbers.txt" ;;
     checks)      rm -f "$release_scratch-$arm"/release/checks/*.md ;;
     changelog)   rm -f "$release_scratch-$arm/CHANGELOG.md" ;;
