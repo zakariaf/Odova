@@ -22,6 +22,24 @@ const double kCalmTabFabSize = 62;
 /// `margin-block-start: -18px` — the + breaks the bar's top edge on purpose.
 const double kCalmTabFabLift = 18;
 
+/// How wide the content column is allowed to get.
+///
+/// The app runs on iPad — `TARGETED_DEVICE_FAMILY = "1,2"` — and every Calm
+/// screen is a single column of cards designed at 390pt. Uncapped on a 1024pt
+/// tablet that is not a tablet layout, it is a phone screen stretched: a due
+/// card a thousand points wide holding eight words, and a line of body text
+/// four times longer than anything typography wants to carry.
+///
+/// A cap rather than a tablet layout, because SPEC.md describes no split view,
+/// no sidebar and no iPad-only screen, and inventing one to fill the space
+/// would be a feature nobody asked for. 640 is wide enough that a phone-shaped
+/// column does not look marooned and narrow enough that the artboards' own
+/// proportions survive.
+///
+/// It binds on nothing the reference set describes: the artboards are 390pt
+/// wide and the goldens 375, so every capture in the repo is unchanged by it.
+const double kCalmMaxContentWidth = 640;
+
 /// `.modal-head__action` paints 44; Calm's floor is still 52.
 const double kCalmAppBarActionHeight = 44;
 
@@ -183,48 +201,57 @@ class CalmScaffold extends StatelessWidget {
             bottom: tabBar == null, // the tab bar draws its own bottom inset
             child: Column(
               children: [
-                ?appBar,
+                if (appBar != null) _Capped(child: appBar!),
                 Expanded(
-                  child: ListView.separated(
-                    controller: controller,
-                    // The tab bar's height is ADDED to the bottom padding, not
-                    // assumed away. `CalmChromeScope` has said `hasTabBar`
-                    // since EPIC-10 and exactly one caller read it — the
-                    // snackbar — so on every tab-root screen the last card sat
-                    // underneath the bar. On `settings` that was the About row,
-                    // which a user could not reach at all: the list ended, and
-                    // the thing it ended on was covered.
-                    //
-                    // `paddingOf().bottom` goes with it, because the bar is
-                    // drawn over the home indicator and the content has to
-                    // clear both.
-                    padding: EdgeInsetsDirectional.fromSTEB(
-                      space.screenPad,
-                      bodyPadBlock?.top ?? space.s5,
-                      space.screenPad,
-                      (bodyPadBlock?.bottom ?? space.s6) +
-                          (CalmChromeScope.hasTabBarIn(context)
-                              ? space.tabbarH +
-                                    MediaQuery.paddingOf(context).bottom
-                              : 0.0),
+                  child: _Capped(
+                    child: ListView.separated(
+                      controller: controller,
+                      // The tab bar's height is ADDED to the bottom padding,
+                      // not assumed away. `CalmChromeScope` has said
+                      // `hasTabBar` since EPIC-10 and exactly one caller read
+                      // it — the snackbar — so on every tab-root screen the
+                      // last card sat underneath the bar. On `settings` that
+                      // was the About row, which a user could not reach at
+                      // all: the list ended, and the thing it ended on was
+                      // covered.
+                      //
+                      // `paddingOf().bottom` goes with it, because the bar is
+                      // drawn over the home indicator and the content has to
+                      // clear both.
+                      padding: EdgeInsetsDirectional.fromSTEB(
+                        space.screenPad,
+                        bodyPadBlock?.top ?? space.s5,
+                        space.screenPad,
+                        (bodyPadBlock?.bottom ?? space.s6) +
+                            (CalmChromeScope.hasTabBarIn(context)
+                                ? space.tabbarH +
+                                      MediaQuery.paddingOf(context).bottom
+                                : 0.0),
+                      ),
+                      itemCount: children.length,
+                      separatorBuilder: (_, _) => SizedBox(
+                        height: bodyGap ?? (tight ? space.s4 : space.s5),
+                      ),
+                      itemBuilder: (_, i) => children[i],
                     ),
-                    itemCount: children.length,
-                    separatorBuilder: (_, _) => SizedBox(
-                      height: bodyGap ?? (tight ? space.s4 : space.s5),
-                    ),
-                    itemBuilder: (_, i) => children[i],
                   ),
                 ),
                 if (footer != null)
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(
-                      space.screenPad,
-                      footPadBlock?.top ?? space.s4,
-                      space.screenPad,
-                      footPadBlock?.bottom ?? space.s5,
+                  _Capped(
+                    child: Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(
+                        space.screenPad,
+                        footPadBlock?.top ?? space.s4,
+                        space.screenPad,
+                        footPadBlock?.bottom ?? space.s5,
+                      ),
+                      child: footer,
                     ),
-                    child: footer,
                   ),
+                // NOT capped. The tab bar is chrome, and every iPad app draws
+                // its bottom bar edge to edge; a 640pt bar floating in the
+                // middle of a 1024pt screen reads as a rendering fault rather
+                // than as a decision.
                 ?tabBar,
               ],
             ),
@@ -1056,4 +1083,33 @@ double calmSnackbarBottomInset(BuildContext context, {bool? overTabBar}) {
   return (hasBar ? space.tabbarH : 0.0) +
       MediaQuery.paddingOf(context).bottom +
       space.s3;
+}
+
+/// [child], never wider than [kCalmMaxContentWidth], centred in what is left.
+///
+/// Returns [child] UNTOUCHED when the cap does not bind, which is every phone
+/// and every capture in `design/reference/calm/`. The early return is not an
+/// optimisation — a zero `Padding` would paint the same — it is what lets a
+/// person read this and be certain the 112 parity captures and the goldens
+/// cannot have moved.
+class _Capped extends StatelessWidget {
+  const _Capped({required this.child});
+
+  /// What the cap applies to.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    // The width the PARENT offers, not `MediaQuery.sizeOf`. Inside `SafeArea`
+    // those differ by the display cutout in landscape, and padding computed
+    // from the larger of the two indents the column off centre by half a notch.
+    builder: (context, constraints) {
+      final slack = constraints.maxWidth - kCalmMaxContentWidth;
+      if (slack <= 0) return child;
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: slack / 2),
+        child: child,
+      );
+    },
+  );
 }

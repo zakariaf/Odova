@@ -51,12 +51,38 @@ const double kReferenceStatusBarHeight = 54;
 /// `--homebar-h`.
 const double kReferenceHomeBarHeight = 34;
 
+/// The surface a capture is taken on.
+///
+/// Carried rather than hard-coded because the same 28 screens are photographed
+/// twice for two different audiences: the parity sweep needs the reference
+/// phone and nothing else, and `tools/shoot_store.sh` needs whatever pixel
+/// sizes App Store Connect accepts that month. Both go through one code path,
+/// so a screen that renders correctly for one renders correctly for the other.
+typedef ParityDevice = ({
+  Size physical,
+  Size logical,
+  double dpr,
+  double statusBar,
+  double homeBar,
+});
+
+/// The device `design/reference/calm/` was shot on.
+const ParityDevice kReferenceDevice = (
+  physical: kReferencePhysical,
+  logical: kReferenceLogical,
+  dpr: kReferenceDpr,
+  statusBar: kReferenceStatusBarHeight,
+  homeBar: kReferenceHomeBarHeight,
+);
+
 /// One capture configuration.
 typedef ParityCase = ({
   String theme,
   String dir,
   Locale locale,
   ThemeMode mode,
+  ParityDevice device,
+  String outDir,
 });
 
 /// Whether [config] is one of the two right-to-left combinations.
@@ -88,10 +114,38 @@ List<Locale> artboardDeviceLocales(Locale locale) => [
 /// bugs live, so a screen checked only in light LTR has been checked in the
 /// configuration least likely to be broken.
 const List<ParityCase> kParityCases = [
-  (theme: 'light', dir: 'ltr', locale: Locale('en'), mode: ThemeMode.light),
-  (theme: 'dark', dir: 'ltr', locale: Locale('en'), mode: ThemeMode.dark),
-  (theme: 'light', dir: 'rtl', locale: Locale('fa'), mode: ThemeMode.light),
-  (theme: 'dark', dir: 'rtl', locale: Locale('fa'), mode: ThemeMode.dark),
+  (
+    theme: 'light',
+    dir: 'ltr',
+    locale: Locale('en'),
+    mode: ThemeMode.light,
+    device: kReferenceDevice,
+    outDir: kParityOutDir,
+  ),
+  (
+    theme: 'dark',
+    dir: 'ltr',
+    locale: Locale('en'),
+    mode: ThemeMode.dark,
+    device: kReferenceDevice,
+    outDir: kParityOutDir,
+  ),
+  (
+    theme: 'light',
+    dir: 'rtl',
+    locale: Locale('fa'),
+    mode: ThemeMode.light,
+    device: kReferenceDevice,
+    outDir: kParityOutDir,
+  ),
+  (
+    theme: 'dark',
+    dir: 'rtl',
+    locale: Locale('fa'),
+    mode: ThemeMode.dark,
+    device: kReferenceDevice,
+    outDir: kParityOutDir,
+  ),
 ];
 
 /// Registers the fonts a capture needs, once per file.
@@ -130,8 +184,9 @@ Future<void> captureParity(
 }) async {
   // Pin the surface. Without the tear-down the next test in the file inherits
   // this phone, which is a confusing way to fail an unrelated assertion.
-  tester.view.physicalSize = kReferencePhysical;
-  tester.view.devicePixelRatio = kReferenceDpr;
+  final device = config.device;
+  tester.view.physicalSize = device.physical;
+  tester.view.devicePixelRatio = device.dpr;
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
@@ -140,13 +195,13 @@ Future<void> captureParity(
       // `disableAnimations` collapses Calm's durations to zero, so the frame is
       // deterministic without `pumpAndSettle` — which asserts nothing once the
       // animation it would settle has already been collapsed.
-      data: const MediaQueryData(
+      data: MediaQueryData(
         // The reference device. A bare `MediaQueryData` has `Size.zero`, and a
         // widget that sizes itself from `MediaQuery.sizeOf` therefore measures
         // ZERO — `CalmSheet` caps its height at a fraction of the screen, so
         // `vehicle.switcher` photographed as a 390x0 strip at the bottom of an
         // otherwise correct frame. Nothing captured before it read the size.
-        size: kReferenceLogical,
+        size: device.logical,
         textScaler: TextScaler.noScaling,
         disableAnimations: true,
         // The reference artboards draw a 54pt status bar and a 34pt home
@@ -156,8 +211,8 @@ Future<void> captureParity(
         // the reference's band edges are absent" and says nothing about the
         // screen. `SafeArea` inside `CalmScaffold` reads this.
         padding: EdgeInsets.only(
-          top: kReferenceStatusBarHeight,
-          bottom: kReferenceHomeBarHeight,
+          top: device.statusBar,
+          bottom: device.homeBar,
         ),
       ),
       child: MaterialApp(
@@ -236,8 +291,10 @@ Future<void> captureParity(
     await tester.pump();
   }
 
-  final bytes = await _pngOf(tester);
-  final file = File('$kParityOutDir/$screen-${config.theme}-${config.dir}.png');
+  final bytes = await _pngOf(tester, device.dpr);
+  final file = File(
+    '${config.outDir}/$screen-${config.theme}-${config.dir}.png',
+  );
   // Inside `runAsync`, like the capture above and for the same reason: a widget
   // test runs in a fake-async zone, and a `dart:io` future never completes
   // there. Awaiting one is not slow, it is permanent — and because it happens
@@ -269,7 +326,7 @@ final _themes = <(Brightness, CalmType), ThemeData>{
 /// The boundary the capture is taken from.
 const _boundaryKey = ValueKey<String>('parity-capture');
 
-Future<Uint8List> _pngOf(WidgetTester tester) async {
+Future<Uint8List> _pngOf(WidgetTester tester, double dpr) async {
   // `toImage` and `toByteData` are real async work, so they run inside
   // `runAsync` — the fake async zone a widget test lives in never completes
   // them.
@@ -277,7 +334,7 @@ Future<Uint8List> _pngOf(WidgetTester tester) async {
     final boundary = tester.renderObject<RenderRepaintBoundary>(
       find.byKey(_boundaryKey),
     );
-    return boundary.toImage(pixelRatio: kReferenceDpr);
+    return boundary.toImage(pixelRatio: dpr);
   });
   final data = await tester.runAsync(
     () => image!.toByteData(format: ui.ImageByteFormat.png),

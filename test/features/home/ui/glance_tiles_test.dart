@@ -49,6 +49,30 @@ Future<void> _pump(
 void main() {
   setUpAll(loadAppFonts);
 
+  testWidgets('the three tiles are the same width', (tester) async {
+    // §9 calls the row a three-column GRID, and a grid's columns are equal.
+    // They were not: a tile showing `—` wraps in `CalmPressable` so its dash
+    // can explain itself, and the pressable sized itself to its child instead
+    // of filling the `Expanded` it sits in. The consumption tile is the one
+    // that gets the pressable, so on the home screen of every user who has not
+    // logged two fill-ups yet — which is every new user — the first of the
+    // three tiles was visibly narrower than the other two.
+    //
+    // Invisible to every existing test here: they all assert text and taps,
+    // and the parity band profile reads horizontal edges, not vertical ones.
+    await _pump(tester);
+
+    final widths = tester
+        .widgetList<CalmTile>(find.byType(CalmTile))
+        .map((tile) => tester.getSize(find.byWidget(tile)).width)
+        .toSet();
+    expect(
+      widths,
+      hasLength(1),
+      reason: 'the three tiles came out at $widths',
+    );
+  });
+
   testWidgets('a tile with a value is not tappable', (tester) async {
     await _pump(tester, consumption: _sixPointFour);
 

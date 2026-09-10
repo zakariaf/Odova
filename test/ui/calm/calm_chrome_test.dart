@@ -35,6 +35,14 @@ void main() {
   testWidgets('the scaffold pads its body by screenPad inline and mirrors', (
     tester,
   ) async {
+    // A PHONE, not the harness's default 800x600. `kCalmMaxContentWidth` caps
+    // the content column, and 800 is wider than the cap — so the default view
+    // measures the gutter plus 80pt of tablet inset and this reads 102 for a
+    // 22pt token. The gutter is a phone rule; measure it on a phone.
+    tester.view.physicalSize = const Size(780, 1688);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+
     for (final (locale, mirrored) in [('en', false), ('fa', true)]) {
       await pumpApp(
         tester,

@@ -110,7 +110,7 @@ class _ArtboardHistoryRepository implements HistoryRepository {
       minorUnits: 2650,
       currency: 'EUR',
       odometerM: 145000,
-      label: 'München → Salzburg',
+      label: 'München – Salzburg',
       secondaryLabel: 'business',
     ),
   ];
