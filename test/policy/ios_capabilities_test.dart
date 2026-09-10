@@ -56,6 +56,28 @@ void main() {
     );
   });
 
+  test('export compliance is answered in the plist, not per upload', () {
+    // Every upload otherwise stops on a question whose answer never changes.
+    // §2's app has no encryption to declare: no HTTPS because there is no
+    // network, and §2's backup is a plain, unencrypted JSON file. `crypto`
+    // hashes inside that file for integrity, and hashing is not encryption.
+    //
+    // Declaring it false here rather than answering "no" in the web form each
+    // time removes the one gate that a person had to remember, and pins the
+    // answer to the same review that reads this file. Answering "yes, standard
+    // algorithms" out of caution inherits an annual self-classification report
+    // this app does not owe.
+    expect(
+      RegExp(
+        r'<key>ITSAppUsesNonExemptEncryption</key>\s*<(true|false)/>',
+      ).firstMatch(_plist())?.group(1),
+      'false',
+      reason:
+          'the plist must answer export compliance false — otherwise every '
+          'upload stops on a question whose answer is already decided',
+    );
+  });
+
   test('no App Transport Security exception is declared', () {
     // The single most visible contradiction a reviewer can find in an app that
     // claims zero network calls, and it arrives by copy-paste from a
