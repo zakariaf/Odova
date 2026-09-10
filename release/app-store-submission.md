@@ -36,7 +36,7 @@ symptom rather than the setting, so each is raised on day one and dated here.
 | Gate | Who | Status | Date |
 |---|---|---|---|
 | App record created in App Store Connect (`io.applander.odova`) | Account Holder | not done | — |
-| Bundle ID registered on the Developer portal | Account Holder | not done | — |
+| Bundle ID registered on the Developer portal | Account Holder | **done** — `io.applander.odova`, resource id `AN23Q8L9KB`, name "Odova", platform Universal | 2026-09-10 |
 | Privacy questionnaire answered (from `store/privacy-answers.md`) | Account Holder | not done | — |
 | Age rating questionnaire | Account Holder | not done | — |
 | Paid Applications Agreement | Account Holder | **not required** — free app, no IAP | 2026-09-09 |
@@ -51,6 +51,27 @@ integrity — hashing is not encryption, and the exemption for it is standard.
 The answer is therefore "no" to the encryption question, and the reason is
 written here so nobody answers "yes, standard algorithms" out of caution and
 inherits an annual self-classification report they do not owe.
+
+## The bundle identifier
+
+`io.applander.odova`, registered 2026-09-10 through the App Store Connect API.
+Its resource id is `AN23Q8L9KB` and its platform is **Universal** — Apple
+returns Universal for a newly created identifier regardless of what the request
+asks for, which costs nothing and leaves a Mac target open if one is ever
+wanted.
+
+The identifier is pinned by `test/policy/platform_test.dart`, which asserts
+both `PRODUCT_BUNDLE_IDENTIFIER` and the Android `applicationId`. It is not a
+credential and is recorded here on purpose; the team id is not, because the
+Xcode project deliberately carries no `DEVELOPMENT_TEAM` and CI supplies it.
+
+**Apple enabled `IN_APP_PURCHASE` on the identifier by default.** That is the
+portal's behaviour for every new bundle id and is not a claim that the app has
+one. It does not affect the no-IAP position above: Guideline 2.1(b) is about a
+submitted in-app purchase *product*, and `reviewSubmissions/{id}/items` counts
+products rather than capabilities. There are none, `test/policy/no_iap_test.dart`
+keeps it that way, and the capability can be switched off in the portal if a
+reviewer ever asks why it is on.
 
 ## Who holds what
 
