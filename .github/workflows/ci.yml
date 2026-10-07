@@ -493,7 +493,7 @@ jobs:
       # Contract: the coverage number leaves this pipeline as a downloadable
       # report and nothing else. `if: always()` so a red test run still
       # publishes what it managed to collect.
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: coverage-lcov
@@ -557,7 +557,7 @@ jobs:
       # actual/expected/diff triple, and without this they die with the runner.
       - name: keep the failure images
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: golden-failures
           path: test/ui/calm/goldens/failures/

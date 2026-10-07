@@ -126,7 +126,7 @@ jobs:
         # BEFORE anything could be uploaded, and kept for the life of the build
         # rather than the life of the run.
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: symbols-${{ github.ref_name }}
           path: build/symbols/
@@ -134,7 +134,7 @@ jobs:
 
       - name: Archive the IPA
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ipa-${{ github.ref_name }}
           path: build/ios/ipa/*.ipa
